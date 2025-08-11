@@ -394,6 +394,7 @@ class CallSub(Op):
     returns: int
     consumes: int = attrs.field(init=False)
     produces: Sequence[str] = attrs.field()
+    can_branch: bool = attrs.field()
 
     @consumes.default
     def _consumes(self) -> int:
@@ -402,6 +403,12 @@ class CallSub(Op):
     @produces.validator
     def _validate_produces(self, _: object, value: Sequence[str]) -> None:
         assert len(value) == self.returns, "invalid produces size"
+
+    @can_branch.validator
+    def _validate_can_branch(self, _: object, can_branch: bool) -> None:  # noqa: FBT001
+        if can_branch:
+            assert self.parameters == 0, "can't branch to subroutine with parameters"
+            assert self.returns == 0, "can't branch to subroutine with returns"
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_callsub(self)

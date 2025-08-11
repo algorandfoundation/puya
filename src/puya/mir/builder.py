@@ -106,6 +106,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 returns=1,
                 produces=_produces_from_op(_NEW_SLOT_SUB, 1, self.active_op),
                 source_location=new_slot.source_location,
+                can_branch=False,
             )
         )
 
@@ -269,6 +270,18 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_invoke_subroutine(self, callsub: ir.InvokeSubroutine) -> None:
         target = callsub.target
 
+        if target.parameters or target.returns:
+            can_branch = False
+        else:
+            for block in target.body:
+                if type(block.terminator) is ir.SubroutineReturn:
+                    can_branch = False
+                    break
+            else:
+                # we can just branch, no parameters, and it never returns (via retsub),
+                # so won't require a proto
+                can_branch = True
+
         callsub_op = models.CallSub(
             target=self.context.subroutine_names[target],
             parameters=len(target.parameters),
@@ -277,6 +290,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 self.context.subroutine_names[target], len(target.returns), self.active_op
             ),
             source_location=callsub.source_location,
+            can_branch=can_branch,
         )
 
         # prepare args

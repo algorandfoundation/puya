@@ -430,7 +430,7 @@ def _build_abi_wrapper(
         args=[],
         return_type=wtypes.void_wtype,
         body=awst_nodes.Block(
-            body=[call_and_maybe_log],
+            body=[call_and_maybe_log, approve(abi_loc)],
             source_location=location,
         ),
         documentation=awst_nodes.MethodDocumentation(),
@@ -498,7 +498,6 @@ def route_abi_methods(
                     source_location=location,
                 )
             ),
-            approve(abi_loc),
         )
 
     default_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
@@ -517,7 +516,6 @@ def route_abi_methods(
                     source_location=location,
                 )
             ),
-            approve(abi_loc),
         )
 
     default_routing_switch = _maybe_switch(method_arg(), default_routing_cases)
@@ -601,10 +599,7 @@ def create_abi_router(
     )
     router: list[awst_nodes.Statement]
     if not bare_methods:
-        router = [
-            *abi_routing.body,
-            reject(router_location),
-        ]
+        router = [*abi_routing.body]
     else:
         bare_routing = route_bare_methods(router_location, bare_methods)
         router = [
@@ -613,8 +608,7 @@ def create_abi_router(
                 if_branch=abi_routing,
                 else_branch=bare_routing,
                 source_location=router_location,
-            ),
-            reject(router_location),
+            )
         ]
     approval_program = awst_nodes.ContractMethod(
         cref=contract.id,
@@ -622,7 +616,7 @@ def create_abi_router(
         source_location=router_location,
         args=[],
         return_type=wtypes.bool_wtype,
-        body=create_block(router_location, None, *router),
+        body=create_block(router_location, None, *router, reject(router_location)),
         documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
         inline=True,

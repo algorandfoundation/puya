@@ -587,6 +587,7 @@ class Match(ControlOp):
 class CallSub(TealOp):
     target: str
     op_code: str = attrs.field(default="callsub", init=False)
+    can_branch: bool
 
     @property
     def immediates(self) -> Sequence[int | str]:

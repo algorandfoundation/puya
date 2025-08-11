@@ -304,6 +304,7 @@ class TealBuilder(MIRVisitor[None]):
                 produces=callsub.returns,
                 stack_manipulations=_lstack_manipulations(callsub),
                 source_location=callsub.source_location,
+                can_branch=callsub.can_branch,
             )
         )
 
