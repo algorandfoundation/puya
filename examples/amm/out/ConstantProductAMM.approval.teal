@@ -489,8 +489,8 @@ mint:
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     ==
     bz mint_bool_false@4
-    frame_dig 6
-    frame_dig 3
+    dup
+    dig 4
     ==
     bz mint_bool_false@4
     intc_1 // 1
@@ -501,8 +501,8 @@ mint_bool_merge@5:
     bz mint_after_if_else@7
     // amm/contract.py:336
     // return op.sqrt(a_amount * b_amount) - SCALE
-    frame_dig 2
-    frame_dig 3
+    dig 4
+    dig 4
     *
     sqrt
     intc_2 // 1000
@@ -542,41 +542,41 @@ mint_after_if_else@7:
     // amm/contract.py:337
     // issued = TOTAL_SUPPLY - pool_balance
     intc 4 // 10000000000
-    frame_dig 4
+    dig 3
     -
     // amm/contract.py:338
     // a_ratio = SCALE * a_amount // (a_balance - a_amount)
     intc_2 // 1000
-    frame_dig 2
+    dig 6
     dup
     cover 2
     *
-    frame_dig 5
+    dig 4
     uncover 2
     -
     /
     dup
-    frame_bury 0
+    bury 9
     // amm/contract.py:339
     // b_ratio = SCALE * b_amount // (b_balance - b_amount)
     intc_2 // 1000
-    frame_dig 3
+    dig 6
     dup
     cover 2
     *
-    frame_dig 6
+    dig 4
     uncover 2
     -
     /
     dup
-    frame_bury 1
+    bury 9
     // amm/contract.py:340
     // if a_ratio < b_ratio:
     <
     bz mint_else_body@9
     // amm/contract.py:341
     // return a_ratio * issued // SCALE
-    frame_dig 0
+    dig 7
     *
     intc_2 // 1000
     /
@@ -593,7 +593,7 @@ mint_after_if_else@7:
 mint_else_body@9:
     // amm/contract.py:343
     // return b_ratio * issued // SCALE
-    frame_dig 1
+    dig 6
     *
     intc_2 // 1000
     /
@@ -849,7 +849,7 @@ swap_switch_case_1@3:
     // amm/contract.py:240
     // in_supply = self._current_a_balance()
     callsub _current_a_balance
-    frame_bury 0
+    bury 3
     // amm/contract.py:241
     // out_supply = self._current_b_balance()
     callsub _current_b_balance
@@ -859,14 +859,14 @@ swap_switch_case_1@3:
     bytec_1 // "asset_b"
     app_global_get_ex
     swap
-    frame_bury 1
+    bury 4
     assert // check self.asset_b exists
 
 swap_switch_case_next@5:
     // amm/contract.py:354
     // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
-    frame_dig 0
-    frame_dig 2
+    dig 3
+    dig 2
     dup
     cover 2
     -
@@ -894,7 +894,7 @@ swap_switch_case_next@5:
     // amm/contract.py:251
     // do_asset_transfer(receiver=Txn.sender, asset=out_asset, amount=to_swap)
     txn Sender
-    frame_dig 1
+    dig 3
     uncover 2
     callsub do_asset_transfer
     // amm/contract.py:252
@@ -915,7 +915,7 @@ swap_switch_case_0@2:
     // amm/contract.py:236
     // in_supply = self._current_b_balance()
     callsub _current_b_balance
-    frame_bury 0
+    bury 3
     // amm/contract.py:237
     // out_supply = self._current_a_balance()
     callsub _current_a_balance
@@ -925,7 +925,7 @@ swap_switch_case_0@2:
     bytec_0 // "asset_a"
     app_global_get_ex
     swap
-    frame_bury 1
+    bury 4
     assert // check self.asset_a exists
     b swap_switch_case_next@5
 
