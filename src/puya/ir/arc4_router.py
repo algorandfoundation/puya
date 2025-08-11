@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 
 import attrs
 
@@ -161,7 +161,7 @@ def route_bare_methods(
         bare_block = create_block(
             bare_location,
             sig.target.member_name,
-            *assert_create_state(method),
+            *assert_create_state(method.create, bare_location),
             awst_nodes.ExpressionStatement(expr=call(bare_location, sig)),
             approve(bare_location),
         )
@@ -209,9 +209,11 @@ def log_arc4_result(
     return awst_nodes.ExpressionStatement(log_op)
 
 
-def assert_create_state(method: md.ARC4Method) -> Sequence[awst_nodes.Statement]:
-    app_id = _txn("ApplicationID", wtypes.uint64_wtype, method.config_location)
-    match method.create:
+def assert_create_state(
+    create: awst_nodes.ARC4CreateOption, loc: SourceLocation
+) -> Sequence[awst_nodes.Statement]:
+    app_id = _txn("ApplicationID", wtypes.uint64_wtype, loc)
+    match create:
         case awst_nodes.ARC4CreateOption.allow:
             # if create is allowed but not required, we don't need to check anything
             return ()
@@ -228,7 +230,7 @@ def assert_create_state(method: md.ARC4Method) -> Sequence[awst_nodes.Statement]
             awst_nodes.AssertExpression(
                 condition=condition,
                 error_message=error_message,
-                source_location=method.config_location,
+                source_location=loc,
             )
         )
     ]
@@ -439,55 +441,112 @@ def _build_abi_wrapper(
     return wrapper_method
 
 
+def _check_for_duplicates(methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature]) -> None:
+    seen_signatures = set[str]()
+    duplicate_errors = [
+        CodeError(
+            f"Cannot have duplicate ARC-4 method signatures: {method.signature}",
+            method.config_location,
+        )
+        for method in methods
+        if not set_add(seen_signatures, method.signature)
+    ]
+    if duplicate_errors:
+        raise ExceptionGroup("ARC-4 signature errors", duplicate_errors)
+
+
 def route_abi_methods(
-    method_arg: awst_nodes.Expression,
+    method_arg: Callable[[], awst_nodes.Expression],
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
-    method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
-    seen_signatures = set[str]()
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
-    allowed_oca_set = {m.allowed_completion_types for m in methods}
-    pre_checks = list[awst_nodes.Statement]()
-    try:
-        (single_allowed_oca,) = allowed_oca_set
-    except ValueError:
-        check_oca = True
-    else:
-        check_oca = False
-        pre_checks.extend(check_allowed_oca(single_allowed_oca, location))
+
+    custom_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    default_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        arc4_signature = method.signature
-        if not set_add(seen_signatures, arc4_signature):
-            raise CodeError(
-                f"Cannot have duplicate ARC-4 method signatures: {arc4_signature}", abi_loc
-            )
         wrapper_method = _build_abi_wrapper(method, sig, location)
         arc4_wrapper_methods.append(wrapper_method)
-        method_routing_cases[
-            awst_nodes.MethodConstant(source_location=location, value=arc4_signature)
-        ] = create_block(
-            abi_loc,
-            f"{method.name}_route",
-            *(check_allowed_oca(method.allowed_completion_types, abi_loc) if check_oca else ()),
-            *assert_create_state(method),
-            awst_nodes.ExpressionStatement(
-                awst_nodes.SubroutineCallExpression(
-                    target=awst_nodes.SubroutineID(wrapper_method.id),
-                    args=[],
-                    wtype=wtypes.void_wtype,
-                    source_location=location,
+
+        match method:
+            case md.ARC4ABIMethod(
+                allowed_completion_types=[OnCompletionAction.NoOp],
+                create=awst_nodes.ARC4CreateOption.disallow,
+            ):
+                default_routing_cases[
+                    awst_nodes.MethodConstant(source_location=location, value=method.signature)
+                ] = create_block(
+                    abi_loc,
+                    f"{method.name}_route",
+                    awst_nodes.ExpressionStatement(
+                        awst_nodes.SubroutineCallExpression(
+                            target=awst_nodes.SubroutineID(wrapper_method.id),
+                            args=[],
+                            wtype=wtypes.void_wtype,
+                            source_location=location,
+                        )
+                    ),
+                    approve(abi_loc),
                 )
+            case _:
+                custom_routing_cases[
+                    awst_nodes.MethodConstant(source_location=location, value=method.signature)
+                ] = create_block(
+                    abi_loc,
+                    f"{method.name}_route",
+                    *check_allowed_oca(method.allowed_completion_types, abi_loc),
+                    *assert_create_state(method.create, abi_loc),
+                    awst_nodes.ExpressionStatement(
+                        awst_nodes.SubroutineCallExpression(
+                            target=awst_nodes.SubroutineID(wrapper_method.id),
+                            args=[],
+                            wtype=wtypes.void_wtype,
+                            source_location=location,
+                        )
+                    ),
+                    approve(abi_loc),
+                )
+    default_routing_switch = _maybe_switch(method_arg(), default_routing_cases)
+    custom_routing_switch = _maybe_switch(method_arg(), custom_routing_cases)
+
+    if default_routing_switch and custom_routing_switch:
+        abi_routing_block = create_block(
+            location,
+            "abi_routing",
+            awst_nodes.IfElse(
+                condition=_is_zero(on_completion(location)),
+                if_branch=create_block(
+                    location,
+                    "simple_routes",
+                    *assert_create_state(awst_nodes.ARC4CreateOption.disallow, location),
+                    *default_routing_switch,
+                ),
+                else_branch=create_block(
+                    location,
+                    "other_routes",
+                    *custom_routing_switch,
+                ),
+                source_location=location,
             ),
-            approve(abi_loc),
         )
-    return create_block(
-        location,
-        "abi_routing",
-        *pre_checks,
-        *_maybe_switch(method_arg, method_routing_cases),
-    ), arc4_wrapper_methods
+    elif default_routing_switch:
+        abi_routing_block = create_block(
+            location,
+            "abi_routing",
+            *check_allowed_oca([OnCompletionAction.NoOp], location),
+            *assert_create_state(awst_nodes.ARC4CreateOption.disallow, location),
+            *default_routing_switch,
+        )
+    elif custom_routing_switch:
+        abi_routing_block = create_block(
+            location,
+            "abi_routing",
+            *custom_routing_switch,
+        )
+    else:
+        abi_routing_block = create_block(location, "abi_routing")
+    return abi_routing_block, arc4_wrapper_methods
 
 
 def _maybe_switch(
@@ -522,8 +581,11 @@ def create_abi_router(
         method_arg_error_message = None
     else:
         method_arg_error_message = "contract does not allow bare method calls"
-    method_arg = _txn_app_args(0, router_location, error_message=method_arg_error_message)
-    abi_routing, abi_wrapper_methods = route_abi_methods(method_arg, router_location, abi_methods)
+    abi_routing, abi_wrapper_methods = route_abi_methods(
+        lambda: _txn_app_args(0, router_location, error_message=method_arg_error_message),
+        router_location,
+        abi_methods,
+    )
     router: list[awst_nodes.Statement]
     if not bare_methods:
         router = [
