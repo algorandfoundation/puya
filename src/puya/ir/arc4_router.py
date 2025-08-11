@@ -127,7 +127,9 @@ def _is_zero(value: awst_nodes.Expression) -> awst_nodes.Expression:
     )
 
 
-def return_(value: bool, location: SourceLocation) -> awst_nodes.Statement:  # noqa: FBT001
+def return_(
+    value: bool, location: SourceLocation, *, message: str | None = None
+) -> awst_nodes.Statement:
     return awst_nodes.ExpressionStatement(
         awst_nodes.IntrinsicCall(
             op_code="return",
@@ -135,12 +137,13 @@ def return_(value: bool, location: SourceLocation) -> awst_nodes.Statement:  # n
             stack_args=[awst_nodes.BoolConstant(value=value, source_location=location)],
             wtype=wtypes.void_wtype,
             source_location=location,
+            error_message=message,
         )
     )
 
 
 def reject(location: SourceLocation) -> awst_nodes.Statement:
-    return return_(False, location)  # noqa: FBT003
+    return return_(False, location, message="unroutable method call")  # noqa: FBT003
 
 
 def approve(location: SourceLocation) -> awst_nodes.Statement:
@@ -243,9 +246,9 @@ def constant(value: int, location: SourceLocation) -> awst_nodes.Expression:
 def left_shift(value: awst_nodes.Expression, location: SourceLocation) -> awst_nodes.Expression:
     return awst_nodes.UInt64BinaryOperation(
         source_location=location,
-        left=constant(1, location),
+        left=value,
         op=awst_nodes.UInt64BinaryOperator.lshift,
-        right=value,
+        right=constant(1, location),
     )
 
 
