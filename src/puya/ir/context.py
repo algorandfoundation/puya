@@ -91,6 +91,11 @@ class IRBuildContext(CompileContext):
                         member_name, source_location, start=start_at
                     )
                 case awst_nodes.InstanceSuperMethodTarget(member_name=member_name):
+                    if not isinstance(caller, awst_nodes.ContractMethod):
+                        raise CodeError(
+                            "call to contract method from outside of contract class",
+                            source_location,
+                        )
                     func = contract.resolve_contract_method(
                         member_name, source_location, start=caller.cref, skip=True
                     )

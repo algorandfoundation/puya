@@ -238,7 +238,8 @@ def _optimize_program_ir(
     qualifier: str,
 ) -> None:
     logger.debug(
-        f"optimizing {program.kind} program of {artifact_ir.metadata.ref} at level {context.options.optimization_level}"
+        f"optimizing {program.kind} program of {artifact_ir.metadata.ref}"
+        f" at level {context.options.optimization_level}"
     )
     optimize_program_ir(context, program, qualifier=qualifier)
 
