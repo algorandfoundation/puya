@@ -4,27 +4,30 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 6 0 5 2
-    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0x0003 0x818e4a62 0x59664ab6 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0xbb3bfdb7 0xd28b964a
+    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0x0003 0x818e4a62 0x59664ab6 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0xbb3bfdb7 0xd28b964a
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@11
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@14
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x5df19773 0xba041cd5 0x8441664a 0xcaa62e2c 0x38357d5e 0xe473c70a // method "test_fixed_struct()void", method "test_nested_struct()void", method "test_dynamic_struct()void", method "test_fixed_array()void", method "test_native_array()void", method "test_log()void"
     txna ApplicationArgs 0
-    match main_test_fixed_struct_route@3 main_test_nested_struct_route@4 main_test_dynamic_struct_route@5 main_test_fixed_array_route@6 main_test_native_array_route@7 main_test_log_route@8
+    match main_test_fixed_struct_route@4 main_test_nested_struct_route@5 main_test_dynamic_struct_route@6 main_test_fixed_array_route@7 main_test_native_array_route@8 main_test_log_route@9
     err
 
-main_test_log_route@8:
+main_test_log_route@9:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -146,13 +149,13 @@ main_test_log_route@8:
     itxn_submit
     return
 
-main_test_native_array_route@7:
+main_test_native_array_route@8:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -273,13 +276,13 @@ main_test_native_array_route@7:
     itxn_submit
     return
 
-main_test_fixed_array_route@6:
+main_test_fixed_array_route@7:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -396,13 +399,13 @@ main_test_fixed_array_route@6:
     itxn_submit
     return
 
-main_test_dynamic_struct_route@5:
+main_test_dynamic_struct_route@6:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -587,13 +590,13 @@ main_test_dynamic_struct_route@5:
     itxn_submit
     return
 
-main_test_nested_struct_route@4:
+main_test_nested_struct_route@5:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -710,13 +713,13 @@ main_test_nested_struct_route@4:
     itxn_submit
     return
 
-main_test_fixed_struct_route@3:
+main_test_fixed_struct_route@4:
     itxn_begin
     intc_2 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiABACYGBBUffHUMZml4ZWRfc3RydWN0DW5lc3RlZF9zdHJ1Y3QOZHluYW1pY19zdHJ1Y3QJZml4ZWRfYXJyCm5hdGl2ZV9hcnKBATEbQQDgMRlAAMMxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+    bytec_2 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyIzEbQQDjMRgUIzEZkAiBCiJPAo4CAMEAAQCCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwBmAF0AVwBOAEgAPwA4AC4AJwAdAAEAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwQyInBWVEKExQsEMnBTYaAWdDIicEZUQoTFCwQycENhoBZ0MiK2VEKExQsEMrNhoBZ0MiKmVEKExQsEMqNhoBZ0MiKWVEKExQsEMpNhoBZ0OABCQ3jTw2GgCOAQABAEMxGRREMRgUREM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -823,7 +826,7 @@ main_test_fixed_struct_route@3:
     itxn_submit
     return
 
-main_bare_routing@11:
+main_bare_routing@14:
     txn OnCompletion
     !
     assert

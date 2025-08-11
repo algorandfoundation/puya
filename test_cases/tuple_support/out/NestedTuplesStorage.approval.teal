@@ -47,35 +47,34 @@ main_after_if_else@2:
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@12
-    txn OnCompletion
-    bnz main_other_routes@10
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
-    txna ApplicationArgs 0
-    match mutate_tuple mutate_box mutate_global mutate_local
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    switch main_switch_case_1@7 main_after_if_else@14 main_switch_case_0@5
+
+main_after_if_else@14:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
     err
 
-main_other_routes@10:
+main_switch_case_0@5:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     pushbytes 0xbec76d87 // method "bootstrap()void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@11
+    match bootstrap
     err
 
-main_bootstrap_route@11:
-    // tuple_support/tuple_storage.py:23
-    // @arc4.abimethod(allow_actions=["OptIn"])
-    txn OnCompletion
-    intc_1 // OptIn
-    ==
-    assert // OnCompletion is not OptIn
-    txn ApplicationID
-    assert // can only call when not creating
+main_switch_case_1@7:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
-    b bootstrap
+    pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
+    txna ApplicationArgs 0
+    match mutate_tuple mutate_box mutate_global mutate_local
+    err
 
 main_bare_routing@12:
     // tuple_support/tuple_storage.py:11

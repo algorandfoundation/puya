@@ -11,25 +11,28 @@ main:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@9
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
     match append modify get
     err
 
-main_bare_routing@8:
+main_bare_routing@9:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@9
+    switch main___algopy_default_create@11 main_opt_in@10
     err
 
-main_opt_in@9:
+main_opt_in@10:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
@@ -79,7 +82,7 @@ main_opt_in@9:
     // @arc4.baremethod(allow_actions=["OptIn"])
     return
 
-main___algopy_default_create@10:
+main___algopy_default_create@11:
     txn ApplicationID
     !
     assert // can only call when creating

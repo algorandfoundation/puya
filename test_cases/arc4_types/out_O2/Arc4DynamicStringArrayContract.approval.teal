@@ -5,23 +5,26 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@10
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x6b10e527 0x94ddb1c2 // method "xyz()string[]", method "xyz_raw()string[]"
     txna ApplicationArgs 0
-    match main_xyz_route@3 main_xyz_route@3
+    match main_xyz_route@4 main_xyz_route@4
     err
 
-main_xyz_route@3:
+main_xyz_route@4:
     pushbytes 0x151f7c75000300060009000c00015800015900015a
     log
     return
 
-main_bare_routing@7:
+main_bare_routing@10:
     txn OnCompletion
     !
     assert

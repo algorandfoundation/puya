@@ -4,40 +4,46 @@ subroutine main:
     main_block@0:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%0#1
-        method create(byte[32])void                                                            tmp%0#1,Method(create(byte[32])void)
-        method verify(byte[32][],byte[32])bool                                                 tmp%0#1,Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
-        l-load tmp%0#1 2                                                                       Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%0#1
-        match main_create_route@2 main_verify_route@3 ; b main_switch_case_next@5
+        txn ApplicationID                                                                      tmp%0#1
+        !                                                                                      tmp%1#0
+        txn OnCompletion                                                                       tmp%1#0,tmp%2#0
+        int 1                                                                                  tmp%1#0,tmp%2#0,1
+        l-load tmp%2#0 1                                                                       tmp%1#0,1,tmp%2#0
+        shl                                                                                    tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                       tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                       tmp%1#0,tmp%3#0
+        +                                                                                      tmp%4#0
+        switch main_switch_case_1@6 main_switch_case_0@2 ; b main_switch_case_next@11
 
-    main_create_route@2:
-        // merkle/contract.py:10
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                       tmp%1#0
-        !                                                                                      tmp%2#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%3#0
-        !                                                                                      tmp%4#0
-        assert // can only call when creating
+    main_switch_case_0@2:
+        // merkle/contract.py:9
+        // class MerkleTree(arc4.ARC4Contract):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%5#0
+        method create(byte[32])void                                                            tmp%5#0,Method(create(byte[32])void)
+        l-load tmp%5#0 1                                                                       Method(create(byte[32])void),tmp%5#0
+        match main_create_route@3 ; b main_switch_case_next@11
+
+    main_create_route@3:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         callsub create
-        b main_switch_case_next@5
+        b main_switch_case_next@11
 
-    main_verify_route@3:
-        // merkle/contract.py:14
-        // @arc4.abimethod
-        txn OnCompletion                                                                       tmp%5#0
-        !                                                                                      tmp%6#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%7#0
-        assert // can only call when not creating
+    main_switch_case_1@6:
+        // merkle/contract.py:9
+        // class MerkleTree(arc4.ARC4Contract):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%6#0
+        method verify(byte[32][],byte[32])bool                                                 tmp%6#0,Method(verify(byte[32][],byte[32])bool)
+        l-load tmp%6#0 1                                                                       Method(verify(byte[32][],byte[32])bool),tmp%6#0
+        match main_verify_route@7 ; b main_switch_case_next@11
+
+    main_verify_route@7:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         callsub verify
-        b main_switch_case_next@5
+        b main_switch_case_next@11
 
-    main_switch_case_next@5:
+    main_switch_case_next@11:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         err

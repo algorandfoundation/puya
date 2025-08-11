@@ -21,74 +21,85 @@ subroutine main:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txn NumAppArgs                                           tmp%0#2
-        bz main_bare_routing@8 ; b main_abi_routing@4
+        bz main_bare_routing@11 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // compile/apps.py:52
         // class Hello(HelloBase):
-        txna ApplicationArgs 0                                   tmp%2#0
-        method create(string)void                                tmp%2#0,Method(create(string)void)
-        method delete()void                                      tmp%2#0,Method(create(string)void),Method(delete()void)
-        method greet(string)string                               tmp%2#0,Method(create(string)void),Method(delete()void),Method(greet(string)string)
-        l-load tmp%2#0 3                                         Method(create(string)void),Method(delete()void),Method(greet(string)string),tmp%2#0
-        match main_create_route@5 main_delete_route@6 main_greet_route@7 ; b main_after_if_else@10 
+        txn ApplicationID                                        tmp%2#0
+        !                                                        tmp%3#0
+        txn OnCompletion                                         tmp%3#0,tmp%4#0
+        int 1                                                    tmp%3#0,tmp%4#0,1
+        l-load tmp%4#0 1                                         tmp%3#0,1,tmp%4#0
+        shl                                                      tmp%3#0,tmp%5#0
+        l-load tmp%3#0 1                                         tmp%5#0,tmp%3#0
+        l-load tmp%5#0 1                                         tmp%3#0,tmp%5#0
+        +                                                        tmp%6#0
+        int 1                                                    tmp%6#0,1
+        int 10                                                   tmp%6#0,1,10
+        int 0                                                    tmp%6#0,1,10,0
+        l-load tmp%6#0 3                                         1,10,0,tmp%6#0
+        match main_switch_case_0@5 main_switch_case_1@7 main_switch_case_2@9 ; b main_after_if_else@13 
 
-    main_create_route@5:
-        // compile/apps.py:53
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                         tmp%3#0
-        !                                                        tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                        tmp%5#0
-        !                                                        tmp%6#0
-        assert // can only call when creating
+    main_switch_case_0@5:
+        // compile/apps.py:52
+        // class Hello(HelloBase):
+        txna ApplicationArgs 0                                   tmp%7#0
+        method create(string)void                                tmp%7#0,Method(create(string)void)
+        l-load tmp%7#0 1                                         Method(create(string)void),tmp%7#0
+        match main_create_route@6 ; b main_after_if_else@13
+
+    main_create_route@6:
         // compile/apps.py:52
         // class Hello(HelloBase):
         callsub create
-        b main_after_if_else@10
+        b main_after_if_else@13
 
-    main_delete_route@6:
+    main_switch_case_1@7:
+        // compile/apps.py:52
+        // class Hello(HelloBase):
+        txna ApplicationArgs 0                                   tmp%8#0
+        method delete()void                                      tmp%8#0,Method(delete()void)
+        l-load tmp%8#0 1                                         Method(delete()void),tmp%8#0
+        match main_delete_route@8 ; b main_after_if_else@13
+
+    main_delete_route@8:
         // compile/apps.py:24
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                         tmp%7#0
-        int DeleteApplication                                    tmp%7#0,DeleteApplication
-        ==                                                       tmp%8#0
-        assert // OnCompletion is not DeleteApplication
-        txn ApplicationID                                        tmp%9#0
-        assert // can only call when not creating
         v-load lifted%return#0                                   lifted%return#0
         return
 
-    main_greet_route@7:
-        // compile/apps.py:32
-        // @arc4.abimethod()
-        txn OnCompletion                                         tmp%11#0
-        !                                                        tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                        tmp%13#0
-        assert // can only call when not creating
+    main_switch_case_2@9:
+        // compile/apps.py:52
+        // class Hello(HelloBase):
+        txna ApplicationArgs 0                                   tmp%9#0
+        method greet(string)string                               tmp%9#0,Method(greet(string)string)
+        l-load tmp%9#0 1                                         Method(greet(string)string),tmp%9#0
+        match main_greet_route@10 ; b main_after_if_else@13
+
+    main_greet_route@10:
         // compile/apps.py:52
         // class Hello(HelloBase):
         callsub greet
-        b main_after_if_else@10
+        b main_after_if_else@13
 
-    main_bare_routing@8:
+    main_bare_routing@11:
         // compile/apps.py:52
         // class Hello(HelloBase):
-        txn OnCompletion                                         tmp%15#0
-        int 4                                                    tmp%15#0,4
-        l-load tmp%15#0 1                                        4,tmp%15#0
-        match main_update@9 ; b main_after_if_else@10
+        txn OnCompletion                                         tmp%10#0
+        int 4                                                    tmp%10#0,4
+        l-load tmp%10#0 1                                        4,tmp%10#0
+        match main_update@12 ; b main_after_if_else@13
 
-    main_update@9:
+    main_update@12:
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                        tmp%16#0
+        txn ApplicationID                                        tmp%11#0
         assert // can only call when not creating
         v-load lifted%return#0                                   lifted%return#0
         return
 
-    main_after_if_else@10:
+    main_after_if_else@13:
         // compile/apps.py:52
         // class Hello(HelloBase):
         err

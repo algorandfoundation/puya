@@ -3,49 +3,53 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1 2
     pushbytes ""
-    pushint 1 // 1
+    intc_0 // 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xd3ad7a55 // method "method(uint64)void"
     txna ApplicationArgs 0
-    match main_method_route@3
+    match main_method_route@4
     err
 
-main_method_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_method_route@4:
     txna ApplicationArgs 1
     btoi
     bury 2
 
-main_while_top@14:
+main_while_top@17:
     global OpcodeBudget
     pushint 350 // 350
     >
-    bz main_if_body@17
+    bz main_if_body@20
     txn Sender
     sha3_256
     txn Sender
     !=
     assert
-    b main_while_top@14
+    b main_while_top@17
 
-main_if_body@17:
+main_if_body@20:
     dig 1
-    pushint 2 // 2
+    intc_1 // 2
     +
-    pushint 2 // 2
+    intc_1 // 2
     -
     dig 2
     ==
     assert
     return
 
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

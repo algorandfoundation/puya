@@ -7,18 +7,21 @@ main:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@11
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0xaec250ef 0xbd4b223f 0x847f775f // method "umm()uint64", method "umm2()void", method "calculate(uint64[][],uint64)void"
     txna ApplicationArgs 0
     match umm umm2 calculate
     err
 
-main_bare_routing@8:
+main_bare_routing@11:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     txn OnCompletion

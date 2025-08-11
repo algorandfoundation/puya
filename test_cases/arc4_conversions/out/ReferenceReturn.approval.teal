@@ -11,32 +11,35 @@ main:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@18
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x6c7a1cb5 0xc8480f0c 0x37c0cbf2 0x2d018f8a 0x6728b1a1 0xce7e6cd3 0x0a37f6e1 0x4c894d7e 0x62ebcf89 0x924e778c // method "acc_ret()address", method "asset_ret()uint64", method "app_ret()uint64", method "store(address,uint64,uint64)void", method "store_apps(uint64[])void", method "store_assets(uint64[])void", method "store_accounts(address[])void", method "return_apps()uint64[]", method "return_assets()uint64[]", method "return_accounts()address[]"
     txna ApplicationArgs 0
-    match acc_ret main_asset_ret_route@4 main_app_ret_route@5 store store_apps store_assets store_accounts return_apps return_assets return_accounts
+    match acc_ret main_asset_ret_route@5 main_app_ret_route@6 store store_apps store_assets store_accounts return_apps return_assets return_accounts
     err
 
-main_app_ret_route@5:
+main_app_ret_route@6:
     // arc4_conversions/reference.py:13
     // @arc4.abimethod
     bytec_1 // 0x151f7c7500000000000004d2
     log
     return
 
-main_asset_ret_route@4:
+main_asset_ret_route@5:
     // arc4_conversions/reference.py:9
     // @arc4.abimethod
     bytec_1 // 0x151f7c7500000000000004d2
     log
     return
 
-main_bare_routing@15:
+main_bare_routing@18:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn OnCompletion

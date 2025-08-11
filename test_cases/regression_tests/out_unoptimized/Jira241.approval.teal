@@ -13,68 +13,79 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz main_bare_routing@10
 
 main_abi_routing@2:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    txna ApplicationArgs 0
-    pushbytes 0x1e3e4374 // method "oh_no(bool)void"
-    pushbytes 0xd7a938c9 // method "oh_yes(bool)void"
-    uncover 2
-    match main_oh_no_route@3 main_oh_yes_route@4
+    swap
+    match main_switch_case_0@3
 
-main_switch_case_default@5:
+main_switch_case_default@8:
 
-main_switch_case_next@6:
+main_switch_case_next@9:
 
-main_after_if_else@11:
+main_after_if_else@14:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     err
 
-main_oh_yes_route@4:
+main_switch_case_0@3:
+    // regression_tests/jira_241.py:4
+    // class Jira241(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x1e3e4374 // method "oh_no(bool)void"
+    pushbytes 0xd7a938c9 // method "oh_yes(bool)void"
+    uncover 2
+    match main_oh_no_route@4 main_oh_yes_route@5
+
+main_switch_case_default@6:
+
+main_switch_case_next@7:
+    b main_switch_case_next@9
+
+main_oh_yes_route@5:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     callsub oh_yes
-    b main_switch_case_next@6
+    b main_switch_case_next@7
 
-main_oh_no_route@3:
+main_oh_no_route@4:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     callsub oh_no
-    b main_switch_case_next@6
+    b main_switch_case_next@7
 
-main_bare_routing@7:
+main_bare_routing@10:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@8
+    match main___algopy_default_create@11
 
-main_switch_case_default@9:
+main_switch_case_default@12:
 
-main_switch_case_next@10:
-    b main_after_if_else@11
+main_switch_case_next@13:
+    b main_after_if_else@14
 
-main___algopy_default_create@8:
+main___algopy_default_create@11:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@13:
+main_block@16:
 
-main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14:
+main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@17:
     intc_1 // 1
     return
 

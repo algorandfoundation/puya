@@ -14,82 +14,93 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@9
+    bz main_bare_routing@12
 
 main_abi_routing@2:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@10:
+
+main_switch_case_next@11:
+
+main_after_if_else@16:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    err
+
+main_switch_case_0@3:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x0ab53563 // method "test_call_with_txn(byte[],byte[],uint64)void"
     pushbytes 0xea6a6ade // method "test_call_with_acfg(byte[],byte[],uint64)void"
     pushbytes 0x2381ff80 // method "test_call_with_infer(byte[],byte[],uint64)void"
     pushbytes 0x00b50f1c // method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
     uncover 4
-    match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6
+    match main_test_call_with_txn_route@4 main_test_call_with_acfg_route@5 main_test_call_with_infer_route@6 main_test_call_with_acfg_no_return_route@7
 
-main_switch_case_default@7:
+main_switch_case_default@8:
 
-main_switch_case_next@8:
+main_switch_case_next@9:
+    b main_switch_case_next@11
 
-main_after_if_else@13:
-    // typed_abi_call_txn/caller.py:14
-    // class Caller(ARC4Contract):
-    err
-
-main_test_call_with_acfg_no_return_route@6:
+main_test_call_with_acfg_no_return_route@7:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_acfg_no_return
-    b main_switch_case_next@8
+    b main_switch_case_next@9
 
-main_test_call_with_infer_route@5:
+main_test_call_with_infer_route@6:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_infer
-    b main_switch_case_next@8
+    b main_switch_case_next@9
 
-main_test_call_with_acfg_route@4:
+main_test_call_with_acfg_route@5:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_acfg
-    b main_switch_case_next@8
+    b main_switch_case_next@9
 
-main_test_call_with_txn_route@3:
+main_test_call_with_txn_route@4:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_txn
-    b main_switch_case_next@8
+    b main_switch_case_next@9
 
-main_bare_routing@9:
+main_bare_routing@12:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@10
+    match main___algopy_default_create@13
 
-main_switch_case_default@11:
+main_switch_case_default@14:
 
-main_switch_case_next@12:
-    b main_after_if_else@13
+main_switch_case_next@15:
+    b main_after_if_else@16
 
-main___algopy_default_create@10:
+main___algopy_default_create@13:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@15:
+main_block@18:
 
-main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create@16:
+main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create@19:
     intc_1 // 1
     return
 

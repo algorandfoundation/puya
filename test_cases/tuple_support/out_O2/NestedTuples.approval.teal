@@ -20,32 +20,35 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@19
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@20
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x383e1e8b 0x68cbedd7 0x2263fcf1 0xbfc37339 0xc660beaa 0xb6c215ff 0x907c9042 0xd51c7174 0xf8cc2b50 0x3d486db0 0x9e5a3ba7 0xcea0521b 0x373f5b24 0xec593096 // method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void", method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])", method "store_tuple_in_box((uint64,uint64))void", method "is_tuple_in_box((uint64,uint64))bool", method "load_tuple_from_box((uint64,uint64))(uint64,uint64)", method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)", method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)", method "load_tuple_from_local_state_or_default(string)(uint64,uint64)", method "mutate_local_tuple()(uint64[],(uint64,byte[],string))", method "mutate_tuple_in_storage_currently_supported_method()void", method "run_tests()bool", method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))", method "named_tuple((uint64,byte[],string))(uint64,byte[],string)", method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
     txna ApplicationArgs 0
-    match main_store_tuple_route@5 main_load_tuple_route@6 main_store_tuple_in_box_route@7 main_is_tuple_in_box_route@8 main_load_tuple_from_box_route@9 main_maybe_load_tuple_from_box_route@10 main_load_tuple_from_box_or_default_route@11 main_load_tuple_from_local_state_or_default_route@12 main_mutate_local_tuple_route@13 main_mutate_tuple_in_storage_currently_supported_method_route@14 main_run_tests_route@15 main_nested_tuple_params_route@16 main_named_tuple_route@17 main_nested_named_tuple_params_route@18
+    match main_store_tuple_route@6 main_load_tuple_route@7 main_store_tuple_in_box_route@8 main_is_tuple_in_box_route@9 main_load_tuple_from_box_route@10 main_maybe_load_tuple_from_box_route@11 main_load_tuple_from_box_or_default_route@12 main_load_tuple_from_local_state_or_default_route@13 main_mutate_local_tuple_route@14 main_mutate_tuple_in_storage_currently_supported_method_route@15 main_run_tests_route@16 main_nested_tuple_params_route@17 main_named_tuple_route@18 main_nested_named_tuple_params_route@19
     err
 
-main_nested_named_tuple_params_route@18:
+main_nested_named_tuple_params_route@19:
     bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
     concat
     log
     return
 
-main_named_tuple_route@17:
+main_named_tuple_route@18:
     bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
     concat
     log
     return
 
-main_nested_tuple_params_route@16:
+main_nested_tuple_params_route@17:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -112,7 +115,7 @@ main_nested_tuple_params_route@16:
     log
     return
 
-main_run_tests_route@15:
+main_run_tests_route@16:
     intc_1 // 1
     intc_2 // 2
     addw
@@ -135,28 +138,28 @@ main_run_tests_route@15:
     intc_2 // 2
     swap
 
-main_for_body@29:
+main_for_body@30:
     dig 8
     uncover 2
     +
     dig 3
     +
     bury 3
-    switch main_for_header_1@30 main_for_header_2@31 main_for_header_3@32
+    switch main_for_header_1@31 main_for_header_2@32 main_for_header_3@33
     intc_0 // 0
     intc_1 // 1
     bury 11
     intc_2 // 2
     swap
 
-main_for_body@34:
+main_for_body@35:
     dig 11
     uncover 2
     +
     dig 3
     +
     bury 3
-    switch main_for_header_1@35 main_for_header_2@36 main_for_header_3@37
+    switch main_for_header_1@36 main_for_header_2@37 main_for_header_3@38
     dig 1
     intc_3 // 8
     /
@@ -170,55 +173,55 @@ main_for_body@34:
     log
     return
 
-main_for_header_3@37:
+main_for_header_3@38:
     pushint 3 // 3
     intc_2 // 2
     bury 11
     intc_2 // 2
     swap
-    b main_for_body@34
+    b main_for_body@35
 
-main_for_header_2@36:
+main_for_header_2@37:
     intc_2 // 2
     intc_1 // 1
     bury 11
     intc_1 // 1
     swap
-    b main_for_body@34
+    b main_for_body@35
 
-main_for_header_1@35:
+main_for_header_1@36:
     intc_1 // 1
     intc_2 // 2
     bury 11
     intc_1 // 1
     swap
-    b main_for_body@34
+    b main_for_body@35
 
-main_for_header_3@32:
+main_for_header_3@33:
     pushint 3 // 3
     intc_2 // 2
     bury 8
     intc_2 // 2
     swap
-    b main_for_body@29
+    b main_for_body@30
 
-main_for_header_2@31:
+main_for_header_2@32:
     intc_2 // 2
     intc_1 // 1
     bury 8
     intc_1 // 1
     swap
-    b main_for_body@29
+    b main_for_body@30
 
-main_for_header_1@30:
+main_for_header_1@31:
     intc_1 // 1
     intc_2 // 2
     bury 8
     intc_1 // 1
     swap
-    b main_for_body@29
+    b main_for_body@30
 
-main_mutate_tuple_in_storage_currently_supported_method_route@14:
+main_mutate_tuple_in_storage_currently_supported_method_route@15:
     intc_0 // 0
     bytec_2 // "twm"
     app_global_get_ex
@@ -317,15 +320,15 @@ main_mutate_tuple_in_storage_currently_supported_method_route@14:
     app_global_put
     return
 
-main_mutate_local_tuple_route@13:
+main_mutate_local_tuple_route@14:
     intc_0 // 0
     bury 8
 
-main_for_header@43:
+main_for_header@44:
     dig 7
     pushint 3 // 3
     <
-    bz main_after_for@45
+    bz main_after_for@46
     dig 7
     dup
     intc_3 // 8
@@ -341,14 +344,14 @@ main_for_header@43:
     intc_1 // 1
     +
     bury 8
-    b main_for_header@43
+    b main_for_header@44
 
-main_after_for@45:
+main_after_for@46:
     pushbytes 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000
     log
     return
 
-main_load_tuple_from_local_state_or_default_route@12:
+main_load_tuple_from_local_state_or_default_route@13:
     txna ApplicationArgs 1
     extract 2 0
     callsub echo
@@ -363,7 +366,7 @@ main_load_tuple_from_local_state_or_default_route@12:
     app_local_get_ex
     swap
     bury 12
-    bz main_ternary_false@49
+    bz main_ternary_false@50
     dig 10
     dup
     intc_0 // 0
@@ -372,7 +375,7 @@ main_load_tuple_from_local_state_or_default_route@12:
     intc_3 // 8
     extract_uint64
 
-main_ternary_merge@50:
+main_ternary_merge@51:
     swap
     itob
     swap
@@ -384,12 +387,12 @@ main_ternary_merge@50:
     log
     return
 
-main_ternary_false@49:
+main_ternary_false@50:
     dig 3
     dig 3
-    b main_ternary_merge@50
+    b main_ternary_merge@51
 
-main_load_tuple_from_box_or_default_route@11:
+main_load_tuple_from_box_or_default_route@12:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -401,7 +404,7 @@ main_load_tuple_from_box_or_default_route@11:
     box_get
     swap
     bury 12
-    bz main_ternary_false@54
+    bz main_ternary_false@55
     dig 10
     dup
     intc_0 // 0
@@ -410,7 +413,7 @@ main_load_tuple_from_box_or_default_route@11:
     intc_3 // 8
     extract_uint64
 
-main_ternary_merge@55:
+main_ternary_merge@56:
     swap
     itob
     swap
@@ -422,12 +425,12 @@ main_ternary_merge@55:
     log
     return
 
-main_ternary_false@54:
+main_ternary_false@55:
     dig 5
     dig 5
-    b main_ternary_merge@55
+    b main_ternary_merge@56
 
-main_maybe_load_tuple_from_box_route@10:
+main_maybe_load_tuple_from_box_route@11:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -436,7 +439,7 @@ main_maybe_load_tuple_from_box_route@10:
     cover 2
     bury 11
     bury 12
-    bz main_ternary_false@59
+    bz main_ternary_false@60
     dig 10
     dup
     intc_0 // 0
@@ -445,7 +448,7 @@ main_maybe_load_tuple_from_box_route@10:
     intc_3 // 8
     extract_uint64
 
-main_ternary_merge@60:
+main_ternary_merge@61:
     swap
     itob
     swap
@@ -462,12 +465,12 @@ main_ternary_merge@60:
     log
     return
 
-main_ternary_false@59:
+main_ternary_false@60:
     bytec_3 // ""
     dup
-    b main_ternary_merge@60
+    b main_ternary_merge@61
 
-main_load_tuple_from_box_route@9:
+main_load_tuple_from_box_route@10:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -479,7 +482,7 @@ main_load_tuple_from_box_route@9:
     log
     return
 
-main_is_tuple_in_box_route@8:
+main_is_tuple_in_box_route@9:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -495,7 +498,7 @@ main_is_tuple_in_box_route@8:
     log
     return
 
-main_store_tuple_in_box_route@7:
+main_store_tuple_in_box_route@8:
     txna ApplicationArgs 1
     dup
     extract 0 8
@@ -515,7 +518,7 @@ main_store_tuple_in_box_route@7:
     box_put
     return
 
-main_load_tuple_route@6:
+main_load_tuple_route@7:
     intc_0 // 0
     bytec 6 // "pwl"
     app_global_get_ex
@@ -526,13 +529,13 @@ main_load_tuple_route@6:
     log
     return
 
-main_store_tuple_route@5:
+main_store_tuple_route@6:
     bytec 6 // "pwl"
     txna ApplicationArgs 1
     app_global_put
     return
 
-main_bare_routing@19:
+main_bare_routing@20:
     txn OnCompletion
     !
     assert

@@ -5,18 +5,21 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@10
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match main_emit_swapped_route@3 main_emit_ufixed_route@4
+    match main_emit_swapped_route@4 main_emit_ufixed_route@5
     err
 
-main_emit_ufixed_route@4:
+main_emit_ufixed_route@5:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     concat
@@ -26,7 +29,7 @@ main_emit_ufixed_route@4:
     log
     return
 
-main_emit_swapped_route@3:
+main_emit_swapped_route@4:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     concat
@@ -40,7 +43,7 @@ main_emit_swapped_route@3:
     log
     return
 
-main_bare_routing@7:
+main_bare_routing@10:
     txn OnCompletion
     !
     assert

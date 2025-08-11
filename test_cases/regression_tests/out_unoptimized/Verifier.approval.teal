@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 32 0 2 1
+    intcblock 32 2 0 1
 
 main_block@0:
 
@@ -11,65 +11,74 @@ main_block@1:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txn NumAppArgs
-    intc_1 // 0
+    intc_2 // 0
     !=
-    bz main_bare_routing@6
+    bz main_bare_routing@9
 
 main_abi_routing@2:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_3 // 1
+    swap
+    shl
+    +
+    intc_2 // 0
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@7:
+
+main_switch_case_next@8:
+
+main_after_if_else@13:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    err
+
+main_switch_case_0@3:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     swap
-    match main_verify_route@3
+    match main_verify_route@4
 
-main_switch_case_default@4:
+main_switch_case_default@5:
 
-main_switch_case_next@5:
+main_switch_case_next@6:
+    b main_switch_case_next@8
 
-main_after_if_else@10:
-    // regression_tests/jira_ak_752.py:12
-    // class Verifier(algopy.ARC4Contract):
-    err
-
-main_verify_route@3:
-    // regression_tests/jira_ak_752.py:13
-    // @abimethod
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
+main_verify_route@4:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     callsub verify
-    b main_switch_case_next@5
+    b main_switch_case_next@6
 
-main_bare_routing@6:
+main_bare_routing@9:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txn OnCompletion
-    intc_1 // 0
+    intc_2 // 0
     swap
-    match main___algopy_default_create@7
+    match main___algopy_default_create@10
 
-main_switch_case_default@8:
+main_switch_case_default@11:
 
-main_switch_case_next@9:
-    b main_after_if_else@10
+main_switch_case_next@12:
+    b main_after_if_else@13
 
-main___algopy_default_create@7:
+main___algopy_default_create@10:
     txn ApplicationID
-    intc_1 // 0
+    intc_2 // 0
     ==
     assert // can only call when creating
 
-main_block@12:
+main_block@15:
 
-main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create@13:
+main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create@16:
     intc_3 // 1
     return
 
@@ -114,7 +123,7 @@ test_cases.regression_tests.jira_ak_752.Verifier.verify_block@0:
     frame_dig -1
     len
     frame_dig -1
-    intc_2 // 2
+    intc_1 // 2
     uncover 2
     substring3
     pushint 8 // 8
@@ -127,7 +136,7 @@ test_cases.regression_tests.jira_ak_752.Verifier.verify_block@0:
     frame_dig -1
     len
     frame_dig -1
-    intc_2 // 2
+    intc_1 // 2
     uncover 2
     substring3
     pushint 6 // 6
@@ -138,7 +147,7 @@ test_cases.regression_tests.jira_ak_752.Verifier.verify_block@0:
     frame_dig -1
     len
     frame_dig -1
-    intc_2 // 2
+    intc_1 // 2
     uncover 2
     substring3
     pushint 7 // 7
@@ -152,7 +161,7 @@ test_cases.regression_tests.jira_ak_752.Verifier.verify_block@0:
     frame_dig -1
     len
     frame_dig -1
-    intc_2 // 2
+    intc_1 // 2
     uncover 2
     substring3
     pushint 7 // 7
@@ -163,7 +172,7 @@ test_cases.regression_tests.jira_ak_752.Verifier.verify_block@0:
     frame_dig -1
     len
     frame_dig -1
-    intc_2 // 2
+    intc_1 // 2
     uncover 2
     substring3
     pushint 8 // 8

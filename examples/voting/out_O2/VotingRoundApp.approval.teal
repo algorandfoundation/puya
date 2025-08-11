@@ -4,7 +4,7 @@
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 10 8
-    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "close_time" "vote_id" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
+    bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options" 0x068101 0x30313233343536373839
     intc_0 // 0
     dupn 6
     pushbytes ""
@@ -20,16 +20,123 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    txn OnCompletion
-    bnz main_other_routes@9
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    switch main_switch_case_1@6 main_switch_case_0@4
     err
 
-main_vote_route@8:
+main_switch_case_0@4:
+    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@5
+    err
+
+main_create_route@5:
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    txna ApplicationArgs 6
+    dup
+    cover 5
+    bury 20
+    txna ApplicationArgs 7
+    btoi
+    txna ApplicationArgs 8
+    extract 2 0
+    dig 3
+    dig 3
+    <
+    assert // End time should be after start time
+    dig 2
+    global LatestTimestamp
+    >=
+    assert // End time should be in the future
+    bytec 4 // "vote_id"
+    uncover 8
+    app_global_put
+    bytec 6 // "snapshot_public_key"
+    uncover 6
+    app_global_put
+    bytec 7 // "metadata_ipfs_cid"
+    uncover 5
+    app_global_put
+    bytec 8 // "start_time"
+    uncover 4
+    app_global_put
+    bytec 9 // "end_time"
+    uncover 3
+    app_global_put
+    bytec 10 // "quorum"
+    uncover 2
+    app_global_put
+    bytec 11 // "nft_image_url"
+    swap
+    app_global_put
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 13
+    dup
+    assert // option_counts should be non-empty
+    pushint 112 // 112
+    <=
+    assert // Can't have more than 112 questions
+    intc_0 // 0
+    bury 2
+    intc_0 // 0
+    bury 7
+
+main_for_header@36:
+    dig 6
+    dig 12
+    <
+    bz main_after_for@38
+    dig 13
+    extract 2 0
+    dig 7
+    dup
+    cover 2
+    getbyte
+    dig 3
+    +
+    bury 3
+    intc_1 // 1
+    +
+    bury 7
+    b main_for_header@36
+
+main_after_for@38:
+    dig 1
+    dup
+    pushint 128 // 128
+    <=
+    assert // Can't have more than 128 vote options
+    bytec_2 // "option_counts"
+    dig 15
+    app_global_put
+    bytec 12 // "total_options"
+    swap
+    app_global_put
+    return
+
+main_switch_case_1@6:
+    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_bootstrap_route@7 main_close_route@8 main_get_preconditions_route@9 main_vote_route@10
+    err
+
+main_vote_route@10:
     txn GroupIndex
     intc_1 // 1
     -
@@ -94,11 +201,11 @@ main_vote_route@8:
     intc_0 // 0
     bury 5
 
-main_for_header@18:
+main_for_header@13:
     dig 4
     dig 4
     <
-    bz main_after_for@20
+    bz main_after_for@15
     dig 17
     dup
     extract 2 0
@@ -152,12 +259,12 @@ main_for_header@18:
     intc_1 // 1
     +
     bury 5
-    b main_for_header@18
+    b main_for_header@13
 
-main_after_for@20:
+main_after_for@15:
     return
 
-main_get_preconditions_route@7:
+main_get_preconditions_route@9:
     txna ApplicationArgs 1
     extract 2 0
     callsub voting_open
@@ -184,21 +291,21 @@ main_get_preconditions_route@7:
     log
     return
 
-main_close_route@6:
+main_close_route@8:
     pushint 20000 // 20000
     intc_0 // 0
     callsub ensure_budget
     intc_0 // 0
-    bytec 4 // "close_time"
+    bytec 5 // "close_time"
     app_global_get_ex
     bury 1
     !
     assert // Already closed
-    bytec 4 // "close_time"
+    bytec 5 // "close_time"
     global LatestTimestamp
     app_global_put
     intc_0 // 0
-    bytec 5 // "vote_id"
+    bytec 4 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
@@ -207,7 +314,7 @@ main_close_route@6:
     pushbytes ".\",\"properties\":{\"metadata\":\"ipfs://"
     concat
     intc_0 // 0
-    bytec 6 // "metadata_ipfs_cid"
+    bytec 7 // "metadata_ipfs_cid"
     app_global_get_ex
     assert // check self.metadata_ipfs_cid exists
     concat
@@ -218,7 +325,7 @@ main_close_route@6:
     pushbytes "\",\"quorum\":"
     concat
     intc_0 // 0
-    bytec 7 // "quorum"
+    bytec 10 // "quorum"
     app_global_get_ex
     assert // check self.quorum exists
     callsub itoa
@@ -246,15 +353,15 @@ main_close_route@6:
     assert // check self.option_counts exists
     intc_0 // 0
     extract_uint16
-    bury 12
+    bury 11
     intc_0 // 0
     bury 5
 
-main_for_header@25:
+main_for_header@20:
     dig 4
-    dig 12
+    dig 11
     <
-    bz main_after_for@36
+    bz main_after_for@31
     dig 16
     extract 2 0
     dup
@@ -267,13 +374,13 @@ main_for_header@25:
     bury 14
     dig 16
     bury 16
-    bz main_after_if_else@28
+    bz main_after_if_else@23
     dig 15
     pushbytes ","
     concat
     bury 15
 
-main_after_if_else@28:
+main_after_if_else@23:
     dig 14
     dup
     bury 17
@@ -284,7 +391,7 @@ main_after_if_else@28:
     bury 10
     swap
     bury 16
-    bz main_after_if_else@35
+    bz main_after_if_else@30
     dig 15
     pushbytes "["
     concat
@@ -296,21 +403,21 @@ main_after_if_else@28:
     intc_0 // 0
     bury 6
 
-main_for_header@30:
+main_for_header@25:
     dig 5
     dig 3
     <
-    bz main_after_for@34
+    bz main_after_for@29
     dig 15
     bury 15
     dig 5
-    bz main_after_if_else@33
+    bz main_after_if_else@28
     dig 15
     pushbytes ","
     concat
     bury 15
 
-main_after_if_else@33:
+main_after_if_else@28:
     dig 14
     bytec_3 // "V"
     dig 10
@@ -329,9 +436,9 @@ main_after_if_else@33:
     intc_1 // 1
     +
     bury 6
-    b main_for_header@30
+    b main_for_header@25
 
-main_after_for@34:
+main_after_for@29:
     dig 15
     pushbytes "]"
     concat
@@ -339,7 +446,7 @@ main_after_for@34:
     bury 9
     bury 15
 
-main_after_if_else@35:
+main_after_if_else@30:
     dig 7
     bury 9
     dig 14
@@ -348,23 +455,23 @@ main_after_if_else@35:
     intc_1 // 1
     +
     bury 5
-    b main_for_header@25
+    b main_for_header@20
 
-main_after_for@36:
+main_after_for@31:
     dig 15
     pushbytes "]}}"
     concat
     itxn_begin
     global MinTxnFee
     intc_0 // 0
-    bytec 5 // "vote_id"
+    bytec 4 // "vote_id"
     app_global_get_ex
     assert // check self.vote_id exists
     pushbytes "[VOTE RESULT] "
     swap
     concat
     intc_0 // 0
-    bytec 8 // "nft_image_url"
+    bytec 11 // "nft_image_url"
     app_global_get_ex
     assert // check self.nft_image_url exists
     uncover 3
@@ -388,7 +495,7 @@ main_after_for@36:
     app_global_put
     return
 
-main_bootstrap_route@5:
+main_bootstrap_route@7:
     txn GroupIndex
     intc_1 // 1
     -
@@ -412,7 +519,7 @@ main_bootstrap_route@5:
     ==
     assert // Payment must be to app address
     intc_0 // 0
-    bytec 9 // "total_options"
+    bytec 12 // "total_options"
     app_global_get_ex
     assert // check self.total_options exists
     intc_3 // 8
@@ -433,113 +540,6 @@ main_bootstrap_route@5:
     swap
     box_create
     assert
-    return
-
-main_other_routes@9:
-    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@10
-    err
-
-main_create_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    extract 2 0
-    txna ApplicationArgs 4
-    btoi
-    txna ApplicationArgs 5
-    btoi
-    txna ApplicationArgs 6
-    dup
-    cover 5
-    bury 20
-    txna ApplicationArgs 7
-    btoi
-    txna ApplicationArgs 8
-    extract 2 0
-    dig 3
-    dig 3
-    <
-    assert // End time should be after start time
-    dig 2
-    global LatestTimestamp
-    >=
-    assert // End time should be in the future
-    bytec 5 // "vote_id"
-    uncover 8
-    app_global_put
-    bytec 10 // "snapshot_public_key"
-    uncover 6
-    app_global_put
-    bytec 6 // "metadata_ipfs_cid"
-    uncover 5
-    app_global_put
-    bytec 11 // "start_time"
-    uncover 4
-    app_global_put
-    bytec 12 // "end_time"
-    uncover 3
-    app_global_put
-    bytec 7 // "quorum"
-    uncover 2
-    app_global_put
-    bytec 8 // "nft_image_url"
-    swap
-    app_global_put
-    intc_0 // 0
-    extract_uint16
-    dup
-    bury 12
-    dup
-    assert // option_counts should be non-empty
-    pushint 112 // 112
-    <=
-    assert // Can't have more than 112 questions
-    intc_0 // 0
-    bury 2
-    intc_0 // 0
-    bury 7
-
-main_for_header@13:
-    dig 6
-    dig 11
-    <
-    bz main_after_for@15
-    dig 13
-    extract 2 0
-    dig 7
-    dup
-    cover 2
-    getbyte
-    dig 3
-    +
-    bury 3
-    intc_1 // 1
-    +
-    bury 7
-    b main_for_header@13
-
-main_after_for@15:
-    dig 1
-    dup
-    pushint 128 // 128
-    <=
-    assert // Can't have more than 128 vote options
-    bytec_2 // "option_counts"
-    dig 15
-    app_global_put
-    bytec 9 // "total_options"
-    swap
-    app_global_put
     return
 
 
@@ -624,12 +624,12 @@ voting_open:
     assert // check self.is_bootstrapped exists
     bz voting_open_bool_false@5
     intc_0 // 0
-    bytec 4 // "close_time"
+    bytec 5 // "close_time"
     app_global_get_ex
     bury 1
     bnz voting_open_bool_false@5
     intc_0 // 0
-    bytec 11 // "start_time"
+    bytec 8 // "start_time"
     app_global_get_ex
     assert // check self.start_time exists
     global LatestTimestamp
@@ -638,7 +638,7 @@ voting_open:
     <=
     bz voting_open_bool_false@5
     intc_0 // 0
-    bytec 12 // "end_time"
+    bytec 9 // "end_time"
     app_global_get_ex
     assert // check self.end_time exists
     frame_dig 0
@@ -663,7 +663,7 @@ allowed_to_vote:
     callsub ensure_budget
     txn Sender
     intc_0 // 0
-    bytec 10 // "snapshot_public_key"
+    bytec 6 // "snapshot_public_key"
     app_global_get_ex
     assert // check self.snapshot_public_key exists
     frame_dig -1

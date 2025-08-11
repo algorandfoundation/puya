@@ -4,54 +4,62 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 10 2 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
+    bytecblock 0x 0x4c5c61ba 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     // arc_56/contract.py:81
     // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
-    txn OnCompletion
-    bnz main_other_routes@13
+    bz main_bare_routing@16
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
-    txna ApplicationArgs 0
-    match struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
-
-main_after_if_else@18:
-    // arc_56/contract.py:54
-    // class Contract(ARC4Contract):
-    err
-
-main_other_routes@13:
-    // arc_56/contract.py:54
-    // class Contract(ARC4Contract):
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match main_create_route@14
-    err
-
-main_create_route@14:
-    // arc_56/contract.py:81
-    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    !
     intc_0 // 1
     txn OnCompletion
     shl
-    pushint 3 // 3
-    &
-    assert // OnCompletion is not one of NoOp, OptIn
+    +
+    switch main_switch_case_1@7 main_switch_case_0@5 main_switch_case_0@5 main_switch_case_0@5
+
+main_after_if_else@19:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    err
+
+main_switch_case_0@5:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_1 // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@6
+    err
+
+main_create_route@6:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     return
 
-main_bare_routing@15:
+main_switch_case_1@7:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_1 // method "create()void"
+    pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_create_route@8 struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
+    err
+
+main_create_route@8:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    return
+
+main_bare_routing@16:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main_bare_create@16 main_bare_create@16 main_after_if_else@18 main_after_if_else@18 main_after_if_else@18 main_transient@17
+    switch main_bare_create@17 main_bare_create@17 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_transient@18
     err
 
-main_transient@17:
+main_transient@18:
     // arc_56/contract.py:85
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
@@ -59,7 +67,7 @@ main_transient@17:
     assert // can only call when creating
     return
 
-main_bare_create@16:
+main_bare_create@17:
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     return
@@ -106,7 +114,7 @@ struct_return:
     substring3
     // arc_56/contract.py:95
     // @arc4.abimethod(readonly=True)
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -181,16 +189,16 @@ conditional_emit_after_if_else@3:
 template_value:
     // arc_56/contract.py:129
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
-    bytec_2 // TMPL_ARC4_UINT8
+    bytec_3 // TMPL_ARC4_UINT8
     // arc_56/contract.py:128
     // TemplateVar[String]("AVM_STRING"),
-    bytec_3 // TMPL_AVM_STRING
+    bytec 4 // TMPL_AVM_STRING
     // arc_56/contract.py:127
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
     // arc_56/contract.py:126
     // TemplateVar[SharedStruct]("STRUCT"),
-    bytec 4 // TMPL_STRUCT
+    bytec 5 // TMPL_STRUCT
     // arc_56/contract.py:123
     // @arc4.abimethod()
     dup
@@ -220,7 +228,7 @@ template_value:
     concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log

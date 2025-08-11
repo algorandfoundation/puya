@@ -5,18 +5,21 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
-    match main_some_value_route@3
+    match main_some_value_route@4
     err
 
-main_some_value_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_some_value_route@4:
     global GroupSize
     txn GroupIndex
     pushint 1 // 1
@@ -29,7 +32,7 @@ main_some_value_route@3:
     log
     return
 
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

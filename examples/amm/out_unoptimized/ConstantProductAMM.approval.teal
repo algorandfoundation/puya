@@ -1289,19 +1289,34 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@10
+    bz approval_program_bare_routing@13
 
 approval_program_abi_routing@2:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match approval_program_switch_case_0@3
+
+approval_program_switch_case_default@11:
+
+approval_program_switch_case_next@12:
+
+approval_program_after_if_else@19:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    err
+
+approval_program_switch_case_0@3:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xddc4cb4a // method "set_governor(address)void"
     pushbytes 0x6b59d965 // method "bootstrap(pay,asset,asset)uint64"
@@ -1309,68 +1324,64 @@ approval_program_abi_routing@2:
     pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
     pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
     uncover 5
-    match approval_program_set_governor_route@3 approval_program_bootstrap_route@4 approval_program_mint_route@5 approval_program_burn_route@6 approval_program_swap_route@7
+    match approval_program_set_governor_route@4 approval_program_bootstrap_route@5 approval_program_mint_route@6 approval_program_burn_route@7 approval_program_swap_route@8
 
-approval_program_switch_case_default@8:
+approval_program_switch_case_default@9:
 
-approval_program_switch_case_next@9:
+approval_program_switch_case_next@10:
+    b approval_program_switch_case_next@12
 
-approval_program_after_if_else@16:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    err
-
-approval_program_swap_route@7:
+approval_program_swap_route@8:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     callsub swap
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@10
 
-approval_program_burn_route@6:
+approval_program_burn_route@7:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     callsub burn
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@10
 
-approval_program_mint_route@5:
+approval_program_mint_route@6:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     callsub mint
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@10
 
-approval_program_bootstrap_route@4:
+approval_program_bootstrap_route@5:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     callsub bootstrap
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@10
 
-approval_program_set_governor_route@3:
+approval_program_set_governor_route@4:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     callsub set_governor
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@10
 
-approval_program_bare_routing@10:
+approval_program_bare_routing@13:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match approval_program___algopy_default_create@11
+    match approval_program___algopy_default_create@14
 
-approval_program_switch_case_default@14:
+approval_program_switch_case_default@17:
 
-approval_program_switch_case_next@15:
-    b approval_program_after_if_else@16
+approval_program_switch_case_next@18:
+    b approval_program_after_if_else@19
 
-approval_program___algopy_default_create@11:
+approval_program___algopy_default_create@14:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@12:
+approval_program_block@15:
 
-approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@13:
+approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@16:
     intc_1 // 1
     return

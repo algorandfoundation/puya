@@ -4,94 +4,90 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // L230
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@23
+        goto tmp%1#0 ? block@2 : block@24
     block@2: // abi_routing_L230
-        let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 0u)
-        goto tmp%3#0 ? block@3 : block@18
-    block@3: // simple_routes_L230
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        (assert tmp%5#0) // can only call when not creating
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "check_uint64(uint64,byte[])void" => block@4, method "check_dynamic_bytes(byte[],byte[])void" => block@5, method "check_string(string,byte[])void" => block@6, method "check_biguint(uint512,byte[])void" => block@7, method "check_bool(bool,byte[])void" => block@8, method "check_dyn_array_uin64(uint64[],byte[])void" => block@9, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@10, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@11, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@12, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@13, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@14, method "check_static_bytes(byte[32])void" => block@15, * => block@16}
-    block@4: // check_uint64_route_L235
-        test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]()
-        goto block@17
-    block@5: // check_dynamic_bytes_route_L239
-        test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[routing]()
-        goto block@17
-    block@6: // check_string_route_L243
-        test_cases.arc4_conversions.contract.CheckApp.check_string[routing]()
-        goto block@17
-    block@7: // check_biguint_route_L247
-        test_cases.arc4_conversions.contract.CheckApp.check_biguint[routing]()
-        goto block@17
-    block@8: // check_bool_route_L251
-        test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]()
-        goto block@17
-    block@9: // check_dyn_array_uin64_route_L255
-        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64[routing]()
-        goto block@17
-    block@10: // check_static_array_uin64_3_route_L261
-        test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin64_3[routing]()
-        goto block@17
-    block@11: // check_dyn_array_struct_route_L267
-        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct[routing]()
-        goto block@17
-    block@12: // check_static_array_struct_route_L273
-        test_cases.arc4_conversions.contract.CheckApp.check_static_array_struct[routing]()
-        goto block@17
-    block@13: // check_dyn_array_dyn_struct_route_L279
-        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_struct[routing]()
-        goto block@17
-    block@14: // check_static_array_dyn_struct_route_L285
-        test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct[routing]()
-        goto block@17
-    block@15: // check_static_bytes_route_L291
-        test_cases.arc4_conversions.contract.CheckApp.check_static_bytes[routing]()
-        goto block@17
-    block@16: // switch_case_default_L230
-        goto block@17
-    block@17: // switch_case_next_L230
-        goto block@22
-    block@18: // other_routes_L230
+        let tmp%2#0: bool = (txn ApplicationID)
+        let tmp%3#0: bool = (! tmp%2#0)
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        switch tmp%6#0 {10u => block@3, 0u => block@7, * => block@22}
+    block@3: // switch_case_0_L230
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "delete_application()void" => block@19, * => block@20}
-    block@19: // delete_application_route_L231
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 DeleteApplication)
-        (assert tmp%9#0) // OnCompletion is not DeleteApplication
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
+        switch tmp%7#0 {method "delete_application()void" => block@4, * => block@5}
+    block@4: // delete_application_route_L231
         test_cases.arc4_conversions.contract.CheckApp.delete_application[routing]()
+        goto block@6
+    block@5: // switch_case_default_L230
+        goto block@6
+    block@6: // switch_case_next_L230
+        goto block@23
+    block@7: // switch_case_1_L230
+        let tmp%8#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%8#0 {method "check_uint64(uint64,byte[])void" => block@8, method "check_dynamic_bytes(byte[],byte[])void" => block@9, method "check_string(string,byte[])void" => block@10, method "check_biguint(uint512,byte[])void" => block@11, method "check_bool(bool,byte[])void" => block@12, method "check_dyn_array_uin64(uint64[],byte[])void" => block@13, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@14, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@15, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@16, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@17, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@18, method "check_static_bytes(byte[32])void" => block@19, * => block@20}
+    block@8: // check_uint64_route_L235
+        test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]()
+        goto block@21
+    block@9: // check_dynamic_bytes_route_L239
+        test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[routing]()
+        goto block@21
+    block@10: // check_string_route_L243
+        test_cases.arc4_conversions.contract.CheckApp.check_string[routing]()
+        goto block@21
+    block@11: // check_biguint_route_L247
+        test_cases.arc4_conversions.contract.CheckApp.check_biguint[routing]()
+        goto block@21
+    block@12: // check_bool_route_L251
+        test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]()
+        goto block@21
+    block@13: // check_dyn_array_uin64_route_L255
+        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64[routing]()
+        goto block@21
+    block@14: // check_static_array_uin64_3_route_L261
+        test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin64_3[routing]()
+        goto block@21
+    block@15: // check_dyn_array_struct_route_L267
+        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct[routing]()
+        goto block@21
+    block@16: // check_static_array_struct_route_L273
+        test_cases.arc4_conversions.contract.CheckApp.check_static_array_struct[routing]()
+        goto block@21
+    block@17: // check_dyn_array_dyn_struct_route_L279
+        test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_struct[routing]()
+        goto block@21
+    block@18: // check_static_array_dyn_struct_route_L285
+        test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct[routing]()
+        goto block@21
+    block@19: // check_static_bytes_route_L291
+        test_cases.arc4_conversions.contract.CheckApp.check_static_bytes[routing]()
         goto block@21
     block@20: // switch_case_default_L230
         goto block@21
     block@21: // switch_case_next_L230
-        goto block@22
-    block@22: // after_if_else_L230
-        goto block@27
-    block@23: // bare_routing_L230
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        switch tmp%12#0 {0u => block@24, * => block@25}
-    block@24: // __algopy_default_create_L1
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (== tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when creating
-        goto block@29
-    block@29: // L1
+        goto block@23
+    block@22: // switch_case_default_L230
+        goto block@23
+    block@23: // switch_case_next_L230
+        goto block@28
+    block@24: // bare_routing_L230
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        switch tmp%9#0 {0u => block@25, * => block@26}
+    block@25: // __algopy_default_create_L1
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (== tmp%10#0 0u)
+        (assert tmp%11#0) // can only call when creating
         goto block@30
-    block@30: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create_L1
+    block@30: // L1
+        goto block@31
+    block@31: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create_L1
         exit 1u
-    block@25: // switch_case_default_L230
-        goto block@26
-    block@26: // switch_case_next_L230
+    block@26: // switch_case_default_L230
         goto block@27
-    block@27: // after_if_else_L230
+    block@27: // switch_case_next_L230
+        goto block@28
+    block@28: // after_if_else_L230
         exit 0u
-    block@28: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router___L1
+    block@29: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 

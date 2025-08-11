@@ -68,56 +68,63 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L52
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@8
+        goto tmp%1#0 ? block@2 : block@17
     block@2: // abi_routing_L52
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create(string)void" => block@3, method "delete()void" => block@4, method "greet(string)string" => block@5, * => block@6}
-    block@3: // create_route_L53
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (== tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when creating
+        let tmp%2#0: bool = (txn ApplicationID)
+        let tmp%3#0: bool = (! tmp%2#0)
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        switch tmp%6#0 {1u => block@3, 10u => block@7, 0u => block@11, * => block@15}
+    block@3: // switch_case_0_L52
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "create(string)void" => block@4, * => block@5}
+    block@4: // create_route_L53
         test_cases.compile.apps.Hello.create[routing]()
-        goto block@7
-    block@4: // delete_route_L24
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 DeleteApplication)
-        (assert tmp%8#0) // OnCompletion is not DeleteApplication
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
+        goto block@6
+    block@5: // switch_case_default_L52
+        goto block@6
+    block@6: // switch_case_next_L52
+        goto block@16
+    block@7: // switch_case_1_L52
+        let tmp%8#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%8#0 {method "delete()void" => block@8, * => block@9}
+    block@8: // delete_route_L24
         test_cases.compile.apps.HelloBase.delete[routing]()
-        goto block@7
-    block@5: // greet_route_L32
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
+        goto block@10
+    block@9: // switch_case_default_L52
+        goto block@10
+    block@10: // switch_case_next_L52
+        goto block@16
+    block@11: // switch_case_2_L52
+        let tmp%9#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%9#0 {method "greet(string)string" => block@12, * => block@13}
+    block@12: // greet_route_L32
         test_cases.compile.apps.HelloBase.greet[routing]()
-        goto block@7
-    block@6: // switch_case_default_L52
-        goto block@7
-    block@7: // switch_case_next_L52
-        goto block@12
-    block@8: // bare_routing_L52
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        switch tmp%15#0 {4u => block@9, * => block@10}
-    block@9: // update_L28
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when not creating
+        goto block@14
+    block@13: // switch_case_default_L52
+        goto block@14
+    block@14: // switch_case_next_L52
+        goto block@16
+    block@15: // switch_case_default_L52
+        goto block@16
+    block@16: // switch_case_next_L52
+        goto block@21
+    block@17: // bare_routing_L52
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        switch tmp%10#0 {4u => block@18, * => block@19}
+    block@18: // update_L28
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        let tmp%12#0: bool = (!= tmp%11#0 0u)
+        (assert tmp%12#0) // can only call when not creating
         test_cases.compile.apps.HelloBase.update()
         exit 1u
-    block@10: // switch_case_default_L52
-        goto block@11
-    block@11: // switch_case_next_L52
-        goto block@12
-    block@12: // after_if_else_L52
+    block@19: // switch_case_default_L52
+        goto block@20
+    block@20: // switch_case_next_L52
+        goto block@21
+    block@21: // after_if_else_L52
         exit 0u
-    block@13: // after_inlined_test_cases.compile.apps.Hello.__puya_arc4_router___L1
+    block@22: // after_inlined_test_cases.compile.apps.Hello.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

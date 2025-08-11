@@ -8,26 +8,21 @@ main:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
-    match main_verify_route@3
+    match verify
     err
 
-main_verify_route@3:
-    // regression_tests/issue_118.py:6-7
-    // # ref: https://github.com/algorandfoundation/puya/issues/118
-    // @abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/issue_118.py:5
-    // class Issue118(ARC4Contract):
-    b verify
-
-main_bare_routing@6:
+main_bare_routing@9:
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn OnCompletion

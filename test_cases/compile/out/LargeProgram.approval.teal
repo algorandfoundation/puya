@@ -3,42 +3,53 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // compile/apps.py:42
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // compile/apps.py:38
+    // @arc4.abimethod()
     pushint 1 // 1
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0x24378d3c 0xf5e4fd4d // method "delete()void", method "get_big_bytes_length()uint64"
+    bz main_bare_routing@13
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    pushints 0 10 // 0, 10
+    uncover 2
+    match main_switch_case_0@3 main_switch_case_1@7
+    err
+
+main_switch_case_1@7:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@3 main_get_big_bytes_length_route@4
+    match main_delete_route@8
+    err
+
+main_delete_route@8:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    return
+
+main_switch_case_0@3:
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
+    txna ApplicationArgs 0
+    match main_get_big_bytes_length_route@4
     err
 
 main_get_big_bytes_length_route@4:
     // compile/apps.py:38
     // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x151f7c750000000000001000
     log
     return
 
-main_delete_route@3:
-    // compile/apps.py:42
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    return
-
-main_bare_routing@7:
+main_bare_routing@13:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txn OnCompletion

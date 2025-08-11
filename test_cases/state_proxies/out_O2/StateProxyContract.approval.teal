@@ -4,7 +4,7 @@
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 42 1 0
-    bytecblock "l1" "g1" "box_map" 0x6c32
+    bytecblock "g1" "l1" 0x6c32 "box_map"
     intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -18,18 +18,46 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    txn OnCompletion
-    bnz main_other_routes@9
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_clear_route@5 main_order_of_eval_global_route@6 main_order_of_eval_local_route@7 main_order_of_eval_box_route@8
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    switch main_switch_case_1@6 main_switch_case_next@11 main_switch_case_next@11 main_switch_case_0@4
+
+main_switch_case_next@11:
     err
 
-main_order_of_eval_box_route@8:
+main_switch_case_0@4:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@5
+    err
+
+main_create_route@5:
+    bytec_0 // "g1"
+    intc_1 // 1
+    app_global_put
+    txn Sender
+    bytec_1 // "l1"
+    pushint 2 // 2
+    app_local_put
+    txn Sender
+    bytec_2 // 0x6c32
+    pushint 3 // 3
+    app_local_put
+    return
+
+main_switch_case_1@6:
+    pushbytess 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_clear_route@7 main_order_of_eval_global_route@8 main_order_of_eval_local_route@9 main_order_of_eval_box_route@10
+    err
+
+main_order_of_eval_box_route@10:
     callsub get_key
-    bytec_2 // "box_map"
+    bytec_3 // "box_map"
     swap
     concat
     callsub default_value
@@ -44,12 +72,12 @@ main_order_of_eval_box_route@8:
     assert
     return
 
-main_order_of_eval_local_route@7:
+main_order_of_eval_local_route@9:
     callsub get_account
     callsub default_value
     swap
     intc_2 // 0
-    bytec_0 // "l1"
+    bytec_1 // "l1"
     app_local_get_ex
     select
     intc_0 // 42
@@ -57,10 +85,10 @@ main_order_of_eval_local_route@7:
     assert
     return
 
-main_order_of_eval_global_route@6:
+main_order_of_eval_global_route@8:
     callsub default_value
     intc_2 // 0
-    bytec_1 // "g1"
+    bytec_0 // "g1"
     app_global_get_ex
     select
     intc_0 // 42
@@ -68,48 +96,21 @@ main_order_of_eval_global_route@6:
     assert
     return
 
-main_clear_route@5:
-    bytec_1 // "g1"
+main_clear_route@7:
+    bytec_0 // "g1"
     app_global_del
     txn Sender
-    bytec_0 // "l1"
+    bytec_1 // "l1"
     app_local_del
     txn Sender
-    bytec_3 // 0x6c32
+    bytec_2 // 0x6c32
     app_local_del
     callsub get_key
-    bytec_2 // "box_map"
+    bytec_3 // "box_map"
     swap
     concat
     box_del
     pop
-    return
-
-main_other_routes@9:
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@10
-    err
-
-main_create_route@10:
-    txn OnCompletion
-    intc_1 // OptIn
-    ==
-    assert // OnCompletion is not OptIn
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    bytec_1 // "g1"
-    intc_1 // 1
-    app_global_put
-    txn Sender
-    bytec_0 // "l1"
-    pushint 2 // 2
-    app_local_put
-    txn Sender
-    bytec_3 // 0x6c32
-    pushint 3 // 3
-    app_local_put
     return
 
 

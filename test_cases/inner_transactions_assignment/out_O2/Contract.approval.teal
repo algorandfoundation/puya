@@ -7,18 +7,21 @@ main:
     bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" "pay3" 0x6163666732 0x70617935
     intc_1 // 1
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@10
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0xe46d9019 0xf883853e // method "test_itxn_slice()void", method "test_itxn_nested()void"
     txna ApplicationArgs 0
-    match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
+    match main_test_itxn_slice_route@4 main_test_itxn_nested_route@5
     err
 
-main_test_itxn_nested_route@4:
+main_test_itxn_nested_route@5:
     txn Sender
     itxn_begin
     bytec_2 // "pay1"
@@ -120,7 +123,7 @@ main_test_itxn_nested_route@4:
     assert
     return
 
-main_test_itxn_slice_route@3:
+main_test_itxn_slice_route@4:
     txn Sender
     itxn_begin
     bytec_2 // "pay1"
@@ -178,7 +181,7 @@ main_test_itxn_slice_route@3:
     assert
     return
 
-main_bare_routing@7:
+main_bare_routing@10:
     txn OnCompletion
     !
     assert

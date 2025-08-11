@@ -11,18 +11,21 @@ main:
     dupn 27
     intc_1 // 1
     txn NumAppArgs
-    bz main_bare_routing@29
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@32
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x44d42f99 0xb7eaa60b 0x743d70ed 0x1c7e0494 0xa2d5860b 0xe05fc564 0x1e092b83 0x01310262 0xc8654a98 0x89d196f8 0x6cb7c991 0x9898bf02 0xf6b61ee8 0x60b86a7b 0x73ad283f 0x529dfae9 0x206d514f 0xe06465e2 0xec0300a2 0xecdf14af 0x511aca64 0x29852e4f 0x6d4aa358 0xb7cb96bd // method "test_uint64_array()void", method "test_biguint_array()void", method "test_bool_array(uint64)void", method "test_fixed_size_tuple_array()void", method "test_fixed_size_named_tuple_array()void", method "test_dynamic_sized_tuple_array()void", method "test_dynamic_sized_named_tuple_array()void", method "test_implicit_conversion_log(uint64[])void", method "test_implicit_conversion_emit(uint64[])void", method "test_nested_array(uint64,uint64[][])uint64[]", method "test_bit_packed_tuples()void", method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)", method "test_uint64_return(uint64)uint64[]", method "test_bool_return(uint64)bool[]", method "test_tuple_return(uint64)(uint64,bool,bool)[]", method "test_dynamic_tuple_return(uint64)(uint64,string)[]", method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]", method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]", method "test_concat_with_native_tuple((uint64,uint64))uint64[]", method "test_dynamic_concat_with_arc4_tuple((string,string))string[]", method "test_dynamic_concat_with_native_tuple((string,string))string[]", method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]", method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]", method "test_imm_fixed_arr()(uint64,uint64)[3]"
     txna ApplicationArgs 0
-    match main_test_uint64_array_route@3 main_test_biguint_array_route@4 main_test_bool_array_route@5 main_test_fixed_size_tuple_array_route@6 main_test_fixed_size_named_tuple_array_route@7 main_test_dynamic_sized_tuple_array_route@8 main_test_dynamic_sized_named_tuple_array_route@9 main_test_implicit_conversion_log_route@10 main_test_implicit_conversion_emit_route@11 main_test_nested_array_route@12 main_test_bit_packed_tuples_route@13 main_sum_uints_and_lengths_and_trues_route@14 main_test_uint64_return_route@15 main_test_bool_return_route@16 main_test_tuple_return_route@17 main_test_dynamic_tuple_return_route@18 main_test_convert_to_array_and_back_route@19 main_test_concat_with_arc4_tuple_route@20 main_test_concat_with_native_tuple_route@21 main_test_dynamic_concat_with_arc4_tuple_route@22 main_test_dynamic_concat_with_native_tuple_route@23 main_test_concat_immutable_dynamic_route@24 main_test_immutable_arc4_route@25 main_test_imm_fixed_arr_route@26
+    match main_test_uint64_array_route@4 main_test_biguint_array_route@5 main_test_bool_array_route@6 main_test_fixed_size_tuple_array_route@7 main_test_fixed_size_named_tuple_array_route@8 main_test_dynamic_sized_tuple_array_route@9 main_test_dynamic_sized_named_tuple_array_route@10 main_test_implicit_conversion_log_route@11 main_test_implicit_conversion_emit_route@12 main_test_nested_array_route@13 main_test_bit_packed_tuples_route@14 main_sum_uints_and_lengths_and_trues_route@15 main_test_uint64_return_route@16 main_test_bool_return_route@17 main_test_tuple_return_route@18 main_test_dynamic_tuple_return_route@19 main_test_convert_to_array_and_back_route@20 main_test_concat_with_arc4_tuple_route@21 main_test_concat_with_native_tuple_route@22 main_test_dynamic_concat_with_arc4_tuple_route@23 main_test_dynamic_concat_with_native_tuple_route@24 main_test_concat_immutable_dynamic_route@25 main_test_immutable_arc4_route@26 main_test_imm_fixed_arr_route@27
     err
 
-main_test_imm_fixed_arr_route@26:
+main_test_imm_fixed_arr_route@27:
     pushint 48 // 48
     bzero
     dup
@@ -52,11 +55,11 @@ main_test_imm_fixed_arr_route@26:
     intc_0 // 0
     bury 17
 
-main_for_header@37:
+main_for_header@40:
     dig 16
     pushint 3 // 3
     <
-    bz main_after_for@39
+    bz main_after_for@42
     dig 16
     dup
     pushint 16 // 16
@@ -69,9 +72,9 @@ main_for_header@37:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@37
+    b main_for_header@40
 
-main_after_for@39:
+main_after_for@42:
     dig 40
     dig 40
     ==
@@ -79,11 +82,11 @@ main_after_for@39:
     intc_0 // 0
     bury 15
 
-main_for_header@40:
+main_for_header@43:
     dig 14
     pushint 3 // 3
     <
-    bz main_after_for@42
+    bz main_after_for@45
     dig 14
     dup
     pushint 16 // 16
@@ -98,9 +101,9 @@ main_for_header@40:
     intc_1 // 1
     +
     bury 15
-    b main_for_header@40
+    b main_for_header@43
 
-main_after_for@42:
+main_after_for@45:
     bytec 7 // "imm_fixed_arr"
     dig 41
     dup
@@ -127,7 +130,7 @@ main_after_for@42:
     log
     return
 
-main_test_immutable_arc4_route@25:
+main_test_immutable_arc4_route@26:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -151,7 +154,7 @@ main_test_immutable_arc4_route@25:
     log
     return
 
-main_test_concat_immutable_dynamic_route@24:
+main_test_concat_immutable_dynamic_route@25:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     dig 1
@@ -172,7 +175,7 @@ main_test_concat_immutable_dynamic_route@24:
     log
     return
 
-main_test_dynamic_concat_with_native_tuple_route@23:
+main_test_dynamic_concat_with_native_tuple_route@24:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -200,7 +203,7 @@ main_test_dynamic_concat_with_native_tuple_route@23:
     log
     return
 
-main_test_dynamic_concat_with_arc4_tuple_route@22:
+main_test_dynamic_concat_with_arc4_tuple_route@23:
     txna ApplicationArgs 1
     extract 4 0
     bytec 8 // 0x000200040007000161000162
@@ -213,7 +216,7 @@ main_test_dynamic_concat_with_arc4_tuple_route@22:
     log
     return
 
-main_test_concat_with_native_tuple_route@21:
+main_test_concat_with_native_tuple_route@22:
     txna ApplicationArgs 1
     dup
     extract 0 8
@@ -231,7 +234,7 @@ main_test_concat_with_native_tuple_route@21:
     log
     return
 
-main_test_concat_with_arc4_tuple_route@20:
+main_test_concat_with_arc4_tuple_route@21:
     bytec 9 // 0x000200000000000000010000000000000002
     txna ApplicationArgs 1
     concat // on error: max array length exceeded
@@ -249,7 +252,7 @@ main_test_concat_with_arc4_tuple_route@20:
     log
     return
 
-main_test_convert_to_array_and_back_route@19:
+main_test_convert_to_array_and_back_route@20:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -259,11 +262,11 @@ main_test_convert_to_array_and_back_route@19:
     intc_0 // 0
     bury 17
 
-main_for_header@57:
+main_for_header@60:
     dig 16
     dig 20
     <
-    bz main_after_for@59
+    bz main_after_for@62
     dig 16
     dup
     intc_2 // 2
@@ -292,9 +295,9 @@ main_for_header@57:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@57
+    b main_for_header@60
 
-main_after_for@59:
+main_after_for@62:
     dig 31
     dup
     len
@@ -310,7 +313,7 @@ main_after_for@59:
     log
     return
 
-main_test_dynamic_tuple_return_route@18:
+main_test_dynamic_tuple_return_route@19:
     txna ApplicationArgs 1
     btoi
     bury 20
@@ -319,11 +322,11 @@ main_test_dynamic_tuple_return_route@18:
     intc_0 // 0
     bury 17
 
-main_for_header@62:
+main_for_header@65:
     dig 16
     dig 20
     <
-    bz main_after_for@79
+    bz main_after_for@82
     dig 16
     dup
     callsub times
@@ -357,16 +360,16 @@ main_for_header@62:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@62
+    b main_for_header@65
 
-main_after_for@79:
+main_after_for@82:
     bytec_1 // 0x151f7c75
     dig 42
     concat
     log
     return
 
-main_test_tuple_return_route@17:
+main_test_tuple_return_route@18:
     txna ApplicationArgs 1
     btoi
     bury 20
@@ -375,11 +378,11 @@ main_test_tuple_return_route@17:
     intc_0 // 0
     bury 17
 
-main_for_header@67:
+main_for_header@70:
     dig 16
     dig 20
     <
-    bz main_after_for@79
+    bz main_after_for@82
     dig 16
     dup
     intc_2 // 2
@@ -415,9 +418,9 @@ main_for_header@67:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@67
+    b main_for_header@70
 
-main_test_bool_return_route@16:
+main_test_bool_return_route@17:
     txna ApplicationArgs 1
     btoi
     bury 20
@@ -426,11 +429,11 @@ main_test_bool_return_route@16:
     intc_0 // 0
     bury 17
 
-main_for_header@72:
+main_for_header@75:
     dig 16
     dig 20
     <
-    bz main_after_for@79
+    bz main_after_for@82
     dig 16
     dup
     intc_2 // 2
@@ -449,9 +452,9 @@ main_for_header@72:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@72
+    b main_for_header@75
 
-main_test_uint64_return_route@15:
+main_test_uint64_return_route@16:
     txna ApplicationArgs 1
     btoi
     bury 20
@@ -460,11 +463,11 @@ main_test_uint64_return_route@15:
     intc_0 // 0
     bury 17
 
-main_for_header@77:
+main_for_header@80:
     dig 16
     dig 20
     <
-    bz main_after_for@79
+    bz main_after_for@82
     dig 16
     dup
     itob
@@ -484,9 +487,9 @@ main_for_header@77:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@77
+    b main_for_header@80
 
-main_sum_uints_and_lengths_and_trues_route@14:
+main_sum_uints_and_lengths_and_trues_route@15:
     txna ApplicationArgs 1
     dup
     bury 42
@@ -510,11 +513,11 @@ main_sum_uints_and_lengths_and_trues_route@14:
     intc_0 // 0
     bury 15
 
-main_for_header@82:
+main_for_header@85:
     dig 14
     dig 24
     <
-    bz main_after_for@84
+    bz main_after_for@87
     dig 40
     extract 2 0
     dig 15
@@ -529,9 +532,9 @@ main_for_header@82:
     intc_1 // 1
     +
     bury 15
-    b main_for_header@82
+    b main_for_header@85
 
-main_after_for@84:
+main_after_for@87:
     dig 39
     intc_0 // 0
     extract_uint16
@@ -539,11 +542,11 @@ main_after_for@84:
     intc_0 // 0
     bury 13
 
-main_for_header@85:
+main_for_header@88:
     dig 12
     dig 23
     <
-    bz main_after_for@89
+    bz main_after_for@92
     dig 12
     pushint 16 // 16
     +
@@ -552,22 +555,22 @@ main_for_header@85:
     getbit
     dig 8
     bury 8
-    bz main_after_if_else@88
+    bz main_after_if_else@91
     dig 7
     intc_1 // 1
     +
     bury 7
 
-main_after_if_else@88:
+main_after_if_else@91:
     dig 6
     bury 8
     dig 12
     intc_1 // 1
     +
     bury 13
-    b main_for_header@85
+    b main_for_header@88
 
-main_after_for@89:
+main_after_for@92:
     dig 38
     intc_0 // 0
     extract_uint16
@@ -575,11 +578,11 @@ main_after_for@89:
     intc_0 // 0
     bury 12
 
-main_for_header@90:
+main_for_header@93:
     dig 11
     dig 22
     <
-    bz main_after_for@96
+    bz main_after_for@99
     dig 38
     extract 2 0
     dig 12
@@ -603,34 +606,34 @@ main_for_header@90:
     dup
     bury 8
     bury 6
-    bz main_after_if_else@93
+    bz main_after_if_else@96
     dig 5
     intc_1 // 1
     +
     bury 5
 
-main_after_if_else@93:
+main_after_if_else@96:
     dig 4
     dup
     bury 7
     bury 5
     dig 1
-    bz main_after_if_else@95
+    bz main_after_if_else@98
     dig 5
     intc_1 // 1
     +
     bury 5
 
-main_after_if_else@95:
+main_after_if_else@98:
     dig 4
     bury 6
     dig 11
     intc_1 // 1
     +
     bury 12
-    b main_for_header@90
+    b main_for_header@93
 
-main_after_for@96:
+main_after_for@99:
     dig 37
     intc_0 // 0
     extract_uint16
@@ -638,11 +641,11 @@ main_after_for@96:
     intc_0 // 0
     bury 16
 
-main_for_header@97:
+main_for_header@100:
     dig 15
     dig 21
     <
-    bz main_after_for@99
+    bz main_after_for@102
     dig 37
     extract 2 0
     dig 16
@@ -697,9 +700,9 @@ main_for_header@97:
     ==
     assert // expected string length to match index
     bury 16
-    b main_for_header@97
+    b main_for_header@100
 
-main_after_for@99:
+main_after_for@102:
     dig 8
     itob
     dig 8
@@ -717,7 +720,7 @@ main_after_for@99:
     log
     return
 
-main_test_bit_packed_tuples_route@13:
+main_test_bit_packed_tuples_route@14:
     bytec_0 // 0x0000
     bury 40
     bytec_0 // 0x0000
@@ -729,11 +732,11 @@ main_test_bit_packed_tuples_route@13:
     intc_0 // 0
     bury 17
 
-main_for_header@102:
+main_for_header@105:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@104
+    bz main_after_for@107
     dig 16
     dup
     !
@@ -867,9 +870,9 @@ main_for_header@102:
     replace2 0
     bury 36
     bury 17
-    b main_for_header@102
+    b main_for_header@105
 
-main_after_for@104:
+main_after_for@107:
     dig 39
     dup
     intc_0 // 0
@@ -912,7 +915,7 @@ main_after_for@104:
     app_global_put
     return
 
-main_test_nested_array_route@12:
+main_test_nested_array_route@13:
     txna ApplicationArgs 1
     btoi
     bury 19
@@ -921,21 +924,21 @@ main_test_nested_array_route@12:
     intc_0 // 0
     bury 17
 
-main_for_header@107:
+main_for_header@110:
     dig 16
     dig 19
     <
-    bz main_after_for@112
+    bz main_after_for@115
     bytec_0 // 0x0000
     bury 34
     intc_0 // 0
     bury 11
 
-main_for_header@109:
+main_for_header@112:
     dig 10
     dig 17
     <
-    bz main_after_for@111
+    bz main_after_for@114
     dig 10
     dup
     itob
@@ -955,9 +958,9 @@ main_for_header@109:
     intc_1 // 1
     +
     bury 11
-    b main_for_header@109
+    b main_for_header@112
 
-main_after_for@111:
+main_after_for@114:
     dig 41
     dup
     intc_0 // 0
@@ -976,9 +979,9 @@ main_after_for@111:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@107
+    b main_for_header@110
 
-main_after_for@112:
+main_after_for@115:
     bytec_0 // 0x0000
     bury 30
     dig 41
@@ -988,11 +991,11 @@ main_after_for@112:
     intc_0 // 0
     bury 15
 
-main_for_header@113:
+main_for_header@116:
     dig 14
     dig 26
     <
-    bz main_after_for@115
+    bz main_after_for@118
     dig 41
     extract 2 0
     dig 15
@@ -1018,11 +1021,11 @@ main_for_header@113:
     intc_0 // 0
     bury 14
 
-main_for_header@162:
+main_for_header@165:
     dig 13
     dig 25
     <
-    bz main_after_for@164
+    bz main_after_for@167
     dig 32
     extract 2 0
     dig 14
@@ -1037,9 +1040,9 @@ main_for_header@162:
     intc_1 // 1
     +
     bury 14
-    b main_for_header@162
+    b main_for_header@165
 
-main_after_for@164:
+main_after_for@167:
     dig 2
     itob
     dig 30
@@ -1059,38 +1062,38 @@ main_after_for@164:
     intc_1 // 1
     +
     bury 15
-    b main_for_header@113
+    b main_for_header@116
 
-main_after_for@115:
+main_after_for@118:
     bytec_1 // 0x151f7c75
     dig 30
     concat
     log
     return
 
-main_test_implicit_conversion_emit_route@11:
+main_test_implicit_conversion_emit_route@12:
     pushbytes 0xfa40c0530002
     txna ApplicationArgs 1
     concat
     log
     return
 
-main_test_implicit_conversion_log_route@10:
+main_test_implicit_conversion_log_route@11:
     txna ApplicationArgs 1
     log
     return
 
-main_test_dynamic_sized_named_tuple_array_route@9:
+main_test_dynamic_sized_named_tuple_array_route@10:
     bytec_0 // 0x0000
     bury 42
     intc_0 // 0
     bury 17
 
-main_for_header@122:
+main_for_header@125:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@124
+    bz main_after_for@127
     dig 16
     dup
     intc_1 // 1
@@ -1125,9 +1128,9 @@ main_for_header@122:
     callsub dynamic_array_concat_dynamic_element
     bury 43
     bury 17
-    b main_for_header@122
+    b main_for_header@125
 
-main_after_for@124:
+main_after_for@127:
     dig 41
     intc_0 // 0
     extract_uint16
@@ -1139,11 +1142,11 @@ main_after_for@124:
     intc_0 // 0
     bury 17
 
-main_for_header@125:
+main_for_header@128:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@127
+    bz main_after_for@130
     dig 41
     extract 2 0
     dig 17
@@ -1194,9 +1197,9 @@ main_for_header@125:
     ==
     assert // expected 2nd element to be correct
     bury 17
-    b main_for_header@125
+    b main_for_header@128
 
-main_after_for@127:
+main_after_for@130:
     dig 41
     callsub dynamic_array_pop_dynamic_element
     bury 1
@@ -1296,17 +1299,17 @@ main_after_for@127:
     app_global_put
     return
 
-main_test_dynamic_sized_tuple_array_route@8:
+main_test_dynamic_sized_tuple_array_route@9:
     bytec_0 // 0x0000
     bury 42
     intc_0 // 0
     bury 17
 
-main_for_header@130:
+main_for_header@133:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@132
+    bz main_after_for@135
     dig 16
     dup
     intc_1 // 1
@@ -1341,9 +1344,9 @@ main_for_header@130:
     callsub dynamic_array_concat_dynamic_element
     bury 43
     bury 17
-    b main_for_header@130
+    b main_for_header@133
 
-main_after_for@132:
+main_after_for@135:
     dig 41
     intc_0 // 0
     extract_uint16
@@ -1355,11 +1358,11 @@ main_after_for@132:
     intc_0 // 0
     bury 17
 
-main_for_header@133:
+main_for_header@136:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@135
+    bz main_after_for@138
     dig 41
     extract 2 0
     dig 17
@@ -1410,9 +1413,9 @@ main_for_header@133:
     ==
     assert // expected 2nd element to be correct
     bury 17
-    b main_for_header@133
+    b main_for_header@136
 
-main_after_for@135:
+main_after_for@138:
     dig 41
     callsub dynamic_array_pop_dynamic_element
     bury 1
@@ -1514,17 +1517,17 @@ main_after_for@135:
     app_global_put
     return
 
-main_test_fixed_size_named_tuple_array_route@7:
+main_test_fixed_size_named_tuple_array_route@8:
     bytec_0 // 0x0000
     bury 42
     intc_0 // 0
     bury 17
 
-main_for_header@138:
+main_for_header@141:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@140
+    bz main_after_for@143
     dig 16
     dup
     intc_2 // 2
@@ -1562,9 +1565,9 @@ main_for_header@138:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@138
+    b main_for_header@141
 
-main_after_for@140:
+main_after_for@143:
     dig 41
     dup
     intc_0 // 0
@@ -1594,17 +1597,17 @@ main_after_for@140:
     app_global_put
     return
 
-main_test_fixed_size_tuple_array_route@6:
+main_test_fixed_size_tuple_array_route@7:
     bytec_0 // 0x0000
     bury 42
     intc_0 // 0
     bury 17
 
-main_for_header@143:
+main_for_header@146:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@145
+    bz main_after_for@148
     dig 16
     dup
     intc_1 // 1
@@ -1631,9 +1634,9 @@ main_for_header@143:
     replace2 0
     bury 43
     bury 17
-    b main_for_header@143
+    b main_for_header@146
 
-main_after_for@145:
+main_after_for@148:
     dig 41
     dup
     intc_0 // 0
@@ -1735,7 +1738,7 @@ main_after_for@145:
     app_global_put
     return
 
-main_test_bool_array_route@5:
+main_test_bool_array_route@6:
     txna ApplicationArgs 1
     btoi
     bury 10
@@ -1744,11 +1747,11 @@ main_test_bool_array_route@5:
     intc_0 // 0
     bury 17
 
-main_for_header@148:
+main_for_header@151:
     dig 16
     dig 10
     <
-    bz main_after_for@150
+    bz main_after_for@153
     txn NumAppArgs
     dig 17
     dup
@@ -1767,9 +1770,9 @@ main_for_header@148:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@148
+    b main_for_header@151
 
-main_after_for@150:
+main_after_for@153:
     dig 41
     intc_0 // 0
     extract_uint16
@@ -1780,7 +1783,7 @@ main_after_for@150:
     cover 2
     ==
     assert
-    bz main_after_if_else@152
+    bz main_after_if_else@155
     dig 17
     assert // index access is out of bounds
     dig 41
@@ -1789,11 +1792,11 @@ main_after_for@150:
     !
     assert // expected element 0 to be False
 
-main_after_if_else@152:
+main_after_if_else@155:
     dig 9
     intc_1 // 1
     >
-    bz main_after_if_else@154
+    bz main_after_if_else@157
     intc_1 // 1
     dig 18
     <
@@ -1804,11 +1807,11 @@ main_after_if_else@152:
     !
     assert // expected element 1 to be False
 
-main_after_if_else@154:
+main_after_if_else@157:
     dig 9
     intc_2 // 2
     >
-    bz main_after_if_else@156
+    bz main_after_if_else@159
     intc_2 // 2
     dig 18
     <
@@ -1818,11 +1821,11 @@ main_after_if_else@154:
     getbit
     assert // expected element 2 to be True
 
-main_after_if_else@156:
+main_after_if_else@159:
     dig 9
     pushint 3 // 3
     >
-    bz main_after_if_else@158
+    bz main_after_if_else@161
     dig 9
     intc_1 // 1
     -
@@ -1838,12 +1841,12 @@ main_after_if_else@156:
     !
     assert // expected last element to be False
 
-main_after_if_else@158:
+main_after_if_else@161:
     pushbytes "g"
     dig 42
     app_global_put
     dig 9
-    bz main_after_if_else@160
+    bz main_after_if_else@163
     dig 17
     intc_1 // 1
     -
@@ -1876,10 +1879,10 @@ main_after_if_else@158:
     ==
     assert
 
-main_after_if_else@160:
+main_after_if_else@163:
     return
 
-main_test_biguint_array_route@4:
+main_test_biguint_array_route@5:
     txn NumAppArgs
     intc_1 // 1
     -
@@ -1918,11 +1921,11 @@ main_test_biguint_array_route@4:
     intc_0 // 0
     bury 17
 
-main_for_header@169:
+main_for_header@172:
     dig 16
     pushint 5 // 5
     <
-    bz main_after_for@171
+    bz main_after_for@174
     dig 16
     dup
     itob
@@ -1944,9 +1947,9 @@ main_for_header@169:
     intc_1 // 1
     +
     bury 17
-    b main_for_header@169
+    b main_for_header@172
 
-main_after_for@171:
+main_after_for@174:
     dig 41
     dup
     intc_0 // 0
@@ -2055,7 +2058,7 @@ main_after_for@171:
     box_put
     return
 
-main_test_uint64_array_route@3:
+main_test_uint64_array_route@4:
     pushbytes 0x0001000000000000002a
     pushint 5 // 5
     callsub add_x
@@ -2117,11 +2120,11 @@ main_test_uint64_array_route@3:
     intc_0 // 0
     bury 29
 
-main_for_header@174:
+main_for_header@177:
     dig 28
     pushint 3 // 3
     <
-    bz main_after_for@176
+    bz main_after_for@179
     dig 41
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
@@ -2131,9 +2134,9 @@ main_for_header@174:
     intc_1 // 1
     +
     bury 29
-    b main_for_header@174
+    b main_for_header@177
 
-main_after_for@176:
+main_after_for@179:
     dig 41
     dup
     intc_0 // 0
@@ -2223,7 +2226,7 @@ main_after_for@176:
     app_global_put
     return
 
-main_bare_routing@29:
+main_bare_routing@32:
     txn OnCompletion
     !
     assert

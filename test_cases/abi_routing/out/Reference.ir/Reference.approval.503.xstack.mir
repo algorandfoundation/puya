@@ -42,60 +42,80 @@ subroutine main:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         txn NumAppArgs                                                                             tmp%0#3
-        bz main_bare_routing@22 ; b main_abi_routing@4
+        bz main_bare_routing@28 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
-        txn OnCompletion                                                                           tmp%2#1
-        bz main_simple_routes@5 ; b main_other_routes@18
+        txn ApplicationID                                                                          tmp%2#1
+        !                                                                                          tmp%3#1
+        txn OnCompletion                                                                           tmp%3#1,tmp%4#0
+        int 1                                                                                      tmp%3#1,tmp%4#0,1
+        l-load tmp%4#0 1                                                                           tmp%3#1,1,tmp%4#0
+        shl                                                                                        tmp%3#1,tmp%5#0
+        l-load tmp%3#1 1                                                                           tmp%5#0,tmp%3#1
+        l-load tmp%5#0 1                                                                           tmp%3#1,tmp%5#0
+        +                                                                                          tmp%6#0
+        switch main_switch_case_0@5 main_switch_case_2@23 main_switch_case_1@20 main_switch_case_2@23 main_switch_case_3@25 main_switch_case_2@23 main_after_if_else@30 main_after_if_else@30 main_switch_case_2@23 main_switch_case_2@23 main_switch_case_3@25 main_switch_case_2@23 ; b main_after_if_else@30 
 
-    main_simple_routes@5:
+    main_switch_case_0@5:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
-        txn ApplicationID                                                                          tmp%4#0
-        assert // can only call when not creating
-        txna ApplicationArgs 0                                                                     tmp%6#0
-        method noop_with_uint64(uint64)uint8                                                       tmp%6#0,Method(noop_with_uint64(uint64)uint8)
-        method opt_into_asset(uint64)void                                                          tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void)
-        method with_transactions(uint64,uint64,pay,uint64)void                                     tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void)
-        method compare_assets(uint64,uint64)void                                                   tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void)
-        method get_address()address                                                                tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address)
-        method get_asset()uint64                                                                   tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64)
-        method get_application()uint64                                                             tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64)
-        method get_an_int()uint64                                                                  tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64)
-        method method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void)
-        method method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[] tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[])
-        method method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64 tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64)
-        method hello_with_algopy_string(string)string                                              tmp%6#0,Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string)
-        l-load tmp%6#0 12                                                                          Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string),tmp%6#0
-        match main_noop_with_uint64_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14 main_method_with_15_args_route@15 main_method_with_more_than_15_args_route@16 main_hello_with_algopy_string_route@17 ; b main_after_if_else@24 
+        txna ApplicationArgs 0                                                                     tmp%7#0
+        method noop_with_uint64(uint64)uint8                                                       tmp%7#0,Method(noop_with_uint64(uint64)uint8)
+        method all_the_things(uint64)uint8                                                         tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8)
+        method mixed_oca(uint64)uint8                                                              tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8)
+        method opt_into_asset(uint64)void                                                          tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void)
+        method with_transactions(uint64,uint64,pay,uint64)void                                     tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void)
+        method compare_assets(uint64,uint64)void                                                   tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void)
+        method get_address()address                                                                tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address)
+        method get_asset()uint64                                                                   tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64)
+        method get_application()uint64                                                             tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64)
+        method get_an_int()uint64                                                                  tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64)
+        method method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void)
+        method method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[] tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[])
+        method method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64 tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64)
+        method hello_with_algopy_string(string)string                                              tmp%7#0,Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string)
+        l-load tmp%7#0 14                                                                          Method(noop_with_uint64(uint64)uint8),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string),tmp%7#0
+        match main_noop_with_uint64_route@6 main_all_the_things_route@7 main_mixed_oca_route@8 main_opt_into_asset_route@9 main_with_transactions_route@10 main_compare_assets_route@11 main_get_address_route@12 main_get_asset_route@13 main_get_application_route@14 main_get_an_int_route@15 main_method_with_default_args_route@16 main_method_with_15_args_route@17 main_method_with_more_than_15_args_route@18 main_hello_with_algopy_string_route@19 ; b main_after_if_else@30 
 
     main_noop_with_uint64_route@6:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub noop_with_uint64
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_opt_into_asset_route@7:
+    main_all_the_things_route@7:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        callsub full_abi_config
+        b main_after_if_else@30
+
+    main_mixed_oca_route@8:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        callsub mixed_oca
+        b main_after_if_else@30
+
+    main_opt_into_asset_route@9:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub opt_into_asset
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_with_transactions_route@8:
+    main_with_transactions_route@10:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub with_transactions
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_compare_assets_route@9:
+    main_compare_assets_route@11:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub compare_assets
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_get_address_route@10:
+    main_get_address_route@12:
         // abi_routing/contract.py:126
         // @arc4.abimethod(readonly=True)
         byte CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                            CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -103,7 +123,7 @@ subroutine main:
         v-load lifted%return#0                                                                     lifted%return#0
         return
 
-    main_get_asset_route@11:
+    main_get_asset_route@13:
         // abi_routing/contract.py:130
         // @arc4.abimethod(readonly=True)
         byte 0x151f7c7500000000000001c8                                                            0x151f7c7500000000000001c8
@@ -111,7 +131,7 @@ subroutine main:
         v-load lifted%return#0                                                                     lifted%return#0
         return
 
-    main_get_application_route@12:
+    main_get_application_route@14:
         // abi_routing/contract.py:134
         // @arc4.abimethod(readonly=True, name="get_application")
         byte 0x151f7c7500000000000001c8                                                            0x151f7c7500000000000001c8
@@ -119,7 +139,7 @@ subroutine main:
         v-load lifted%return#0                                                                     lifted%return#0
         return
 
-    main_get_an_int_route@13:
+    main_get_an_int_route@15:
         // abi_routing/contract.py:138
         // @arc4.abimethod(readonly=True, name="get_an_int")
         byte 0x151f7c750000000000000003                                                            0x151f7c750000000000000003
@@ -127,92 +147,93 @@ subroutine main:
         v-load lifted%return#0                                                                     lifted%return#0
         return
 
-    main_method_with_default_args_route@14:
+    main_method_with_default_args_route@16:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub method_with_default_args
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_method_with_15_args_route@15:
+    main_method_with_15_args_route@17:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub method_with_15_args
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_method_with_more_than_15_args_route@16:
+    main_method_with_more_than_15_args_route@18:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub method_with_more_than_15_args
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_hello_with_algopy_string_route@17:
+    main_hello_with_algopy_string_route@19:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub hello_with_algopy_string
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_other_routes@18:
+    main_switch_case_1@20:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
-        txna ApplicationArgs 0                                                                     tmp%7#0
-        method opt_in(uint64,byte[])void                                                           tmp%7#0,Method(opt_in(uint64,byte[])void)
-        method all_the_things(uint64)uint8                                                         tmp%7#0,Method(opt_in(uint64,byte[])void),Method(all_the_things(uint64)uint8)
-        method mixed_oca(uint64)uint8                                                              tmp%7#0,Method(opt_in(uint64,byte[])void),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8)
-        l-load tmp%7#0 3                                                                           Method(opt_in(uint64,byte[])void),Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),tmp%7#0
-        match main_opt_in_route@19 main_all_the_things_route@20 main_mixed_oca_route@21 ; b main_after_if_else@24 
+        txna ApplicationArgs 0                                                                     tmp%8#0
+        method opt_in(uint64,byte[])void                                                           tmp%8#0,Method(opt_in(uint64,byte[])void)
+        method all_the_things(uint64)uint8                                                         tmp%8#0,Method(opt_in(uint64,byte[])void),Method(all_the_things(uint64)uint8)
+        l-load tmp%8#0 2                                                                           Method(opt_in(uint64,byte[])void),Method(all_the_things(uint64)uint8),tmp%8#0
+        match main_opt_in_route@21 main_all_the_things_route@22 ; b main_after_if_else@30 
 
-    main_opt_in_route@19:
-        // abi_routing/contract.py:45
-        // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-        txn OnCompletion                                                                           tmp%8#0
-        int OptIn                                                                                  tmp%8#0,OptIn
-        ==                                                                                         tmp%9#0
-        assert // OnCompletion is not OptIn
-        txn ApplicationID                                                                          tmp%10#0
-        assert // can only call when not creating
+    main_opt_in_route@21:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub opt_in
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_all_the_things_route@20:
+    main_all_the_things_route@22:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub full_abi_config
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_mixed_oca_route@21:
-        // abi_routing/contract.py:66-74
-        // @arc4.abimethod(
-        //     allow_actions=[
-        //         "NoOp",
-        //         "CloseOut",
-        //         "DeleteApplication",
-        //     ],
-        //     create="disallow",
-        //     readonly=True,
-        // )
-        txn OnCompletion                                                                           tmp%12#0
-        int 1                                                                                      tmp%12#0,1
-        l-load tmp%12#0 1                                                                          1,tmp%12#0
-        shl                                                                                        tmp%13#0
-        int 37                                                                                     tmp%13#0,37
-        &                                                                                          tmp%14#0
-        assert // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
-        txn ApplicationID                                                                          tmp%15#0
-        assert // can only call when not creating
+    main_switch_case_2@23:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        txna ApplicationArgs 0                                                                     tmp%9#0
+        method all_the_things(uint64)uint8                                                         tmp%9#0,Method(all_the_things(uint64)uint8)
+        l-load tmp%9#0 1                                                                           Method(all_the_things(uint64)uint8),tmp%9#0
+        match main_all_the_things_route@24 ; b main_after_if_else@30
+
+    main_all_the_things_route@24:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        callsub full_abi_config
+        b main_after_if_else@30
+
+    main_switch_case_3@25:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        txna ApplicationArgs 0                                                                     tmp%10#0
+        method all_the_things(uint64)uint8                                                         tmp%10#0,Method(all_the_things(uint64)uint8)
+        method mixed_oca(uint64)uint8                                                              tmp%10#0,Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8)
+        l-load tmp%10#0 2                                                                          Method(all_the_things(uint64)uint8),Method(mixed_oca(uint64)uint8),tmp%10#0
+        match main_all_the_things_route@26 main_mixed_oca_route@27 ; b main_after_if_else@30 
+
+    main_all_the_things_route@26:
+        // abi_routing/contract.py:24
+        // class Reference(ARC4Contract):
+        callsub full_abi_config
+        b main_after_if_else@30
+
+    main_mixed_oca_route@27:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         callsub mixed_oca
-        b main_after_if_else@24
+        b main_after_if_else@30
 
-    main_bare_routing@22:
+    main_bare_routing@28:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
-        txn OnCompletion                                                                           tmp%17#0
-        switch main_bare_abi_config@23 main_bare_abi_config@23 main_bare_abi_config@23 main_after_if_else@24 main_bare_abi_config@23 main_bare_abi_config@23 ; b main_after_if_else@24 
+        txn OnCompletion                                                                           tmp%11#0
+        switch main_bare_abi_config@29 main_bare_abi_config@29 main_bare_abi_config@29 main_after_if_else@30 main_bare_abi_config@29 main_bare_abi_config@29 ; b main_after_if_else@30 
 
-    main_bare_abi_config@23:
+    main_bare_abi_config@29:
         // abi_routing/contract.py:79-88
         // @arc4.baremethod(
         //     allow_actions=[
@@ -224,8 +245,8 @@ subroutine main:
         //     ],
         //     create="require",
         // )
-        txn ApplicationID                                                                          tmp%18#0
-        !                                                                                          tmp%19#0
+        txn ApplicationID                                                                          tmp%12#0
+        !                                                                                          tmp%13#0
         assert // can only call when creating
         // abi_routing/contract.py:90
         // log("Hello World")
@@ -245,7 +266,7 @@ subroutine main:
         v-load lifted%return#0                                                                     lifted%return#0
         return
 
-    main_after_if_else@24:
+    main_after_if_else@30:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
         err

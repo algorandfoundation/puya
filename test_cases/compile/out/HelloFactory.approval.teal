@@ -4,32 +4,35 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 6 0 1 5
-    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=) 0x000568656c6c6f base64(CoEBMRtBADeCAgQkN408BPXk/U02GgCOAgAYAAEAMRkURDEYRIAMFR98dQAAAAAAABAAsEMxGYEFEkQxGERDMRkURDEYFERD) 0xf5e4fd4d 0x0003686579 "hey there" "hi there"
+    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD) 0x000568656c6c6f base64(CoEBMRtBAEMxGBSBATEZkAiDAgAKTwKOAgAQAAEAgAQkN408NhoAjgEAAQBDgAT15P1NNhoAjgEAAQCADBUffHUAAAAAAAAQALBDMRkURDEYFERD) 0xf5e4fd4d 0x0003686579 "hey there" "hi there"
     // compile/factory.py:26
     // @arc4.abimethod()
     intc_2 // 1
     // compile/factory.py:25
     // class HelloFactory(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@18
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@21
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_2 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x60ffa295 0x2a17995c 0xeba742ea 0x335a6438 0x02947ca2 0xae1ee840 0x7b9073f5 0x854a68ca 0x1da004a1 0xc1995abd 0x7f4e75f5 0x01965937 0x7fbf8cca // method "test_logicsig()address", method "test_compile_contract()void", method "test_compile_contract_tmpl()void", method "test_compile_contract_prfx()void", method "test_compile_contract_large()void", method "test_arc4_create()void", method "test_arc4_create_tmpl()void", method "test_arc4_create_prfx()void", method "test_arc4_create_large()void", method "test_arc4_create_modified_compiled()void", method "test_arc4_update()void", method "test_other_constants()void", method "test_abi_call_create_params()void"
     txna ApplicationArgs 0
-    match main_test_logicsig_route@3 test_compile_contract test_compile_contract_tmpl test_compile_contract_prfx test_compile_contract_large test_arc4_create test_arc4_create_tmpl test_arc4_create_prfx test_arc4_create_large test_arc4_create_modified_compiled test_arc4_update test_other_constants test_abi_call_create_params
+    match main_test_logicsig_route@4 test_compile_contract test_compile_contract_tmpl test_compile_contract_prfx test_compile_contract_large test_arc4_create test_arc4_create_tmpl test_arc4_create_prfx test_arc4_create_large test_arc4_create_modified_compiled test_arc4_update test_other_constants test_abi_call_create_params
     err
 
-main_test_logicsig_route@3:
+main_test_logicsig_route@4:
     // compile/factory.py:26
     // @arc4.abimethod()
     pushbytes base32(CUPXY5NG6NZFDJMMVA333JIXVH3QODXEXAFDRD7EIYKGW26UHM562XK44U)
     log
     return
 
-main_bare_routing@18:
+main_bare_routing@21:
     // compile/factory.py:25
     // class HelloFactory(ARC4Contract):
     txn OnCompletion
@@ -61,7 +64,7 @@ test_compile_contract:
     // compiled = compile_contract(Hello)
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:36
     // app_args=(arc4.arc4_signature("create(string)void"), arc4.String("hello")),
@@ -197,7 +200,7 @@ test_compile_contract_tmpl:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:68
     // app_args=(arc4.arc4_signature("create()void"),),
@@ -337,7 +340,7 @@ test_compile_contract_prfx:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiYCCGdyZWV0aW5nAmhpgQExGEAAAygpZzEbQQA6ggMETFxhugQkN408BNCiggA2GgCOAwAVAAsAAQAxGRREMRhEQgAgMRmBBRJEMRhEQzEZFEQxGBREQ4EEMRmOAQABADEYREM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    pushbytes base64(CiACAQAmAghncmVldGluZwJoaSIxGEAAAygpZzEbQQBDMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABNCiggA2GgCOAQAsAIAEJDeNPDYaAI4BAAEAQ4AETFxhujYaAI4BAAEAQ4EEMRmOAQABADEYREM2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
     itxn_field ApprovalProgramPages
     // compile/factory.py:104
     // app_args=(arc4.arc4_signature("create()void"),),
@@ -467,7 +470,7 @@ test_compile_contract_large:
     // compiled = compile_contract(LargeProgram)
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 11 // base64(CoEBMRtBADeCAgQkN408BPXk/U02GgCOAgAYAAEAMRkURDEYRIAMFR98dQAAAAAAABAAsEMxGYEFEkQxGERDMRkURDEYFERD)
+    bytec 11 // base64(CoEBMRtBAEMxGBSBATEZkAiDAgAKTwKOAgAQAAEAgAQkN408NhoAjgEAAQBDgAT15P1NNhoAjgEAAQCADBUffHUAAAAAAAAQALBDMRkURDEYFERD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:134
     // itxn.ApplicationCall(
@@ -585,7 +588,7 @@ test_arc4_create:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -664,7 +667,7 @@ test_arc4_create_tmpl:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:181-184
     // hello_app = arc4.arc4_create(
@@ -748,7 +751,7 @@ test_arc4_create_prfx:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiYCCGdyZWV0aW5nBXByZngygQExGEAAAygpZzEbQQA6ggMETFxhugQkN408BNCiggA2GgCOAwAVAAsAAQAxGRREMRhEQgAgMRmBBRJEMRhEQzEZFEQxGBREQ4EEMRmOAQABADEYREM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    pushbytes base64(CiACAQAmAghncmVldGluZwVwcmZ4MiIxGEAAAygpZzEbQQBDMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABNCiggA2GgCOAQAsAIAEJDeNPDYaAI4BAAEAQ4AETFxhujYaAI4BAAEAQ4EEMRmOAQABADEYREM2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
     itxn_field ApprovalProgramPages
     // compile/factory.py:204-207
     // hello_app = arc4.arc4_create(
@@ -823,7 +826,7 @@ test_arc4_create_large:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 11 // base64(CoEBMRtBADeCAgQkN408BPXk/U02GgCOAgAYAAEAMRkURDEYRIAMFR98dQAAAAAAABAAsEMxGYEFEkQxGERDMRkURDEYFERD)
+    bytec 11 // base64(CoEBMRtBAEMxGBSBATEZkAiDAgAKTwKOAgAQAAEAgAQkN408NhoAjgEAAQBDgAT15P1NNhoAjgEAAQCADBUffHUAAAAAAAAQALBDMRkURDEYFERD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -910,7 +913,7 @@ test_arc4_create_modified_compiled:
     // compiled = compile_contract(Hello)
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:245-249
     // app = arc4.arc4_create(
@@ -1063,7 +1066,7 @@ test_arc4_update:
     // ),
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+    bytec 9 // base64(CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:267
     // HelloTmpl,
@@ -1122,7 +1125,7 @@ test_arc4_update:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     pushint 4 // UpdateApplication
     itxn_field OnCompletion
@@ -1224,7 +1227,7 @@ test_other_constants:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAiMRhAABAoJwRnKScFZyonBmcrJwdnggME2ShadAQkN408BFsMI3U2GgCOAwAVAAsAAQAxGRREMRhEQgAiMRmBBRJEMRhEQzEZFEQxGBREgAwVH3x1AAAAAAAAAAGwQzYaAVcCACMpZUSAATCgSRUiCSJYIyhlRIABIFBPAlBMUCMqZURQIytlRFBJFRZXBgJMUIAEFR98dUxQsCJD)
+    pushbytes base64(CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAiMRhAABAoJwRnKScFZyonBmcrJwdnMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABFsMI3U2GgCOAQAuAIAEJDeNPDYaAI4BAAEAQ4AE2ShadDYaAI4BAAEAgAwVH3x1AAAAAAAAAAGwQzYaAVcCACMpZUSAATCgSRUiCSJYIyhlRIABIFBPAlBMUCMqZURQIytlRFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:300
     // HelloOtherConstants,
@@ -1325,7 +1328,7 @@ test_abi_call_create_params:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+    bytec 5 // base64(CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
     itxn_field ApprovalProgramPages
     // compile/factory.py:326-336
     // app = arc4.abi_call(

@@ -7,25 +7,21 @@ main:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     txna ApplicationArgs 0
-    match main_test_array_rebinding_route@3
+    match test_array_rebinding
     err
 
-main_test_array_rebinding_route@3:
-    // arc4_types/mutable_params2.py:5
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc4_types/mutable_params2.py:4
-    // class MutableParams2(arc4.ARC4Contract):
-    b test_array_rebinding
-
-main_bare_routing@6:
+main_bare_routing@9:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn OnCompletion

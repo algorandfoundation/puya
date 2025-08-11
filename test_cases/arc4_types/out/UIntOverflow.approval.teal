@@ -7,18 +7,21 @@ main:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@11
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0xea71ee7d 0xe31958f9 0xc7ed8497 // method "test_uint8()void", method "test_uint16()void", method "test_uint32()void"
     txna ApplicationArgs 0
     match test_uint8 test_uint16 test_uint32
     err
 
-main_bare_routing@8:
+main_bare_routing@11:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     txn OnCompletion

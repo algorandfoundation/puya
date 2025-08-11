@@ -899,80 +899,91 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@8
+    bz approval_program_bare_routing@11
 
 approval_program_abi_routing@2:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_2 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match approval_program_switch_case_0@3
+
+approval_program_switch_case_default@9:
+
+approval_program_switch_case_next@10:
+
+approval_program_after_if_else@18:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    err
+
+approval_program_switch_case_0@3:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x526e8bbf // method "append()void"
     pushbytes 0x95fef13d // method "modify()void"
     pushbytes 0x0c29444b // method "get()(uint64,string)[]"
     uncover 3
-    match approval_program_append_route@3 approval_program_modify_route@4 approval_program_get_route@5
+    match approval_program_append_route@4 approval_program_modify_route@5 approval_program_get_route@6
 
-approval_program_switch_case_default@6:
+approval_program_switch_case_default@7:
 
-approval_program_switch_case_next@7:
+approval_program_switch_case_next@8:
+    b approval_program_switch_case_next@10
 
-approval_program_after_if_else@15:
-    // state_mutations/contract.py:22
-    // class Contract(ARC4Contract):
-    err
-
-approval_program_get_route@5:
+approval_program_get_route@6:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub get
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@8
 
-approval_program_modify_route@4:
+approval_program_modify_route@5:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub modify
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@8
 
-approval_program_append_route@3:
+approval_program_append_route@4:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub append
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@8
 
-approval_program_bare_routing@8:
+approval_program_bare_routing@11:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_2 // 1
     intc_0 // 0
     uncover 2
-    match approval_program_opt_in@9 approval_program___algopy_default_create@10
+    match approval_program_opt_in@12 approval_program___algopy_default_create@13
 
-approval_program_switch_case_default@13:
+approval_program_switch_case_default@16:
 
-approval_program_switch_case_next@14:
-    b approval_program_after_if_else@15
+approval_program_switch_case_next@17:
+    b approval_program_after_if_else@18
 
-approval_program___algopy_default_create@10:
+approval_program___algopy_default_create@13:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@11:
+approval_program_block@14:
 
-approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@12:
+approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@15:
     intc_2 // 1
     return
 
-approval_program_opt_in@9:
+approval_program_opt_in@12:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID

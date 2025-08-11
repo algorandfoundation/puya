@@ -1515,19 +1515,34 @@ approval_program_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz approval_program_bare_routing@14
+    bz approval_program_bare_routing@17
 
 approval_program_abi_routing@2:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_2 // 1
+    swap
+    shl
+    +
     intc_1 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match approval_program_switch_case_0@3
+
+approval_program_switch_case_default@15:
+
+approval_program_switch_case_next@16:
+
+approval_program_after_if_else@23:
+    // marketplace_demo/marketplace_with_immutable_struct.py:37
+    // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
+    err
+
+approval_program_switch_case_0@3:
+    // marketplace_demo/marketplace_with_immutable_struct.py:37
+    // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd98ef6a9 // method "getListingsMbr()uint64"
     pushbytes 0x6a4e7fca // method "allowAsset(pay,uint64)void"
@@ -1539,92 +1554,88 @@ approval_program_abi_routing@2:
     pushbytes 0x3234b711 // method "bid(address,uint64,uint64,pay,uint64,uint64)void"
     pushbytes 0xcc826346 // method "acceptBid(uint64,uint64)void"
     uncover 9
-    match approval_program_getListingsMbr_route@3 approval_program_allowAsset_route@4 approval_program_firstDeposit_route@5 approval_program_deposit_route@6 approval_program_setPrice_route@7 approval_program_buy_route@8 approval_program_withdraw_route@9 approval_program_bid_route@10 approval_program_acceptBid_route@11
+    match approval_program_getListingsMbr_route@4 approval_program_allowAsset_route@5 approval_program_firstDeposit_route@6 approval_program_deposit_route@7 approval_program_setPrice_route@8 approval_program_buy_route@9 approval_program_withdraw_route@10 approval_program_bid_route@11 approval_program_acceptBid_route@12
 
-approval_program_switch_case_default@12:
+approval_program_switch_case_default@13:
 
-approval_program_switch_case_next@13:
+approval_program_switch_case_next@14:
+    b approval_program_switch_case_next@16
 
-approval_program_after_if_else@20:
-    // marketplace_demo/marketplace_with_immutable_struct.py:37
-    // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
-    err
-
-approval_program_acceptBid_route@11:
+approval_program_acceptBid_route@12:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub accept_bid
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_bid_route@10:
+approval_program_bid_route@11:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub bid
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_withdraw_route@9:
+approval_program_withdraw_route@10:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub withdraw
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_buy_route@8:
+approval_program_buy_route@9:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub buy
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_setPrice_route@7:
+approval_program_setPrice_route@8:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub set_price
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_deposit_route@6:
+approval_program_deposit_route@7:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub deposit
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_firstDeposit_route@5:
+approval_program_firstDeposit_route@6:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub first_deposit
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_allowAsset_route@4:
+approval_program_allowAsset_route@5:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub allow_asset
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_getListingsMbr_route@3:
+approval_program_getListingsMbr_route@4:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     callsub get_listings_mbr
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@14
 
-approval_program_bare_routing@14:
+approval_program_bare_routing@17:
     // marketplace_demo/marketplace_with_immutable_struct.py:37
     // class DigitalMarketplaceWithImmStruct(arc4.ARC4Contract):
     txn OnCompletion
     intc_1 // 0
     swap
-    match approval_program___algopy_default_create@15
+    match approval_program___algopy_default_create@18
 
-approval_program_switch_case_default@18:
+approval_program_switch_case_default@21:
 
-approval_program_switch_case_next@19:
-    b approval_program_after_if_else@20
+approval_program_switch_case_next@22:
+    b approval_program_after_if_else@23
 
-approval_program___algopy_default_create@15:
+approval_program___algopy_default_create@18:
     txn ApplicationID
     intc_1 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@16:
+approval_program_block@19:
 
-approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_default_create@17:
+approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_default_create@20:
     intc_2 // 1
     return

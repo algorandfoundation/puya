@@ -17,18 +17,21 @@ main_after_if_else@2:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@8
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
     match bootstrap log_greetings
     err
 
-main_bare_routing@7:
+main_bare_routing@8:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txn OnCompletion

@@ -6,18 +6,21 @@ main:
     intcblock 1 64
     intc_0 // 1
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@10
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
     txna ApplicationArgs 0
-    match main_build_tuple_route@3 main_test_tuple_route@4
+    match main_build_tuple_route@4 main_test_tuple_route@5
     err
 
-main_test_tuple_route@4:
+main_test_tuple_route@5:
     txna ApplicationArgs 1
     dup
     pushint 0 // 0
@@ -60,7 +63,7 @@ main_test_tuple_route@4:
     assert
     return
 
-main_build_tuple_route@3:
+main_build_tuple_route@4:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -115,7 +118,7 @@ main_build_tuple_route@3:
     log
     return
 
-main_bare_routing@7:
+main_bare_routing@10:
     txn OnCompletion
     !
     assert

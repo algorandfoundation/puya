@@ -22,35 +22,30 @@ main:
 main_after_if_else@2:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn OnCompletion
-    bnz main_other_routes@9
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match bootstrap close get_preconditions vote
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    switch main_switch_case_1@6 main_switch_case_0@4
     err
 
-main_other_routes@9:
+main_switch_case_0@4:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@10
+    match create
     err
 
-main_create_route@10:
-    // voting/voting.py:58
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_switch_case_1@6:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    b create
+    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match bootstrap close get_preconditions vote
+    err
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:

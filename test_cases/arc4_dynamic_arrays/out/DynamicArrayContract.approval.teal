@@ -11,23 +11,26 @@ main:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@11
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@14
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x55715827 0x713dd6db 0x37158aac 0x8570be3b 0x51aa8c49 0x283a186f // method "test_static_elements()void", method "test_dynamic_elements()void", method "test_mixed_single_dynamic_elements()void", method "test_mixed_multiple_dynamic_elements()void", method "test_nested_struct_replacement()void", method "test_nested_tuple_modification()void"
     txna ApplicationArgs 0
-    match test_static_elements test_dynamic_elements test_mixed_single_dynamic_elements test_mixed_multiple_dynamic_elements main_test_nested_struct_replacement_route@7 test_nested_tuple_modification
+    match test_static_elements test_dynamic_elements test_mixed_single_dynamic_elements test_mixed_multiple_dynamic_elements main_test_nested_struct_replacement_route@8 test_nested_tuple_modification
     err
 
-main_test_nested_struct_replacement_route@7:
+main_test_nested_struct_replacement_route@8:
     // arc4_dynamic_arrays/contract.py:114
     // @arc4.abimethod()
     return
 
-main_bare_routing@11:
+main_bare_routing@14:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn OnCompletion

@@ -29,53 +29,55 @@ subroutine main:
     main_after_if_else@2:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%0#2
-        v-store tmp%0#2
-        method create()void                                                           Method(create()void)
-        method method()void                                                           Method(create()void),Method(method()void)
-        v-load tmp%0#2                                                                Method(create()void),Method(method()void),tmp%0#2
-        match main_create_route@4 main_method_route@5 ; b main_switch_case_next@6
-
-    main_create_route@4:
-        // diamond_mro/gp.py:11
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                                              tmp%1#0
+        txn ApplicationID                                                             tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                tmp%0#0
+        !                                                                             tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                                                tmp%1#0
-        !                                                                             tmp%2#0
+        txn OnCompletion                                                              tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                                tmp%2#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%3#0
+        int 1                                                                         1
+        v-load tmp%2#0                                                                1,tmp%2#0
+        shl                                                                           tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                                tmp%3#0
-        !                                                                             tmp%4#0
+        v-load tmp%1#0                                                                tmp%1#0
+        v-load tmp%3#0                                                                tmp%1#0,tmp%3#0
+        +                                                                             tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                tmp%4#0
-        assert // can only call when creating
-        int 1                                                                         1
-        return
+        switch main_switch_case_0@4 main_switch_case_1@6 ; b main_switch_case_next@8
+
+    main_switch_case_0@4:
+        // diamond_mro/derived.py:7
+        // class Derived(Base1, Base2):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%5#0
+        v-store tmp%5#0
+        method method()void                                                           Method(method()void)
+        v-load tmp%5#0                                                                Method(method()void),tmp%5#0
+        match main_method_route@5 ; b main_switch_case_next@8
 
     main_method_route@5:
-        // diamond_mro/derived.py:12
-        // @arc4.abimethod
-        txn OnCompletion                                                              tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                tmp%5#0
-        !                                                                             tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                tmp%6#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                                tmp%7#0
-        assert // can only call when not creating
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
         callsub method
-        b main_switch_case_next@6
+        b main_switch_case_next@8
 
-    main_switch_case_next@6:
+    main_switch_case_1@6:
+        // diamond_mro/derived.py:7
+        // class Derived(Base1, Base2):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%6#0
+        v-store tmp%6#0
+        method create()void                                                           Method(create()void)
+        v-load tmp%6#0                                                                Method(create()void),tmp%6#0
+        match main_create_route@7 ; b main_switch_case_next@8
+
+    main_create_route@7:
+        // diamond_mro/gp.py:11
+        // @arc4.abimethod(create="require")
+        int 1                                                                         1
+        return
+
+    main_switch_case_next@8:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
         err

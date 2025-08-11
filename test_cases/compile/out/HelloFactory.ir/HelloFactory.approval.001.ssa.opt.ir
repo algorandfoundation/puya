@@ -2,65 +2,66 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@18
+        goto tmp%0#1 ? block@2 : block@21
     block@2: // abi_routing_L25
-        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (txn ApplicationID)
         let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        (assert tmp%4#0) // can only call when not creating
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_logicsig()address" => block@3, method "test_compile_contract()void" => block@4, method "test_compile_contract_tmpl()void" => block@5, method "test_compile_contract_prfx()void" => block@6, method "test_compile_contract_large()void" => block@7, method "test_arc4_create()void" => block@8, method "test_arc4_create_tmpl()void" => block@9, method "test_arc4_create_prfx()void" => block@10, method "test_arc4_create_large()void" => block@11, method "test_arc4_create_modified_compiled()void" => block@12, method "test_arc4_update()void" => block@13, method "test_other_constants()void" => block@14, method "test_abi_call_create_params()void" => block@15, * => block@22}
-    block@3: // test_logicsig_route_L26
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        goto tmp%6#0 ? block@25 : block@3
+    block@3: // switch_case_0_L25
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "test_logicsig()address" => block@4, method "test_compile_contract()void" => block@5, method "test_compile_contract_tmpl()void" => block@6, method "test_compile_contract_prfx()void" => block@7, method "test_compile_contract_large()void" => block@8, method "test_arc4_create()void" => block@9, method "test_arc4_create_tmpl()void" => block@10, method "test_arc4_create_prfx()void" => block@11, method "test_arc4_create_large()void" => block@12, method "test_arc4_create_modified_compiled()void" => block@13, method "test_arc4_update()void" => block@14, method "test_other_constants()void" => block@15, method "test_abi_call_create_params()void" => block@16, * => block@25}
+    block@4: // test_logicsig_route_L26
         test_cases.compile.factory.HelloFactory.test_logicsig[routing]()
-        goto block@22
-    block@4: // test_compile_contract_route_L30
+        goto block@25
+    block@5: // test_compile_contract_route_L30
         test_cases.compile.factory.HelloFactory.test_compile_contract[routing]()
-        goto block@22
-    block@5: // test_compile_contract_tmpl_route_L61
+        goto block@25
+    block@6: // test_compile_contract_tmpl_route_L61
         test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[routing]()
-        goto block@22
-    block@6: // test_compile_contract_prfx_route_L96
+        goto block@25
+    block@7: // test_compile_contract_prfx_route_L96
         test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[routing]()
-        goto block@22
-    block@7: // test_compile_contract_large_route_L129
+        goto block@25
+    block@8: // test_compile_contract_large_route_L129
         test_cases.compile.factory.HelloFactory.test_compile_contract_large[routing]()
-        goto block@22
-    block@8: // test_arc4_create_route_L160
+        goto block@25
+    block@9: // test_arc4_create_route_L160
         test_cases.compile.factory.HelloFactory.test_arc4_create[routing]()
-        goto block@22
-    block@9: // test_arc4_create_tmpl_route_L177
+        goto block@25
+    block@10: // test_arc4_create_tmpl_route_L177
         test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing]()
-        goto block@22
-    block@10: // test_arc4_create_prfx_route_L198
+        goto block@25
+    block@11: // test_arc4_create_prfx_route_L198
         test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing]()
-        goto block@22
-    block@11: // test_arc4_create_large_route_L221
+        goto block@25
+    block@12: // test_arc4_create_large_route_L221
         test_cases.compile.factory.HelloFactory.test_arc4_create_large[routing]()
-        goto block@22
-    block@12: // test_arc4_create_modified_compiled_route_L236
+        goto block@25
+    block@13: // test_arc4_create_modified_compiled_route_L236
         test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled[routing]()
-        goto block@22
-    block@13: // test_arc4_update_route_L263
+        goto block@25
+    block@14: // test_arc4_update_route_L263
         test_cases.compile.factory.HelloFactory.test_arc4_update[routing]()
-        goto block@22
-    block@14: // test_other_constants_route_L297
+        goto block@25
+    block@15: // test_other_constants_route_L297
         test_cases.compile.factory.HelloFactory.test_other_constants[routing]()
-        goto block@22
-    block@15: // test_abi_call_create_params_route_L323
+        goto block@25
+    block@16: // test_abi_call_create_params_route_L323
         test_cases.compile.factory.HelloFactory.test_abi_call_create_params[routing]()
-        goto block@22
-    block@18: // bare_routing_L25
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        goto tmp%7#0 ? block@22 : block@19
-    block@19: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // can only call when creating
+        goto block@25
+    block@21: // bare_routing_L25
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        goto tmp%8#0 ? block@25 : block@22
+    block@22: // __algopy_default_create_L1
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // can only call when creating
         test_cases.compile.factory.HelloFactory.__algopy_default_create()
         exit 1u
-    block@22: // after_if_else_L25
+    block@25: // after_if_else_L25
         fail
 
 subroutine test_cases.compile.factory.HelloFactory.test_logicsig[routing]() -> void:
@@ -72,7 +73,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_logicsig[routing]() -> v
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -116,7 +117,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let compiled.approval_program.0#0: bytes = CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -165,7 +166,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYCCGdyZWV0aW5nAmhpgQExGEAAAygpZzEbQQA6ggMETFxhugQkN408BNCiggA2GgCOAwAVAAsAAQAxGRREMRhEQgAgMRmBBRJEMRhEQzEZFEQxGBREQ4EEMRmOAQABADEYREM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CiACAQAmAghncmVldGluZwJoaSIxGEAAAygpZzEbQQBDMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABNCiggA2GgCOAQAsAIAEJDeNPDYaAI4BAAEAQ4AETFxhujYaAI4BAAEAQ4EEMRmOAQABADEYREM2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -208,7 +209,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CoEBMRtBADeCAgQkN408BPXk/U02GgCOAgAYAAEAMRkURDEYRIAMFR98dQAAAAAAABAAsEMxGYEFEkQxGERDMRkURDEYFERD
+        let compiled.approval_program.0#0: bytes = CoEBMRtBAEMxGBSBATEZkAiDAgAKTwKOAgAQAAEAgAQkN408NhoAjgEAAQBDgAT15P1NNhoAjgEAAQCADBUffHUAAAAAAAAQALBDMRkURDEYFERD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -251,7 +252,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
     block@0: // L25
         itxn_begin
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -302,7 +303,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let compiled.approval_program.0#0: bytes = CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -353,7 +354,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYCCGdyZWV0aW5nBXByZngygQExGEAAAygpZzEbQQA6ggMETFxhugQkN408BNCiggA2GgCOAwAVAAsAAQAxGRREMRhEQgAgMRmBBRJEMRhEQzEZFEQxGBREQ4EEMRmOAQABADEYREM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CiACAQAmAghncmVldGluZwVwcmZ4MiIxGEAAAygpZzEbQQBDMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABNCiggA2GgCOAQAsAIAEJDeNPDYaAI4BAAEAQ4AETFxhujYaAI4BAAEAQ4EEMRmOAQABADEYREM2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -405,7 +406,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routing]() -> void:
     block@0: // L25
         itxn_begin
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CoEBMRtBADeCAgQkN408BPXk/U02GgCOAgAYAAEAMRkURDEYRIAMFR98dQAAAAAAABAAsEMxGYEFEkQxGERDMRkURDEYFERD
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CoEBMRtBAEMxGBSBATEZkAiDAgAKTwKOAgAQAAEAgAQkN408NhoAjgEAAQBDgAT15P1NNhoAjgEAAQCADBUffHUAAAAAAAAQALBDMRkURDEYFERD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -452,7 +453,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -518,7 +519,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -> void:
     block@0: // L25
         itxn_begin
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiYCCGdyZWV0aW5nBHRtcGyBATEYQAADKClnMRtBADqCAwRMXGG6BCQ3jTwE0KKCADYaAI4DABUACwABADEZFEQxGERCACAxGYEFEkQxGERDMRkURDEYFERDgQQxGY4BAAEAMRhEQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmAghncmVldGluZwR0bXBsIjEYQAADKClnMRtBAEMxGBQiMRmQCCKBCiNPA44DAB4ADwABAIAE0KKCADYaAI4BACwAgAQkN408NhoAjgEAAQBDgARMXGG6NhoAjgEAAQBDgQQxGY4BAAEAMRhEQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -553,7 +554,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         let tmp%6#0: bool = (== result#0 "hi there")
         (assert tmp%6#0)
         itxn_begin
-        let inner_txn_params%2%%param_ApprovalProgramPages_idx_0#0: bytes = CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let inner_txn_params%2%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let inner_txn_params%2%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%2%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
         let inner_txn_params%2%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -593,7 +594,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
 subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]() -> void:
     block@0: // L25
         itxn_begin
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAiMRhAABAoJwRnKScFZyonBmcrJwdnggME2ShadAQkN408BFsMI3U2GgCOAwAVAAsAAQAxGRREMRhEQgAiMRmBBRJEMRhEQzEZFEQxGBREgAwVH3x1AAAAAAAAAAGwQzYaAVcCACMpZUSAATCgSRUiCSJYIyhlRIABIFBPAlBMUCMqZURQIytlRFBJFRZXBgJMUIAEFR98dUxQsCJD
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAiMRhAABAoJwRnKScFZyonBmcrJwdnMRgUIjEZkAgigQojTwOOAwAeAA8AAQCABFsMI3U2GgCOAQAuAIAEJDeNPDYaAI4BAAEAQ4AE2ShadDYaAI4BAAEAgAwVH3x1AAAAAAAAAAGwQzYaAVcCACMpZUSAATCgSRUiCSJYIyhlRIABIFBPAlBMUCMqZURQIytlRFBJFRZXBgJMUIAEFR98dUxQsCJD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = CoEBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -646,7 +647,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
 
 subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[routing]() -> void:
     block@0: // L25
-        let compiled.approval_program.0#0: bytes = CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxG0EAPIIDBCDfOlQEJDeNPATQooIANhoAjgMAFQALAAEAMRkURDEYREIALjEZgQUSRDEYREMxGRREMRgUREIADYEEMRmOAQABADEYREM2GgFXAgAoTGeBAUM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CiACAQAmAQhncmVldGluZyIxGEAABCiAAGcxG0EAQjEYFCIxGZAIIoEKI08DjgMAHgAPAAEAgATQooIANhoAjgEANgCABCQ3jTw2GgCOAQABAEOABCDfOlQ2GgCOAQAOAIEEMRmOAQABADEYREM2GgFXAgAoTGciQzYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = CoEBQw==
         let compiled.clear_state_program.1#0: bytes = 

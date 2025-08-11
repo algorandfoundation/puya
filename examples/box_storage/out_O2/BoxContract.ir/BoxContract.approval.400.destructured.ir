@@ -2,16 +2,18 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
     block@0: // L1
         let lifted%return#0: bool = 1u
         let tmp%0#3: uint64 = (txn NumAppArgs)
-        goto tmp%0#3 ? block@4 : block@40
+        goto tmp%0#3 ? block@4 : block@41
     block@4: // abi_routing_L80
-        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (txn ApplicationID)
         let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0) // can only call when not creating
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "set_boxes(uint64,byte[],string)void" => block@5, method "check_keys()void" => block@6, method "create_many_ints()void" => block@7, method "set_many_ints(uint64,uint64)void" => block@8, method "sum_many_ints()uint64" => block@125, method "delete_boxes()void" => block@10, method "indirect_extract_and_replace()void" => block@11, method "read_boxes()(uint64,byte[],string,uint64)" => block@12, method "boxes_exist()(bool,bool,bool,bool)" => block@13, method "create_dynamic_arr_struct()void" => block@14, method "delete_dynamic_arr_struct()void" => block@15, method "append_dynamic_arr_struct(uint64)uint64" => block@16, method "pop_dynamic_arr_struct(uint64)uint64" => block@17, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@18, method "nested_write(uint64,uint64)void" => block@19, method "nested_read(uint64,uint64,uint64)uint64" => block@20, method "sum_dynamic_arr_struct()uint64" => block@21, method "create_bools()void" => block@22, method "set_bool(uint64,bool)void" => block@23, method "sum_bools(uint64)uint64" => block@24, method "create_dynamic_box()void" => block@25, method "delete_dynamic_box()void" => block@26, method "append_dynamic_box(uint64)uint64" => block@27, method "pop_dynamic_box(uint64)uint64" => block@28, method "sum_dynamic_box()uint64" => block@29, method "write_dynamic_box(uint64,uint64)void" => block@30, method "write_dynamic_arr_struct(uint64,uint64)void" => block@31, method "slice_box()void" => block@32, method "arc4_box()void" => block@33, method "test_box_ref()void" => block@34, method "box_map_test()void" => block@35, method "box_map_set(uint64,string)void" => block@36, method "box_map_get(uint64)string" => block@37, method "box_map_del(uint64)void" => block@38, method "box_map_exists(uint64)bool" => block@39, * => block@42}
-    block@5: // set_boxes_route_L95
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        let not%tmp%6#0: bool = (! tmp%6#0)
+        (assert not%tmp%6#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "set_boxes(uint64,byte[],string)void" => block@6, method "check_keys()void" => block@7, method "create_many_ints()void" => block@8, method "set_many_ints(uint64,uint64)void" => block@9, method "sum_many_ints()uint64" => block@126, method "delete_boxes()void" => block@11, method "indirect_extract_and_replace()void" => block@12, method "read_boxes()(uint64,byte[],string,uint64)" => block@13, method "boxes_exist()(bool,bool,bool,bool)" => block@14, method "create_dynamic_arr_struct()void" => block@15, method "delete_dynamic_arr_struct()void" => block@16, method "append_dynamic_arr_struct(uint64)uint64" => block@17, method "pop_dynamic_arr_struct(uint64)uint64" => block@18, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@19, method "nested_write(uint64,uint64)void" => block@20, method "nested_read(uint64,uint64,uint64)uint64" => block@21, method "sum_dynamic_arr_struct()uint64" => block@22, method "create_bools()void" => block@23, method "set_bool(uint64,bool)void" => block@24, method "sum_bools(uint64)uint64" => block@25, method "create_dynamic_box()void" => block@26, method "delete_dynamic_box()void" => block@27, method "append_dynamic_box(uint64)uint64" => block@28, method "pop_dynamic_box(uint64)uint64" => block@29, method "sum_dynamic_box()uint64" => block@30, method "write_dynamic_box(uint64,uint64)void" => block@31, method "write_dynamic_arr_struct(uint64,uint64)void" => block@32, method "slice_box()void" => block@33, method "arc4_box()void" => block@34, method "test_box_ref()void" => block@35, method "box_map_test()void" => block@36, method "box_map_set(uint64,string)void" => block@37, method "box_map_get(uint64)string" => block@38, method "box_map_del(uint64)void" => block@39, method "box_map_exists(uint64)bool" => block@40, * => block@43}
+    block@6: // set_boxes_route_L95
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let b#1: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
@@ -32,21 +34,21 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%1#0) // check self.box_a exists
         let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%0#0)
-        let tmp%5#5: uint64 = (+ maybe_value_converted%0#0 3u)
-        let encoded_value%2#1: bytes[8] = (itob tmp%5#5)
+        let tmp%5#0: uint64 = (+ maybe_value_converted%0#0 3u)
+        let encoded_value%2#1: bytes[8] = (itob tmp%5#0)
         (box_put "box_a" encoded_value%2#1)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
         let tmp%6#1: bool = (== value%0#0 8u)
         (assert tmp%6#1)
         let (value%1#1: uint64, check%1#1: bool) = (box_len "b")
-        let tmp%7#0: uint64 = (len b#1)
-        let tmp%8#1: bool = (== value%1#1 tmp%7#0)
+        let tmp%7#4: uint64 = (len b#1)
+        let tmp%8#1: bool = (== value%1#1 tmp%7#4)
         (assert tmp%8#1)
         let (value%2#1: uint64, check%2#1: bool) = (box_len 0x424f585f43)
         (assert check%2#1) // check self.box_c exists
-        let tmp%9#4: uint64 = (len c#1)
-        let tmp%10#2: bool = (== value%2#1 tmp%9#4)
-        (assert tmp%10#2)
+        let tmp%9#0: uint64 = (len c#1)
+        let tmp%10#0: bool = (== value%2#1 tmp%9#0)
+        (assert tmp%10#0)
         let (value%3#1: uint64, check%3#1: bool) = (box_len "box_d")
         let tmp%12#3: uint64 = (len tmp%0#38)
         let tmp%13#0: bool = (== value%3#1 tmp%12#3)
@@ -57,7 +59,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%15#0)
         let tmp%18#2: uint64 = (- value%2#1 1u)
         let tmp%19#1: bytes = (box_extract 0x424f585f43 tmp%18#2 1u)
-        let tmp%21#0: uint64 = (- tmp%9#4 1u)
+        let tmp%21#0: uint64 = (- tmp%9#0 1u)
         let extract%1#0: bytes = (extract3 c#1 tmp%21#0 1u)
         let tmp%22#0: bool = (== tmp%19#1 extract%1#0)
         (assert tmp%22#0)
@@ -65,17 +67,17 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%26#0: uint64 = (select value%2#1 1u tmp%25#0)
         let tmp%27#0: uint64 = (- value%2#1 tmp%26#0)
         let tmp%29#0: bytes = (box_extract 0x424f585f43 0u tmp%27#0)
-        let is_out_of_bounds%0#0: bool = (>= 1u tmp%9#4)
-        let bounded_offset%0#0: uint64 = (select 1u tmp%9#4 is_out_of_bounds%0#0)
-        let bounded_index%0#0: uint64 = (- tmp%9#4 bounded_offset%0#0)
+        let is_out_of_bounds%0#0: bool = (>= 1u tmp%9#0)
+        let bounded_offset%0#0: uint64 = (select 1u tmp%9#0 is_out_of_bounds%0#0)
+        let bounded_index%0#0: uint64 = (- tmp%9#0 bounded_offset%0#0)
         let tmp%30#0: bytes = (substring3 c#1 0u bounded_index%0#0)
         let tmp%31#0: bool = (== tmp%29#0 tmp%30#0)
         (assert tmp%31#0)
         let tmp%34#0: bool = (< 2u value%2#1)
         let tmp%35#0: uint64 = (select value%2#1 2u tmp%34#0)
         let tmp%37#0: bytes = (box_extract 0x424f585f43 0u tmp%35#0)
-        let is_out_of_bounds%1#0: bool = (>= 2u tmp%9#4)
-        let bounded_index%1#0: uint64 = (select 2u tmp%9#4 is_out_of_bounds%1#0)
+        let is_out_of_bounds%1#0: bool = (>= 2u tmp%9#0)
+        let bounded_index%1#0: uint64 = (select 2u tmp%9#0 is_out_of_bounds%1#0)
         let tmp%38#0: bytes = (substring3 c#1 0u bounded_index%1#0)
         let tmp%39#0: bool = (== tmp%37#0 tmp%38#0)
         (assert tmp%39#0)
@@ -119,23 +121,23 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%79#0: bool = (== value%4#0 6160u)
         (assert tmp%79#0)
         exit lifted%return#0
-    block@6: // check_keys_route_L131
+    block@7: // check_keys_route_L131
         exit lifted%return#0
-    block@7: // create_many_ints_route_L138
+    block@8: // create_many_ints_route_L138
         (box_create "many_ints" 4104u)
         exit lifted%return#0
-    block@8: // set_many_ints_route_L142
+    block@9: // set_many_ints_route_L142
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let box%element_offset%0#0: uint64 = (* index#0 8u)
         (box_replace "many_ints" box%element_offset%0#0 reinterpret_Encoded(uint64)%1#0)
         exit lifted%return#0
-    block@125: // while_top_L20
+    block@126: // while_top_L20
         let tmp%1#23: uint64 = (global OpcodeBudget)
-        let tmp%2#23: bool = (> 10510u tmp%1#23)
-        goto tmp%2#23 ? block@126 : block@127
-    block@126: // while_body_L21
+        let tmp%2#0: bool = (> 10510u tmp%1#23)
+        goto tmp%2#0 ? block@127 : block@128
+    block@127: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
         ((itxn_field OnCompletion) DeleteApplication)
@@ -143,29 +145,29 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         ((itxn_field ClearStateProgram) 0x068101)
         ((itxn_field Fee) 0u)
         itxn_submit
-        goto block@125
-    block@127: // after_while_L20
+        goto block@126
+    block@128: // after_while_L20
         let total#0: uint64 = 0u
         let (aggregate%box_get%2#0: uint64, aggregate%box_get%3#0: bool) = (box_len "many_ints")
         (assert aggregate%box_get%3#0) // check self.many_ints exists
         let item_index_internal%0#0: uint64 = 0u
-        goto block@128
-    block@128: // for_header_L150
+        goto block@129
+    block@129: // for_header_L150
         let continue_looping%0#0: bool = (< item_index_internal%0#0 513u)
-        goto continue_looping%0#0 ? block@129 : block@130
-    block@129: // for_body_L151
+        goto continue_looping%0#0 ? block@130 : block@131
+    block@130: // for_body_L151
         let box%element_offset%0#0: uint64 = (* item_index_internal%0#0 8u)
         let box%box_extract%0#0: bytes = (box_extract "many_ints" box%element_offset%0#0 8u)
         let val#0: uint64 = (btoi box%box_extract%0#0)
         let total#0: uint64 = (+ total#0 val#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@128
-    block@130: // after_for_L150
+        goto block@129
+    block@131: // after_for_L150
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob total#0)
         let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
         (log tmp%2#3)
         exit lifted%return#0
-    block@10: // delete_boxes_route_L154
+    block@11: // delete_boxes_route_L154
         (box_del "box_a")
         (box_del "b")
         (box_del 0x424f585f43)
@@ -189,14 +191,14 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%8#1)
         (box_del "box_large")
         exit lifted%return#0
-    block@11: // indirect_extract_and_replace_route_L167
+    block@12: // indirect_extract_and_replace_route_L167
         let box%box_extract%0#0: bytes = (box_extract "box_large" 4096u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#3: uint64 = (+ values%0#0 1u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%0#3)
         (box_replace "box_large" 4096u aggregate%val_as_bytes%2#0)
         exit lifted%return#0
-    block@12: // read_boxes_route_L173
+    block@13: // read_boxes_route_L173
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%5#0) // check Box exists
         let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%4#0)
@@ -227,7 +229,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
         (log tmp%5#1)
         exit lifted%return#0
-    block@13: // boxes_exist_route_L182
+    block@14: // boxes_exist_route_L182
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
         let (_%1#0: uint64, maybe_exists%1#0: bool) = (box_len "b")
         let (_%2#0: uint64, maybe_exists%2#0: bool) = (box_len 0x424f585f43)
@@ -239,22 +241,22 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%set_bit%2#0)
         (log tmp%5#1)
         exit lifted%return#0
-    block@14: // create_dynamic_arr_struct_route_L186
+    block@15: // create_dynamic_arr_struct_route_L186
         let tmp%0#3: uint64 = (txn NumAppArgs)
         let tmp%1#23: uint64 = (txn NumAppArgs)
-        let tmp%2#0: uint64 = (* tmp%1#23 2u)
+        let tmp%2#17: uint64 = (* tmp%1#23 2u)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%0#3)
         let aggregate%head%6#0: bytes = (concat aggregate%val_as_bytes%5#0 0x0014)
-        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%2#0)
+        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%2#17)
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%6#0)
         let aggregate%concat%3#0: bytes = (concat aggregate%head%7#0 0x001600000000)
         (box_del "dynamic_arr_struct")
         (box_put "dynamic_arr_struct" aggregate%concat%3#0)
         exit lifted%return#0
-    block@15: // delete_dynamic_arr_struct_route_L195
+    block@16: // delete_dynamic_arr_struct_route_L195
         (box_del "dynamic_arr_struct")
         exit lifted%return#0
-    block@16: // append_dynamic_arr_struct_route_L199
+    block@17: // append_dynamic_arr_struct_route_L199
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 10u 8u)
@@ -275,24 +277,24 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#12: uint64 = (+ head_and_dyn_arr#0 dyn_arr2_index#1)
         (box_resize "dynamic_arr_struct" tmp%3#12)
         let tmp%3#12: uint64 = (* arr_len#0 8u)
-        let tmp%5#5: uint64 = (+ tmp%3#12 22u)
-        let tmp%6#2: uint64 = (* times#0 8u)
-        let tmp%7#1: bytes = (bzero tmp%6#2)
-        (box_splice "dynamic_arr_struct" tmp%5#5 0u tmp%7#1)
+        let tmp%5#0: uint64 = (+ tmp%3#12 22u)
+        let tmp%6#0: uint64 = (* times#0 8u)
+        let tmp%7#0: bytes = (bzero tmp%6#0)
+        (box_splice "dynamic_arr_struct" tmp%5#0 0u tmp%7#0)
         let i#0: uint64 = 0u
-        goto block@109
-    block@109: // for_header_L217
+        goto block@110
+    block@110: // for_header_L217
         let continue_looping%0#0: bool = (< i#0 times#0)
-        goto continue_looping%0#0 ? block@110 : block@111
-    block@110: // for_body_L218
+        goto continue_looping%0#0 ? block@111 : block@112
+    block@111: // for_body_L218
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob i#0)
         let box%element_offset%0#0: uint64 = (* arr_len#0 8u)
         let box%offset%5#4: uint64 = (+ 22u box%element_offset%0#0)
         (box_replace "dynamic_arr_struct" box%offset%5#4 aggregate%val_as_bytes%7#0)
         let arr_len#0: uint64 = (+ arr_len#0 1u)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@109
-    block@111: // after_for_L217
+        goto block@110
+    block@112: // after_for_L217
         let aggregate%val_as_bytes%8#0: bytes[8] = (itob arr_len#0)
         let aggregate%bitlen%0#0: uint64 = (bitlen aggregate%val_as_bytes%8#0)
         let aggregate%no_overflow%0#0: bool = (<= aggregate%bitlen%0#0 16u)
@@ -322,7 +324,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%10#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@17: // pop_dynamic_arr_struct_route_L231
+    block@18: // pop_dynamic_arr_struct_route_L231
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
@@ -360,7 +362,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%13#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@18: // set_nested_struct_route_L253
+    block@19: // set_nested_struct_route_L253
         let struct#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = (txna ApplicationArgs 1)
         let values%0#0: uint64 = (extract_uint64 struct#0 0u)
         (assert values%0#0) // struct.a is truthy
@@ -371,7 +373,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "box" 4096u 0x1002)
         (box_replace "box" 4098u struct_bytes#0)
         exit lifted%return#0
-    block@19: // nested_write_route_L267
+    block@20: // nested_write_route_L267
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -399,8 +401,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%element_offset%0#0: uint64 = (* index#0 8u)
         let box%offset%8#1: uint64 = (+ box%add%2#1 box%element_offset%0#0)
         (box_replace "box" box%offset%8#1 aggregate%val_as_bytes%16#0)
-        let tmp%2#0: uint64 = (+ value#2 3u)
-        let aggregate%val_as_bytes%17#0: bytes[8] = (itob tmp%2#0)
+        let tmp%2#17: uint64 = (+ value#2 3u)
+        let aggregate%val_as_bytes%17#0: bytes[8] = (itob tmp%2#17)
         (box_replace "box" 4118u aggregate%val_as_bytes%17#0)
         let tmp%3#12: uint64 = (+ value#2 4u)
         let aggregate%val_as_bytes%18#0: bytes[8] = (itob tmp%3#12)
@@ -437,7 +439,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%offset%20#0: uint64 = (+ box%add%8#0 box%element_offset%0#0)
         (box_replace "box" box%offset%20#0 aggregate%val_as_bytes%19#0)
         exit lifted%return#0
-    block@20: // nested_read_route_L277
+    block@21: // nested_read_route_L277
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let i1#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -504,14 +506,14 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let woah_arr_arr#0: uint64 = (btoi box%box_extract%14#0)
         let tmp%0#3: uint64 = (+ a#0 b#0)
         let tmp%1#23: uint64 = (+ tmp%0#3 arr_arr#0)
-        let tmp%2#0: uint64 = (+ tmp%1#23 c#0)
-        let tmp%3#12: uint64 = (+ tmp%2#0 d#0)
+        let tmp%2#17: uint64 = (+ tmp%1#23 c#0)
+        let tmp%3#12: uint64 = (+ tmp%2#17 d#0)
         let tmp%4#0: uint64 = (+ tmp%3#12 woah_arr_arr#0)
         let aggregate%val_as_bytes%20#0: bytes[8] = (itob tmp%4#0)
         let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%20#0)
         (log tmp%5#1)
         exit lifted%return#0
-    block@21: // sum_dynamic_arr_struct_route_L289
+    block@22: // sum_dynamic_arr_struct_route_L289
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#25: bool = (== values%0#0 1u)
@@ -524,11 +526,11 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%box_extract%4#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%4#0)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@93
-    block@93: // for_header_L294
+        goto block@94
+    block@94: // for_header_L294
         let continue_looping%0#0: bool = (< item_index_internal%0#0 box%array_length%0#0)
-        goto continue_looping%0#0 ? block@94 : block@95
-    block@94: // for_body_L295
+        goto continue_looping%0#0 ? block@95 : block@96
+    block@95: // for_body_L295
         let box%box_extract%5#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%5#0)
         let box%index_ok%0#0: bool = (< item_index_internal%0#0 box%btoi%0#0)
@@ -539,18 +541,18 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let val#0: uint64 = (btoi box%box_extract%6#0)
         let total#0: uint64 = (+ total#0 val#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@93
-    block@95: // after_for_L294
+        goto block@94
+    block@96: // after_for_L294
         let box%box_extract%7#0: bytes = (box_extract "dynamic_arr_struct" 18u 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%7#0)
         let box%box_extract%8#0: bytes = (box_extract "dynamic_arr_struct" box%btoi%1#0 2u)
         let box%array_length%1#0: uint64 = (btoi box%box_extract%8#0)
         let item_index_internal%1#0: uint64 = 0u
-        goto block@96
-    block@96: // for_header_L296
+        goto block@97
+    block@97: // for_header_L296
         let continue_looping%1#0: bool = (< item_index_internal%1#0 box%array_length%1#0)
-        goto continue_looping%1#0 ? block@97 : block@98
-    block@97: // for_body_L297
+        goto continue_looping%1#0 ? block@98 : block@99
+    block@98: // for_body_L297
         let box%box_extract%9#0: bytes = (box_extract "dynamic_arr_struct" 18u 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%9#0)
         let box%add%3#0: uint64 = (+ box%btoi%2#0 2u)
@@ -560,16 +562,16 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let val#0: uint64 = (btoi box%box_extract%10#0)
         let total#0: uint64 = (+ total#0 val#0)
         let item_index_internal%1#0: uint64 = (+ item_index_internal%1#0 1u)
-        goto block@96
-    block@98: // after_for_L296
+        goto block@97
+    block@99: // after_for_L296
         let aggregate%val_as_bytes%21#0: bytes[8] = (itob total#0)
         let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%21#0)
         (log tmp%2#3)
         exit lifted%return#0
-    block@22: // create_bools_route_L300
+    block@23: // create_bools_route_L300
         (box_create "too_many_bools" 4125u)
         exit lifted%return#0
-    block@23: // set_bool_route_L304
+    block@24: // set_bool_route_L304
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 2)
@@ -582,75 +584,75 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let aggregate%updated_target%0#0: Encoded(bool1[8]) = (setbit box%box_extract%0#0 box%element_bit_offset%0#0 value#6)
         (box_replace "too_many_bools" box%element_byte_offset%0#0 aggregate%updated_target%0#0)
         exit lifted%return#0
-    block@24: // sum_bools_route_L308
+    block@25: // sum_bools_route_L308
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let stop_at_total#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let total#0: uint64 = 0u
         let (aggregate%box_get%10#0: uint64, aggregate%box_get%11#0: bool) = (box_len "too_many_bools")
         (assert aggregate%box_get%11#0) // check self.too_many_bools exists
         let item_index_internal%0#0: uint64 = 0u
-        goto block@80
-    block@80: // for_header_L311
+        goto block@81
+    block@81: // for_header_L311
         let continue_looping%0#0: bool = (< item_index_internal%0#0 33000u)
         let total#30: uint64 = total#0
-        goto continue_looping%0#0 ? block@81 : block@86
-    block@81: // for_body_L312
+        goto continue_looping%0#0 ? block@82 : block@87
+    block@82: // for_body_L312
         let box%element_byte_offset%0#0: uint64 = (/ item_index_internal%0#0 8u)
         let box%element_bit_offset%0#0: uint64 = (% item_index_internal%0#0 8u)
         let box%box_extract%0#0: bytes = (box_extract "too_many_bools" box%element_byte_offset%0#0 1u)
         let value#6: bool = (getbit box%box_extract%0#0 box%element_bit_offset%0#0)
         let total#30: uint64 = total#0
-        goto value#6 ? block@82 : block@83
-    block@82: // if_body_L313
+        goto value#6 ? block@83 : block@84
+    block@83: // if_body_L313
         let total#0: uint64 = (+ total#0 1u)
         let total#30: uint64 = total#0
-        goto block@83
-    block@83: // after_if_else_L312
+        goto block@84
+    block@84: // after_if_else_L312
         let total#0: uint64 = total#30
         let tmp%1#20: bool = (== total#0 stop_at_total#0)
-        goto tmp%1#20 ? block@84 : block@85
-    block@84: // if_body_L315
+        goto tmp%1#20 ? block@85 : block@86
+    block@85: // if_body_L315
         let total#30: uint64 = total#0
-        goto block@86
-    block@85: // after_if_else_L314
+        goto block@87
+    block@86: // after_if_else_L314
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@80
-    block@86: // after_for_L311
+        goto block@81
+    block@87: // after_for_L311
         let total#0: uint64 = total#30
         let aggregate%val_as_bytes%22#0: bytes[8] = (itob total#0)
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%22#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@25: // create_dynamic_box_route_L318
+    block@26: // create_dynamic_box_route_L318
         (box_del "dynamic_box")
         (box_put "dynamic_box" 0x0000)
         exit lifted%return#0
-    block@26: // delete_dynamic_box_route_L322
+    block@27: // delete_dynamic_box_route_L322
         (box_del "dynamic_box")
         exit lifted%return#0
-    block@27: // append_dynamic_box_route_L326
+    block@28: // append_dynamic_box_route_L326
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let arr_len#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%1#23: uint64 = (+ arr_len#0 times#0)
-        let tmp%2#0: uint64 = (* tmp%1#23 8u)
-        let tmp%3#12: uint64 = (+ 2u tmp%2#0)
+        let tmp%2#17: uint64 = (* tmp%1#23 8u)
+        let tmp%3#12: uint64 = (+ 2u tmp%2#17)
         (box_resize "dynamic_box" tmp%3#12)
         let i#0: uint64 = 0u
-        goto block@71
-    block@71: // for_header_L334
+        goto block@72
+    block@72: // for_header_L334
         let continue_looping%0#0: bool = (< i#0 times#0)
-        goto continue_looping%0#0 ? block@72 : block@73
-    block@72: // for_body_L335
+        goto continue_looping%0#0 ? block@73 : block@74
+    block@73: // for_body_L335
         let aggregate%val_as_bytes%23#0: bytes[8] = (itob i#0)
         let box%element_offset%0#0: uint64 = (* arr_len#0 8u)
         let box%offset%2#0: uint64 = (+ 2u box%element_offset%0#0)
         (box_replace "dynamic_box" box%offset%2#0 aggregate%val_as_bytes%23#0)
         let arr_len#0: uint64 = (+ arr_len#0 1u)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@71
-    block@73: // after_for_L334
+        goto block@72
+    block@74: // after_for_L334
         let aggregate%val_as_bytes%24#0: bytes[8] = (itob arr_len#0)
         let aggregate%bitlen%5#0: uint64 = (bitlen aggregate%val_as_bytes%24#0)
         let aggregate%no_overflow%5#0: bool = (<= aggregate%bitlen%5#0 16u)
@@ -663,7 +665,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%25#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@28: // pop_dynamic_box_route_L341
+    block@29: // pop_dynamic_box_route_L341
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
@@ -684,29 +686,29 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%27#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@29: // sum_dynamic_box_route_L352
+    block@30: // sum_dynamic_box_route_L352
         let total#0: uint64 = 0u
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%0#0)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@64
-    block@64: // for_header_L355
+        goto block@65
+    block@65: // for_header_L355
         let continue_looping%0#0: bool = (< item_index_internal%0#0 box%array_length%0#0)
-        goto continue_looping%0#0 ? block@65 : block@66
-    block@65: // for_body_L356
+        goto continue_looping%0#0 ? block@66 : block@67
+    block@66: // for_body_L356
         let box%element_offset%0#0: uint64 = (* item_index_internal%0#0 8u)
         let box%offset%0#1: uint64 = (+ 2u box%element_offset%0#0)
         let box%box_extract%1#0: bytes = (box_extract "dynamic_box" box%offset%0#1 8u)
         let val#0: uint64 = (btoi box%box_extract%1#0)
         let total#0: uint64 = (+ total#0 val#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@64
-    block@66: // after_for_L355
+        goto block@65
+    block@67: // after_for_L355
         let aggregate%val_as_bytes%28#0: bytes[8] = (itob total#0)
         let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%28#0)
         (log tmp%2#3)
         exit lifted%return#0
-    block@30: // write_dynamic_box_route_L359
+    block@31: // write_dynamic_box_route_L359
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -714,7 +716,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%offset%0#1: uint64 = (+ 2u box%element_offset%0#0)
         (box_replace "dynamic_box" box%offset%0#1 reinterpret_Encoded(uint64)%1#0)
         exit lifted%return#0
-    block@31: // write_dynamic_arr_struct_route_L363
+    block@32: // write_dynamic_arr_struct_route_L363
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -726,33 +728,33 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%offset%1#0: uint64 = (+ 22u box%element_offset%0#0)
         (box_replace "dynamic_arr_struct" box%offset%1#0 reinterpret_Encoded(uint64)%1#0)
         exit lifted%return#0
-    block@32: // slice_box_route_L367
+    block@33: // slice_box_route_L367
         (box_del "0")
         (box_put "0" 0x54657374696e672074657374696e6720313233)
         let (tmp%0#3: uint64, tmp%1#20: bool) = (box_len "0")
         let tmp%3#12: uint64 = (select tmp%0#3 0u tmp%0#3)
         let tmp%4#5: bool = (< 7u tmp%0#3)
-        let tmp%5#5: uint64 = (select tmp%0#3 7u tmp%4#5)
-        let tmp%6#2: uint64 = (- tmp%5#5 tmp%3#12)
-        let tmp%7#1: bytes = (box_extract "0" tmp%3#12 tmp%6#2)
-        let tmp%8#1: bool = (== tmp%7#1 0x54657374696e67)
+        let tmp%5#0: uint64 = (select tmp%0#3 7u tmp%4#5)
+        let tmp%6#0: uint64 = (- tmp%5#0 tmp%3#12)
+        let tmp%7#0: bytes = (box_extract "0" tmp%3#12 tmp%6#0)
+        let tmp%8#1: bool = (== tmp%7#0 0x54657374696e67)
         (assert tmp%8#1)
         (box_del 0x424f585f43)
         (box_put 0x424f585f43 0x000548656c6c6f)
-        let (tmp%10#1: uint64, tmp%11#1: bool) = (box_len 0x424f585f43)
-        let tmp%12#0: bool = (< 2u tmp%10#1)
-        let tmp%13#1: uint64 = (select tmp%10#1 2u tmp%12#0)
-        let tmp%14#0: bool = (< 10u tmp%10#1)
-        let tmp%15#1: uint64 = (select tmp%10#1 10u tmp%14#0)
+        let (tmp%10#2: uint64, tmp%11#1: bool) = (box_len 0x424f585f43)
+        let tmp%12#0: bool = (< 2u tmp%10#2)
+        let tmp%13#1: uint64 = (select tmp%10#2 2u tmp%12#0)
+        let tmp%14#0: bool = (< 10u tmp%10#2)
+        let tmp%15#1: uint64 = (select tmp%10#2 10u tmp%14#0)
         let tmp%16#1: uint64 = (- tmp%15#1 tmp%13#1)
         let tmp%17#1: bytes = (box_extract 0x424f585f43 tmp%13#1 tmp%16#1)
         let tmp%18#1: bool = (== tmp%17#1 0x48656c6c6f)
         (assert tmp%18#1)
         exit lifted%return#0
-    block@33: // arc4_box_route_L376
+    block@34: // arc4_box_route_L376
         (box_put 0x64 0x00010203)
         exit lifted%return#0
-    block@34: // test_box_ref_route_L386
+    block@35: // test_box_ref_route_L386
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "blob")
         let tmp%0#25: bool = (! maybe_exists%0#0)
         (assert tmp%0#25) // no data
@@ -765,8 +767,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_splice "blob" 0u 0u app_address#0)
         (box_replace "blob" 64u 0x68656c6c6f)
         let prefix#0: bytes = (box_extract "blob" 0u 69u)
-        let tmp%10#0: bytes = (concat app_address#0 sender_bytes#0)
-        let tmp%11#0: bytes = (concat tmp%10#0 0x68656c6c6f)
+        let tmp%10#1: bytes = (concat app_address#0 sender_bytes#0)
+        let tmp%11#0: bytes = (concat tmp%10#1 0x68656c6c6f)
         let tmp%12#0: bool = (== prefix#0 tmp%11#0)
         (assert tmp%12#0)
         let tmp%13#0: bool = (box_del "blob")
@@ -787,7 +789,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_create "box_ref" 32u)
         (box_del "box_ref")
         exit lifted%return#0
-    block@35: // box_map_test_route_L434
+    block@36: // box_map_test_route_L434
         let box_0#0: bytes = (itob 0u)
         (box_del box_0#0)
         (box_put box_0#0 "Hmmmmm")
@@ -806,7 +808,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_put encoded_value%5#0 "hello")
         (box_del encoded_value%5#0)
         exit lifted%return#0
-    block@36: // box_map_set_route_L458
+    block@37: // box_map_set_route_L458
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 2)
@@ -815,7 +817,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_del encoded_value%0#0)
         (box_put encoded_value%0#0 value#0)
         exit lifted%return#0
-    block@37: // box_map_get_route_L462
+    block@38: // box_map_get_route_L462
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
@@ -828,13 +830,13 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%4#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@38: // box_map_del_route_L466
+    block@39: // box_map_del_route_L466
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         (box_del encoded_value%0#0)
         exit lifted%return#0
-    block@39: // box_map_exists_route_L470
+    block@40: // box_map_exists_route_L470
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
@@ -843,13 +845,13 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_bool%1#0)
         (log tmp%3#1)
         exit lifted%return#0
-    block@40: // bare_routing_L80
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let not%tmp%7#0: bool = (! tmp%7#0)
-        (assert not%tmp%7#0)
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // can only call when creating
+    block@41: // bare_routing_L80
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let not%tmp%8#0: bool = (! tmp%8#0)
+        (assert not%tmp%8#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // can only call when creating
         exit lifted%return#0
-    block@42: // after_if_else_L80
+    block@43: // after_if_else_L80
         fail

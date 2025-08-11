@@ -5,18 +5,21 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@8
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@11
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
-    match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
+    match main_add_user_route@4 main_attach_asset_to_user_route@5 main_get_user_route@6
     err
 
-main_get_user_route@5:
+main_get_user_route@6:
     txna ApplicationArgs 1
     box_get
     assert // User with that id does not exist
@@ -26,7 +29,7 @@ main_get_user_route@5:
     log
     return
 
-main_attach_asset_to_user_route@4:
+main_attach_asset_to_user_route@5:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     box_get
@@ -42,7 +45,7 @@ main_attach_asset_to_user_route@4:
     box_put
     return
 
-main_add_user_route@3:
+main_add_user_route@4:
     txna ApplicationArgs 1
     dup
     extract 2 8
@@ -58,7 +61,7 @@ main_add_user_route@3:
     box_put
     return
 
-main_bare_routing@8:
+main_bare_routing@11:
     txn OnCompletion
     !
     assert

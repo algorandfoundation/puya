@@ -7,25 +7,21 @@ main:
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
     txna ApplicationArgs 0
-    match main_verify_route@3
+    match verify
     err
 
-main_verify_route@3:
-    // regression_tests/branch_to_proto.py:5
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/branch_to_proto.py:4
-    // class VRFVerifier(ARC4Contract):
-    b verify
-
-main_bare_routing@6:
+main_bare_routing@9:
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     txn OnCompletion

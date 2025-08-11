@@ -5,23 +5,26 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xebb6cc95 // method "battle()void"
     txna ApplicationArgs 0
-    match main_battle_route@3
+    match main_battle_route@4
     err
 
-main_battle_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_battle_route@4:
     pushbytes 0x00000000000000c8
     log
     return
 
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

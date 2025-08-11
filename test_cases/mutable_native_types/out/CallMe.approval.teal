@@ -12,32 +12,37 @@ main:
     // class CallMe(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@19
-    txn OnCompletion
-    bnz main_other_routes@17
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    pushint 10 // 10
+    intc_1 // 0
+    uncover 2
+    match main_switch_case_0@5 main_switch_case_1@7
+    err
+
+main_switch_case_1@7:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
     pushbytess 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
     txna ApplicationArgs 0
     match fixed_struct_arg fixed_struct_ret nested_struct_arg nested_struct_ret dynamic_struct_arg dynamic_struct_ret fixed_arr_arg fixed_arr_ret native_arr_arg native_arr_ret log_it
     err
 
-main_other_routes@17:
+main_switch_case_0@5:
     // mutable_native_types/abi_call.py:41
     // class CallMe(arc4.ARC4Contract):
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@18
+    match main_delete_route@6
     err
 
-main_delete_route@18:
+main_delete_route@6:
     // mutable_native_types/abi_call.py:49
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
     return
 
 main_bare_routing@19:

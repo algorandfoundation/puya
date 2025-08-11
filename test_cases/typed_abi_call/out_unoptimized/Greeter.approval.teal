@@ -14,19 +14,34 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@24
+    bz main_bare_routing@27
 
 main_abi_routing@2:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_3 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@25:
+
+main_switch_case_next@26:
+
+main_after_if_else@31:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
+    err
+
+main_switch_case_0@3:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x094418cd // method "test_is_a_b(byte[],byte[],uint64)void"
     pushbytes 0x31e8e212 // method "test_method_selector_kinds(uint64)void"
@@ -48,153 +63,149 @@ main_abi_routing@2:
     pushbytes 0xaccd5072 // method "test_arc4_struct(uint64)void"
     pushbytes 0xf7f3d8ac // method "test_resource_encoding(uint64,uint64)void"
     uncover 19
-    match main_test_is_a_b_route@3 main_test_method_selector_kinds_route@4 main_test_method_overload_route@5 main_test_arg_conversion_route@6 main_test_15plus_args_route@7 main_test_void_route@8 main_test_ref_types_route@9 main_test_account_to_address_route@10 main_test_native_string_route@11 main_test_native_bytes_route@12 main_test_native_uint64_route@13 main_test_native_biguint_route@14 main_test_native_tuple_route@15 main_test_native_tuple_method_ref_route@16 main_test_nested_tuples_route@17 main_test_no_args_route@18 main_test_named_tuples_route@19 main_test_arc4_struct_route@20 main_test_resource_encoding_route@21
+    match main_test_is_a_b_route@4 main_test_method_selector_kinds_route@5 main_test_method_overload_route@6 main_test_arg_conversion_route@7 main_test_15plus_args_route@8 main_test_void_route@9 main_test_ref_types_route@10 main_test_account_to_address_route@11 main_test_native_string_route@12 main_test_native_bytes_route@13 main_test_native_uint64_route@14 main_test_native_biguint_route@15 main_test_native_tuple_route@16 main_test_native_tuple_method_ref_route@17 main_test_nested_tuples_route@18 main_test_no_args_route@19 main_test_named_tuples_route@20 main_test_arc4_struct_route@21 main_test_resource_encoding_route@22
 
-main_switch_case_default@22:
+main_switch_case_default@23:
 
-main_switch_case_next@23:
+main_switch_case_next@24:
+    b main_switch_case_next@26
 
-main_after_if_else@28:
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    err
-
-main_test_resource_encoding_route@21:
+main_test_resource_encoding_route@22:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_resource_encoding
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_arc4_struct_route@20:
+main_test_arc4_struct_route@21:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_arc4_struct
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_named_tuples_route@19:
+main_test_named_tuples_route@20:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_named_tuples
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_no_args_route@18:
+main_test_no_args_route@19:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_no_args
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_nested_tuples_route@17:
+main_test_nested_tuples_route@18:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_nested_tuples
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_tuple_method_ref_route@16:
+main_test_native_tuple_method_ref_route@17:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_tuple_method_ref
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_tuple_route@15:
+main_test_native_tuple_route@16:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_tuple
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_biguint_route@14:
+main_test_native_biguint_route@15:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_biguint
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_uint64_route@13:
+main_test_native_uint64_route@14:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_uint64
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_bytes_route@12:
+main_test_native_bytes_route@13:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_bytes
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_native_string_route@11:
+main_test_native_string_route@12:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_native_string
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_account_to_address_route@10:
+main_test_account_to_address_route@11:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_account_to_address
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_ref_types_route@9:
+main_test_ref_types_route@10:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_ref_types
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_void_route@8:
+main_test_void_route@9:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_void
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_15plus_args_route@7:
+main_test_15plus_args_route@8:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_15plus_args
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_arg_conversion_route@6:
+main_test_arg_conversion_route@7:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_arg_conversion
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_method_overload_route@5:
+main_test_method_overload_route@6:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_method_overload
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_method_selector_kinds_route@4:
+main_test_method_selector_kinds_route@5:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_method_selector_kinds
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_test_is_a_b_route@3:
+main_test_is_a_b_route@4:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     callsub test_is_a_b
-    b main_switch_case_next@23
+    b main_switch_case_next@24
 
-main_bare_routing@24:
+main_bare_routing@27:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@25
+    match main___algopy_default_create@28
 
-main_switch_case_default@26:
+main_switch_case_default@29:
 
-main_switch_case_next@27:
-    b main_after_if_else@28
+main_switch_case_next@30:
+    b main_after_if_else@31
 
-main___algopy_default_create@25:
+main___algopy_default_create@28:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@30:
+main_block@33:
 
-main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create@31:
+main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create@34:
     intc_3 // 1
     return
 

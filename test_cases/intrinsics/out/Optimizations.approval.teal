@@ -10,46 +10,49 @@ main:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@13
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 0xb15dc12a // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]", method "all(byte[])(byte[],byte[],byte[],byte[])"
     txna ApplicationArgs 0
-    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 all
+    match main_sha256_route@4 main_sha3_256_route@5 main_sha512_256_route@6 main_keccak256_route@7 all
     err
 
-main_keccak256_route@6:
+main_keccak256_route@7:
     // intrinsics/optimizations.py:17
     // @arc4.abimethod()
     pushbytes 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba
     log
     return
 
-main_sha512_256_route@5:
+main_sha512_256_route@6:
     // intrinsics/optimizations.py:13
     // @arc4.abimethod()
     pushbytes 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442
     log
     return
 
-main_sha3_256_route@4:
+main_sha3_256_route@5:
     // intrinsics/optimizations.py:9
     // @arc4.abimethod()
     pushbytes 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51
     log
     return
 
-main_sha256_route@3:
+main_sha256_route@4:
     // intrinsics/optimizations.py:5
     // @arc4.abimethod()
     pushbytes 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
     log
     return
 
-main_bare_routing@10:
+main_bare_routing@13:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion

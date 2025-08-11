@@ -5,25 +5,28 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xbb31fc82 // method "check_sig_with_logic_sig_only_op_compiles()void"
     txna ApplicationArgs 0
-    match main_check_sig_with_logic_sig_only_op_compiles_route@3
+    match main_check_sig_with_logic_sig_only_op_compiles_route@4
     err
 
-main_check_sig_with_logic_sig_only_op_compiles_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_check_sig_with_logic_sig_only_op_compiles_route@4:
     txn Sender
     pushbytes base32(L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBA) // addr L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBCSLJBGI
     ==
     assert // expected to be signed by logic sig
     return
 
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

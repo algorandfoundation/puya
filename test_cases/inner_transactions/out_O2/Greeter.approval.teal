@@ -3,9 +3,9 @@
 
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 6
+    intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
-    pushint 1 // 1
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "hello_app"
@@ -14,18 +14,21 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@7
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@8
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5 main_log_greetings_route@6
+    match main_bootstrap_route@6 main_log_greetings_route@7
     err
 
-main_log_greetings_route@6:
+main_log_greetings_route@7:
     txna ApplicationArgs 1
     itxn_begin
     intc_0 // 0
@@ -36,7 +39,7 @@ main_log_greetings_route@6:
     itxn_field ApplicationArgs
     itxn_field ApplicationID
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -54,7 +57,7 @@ main_log_greetings_route@6:
     log
     return
 
-main_bootstrap_route@5:
+main_bootstrap_route@6:
     intc_0 // 0
     bytec_0 // "hello_app"
     app_global_get_ex
@@ -66,7 +69,7 @@ main_bootstrap_route@5:
     itxn_field ClearStateProgramPages
     pushbytes 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
     itxn_field ApprovalProgramPages
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -82,7 +85,7 @@ main_bootstrap_route@5:
     log
     return
 
-main_bare_routing@7:
+main_bare_routing@8:
     txn OnCompletion
     !
     assert

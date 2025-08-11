@@ -2,19 +2,21 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@12
+        goto tmp%0#1 ? block@2 : block@15
     block@2: // abi_routing_L22
-        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (txn ApplicationID)
         let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0) // can only call when not creating
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_literal_encoding()void" => block@3, method "test_native_encoding()void" => block@4, method "test_arc4_encoding()void" => block@5, method "test_array_uint64_encoding()void" => block@6, method "test_array_static_encoding()void" => block@7, method "test_array_dynamic_encoding()void" => block@8, method "test_bytes_to_fixed(bool)void" => block@9, * => block@16}
-    block@3: // test_literal_encoding_route_L23
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        let not%tmp%6#0: bool = (! tmp%6#0)
+        (assert not%tmp%6#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "test_literal_encoding()void" => block@4, method "test_native_encoding()void" => block@5, method "test_arc4_encoding()void" => block@6, method "test_array_uint64_encoding()void" => block@7, method "test_array_static_encoding()void" => block@8, method "test_array_dynamic_encoding()void" => block@9, method "test_bytes_to_fixed(bool)void" => block@10, * => block@19}
+    block@4: // test_literal_encoding_route_L23
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -67,18 +69,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@4: // test_native_encoding_route_L46
+    block@5: // test_native_encoding_route_L46
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
         let tmp%1#3: uint64 = (txn NumAppArgs)
-        let tmp%2#0: uint64 = (- tmp%1#3 1u)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
+        let tmp%2#3: uint64 = (- tmp%1#3 1u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#3)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
@@ -87,11 +89,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         itxn_begin
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        let aggregate%length%7#0: uint64 = (len tmp%6#0)
+        let tmp%6#4: bytes = (txna ApplicationArgs 0)
+        let aggregate%length%7#0: uint64 = (len tmp%6#4)
         let aggregate%as_bytes%7#0: bytes[8] = (itob aggregate%length%7#0)
         let aggregate%length_uint16%7#0: bytes = ((extract 6 2) aggregate%as_bytes%7#0)
-        let aggregate%encoded_value%7#0: bytes = (concat aggregate%length_uint16%7#0 tmp%6#0)
+        let aggregate%encoded_value%7#0: bytes = (concat aggregate%length_uint16%7#0 tmp%6#4)
         let tmp%8#5: bytes = (txna ApplicationArgs 0)
         let tmp%9#4: bytes = (concat 0x0004 tmp%8#5)
         let aggregate%length%8#0: uint64 = (len tmp%9#4)
@@ -140,10 +142,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@5: // test_arc4_encoding_route_L74
+    block@6: // test_arc4_encoding_route_L74
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -163,11 +165,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%length_uint16%14#0: bytes = ((extract 6 2) aggregate%as_bytes%14#0)
         let aggregate%encoded_value%14#0: bytes = (concat aggregate%length_uint16%14#0 tmp%3#5)
         let tmp%5#4: bytes = (txna ApplicationArgs 0)
-        let tmp%6#0: bytes = (concat 0x0004 tmp%5#4)
-        let aggregate%length%15#0: uint64 = (len tmp%6#0)
+        let tmp%6#4: bytes = (concat 0x0004 tmp%5#4)
+        let aggregate%length%15#0: uint64 = (len tmp%6#4)
         let aggregate%as_bytes%15#0: bytes[8] = (itob aggregate%length%15#0)
         let aggregate%length_uint16%15#0: bytes = ((extract 6 2) aggregate%as_bytes%15#0)
-        let aggregate%encoded_value%15#0: bytes = (concat aggregate%length_uint16%15#0 tmp%6#0)
+        let aggregate%encoded_value%15#0: bytes = (concat aggregate%length_uint16%15#0 tmp%6#4)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
         ((itxn_field ApplicationArgs) aggregate%encoded_value%14#0)
@@ -210,24 +212,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@6: // test_array_uint64_encoding_route_L102
+    block@7: // test_array_uint64_encoding_route_L102
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         let tmp%1#3: uint64 = (txn NumAppArgs)
-        let tmp%2#0: uint64 = (txn NumAppArgs)
-        let tmp%3#4: uint64 = (+ tmp%2#0 1u)
+        let tmp%2#3: uint64 = (txn NumAppArgs)
+        let tmp%3#4: uint64 = (+ tmp%2#3 1u)
         let tmp%4#0: uint64 = (txn NumAppArgs)
-        let tmp%5#3: uint64 = (+ tmp%4#0 2u)
+        let tmp%5#0: uint64 = (+ tmp%4#0 2u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%1#3)
         let aggregate%head%0#0: bytes = (concat 0x0003 aggregate%val_as_bytes%1#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%3#4)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%val_as_bytes%2#0)
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%5#3)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%5#0)
         let arr#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%3#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
@@ -282,10 +284,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@7: // test_array_static_encoding_route_L126
+    block@8: // test_array_static_encoding_route_L126
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -302,8 +304,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%14#0: bytes = (concat aggregate%head%11#0 aggregate%head%13#0)
         let aggregate%head%16#0: bytes = (concat aggregate%as_bytes%24#0 tmp%0#4)
         let arr#0: bytes = (concat aggregate%head%14#0 aggregate%head%16#0)
-        let tmp%10#1: account = (txn Sender)
-        let tmp%11#0: bytes = (concat 0x00030000000000000001 tmp%10#1)
+        let tmp%10#2: account = (txn Sender)
+        let tmp%11#0: bytes = (concat 0x00030000000000000001 tmp%10#2)
         let tmp%14#0: bytes = (concat tmp%11#0 0x0000000000000002)
         let tmp%15#1: account = (txn Sender)
         let tmp%16#0: bytes = (concat tmp%14#0 tmp%15#1)
@@ -353,10 +355,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@8: // test_array_dynamic_encoding_route_L150
+    block@9: // test_array_dynamic_encoding_route_L150
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -395,10 +397,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%3#0: bytes = (concat aggregate%head%38#0 aggregate%concat%0#0)
         let aggregate%concat%4#0: bytes = (concat aggregate%concat%3#0 aggregate%concat%1#0)
         let arr#0: bytes = (concat aggregate%concat%4#0 aggregate%concat%2#0)
-        let tmp%10#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
+        let tmp%10#1: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
         let tmp%11#0: bytes = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u)
         let tmp%12#0: Encoded(uint64,uint8[32],(len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)
-        let aggregate%data_length%6#0: uint64 = (len tmp%10#0)
+        let aggregate%data_length%6#0: uint64 = (len tmp%10#1)
         let aggregate%current_tail_offset%6#0: uint64 = (+ 6u aggregate%data_length%6#0)
         let aggregate%as_bytes%39#0: bytes[8] = (itob aggregate%current_tail_offset%6#0)
         let aggregate%offset_as_uint16%7#0: bytes = ((extract 6 2) aggregate%as_bytes%39#0)
@@ -408,7 +410,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%40#0: bytes[8] = (itob aggregate%current_tail_offset%7#0)
         let aggregate%offset_as_uint16%8#0: bytes = ((extract 6 2) aggregate%as_bytes%40#0)
         let aggregate%head%41#0: bytes = (concat aggregate%head%40#0 aggregate%offset_as_uint16%8#0)
-        let aggregate%concat%6#0: bytes = (concat aggregate%head%41#0 tmp%10#0)
+        let aggregate%concat%6#0: bytes = (concat aggregate%head%41#0 tmp%10#1)
         let aggregate%concat%7#0: bytes = (concat aggregate%concat%6#0 tmp%11#0)
         let expected_bytes#0: bytes = (concat aggregate%concat%7#0 tmp%12#0)
         itxn_begin
@@ -490,24 +492,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@9: // test_bytes_to_fixed_route_L178
+    block@10: // test_bytes_to_fixed_route_L178
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let wrong_size#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CoEBMRtBAJwxGUAAfzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACQAVAAkACQAJAAkACQAJAAkACQAJAAEANhoBMQASREM2GgE2GgJXAgASREM2GgE2GgJXAgASREOABDOzSZ42GgCOAQABADEZgQUSRDEYREMxGRREMRgUREM=)
+        ((itxn_field ApprovalProgramPages) CoEBMRtBAKExGBSBATEZkAiDAgoATwKOAgB9AAEAggwEjXYv3wQtMp7hBGpN33ME1uC3vATlys0GBImvVXsERuGWvQTzOIbaBCWVuVoEP1UmawR9JAlFBANRqd42GgCODAAJABUACQAJAAkACQAJAAkACQAJAAkAAQA2GgExABJEQzYaATYaAlcCABJEQzYaATYaAlcCABJEQ4AEM7NJnjYaAI4BAAEAQzEZFEQxGBREQw==)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         let sender#0: bytes = (global CurrentApplicationAddress)
         let sender#5: bytes = sender#0
-        goto wrong_size#0 ? block@20 : block@21
-    block@20: // if_body_L184
+        goto wrong_size#0 ? block@23 : block@24
+    block@23: // if_body_L184
         let sender#0: bytes = (concat sender#0 sender#0)
         let sender#5: bytes = sender#0
-        goto block@21
-    block@21: // after_if_else_L183
+        goto block@24
+    block@24: // after_if_else_L183
         let sender#0: bytes = sender#5
         itxn_begin
         let aggregate%length%32#0: uint64 = (len sender#0)
@@ -527,15 +529,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
-    block@12: // bare_routing_L22
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let not%tmp%7#0: bool = (! tmp%7#0)
-        (assert not%tmp%7#0)
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // can only call when creating
+    block@15: // bare_routing_L22
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let not%tmp%8#0: bool = (! tmp%8#0)
+        (assert not%tmp%8#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // can only call when creating
         exit lifted%return#0
-    block@16: // after_if_else_L22
+    block@19: // after_if_else_L22
         fail
 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> Encoded(uint64,uint8[32],(len+uint8[])):

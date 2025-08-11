@@ -14,19 +14,34 @@ main_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main_bare_routing@26
+    bz main_bare_routing@29
 
 main_abi_routing@2:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    swap
+    shl
+    +
     intc_1 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@27:
+
+main_switch_case_next@28:
+
+main_after_if_else@33:
+    // typed_abi_call/logger.py:31
+    // class Logger(ARC4Contract):
+    err
+
+main_switch_case_0@3:
+    // typed_abi_call/logger.py:31
+    // class Logger(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xc77212bc // method "is_a_b(byte[],byte[])void"
     pushbytes 0x9bf81913 // method "echo(string)string"
@@ -50,165 +65,161 @@ main_abi_routing@2:
     pushbytes 0xddd07185 // method "logs_are_equal((uint64,string),(uint64,string))bool"
     pushbytes 0xdc4f1992 // method "echo_log_struct((uint64,string))(uint64,string)"
     uncover 21
-    match main_is_a_b_route@3 main_echo_route@4 main_no_args_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_log_route@9 main_log_route@10 main_log_route@11 main_log_route@12 main_echo_native_string_route@13 main_echo_native_bytes_route@14 main_echo_native_uint64_route@15 main_echo_native_biguint_route@16 main_echo_resource_by_index_route@17 main_echo_resource_by_value_route@18 main_echo_native_tuple_route@19 main_echo_nested_tuple_route@20 main_return_args_after_14th_route@21 main_logs_are_equal_route@22 main_echo_log_struct_route@23
+    match main_is_a_b_route@4 main_echo_route@5 main_no_args_route@6 main_log_route@7 main_log_route@8 main_log_route@9 main_log_route@10 main_log_route@11 main_log_route@12 main_log_route@13 main_echo_native_string_route@14 main_echo_native_bytes_route@15 main_echo_native_uint64_route@16 main_echo_native_biguint_route@17 main_echo_resource_by_index_route@18 main_echo_resource_by_value_route@19 main_echo_native_tuple_route@20 main_echo_nested_tuple_route@21 main_return_args_after_14th_route@22 main_logs_are_equal_route@23 main_echo_log_struct_route@24
 
-main_switch_case_default@24:
+main_switch_case_default@25:
 
-main_switch_case_next@25:
+main_switch_case_next@26:
+    b main_switch_case_next@28
 
-main_after_if_else@30:
-    // typed_abi_call/logger.py:31
-    // class Logger(ARC4Contract):
-    err
-
-main_echo_log_struct_route@23:
+main_echo_log_struct_route@24:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_log_struct
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_logs_are_equal_route@22:
+main_logs_are_equal_route@23:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub logs_are_equal
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_return_args_after_14th_route@21:
+main_return_args_after_14th_route@22:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub return_args_after_14th
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_nested_tuple_route@20:
+main_echo_nested_tuple_route@21:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_nested_tuple
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_native_tuple_route@19:
+main_echo_native_tuple_route@20:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_native_tuple
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_resource_by_value_route@18:
+main_echo_resource_by_value_route@19:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_resource_by_value
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_resource_by_index_route@17:
+main_echo_resource_by_index_route@18:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_resource_by_index
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_native_biguint_route@16:
+main_echo_native_biguint_route@17:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_native_biguint
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_native_uint64_route@15:
+main_echo_native_uint64_route@16:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_native_uint64
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_native_bytes_route@14:
+main_echo_native_bytes_route@15:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_native_bytes
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_native_string_route@13:
+main_echo_native_string_route@14:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo_native_string
-    b main_switch_case_next@25
+    b main_switch_case_next@26
+
+main_log_route@13:
+    // typed_abi_call/logger.py:31
+    // class Logger(ARC4Contract):
+    callsub log_address
+    b main_switch_case_next@26
 
 main_log_route@12:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_address
-    b main_switch_case_next@25
+    callsub log_asset_account_app
+    b main_switch_case_next@26
 
 main_log_route@11:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_asset_account_app
-    b main_switch_case_next@25
+    callsub log_bytes
+    b main_switch_case_next@26
 
 main_log_route@10:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_bytes
-    b main_switch_case_next@25
+    callsub log_bool
+    b main_switch_case_next@26
 
 main_log_route@9:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_bool
-    b main_switch_case_next@25
+    callsub log_string
+    b main_switch_case_next@26
 
 main_log_route@8:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_string
-    b main_switch_case_next@25
+    callsub log_uint512
+    b main_switch_case_next@26
 
 main_log_route@7:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
-    callsub log_uint512
-    b main_switch_case_next@25
-
-main_log_route@6:
-    // typed_abi_call/logger.py:31
-    // class Logger(ARC4Contract):
     callsub log_uint64
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_no_args_route@5:
+main_no_args_route@6:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub no_args
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_echo_route@4:
+main_echo_route@5:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub echo
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_is_a_b_route@3:
+main_is_a_b_route@4:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     callsub is_a_b
-    b main_switch_case_next@25
+    b main_switch_case_next@26
 
-main_bare_routing@26:
+main_bare_routing@29:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     txn OnCompletion
     intc_1 // 0
     swap
-    match main___algopy_default_create@27
+    match main___algopy_default_create@30
 
-main_switch_case_default@28:
+main_switch_case_default@31:
 
-main_switch_case_next@29:
-    b main_after_if_else@30
+main_switch_case_next@32:
+    b main_after_if_else@33
 
-main___algopy_default_create@27:
+main___algopy_default_create@30:
     txn ApplicationID
     intc_1 // 0
     ==
     assert // can only call when creating
 
-main_block@32:
+main_block@35:
 
-main_after_inlined_test_cases.typed_abi_call.logger.Logger.__algopy_default_create@33:
+main_after_inlined_test_cases.typed_abi_call.logger.Logger.__algopy_default_create@36:
     intc_0 // 1
     return
 

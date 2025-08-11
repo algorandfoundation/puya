@@ -13,75 +13,86 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@8
+    bz main_bare_routing@11
 
 main_abi_routing@2:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+
+main_after_if_else@15:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    err
+
+main_switch_case_0@3:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xdf478c6e // method "named_tuple_itxn(uint64)void"
     pushbytes 0x20694f7b // method "named_tuple_itxn2(uint64)void"
     pushbytes 0xd6ca0578 // method "named_tuple_itxn3(uint64)void"
     uncover 3
-    match main_named_tuple_itxn_route@3 main_named_tuple_itxn2_route@4 main_named_tuple_itxn3_route@5
+    match main_named_tuple_itxn_route@4 main_named_tuple_itxn2_route@5 main_named_tuple_itxn3_route@6
 
-main_switch_case_default@6:
+main_switch_case_default@7:
 
-main_switch_case_next@7:
+main_switch_case_next@8:
+    b main_switch_case_next@10
 
-main_after_if_else@12:
-    // inner_transactions/itxn_tuple.py:11
-    // class ItxnNamedTuple(arc4.ARC4Contract):
-    err
-
-main_named_tuple_itxn3_route@5:
+main_named_tuple_itxn3_route@6:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn3
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
-main_named_tuple_itxn2_route@4:
+main_named_tuple_itxn2_route@5:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn2
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
-main_named_tuple_itxn_route@3:
+main_named_tuple_itxn_route@4:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
-main_bare_routing@8:
+main_bare_routing@11:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@9
+    match main___algopy_default_create@12
 
-main_switch_case_default@10:
+main_switch_case_default@13:
 
-main_switch_case_next@11:
-    b main_after_if_else@12
+main_switch_case_next@14:
+    b main_after_if_else@15
 
-main___algopy_default_create@9:
+main___algopy_default_create@12:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@14:
+main_block@17:
 
-main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@15:
+main_after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@18:
     intc_1 // 1
     return
 

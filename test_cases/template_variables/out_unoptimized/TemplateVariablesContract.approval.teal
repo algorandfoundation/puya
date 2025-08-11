@@ -14,47 +14,58 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz main_bare_routing@10
 
 main_abi_routing@2:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    txna ApplicationArgs 0
-    pushbytes 0x2fcaddf6 // method "get_bytes()byte[]"
-    pushbytes 0x37f64cf3 // method "get_big_uint()uint512"
-    uncover 2
-    match main_get_bytes_route@3 main_get_big_uint_route@4
+    swap
+    match main_switch_case_0@3
 
-main_switch_case_default@5:
+main_switch_case_default@8:
 
-main_switch_case_next@6:
+main_switch_case_next@9:
 
-main_after_if_else@13:
+main_after_if_else@16:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     err
 
-main_get_big_uint_route@4:
+main_switch_case_0@3:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x2fcaddf6 // method "get_bytes()byte[]"
+    pushbytes 0x37f64cf3 // method "get_big_uint()uint512"
+    uncover 2
+    match main_get_bytes_route@4 main_get_big_uint_route@5
+
+main_switch_case_default@6:
+
+main_switch_case_next@7:
+    b main_switch_case_next@9
+
+main_get_big_uint_route@5:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     callsub get_big_uint
-    b main_switch_case_next@6
+    b main_switch_case_next@7
 
-main_get_bytes_route@3:
+main_get_bytes_route@4:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     callsub get_bytes
-    b main_switch_case_next@6
+    b main_switch_case_next@7
 
-main_bare_routing@7:
+main_bare_routing@10:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -62,26 +73,26 @@ main_bare_routing@7:
     pushint 5 // 5
     intc_0 // 0
     uncover 3
-    match main_on_update@8 main_on_delete@9 main___algopy_default_create@10
+    match main_on_update@11 main_on_delete@12 main___algopy_default_create@13
 
-main_switch_case_default@11:
+main_switch_case_default@14:
 
-main_switch_case_next@12:
-    b main_after_if_else@13
+main_switch_case_next@15:
+    b main_after_if_else@16
 
-main___algopy_default_create@10:
+main___algopy_default_create@13:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@15:
+main_block@18:
 
-main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@16:
+main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@19:
     intc_1 // 1
     return
 
-main_on_delete@9:
+main_on_delete@12:
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
@@ -92,7 +103,7 @@ main_on_delete@9:
     intc_1 // 1
     return
 
-main_on_update@8:
+main_on_update@11:
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID

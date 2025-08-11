@@ -5,18 +5,21 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     txna ApplicationArgs 0
-    match main_verify_route@3
+    match main_verify_route@4
     err
 
-main_verify_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_verify_route@4:
     txna ApplicationArgs 1
     dup
     pushints 258 32 // 258, 32
@@ -47,7 +50,7 @@ main_verify_route@3:
     log
     return
 
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

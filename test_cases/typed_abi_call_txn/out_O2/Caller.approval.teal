@@ -7,18 +7,21 @@ main:
     bytecblock "TEST" "TST" 0x31 0x151f7c75
     intc_1 // 1
     txn NumAppArgs
-    bz main_bare_routing@9
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@12
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x0ab53563 0xea6a6ade 0x2381ff80 0x00b50f1c // method "test_call_with_txn(byte[],byte[],uint64)void", method "test_call_with_acfg(byte[],byte[],uint64)void", method "test_call_with_infer(byte[],byte[],uint64)void", method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
     txna ApplicationArgs 0
-    match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_acfg_route@4 main_test_call_with_acfg_no_return_route@6
+    match main_test_call_with_txn_route@4 main_test_call_with_acfg_route@5 main_test_call_with_acfg_route@5 main_test_call_with_acfg_no_return_route@7
     err
 
-main_test_call_with_acfg_no_return_route@6:
+main_test_call_with_acfg_no_return_route@7:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -56,7 +59,7 @@ main_test_call_with_acfg_no_return_route@6:
     assert // expected asset to be created
     return
 
-main_test_call_with_acfg_route@4:
+main_test_call_with_acfg_route@5:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -91,7 +94,7 @@ main_test_call_with_acfg_route@4:
     assert // application log value is not the result of an ABI return
     return
 
-main_test_call_with_txn_route@3:
+main_test_call_with_txn_route@4:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -131,7 +134,7 @@ main_test_call_with_txn_route@3:
     assert // expected asset id
     return
 
-main_bare_routing@9:
+main_bare_routing@12:
     txn OnCompletion
     !
     assert

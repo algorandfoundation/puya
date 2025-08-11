@@ -5,21 +5,21 @@
 main:
     intcblock 1
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0x65a9aecc // method "verify()void"
     txna ApplicationArgs 0
-    match main_verify_route@3
+    match verify
     err
 
-main_verify_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    b verify
-
-main_bare_routing@6:
+main_bare_routing@9:
     txn OnCompletion
     !
     assert

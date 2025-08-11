@@ -6,18 +6,21 @@ main:
     intcblock 1 32
     bytecblock 0x151f7c75
     txn NumAppArgs
-    bz main_bare_routing@11
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@14
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    intc_0 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x25bb3465 0x63fbedbe 0x5c6f499c 0xd71280ea 0xa78000de 0xb976788f // method "hashAddresses(byte[32],byte[32])byte[32]", method "receiveB32(byte[32])byte[32]", method "receiveBytes(byte[],uint64)void", method "returnLength(byte[32])uint64", method "test()void", method "testArray()void"
     txna ApplicationArgs 0
     match hashAddresses receiveB32 receiveBytes returnLength test testArray
     err
 
-main_bare_routing@11:
+main_bare_routing@14:
     txn OnCompletion
     !
     assert

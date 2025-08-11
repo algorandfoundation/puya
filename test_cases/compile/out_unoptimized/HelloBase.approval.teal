@@ -112,85 +112,97 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@7
+    bz approval_program_bare_routing@13
 
 approval_program_abi_routing@2:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x24378d3c // method "delete()void"
-    pushbytes 0xd0a28200 // method "greet(string)string"
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    swap
+    shl
+    +
+    pushint 10 // 10
+    intc_0 // 0
     uncover 2
-    match approval_program_delete_route@3 approval_program_greet_route@4
+    match approval_program_switch_case_0@3 approval_program_switch_case_1@7
 
-approval_program_switch_case_default@5:
+approval_program_switch_case_default@11:
 
-approval_program_switch_case_next@6:
+approval_program_switch_case_next@12:
 
-approval_program_after_if_else@14:
+approval_program_after_if_else@20:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     err
 
-approval_program_greet_route@4:
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
+approval_program_switch_case_1@7:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    swap
+    match approval_program_greet_route@8
+
+approval_program_switch_case_default@9:
+
+approval_program_switch_case_next@10:
+    b approval_program_switch_case_next@12
+
+approval_program_greet_route@8:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     callsub greet
-    b approval_program_switch_case_next@6
+    b approval_program_switch_case_next@10
 
-approval_program_delete_route@3:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
+approval_program_switch_case_0@3:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x24378d3c // method "delete()void"
+    swap
+    match approval_program_delete_route@4
+
+approval_program_switch_case_default@5:
+
+approval_program_switch_case_next@6:
+    b approval_program_switch_case_next@12
+
+approval_program_delete_route@4:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     callsub delete
     b approval_program_switch_case_next@6
 
-approval_program_bare_routing@7:
+approval_program_bare_routing@13:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn OnCompletion
     pushint 4 // 4
     intc_0 // 0
     uncover 2
-    match approval_program_update@8 approval_program___algopy_default_create@9
+    match approval_program_update@14 approval_program___algopy_default_create@15
 
-approval_program_switch_case_default@12:
+approval_program_switch_case_default@18:
 
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@14
+approval_program_switch_case_next@19:
+    b approval_program_after_if_else@20
 
-approval_program___algopy_default_create@9:
+approval_program___algopy_default_create@15:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@10:
+approval_program_block@16:
 
-approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@11:
+approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@17:
     intc_1 // 1
     return
 
-approval_program_update@8:
+approval_program_update@14:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID

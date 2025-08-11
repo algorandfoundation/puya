@@ -14,19 +14,34 @@ main_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main_bare_routing@15
+    bz main_bare_routing@18
 
 main_abi_routing@2:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    swap
+    shl
+    +
     intc_1 // 0
-    !=
-    assert // can only call when not creating
+    swap
+    match main_switch_case_0@3
+
+main_switch_case_default@16:
+
+main_switch_case_next@17:
+
+main_after_if_else@22:
+    // arc4_conversions/reference.py:4
+    // class ReferenceReturn(arc4.ARC4Contract):
+    err
+
+main_switch_case_0@3:
+    // arc4_conversions/reference.py:4
+    // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x6c7a1cb5 // method "acc_ret()address"
     pushbytes 0xc8480f0c // method "asset_ret()uint64"
@@ -39,99 +54,95 @@ main_abi_routing@2:
     pushbytes 0x62ebcf89 // method "return_assets()uint64[]"
     pushbytes 0x924e778c // method "return_accounts()address[]"
     uncover 10
-    match main_acc_ret_route@3 main_asset_ret_route@4 main_app_ret_route@5 main_store_route@6 main_store_apps_route@7 main_store_assets_route@8 main_store_accounts_route@9 main_return_apps_route@10 main_return_assets_route@11 main_return_accounts_route@12
+    match main_acc_ret_route@4 main_asset_ret_route@5 main_app_ret_route@6 main_store_route@7 main_store_apps_route@8 main_store_assets_route@9 main_store_accounts_route@10 main_return_apps_route@11 main_return_assets_route@12 main_return_accounts_route@13
 
-main_switch_case_default@13:
+main_switch_case_default@14:
 
-main_switch_case_next@14:
+main_switch_case_next@15:
+    b main_switch_case_next@17
 
-main_after_if_else@19:
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
-    err
-
-main_return_accounts_route@12:
+main_return_accounts_route@13:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub return_accounts
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_return_assets_route@11:
+main_return_assets_route@12:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub return_assets
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_return_apps_route@10:
+main_return_apps_route@11:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub return_apps
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_store_accounts_route@9:
+main_store_accounts_route@10:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub store_accounts
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_store_assets_route@8:
+main_store_assets_route@9:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub store_assets
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_store_apps_route@7:
+main_store_apps_route@8:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub store_apps
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_store_route@6:
+main_store_route@7:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub store
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_app_ret_route@5:
+main_app_ret_route@6:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub app_ret
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_asset_ret_route@4:
+main_asset_ret_route@5:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub asset_ret
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_acc_ret_route@3:
+main_acc_ret_route@4:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     callsub acc_ret
-    b main_switch_case_next@14
+    b main_switch_case_next@15
 
-main_bare_routing@15:
+main_bare_routing@18:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn OnCompletion
     intc_1 // 0
     swap
-    match main___algopy_default_create@16
+    match main___algopy_default_create@19
 
-main_switch_case_default@17:
+main_switch_case_default@20:
 
-main_switch_case_next@18:
-    b main_after_if_else@19
+main_switch_case_next@21:
+    b main_after_if_else@22
 
-main___algopy_default_create@16:
+main___algopy_default_create@19:
     txn ApplicationID
     intc_1 // 0
     ==
     assert // can only call when creating
 
-main_block@21:
+main_block@24:
 
-main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create@22:
+main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create@25:
     intc_0 // 1
     return
 

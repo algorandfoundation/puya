@@ -4,66 +4,54 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
-    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
+    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0xbd6099e5 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn OnCompletion
-    bnz main_other_routes@7
     txn ApplicationID
-    assert // can only call when not creating
-    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match say_hello calculate
-    err
-
-main_other_routes@7:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    pushbytess 0x4c5c61ba 0xbd6099e5 0x1658aa2f // method "create()void", method "register(string)void", method "close_out()void"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@8 main_register_route@9 main_close_out_route@10
-    err
-
-main_close_out_route@10:
-    // everything/contract.py:69
-    // @abimethod(allow_actions=["CloseOut"])
-    txn OnCompletion
-    pushint 2 // CloseOut
-    ==
-    assert // OnCompletion is not CloseOut
-    txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    b close_out
-
-main_register_route@9:
-    // everything/contract.py:47
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    !
     intc_0 // 1
     txn OnCompletion
     shl
-    pushint 3 // 3
-    &
-    assert // OnCompletion is not one of NoOp, OptIn
-    txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    b register
+    +
+    switch main_switch_case_1@6 main_switch_case_0@4 main_switch_case_2@10 main_switch_case_next@14 main_switch_case_3@12
 
-main_create_route@8:
-    // everything/contract.py:41
-    // @abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_switch_case_next@14:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    b create
+    err
+
+main_switch_case_3@12:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    pushbytes 0x1658aa2f // method "close_out()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match close_out
+    err
+
+main_switch_case_2@10:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    bytec_3 // method "register(string)void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match register
+    err
+
+main_switch_case_0@4:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match create
+    err
+
+main_switch_case_1@6:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    bytec_3 // method "register(string)void"
+    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match register say_hello calculate
+    err
 
 
 // test_cases.everything.contract.Everything.create[routing]() -> void:
@@ -182,7 +170,7 @@ say_hello:
 say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
     // everything/contract.py:56
     // @abimethod
-    bytec_3 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -236,7 +224,7 @@ calculate:
     itob
     // everything/contract.py:64
     // @abimethod
-    bytec_3 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log

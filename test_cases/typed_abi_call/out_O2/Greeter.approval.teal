@@ -7,18 +7,21 @@ main:
     bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x0000000000000001 0x9bf81913 0x16e03919 0x00027331 0x00026231 0x01 0x0000000000000001000a00056c6f672031 0xb4b4334e "echo: s1" 0xd6c2ac7f 0x00 0x48142d5e 0xb862ee19 0xab271ce4 0x0000000000000003 0x03 0xd8cc363b 0xa9fb6cf1 0x2659e818 0x000162 0x4a444c77 0x000173 0xddd07185 0x000000000000002a 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x6563686f3a206231 0x0000000000000002 0x0f101112deadbeef14 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x000b6563686f3a207475706c65
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@24
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bz main_bare_routing@27
     txn ApplicationID
-    assert // can only call when not creating
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytess 0x094418cd 0x31e8e212 0xb5dcf0ba 0xbf3b242b 0x063beac7 0xe9f3087d 0xc88920f9 0xc2f21b73 0x86052a5c 0xe85f2441 0x92082d08 0x6211cd59 0x19eed724 0x92f75ee2 0xe748ef8e 0xc7b94959 0x868e49e7 0xaccd5072 0xf7f3d8ac // method "test_is_a_b(byte[],byte[],uint64)void", method "test_method_selector_kinds(uint64)void", method "test_method_overload(uint64)void", method "test_arg_conversion(uint64)void", method "test_15plus_args(uint64)void", method "test_void(uint64)void", method "test_ref_types(uint64,uint64)void", method "test_account_to_address(uint64)void", method "test_native_string(uint64)void", method "test_native_bytes(uint64)void", method "test_native_uint64(uint64)void", method "test_native_biguint(uint64)void", method "test_native_tuple(uint64)void", method "test_native_tuple_method_ref(uint64)void", method "test_nested_tuples(uint64)void", method "test_no_args(uint64)void", method "test_named_tuples(uint64)void", method "test_arc4_struct(uint64)void", method "test_resource_encoding(uint64,uint64)void"
     txna ApplicationArgs 0
-    match main_test_is_a_b_route@3 main_test_method_selector_kinds_route@4 main_test_method_overload_route@5 main_test_arg_conversion_route@6 main_test_15plus_args_route@7 main_test_void_route@8 main_test_ref_types_route@9 main_test_account_to_address_route@10 main_test_native_string_route@11 main_test_native_bytes_route@12 main_test_native_uint64_route@13 main_test_native_biguint_route@14 main_test_native_tuple_route@15 main_test_native_tuple_method_ref_route@16 main_test_nested_tuples_route@17 main_test_no_args_route@18 main_test_named_tuples_route@19 main_test_arc4_struct_route@20 main_test_resource_encoding_route@21
+    match main_test_is_a_b_route@4 main_test_method_selector_kinds_route@5 main_test_method_overload_route@6 main_test_arg_conversion_route@7 main_test_15plus_args_route@8 main_test_void_route@9 main_test_ref_types_route@10 main_test_account_to_address_route@11 main_test_native_string_route@12 main_test_native_bytes_route@13 main_test_native_uint64_route@14 main_test_native_biguint_route@15 main_test_native_tuple_route@16 main_test_native_tuple_method_ref_route@17 main_test_nested_tuples_route@18 main_test_no_args_route@19 main_test_named_tuples_route@20 main_test_arc4_struct_route@21 main_test_resource_encoding_route@22
     err
 
-main_test_resource_encoding_route@21:
+main_test_resource_encoding_route@22:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -299,7 +302,7 @@ main_test_resource_encoding_route@21:
     assert // expected echo to return same resources
     return
 
-main_test_arc4_struct_route@20:
+main_test_arc4_struct_route@21:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -338,7 +341,7 @@ main_test_arc4_struct_route@20:
     assert // expected output to match input
     return
 
-main_test_named_tuples_route@19:
+main_test_named_tuples_route@20:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -393,7 +396,7 @@ main_test_named_tuples_route@19:
     assert
     return
 
-main_test_no_args_route@18:
+main_test_no_args_route@19:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -466,7 +469,7 @@ main_test_no_args_route@18:
     assert
     return
 
-main_test_nested_tuples_route@17:
+main_test_nested_tuples_route@18:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -725,7 +728,7 @@ main_test_nested_tuples_route@17:
     assert
     return
 
-main_test_native_tuple_method_ref_route@16:
+main_test_native_tuple_method_ref_route@17:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -987,7 +990,7 @@ main_test_native_tuple_method_ref_route@16:
     assert
     return
 
-main_test_native_tuple_route@15:
+main_test_native_tuple_route@16:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1179,7 +1182,7 @@ main_test_native_tuple_route@15:
     assert
     return
 
-main_test_native_biguint_route@14:
+main_test_native_biguint_route@15:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1253,7 +1256,7 @@ main_test_native_biguint_route@14:
     assert
     return
 
-main_test_native_uint64_route@13:
+main_test_native_uint64_route@14:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1331,7 +1334,7 @@ main_test_native_uint64_route@13:
     assert
     return
 
-main_test_native_bytes_route@12:
+main_test_native_bytes_route@13:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1402,7 +1405,7 @@ main_test_native_bytes_route@12:
     assert
     return
 
-main_test_native_string_route@11:
+main_test_native_string_route@12:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1473,7 +1476,7 @@ main_test_native_string_route@11:
     assert
     return
 
-main_test_account_to_address_route@10:
+main_test_account_to_address_route@11:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1494,7 +1497,7 @@ main_test_account_to_address_route@10:
     assert
     return
 
-main_test_ref_types_route@9:
+main_test_ref_types_route@10:
     txna ApplicationArgs 1
     dup
     btoi
@@ -1531,7 +1534,7 @@ main_test_ref_types_route@9:
     assert
     return
 
-main_test_void_route@8:
+main_test_void_route@9:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1599,7 +1602,7 @@ main_test_void_route@8:
     assert
     return
 
-main_test_15plus_args_route@7:
+main_test_15plus_args_route@8:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1653,7 +1656,7 @@ main_test_15plus_args_route@7:
     assert
     return
 
-main_test_arg_conversion_route@6:
+main_test_arg_conversion_route@7:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1738,7 +1741,7 @@ main_test_arg_conversion_route@6:
     assert
     return
 
-main_test_method_overload_route@5:
+main_test_method_overload_route@6:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1851,7 +1854,7 @@ main_test_method_overload_route@5:
     assert
     return
 
-main_test_method_selector_kinds_route@4:
+main_test_method_selector_kinds_route@5:
     txna ApplicationArgs 1
     btoi
     itxn_begin
@@ -1970,7 +1973,7 @@ main_test_method_selector_kinds_route@4:
     assert
     return
 
-main_test_is_a_b_route@3:
+main_test_is_a_b_route@4:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -1989,7 +1992,7 @@ main_test_is_a_b_route@3:
     itxn_submit
     return
 
-main_bare_routing@24:
+main_bare_routing@27:
     txn OnCompletion
     !
     assert

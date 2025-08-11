@@ -11,132 +11,136 @@ subroutine main:
         txn NumAppArgs                                                                   tmp%0#2
         v-store tmp%0#2
         v-load tmp%0#2                                                                   tmp%0#2
-        bz main_bare_routing@15 ; b main_abi_routing@4
+        bz main_bare_routing@16 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
-        txn OnCompletion                                                                 tmp%2#0
+        txn ApplicationID                                                                tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                   tmp%2#0
-        bz main_simple_routes@5 ; b main_other_routes@13
-
-    main_simple_routes@5:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        txn ApplicationID                                                                tmp%4#0
+        !                                                                                tmp%3#0
+        v-store tmp%3#0
+        txn OnCompletion                                                                 tmp%4#0
         v-store tmp%4#0
-        v-load tmp%4#0                                                                   tmp%4#0
-        assert // can only call when not creating
-        txna ApplicationArgs 0                                                           tmp%6#0
+        int 1                                                                            1
+        v-load tmp%4#0                                                                   1,tmp%4#0
+        shl                                                                              tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%3#0                                                                   tmp%3#0
+        v-load tmp%5#0                                                                   tmp%3#0,tmp%5#0
+        +                                                                                tmp%6#0
         v-store tmp%6#0
-        method struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64           Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64)
-        method struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)               Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8))
-        method emits_error((uint64,string,(byte[],uint8)))void                           Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void)
-        method emitter()void                                                             Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void)
-        method conditional_emit(bool)void                                                Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void)
-        method template_value()((byte[],uint8),uint64,string,uint8)                      Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8))
-        method with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8)),Method(with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void)
-        v-load tmp%6#0                                                                   Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8)),Method(with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void),tmp%6#0
-        match main_struct_arg_route@6 main_struct_return_route@7 main_emits_error_route@8 main_emitter_route@9 main_conditional_emit_route@10 main_template_value_route@11 main_with_constant_defaults_route@12 ; b main_after_if_else@18 
+        v-load tmp%6#0                                                                   tmp%6#0
+        switch main_switch_case_1@7 main_switch_case_0@5 main_switch_case_0@5 main_switch_case_0@5 ; b main_after_if_else@19 
 
-    main_struct_arg_route@6:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub struct_arg
-        b main_after_if_else@18
-
-    main_struct_return_route@7:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub struct_return
-        b main_after_if_else@18
-
-    main_emits_error_route@8:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub errors
-        b main_after_if_else@18
-
-    main_emitter_route@9:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub emitter
-        b main_after_if_else@18
-
-    main_conditional_emit_route@10:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub conditional_emit
-        b main_after_if_else@18
-
-    main_template_value_route@11:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub template_value
-        b main_after_if_else@18
-
-    main_with_constant_defaults_route@12:
-        // arc_56/contract.py:54
-        // class Contract(ARC4Contract):
-        callsub with_constant_defaults
-        b main_after_if_else@18
-
-    main_other_routes@13:
+    main_switch_case_0@5:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         txna ApplicationArgs 0                                                           tmp%7#0
         v-store tmp%7#0
         method create()void                                                              Method(create()void)
         v-load tmp%7#0                                                                   Method(create()void),tmp%7#0
-        match main_create_route@14 ; b main_after_if_else@18
+        match main_create_route@6 ; b main_after_if_else@19
 
-    main_create_route@14:
+    main_create_route@6:
         // arc_56/contract.py:81
         // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
-        txn OnCompletion                                                                 tmp%8#0
-        v-store tmp%8#0
-        int 1                                                                            1
-        v-load tmp%8#0                                                                   1,tmp%8#0
-        shl                                                                              tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                   tmp%9#0
-        int 3                                                                            tmp%9#0,3
-        &                                                                                tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                                                  tmp%10#0
-        assert // OnCompletion is not one of NoOp, OptIn
         v-load lifted%return#0                                                           lifted%return#0
         return
 
-    main_bare_routing@15:
+    main_switch_case_1@7:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
-        txn OnCompletion                                                                 tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                  tmp%11#0
-        switch main_bare_create@16 main_bare_create@16 main_after_if_else@18 main_after_if_else@18 main_after_if_else@18 main_transient@17 ; b main_after_if_else@18 
+        txna ApplicationArgs 0                                                           tmp%8#0
+        v-store tmp%8#0
+        method create()void                                                              Method(create()void)
+        method struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64           Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64)
+        method struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)               Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8))
+        method emits_error((uint64,string,(byte[],uint8)))void                           Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void)
+        method emitter()void                                                             Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void)
+        method conditional_emit(bool)void                                                Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void)
+        method template_value()((byte[],uint8),uint64,string,uint8)                      Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8))
+        method with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8)),Method(with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void)
+        v-load tmp%8#0                                                                   Method(create()void),Method(struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64),Method(struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)),Method(emits_error((uint64,string,(byte[],uint8)))void),Method(emitter()void),Method(conditional_emit(bool)void),Method(template_value()((byte[],uint8),uint64,string,uint8)),Method(with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void),tmp%8#0
+        match main_create_route@8 main_struct_arg_route@9 main_struct_return_route@10 main_emits_error_route@11 main_emitter_route@12 main_conditional_emit_route@13 main_template_value_route@14 main_with_constant_defaults_route@15 ; b main_after_if_else@19 
 
-    main_bare_create@16:
+    main_create_route@8:
+        // arc_56/contract.py:81
+        // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+        v-load lifted%return#0                                                           lifted%return#0
+        return
+
+    main_struct_arg_route@9:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub struct_arg
+        b main_after_if_else@19
+
+    main_struct_return_route@10:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub struct_return
+        b main_after_if_else@19
+
+    main_emits_error_route@11:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub errors
+        b main_after_if_else@19
+
+    main_emitter_route@12:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub emitter
+        b main_after_if_else@19
+
+    main_conditional_emit_route@13:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub conditional_emit
+        b main_after_if_else@19
+
+    main_template_value_route@14:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub template_value
+        b main_after_if_else@19
+
+    main_with_constant_defaults_route@15:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        callsub with_constant_defaults
+        b main_after_if_else@19
+
+    main_bare_routing@16:
+        // arc_56/contract.py:54
+        // class Contract(ARC4Contract):
+        txn OnCompletion                                                                 tmp%9#0
+        v-store tmp%9#0
+        v-load tmp%9#0                                                                   tmp%9#0
+        switch main_bare_create@17 main_bare_create@17 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_transient@18 ; b main_after_if_else@19 
+
+    main_bare_create@17:
         // arc_56/contract.py:77
         // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
         v-load lifted%return#0                                                           lifted%return#0
         return
 
-    main_transient@17:
+    main_transient@18:
         // arc_56/contract.py:85
         // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
-        txn ApplicationID                                                                tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                  tmp%12#0
-        !                                                                                tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                  tmp%13#0
+        txn ApplicationID                                                                tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                                  tmp%10#0
+        !                                                                                tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                  tmp%11#0
         assert // can only call when creating
         v-load lifted%return#0                                                           lifted%return#0
         return
 
-    main_after_if_else@18:
+    main_after_if_else@19:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         err

@@ -6,25 +6,21 @@ main:
     // avm_12/contract.py:9
     // class Contract(ARC4Contract, avm_version=12):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main_bare_routing@9
+    txn ApplicationID
+    !
+    pushint 1 // 1
+    txn OnCompletion
+    shl
+    +
+    !
+    assert
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     txna ApplicationArgs 0
-    match main_test_new_ops_route@3
+    match test_new_ops
     err
 
-main_test_new_ops_route@3:
-    // avm_12/contract.py:10
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // avm_12/contract.py:9
-    // class Contract(ARC4Contract, avm_version=12):
-    b test_new_ops
-
-main_bare_routing@6:
+main_bare_routing@9:
     // avm_12/contract.py:9
     // class Contract(ARC4Contract, avm_version=12):
     txn OnCompletion

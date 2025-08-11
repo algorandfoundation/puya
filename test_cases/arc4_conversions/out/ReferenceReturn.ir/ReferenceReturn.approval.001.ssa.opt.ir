@@ -2,56 +2,57 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@15
+        goto tmp%0#1 ? block@2 : block@18
     block@2: // abi_routing_L4
-        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (txn ApplicationID)
         let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        (assert tmp%4#0) // can only call when not creating
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "acc_ret()address" => block@3, method "asset_ret()uint64" => block@4, method "app_ret()uint64" => block@5, method "store(address,uint64,uint64)void" => block@6, method "store_apps(uint64[])void" => block@7, method "store_assets(uint64[])void" => block@8, method "store_accounts(address[])void" => block@9, method "return_apps()uint64[]" => block@10, method "return_assets()uint64[]" => block@11, method "return_accounts()address[]" => block@12, * => block@19}
-    block@3: // acc_ret_route_L5
+        let tmp%4#0: uint64 = (txn OnCompletion)
+        let tmp%5#0: uint64 = (shl 1u tmp%4#0)
+        let tmp%6#0: uint64 = (+ tmp%3#0 tmp%5#0)
+        goto tmp%6#0 ? block@22 : block@3
+    block@3: // switch_case_0_L4
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "acc_ret()address" => block@4, method "asset_ret()uint64" => block@5, method "app_ret()uint64" => block@6, method "store(address,uint64,uint64)void" => block@7, method "store_apps(uint64[])void" => block@8, method "store_assets(uint64[])void" => block@9, method "store_accounts(address[])void" => block@10, method "return_apps()uint64[]" => block@11, method "return_assets()uint64[]" => block@12, method "return_accounts()address[]" => block@13, * => block@22}
+    block@4: // acc_ret_route_L5
         test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret[routing]()
-        goto block@19
-    block@4: // asset_ret_route_L9
+        goto block@22
+    block@5: // asset_ret_route_L9
         test_cases.arc4_conversions.reference.ReferenceReturn.asset_ret[routing]()
-        goto block@19
-    block@5: // app_ret_route_L13
+        goto block@22
+    block@6: // app_ret_route_L13
         test_cases.arc4_conversions.reference.ReferenceReturn.app_ret[routing]()
-        goto block@19
-    block@6: // store_route_L17
+        goto block@22
+    block@7: // store_route_L17
         test_cases.arc4_conversions.reference.ReferenceReturn.store[routing]()
-        goto block@19
-    block@7: // store_apps_route_L23
+        goto block@22
+    block@8: // store_apps_route_L23
         test_cases.arc4_conversions.reference.ReferenceReturn.store_apps[routing]()
-        goto block@19
-    block@8: // store_assets_route_L27
+        goto block@22
+    block@9: // store_assets_route_L27
         test_cases.arc4_conversions.reference.ReferenceReturn.store_assets[routing]()
-        goto block@19
-    block@9: // store_accounts_route_L31
+        goto block@22
+    block@10: // store_accounts_route_L31
         test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts[routing]()
-        goto block@19
-    block@10: // return_apps_route_L35
+        goto block@22
+    block@11: // return_apps_route_L35
         test_cases.arc4_conversions.reference.ReferenceReturn.return_apps[routing]()
-        goto block@19
-    block@11: // return_assets_route_L39
+        goto block@22
+    block@12: // return_assets_route_L39
         test_cases.arc4_conversions.reference.ReferenceReturn.return_assets[routing]()
-        goto block@19
-    block@12: // return_accounts_route_L43
+        goto block@22
+    block@13: // return_accounts_route_L43
         test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts[routing]()
-        goto block@19
-    block@15: // bare_routing_L4
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        goto tmp%7#0 ? block@19 : block@16
-    block@16: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // can only call when creating
+        goto block@22
+    block@18: // bare_routing_L4
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        goto tmp%8#0 ? block@22 : block@19
+    block@19: // __algopy_default_create_L1
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // can only call when creating
         test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create()
         exit 1u
-    block@19: // after_if_else_L4
+    block@22: // after_if_else_L4
         fail
 
 subroutine test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret[routing]() -> void:
