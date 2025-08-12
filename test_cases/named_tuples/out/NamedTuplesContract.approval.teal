@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 64
+    intcblock 1 64
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -13,10 +13,7 @@ main:
     match main_build_tuple_route@3 main_test_tuple_route@4
 
 main_after_if_else@11:
-    // named_tuples/contract.py:15
-    // class NamedTuplesContract(arc4.ARC4Contract):
-    intc_1 // 0
-    return
+    err
 
 main_test_tuple_route@4:
     // named_tuples/contract.py:31
@@ -30,7 +27,7 @@ main_test_tuple_route@4:
     // class NamedTuplesContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    pushint 0 // 0
     extract_uint64
     dig 1
     extract 8 64
@@ -81,10 +78,10 @@ main_build_tuple_route@3:
     itob
     dig 3
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     uncover 4
     b|

@@ -3,7 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
     txn NumAppArgs
@@ -13,10 +12,7 @@ main:
     match main_bytes_to_bool_route@3 main_test_bytes_to_biguint_route@4
 
 main_after_if_else@11:
-    // reinterpret_cast/contract.py:4
-    // class Contract(ARC4Contract):
-    intc_1 // 0
-    return
+    err
 
 main_test_bytes_to_biguint_route@4:
     // reinterpret_cast/contract.py:9
@@ -27,7 +23,7 @@ main_test_bytes_to_biguint_route@4:
     txn ApplicationID
     assert // can only call when not creating
     callsub test_bytes_to_biguint
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 main_bytes_to_bool_route@3:
@@ -40,7 +36,7 @@ main_bytes_to_bool_route@3:
     assert // can only call when not creating
     pushbytes 0x151f7c7500
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 main_bare_routing@7:
@@ -51,7 +47,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 
@@ -59,6 +55,6 @@ main_bare_routing@7:
 test_bytes_to_biguint:
     // reinterpret_cast/contract.py:11
     // assert bytes_to_biguint()
-    intc_1 // 0
+    pushint 0 // 0
     assert
     retsub

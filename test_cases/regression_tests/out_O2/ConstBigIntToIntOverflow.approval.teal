@@ -3,7 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
     bytecblock 0x010000000000000000 0x151f7c75
     pushbytes ""
     txn NumAppArgs
@@ -13,8 +12,7 @@ main:
     match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
 
 main_after_if_else@11:
-    intc_1 // 0
-    return
+    err
 
 main_get_abs_bound2_route@4:
     txn OnCompletion
@@ -29,7 +27,7 @@ main_get_abs_bound2_route@4:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 main_get_abs_bound1_route@3:
@@ -40,7 +38,7 @@ main_get_abs_bound1_route@3:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    intc_1 // 0
+    pushint 0 // 0
     bury 2
     bz main_after_if_else@19
     bytec_0 // 0x010000000000000000
@@ -54,7 +52,7 @@ main_after_if_else@19:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 main_bare_routing@7:
@@ -63,5 +61,5 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    pushint 1 // 1
     return

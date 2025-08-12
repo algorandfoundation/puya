@@ -3,7 +3,7 @@
 
 // test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1
     bytecblock "greeting" PRFX_GREETING
     txn ApplicationID
     bnz main_after_if_else@2
@@ -19,8 +19,7 @@ main_after_if_else@2:
     match main_create_route@5 main_delete_route@6 main_greet_route@7
 
 main_after_if_else@10:
-    intc_1 // 0
-    return
+    err
 
 main_greet_route@7:
     txn OnCompletion
@@ -30,7 +29,7 @@ main_greet_route@7:
     assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
-    intc_1 // 0
+    pushint 0 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
