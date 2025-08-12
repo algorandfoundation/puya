@@ -235,7 +235,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%write_offset%0#0: uint64 = (* maybe_value%0#0 48u)
-        let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%0#0 pay#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%0#0 pay#0) // on error: index access is out of bounds
         (app_global_put "payments" aggregate%updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -257,7 +257,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let tmp%1#0: uint64 = (+ values%0#0 amt#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
         let aggregate%updated_data%0#0: bytes = ((replace2 40) aggregate%encoded_element%0#0 aggregate%val_as_bytes%0#0)
-        let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#0 aggregate%updated_data%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#0 aggregate%updated_data%0#0) // on error: index access is out of bounds
         (app_global_put "payments" aggregate%updated_array%0#0)
         return 
 

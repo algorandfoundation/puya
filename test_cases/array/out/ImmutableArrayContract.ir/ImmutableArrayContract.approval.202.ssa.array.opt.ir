@@ -619,7 +619,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%38#0: bool = (== values%6#0 44u)
         (assert tmp%38#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob 23u)
-        let arr#7: Encoded(len+uint64[]) = ((replace2 18) arr#6 aggregate%val_as_bytes%3#0)
+        let arr#7: Encoded(len+uint64[]) = ((replace2 18) arr#6 aggregate%val_as_bytes%3#0) // on error: index access is out of bounds
         let aggregate%array_length%13#0: uint64 = (extract_uint16 arr#7 0u)
         let tmp%40#0: bool = (== aggregate%array_length%13#0 15u)
         (assert tmp%40#0)
@@ -1579,7 +1579,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
         let aggregate%encoded_element%0#0: bytes = ((extract 2 16) imm#0)
         let aggregate%write_offset%0#0: uint64 = (* tmp%3#0 16u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let imm#1: Encoded(len+(uint64,uint64)[]) = (replace3 imm#0 aggregate%write_offset_with_length_header%0#0 aggregate%encoded_element%0#0)
+        let imm#1: Encoded(len+(uint64,uint64)[]) = (replace3 imm#0 aggregate%write_offset_with_length_header%0#0 aggregate%encoded_element%0#0) // on error: index access is out of bounds
         return imm#1
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr() -> Encoded((uint64,uint64)[3]):
@@ -1605,7 +1605,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L460
         let aggregate%write_offset%0#0: uint64 = (* i#1 16u)
-        let arr1#2: Encoded((uint64,uint64)[3]) = (replace3 arr1#1 aggregate%write_offset%0#0 struct12#0)
+        let arr1#2: Encoded((uint64,uint64)[3]) = (replace3 arr1#1 aggregate%write_offset%0#0 struct12#0) // on error: index access is out of bounds
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L459
@@ -1629,7 +1629,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(
         let tmp%13#0: uint64 = test_cases.array.immutable.sum_imm_fixed(arr1#1)
         let tmp%14#0: bool = (== tmp%13#0 15u)
         (assert tmp%14#0) // expected sum to be 15
-        let mut_arr#1: Encoded((uint64,uint64)[3]) = ((replace2 0) arr1#1 0x00000000000000000000000000000000)
+        let mut_arr#1: Encoded((uint64,uint64)[3]) = ((replace2 0) arr1#1 0x00000000000000000000000000000000) // on error: index access is out of bounds
         let tmp%17#0: uint64 = test_cases.array.immutable.sum_imm_fixed(mut_arr#1)
         let tmp%18#0: bool = (== tmp%17#0 10u)
         (assert tmp%18#0) // expected sum to be 10

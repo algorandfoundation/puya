@@ -284,9 +284,9 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let aggregate%bytes_offset%1#0: uint64 = (* move.0#0 1u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let aggregate%write_offset%0#0: uint64 = (* move.0#0 1u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 aggregate%write_offset%0#0 0x01)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 aggregate%write_offset%0#0 0x01) // on error: index access is out of bounds
         let aggregate%write_offset%1#0: uint64 = (* move.1#0 3u)
-        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#0
         (app_global_put "game" updated_array%0#0)
         (app_global_put "turns" 0u)
@@ -373,9 +373,9 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let aggregate%bytes_offset%3#0: uint64 = (* move.0#0 1u)
         let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%encoded_element%2#0 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
         let aggregate%write_offset%0#0: uint64 = (* move.0#0 1u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%2#0 aggregate%write_offset%0#0 player#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%2#0 aggregate%write_offset%0#0 player#0) // on error: index access is out of bounds
         let aggregate%write_offset%1#0: uint64 = (* move.1#0 3u)
-        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#0
         (app_global_put "game" updated_array%0#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")

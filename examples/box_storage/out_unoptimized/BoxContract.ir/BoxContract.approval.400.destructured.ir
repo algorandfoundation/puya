@@ -318,7 +318,7 @@ subroutine examples.box_storage.contract.BoxContract.set_many_ints(index: uint64
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
-        let aggregate%updated_array%0#0: bytes = (replace3 storage_value%0#0 aggregate%write_offset%0#0 encoded_value%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 storage_value%0#0 aggregate%write_offset%0#0 encoded_value%0#0) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(uint64[513]) = aggregate%updated_array%0#0
         (box_put "many_ints" updated_array%0#0)
         return 
@@ -574,7 +574,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%extract%1#0: bytes = (extract3 storage_value%3#0 20u 32762u)
         let aggregate%extract%2#0: bytes = (extract3 aggregate%extract%1#0 2u 32760u)
         let aggregate%write_offset%0#0: uint64 = (* arr_len#0 8u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%extract%2#0 aggregate%write_offset%0#0 encoded_value%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%extract%2#0 aggregate%write_offset%0#0 encoded_value%0#0) // on error: index access is out of bounds
         let aggregate%updated_data%0#0: bytes = (replace3 aggregate%extract%1#0 2u aggregate%updated_array%0#0)
         let aggregate%updated_data%1#0: bytes = (replace3 storage_value%3#0 20u aggregate%updated_data%0#0)
         let updated_tuple%0#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = aggregate%updated_data%1#0
@@ -896,7 +896,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%item%0#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%2#0 aggregate%item_head_tail_length%0#0)
         let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%item%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%2#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%item%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%2#0) // on error: index access is out of bounds
         let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%substring3%4#0 0u)
         let aggregate%lt%1#0: bool = (< index#0 aggregate%array_length%1#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
@@ -1036,7 +1036,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%item%1#0: bytes = (extract3 aggregate%array_head_and_tail%2#0 aggregate%item_offset%11#0 aggregate%item_head_tail_length%1#0)
         let aggregate%write_offset%1#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%1#0: uint64 = (+ aggregate%write_offset%1#0 2u)
-        let aggregate%updated_array%2#0: bytes = (replace3 aggregate%item%1#0 aggregate%write_offset_with_length_header%1#0 encoded_value%5#0)
+        let aggregate%updated_array%2#0: bytes = (replace3 aggregate%item%1#0 aggregate%write_offset_with_length_header%1#0 encoded_value%5#0) // on error: index access is out of bounds
         let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u)
         let aggregate%lt%3#0: bool = (< index#0 aggregate%array_length%4#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
@@ -1397,7 +1397,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%extract%1#0: bytes = (extract3 storage_value%1#0 2u 32760u)
         let aggregate%write_offset%0#0: uint64 = (* arr_len#0 8u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%extract%1#0 aggregate%write_offset%0#0 encoded_value%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%extract%1#0 aggregate%write_offset%0#0 encoded_value%0#0) // on error: index access is out of bounds
         let aggregate%updated_data%0#0: bytes = (replace3 storage_value%1#0 2u aggregate%updated_array%0#0)
         let updated_tuple%0#0: Encoded(uint16,uint64[4095]) = aggregate%updated_data%0#0
         (box_put "dynamic_box" updated_tuple%0#0)
@@ -1501,7 +1501,7 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_box(index: ui
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let aggregate%updated_array%0#0: bytes = (replace3 storage_value%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 storage_value%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%0#0) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(len+uint64[]) = aggregate%updated_array%0#0
         (box_del "dynamic_box")
         (box_put "dynamic_box" updated_array%0#0)
@@ -1520,7 +1520,7 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_arr_struct(in
         let aggregate%substring3%0#0: bytes = (substring3 storage_value%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%substring3%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%0#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%substring3%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%0#0) // on error: index access is out of bounds
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 storage_value%0#0 8u)
         let aggregate%data_up_to_item%0#0: bytes = (extract3 storage_value%0#0 0u aggregate%item_offset%0#0)
         let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 aggregate%updated_array%0#0)

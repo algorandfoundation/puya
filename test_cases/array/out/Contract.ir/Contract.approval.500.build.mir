@@ -451,12 +451,12 @@ subroutine quicksort_window:
         v-load slot_contents%3#0                                                      (𝕡) arr#0,window_left#0,window_right#0 | slot_contents%3#0
         v-load aggregate%bytes_offset%1#0                                             (𝕡) arr#0,window_left#0,window_right#0 | slot_contents%3#0,aggregate%bytes_offset%1#0
         v-load aggregate%encoded_element%3#0                                          (𝕡) arr#0,window_left#0,window_right#0 | slot_contents%3#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%3#0
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0                                           (𝕡) arr#0,window_left#0,window_right#0 |
         v-load aggregate%updated_array%0#0                                            (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0
         v-load aggregate%bytes_offset%2#0                                             (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0,aggregate%bytes_offset%2#0
         v-load aggregate%encoded_element%4#0                                          (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0,aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%1#0
+        replace3 // on error: index access is out of bounds                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%1#0
         v-store aggregate%updated_array%1#0                                           (𝕡) arr#0,window_left#0,window_right#0 |
         p-load arr#0                                                                  (𝕡) arr#0,window_left#0,window_right#0 | arr#0 (copy)
         v-load aggregate%updated_array%1#0                                            (𝕡) arr#0,window_left#0,window_right#0 | arr#0 (copy),aggregate%updated_array%1#0
@@ -1093,7 +1093,7 @@ subroutine test_array:
         v-store aggregate%val_as_bytes%5#0
         v-load concat%1#0                                                             concat%1#0
         v-load aggregate%val_as_bytes%5#0                                             concat%1#0,aggregate%val_as_bytes%5#0
-        replace2 0                                                                    aggregate%updated_array%0#0
+        replace2 0 // on error: index access is out of bounds                         aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0
         v-load arr#0                                                                  arr#0
         v-load aggregate%updated_array%0#0                                            arr#0,aggregate%updated_array%0#0
@@ -1773,7 +1773,7 @@ subroutine test_array_evaluation_order:
         v-load slot_contents%11#0                                                     slot_contents%11#0
         v-load aggregate%write_offset%0#0                                             slot_contents%11#0,aggregate%write_offset%0#0
         v-load aggregate%encoded_element%6#0                                          slot_contents%11#0,aggregate%write_offset%0#0,aggregate%encoded_element%6#0
-        replace3                                                                      aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0
         v-load arr#0                                                                  arr#0
         v-load aggregate%updated_array%0#0                                            arr#0,aggregate%updated_array%0#0
@@ -1860,7 +1860,7 @@ subroutine test_array_assignment_maximum_cursage:
         v-store slot_contents%1#0
         v-load slot_contents%1#0                                                      slot_contents%1#0
         v-load aggregate%val_as_bytes%1#0                                             slot_contents%1#0,aggregate%val_as_bytes%1#0
-        replace2 0                                                                    aggregate%updated_array%0#0
+        replace2 0 // on error: index access is out of bounds                         aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0
         v-load update_assignment_current_base_value%0#0                               update_assignment_current_base_value%0#0
         v-load aggregate%updated_array%0#0                                            update_assignment_current_base_value%0#0,aggregate%updated_array%0#0
@@ -2513,7 +2513,7 @@ subroutine test_unobserved_write:
         v-load aggregate%slot_contents%0#0                                            aggregate%slot_contents%0#0
         v-load aggregate%write_offset%0#0                                             aggregate%slot_contents%0#0,aggregate%write_offset%0#0
         v-load aggregate%val_as_bytes%0#0                                             aggregate%slot_contents%0#0,aggregate%write_offset%0#0,aggregate%val_as_bytes%0#0
-        replace3                                                                      aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0
         v-load arr#0                                                                  arr#0
         v-load aggregate%updated_array%0#0                                            arr#0,aggregate%updated_array%0#0
@@ -2533,7 +2533,7 @@ subroutine test_unobserved_write:
         v-load slot_contents%1#0                                                      slot_contents%1#0
         v-load aggregate%write_offset%0#0                                             slot_contents%1#0,aggregate%write_offset%0#0
         v-load aggregate%val_as_bytes%1#0                                             slot_contents%1#0,aggregate%write_offset%0#0,aggregate%val_as_bytes%1#0
-        replace3                                                                      aggregate%updated_array%1#0
+        replace3 // on error: index access is out of bounds                           aggregate%updated_array%1#0
         v-store aggregate%updated_array%1#0
         v-load arr#0                                                                  arr#0
         v-load aggregate%updated_array%1#0                                            arr#0,aggregate%updated_array%1#0

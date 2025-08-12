@@ -500,7 +500,7 @@ subroutine add_payment:
         l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | aggregate%write_offset%0#0,maybe_value%1#0
         l-load aggregate%write_offset%0#0 1                                                       (𝕡) pay#0 | maybe_value%1#0,aggregate%write_offset%0#0
         p-load pay#0                                                                              (𝕡) pay#0 | maybe_value%1#0,aggregate%write_offset%0#0,pay#0 (copy)
-        replace3                                                                                  (𝕡) pay#0 | aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                                       (𝕡) pay#0 | aggregate%updated_array%0#0
         byte "payments"                                                                           (𝕡) pay#0 | aggregate%updated_array%0#0,"payments"
         l-load aggregate%updated_array%0#0 1                                                      (𝕡) pay#0 | "payments",aggregate%updated_array%0#0
         app_global_put                                                                            (𝕡) pay#0 |
@@ -557,7 +557,7 @@ subroutine increment_payment:
         l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | aggregate%bytes_offset%0#0,aggregate%updated_data%0#0,maybe_value%1#0
         l-load aggregate%bytes_offset%0#0 2                                                       (𝕡) index#0,amt#0 | aggregate%updated_data%0#0,maybe_value%1#0,aggregate%bytes_offset%0#0
         l-load aggregate%updated_data%0#0 2                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%updated_data%0#0
-        replace3                                                                                  (𝕡) index#0,amt#0 | aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | aggregate%updated_array%0#0
         byte "payments"                                                                           (𝕡) index#0,amt#0 | aggregate%updated_array%0#0,"payments"
         l-load aggregate%updated_array%0#0 1                                                      (𝕡) index#0,amt#0 | "payments",aggregate%updated_array%0#0
         app_global_put                                                                            (𝕡) index#0,amt#0 |

@@ -5209,7 +5209,7 @@ debug: Simplified (len 0x000003000100) to 6u
 debug: Simplified (substring3 0x000003000100 3u 6u) to 0x000100
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (+ 0u 2u) to 2u
-debug: Simplified (replace3 0x000100 2u 0x01) to 0x000101
+debug: Simplified (replace3 0x000100 2u 0x01) // on error: index access is out of bounds to 0x000101
 debug: Simplified (extract_uint16 0x000003000100 1u) to 3u
 debug: Simplified (extract3 0x000003000100 0u 3u) to 0x000003
 debug: Simplified (concat 0x000003 0x000101) to 0x000003000101
@@ -10504,23 +10504,23 @@ debug: Simplified (== 0x0a094080 0x0a094080) to 1u
 debug: Simplified (concat 0x 0xff) to 0xff
 debug: Simplified (concat 0xff 0xfe) to 0xfffe
 debug: Simplified (* 0u 2u) to 0u
-debug: Simplified (replace3 0x0a094080 0u 0xfffe) to 0xfffe4080
+debug: Simplified (replace3 0x0a094080 0u 0xfffe) // on error: index access is out of bounds to 0xfffe4080
 debug: Simplified (== 0xfffe4080 0xfffe4080) to 1u
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (extract3 0xfffe4080 2u 2u) // on error: index access is out of bounds to 0x4080
 debug: Simplified (* 0u 1u) to 0u
-debug: Simplified (replace3 0x4080 0u 0x01) to 0x0180
+debug: Simplified (replace3 0x4080 0u 0x01) // on error: index access is out of bounds to 0x0180
 debug: Simplified (* 1u 2u) to 2u
-debug: Simplified (replace3 0xfffe4080 2u 0x0180) to 0xfffe0180
+debug: Simplified (replace3 0xfffe4080 2u 0x0180) // on error: index access is out of bounds to 0xfffe0180
 debug: Simplified (== 0xfffe0180 0xfffe0180) to 1u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (+ 0u 2u) to 2u
-debug: Simplified (replace3 0x00020102 2u 0xff) to 0x0002ff02
+debug: Simplified (replace3 0x00020102 2u 0xff) // on error: index access is out of bounds to 0x0002ff02
 debug: Simplified (== 0x0002ff02 0x0002ff02) to 1u
 debug: Simplified (concat 0x 0x01) to 0x01
 debug: Simplified (concat 0x01 0x02) to 0x0102
 debug: Simplified (* 1u 1u) to 1u
-debug: Simplified (replace3 0x0102 1u 0xff) to 0x01ff
+debug: Simplified (replace3 0x0102 1u 0xff) // on error: index access is out of bounds to 0x01ff
 debug: Simplified (== 0x01ff 0x01ff) to 1u
 debug: Simplified (getbit 0x00 0u) to 0u
 debug: Simplified (extract_uint16 0x000280 0u) to 2u
@@ -10638,7 +10638,7 @@ debug: Simplified (extract_uint16 0x000100020005576f726c64 0u) to 1u
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (len 0x00020005576f726c64) to 9u
 debug: Simplified (substring3 0x00020005576f726c64 2u 9u) to 0x0005576f726c64
-debug: Simplified (replace3 aggregate%item%4#0 3u 0x00) to ((replace2 3) aggregate%item%4#0 0x00)
+debug: Simplified (replace3 aggregate%item%4#0 3u 0x00) // on error: index access is out of bounds to ((replace2 3) aggregate%item%4#0 0x00) // on error: index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -14467,7 +14467,7 @@ debug: Simplified (concat 0x80320006 0x000d) to 0x80320006000d
 debug: Simplified (concat 0x80320006000d 0x00054861707079) to 0x80320006000d00054861707079
 debug: Simplified (concat 0x80320006000d00054861707079 0x000444617973) to 0x80320006000d00054861707079000444617973
 debug: Simplified (* 2u 1u) to 2u
-debug: Simplified (replace3 0x01020304 2u 0x05) to 0x01020504
+debug: Simplified (replace3 0x01020304 2u 0x05) // on error: index access is out of bounds to 0x01020504
 debug: Simplified (* 2u 1u) to 2u
 debug: Simplified (extract3 0x01020304 2u 1u) // on error: index access is out of bounds to 0x03
 debug: Simplified (b== 0x03 0x03) to 1u
@@ -14659,7 +14659,7 @@ debug: Simplified (len "AARRGH!") to 7u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0007
 debug: Simplified (concat 0x0007 "AARRGH!") to 0x000741415252474821
 debug: Simplified (len 0x000741415252474821) to 9u
-debug: Simplified (replace3 array#0 1u 0x05) to ((replace2 1) array#0 0x05)
+debug: Simplified (replace3 array#0 1u 0x05) // on error: index access is out of bounds to ((replace2 1) array#0 0x05) // on error: index access is out of bounds
 debug: Simplified (replace3 aggregate%updated_data%1#0 4u aggregate%tail_offset_bytes%0#0) to ((replace2 4) aggregate%updated_data%1#0 aggregate%tail_offset_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -14691,7 +14691,7 @@ debug: Removing unused variable aggregate%encoded_element%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (* 0u 1u) to 0u
-debug: Simplified (replace3 array#0 0u 0x0a) to ((replace2 0) array#0 0x0a)
+debug: Simplified (replace3 array#0 0u 0x0a) // on error: index access is out of bounds to ((replace2 0) array#0 0x0a) // on error: index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -14795,26 +14795,26 @@ debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (extract3 aggregate%val_as_bytes%0#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%0#0)
-debug: Simplified (replace3 arrays.0#0 0u aggregate%uint8%0#0) to ((replace2 0) arrays.0#0 aggregate%uint8%0#0)
+debug: Simplified (replace3 arrays.0#0 0u aggregate%uint8%0#0) // on error: index access is out of bounds to ((replace2 0) arrays.0#0 aggregate%uint8%0#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%1#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%1#0)
-debug: Simplified (replace3 arrays.1#0 0u aggregate%uint8%1#0) to ((replace2 0) arrays.1#0 aggregate%uint8%1#0)
+debug: Simplified (replace3 arrays.1#0 0u aggregate%uint8%1#0) // on error: index access is out of bounds to ((replace2 0) arrays.1#0 aggregate%uint8%1#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%2#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%2#0)
-debug: Simplified (replace3 arrays.2#0 0u aggregate%uint8%2#0) to ((replace2 0) arrays.2#0 aggregate%uint8%2#0)
+debug: Simplified (replace3 arrays.2#0 0u aggregate%uint8%2#0) // on error: index access is out of bounds to ((replace2 0) arrays.2#0 aggregate%uint8%2#0) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.0#1 0u 1u) // on error: index access is out of bounds to ((extract 0 1) arrays.0#1) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.1#2 0u 1u) // on error: index access is out of bounds to ((extract 0 1) arrays.1#2) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.2#3 0u 1u) // on error: index access is out of bounds to ((extract 0 1) arrays.2#3) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%3#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%3#0)
-debug: Simplified (replace3 arrays.0#1 1u aggregate%uint8%3#0) to ((replace2 1) arrays.0#1 aggregate%uint8%3#0)
+debug: Simplified (replace3 arrays.0#1 1u aggregate%uint8%3#0) // on error: index access is out of bounds to ((replace2 1) arrays.0#1 aggregate%uint8%3#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%4#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%4#0)
-debug: Simplified (replace3 arrays.1#2 1u aggregate%uint8%4#0) to ((replace2 1) arrays.1#2 aggregate%uint8%4#0)
+debug: Simplified (replace3 arrays.1#2 1u aggregate%uint8%4#0) // on error: index access is out of bounds to ((replace2 1) arrays.1#2 aggregate%uint8%4#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%5#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%5#0)
-debug: Simplified (replace3 arrays.2#3 1u aggregate%uint8%5#0) to ((replace2 1) arrays.2#3 aggregate%uint8%5#0)
+debug: Simplified (replace3 arrays.2#3 1u aggregate%uint8%5#0) // on error: index access is out of bounds to ((replace2 1) arrays.2#3 aggregate%uint8%5#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%6#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%6#0)
-debug: Simplified (replace3 arrays.0#5 1u aggregate%uint8%6#0) to ((replace2 1) arrays.0#5 aggregate%uint8%6#0)
+debug: Simplified (replace3 arrays.0#5 1u aggregate%uint8%6#0) // on error: index access is out of bounds to ((replace2 1) arrays.0#5 aggregate%uint8%6#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%7#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%7#0)
-debug: Simplified (replace3 arrays.1#6 1u aggregate%uint8%7#0) to ((replace2 1) arrays.1#6 aggregate%uint8%7#0)
+debug: Simplified (replace3 arrays.1#6 1u aggregate%uint8%7#0) // on error: index access is out of bounds to ((replace2 1) arrays.1#6 aggregate%uint8%7#0) // on error: index access is out of bounds
 debug: Simplified (extract3 aggregate%val_as_bytes%8#0 7u 1u) to ((extract 7 1) aggregate%val_as_bytes%8#0)
-debug: Simplified (replace3 arrays.2#7 1u aggregate%uint8%8#0) to ((replace2 1) arrays.2#7 aggregate%uint8%8#0)
+debug: Simplified (replace3 arrays.2#7 1u aggregate%uint8%8#0) // on error: index access is out of bounds to ((replace2 1) arrays.2#7 aggregate%uint8%8#0) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.0#14 1u 1u) // on error: index access is out of bounds to ((extract 1 1) arrays.0#14) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.1#15 1u 1u) // on error: index access is out of bounds to ((extract 1 1) arrays.1#15) // on error: index access is out of bounds
 debug: Simplified (extract3 arrays.2#16 1u 1u) // on error: index access is out of bounds to ((extract 1 1) arrays.2#16) // on error: index access is out of bounds
@@ -15005,7 +15005,7 @@ debug: Removing unused variable aggregate%next_item_offset%0#1
 debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#1, array#7, 0x01020304, 0u, 1u)
 debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#1, array#7, 0x01020304, 0u, 1u)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((replace2 1) 0x01020504 0x05) to 0x01050504
+debug: Simplified ((replace2 1) 0x01020504 0x05) // on error: index access is out of bounds to 0x01050504
 debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 2u) to 6u
 debug: Simplified (extract3 0x80320006000d00054861707079000444617973 0u 6u) to 0x80320006000d
 debug: Simplified (concat 0x80320006000d 0x000741415252474821) to 0x80320006000d000741415252474821
@@ -15027,7 +15027,7 @@ debug: Simplified (substring3 0x80320006000f000741415252474821000444617973 6u 15
 debug: Simplified (== 0x000741415252474821 0x000741415252474821) to 1u
 debug: Simplified ((extract 0 1) 0x01020304) // on error: index access is out of bounds to 0x01
 debug: Simplified (b== 0x01 0x01) to 1u
-debug: Simplified ((replace2 0) 0x01020304 0x0a) to 0x0a020304
+debug: Simplified ((replace2 0) 0x01020304 0x0a) // on error: index access is out of bounds to 0x0a020304
 debug: Simplified ((extract 0 1) 0x0a020304) // on error: index access is out of bounds to 0x0a
 debug: Simplified (b== 0x0a 0x0a) to 1u
 debug: Optimizer: Inner Txn Field Replacer
@@ -15215,17 +15215,17 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 0u
 debug: Simplified (<= 0u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0x00
-debug: Simplified ((replace2 0) 0x01050504 0x00) to 0x00050504
+debug: Simplified ((replace2 0) 0x01050504 0x00) // on error: index access is out of bounds to 0x00050504
 debug: Simplified (+ 0u 1u) to 1u
 debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 1u
 debug: Simplified (<= 1u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0x01
-debug: Simplified ((replace2 0) 0x0a020304 0x01) to 0x01020304
+debug: Simplified ((replace2 0) 0x0a020304 0x01) // on error: index access is out of bounds to 0x01020304
 debug: Simplified (+ 0u 2u) to 2u
 debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 2u
 debug: Simplified (<= 2u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0x02
-debug: Simplified ((replace2 0) 0x01020304 0x02) to 0x02020304
+debug: Simplified ((replace2 0) 0x01020304 0x02) // on error: index access is out of bounds to 0x02020304
 debug: Simplified ((extract 0 1) 0x00050504) // on error: index access is out of bounds to 0x00
 debug: Simplified (b== 0x00 aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 0 1) 0x01020304) // on error: index access is out of bounds to 0x01
@@ -15236,32 +15236,32 @@ debug: Simplified (+ 0u 3u) to 3u
 debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 2u
 debug: Simplified (<= 2u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0x03
-debug: Simplified ((replace2 1) 0x00050504 0x03) to 0x00030504
+debug: Simplified ((replace2 1) 0x00050504 0x03) // on error: index access is out of bounds to 0x00030504
 debug: Simplified (+ 0u 4u) to 4u
 debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 3u
 debug: Simplified (<= 3u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0x04
-debug: Simplified ((replace2 1) 0x01020304 0x04) to 0x01040304
+debug: Simplified ((replace2 1) 0x01020304 0x04) // on error: index access is out of bounds to 0x01040304
 debug: Simplified (+ 0u 5u) to 5u
 debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 3u
 debug: Simplified (<= 3u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0x05
-debug: Simplified ((replace2 1) 0x02020304 0x05) to 0x02050304
+debug: Simplified ((replace2 1) 0x02020304 0x05) // on error: index access is out of bounds to 0x02050304
 debug: Simplified (+ 0u 6u) to 6u
 debug: Simplified (bitlen aggregate%val_as_bytes%6#0) to 3u
 debug: Simplified (<= 3u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0x06
-debug: Simplified ((replace2 1) 0x00030504 0x06) to 0x00060504
+debug: Simplified ((replace2 1) 0x00030504 0x06) // on error: index access is out of bounds to 0x00060504
 debug: Simplified (+ 0u 7u) to 7u
 debug: Simplified (bitlen aggregate%val_as_bytes%7#0) to 3u
 debug: Simplified (<= 3u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0x07
-debug: Simplified ((replace2 1) 0x01040304 0x07) to 0x01070304
+debug: Simplified ((replace2 1) 0x01040304 0x07) // on error: index access is out of bounds to 0x01070304
 debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (bitlen aggregate%val_as_bytes%8#0) to 4u
 debug: Simplified (<= 4u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0x08
-debug: Simplified ((replace2 1) 0x02050304 0x08) to 0x02080304
+debug: Simplified ((replace2 1) 0x02050304 0x08) // on error: index access is out of bounds to 0x02080304
 debug: Simplified ((extract 1 1) 0x00060504) // on error: index access is out of bounds to 0x06
 debug: Simplified (b== 0x06 aggregate%val_as_bytes%6#0) to 1u
 debug: Simplified ((extract 1 1) 0x01070304) // on error: index access is out of bounds to 0x07
@@ -15271,17 +15271,17 @@ debug: Simplified (b== 0x08 aggregate%val_as_bytes%8#0) to 1u
 debug: Simplified (bitlen aggregate%val_as_bytes%0#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#1) to 0x64
-debug: Simplified ((replace2 0) 0x01050504 0x64) to 0x64050504
+debug: Simplified ((replace2 0) 0x01050504 0x64) // on error: index access is out of bounds to 0x64050504
 debug: Simplified (+ 100u 1u) to 101u
 debug: Simplified (bitlen aggregate%val_as_bytes%1#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#1) to 0x65
-debug: Simplified ((replace2 0) 0x0a020304 0x65) to 0x65020304
+debug: Simplified ((replace2 0) 0x0a020304 0x65) // on error: index access is out of bounds to 0x65020304
 debug: Simplified (+ 100u 2u) to 102u
 debug: Simplified (bitlen aggregate%val_as_bytes%2#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#1) to 0x66
-debug: Simplified ((replace2 0) 0x01020304 0x66) to 0x66020304
+debug: Simplified ((replace2 0) 0x01020304 0x66) // on error: index access is out of bounds to 0x66020304
 debug: Simplified ((extract 0 1) 0x64050504) // on error: index access is out of bounds to 0x64
 debug: Simplified (b== 0x64 aggregate%val_as_bytes%0#1) to 1u
 debug: Simplified ((extract 0 1) 0x65020304) // on error: index access is out of bounds to 0x65
@@ -15292,32 +15292,32 @@ debug: Simplified (+ 100u 3u) to 103u
 debug: Simplified (bitlen aggregate%val_as_bytes%3#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#1) to 0x67
-debug: Simplified ((replace2 1) 0x64050504 0x67) to 0x64670504
+debug: Simplified ((replace2 1) 0x64050504 0x67) // on error: index access is out of bounds to 0x64670504
 debug: Simplified (+ 100u 4u) to 104u
 debug: Simplified (bitlen aggregate%val_as_bytes%4#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#1) to 0x68
-debug: Simplified ((replace2 1) 0x65020304 0x68) to 0x65680304
+debug: Simplified ((replace2 1) 0x65020304 0x68) // on error: index access is out of bounds to 0x65680304
 debug: Simplified (+ 100u 5u) to 105u
 debug: Simplified (bitlen aggregate%val_as_bytes%5#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#1) to 0x69
-debug: Simplified ((replace2 1) 0x66020304 0x69) to 0x66690304
+debug: Simplified ((replace2 1) 0x66020304 0x69) // on error: index access is out of bounds to 0x66690304
 debug: Simplified (+ 100u 6u) to 106u
 debug: Simplified (bitlen aggregate%val_as_bytes%6#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#1) to 0x6a
-debug: Simplified ((replace2 1) 0x64670504 0x6a) to 0x646a0504
+debug: Simplified ((replace2 1) 0x64670504 0x6a) // on error: index access is out of bounds to 0x646a0504
 debug: Simplified (+ 100u 7u) to 107u
 debug: Simplified (bitlen aggregate%val_as_bytes%7#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#1) to 0x6b
-debug: Simplified ((replace2 1) 0x65680304 0x6b) to 0x656b0304
+debug: Simplified ((replace2 1) 0x65680304 0x6b) // on error: index access is out of bounds to 0x656b0304
 debug: Simplified (+ 100u 8u) to 108u
 debug: Simplified (bitlen aggregate%val_as_bytes%8#1) to 7u
 debug: Simplified (<= 7u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#1) to 0x6c
-debug: Simplified ((replace2 1) 0x66690304 0x6c) to 0x666c0304
+debug: Simplified ((replace2 1) 0x66690304 0x6c) // on error: index access is out of bounds to 0x666c0304
 debug: Simplified ((extract 1 1) 0x646a0504) // on error: index access is out of bounds to 0x6a
 debug: Simplified (b== 0x6a aggregate%val_as_bytes%6#1) to 1u
 debug: Simplified ((extract 1 1) 0x656b0304) // on error: index access is out of bounds to 0x6b
@@ -15713,17 +15713,17 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (bitlen aggregate%val_as_bytes%0#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%0#0) to 0xc8
-debug: Simplified ((replace2 0) 0x64670504 0xc8) to 0xc8670504
+debug: Simplified ((replace2 0) 0x64670504 0xc8) // on error: index access is out of bounds to 0xc8670504
 debug: Simplified (+ 200u 1u) to 201u
 debug: Simplified (bitlen aggregate%val_as_bytes%1#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%1#0) to 0xc9
-debug: Simplified ((replace2 0) 0x65680304 0xc9) to 0xc9680304
+debug: Simplified ((replace2 0) 0x65680304 0xc9) // on error: index access is out of bounds to 0xc9680304
 debug: Simplified (+ 200u 2u) to 202u
 debug: Simplified (bitlen aggregate%val_as_bytes%2#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%2#0) to 0xca
-debug: Simplified ((replace2 0) 0x66690304 0xca) to 0xca690304
+debug: Simplified ((replace2 0) 0x66690304 0xca) // on error: index access is out of bounds to 0xca690304
 debug: Simplified ((extract 0 1) 0xc8670504) // on error: index access is out of bounds to 0xc8
 debug: Simplified (b== 0xc8 aggregate%val_as_bytes%0#0) to 1u
 debug: Simplified ((extract 0 1) 0xc9680304) // on error: index access is out of bounds to 0xc9
@@ -15734,32 +15734,32 @@ debug: Simplified (+ 200u 3u) to 203u
 debug: Simplified (bitlen aggregate%val_as_bytes%3#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%3#0) to 0xcb
-debug: Simplified ((replace2 1) 0xc8670504 0xcb) to 0xc8cb0504
+debug: Simplified ((replace2 1) 0xc8670504 0xcb) // on error: index access is out of bounds to 0xc8cb0504
 debug: Simplified (+ 200u 4u) to 204u
 debug: Simplified (bitlen aggregate%val_as_bytes%4#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%4#0) to 0xcc
-debug: Simplified ((replace2 1) 0xc9680304 0xcc) to 0xc9cc0304
+debug: Simplified ((replace2 1) 0xc9680304 0xcc) // on error: index access is out of bounds to 0xc9cc0304
 debug: Simplified (+ 200u 5u) to 205u
 debug: Simplified (bitlen aggregate%val_as_bytes%5#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%5#0) to 0xcd
-debug: Simplified ((replace2 1) 0xca690304 0xcd) to 0xcacd0304
+debug: Simplified ((replace2 1) 0xca690304 0xcd) // on error: index access is out of bounds to 0xcacd0304
 debug: Simplified (+ 200u 6u) to 206u
 debug: Simplified (bitlen aggregate%val_as_bytes%6#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%6#0) to 0xce
-debug: Simplified ((replace2 1) 0xc8cb0504 0xce) to 0xc8ce0504
+debug: Simplified ((replace2 1) 0xc8cb0504 0xce) // on error: index access is out of bounds to 0xc8ce0504
 debug: Simplified (+ 200u 7u) to 207u
 debug: Simplified (bitlen aggregate%val_as_bytes%7#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%7#0) to 0xcf
-debug: Simplified ((replace2 1) 0xc9cc0304 0xcf) to 0xc9cf0304
+debug: Simplified ((replace2 1) 0xc9cc0304 0xcf) // on error: index access is out of bounds to 0xc9cf0304
 debug: Simplified (+ 200u 8u) to 208u
 debug: Simplified (bitlen aggregate%val_as_bytes%8#0) to 8u
 debug: Simplified (<= 8u 8u) to 1u
 debug: Simplified ((extract 7 1) aggregate%val_as_bytes%8#0) to 0xd0
-debug: Simplified ((replace2 1) 0xcacd0304 0xd0) to 0xcad00304
+debug: Simplified ((replace2 1) 0xcacd0304 0xd0) // on error: index access is out of bounds to 0xcad00304
 debug: Simplified ((extract 1 1) 0xc8ce0504) // on error: index access is out of bounds to 0xce
 debug: Simplified (b== 0xce aggregate%val_as_bytes%6#0) to 1u
 debug: Simplified ((extract 1 1) 0xc9cf0304) // on error: index access is out of bounds to 0xcf
@@ -16089,21 +16089,21 @@ debug: Simplified ((extract 1 1) 0xc9cf0304) // on error: index access is out of
 debug: Simplified (b== 0xcf 0xcf) to 1u
 debug: Simplified ((extract 1 1) 0xcad00304) // on error: index access is out of bounds to 0xd0
 debug: Simplified (b== 0xd0 0xd0) to 1u
-debug: Simplified ((replace2 0) 0xc8ce0504 0xde) to 0xdece0504
-debug: Simplified ((replace2 0) 0xc8ce0504 0xdf) to 0xdfce0504
-debug: Simplified ((replace2 0) 0xc8ce0504 0xe0) to 0xe0ce0504
+debug: Simplified ((replace2 0) 0xc8ce0504 0xde) // on error: index access is out of bounds to 0xdece0504
+debug: Simplified ((replace2 0) 0xc8ce0504 0xdf) // on error: index access is out of bounds to 0xdfce0504
+debug: Simplified ((replace2 0) 0xc8ce0504 0xe0) // on error: index access is out of bounds to 0xe0ce0504
 debug: Simplified ((extract 0 1) 0xdece0504) // on error: index access is out of bounds to 0xde
 debug: Simplified (b== 0xde aggregate%val_as_bytes%0#1) to 1u
 debug: Simplified ((extract 0 1) 0xdfce0504) // on error: index access is out of bounds to 0xdf
 debug: Simplified (b== 0xdf aggregate%val_as_bytes%1#1) to 1u
 debug: Simplified ((extract 0 1) 0xe0ce0504) // on error: index access is out of bounds to 0xe0
 debug: Simplified (b== 0xe0 aggregate%val_as_bytes%2#1) to 1u
-debug: Simplified ((replace2 1) 0xdece0504 0xe1) to 0xdee10504
-debug: Simplified ((replace2 1) 0xdfce0504 0xe2) to 0xdfe20504
-debug: Simplified ((replace2 1) 0xe0ce0504 0xe3) to 0xe0e30504
-debug: Simplified ((replace2 1) 0xdee10504 0xe4) to 0xdee40504
-debug: Simplified ((replace2 1) 0xdfe20504 0xe5) to 0xdfe50504
-debug: Simplified ((replace2 1) 0xe0e30504 0xe6) to 0xe0e60504
+debug: Simplified ((replace2 1) 0xdece0504 0xe1) // on error: index access is out of bounds to 0xdee10504
+debug: Simplified ((replace2 1) 0xdfce0504 0xe2) // on error: index access is out of bounds to 0xdfe20504
+debug: Simplified ((replace2 1) 0xe0ce0504 0xe3) // on error: index access is out of bounds to 0xe0e30504
+debug: Simplified ((replace2 1) 0xdee10504 0xe4) // on error: index access is out of bounds to 0xdee40504
+debug: Simplified ((replace2 1) 0xdfe20504 0xe5) // on error: index access is out of bounds to 0xdfe50504
+debug: Simplified ((replace2 1) 0xe0e30504 0xe6) // on error: index access is out of bounds to 0xe0e60504
 debug: Simplified ((extract 1 1) 0xdee40504) // on error: index access is out of bounds to 0xe4
 debug: Simplified (b== 0xe4 aggregate%val_as_bytes%6#1) to 1u
 debug: Simplified ((extract 1 1) 0xdfe50504) // on error: index access is out of bounds to 0xe5
