@@ -4,9 +4,12 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock 0x151f7c75 0x6563686f3a20 0x 0x01
+    bytecblock 0x151f7c75 0x 0x6563686f3a20 0x01
+    bytec_1 // ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // typed_abi_call/logger.py:31
@@ -15,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@26
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // typed_abi_call/logger.py:31
@@ -43,15 +47,20 @@ main_abi_routing@2:
     pushbytes 0xdc4f1992 // method "echo_log_struct((uint64,string))(uint64,string)"
     uncover 21
     match main_is_a_b_route@3 main_echo_route@4 main_no_args_route@5 main_log_route@6 main_log_route@7 main_log_route@8 main_log_route@9 main_log_route@10 main_log_route@11 main_log_route@12 main_echo_native_string_route@13 main_echo_native_bytes_route@14 main_echo_native_uint64_route@15 main_echo_native_biguint_route@16 main_echo_resource_by_index_route@17 main_echo_resource_by_value_route@18 main_echo_native_tuple_route@19 main_echo_nested_tuple_route@20 main_return_args_after_14th_route@21 main_logs_are_equal_route@22 main_echo_log_struct_route@23
+    b main_switch_case_default@24
 
 main_switch_case_default@24:
+    b main_switch_case_next@25
 
 main_switch_case_next@25:
+    b main_after_if_else@30
 
 main_after_if_else@30:
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31:
     return
@@ -74,10 +83,11 @@ main_echo_log_struct_route@23:
     // @arc4.abimethod
     callsub echo_log_struct
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_logs_are_equal_route@22:
@@ -99,14 +109,14 @@ main_logs_are_equal_route@22:
     intc_3 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     intc_3 // 8
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
@@ -117,14 +127,14 @@ main_logs_are_equal_route@22:
     intc_3 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     intc_3 // 8
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
@@ -141,10 +151,11 @@ main_logs_are_equal_route@22:
     uncover 2
     setbit
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_return_args_after_14th_route@21:
@@ -180,7 +191,7 @@ main_return_args_after_14th_route@21:
     extract3
     txna ApplicationArgs 15
     intc_1 // 1
-    dup
+    intc_1 // 1
     extract3
     txna ApplicationArgs 15
     intc_2 // 2
@@ -192,7 +203,7 @@ main_return_args_after_14th_route@21:
     extract3
     txna ApplicationArgs 15
     pushint 4 // 4
-    dup
+    pushint 4 // 4
     extract3
     txna ApplicationArgs 15
     intc_3 // 8
@@ -222,10 +233,11 @@ main_return_args_after_14th_route@21:
     uncover 19
     callsub return_args_after_14th
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_nested_tuple_route@20:
@@ -245,7 +257,7 @@ main_echo_nested_tuple_route@20:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
     intc_2 // 2
     extract_uint16
@@ -256,7 +268,7 @@ main_echo_nested_tuple_route@20:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
     intc_2 // 2
     extract_uint16
@@ -269,21 +281,21 @@ main_echo_nested_tuple_route@20:
     dup
     intc_2 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
-    swap
+    cover 1
     dup
     intc_2 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
@@ -292,25 +304,25 @@ main_echo_nested_tuple_route@20:
     intc_3 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     intc_3 // 8
-    dup
+    intc_3 // 8
     extract3
-    swap
+    cover 1
     dup
     pushint 16 // 16
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     extract 2 0
     uncover 4
-    swap
+    cover 1
     uncover 4
     uncover 4
     uncover 4
@@ -326,20 +338,20 @@ main_echo_nested_tuple_route@20:
     cover 4
     cover 3
     cover 2
-    swap
+    cover 1
     dup
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     pushint 4 // 4
     itob
     extract 6 2
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 4 // 4
@@ -347,27 +359,27 @@ main_echo_nested_tuple_route@20:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     pushint 4 // 4
     itob
     extract 6 2
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 4 // 4
     +
     uncover 3
     itob
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
     uncover 4
     concat
@@ -381,25 +393,26 @@ main_echo_nested_tuple_route@20:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     extract 6 2
     uncover 3
-    swap
+    uncover 1
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_native_tuple_route@19:
@@ -431,20 +444,20 @@ main_echo_native_tuple_route@19:
     callsub echo_native_tuple
     cover 3
     cover 2
-    swap
+    cover 1
     dup
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     pushint 76 // 76
     itob
     extract 6 2
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 76 // 76
@@ -459,7 +472,7 @@ main_echo_native_tuple_route@19:
     itob
     extract 6 2
     uncover 3
-    swap
+    uncover 1
     concat
     uncover 3
     itob
@@ -474,15 +487,16 @@ main_echo_native_tuple_route@19:
     uncover 4
     b|
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_resource_by_value_route@18:
@@ -514,21 +528,22 @@ main_echo_resource_by_value_route@18:
     uncover 2
     callsub echo_resource_by_value
     cover 2
-    swap
+    cover 1
     itob
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_resource_by_index_route@17:
@@ -564,21 +579,22 @@ main_echo_resource_by_index_route@17:
     uncover 2
     callsub echo_resource_by_index
     cover 2
-    swap
+    cover 1
     itob
-    bytec_2 // 0x
-    swap
+    bytec_1 // 0x
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_native_biguint_route@16:
@@ -607,10 +623,11 @@ main_echo_native_biguint_route@16:
     bzero
     b|
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_native_uint64_route@15:
@@ -633,10 +650,11 @@ main_echo_native_uint64_route@15:
     callsub echo_native_uint64
     itob
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_native_bytes_route@14:
@@ -661,13 +679,14 @@ main_echo_native_bytes_route@14:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_native_string_route@13:
@@ -692,13 +711,14 @@ main_echo_native_string_route@13:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@12:
@@ -719,6 +739,7 @@ main_log_route@12:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_address
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@11:
@@ -746,6 +767,7 @@ main_log_route@11:
     uncover 2
     callsub log_asset_account_app
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@10:
@@ -766,6 +788,7 @@ main_log_route@10:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_bytes
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@9:
@@ -786,6 +809,7 @@ main_log_route@9:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_bool
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@8:
@@ -806,6 +830,7 @@ main_log_route@8:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_string
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@7:
@@ -826,6 +851,7 @@ main_log_route@7:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_uint512
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_log_route@6:
@@ -846,6 +872,7 @@ main_log_route@6:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     callsub log_uint64
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_no_args_route@5:
@@ -862,10 +889,11 @@ main_no_args_route@5:
     callsub no_args
     itob
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_echo_route@4:
@@ -886,10 +914,11 @@ main_echo_route@4:
     // @arc4.abimethod
     callsub echo
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_is_a_b_route@3:
@@ -913,6 +942,7 @@ main_is_a_b_route@3:
     // @arc4.abimethod
     callsub is_a_b
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 main_bare_routing@26:
@@ -920,10 +950,12 @@ main_bare_routing@26:
     // class Logger(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@27
+    b main_switch_case_default@28
 
 main_switch_case_default@28:
+    b main_switch_case_next@29
 
 main_switch_case_next@29:
     b main_after_if_else@30
@@ -933,11 +965,14 @@ main___algopy_default_create@27:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@32
 
 main_block@32:
+    b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__algopy_default_create@33
 
 main_after_inlined_test_cases.typed_abi_call.logger.Logger.__algopy_default_create@33:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__@31
 
 
@@ -947,6 +982,7 @@ is_a_b:
     // @arc4.abimethod
     // def is_a_b(self, a: Bytes, b: Bytes) -> None:
     proto 2 0
+    b is_a_b_block@0
 
 is_a_b_block@0:
     // typed_abi_call/logger.py:34
@@ -970,15 +1006,16 @@ echo:
     // @arc4.abimethod
     // def echo(self, value: arc4.String) -> arc4.String:
     proto 1 1
+    b echo_block@0
 
 echo_block@0:
     // typed_abi_call/logger.py:39
     // return "echo: " + value
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     len
     itob
     extract 6 2
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     concat
     frame_dig -1
     len
@@ -989,7 +1026,7 @@ echo_block@0:
     concat // on error: max array length exceeded
     dup
     len
-    swap
+    cover 1
     dup
     intc_2 // 2
     uncover 3
@@ -999,7 +1036,7 @@ echo_block@0:
     /
     itob
     extract 6 2
-    swap
+    uncover 1
     intc_0 // 0
     uncover 2
     replace3
@@ -1008,6 +1045,7 @@ echo_block@0:
 
 // test_cases.typed_abi_call.logger.Logger.no_args() -> uint64:
 no_args:
+    b no_args_block@0
 
 no_args_block@0:
     // typed_abi_call/logger.py:43
@@ -1022,6 +1060,7 @@ log_uint64:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_uint64(self, value: arc4.UInt64) -> None:
     proto 1 0
+    b log_uint64_block@0
 
 log_uint64_block@0:
     // typed_abi_call/logger.py:47
@@ -1037,6 +1076,7 @@ log_uint512:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_uint512(self, value: arc4.UInt512) -> None:
     proto 1 0
+    b log_uint512_block@0
 
 log_uint512_block@0:
     // typed_abi_call/logger.py:51
@@ -1052,6 +1092,7 @@ log_string:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_string(self, value: arc4.String) -> None:
     proto 1 0
+    b log_string_block@0
 
 log_string_block@0:
     // typed_abi_call/logger.py:55
@@ -1068,6 +1109,7 @@ log_bool:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_bool(self, value: arc4.Bool) -> None:
     proto 1 0
+    b log_bool_block@0
 
 log_bool_block@0:
     // typed_abi_call/logger.py:59
@@ -1089,6 +1131,7 @@ log_bytes:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_bytes(self, value: arc4.DynamicBytes) -> None:
     proto 1 0
+    b log_bytes_block@0
 
 log_bytes_block@0:
     // typed_abi_call/logger.py:63
@@ -1105,6 +1148,7 @@ log_asset_account_app:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
     proto 3 0
+    b log_asset_account_app_block@0
 
 log_asset_account_app_block@0:
     // typed_abi_call/logger.py:67
@@ -1112,11 +1156,11 @@ log_asset_account_app_block@0:
     frame_dig -3
     asset_params_get AssetName
     assert // asset exists
-    bytec_2 // ""
+    bytec_1 // ""
     concat
     frame_dig -2
     concat
-    bytec_2 // ""
+    bytec_1 // ""
     concat
     frame_dig -1
     app_params_get AppAddress
@@ -1132,6 +1176,7 @@ log_address:
     // @arc4.abimethod(name=LOG_METHOD_NAME)
     // def log_address(self, address: arc4.Address) -> None:
     proto 1 0
+    b log_address_block@0
 
 log_address_block@0:
     // typed_abi_call/logger.py:71
@@ -1147,11 +1192,12 @@ echo_native_string:
     // @arc4.abimethod
     // def echo_native_string(self, value: String) -> String:
     proto 1 1
+    b echo_native_string_block@0
 
 echo_native_string_block@0:
     // typed_abi_call/logger.py:75
     // return "echo: " + value
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     frame_dig -1
     concat
     retsub
@@ -1163,11 +1209,12 @@ echo_native_bytes:
     // @arc4.abimethod
     // def echo_native_bytes(self, value: Bytes) -> Bytes:
     proto 1 1
+    b echo_native_bytes_block@0
 
 echo_native_bytes_block@0:
     // typed_abi_call/logger.py:79
     // return b"echo: " + value
-    bytec_1 // 0x6563686f3a20
+    bytec_2 // 0x6563686f3a20
     frame_dig -1
     concat
     retsub
@@ -1179,6 +1226,7 @@ echo_native_uint64:
     // @arc4.abimethod
     // def echo_native_uint64(self, value: UInt64) -> UInt64:
     proto 1 1
+    b echo_native_uint64_block@0
 
 echo_native_uint64_block@0:
     // typed_abi_call/logger.py:83
@@ -1195,6 +1243,7 @@ echo_native_biguint:
     // @arc4.abimethod
     // def echo_native_biguint(self, value: BigUInt) -> BigUInt:
     proto 1 1
+    b echo_native_biguint_block@0
 
 echo_native_biguint_block@0:
     // typed_abi_call/logger.py:87
@@ -1215,6 +1264,7 @@ echo_resource_by_index:
     //     self, asset: Asset, app: Application, acc: Account
     // ) -> tuple[Asset, Application, Account]:
     proto 3 3
+    b echo_resource_by_index_block@0
 
 echo_resource_by_index_block@0:
     // typed_abi_call/logger.py:95
@@ -1265,6 +1315,7 @@ echo_resource_by_value:
     //     self, asset: Asset, app: Application, acc: Account
     // ) -> tuple[Asset, Application, Account]:
     proto 3 3
+    b echo_resource_by_value_block@0
 
 echo_resource_by_value_block@0:
     // typed_abi_call/logger.py:109
@@ -1309,14 +1360,15 @@ echo_native_tuple:
     //     self, s: String, b: Bytes, u: UInt64, bu: BigUInt
     // ) -> tuple[String, Bytes, UInt64, BigUInt]:
     proto 4 4
+    b echo_native_tuple_block@0
 
 echo_native_tuple_block@0:
     // typed_abi_call/logger.py:121
     // return "echo: " + s, b"echo: " + b, u + 1, bu + 1
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     frame_dig -4
     concat
-    bytec_1 // 0x6563686f3a20
+    bytec_2 // 0x6563686f3a20
     frame_dig -3
     concat
     frame_dig -2
@@ -1340,13 +1392,14 @@ echo_nested_tuple:
     //     self, tuple_of_tuples: tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]
     // ) -> tuple[tuple[String, arc4.String], tuple[UInt64, arc4.UInt64, Bytes]]:
     proto 5 5
+    b echo_nested_tuple_block@0
 
 echo_nested_tuple_block@0:
     // typed_abi_call/logger.py:127
     // (string, arc4_string), (u64, arc4_u64, bytez) = tuple_of_tuples
     frame_dig -5
     frame_dig -4
-    swap
+    cover 1
     frame_dig -3
     cover 2
     frame_dig -2
@@ -1355,19 +1408,19 @@ echo_nested_tuple_block@0:
     cover 4
     // typed_abi_call/logger.py:128
     // return ("echo: " + string, "echo: " + arc4_string), (
-    bytec_1 // "echo: "
-    swap
+    bytec_2 // "echo: "
+    uncover 1
     concat
     cover 3
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     len
     itob
     extract 6 2
-    bytec_1 // "echo: "
+    bytec_2 // "echo: "
     concat
     dig 1
     len
-    swap
+    cover 1
     uncover 2
     intc_2 // 2
     uncover 3
@@ -1375,7 +1428,7 @@ echo_nested_tuple_block@0:
     concat // on error: max array length exceeded
     dup
     len
-    swap
+    cover 1
     dup
     intc_2 // 2
     uncover 3
@@ -1385,13 +1438,13 @@ echo_nested_tuple_block@0:
     /
     itob
     extract 6 2
-    swap
+    uncover 1
     intc_0 // 0
     uncover 2
     replace3
     // typed_abi_call/logger.py:129
     // u64 + 1,
-    swap
+    uncover 1
     intc_1 // 1
     +
     // typed_abi_call/logger.py:130
@@ -1403,7 +1456,7 @@ echo_nested_tuple_block@0:
     itob
     // typed_abi_call/logger.py:131
     // b"echo: " + bytez,
-    bytec_1 // 0x6563686f3a20
+    bytec_2 // 0x6563686f3a20
     uncover 5
     concat
     // typed_abi_call/logger.py:128-132
@@ -1448,11 +1501,12 @@ return_args_after_14th:
     //     a20: arc4.UInt8,
     // ) -> arc4.DynamicBytes:
     proto 20 1
+    b return_args_after_14th_block@0
 
 return_args_after_14th_block@0:
     // typed_abi_call/logger.py:158
     // last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
-    bytec_2 // 0x
+    bytec_1 // 0x
     frame_dig -6
     concat
     frame_dig -5
@@ -1477,7 +1531,7 @@ return_args_after_14th_block@0:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     retsub
 
@@ -1488,6 +1542,7 @@ logs_are_equal:
     // @arc4.abimethod
     // def logs_are_equal(self, log_1: LogMessage, log_2: LogMessage) -> bool:
     proto 4 1
+    b logs_are_equal_block@0
 
 logs_are_equal_block@0:
     // typed_abi_call/logger.py:164
@@ -1508,6 +1563,7 @@ echo_log_struct:
     // @arc4.abimethod
     // def echo_log_struct(self, log: LogStruct) -> LogStruct:
     proto 1 1
+    b echo_log_struct_block@0
 
 echo_log_struct_block@0:
     // typed_abi_call/logger.py:168

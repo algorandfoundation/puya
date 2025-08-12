@@ -5,13 +5,16 @@
 main:
     intcblock 0 8 1 16 128 34176
     bytecblock "tup_bag" 0x 0x151f7c75
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     retsub
@@ -27,6 +31,7 @@ __init___block@0:
 
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box() -> void:
 create_box:
+    b create_box_block@0
 
 create_box_block@0:
     // mutable_native_types/case1_with_tups.py:47
@@ -45,7 +50,7 @@ create_box_block@0:
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
     // mutable_native_types/case1_with_tups.py:49
     // self.tup_bag.value.app = Global.current_application_id
@@ -53,14 +58,14 @@ create_box_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    swap
+    uncover 1
     itob
-    swap
+    uncover 1
     pushint 168 // 168
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
     // mutable_native_types/case1_with_tups.py:50
     // self.tup_bag.value.bootstrapped = True
@@ -71,13 +76,14 @@ create_box_block@0:
     intc_2 // 1
     setbit
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
     retsub
 
 
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:
 num_tups:
+    b num_tups_block@0
 
 num_tups_block@0:
     // mutable_native_types/case1_with_tups.py:54
@@ -98,6 +104,7 @@ add_tup:
     // @arc4.abimethod()
     // def add_tup(self, tup: NamedTup) -> None:
     proto 2 0
+    b add_tup_block@0
 
 add_tup_block@0:
     // mutable_native_types/case1_with_tups.py:58
@@ -130,7 +137,7 @@ add_tup_block@0:
     frame_dig -2
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -1
     itob
@@ -144,12 +151,12 @@ add_tup_block@0:
     *
     uncover 2
     replace3 // on error: index access is out of bounds
-    swap
+    uncover 1
     intc_1 // 8
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
     // mutable_native_types/case1_with_tups.py:61
     // self.tup_bag.value.count += 1
@@ -164,12 +171,12 @@ add_tup_block@0:
     intc_2 // 1
     +
     itob
-    swap
+    uncover 1
     intc_0 // 0
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
     retsub
 
@@ -180,6 +187,7 @@ get_tup:
     // @arc4.abimethod()
     // def get_tup(self, index: UInt64) -> NamedTup:
     proto 1 2
+    b get_tup_block@0
 
 get_tup_block@0:
     // mutable_native_types/case1_with_tups.py:65
@@ -212,9 +220,9 @@ get_tup_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     retsub
@@ -226,6 +234,7 @@ sum:
     // @arc4.abimethod()
     // def sum(self) -> UInt64:
     proto 0 1
+    b sum_block@0
 
 sum_block@0:
     // mutable_native_types/case1_with_tups.py:70
@@ -243,6 +252,7 @@ sum_block@0:
     intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
+    b sum_for_header@1
 
 sum_for_header@1:
     // mutable_native_types/case1_with_tups.py:71
@@ -251,6 +261,7 @@ sum_for_header@1:
     frame_dig 1
     <
     bz sum_after_for@4
+    b sum_for_body@2
 
 sum_for_body@2:
     // mutable_native_types/case1_with_tups.py:72
@@ -271,12 +282,12 @@ sum_for_body@2:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // mutable_native_types/case1_with_tups.py:73
     // total += tup.a
     frame_dig 0
@@ -285,6 +296,7 @@ sum_for_body@2:
     // total += tup.b
     +
     frame_bury 0
+    b sum_for_footer@3
 
 sum_for_footer@3:
     // mutable_native_types/case1_with_tups.py:71
@@ -307,6 +319,7 @@ add_many_tups:
     // @arc4.abimethod()
     // def add_many_tups(self, tups: NativeArray[NamedTup]) -> None:
     proto 1 0
+    b add_many_tups_block@0
 
 add_many_tups_block@0:
     // mutable_native_types/case1_with_tups.py:79
@@ -315,6 +328,7 @@ add_many_tups_block@0:
     intc_0 // 0
     extract_uint16
     intc_0 // 0
+    b add_many_tups_for_header@1
 
 add_many_tups_for_header@1:
     // mutable_native_types/case1_with_tups.py:79
@@ -323,6 +337,7 @@ add_many_tups_for_header@1:
     frame_dig 0
     <
     bz add_many_tups_after_for@4
+    b add_many_tups_for_body@2
 
 add_many_tups_for_body@2:
     // mutable_native_types/case1_with_tups.py:79
@@ -343,14 +358,15 @@ add_many_tups_for_body@2:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     // mutable_native_types/case1_with_tups.py:80
     // self.add_tup(tup)
     callsub add_tup
+    b add_many_tups_for_footer@3
 
 add_many_tups_for_footer@3:
     frame_dig 1
@@ -369,9 +385,11 @@ add_fixed_tups:
     // @arc4.abimethod()
     // def add_fixed_tups(self, tups: FixedArray[NamedTup, typing.Literal[3]]) -> None:
     proto 1 0
+    b add_fixed_tups_block@0
 
 add_fixed_tups_block@0:
     intc_0 // 0
+    b add_fixed_tups_for_header@1
 
 add_fixed_tups_for_header@1:
     // mutable_native_types/case1_with_tups.py:84
@@ -380,6 +398,7 @@ add_fixed_tups_for_header@1:
     pushint 3 // 3
     <
     bz add_fixed_tups_after_for@4
+    b add_fixed_tups_for_body@2
 
 add_fixed_tups_for_body@2:
     // mutable_native_types/case1_with_tups.py:84
@@ -388,7 +407,7 @@ add_fixed_tups_for_body@2:
     intc_3 // 16
     *
     frame_dig -1
-    swap
+    uncover 1
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     dup
@@ -396,14 +415,15 @@ add_fixed_tups_for_body@2:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     // mutable_native_types/case1_with_tups.py:85
     // self.add_tup(tup)
     callsub add_tup
+    b add_fixed_tups_for_footer@3
 
 add_fixed_tups_for_footer@3:
     frame_dig 0
@@ -422,6 +442,7 @@ set_a:
     // @arc4.abimethod()
     // def set_a(self, a: UInt64) -> None:
     proto 1 0
+    b set_a_block@0
 
 set_a_block@0:
     // mutable_native_types/case1_with_tups.py:89
@@ -439,6 +460,7 @@ set_a_block@0:
     intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
+    b set_a_for_header@1
 
 set_a_for_header@1:
     // mutable_native_types/case1_with_tups.py:90
@@ -447,6 +469,7 @@ set_a_for_header@1:
     frame_dig 0
     <
     bz set_a_after_for@4
+    b set_a_for_body@2
 
 set_a_for_body@2:
     // mutable_native_types/case1_with_tups.py:91
@@ -465,7 +488,7 @@ set_a_for_body@2:
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     // mutable_native_types/case1_with_tups.py:92
@@ -473,13 +496,13 @@ set_a_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    swap
+    cover 1
     frame_dig -1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
     dig 1
@@ -491,13 +514,14 @@ set_a_for_body@2:
     *
     uncover 2
     replace3 // on error: index access is out of bounds
-    swap
+    uncover 1
     intc_1 // 8
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
+    b set_a_for_footer@3
 
 set_a_for_footer@3:
     // mutable_native_types/case1_with_tups.py:90
@@ -518,6 +542,7 @@ set_b:
     // @arc4.abimethod()
     // def set_b(self, b: UInt64) -> None:
     proto 1 0
+    b set_b_block@0
 
 set_b_block@0:
     // mutable_native_types/case1_with_tups.py:96
@@ -535,6 +560,7 @@ set_b_block@0:
     intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
+    b set_b_for_header@1
 
 set_b_for_header@1:
     // mutable_native_types/case1_with_tups.py:97
@@ -543,6 +569,7 @@ set_b_for_header@1:
     frame_dig 0
     <
     bz set_b_after_for@4
+    b set_b_for_body@2
 
 set_b_for_body@2:
     // mutable_native_types/case1_with_tups.py:98
@@ -569,10 +596,10 @@ set_b_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    swap
+    cover 1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -1
     itob
@@ -586,13 +613,14 @@ set_b_for_body@2:
     *
     uncover 2
     replace3 // on error: index access is out of bounds
-    swap
+    uncover 1
     intc_1 // 8
     uncover 2
     replace3
     bytec_0 // "tup_bag"
-    swap
+    uncover 1
     box_put
+    b set_b_for_footer@3
 
 set_b_for_footer@3:
     // mutable_native_types/case1_with_tups.py:97
@@ -613,6 +641,7 @@ get_3_tups:
     // @arc4.abimethod()
     // def get_3_tups(self, start: UInt64) -> FixedArray[NamedTup, typing.Literal[3]]:
     proto 1 1
+    b get_3_tups_block@0
 
 get_3_tups_block@0:
     // mutable_native_types/case1_with_tups.py:103
@@ -643,7 +672,7 @@ get_3_tups_block@0:
     intc_3 // 16
     *
     dig 1
-    swap
+    uncover 1
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     dup
@@ -651,12 +680,12 @@ get_3_tups_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    uncover 1
     cover 2
     cover 2
     // mutable_native_types/case1_with_tups.py:109
@@ -667,7 +696,7 @@ get_3_tups_block@0:
     intc_3 // 16
     *
     dig 1
-    swap
+    uncover 1
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     dup
@@ -675,12 +704,12 @@ get_3_tups_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    uncover 1
     cover 2
     cover 2
     // mutable_native_types/case1_with_tups.py:110
@@ -697,12 +726,12 @@ get_3_tups_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // mutable_native_types/case1_with_tups.py:106-112
     // return FixedArray[NamedTup, typing.Literal[3]](
     //     (
@@ -714,27 +743,27 @@ get_3_tups_block@0:
     uncover 4
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     uncover 5
     itob
     concat
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     uncover 3
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     uncover 4
     itob
     concat
     concat
-    swap
+    uncover 1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     uncover 2
     itob
@@ -749,6 +778,7 @@ get_all_tups:
     // @arc4.abimethod()
     // def get_all_tups(self) -> NativeArray[NamedTup]:
     proto 0 1
+    b get_all_tups_block@0
 
 get_all_tups_block@0:
     // mutable_native_types/case1_with_tups.py:116
@@ -777,6 +807,7 @@ get_all_tups_block@0:
     intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
+    b get_all_tups_for_header@1
 
 get_all_tups_for_header@1:
     // mutable_native_types/case1_with_tups.py:118-119
@@ -786,6 +817,7 @@ get_all_tups_for_header@1:
     frame_dig 2
     <
     bz get_all_tups_after_for@4
+    b get_all_tups_for_body@2
 
 get_all_tups_for_body@2:
     // mutable_native_types/case1_with_tups.py:120
@@ -794,7 +826,7 @@ get_all_tups_for_body@2:
     intc_3 // 16
     *
     frame_dig 1
-    swap
+    uncover 1
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     dup
@@ -802,39 +834,40 @@ get_all_tups_for_body@2:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     frame_dig 0
     dup
     cover 2
-    swap
+    uncover 1
     concat // on error: max array length exceeded
-    swap
+    cover 1
     intc_0 // 0
     extract_uint16
     intc_2 // 1
     +
     itob
     extract 6 2
-    swap
+    uncover 1
     intc_0 // 0
     uncover 2
     replace3
     frame_bury 0
+    b get_all_tups_for_footer@3
 
 get_all_tups_for_footer@3:
     // mutable_native_types/case1_with_tups.py:118-119
@@ -854,6 +887,7 @@ get_all_tups_after_for@4:
 
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
 _check_owner:
+    b _check_owner_block@0
 
 _check_owner_block@0:
     // mutable_native_types/case1_with_tups.py:125
@@ -896,8 +930,12 @@ _check_owner_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_1 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // mutable_native_types/case1_with_tups.py:41
@@ -906,6 +944,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@16
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // mutable_native_types/case1_with_tups.py:41
@@ -924,17 +963,24 @@ approval_program_abi_routing@2:
     pushbytes 0x73457a19 // method "get_all_tups()(uint64,uint64)[]"
     uncover 11
     match approval_program_create_box_route@3 approval_program_num_tups_route@4 approval_program_add_tup_route@5 approval_program_get_tup_route@6 approval_program_sum_route@7 approval_program_add_many_tups_route@8 approval_program_add_fixed_tups_route@9 approval_program_set_a_route@10 approval_program_set_b_route@11 approval_program_get_3_tups_route@12 approval_program_get_all_tups_route@13
+    b approval_program_switch_case_default@14
 
 approval_program_switch_case_default@14:
+    b approval_program_switch_case_next@15
 
 approval_program_switch_case_next@15:
+    b approval_program_after_if_else@22
 
 approval_program_after_if_else@22:
     // mutable_native_types/case1_with_tups.py:41
     // class Case1WithTups(arc4.ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_get_all_tups_route@13:
@@ -950,10 +996,11 @@ approval_program_get_all_tups_route@13:
     assert // can only call when not creating
     callsub get_all_tups
     bytec_2 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_get_3_tups_route@12:
@@ -975,10 +1022,11 @@ approval_program_get_3_tups_route@12:
     // @arc4.abimethod()
     callsub get_3_tups
     bytec_2 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_set_b_route@11:
@@ -1000,6 +1048,7 @@ approval_program_set_b_route@11:
     // @arc4.abimethod()
     callsub set_b
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_set_a_route@10:
@@ -1021,6 +1070,7 @@ approval_program_set_a_route@10:
     // @arc4.abimethod()
     callsub set_a
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_fixed_tups_route@9:
@@ -1041,6 +1091,7 @@ approval_program_add_fixed_tups_route@9:
     // @arc4.abimethod()
     callsub add_fixed_tups
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_many_tups_route@8:
@@ -1061,6 +1112,7 @@ approval_program_add_many_tups_route@8:
     // @arc4.abimethod()
     callsub add_many_tups
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_sum_route@7:
@@ -1077,10 +1129,11 @@ approval_program_sum_route@7:
     callsub sum
     itob
     bytec_2 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_get_tup_route@6:
@@ -1101,19 +1154,20 @@ approval_program_get_tup_route@6:
     // mutable_native_types/case1_with_tups.py:63
     // @arc4.abimethod()
     callsub get_tup
-    swap
+    cover 1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
     bytec_2 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_add_tup_route@5:
@@ -1135,15 +1189,16 @@ approval_program_add_tup_route@5:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     // mutable_native_types/case1_with_tups.py:56
     // @arc4.abimethod()
     callsub add_tup
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_num_tups_route@4:
@@ -1160,10 +1215,11 @@ approval_program_num_tups_route@4:
     callsub num_tups
     itob
     bytec_2 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_create_box_route@3:
@@ -1179,6 +1235,7 @@ approval_program_create_box_route@3:
     assert // can only call when not creating
     callsub create_box
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23
 
 approval_program_bare_routing@16:
@@ -1186,10 +1243,12 @@ approval_program_bare_routing@16:
     // class Case1WithTups(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@17
+    b approval_program_switch_case_default@20
 
 approval_program_switch_case_default@20:
+    b approval_program_switch_case_next@21
 
 approval_program_switch_case_next@21:
     b approval_program_after_if_else@22
@@ -1199,9 +1258,12 @@ approval_program___algopy_default_create@17:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@18
 
 approval_program_block@18:
+    b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create@19
 
 approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create@19:
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@23

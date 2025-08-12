@@ -5,8 +5,11 @@
 main:
     intcblock 0 1 1234
     bytecblock 0x151f7c75 "apps" "assets" "accounts"
+    pushbytes ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // arc4_conversions/reference.py:4
@@ -15,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@15
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // arc4_conversions/reference.py:4
@@ -32,15 +36,20 @@ main_abi_routing@2:
     pushbytes 0x924e778c // method "return_accounts()address[]"
     uncover 10
     match main_acc_ret_route@3 main_asset_ret_route@4 main_app_ret_route@5 main_store_route@6 main_store_apps_route@7 main_store_assets_route@8 main_store_accounts_route@9 main_return_apps_route@10 main_return_assets_route@11 main_return_accounts_route@12
+    b main_switch_case_default@13
 
 main_switch_case_default@13:
+    b main_switch_case_next@14
 
 main_switch_case_next@14:
+    b main_after_if_else@19
 
 main_after_if_else@19:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20:
     return
@@ -58,10 +67,11 @@ main_return_accounts_route@12:
     assert // can only call when not creating
     callsub return_accounts
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_return_assets_route@11:
@@ -77,10 +87,11 @@ main_return_assets_route@11:
     assert // can only call when not creating
     callsub return_assets
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_return_apps_route@10:
@@ -96,10 +107,11 @@ main_return_apps_route@10:
     assert // can only call when not creating
     callsub return_apps
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_store_accounts_route@9:
@@ -120,6 +132,7 @@ main_store_accounts_route@9:
     // @arc4.abimethod
     callsub store_accounts
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_store_assets_route@8:
@@ -140,6 +153,7 @@ main_store_assets_route@8:
     // @arc4.abimethod
     callsub store_assets
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_store_apps_route@7:
@@ -160,6 +174,7 @@ main_store_apps_route@7:
     // @arc4.abimethod
     callsub store_apps
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_store_route@6:
@@ -187,6 +202,7 @@ main_store_route@6:
     uncover 2
     callsub store
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_app_ret_route@5:
@@ -203,10 +219,11 @@ main_app_ret_route@5:
     callsub app_ret
     itob
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_asset_ret_route@4:
@@ -223,10 +240,11 @@ main_asset_ret_route@4:
     callsub asset_ret
     itob
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_acc_ret_route@3:
@@ -242,10 +260,11 @@ main_acc_ret_route@3:
     assert // can only call when not creating
     callsub acc_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 main_bare_routing@15:
@@ -253,10 +272,12 @@ main_bare_routing@15:
     // class ReferenceReturn(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@16
+    b main_switch_case_default@17
 
 main_switch_case_default@17:
+    b main_switch_case_next@18
 
 main_switch_case_next@18:
     b main_after_if_else@19
@@ -266,16 +287,20 @@ main___algopy_default_create@16:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@21
 
 main_block@21:
+    b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create@22
 
 main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create@22:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__@20
 
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret() -> bytes:
 acc_ret:
+    b acc_ret_block@0
 
 acc_ret_block@0:
     // arc4_conversions/reference.py:7
@@ -286,6 +311,7 @@ acc_ret_block@0:
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.asset_ret() -> uint64:
 asset_ret:
+    b asset_ret_block@0
 
 asset_ret_block@0:
     // arc4_conversions/reference.py:11
@@ -296,6 +322,7 @@ asset_ret_block@0:
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.app_ret() -> uint64:
 app_ret:
+    b app_ret_block@0
 
 app_ret_block@0:
     // arc4_conversions/reference.py:15
@@ -310,6 +337,7 @@ store:
     // @arc4.abimethod
     // def store(self, acc: Account, app: Application, asset: Asset) -> None:
     proto 3 0
+    b store_block@0
 
 store_block@0:
     // arc4_conversions/reference.py:19
@@ -336,6 +364,7 @@ store_apps:
     // @arc4.abimethod
     // def store_apps(self, apps: ImmutableArray[Application]) -> None:
     proto 1 0
+    b store_apps_block@0
 
 store_apps_block@0:
     // arc4_conversions/reference.py:25
@@ -352,6 +381,7 @@ store_assets:
     // @arc4.abimethod
     // def store_assets(self, assets: ImmutableArray[Asset]) -> None:
     proto 1 0
+    b store_assets_block@0
 
 store_assets_block@0:
     // arc4_conversions/reference.py:29
@@ -368,6 +398,7 @@ store_accounts:
     // @arc4.abimethod
     // def store_accounts(self, accounts: ImmutableArray[Account]) -> None:
     proto 1 0
+    b store_accounts_block@0
 
 store_accounts_block@0:
     // arc4_conversions/reference.py:33
@@ -380,6 +411,7 @@ store_accounts_block@0:
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.return_apps() -> bytes:
 return_apps:
+    b return_apps_block@0
 
 return_apps_block@0:
     // arc4_conversions/reference.py:37
@@ -393,6 +425,7 @@ return_apps_block@0:
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.return_assets() -> bytes:
 return_assets:
+    b return_assets_block@0
 
 return_assets_block@0:
     // arc4_conversions/reference.py:41
@@ -406,6 +439,7 @@ return_assets_block@0:
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts() -> bytes:
 return_accounts:
+    b return_accounts_block@0
 
 return_accounts_block@0:
     // arc4_conversions/reference.py:45

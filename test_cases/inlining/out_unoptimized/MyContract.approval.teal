@@ -5,16 +5,34 @@
 main:
     intcblock 0 1
     pushbytes ""
+    pushbytes ""
+    pushbytes ""
+    b main_block@0
 
 main_block@0:
+    // inlining/contract.py:8
+    // z = zero()
+    b main_block@1
 
 main_block@1:
+    // inlining/contract.py:8
+    // z = zero()
+    b main_after_inlined_test_cases.inlining.contract.zero@2
 
 main_after_inlined_test_cases.inlining.contract.zero@2:
+    // inlining/contract.py:9
+    // a = one()
+    b main_block@3
 
 main_block@3:
+    // inlining/contract.py:26
+    // return zero() + 1
+    b main_block@11
 
 main_block@11:
+    // inlining/contract.py:26
+    // return zero() + 1
+    b main_after_inlined_test_cases.inlining.contract.zero@12
 
 main_after_inlined_test_cases.inlining.contract.zero@12:
     // inlining/contract.py:31
@@ -24,15 +42,29 @@ main_after_inlined_test_cases.inlining.contract.zero@12:
     // return zero() + 1
     intc_1 // 1
     +
+    bury 2
+    // inlining/contract.py:9
+    // a = one()
+    b main_after_inlined_test_cases.inlining.contract.one@4
 
 main_after_inlined_test_cases.inlining.contract.one@4:
     // inlining/contract.py:9
     // a = one()
-    bury 1
+    dig 1
+    bury 3
+    // inlining/contract.py:10
+    // b = one()
+    b main_block@5
 
 main_block@5:
+    // inlining/contract.py:26
+    // return zero() + 1
+    b main_block@9
 
 main_block@9:
+    // inlining/contract.py:26
+    // return zero() + 1
+    b main_after_inlined_test_cases.inlining.contract.zero@10
 
 main_after_inlined_test_cases.inlining.contract.zero@10:
     // inlining/contract.py:31
@@ -42,19 +74,29 @@ main_after_inlined_test_cases.inlining.contract.zero@10:
     // return zero() + 1
     intc_1 // 1
     +
+    bury 1
+    // inlining/contract.py:10
+    // b = one()
+    b main_after_inlined_test_cases.inlining.contract.one@6
 
 main_after_inlined_test_cases.inlining.contract.one@6:
+    // inlining/contract.py:10
+    // b = one()
+    dup
     // inlining/contract.py:31
     // return UInt64(0)
     intc_0 // 0
     // inlining/contract.py:11
     // assert z + a + b == 2
-    dig 2
+    dig 4
     +
     +
     pushint 2 // 2
     ==
     assert
+    // inlining/contract.py:12
+    // never_returns()
+    b main_block@7
 
 main_block@7:
     // inlining/contract.py:21

@@ -4,14 +4,17 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x151f7c75 "asa" 0x07 0x08 0x01040023 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
+    bytecblock 0x151f7c75 "asa" 0x01040023 0x "local_uint" "local_bytes" 0x00000000000001c8 "abc"
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.abi_routing.contract.Reference.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // abi_routing/contract.py:26
@@ -34,21 +38,21 @@ __init___block@0:
     app_global_put
     // abi_routing/contract.py:28
     // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-    pushbytes 0x
-    bytec_2 // 0x07
+    bytec_3 // 0x
+    pushbytes 0x07
     concat
-    bytec_3 // 0x08
+    pushbytes 0x08
     concat
     pushbytes 0x09
     concat
     pushbytes "some_bytes"
-    swap
+    uncover 1
     app_global_put
     // abi_routing/contract.py:29
     // self.creator = op.Txn.sender
     txn Sender
     pushbytes "creator"
-    swap
+    uncover 1
     app_global_put
     // abi_routing/contract.py:30
     // self.app = Application(123)
@@ -64,12 +68,12 @@ __init___block@0:
     assert // has method selector
     // abi_routing/contract.py:36
     // assert arc4.arc4_signature(Reference.opt_in) == arc4.arc4_signature(
-    bytec 4 // method "opt_in(uint64,byte[])void"
+    bytec_2 // method "opt_in(uint64,byte[])void"
     // abi_routing/contract.py:36-38
     // assert arc4.arc4_signature(Reference.opt_in) == arc4.arc4_signature(
     //     "opt_in(uint64,byte[])void"
     // ), "has method selector for method reference"
-    dup
+    bytec_2 // method "opt_in(uint64,byte[])void"
     ==
     assert // has method selector for method reference
     retsub
@@ -81,6 +85,7 @@ noop_with_uint64:
     // @arc4.abimethod
     // def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
     proto 1 1
+    b noop_with_uint64_block@0
 
 noop_with_uint64_block@0:
     // abi_routing/contract.py:42
@@ -109,18 +114,19 @@ opt_in:
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     // def opt_in(self, uint: UInt64, bites: Bytes) -> None:
     proto 2 0
+    b opt_in_block@0
 
 opt_in_block@0:
     // abi_routing/contract.py:47
     // self.local_uint[Txn.sender] = uint
     txn Sender
-    bytec 5 // "local_uint"
+    bytec 4 // "local_uint"
     frame_dig -2
     app_local_put
     // abi_routing/contract.py:48
     // self.local_bytes[Txn.sender] = bites
     txn Sender
-    bytec 6 // "local_bytes"
+    bytec 5 // "local_bytes"
     frame_dig -1
     app_local_put
     retsub
@@ -143,6 +149,7 @@ full_abi_config:
     // )
     // def full_abi_config(self, a: arc4.UInt64) -> arc4.UInt8:
     proto 1 1
+    b full_abi_config_block@0
 
 full_abi_config_block@0:
     // abi_routing/contract.py:63
@@ -179,6 +186,7 @@ mixed_oca:
     // )
     // def mixed_oca(self, a: arc4.UInt64) -> arc4.UInt8:
     proto 1 1
+    b mixed_oca_block@0
 
 mixed_oca_block@0:
     // abi_routing/contract.py:76
@@ -203,6 +211,7 @@ mixed_oca_block@0:
 
 // test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
 bare_abi_config:
+    b bare_abi_config_block@0
 
 bare_abi_config_block@0:
     // abi_routing/contract.py:90
@@ -218,6 +227,7 @@ opt_into_asset:
     // @arc4.abimethod
     // def opt_into_asset(self, asset: Asset) -> None:
     proto 1 0
+    b opt_into_asset_block@0
 
 opt_into_asset_block@0:
     // abi_routing/contract.py:94-95
@@ -281,6 +291,7 @@ with_transactions:
     //     another_int: arc4.UInt64,
     // ) -> None:
     proto 4 0
+    b with_transactions_block@0
 
 with_transactions_block@0:
     // abi_routing/contract.py:117
@@ -322,6 +333,7 @@ compare_assets:
     // @arc4.abimethod
     // def compare_assets(self, asset_a: Asset, asset_b: Asset) -> None:
     proto 2 0
+    b compare_assets_block@0
 
 compare_assets_block@0:
     // abi_routing/contract.py:124
@@ -335,6 +347,7 @@ compare_assets_block@0:
 
 // test_cases.abi_routing.contract.Reference.get_address() -> bytes:
 get_address:
+    b get_address_block@0
 
 get_address_block@0:
     // abi_routing/contract.py:128
@@ -345,26 +358,29 @@ get_address_block@0:
 
 // test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
 get_asset:
+    b get_asset_block@0
 
 get_asset_block@0:
     // abi_routing/contract.py:132
     // return arc4.UInt64(456)
-    bytec 7 // 0x00000000000001c8
+    bytec 6 // 0x00000000000001c8
     retsub
 
 
 // test_cases.abi_routing.contract.Reference.get_app() -> bytes:
 get_app:
+    b get_app_block@0
 
 get_app_block@0:
     // abi_routing/contract.py:136
     // return arc4.UInt64(456)
-    bytec 7 // 0x00000000000001c8
+    bytec 6 // 0x00000000000001c8
     retsub
 
 
 // test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
 get_a_int:
+    b get_a_int_block@0
 
 get_a_int_block@0:
     // abi_routing/contract.py:140
@@ -410,6 +426,7 @@ method_with_default_args:
     //     bytes_from_local: Bytes,
     // ) -> None:
     proto 13 0
+    b method_with_default_args_block@0
 
 method_with_default_args_block@0:
     // abi_routing/contract.py:175
@@ -454,22 +471,22 @@ method_with_default_args_block@0:
     intc_1 // 1
     *
     frame_dig -7
-    swap
+    uncover 1
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bytec_2 // 0x07
+    pushbytes 0x07
     b==
     assert // wrong 0th byte from storage
     // abi_routing/contract.py:182
     // assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
     intc_1 // 1
-    dup
+    intc_1 // 1
     *
     frame_dig -7
-    swap
+    uncover 1
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bytec_3 // 0x08
+    pushbytes 0x08
     b==
     assert // wrong 1st byte from storage
     // abi_routing/contract.py:183
@@ -478,7 +495,7 @@ method_with_default_args_block@0:
     intc_1 // 1
     *
     frame_dig -7
-    swap
+    uncover 1
     intc_1 // 1
     extract3 // on error: index access is out of bounds
     pushbytes 0x09
@@ -506,11 +523,11 @@ method_with_default_args_block@0:
     assert
     // abi_routing/contract.py:187
     // assert str_from_const == "abc"
-    bytec 8 // "abc"
+    bytec 7 // "abc"
     len
     itob
     extract 6 2
-    bytec 8 // "abc"
+    bytec 7 // "abc"
     concat
     frame_dig -3
     ==
@@ -519,7 +536,7 @@ method_with_default_args_block@0:
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
     intc_0 // 0
-    bytec 5 // "local_uint"
+    bytec 4 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
     frame_dig -2
@@ -529,7 +546,7 @@ method_with_default_args_block@0:
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
     intc_0 // 0
-    bytec 6 // "local_bytes"
+    bytec 5 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
     frame_dig -1
@@ -561,6 +578,7 @@ method_with_15_args:
     //     fifteen: Bytes,
     // ) -> Bytes:
     proto 15 1
+    b method_with_15_args_block@0
 
 method_with_15_args_block@0:
     // abi_routing/contract.py:212-213
@@ -768,6 +786,7 @@ method_with_more_than_15_args:
     //     v: arc4.UInt64,
     // ) -> arc4.UInt64:
     proto 26 1
+    b method_with_more_than_15_args_block@0
 
 method_with_more_than_15_args_block@0:
     // abi_routing/contract.py:264
@@ -1162,6 +1181,7 @@ hello_with_algopy_string:
     // @arc4.abimethod
     // def hello_with_algopy_string(self, name: String) -> String:
     proto 1 1
+    b hello_with_algopy_string_block@0
 
 hello_with_algopy_string_block@0:
     // abi_routing/contract.py:297
@@ -1176,8 +1196,12 @@ hello_with_algopy_string_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_3 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // abi_routing/contract.py:24
@@ -1186,13 +1210,14 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@20
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
-    bytec 4 // method "opt_in(uint64,byte[])void"
+    bytec_2 // method "opt_in(uint64,byte[])void"
     pushbytes 0x3a5353fc // method "all_the_things(uint64)uint8"
     pushbytes 0xd2f2f53c // method "mixed_oca(uint64)uint8"
     pushbytes 0xd8f62d9a // method "opt_into_asset(uint64)void"
@@ -1208,17 +1233,24 @@ approval_program_abi_routing@2:
     pushbytes 0x9023bb19 // method "hello_with_algopy_string(string)string"
     uncover 15
     match approval_program_noop_with_uint64_route@3 approval_program_opt_in_route@4 approval_program_all_the_things_route@5 approval_program_mixed_oca_route@6 approval_program_opt_into_asset_route@7 approval_program_with_transactions_route@8 approval_program_compare_assets_route@9 approval_program_get_address_route@10 approval_program_get_asset_route@11 approval_program_get_application_route@12 approval_program_get_an_int_route@13 approval_program_method_with_default_args_route@14 approval_program_method_with_15_args_route@15 approval_program_method_with_more_than_15_args_route@16 approval_program_hello_with_algopy_string_route@17
+    b approval_program_switch_case_default@18
 
 approval_program_switch_case_default@18:
+    b approval_program_switch_case_next@19
 
 approval_program_switch_case_next@19:
+    b approval_program_after_if_else@24
 
 approval_program_after_if_else@24:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_hello_with_algopy_string_route@17:
@@ -1243,13 +1275,14 @@ approval_program_hello_with_algopy_string_route@17:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_method_with_more_than_15_args_route@16:
@@ -1295,7 +1328,7 @@ approval_program_method_with_more_than_15_args_route@16:
     extract3
     txna ApplicationArgs 15
     intc_2 // 8
-    dup
+    intc_2 // 8
     extract3
     txna ApplicationArgs 15
     pushint 16 // 16
@@ -1314,11 +1347,11 @@ approval_program_method_with_more_than_15_args_route@16:
     dup
     pushint 40 // 40
     extract_uint16
-    swap
+    cover 1
     dup
     pushint 42 // 42
     extract_uint16
-    swap
+    uncover 1
     uncover 2
     uncover 2
     substring3
@@ -1327,10 +1360,10 @@ approval_program_method_with_more_than_15_args_route@16:
     dup
     pushint 42 // 42
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
@@ -1386,10 +1419,11 @@ approval_program_method_with_more_than_15_args_route@16:
     uncover 25
     callsub method_with_more_than_15_args
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_method_with_15_args_route@15:
@@ -1457,13 +1491,14 @@ approval_program_method_with_15_args_route@15:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_method_with_default_args_route@14:
@@ -1547,6 +1582,7 @@ approval_program_method_with_default_args_route@14:
     uncover 12
     callsub method_with_default_args
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_get_an_int_route@13:
@@ -1562,10 +1598,11 @@ approval_program_get_an_int_route@13:
     assert // can only call when not creating
     callsub get_a_int
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_get_application_route@12:
@@ -1581,10 +1618,11 @@ approval_program_get_application_route@12:
     assert // can only call when not creating
     callsub get_app
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_get_asset_route@11:
@@ -1600,10 +1638,11 @@ approval_program_get_asset_route@11:
     assert // can only call when not creating
     callsub get_asset
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_get_address_route@10:
@@ -1619,10 +1658,11 @@ approval_program_get_address_route@10:
     assert // can only call when not creating
     callsub get_address
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_compare_assets_route@9:
@@ -1646,6 +1686,7 @@ approval_program_compare_assets_route@9:
     // @arc4.abimethod
     callsub compare_assets
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_with_transactions_route@8:
@@ -1681,6 +1722,7 @@ approval_program_with_transactions_route@8:
     uncover 3
     callsub with_transactions
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_opt_into_asset_route@7:
@@ -1702,6 +1744,7 @@ approval_program_opt_into_asset_route@7:
     // @arc4.abimethod
     callsub opt_into_asset
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_mixed_oca_route@6:
@@ -1717,7 +1760,7 @@ approval_program_mixed_oca_route@6:
     // )
     txn OnCompletion
     intc_1 // 1
-    swap
+    uncover 1
     shl
     pushint 37 // 37
     &
@@ -1741,10 +1784,11 @@ approval_program_mixed_oca_route@6:
     // )
     callsub mixed_oca
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_all_the_things_route@5:
@@ -1766,10 +1810,11 @@ approval_program_all_the_things_route@5:
     // )
     callsub full_abi_config
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_opt_in_route@4:
@@ -1793,6 +1838,7 @@ approval_program_opt_in_route@4:
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     callsub opt_in
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_noop_with_uint64_route@3:
@@ -1813,10 +1859,11 @@ approval_program_noop_with_uint64_route@3:
     // @arc4.abimethod
     callsub noop_with_uint64
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25
 
 approval_program_bare_routing@20:
@@ -1830,8 +1877,10 @@ approval_program_bare_routing@20:
     pushint 5 // 5
     uncover 5
     match approval_program_bare_abi_config@21 approval_program_bare_abi_config@21 approval_program_bare_abi_config@21 approval_program_bare_abi_config@21 approval_program_bare_abi_config@21
+    b approval_program_switch_case_default@22
 
 approval_program_switch_case_default@22:
+    b approval_program_switch_case_next@23
 
 approval_program_switch_case_next@23:
     b approval_program_after_if_else@24
@@ -1854,4 +1903,5 @@ approval_program_bare_abi_config@21:
     assert // can only call when creating
     callsub bare_abi_config
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router__@25

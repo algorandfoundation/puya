@@ -3,10 +3,13 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 2 1
-    bytecblock 0x151f7c75 "s1" 0x 0x6231 0x0000000000000001 0x9bf81913 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 "log 1" "s" 0x62 0x02 0x01 0xb4b4334e "echo: tuple" 0x0000000000000002 0x00 "echo: s1" "s2" 0x33 "echo: s2" 0x636f6e76657274656431 0x34 0x0000000000000003 0x576f726c6431 0x576f726c6432 0x576f726c6433 0x576f726c6434 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x48142d5e "test1" "echo: test1" "test2" "echo: test2" "test3" "echo: test3" "test4" "echo: test4" "test5" "echo: test5" "typed + ignore" "echo: typed + ignore" "untyped + ignore" "echo: untyped + ignore" "tuple" "untyped" "echo: untyped" 0x000000000000000b 0x6563686f3a206231 0x6563686f3a2033 "s1b" "s2b" 0x3362 "echo: s2b" 0x000000000000002a 0xddd07185 "log 2"
+    intcblock 0 6 8 2
+    bytecblock 0x151f7c75 "s1" 0x 0x6231 0x9bf81913 0x0000000000000001 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 "log 1" "s" 0x62 0x02 0x01 0xb4b4334e "echo: tuple" 0x0000000000000002 0x00 "echo: s1" "s2" 0x33 "echo: s2" 0x636f6e76657274656431 0x34 0x0000000000000003 0x576f726c6431 0x576f726c6432 0x576f726c6433 0x576f726c6434 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x48142d5e "test1" "echo: test1" "test2" "echo: test2" "test3" "echo: test3" "test4" "echo: test4" "test5" "echo: test5" "typed + ignore" "echo: typed + ignore" "untyped + ignore" "echo: untyped + ignore" "tuple" "untyped" "echo: untyped" 0x000000000000000b 0x6563686f3a206231 0x6563686f3a2033 "s1b" "s2b" 0x3362 "echo: s2b" 0x000000000000002a 0xddd07185 "log 2"
+    bytec_2 // ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // typed_abi_call/typed_c2c.py:24
@@ -15,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@24
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // typed_abi_call/typed_c2c.py:24
@@ -41,15 +45,20 @@ main_abi_routing@2:
     pushbytes 0xf7f3d8ac // method "test_resource_encoding(uint64,uint64)void"
     uncover 19
     match main_test_is_a_b_route@3 main_test_method_selector_kinds_route@4 main_test_method_overload_route@5 main_test_arg_conversion_route@6 main_test_15plus_args_route@7 main_test_void_route@8 main_test_ref_types_route@9 main_test_account_to_address_route@10 main_test_native_string_route@11 main_test_native_bytes_route@12 main_test_native_uint64_route@13 main_test_native_biguint_route@14 main_test_native_tuple_route@15 main_test_native_tuple_method_ref_route@16 main_test_nested_tuples_route@17 main_test_no_args_route@18 main_test_named_tuples_route@19 main_test_arc4_struct_route@20 main_test_resource_encoding_route@21
+    b main_switch_case_default@22
 
 main_switch_case_default@22:
+    b main_switch_case_next@23
 
 main_switch_case_next@23:
+    b main_after_if_else@28
 
 main_after_if_else@28:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29:
     return
@@ -74,7 +83,8 @@ main_test_resource_encoding_route@21:
     // typed_abi_call/typed_c2c.py:384
     // @arc4.abimethod()
     callsub test_resource_encoding
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_arc4_struct_route@20:
@@ -95,7 +105,8 @@ main_test_arc4_struct_route@20:
     // typed_abi_call/typed_c2c.py:373
     // @arc4.abimethod()
     callsub test_arc4_struct
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_named_tuples_route@19:
@@ -116,7 +127,8 @@ main_test_named_tuples_route@19:
     // typed_abi_call/typed_c2c.py:356
     // @arc4.abimethod()
     callsub test_named_tuples
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_no_args_route@18:
@@ -137,7 +149,8 @@ main_test_no_args_route@18:
     // typed_abi_call/typed_c2c.py:346
     // @arc4.abimethod()
     callsub test_no_args
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_nested_tuples_route@17:
@@ -158,7 +171,8 @@ main_test_nested_tuples_route@17:
     // typed_abi_call/typed_c2c.py:300
     // @arc4.abimethod()
     callsub test_nested_tuples
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_tuple_method_ref_route@16:
@@ -179,7 +193,8 @@ main_test_native_tuple_method_ref_route@16:
     // typed_abi_call/typed_c2c.py:250
     // @arc4.abimethod()
     callsub test_native_tuple_method_ref
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_tuple_route@15:
@@ -200,7 +215,8 @@ main_test_native_tuple_route@15:
     // typed_abi_call/typed_c2c.py:191
     // @arc4.abimethod()
     callsub test_native_tuple
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_biguint_route@14:
@@ -221,7 +237,8 @@ main_test_native_biguint_route@14:
     // typed_abi_call/typed_c2c.py:180
     // @arc4.abimethod()
     callsub test_native_biguint
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_uint64_route@13:
@@ -242,7 +259,8 @@ main_test_native_uint64_route@13:
     // typed_abi_call/typed_c2c.py:169
     // @arc4.abimethod()
     callsub test_native_uint64
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_bytes_route@12:
@@ -263,7 +281,8 @@ main_test_native_bytes_route@12:
     // typed_abi_call/typed_c2c.py:156
     // @arc4.abimethod()
     callsub test_native_bytes
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_native_string_route@11:
@@ -284,7 +303,8 @@ main_test_native_string_route@11:
     // typed_abi_call/typed_c2c.py:145
     // @arc4.abimethod()
     callsub test_native_string
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_account_to_address_route@10:
@@ -305,7 +325,8 @@ main_test_account_to_address_route@10:
     // typed_abi_call/typed_c2c.py:136
     // @arc4.abimethod()
     callsub test_account_to_address
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_ref_types_route@9:
@@ -328,7 +349,8 @@ main_test_ref_types_route@9:
     // typed_abi_call/typed_c2c.py:122
     // @arc4.abimethod()
     callsub test_ref_types
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_void_route@8:
@@ -349,7 +371,8 @@ main_test_void_route@8:
     // typed_abi_call/typed_c2c.py:108
     // @arc4.abimethod()
     callsub test_void
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_15plus_args_route@7:
@@ -370,7 +393,8 @@ main_test_15plus_args_route@7:
     // typed_abi_call/typed_c2c.py:80
     // @arc4.abimethod()
     callsub test_15plus_args
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_arg_conversion_route@6:
@@ -391,7 +415,8 @@ main_test_arg_conversion_route@6:
     // typed_abi_call/typed_c2c.py:63
     // @arc4.abimethod()
     callsub test_arg_conversion
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_method_overload_route@5:
@@ -412,7 +437,8 @@ main_test_method_overload_route@5:
     // typed_abi_call/typed_c2c.py:48
     // @arc4.abimethod()
     callsub test_method_overload
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_method_selector_kinds_route@4:
@@ -433,7 +459,8 @@ main_test_method_selector_kinds_route@4:
     // typed_abi_call/typed_c2c.py:34
     // @arc4.abimethod()
     callsub test_method_selector_kinds
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_test_is_a_b_route@3:
@@ -461,7 +488,8 @@ main_test_is_a_b_route@3:
     uncover 2
     uncover 2
     callsub test_is_a_b
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 main_bare_routing@24:
@@ -469,10 +497,12 @@ main_bare_routing@24:
     // class Greeter(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@25
+    b main_switch_case_default@26
 
 main_switch_case_default@26:
+    b main_switch_case_next@27
 
 main_switch_case_next@27:
     b main_after_if_else@28
@@ -482,11 +512,14 @@ main___algopy_default_create@25:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@30
 
 main_block@30:
+    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create@31
 
 main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create@31:
-    intc_3 // 1
+    pushint 1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
 
 
@@ -496,6 +529,7 @@ test_is_a_b:
     // @arc4.abimethod
     // def test_is_a_b(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
+    b test_is_a_b_block@0
 
 test_is_a_b_block@0:
     // typed_abi_call/typed_c2c.py:27-32
@@ -522,7 +556,7 @@ test_is_a_b_block@0:
     extract 6 2
     frame_dig -2
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:31
     // app_id=app,
     frame_dig -1
@@ -542,6 +576,7 @@ test_is_a_b_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_is_a_b_next_txn@1
 
 test_is_a_b_next_txn@1:
     // typed_abi_call/typed_c2c.py:27-32
@@ -561,12 +596,13 @@ test_method_selector_kinds:
     // @arc4.abimethod()
     // def test_method_selector_kinds(self, app: Application) -> None:
     proto 1 0
+    b test_method_selector_kinds_block@0
 
 test_method_selector_kinds_block@0:
     // typed_abi_call/typed_c2c.py:36
     // assert arc4.arc4_signature(Logger.echo) == arc4.arc4_signature("echo(string)string")
-    bytec 5 // method "echo(string)string"
-    dup
+    bytec 4 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     ==
     assert
     // typed_abi_call/typed_c2c.py:37
@@ -580,13 +616,14 @@ test_method_selector_kinds_block@0:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_selector_kinds_next_txn@1
 
 test_method_selector_kinds_next_txn@1:
     // typed_abi_call/typed_c2c.py:37
@@ -595,7 +632,7 @@ test_method_selector_kinds_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -621,13 +658,14 @@ test_method_selector_kinds_next_txn@1:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_selector_kinds_next_txn@2
 
 test_method_selector_kinds_next_txn@2:
     // typed_abi_call/typed_c2c.py:39
@@ -636,7 +674,7 @@ test_method_selector_kinds_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -662,13 +700,14 @@ test_method_selector_kinds_next_txn@2:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_selector_kinds_next_txn@3
 
 test_method_selector_kinds_next_txn@3:
     // typed_abi_call/typed_c2c.py:41
@@ -677,7 +716,7 @@ test_method_selector_kinds_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -703,13 +742,14 @@ test_method_selector_kinds_next_txn@3:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_selector_kinds_next_txn@4
 
 test_method_selector_kinds_next_txn@4:
     // typed_abi_call/typed_c2c.py:43
@@ -718,7 +758,7 @@ test_method_selector_kinds_next_txn@4:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -744,13 +784,14 @@ test_method_selector_kinds_next_txn@4:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_selector_kinds_next_txn@5
 
 test_method_selector_kinds_next_txn@5:
     // typed_abi_call/typed_c2c.py:45
@@ -759,7 +800,7 @@ test_method_selector_kinds_next_txn@5:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -783,6 +824,7 @@ test_method_overload:
     // @arc4.abimethod()
     // def test_method_overload(self, app: Application) -> None:
     proto 1 0
+    b test_method_overload_block@0
 
 test_method_overload_block@0:
     // typed_abi_call/typed_c2c.py:50
@@ -796,13 +838,14 @@ test_method_overload_block@0:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_overload_next_txn@1
 
 test_method_overload_next_txn@1:
     // typed_abi_call/typed_c2c.py:50
@@ -818,7 +861,7 @@ test_method_overload_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -842,13 +885,14 @@ test_method_overload_next_txn@1:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_overload_next_txn@2
 
 test_method_overload_next_txn@2:
     // typed_abi_call/typed_c2c.py:53
@@ -859,7 +903,7 @@ test_method_overload_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -883,13 +927,14 @@ test_method_overload_next_txn@2:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_overload_next_txn@3
 
 test_method_overload_next_txn@3:
     // typed_abi_call/typed_c2c.py:56
@@ -898,13 +943,13 @@ test_method_overload_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     itxn LastLog
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:57
     // assert result[0] == "echo: tuple"
     bytec 14 // "echo: tuple"
@@ -919,7 +964,7 @@ test_method_overload_next_txn@3:
     // assert arc4.String.from_log(result[1].last_log) == "echo: tuple"
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -943,13 +988,14 @@ test_method_overload_next_txn@3:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 5 // method "echo(string)string"
+    bytec 4 // method "echo(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_method_overload_next_txn@4
 
 test_method_overload_next_txn@4:
     // typed_abi_call/typed_c2c.py:60
@@ -960,7 +1006,7 @@ test_method_overload_next_txn@4:
     // assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -982,6 +1028,7 @@ test_arg_conversion:
     // @arc4.abimethod()
     // def test_arg_conversion(self, app: Application) -> None:
     proto 1 0
+    b test_arg_conversion_block@0
 
 test_arg_conversion_block@0:
     // typed_abi_call/typed_c2c.py:65
@@ -1002,6 +1049,7 @@ test_arg_conversion_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arg_conversion_next_txn@1
 
 test_arg_conversion_next_txn@1:
     // typed_abi_call/typed_c2c.py:65
@@ -1026,6 +1074,7 @@ test_arg_conversion_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arg_conversion_next_txn@2
 
 test_arg_conversion_next_txn@2:
     // typed_abi_call/typed_c2c.py:68
@@ -1034,7 +1083,7 @@ test_arg_conversion_next_txn@2:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:69
     // assert txn.last_log == op.itob(2)
-    intc_2 // 2
+    intc_3 // 2
     itob
     ==
     assert
@@ -1051,6 +1100,7 @@ test_arg_conversion_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arg_conversion_next_txn@3
 
 test_arg_conversion_next_txn@3:
     // typed_abi_call/typed_c2c.py:71
@@ -1084,6 +1134,7 @@ test_arg_conversion_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arg_conversion_next_txn@4
 
 test_arg_conversion_next_txn@4:
     // typed_abi_call/typed_c2c.py:74
@@ -1100,7 +1151,7 @@ test_arg_conversion_next_txn@4:
     itxn_begin
     bytec 16 // 0x00
     intc_0 // 0
-    intc_3 // 1
+    pushint 1 // 1
     setbit
     frame_dig -1
     itxn_field ApplicationID
@@ -1111,6 +1162,7 @@ test_arg_conversion_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arg_conversion_next_txn@5
 
 test_arg_conversion_next_txn@5:
     // typed_abi_call/typed_c2c.py:77
@@ -1131,6 +1183,7 @@ test_15plus_args:
     // @arc4.abimethod()
     // def test_15plus_args(self, app: Application) -> None:
     proto 1 0
+    b test_15plus_args_block@0
 
 test_15plus_args_block@0:
     // typed_abi_call/typed_c2c.py:82-105
@@ -1222,7 +1275,7 @@ test_15plus_args_block@0:
     // arc4.Tuple((arc4.UInt8(0xDE), arc4.UInt8(0xAD), arc4.UInt8(0xBE), arc4.UInt8(0xEF))),
     // 20,
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:103
     // 20,
@@ -1268,7 +1321,7 @@ test_15plus_args_block@0:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:84
     // 1,
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:85
     // 2,
@@ -1352,6 +1405,7 @@ test_15plus_args_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_15plus_args_next_txn@1
 
 test_15plus_args_next_txn@1:
     // typed_abi_call/typed_c2c.py:82-105
@@ -1383,7 +1437,7 @@ test_15plus_args_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1403,6 +1457,7 @@ test_void:
     // @arc4.abimethod()
     // def test_void(self, app: Application) -> None:
     proto 1 0
+    b test_void_block@0
 
 test_void_block@0:
     // typed_abi_call/typed_c2c.py:110
@@ -1423,6 +1478,7 @@ test_void_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_void_next_txn@1
 
 test_void_next_txn@1:
     // typed_abi_call/typed_c2c.py:110
@@ -1452,6 +1508,7 @@ test_void_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_void_next_txn@2
 
 test_void_next_txn@2:
     // typed_abi_call/typed_c2c.py:113
@@ -1481,6 +1538,7 @@ test_void_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_void_next_txn@3
 
 test_void_next_txn@3:
     // typed_abi_call/typed_c2c.py:116
@@ -1510,6 +1568,7 @@ test_void_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_void_next_txn@4
 
 test_void_next_txn@4:
     // typed_abi_call/typed_c2c.py:119
@@ -1530,6 +1589,7 @@ test_ref_types:
     // @arc4.abimethod()
     // def test_ref_types(self, app: Application, asset: Asset) -> None:
     proto 2 0
+    b test_ref_types_block@0
 
 test_ref_types_block@0:
     // typed_abi_call/typed_c2c.py:124-130
@@ -1554,7 +1614,7 @@ test_ref_types_block@0:
     itob
     // typed_abi_call/typed_c2c.py:127
     // Global.current_application_address,
-    swap
+    uncover 1
     cover 2
     // typed_abi_call/typed_c2c.py:128
     // app,
@@ -1580,6 +1640,7 @@ test_ref_types_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_ref_types_next_txn@1
 
 test_ref_types_next_txn@1:
     // typed_abi_call/typed_c2c.py:124-130
@@ -1622,6 +1683,7 @@ test_account_to_address:
     // @arc4.abimethod()
     // def test_account_to_address(self, app: Application) -> None:
     proto 1 0
+    b test_account_to_address_block@0
 
 test_account_to_address_block@0:
     // typed_abi_call/typed_c2c.py:138-142
@@ -1651,6 +1713,7 @@ test_account_to_address_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_account_to_address_next_txn@1
 
 test_account_to_address_next_txn@1:
     // typed_abi_call/typed_c2c.py:138-142
@@ -1676,6 +1739,7 @@ test_native_string:
     // def test_native_string(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
+    b test_native_string_block@0
 
 test_native_string_block@0:
     // typed_abi_call/typed_c2c.py:147
@@ -1696,6 +1760,7 @@ test_native_string_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_string_next_txn@1
 
 test_native_string_next_txn@1:
     // typed_abi_call/typed_c2c.py:147
@@ -1704,7 +1769,7 @@ test_native_string_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1735,6 +1800,7 @@ test_native_string_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_string_next_txn@2
 
 test_native_string_next_txn@2:
     // typed_abi_call/typed_c2c.py:150
@@ -1743,7 +1809,7 @@ test_native_string_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1772,6 +1838,7 @@ test_native_string_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_string_next_txn@3
 
 test_native_string_next_txn@3:
     // typed_abi_call/typed_c2c.py:153
@@ -1780,7 +1847,7 @@ test_native_string_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1801,6 +1868,7 @@ test_native_bytes:
     // def test_native_bytes(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
+    b test_native_bytes_block@0
 
 test_native_bytes_block@0:
     // typed_abi_call/typed_c2c.py:158
@@ -1821,6 +1889,7 @@ test_native_bytes_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_bytes_next_txn@1
 
 test_native_bytes_next_txn@1:
     // typed_abi_call/typed_c2c.py:158
@@ -1829,7 +1898,7 @@ test_native_bytes_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1860,6 +1929,7 @@ test_native_bytes_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_bytes_next_txn@2
 
 test_native_bytes_next_txn@2:
     // typed_abi_call/typed_c2c.py:161
@@ -1868,7 +1938,7 @@ test_native_bytes_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1905,6 +1975,7 @@ test_native_bytes_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_bytes_next_txn@3
 
 test_native_bytes_next_txn@3:
     // typed_abi_call/typed_c2c.py:164-166
@@ -1915,7 +1986,7 @@ test_native_bytes_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1936,6 +2007,7 @@ test_native_uint64:
     // def test_native_uint64(self, app: Application) -> None:
     proto 1 0
     bytec_2 // ""
+    b test_native_uint64_block@0
 
 test_native_uint64_block@0:
     // typed_abi_call/typed_c2c.py:171
@@ -1945,12 +2017,13 @@ test_native_uint64_block@0:
     itxn_field ApplicationID
     bytec 30 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_uint64_next_txn@1
 
 test_native_uint64_next_txn@1:
     // typed_abi_call/typed_c2c.py:171
@@ -1959,7 +2032,7 @@ test_native_uint64_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1969,13 +2042,13 @@ test_native_uint64_next_txn@1:
     frame_bury 0
     // typed_abi_call/typed_c2c.py:172
     // assert result1 == 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:174
     // result2, _txn = arc4.abi_call(Logger.echo_native_uint64, UInt64(1), app_id=app)
     itxn_begin
-    intc_3 // 1
+    pushint 1 // 1
     itob
     frame_dig -1
     itxn_field ApplicationID
@@ -1986,6 +2059,7 @@ test_native_uint64_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_uint64_next_txn@2
 
 test_native_uint64_next_txn@2:
     // typed_abi_call/typed_c2c.py:174
@@ -1994,7 +2068,7 @@ test_native_uint64_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2012,12 +2086,13 @@ test_native_uint64_next_txn@2:
     itxn_field ApplicationID
     bytec 30 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_uint64_next_txn@3
 
 test_native_uint64_next_txn@3:
     // typed_abi_call/typed_c2c.py:177
@@ -2026,7 +2101,7 @@ test_native_uint64_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2047,6 +2122,7 @@ test_native_biguint:
     // def test_native_biguint(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
+    b test_native_biguint_block@0
 
 test_native_biguint_block@0:
     // typed_abi_call/typed_c2c.py:182
@@ -2062,6 +2138,7 @@ test_native_biguint_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_biguint_next_txn@1
 
 test_native_biguint_next_txn@1:
     // typed_abi_call/typed_c2c.py:182
@@ -2070,7 +2147,7 @@ test_native_biguint_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2103,6 +2180,7 @@ test_native_biguint_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_biguint_next_txn@2
 
 test_native_biguint_next_txn@2:
     // typed_abi_call/typed_c2c.py:185
@@ -2111,7 +2189,7 @@ test_native_biguint_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2134,6 +2212,7 @@ test_native_biguint_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_biguint_next_txn@3
 
 test_native_biguint_next_txn@3:
     // typed_abi_call/typed_c2c.py:188
@@ -2142,7 +2221,7 @@ test_native_biguint_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2162,6 +2241,7 @@ test_native_tuple:
     // def test_native_tuple(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
+    b test_native_tuple_block@0
 
 test_native_tuple_block@0:
     // typed_abi_call/typed_c2c.py:193-203
@@ -2193,7 +2273,7 @@ test_native_tuple_block@0:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:202
     // app_id=app,
     frame_dig -1
@@ -2216,7 +2296,7 @@ test_native_tuple_block@0:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:200
     // 1,
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:201
     // 2,
@@ -2238,6 +2318,7 @@ test_native_tuple_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_next_txn@1
 
 test_native_tuple_next_txn@1:
     // typed_abi_call/typed_c2c.py:193-203
@@ -2256,7 +2337,7 @@ test_native_tuple_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2268,37 +2349,37 @@ test_native_tuple_next_txn@1:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -2321,7 +2402,7 @@ test_native_tuple_next_txn@1:
     // typed_abi_call/typed_c2c.py:207
     // assert u.native == 2
     btoi
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:208
@@ -2360,7 +2441,7 @@ test_native_tuple_next_txn@1:
     concat
     // typed_abi_call/typed_c2c.py:217
     // UInt64(1),
-    intc_3 // 1
+    pushint 1 // 1
     itob
     // typed_abi_call/typed_c2c.py:218
     // BigUInt(2),
@@ -2376,7 +2457,7 @@ test_native_tuple_next_txn@1:
     // typed_abi_call/typed_c2c.py:215
     // String("s1"),
     uncover 3
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:216
     // Bytes(b"b1"),
     uncover 3
@@ -2410,6 +2491,7 @@ test_native_tuple_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_next_txn@2
 
 test_native_tuple_next_txn@2:
     // typed_abi_call/typed_c2c.py:210-220
@@ -2428,7 +2510,7 @@ test_native_tuple_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2467,7 +2549,7 @@ test_native_tuple_next_txn@2:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:232
     // app_id=app,
     frame_dig -1
@@ -2490,7 +2572,7 @@ test_native_tuple_next_txn@2:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:230
     // arc4.UInt64(1),
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:231
     // arc4.UInt512(2),
@@ -2512,6 +2594,7 @@ test_native_tuple_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_next_txn@3
 
 test_native_tuple_next_txn@3:
     // typed_abi_call/typed_c2c.py:223-233
@@ -2530,7 +2613,7 @@ test_native_tuple_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2567,7 +2650,7 @@ test_native_tuple_next_txn@3:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:243
     // app_id=app,
     frame_dig -1
@@ -2588,7 +2671,7 @@ test_native_tuple_next_txn@3:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:241
     // arc4.UInt64(1),
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:242
     // arc4.UInt512(2),
@@ -2608,6 +2691,7 @@ test_native_tuple_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_next_txn@4
 
 test_native_tuple_next_txn@4:
     // typed_abi_call/typed_c2c.py:236-244
@@ -2624,7 +2708,7 @@ test_native_tuple_next_txn@4:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2632,40 +2716,40 @@ test_native_tuple_next_txn@4:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -2679,9 +2763,9 @@ test_native_tuple_next_txn@4:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -2694,12 +2778,12 @@ test_native_tuple_next_txn@4:
     // typed_abi_call/typed_c2c.py:246
     // assert result1.native[1].native == result_native[1]
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
@@ -2712,7 +2796,7 @@ test_native_tuple_next_txn@4:
     // assert result1.native[2].native == result_native[2]
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
     uncover 2
@@ -2735,8 +2819,10 @@ test_native_tuple_method_ref:
     // def test_native_tuple_method_ref(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
-    dupn 2
+    intc_0 // 0
+    intc_0 // 0
     bytec_2 // ""
+    b test_native_tuple_method_ref_block@0
 
 test_native_tuple_method_ref_block@0:
     // typed_abi_call/typed_c2c.py:252-260
@@ -2766,7 +2852,7 @@ test_native_tuple_method_ref_block@0:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:259
     // app_id=app,
     frame_dig -1
@@ -2787,7 +2873,7 @@ test_native_tuple_method_ref_block@0:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:257
     // 1,
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:258
     // 2,
@@ -2807,6 +2893,7 @@ test_native_tuple_method_ref_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_method_ref_next_txn@1
 
 test_native_tuple_method_ref_next_txn@1:
     // typed_abi_call/typed_c2c.py:252-260
@@ -2823,7 +2910,7 @@ test_native_tuple_method_ref_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2831,40 +2918,40 @@ test_native_tuple_method_ref_next_txn@1:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -2898,7 +2985,7 @@ test_native_tuple_method_ref_next_txn@1:
     assert
     // typed_abi_call/typed_c2c.py:264
     // assert u == 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:265
@@ -2935,7 +3022,7 @@ test_native_tuple_method_ref_next_txn@1:
     concat
     // typed_abi_call/typed_c2c.py:272
     // UInt64(1),
-    intc_3 // 1
+    pushint 1 // 1
     itob
     // typed_abi_call/typed_c2c.py:273
     // BigUInt(2),
@@ -2951,7 +3038,7 @@ test_native_tuple_method_ref_next_txn@1:
     // typed_abi_call/typed_c2c.py:270
     // String("s1"),
     uncover 3
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:271
     // Bytes(b"b1"),
     uncover 3
@@ -2983,6 +3070,7 @@ test_native_tuple_method_ref_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_method_ref_next_txn@2
 
 test_native_tuple_method_ref_next_txn@2:
     // typed_abi_call/typed_c2c.py:267-275
@@ -2999,7 +3087,7 @@ test_native_tuple_method_ref_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3007,40 +3095,40 @@ test_native_tuple_method_ref_next_txn@2:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -3052,15 +3140,15 @@ test_native_tuple_method_ref_next_txn@2:
     // assert result_2 == result, "expected native arguments to give the same result"
     frame_dig 0
     ==
-    swap
+    uncover 1
     frame_dig 1
     ==
     &&
-    swap
+    uncover 1
     frame_dig 3
     ==
     &&
-    swap
+    uncover 1
     frame_dig 2
     b==
     &&
@@ -3092,7 +3180,7 @@ test_native_tuple_method_ref_next_txn@2:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:285
     // app_id=app,
     frame_dig -1
@@ -3113,7 +3201,7 @@ test_native_tuple_method_ref_next_txn@2:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:283
     // arc4.UInt64(1),
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:284
     // arc4.UInt512(2),
@@ -3133,6 +3221,7 @@ test_native_tuple_method_ref_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_method_ref_next_txn@3
 
 test_native_tuple_method_ref_next_txn@3:
     // typed_abi_call/typed_c2c.py:278-286
@@ -3149,7 +3238,7 @@ test_native_tuple_method_ref_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3157,40 +3246,40 @@ test_native_tuple_method_ref_next_txn@3:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -3202,15 +3291,15 @@ test_native_tuple_method_ref_next_txn@3:
     // assert result_3 == result, "expected arc4 arguments to give the same result"
     frame_dig 0
     ==
-    swap
+    uncover 1
     frame_dig 1
     ==
     &&
-    swap
+    uncover 1
     frame_dig 3
     ==
     &&
-    swap
+    uncover 1
     frame_dig 2
     b==
     &&
@@ -3242,7 +3331,7 @@ test_native_tuple_method_ref_next_txn@3:
     extract 6 2
     bytec_3 // 0x6231
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:296
     // app_id=app,
     frame_dig -1
@@ -3263,7 +3352,7 @@ test_native_tuple_method_ref_next_txn@3:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:294
     // arc4.UInt64(1),
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:295
     // arc4.UInt512(2),
@@ -3283,6 +3372,7 @@ test_native_tuple_method_ref_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_native_tuple_method_ref_next_txn@4
 
 test_native_tuple_method_ref_next_txn@4:
     // typed_abi_call/typed_c2c.py:289-297
@@ -3299,7 +3389,7 @@ test_native_tuple_method_ref_next_txn@4:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3307,40 +3397,40 @@ test_native_tuple_method_ref_next_txn@4:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
     uncover 2
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     dup
     uncover 3
     uncover 3
     substring3
     extract 2 0
-    swap
+    cover 1
     dup
     pushint 4 // 4
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 12 // 12
     pushint 64 // 64
     extract3
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -3352,15 +3442,15 @@ test_native_tuple_method_ref_next_txn@4:
     // assert result_native == result
     frame_dig 0
     ==
-    swap
+    uncover 1
     frame_dig 1
     ==
     &&
-    swap
+    uncover 1
     frame_dig 3
     ==
     &&
-    swap
+    uncover 1
     frame_dig 2
     b==
     &&
@@ -3374,6 +3464,7 @@ test_nested_tuples:
     // @arc4.abimethod()
     // def test_nested_tuples(self, app: Application) -> None:
     proto 1 0
+    b test_nested_tuples_block@0
 
 test_nested_tuples_block@0:
     // typed_abi_call/typed_c2c.py:302-307
@@ -3398,7 +3489,7 @@ test_nested_tuples_block@0:
     extract 6 2
     bytec 18 // "s2"
     concat
-    swap
+    cover 1
     bytec 19 // 0x33
     len
     itob
@@ -3410,7 +3501,7 @@ test_nested_tuples_block@0:
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     dig 1
     len
@@ -3419,23 +3510,23 @@ test_nested_tuples_block@0:
     itob
     extract 6 2
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     pushint 4 // 4
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 4 // 4
     +
     bytec_2 // 0x
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     concat
     bytec 15 // 0x0000000000000002
     concat
@@ -3445,15 +3536,15 @@ test_nested_tuples_block@0:
     concat
     uncover 4
     concat
-    swap
+    uncover 1
     itob
     extract 6 2
     uncover 3
-    swap
+    uncover 1
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:306
     // app_id=app,
@@ -3473,6 +3564,7 @@ test_nested_tuples_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_nested_tuples_next_txn@1
 
 test_nested_tuples_next_txn@1:
     // typed_abi_call/typed_c2c.py:302-307
@@ -3486,7 +3578,7 @@ test_nested_tuples_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3494,9 +3586,9 @@ test_nested_tuples_next_txn@1:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -3505,9 +3597,9 @@ test_nested_tuples_next_txn@1:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -3516,50 +3608,50 @@ test_nested_tuples_next_txn@1:
     extract 2 0
     cover 2
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
-    swap
+    cover 1
     dup
     pushint 16 // 16
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     extract 2 0
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -3594,7 +3686,7 @@ test_nested_tuples_next_txn@1:
     assert
     // typed_abi_call/typed_c2c.py:311
     // assert u64_1 == 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:312
@@ -3633,9 +3725,9 @@ test_nested_tuples_next_txn@1:
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 4 // 4
@@ -3643,27 +3735,27 @@ test_nested_tuples_next_txn@1:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     pushint 4 // 4
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     pushint 4 // 4
     +
-    intc_3 // 1
+    pushint 1 // 1
     itob
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     bytec 15 // 0x0000000000000002
     concat
@@ -3677,19 +3769,19 @@ test_nested_tuples_next_txn@1:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     extract 6 2
     uncover 3
-    swap
+    uncover 1
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:319
     // app_id=app,
@@ -3709,6 +3801,7 @@ test_nested_tuples_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_nested_tuples_next_txn@2
 
 test_nested_tuples_next_txn@2:
     // typed_abi_call/typed_c2c.py:315-320
@@ -3722,7 +3815,7 @@ test_nested_tuples_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3730,9 +3823,9 @@ test_nested_tuples_next_txn@2:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -3741,9 +3834,9 @@ test_nested_tuples_next_txn@2:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -3752,50 +3845,50 @@ test_nested_tuples_next_txn@2:
     extract 2 0
     cover 2
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
-    swap
+    cover 1
     dup
     pushint 16 // 16
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     extract 2 0
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -3830,7 +3923,7 @@ test_nested_tuples_next_txn@2:
     assert
     // typed_abi_call/typed_c2c.py:324
     // assert u64_1 == 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:325
@@ -3870,12 +3963,12 @@ test_nested_tuples_next_txn@2:
     extract 6 2
     bytec 58 // "s2b"
     concat
-    swap
+    cover 1
     pushint 4 // 4
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     dig 1
     len
@@ -3884,9 +3977,9 @@ test_nested_tuples_next_txn@2:
     itob
     extract 6 2
     concat
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:334
     // arc4.Tuple((arc4.UInt64(11), arc4.UInt64(21), arc4.DynamicBytes(b"3b"))),
@@ -3905,7 +3998,7 @@ test_nested_tuples_next_txn@2:
     itob
     extract 6 2
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:331-336
     // arc4.Tuple(
@@ -3918,7 +4011,7 @@ test_nested_tuples_next_txn@2:
     itob
     extract 6 2
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     dig 2
     len
@@ -3929,7 +4022,7 @@ test_nested_tuples_next_txn@2:
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:337
     // app_id=app,
@@ -3954,6 +4047,7 @@ test_nested_tuples_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_nested_tuples_next_txn@3
 
 test_nested_tuples_next_txn@3:
     // typed_abi_call/typed_c2c.py:328-338
@@ -3972,7 +4066,7 @@ test_nested_tuples_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3980,9 +4074,9 @@ test_nested_tuples_next_txn@3:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -3991,9 +4085,9 @@ test_nested_tuples_next_txn@3:
     dup
     intc_0 // 0
     extract_uint16
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 1
     uncover 3
@@ -4002,50 +4096,50 @@ test_nested_tuples_next_txn@3:
     extract 2 0
     cover 2
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
-    swap
+    cover 1
     dup
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
-    swap
+    cover 1
     dup
     pushint 16 // 16
     extract_uint16
-    swap
+    cover 1
     dup
     len
-    swap
+    cover 1
     uncover 2
     uncover 2
     substring3
     extract 2 0
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -4102,6 +4196,7 @@ test_no_args:
     // @arc4.abimethod()
     // def test_no_args(self, app: Application) -> None:
     proto 1 0
+    b test_no_args_block@0
 
 test_no_args_block@0:
     // typed_abi_call/typed_c2c.py:348
@@ -4115,6 +4210,7 @@ test_no_args_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_no_args_next_txn@1
 
 test_no_args_next_txn@1:
     // typed_abi_call/typed_c2c.py:348
@@ -4123,7 +4219,7 @@ test_no_args_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4145,6 +4241,7 @@ test_no_args_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_no_args_next_txn@2
 
 test_no_args_next_txn@2:
     // typed_abi_call/typed_c2c.py:350
@@ -4153,7 +4250,7 @@ test_no_args_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4174,6 +4271,7 @@ test_no_args_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_no_args_next_txn@3
 
 test_no_args_next_txn@3:
     // typed_abi_call/typed_c2c.py:353
@@ -4189,7 +4287,7 @@ test_no_args_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4206,6 +4304,7 @@ test_named_tuples:
     // @arc4.abimethod()
     // def test_named_tuples(self, app: Application) -> None:
     proto 1 0
+    b test_named_tuples_block@0
 
 test_named_tuples_block@0:
     // typed_abi_call/typed_c2c.py:358-363
@@ -4218,10 +4317,10 @@ test_named_tuples_block@0:
     itxn_begin
     // typed_abi_call/typed_c2c.py:360
     // (UInt64(1), String("log 1")),
-    intc_3 // 1
+    pushint 1 // 1
     itob
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     bytec 8 // "log 1"
     len
@@ -4233,16 +4332,16 @@ test_named_tuples_block@0:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:361
     // LogMessage(level=UInt64(1), message=String("log 1")),
-    intc_3 // 1
+    pushint 1 // 1
     itob
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     bytec 8 // "log 1"
     len
@@ -4254,11 +4353,11 @@ test_named_tuples_block@0:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:362
     // app_id=app,
     frame_dig -1
@@ -4278,6 +4377,7 @@ test_named_tuples_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_named_tuples_next_txn@1
 
 test_named_tuples_next_txn@1:
     // typed_abi_call/typed_c2c.py:358-363
@@ -4291,7 +4391,7 @@ test_named_tuples_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4311,10 +4411,10 @@ test_named_tuples_next_txn@1:
     itxn_begin
     // typed_abi_call/typed_c2c.py:367
     // (UInt64(2), String("log 2")),
-    intc_2 // 2
+    intc_3 // 2
     itob
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     bytec 63 // "log 2"
     len
@@ -4326,16 +4426,16 @@ test_named_tuples_next_txn@1:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
     // typed_abi_call/typed_c2c.py:368
     // LogMessage(level=UInt64(1), message=String("log 1")),
-    intc_3 // 1
+    pushint 1 // 1
     itob
     bytec_2 // 0x
-    swap
+    uncover 1
     concat
     bytec 8 // "log 1"
     len
@@ -4347,11 +4447,11 @@ test_named_tuples_next_txn@1:
     itob
     extract 6 2
     uncover 2
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:369
     // app_id=app,
     frame_dig -1
@@ -4371,6 +4471,7 @@ test_named_tuples_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_named_tuples_next_txn@2
 
 test_named_tuples_next_txn@2:
     // typed_abi_call/typed_c2c.py:365-370
@@ -4384,7 +4485,7 @@ test_named_tuples_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4404,6 +4505,7 @@ test_arc4_struct:
     // @arc4.abimethod()
     // def test_arc4_struct(self, app: Application) -> None:
     proto 1 0
+    b test_arc4_struct_block@0
 
 test_arc4_struct_block@0:
     // typed_abi_call/typed_c2c.py:375
@@ -4415,13 +4517,13 @@ test_arc4_struct_block@0:
     bytec 8 // "log 1"
     concat
     bytec_2 // 0x
-    bytec 4 // 0x0000000000000001
+    bytec 5 // 0x0000000000000001
     concat
     pushint 10 // 10
     itob
     extract 6 2
     concat
-    swap
+    uncover 1
     concat
     dup
     // typed_abi_call/typed_c2c.py:376-380
@@ -4448,6 +4550,7 @@ test_arc4_struct_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_arc4_struct_next_txn@1
 
 test_arc4_struct_next_txn@1:
     // typed_abi_call/typed_c2c.py:376-380
@@ -4460,16 +4563,16 @@ test_arc4_struct_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     itxn LastLog
-    swap
+    cover 1
     // typed_abi_call/typed_c2c.py:381
     // assert result == log, "expected output to match input"
-    uncover 2
+    frame_dig 0
     dup
     cover 3
     ==
@@ -4478,7 +4581,7 @@ test_arc4_struct_next_txn@1:
     // assert LogStruct.from_log(txn.last_log) == log, "expected output to match input"
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -4494,6 +4597,7 @@ test_resource_encoding:
     // @arc4.abimethod()
     // def test_resource_encoding(self, app_to_call: Application, asset: Asset) -> None:
     proto 2 0
+    b test_resource_encoding_block@0
 
 test_resource_encoding_block@0:
     // typed_abi_call/typed_c2c.py:386
@@ -4512,7 +4616,7 @@ test_resource_encoding_block@0:
     itxn_begin
     // typed_abi_call/typed_c2c.py:390
     // Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
-    swap
+    cover 1
     frame_dig -1
     frame_dig -2
     itxn_field ApplicationID
@@ -4541,6 +4645,7 @@ test_resource_encoding_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@1
 
 test_resource_encoding_next_txn@1:
     // typed_abi_call/typed_c2c.py:389-391
@@ -4551,28 +4656,28 @@ test_resource_encoding_next_txn@1:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -4581,13 +4686,13 @@ test_resource_encoding_next_txn@1:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     dup
     cover 4
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     dup
     cover 3
@@ -4606,7 +4711,7 @@ test_resource_encoding_next_txn@1:
     uncover 2
     itob
     uncover 2
-    swap
+    uncover 1
     cover 2
     cover 2
     frame_dig -2
@@ -4624,6 +4729,7 @@ test_resource_encoding_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@2
 
 test_resource_encoding_next_txn@2:
     // typed_abi_call/typed_c2c.py:394-396
@@ -4634,28 +4740,28 @@ test_resource_encoding_next_txn@2:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -4664,13 +4770,13 @@ test_resource_encoding_next_txn@2:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     dup
     cover 4
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     dup
     cover 3
@@ -4684,7 +4790,7 @@ test_resource_encoding_next_txn@2:
     itxn_begin
     // typed_abi_call/typed_c2c.py:400
     // LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
-    swap
+    uncover 1
     frame_dig -1
     frame_dig -2
     itxn_field ApplicationID
@@ -4713,6 +4819,7 @@ test_resource_encoding_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@3
 
 test_resource_encoding_next_txn@3:
     // typed_abi_call/typed_c2c.py:399-401
@@ -4723,28 +4830,28 @@ test_resource_encoding_next_txn@3:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -4753,13 +4860,13 @@ test_resource_encoding_next_txn@3:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     dup
     cover 4
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     dup
     cover 3
@@ -4778,7 +4885,7 @@ test_resource_encoding_next_txn@3:
     uncover 2
     itob
     uncover 2
-    swap
+    uncover 1
     cover 2
     cover 2
     frame_dig -2
@@ -4796,6 +4903,7 @@ test_resource_encoding_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@4
 
 test_resource_encoding_next_txn@4:
     // typed_abi_call/typed_c2c.py:404-406
@@ -4806,28 +4914,28 @@ test_resource_encoding_next_txn@4:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -4836,13 +4944,13 @@ test_resource_encoding_next_txn@4:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     dup
     cover 4
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     dup
     cover 3
@@ -4860,7 +4968,7 @@ test_resource_encoding_next_txn@4:
     itxn_begin
     // typed_abi_call/typed_c2c.py:412
     // app,
-    swap
+    uncover 1
     // typed_abi_call/typed_c2c.py:411
     // asset,
     frame_dig -1
@@ -4905,6 +5013,7 @@ test_resource_encoding_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@5
 
 test_resource_encoding_next_txn@5:
     // typed_abi_call/typed_c2c.py:409-415
@@ -4919,28 +5028,28 @@ test_resource_encoding_next_txn@5:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -4949,13 +5058,13 @@ test_resource_encoding_next_txn@5:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     dup
     cover 4
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     dup
     cover 3
@@ -4984,7 +5093,7 @@ test_resource_encoding_next_txn@5:
     uncover 2
     // typed_abi_call/typed_c2c.py:421
     // app,
-    swap
+    uncover 1
     cover 2
     // typed_abi_call/typed_c2c.py:422
     // acc,
@@ -5010,6 +5119,7 @@ test_resource_encoding_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_resource_encoding_next_txn@6
 
 test_resource_encoding_next_txn@6:
     // typed_abi_call/typed_c2c.py:418-424
@@ -5024,28 +5134,28 @@ test_resource_encoding_next_txn@6:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    pushint 8 // 8
-    dup
+    intc_2 // 8
+    intc_2 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 16 // 16
     pushint 32 // 32
     extract3
     uncover 2
-    swap
+    cover 1
     cover 2
     cover 2
     cover 2
@@ -5054,11 +5164,11 @@ test_resource_encoding_next_txn@6:
     // assert result == (asset, app, acc), "expected echo to return same resources"
     frame_dig -1
     ==
-    swap
+    uncover 1
     frame_dig 0
     ==
     &&
-    swap
+    uncover 1
     frame_dig 1
     ==
     &&

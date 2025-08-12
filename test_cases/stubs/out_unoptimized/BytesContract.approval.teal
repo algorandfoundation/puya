@@ -4,36 +4,37 @@
 // test_cases.stubs.bytes.BytesContract.approval_program() -> uint64:
 main:
     intcblock 1 0 10 2
-    bytecblock 0x 0x616263 0x31 0xff 0x61 0x00 0x0f 0x6263 0x31323334353637 0xf0 base64(QmFzZSA2NCBlbmNvZGVk) 0x6162 0x3233343536 0x6e6f2061726773
+    bytecblock 0x 0x31 0x616263 0xff 0x61 0x00 0x0f 0x4261736520363420656e636f646564 0x6263 0x31323334353637 0xf0 0x4261736520333220656e636f646564 0x4261736520313620656e636f646564 0x6162 0x3233343536 0x6e6f2061726773
+    b main_block@0
 
 main_block@0:
     // stubs/bytes.py:6
     // base_64 = Bytes.from_base64("QmFzZSA2NCBlbmNvZGVk")
-    bytec 10 // base64(QmFzZSA2NCBlbmNvZGVk)
+    bytec 7 // base64(QmFzZSA2NCBlbmNvZGVk)
     // stubs/bytes.py:7
     // assert base_64 == Bytes(b"Base 64 encoded")
-    dup
+    bytec 7 // 0x4261736520363420656e636f646564
     ==
     assert
     // stubs/bytes.py:8
     // base_32 = Bytes.from_base32("IJQXGZJAGMZCAZLOMNXWIZLE")
-    pushbytes base32(IJQXGZJAGMZCAZLOMNXWIZLE)
+    bytec 11 // base32(IJQXGZJAGMZCAZLOMNXWIZLE)
     // stubs/bytes.py:9
     // assert base_32 == Bytes(b"Base 32 encoded")
-    dup
+    bytec 11 // 0x4261736520333220656e636f646564
     ==
     assert
     // stubs/bytes.py:10
     // base_16 = Bytes.from_hex("4261736520313620656E636F646564")
-    pushbytes 0x4261736520313620656e636f646564
+    bytec 12 // 0x4261736520313620656e636f646564
     // stubs/bytes.py:11
     // assert base_16 == Bytes(b"Base 16 encoded")
-    dup
+    bytec 12 // 0x4261736520313620656e636f646564
     ==
     assert
     // stubs/bytes.py:6
     // base_64 = Bytes.from_base64("QmFzZSA2NCBlbmNvZGVk")
-    bytec 10 // base64(QmFzZSA2NCBlbmNvZGVk)
+    bytec 7 // base64(QmFzZSA2NCBlbmNvZGVk)
     // stubs/bytes.py:14
     // assert base_64, "Non empty bytes should be Truthy"
     len
@@ -54,7 +55,7 @@ main_block@0:
     bytec 4 // 0x61
     pushbytes 0x62
     concat
-    bytec 11 // 0x6162
+    bytec 13 // 0x6162
     ==
     assert
     // stubs/bytes.py:19
@@ -71,7 +72,7 @@ main_block@0:
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:24
     // assert abc[0] == b"a"
     intc_1 // 0
@@ -82,7 +83,7 @@ main_block@0:
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:26
     // assert abc[1:] == b"bc"
     len
@@ -95,18 +96,18 @@ main_block@0:
     select
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:26
     // assert abc[1:] == b"bc"
-    swap
+    uncover 1
     uncover 2
     substring3
-    bytec 7 // 0x6263
+    bytec 8 // 0x6263
     ==
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:27
     // assert abc[1:1] == b""
     len
@@ -117,7 +118,7 @@ main_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     intc_0 // 1
     dig 1
     >=
@@ -127,7 +128,7 @@ main_block@0:
     select
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:27
     // assert abc[1:1] == b""
     uncover 2
@@ -138,7 +139,7 @@ main_block@0:
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:28
     // assert abc[:1] == b"a"
     len
@@ -151,7 +152,7 @@ main_block@0:
     select
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:28
     // assert abc[:1] == b"a"
     intc_1 // 0
@@ -162,7 +163,7 @@ main_block@0:
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:29
     // assert abc[:-1] == b"ab"
     len
@@ -176,18 +177,18 @@ main_block@0:
     -
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:29
     // assert abc[:-1] == b"ab"
     intc_1 // 0
     uncover 2
     substring3
-    bytec 11 // 0x6162
+    bytec 13 // 0x6162
     ==
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:30
     // assert abc[-2:] == b"bc"
     len
@@ -199,22 +200,22 @@ main_block@0:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:30
     // assert abc[-2:] == b"bc"
-    swap
+    uncover 1
     uncover 2
     substring3
-    bytec 7 // 0x6263
+    bytec 8 // 0x6263
     ==
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:31
     // assert abc[-2:-1] == b"b"
     len
@@ -226,9 +227,9 @@ main_block@0:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
-    swap
+    cover 1
     intc_0 // 1
     dig 1
     >=
@@ -239,7 +240,7 @@ main_block@0:
     -
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:31
     // assert abc[-2:-1] == b"b"
     uncover 2
@@ -250,7 +251,7 @@ main_block@0:
     assert
     // stubs/bytes.py:32
     // assert Bytes(b"1234567")[1:-1] == b"23456"
-    bytec 8 // 0x31323334353637
+    bytec 9 // 0x31323334353637
     len
     intc_0 // 1
     dig 1
@@ -259,7 +260,7 @@ main_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     intc_0 // 1
     dig 1
     >=
@@ -271,20 +272,20 @@ main_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
-    bytec 8 // 0x31323334353637
+    bytec 9 // 0x31323334353637
     uncover 2
     uncover 2
     substring3
-    bytec 12 // 0x3233343536
+    bytec 14 // 0x3233343536
     ==
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:33
     // assert abc[-10:10] == b"abc"
     len
@@ -296,9 +297,9 @@ main_block@0:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
-    swap
+    cover 1
     intc_2 // 10
     dig 1
     >=
@@ -309,24 +310,24 @@ main_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:33
     // assert abc[-10:10] == b"abc"
     uncover 2
     uncover 2
     substring3
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     ==
     assert
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:38
     // x = (true and true) == true
     len
@@ -334,15 +335,15 @@ main_block@0:
     ==
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
-    dup
+    bytec_1 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:38
     // x = (true and true) == true
     uncover 2
     select
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:38
     // x = (true and true) == true
     ==
@@ -351,7 +352,7 @@ main_block@0:
     assert
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:40
     // assert (true and true) == true
     len
@@ -359,22 +360,22 @@ main_block@0:
     ==
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
-    dup
+    bytec_1 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:40
     // assert (true and true) == true
     uncover 2
     select
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:40
     // assert (true and true) == true
     ==
     assert
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:41
     // assert (true and false) == false
     len
@@ -385,7 +386,7 @@ main_block@0:
     bytec_0 // 0x
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:41
     // assert (true and false) == false
     uncover 2
@@ -407,7 +408,7 @@ main_block@0:
     ==
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:36
     // false = Bytes(b"")
     bytec_0 // 0x
@@ -433,7 +434,7 @@ main_block@0:
     // stubs/bytes.py:36
     // false = Bytes(b"")
     bytec_0 // 0x
-    dup
+    bytec_0 // 0x
     // stubs/bytes.py:43
     // assert (false and false) == false
     uncover 2
@@ -447,7 +448,7 @@ main_block@0:
     assert
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:44
     // assert (true or true) == true
     len
@@ -455,22 +456,22 @@ main_block@0:
     !=
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
-    dup
+    bytec_1 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:44
     // assert (true or true) == true
     uncover 2
     select
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:44
     // assert (true or true) == true
     ==
     assert
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:45
     // assert (true or false) == true
     len
@@ -481,14 +482,14 @@ main_block@0:
     bytec_0 // 0x
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:45
     // assert (true or false) == true
     uncover 2
     select
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:45
     // assert (true or false) == true
     ==
@@ -503,7 +504,7 @@ main_block@0:
     !=
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:36
     // false = Bytes(b"")
     bytec_0 // 0x
@@ -513,7 +514,7 @@ main_block@0:
     select
     // stubs/bytes.py:35
     // true = Bytes(b"1")
-    bytec_2 // 0x31
+    bytec_1 // 0x31
     // stubs/bytes.py:46
     // assert (false or true) == true
     ==
@@ -529,7 +530,7 @@ main_block@0:
     // stubs/bytes.py:36
     // false = Bytes(b"")
     bytec_0 // 0x
-    dup
+    bytec_0 // 0x
     // stubs/bytes.py:47
     // assert (false or false) == false
     uncover 2
@@ -562,7 +563,7 @@ main_block@0:
     bytec 6 // 0x0f
     // stubs/bytes.py:52
     // Bytes.from_hex("F0"),
-    bytec 9 // 0xf0
+    bytec 10 // 0xf0
     // stubs/bytes.py:57
     // assert b | c == d
     b|
@@ -584,7 +585,7 @@ main_block@0:
     b^
     // stubs/bytes.py:52
     // Bytes.from_hex("F0"),
-    bytec 9 // 0xf0
+    bytec 10 // 0xf0
     // stubs/bytes.py:58
     // assert b ^ d == c
     ==
@@ -626,7 +627,7 @@ main_block@0:
     assert
     // stubs/bytes.py:52
     // Bytes.from_hex("F0"),
-    bytec 9 // 0xf0
+    bytec 10 // 0xf0
     // stubs/bytes.py:65
     // y ^= c
     b^
@@ -639,13 +640,13 @@ main_block@0:
     assert
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:68
     // check_slicing_with_uint64(abc)
     callsub check_slicing_with_uint64
     // stubs/bytes.py:23
     // abc = Bytes(b"abc")
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     // stubs/bytes.py:69
     // check_end_before_start_slicing(abc)
     callsub check_end_before_start_slicing
@@ -654,11 +655,11 @@ main_block@0:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bytec 13 // 0x6e6f2061726773
+    bytec 15 // 0x6e6f2061726773
     pushbytes 0x61726773
     uncover 2
     select
-    bytec 13 // 0x6e6f2061726773
+    bytec 15 // 0x6e6f2061726773
     ==
     // stubs/bytes.py:71-73
     // assert (
@@ -677,6 +678,7 @@ check_slicing_with_uint64:
     // @subroutine
     // def check_slicing_with_uint64(abc: Bytes) -> None:
     proto 1 0
+    b check_slicing_with_uint64_block@0
 
 check_slicing_with_uint64_block@0:
     // stubs/bytes.py:85
@@ -699,10 +701,10 @@ check_slicing_with_uint64_block@0:
     uncover 2
     select
     frame_dig -1
-    swap
+    uncover 1
     uncover 2
     substring3
-    bytec 7 // 0x6263
+    bytec 8 // 0x6263
     ==
     assert
     // stubs/bytes.py:86
@@ -724,7 +726,7 @@ check_slicing_with_uint64_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     // stubs/bytes.py:83
     // one = UInt64(1)
     intc_0 // 1
@@ -743,7 +745,7 @@ check_slicing_with_uint64_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
@@ -800,7 +802,7 @@ check_slicing_with_uint64_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     intc_0 // 1
     dig 1
     >=
@@ -812,7 +814,7 @@ check_slicing_with_uint64_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
@@ -820,7 +822,7 @@ check_slicing_with_uint64_block@0:
     uncover 2
     uncover 2
     substring3
-    bytec 12 // 0x3233343536
+    bytec 14 // 0x3233343536
     ==
     assert
     // stubs/bytes.py:89
@@ -834,7 +836,7 @@ check_slicing_with_uint64_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     // stubs/bytes.py:84
     // ten = UInt64(10)
     intc_2 // 10
@@ -854,7 +856,7 @@ check_slicing_with_uint64_block@0:
     uncover 2
     uncover 2
     substring3
-    bytec_1 // 0x616263
+    bytec_2 // 0x616263
     ==
     assert
     retsub
@@ -866,6 +868,7 @@ check_end_before_start_slicing:
     // @subroutine
     // def check_end_before_start_slicing(abc: Bytes) -> None:
     proto 1 0
+    b check_end_before_start_slicing_block@0
 
 check_end_before_start_slicing_block@0:
     // stubs/bytes.py:94
@@ -879,7 +882,7 @@ check_end_before_start_slicing_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     intc_0 // 1
     dig 1
     >=
@@ -890,7 +893,7 @@ check_end_before_start_slicing_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
@@ -913,9 +916,9 @@ check_end_before_start_slicing_block@0:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
-    swap
+    cover 1
     pushint 12 // 12
     dig 1
     >=
@@ -927,7 +930,7 @@ check_end_before_start_slicing_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
@@ -957,7 +960,7 @@ check_end_before_start_slicing_block@0:
     dig 2
     uncover 2
     select
-    swap
+    cover 1
     // stubs/bytes.py:96
     // one = UInt64(1)
     intc_0 // 1
@@ -976,7 +979,7 @@ check_end_before_start_slicing_block@0:
     dup
     dig 2
     <
-    swap
+    uncover 1
     dig 2
     uncover 2
     select
@@ -992,6 +995,7 @@ check_end_before_start_slicing_block@0:
 
 // test_cases.stubs.bytes.one_to_seven() -> bytes:
 one_to_seven:
+    b one_to_seven_block@0
 
 one_to_seven_block@0:
     // stubs/bytes.py:103
@@ -1000,5 +1004,5 @@ one_to_seven_block@0:
     log
     // stubs/bytes.py:104
     // return Bytes(b"1234567")
-    bytec 8 // 0x31323334353637
+    bytec 9 // 0x31323334353637
     retsub

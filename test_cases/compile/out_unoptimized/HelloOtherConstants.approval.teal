@@ -5,13 +5,16 @@
 main:
     intcblock 0 1
     bytecblock "greeting" "num" "address" "method" 0x151f7c75 TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // compile/apps.py:78
@@ -47,6 +51,7 @@ __init___block@0:
 
 // test_cases.compile.apps.HelloOtherConstants.create() -> uint64:
 create:
+    b create_block@0
 
 create_block@0:
     // compile/apps.py:85
@@ -57,6 +62,7 @@ create_block@0:
 
 // test_cases.compile.apps.HelloOtherConstants.delete() -> void:
 delete:
+    b delete_block@0
 
 delete_block@0:
     retsub
@@ -68,6 +74,7 @@ greet:
     // @arc4.abimethod()
     // def greet(self, name: String) -> Bytes:
     proto 1 1
+    b greet_block@0
 
 greet_block@0:
     // compile/apps.py:93
@@ -94,7 +101,7 @@ greet_block@0:
     concat
     frame_dig -1
     concat
-    swap
+    uncover 1
     concat
     intc_0 // 0
     bytec_2 // "address"
@@ -115,8 +122,12 @@ greet_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // compile/apps.py:76
@@ -125,6 +136,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@8
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // compile/apps.py:76
@@ -135,17 +147,24 @@ approval_program_abi_routing@2:
     pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     uncover 3
     match approval_program_create_route@3 approval_program_delete_route@4 approval_program_greet_route@5
+    b approval_program_switch_case_default@6
 
 approval_program_switch_case_default@6:
+    b approval_program_switch_case_next@7
 
 approval_program_switch_case_next@7:
+    b approval_program_after_if_else@9
 
 approval_program_after_if_else@9:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
 
 approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_greet_route@5:
@@ -170,13 +189,14 @@ approval_program_greet_route@5:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec 4 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
 
 approval_program_delete_route@4:
@@ -192,6 +212,7 @@ approval_program_delete_route@4:
     assert // can only call when not creating
     callsub delete
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
 
 approval_program_create_route@3:
@@ -208,10 +229,11 @@ approval_program_create_route@3:
     callsub create
     itob
     bytec 4 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__@10
 
 approval_program_bare_routing@8:

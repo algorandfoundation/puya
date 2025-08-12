@@ -4,8 +4,12 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
+    bytecblock ""
+    bytec_0 // ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // regression_tests/leftover_branch.py:4
@@ -14,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@8
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // regression_tests/leftover_branch.py:4
@@ -24,15 +29,20 @@ main_abi_routing@2:
     pushbytes 0x847f775f // method "calculate(uint64[][],uint64)void"
     uncover 3
     match main_umm_route@3 main_umm2_route@4 main_calculate_route@5
+    b main_switch_case_default@6
 
 main_switch_case_default@6:
+    b main_switch_case_next@7
 
 main_switch_case_next@7:
+    b main_after_if_else@12
 
 main_after_if_else@12:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
 
 main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13:
     return
@@ -56,6 +66,7 @@ main_calculate_route@5:
     // @arc4.abimethod
     callsub calculate
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
 
 main_umm2_route@4:
@@ -71,6 +82,7 @@ main_umm2_route@4:
     assert // can only call when not creating
     callsub umm2
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
 
 main_umm_route@3:
@@ -87,10 +99,11 @@ main_umm_route@3:
     callsub umm
     itob
     pushbytes 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
 
 main_bare_routing@8:
@@ -98,10 +111,12 @@ main_bare_routing@8:
     // class BranchElimination(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@9
+    b main_switch_case_default@10
 
 main_switch_case_default@10:
+    b main_switch_case_next@11
 
 main_switch_case_next@11:
     b main_after_if_else@12
@@ -111,16 +126,20 @@ main___algopy_default_create@9:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@14
 
 main_block@14:
+    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@15
 
 main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@15:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
 
 
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:
 hmm:
+    b hmm_block@0
 
 hmm_block@0:
     // regression_tests/leftover_branch.py:55
@@ -131,6 +150,7 @@ hmm_block@0:
 
 // test_cases.regression_tests.leftover_branch.hmm_uint64() -> uint64:
 hmm_uint64:
+    b hmm_uint64_block@0
 
 hmm_uint64_block@0:
     // regression_tests/leftover_branch.py:60
@@ -145,13 +165,16 @@ umm:
     // @arc4.abimethod
     // def umm(self) -> UInt64:
     proto 0 1
-    pushbytes ""
-    dupn 2
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    b umm_block@0
 
 umm_block@0:
     // regression_tests/leftover_branch.py:7
     // ahuh = UInt64(0)
     intc_0 // 0
+    b umm_while_top@1
 
 umm_while_top@1:
     frame_dig 3
@@ -160,6 +183,7 @@ umm_while_top@1:
     // while True:
     intc_1 // 1
     bz umm_after_while@15
+    b umm_while_body@2
 
 umm_while_body@2:
     // regression_tests/leftover_branch.py:9
@@ -170,6 +194,7 @@ umm_while_body@2:
     assert // Step cannot be zero
     intc_0 // 0
     frame_bury 0
+    b umm_for_header@3
 
 umm_for_header@3:
     // regression_tests/leftover_branch.py:9
@@ -178,6 +203,7 @@ umm_for_header@3:
     frame_dig 2
     <
     bz umm_after_for@12
+    b umm_for_body@4
 
 umm_for_body@4:
     // regression_tests/leftover_branch.py:10
@@ -186,6 +212,7 @@ umm_for_body@4:
     frame_dig 3
     frame_bury 1
     bz umm_after_if_else@10
+    b umm_if_body@5
 
 umm_if_body@5:
     // regression_tests/leftover_branch.py:11
@@ -194,6 +221,7 @@ umm_if_body@5:
     frame_dig 3
     frame_bury 1
     bz umm_after_if_else@9
+    b umm_if_body@6
 
 umm_if_body@6:
     // regression_tests/leftover_branch.py:12
@@ -202,6 +230,7 @@ umm_if_body@6:
     frame_dig 3
     frame_bury 1
     bz umm_after_if_else@8
+    b umm_if_body@7
 
 umm_if_body@7:
     // regression_tests/leftover_branch.py:13
@@ -210,14 +239,18 @@ umm_if_body@7:
     frame_dig 3
     +
     frame_bury 1
+    b umm_after_if_else@8
 
 umm_after_if_else@8:
+    b umm_after_if_else@9
 
 umm_after_if_else@9:
+    b umm_after_if_else@10
 
 umm_after_if_else@10:
     frame_dig 1
     frame_bury 3
+    b umm_for_footer@11
 
 umm_for_footer@11:
     // regression_tests/leftover_branch.py:9
@@ -233,10 +266,14 @@ umm_after_for@12:
     // if hmm():
     callsub hmm
     bz umm_after_if_else@14
+    b umm_if_body@13
 
 umm_if_body@13:
     frame_dig 3
     frame_bury 1
+    // regression_tests/leftover_branch.py:15
+    // break
+    b umm_after_while@15
 
 umm_after_while@15:
     frame_dig 1
@@ -255,18 +292,21 @@ umm2:
     // @arc4.abimethod
     // def umm2(self) -> None:
     proto 0 0
-    pushbytes ""
+    bytec_0 // ""
+    b umm2_block@0
 
 umm2_block@0:
     // regression_tests/leftover_branch.py:20
     // ahuh = UInt64(0)
     intc_0 // 0
+    b umm2_while_top@1
 
 umm2_while_top@1:
     // regression_tests/leftover_branch.py:21
     // while True:
     intc_1 // 1
     bz umm2_after_while@11
+    b umm2_while_body@2
 
 umm2_while_body@2:
     // regression_tests/leftover_branch.py:22
@@ -275,6 +315,7 @@ umm2_while_body@2:
     frame_dig 1
     frame_bury 0
     bz umm2_after_if_else@8
+    b umm2_if_body@3
 
 umm2_if_body@3:
     // regression_tests/leftover_branch.py:23
@@ -283,6 +324,7 @@ umm2_if_body@3:
     frame_dig 1
     frame_bury 0
     bz umm2_after_if_else@7
+    b umm2_if_body@4
 
 umm2_if_body@4:
     // regression_tests/leftover_branch.py:24
@@ -291,6 +333,7 @@ umm2_if_body@4:
     frame_dig 1
     frame_bury 0
     bz umm2_after_if_else@6
+    b umm2_if_body@5
 
 umm2_if_body@5:
     // regression_tests/leftover_branch.py:25
@@ -299,10 +342,13 @@ umm2_if_body@5:
     frame_dig 1
     +
     frame_bury 0
+    b umm2_after_if_else@6
 
 umm2_after_if_else@6:
+    b umm2_after_if_else@7
 
 umm2_after_if_else@7:
+    b umm2_after_if_else@8
 
 umm2_after_if_else@8:
     frame_dig 0
@@ -311,8 +357,12 @@ umm2_after_if_else@8:
     // if hmm():
     callsub hmm
     bz umm2_after_if_else@10
+    b umm2_if_body@9
 
 umm2_if_body@9:
+    // regression_tests/leftover_branch.py:27
+    // break
+    b umm2_after_while@11
 
 umm2_after_while@11:
     retsub
@@ -332,9 +382,13 @@ calculate:
     // ) -> None:
     proto 2 0
     intc_0 // 0
-    dup
-    pushbytes ""
-    dupn 4
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    b calculate_block@0
 
 calculate_block@0:
     // regression_tests/leftover_branch.py:35
@@ -342,7 +396,7 @@ calculate_block@0:
     intc_0 // 0
     // regression_tests/leftover_branch.py:36
     // num_boosts = UInt64(0)
-    dup
+    intc_0 // 0
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig -2
@@ -351,6 +405,7 @@ calculate_block@0:
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
+    b calculate_for_header@1
 
 calculate_for_header@1:
     // regression_tests/leftover_branch.py:38
@@ -359,6 +414,7 @@ calculate_for_header@1:
     frame_dig 9
     <
     bz calculate_after_for@14
+    b calculate_for_body@2
 
 calculate_for_body@2:
     // regression_tests/leftover_branch.py:39
@@ -380,7 +436,7 @@ calculate_for_body@2:
     intc_2 // 2
     *
     dig 1
-    swap
+    uncover 1
     extract_uint16
     dup2
     extract_uint16
@@ -411,6 +467,7 @@ calculate_for_body@2:
     assert // Step cannot be zero
     intc_0 // 0
     frame_bury 2
+    b calculate_for_header@3
 
 calculate_for_header@3:
     // regression_tests/leftover_branch.py:41
@@ -419,6 +476,7 @@ calculate_for_header@3:
     frame_dig 5
     <
     bz calculate_after_for@12
+    b calculate_for_body@4
 
 calculate_for_body@4:
     // regression_tests/leftover_branch.py:42
@@ -426,7 +484,7 @@ calculate_for_body@4:
     frame_dig 0
     dup
     len
-    swap
+    cover 1
     intc_2 // 2
     uncover 2
     substring3
@@ -446,6 +504,7 @@ calculate_for_body@4:
     frame_dig 7
     frame_bury 6
     bz calculate_after_if_else@10
+    b calculate_if_body@5
 
 calculate_if_body@5:
     // regression_tests/leftover_branch.py:44
@@ -460,6 +519,7 @@ calculate_if_body@5:
     // regression_tests/leftover_branch.py:45
     // if has_next:
     bz calculate_after_if_else@9
+    b calculate_if_body@6
 
 calculate_if_body@6:
     // regression_tests/leftover_branch.py:46
@@ -477,11 +537,11 @@ calculate_if_body@6:
     frame_dig 0
     dup
     len
-    swap
+    cover 1
     intc_2 // 2
     uncover 2
     substring3
-    swap
+    uncover 1
     intc_3 // 8
     *
     intc_3 // 8
@@ -492,9 +552,10 @@ calculate_if_body@6:
     b>
     frame_dig 8
     frame_bury 4
-    swap
+    uncover 1
     frame_bury 6
     bz calculate_after_if_else@8
+    b calculate_if_body@7
 
 calculate_if_body@7:
     // regression_tests/leftover_branch.py:49
@@ -509,26 +570,30 @@ calculate_if_body@7:
     +
     frame_bury 4
     frame_bury 6
+    b calculate_after_if_else@8
 
 calculate_after_if_else@8:
     frame_dig 4
     frame_dig 6
-    swap
+    cover 1
     frame_bury 4
     frame_bury 6
+    b calculate_after_if_else@9
 
 calculate_after_if_else@9:
     frame_dig 4
     frame_dig 6
-    swap
+    cover 1
     frame_bury 4
     frame_bury 6
+    b calculate_after_if_else@10
 
 calculate_after_if_else@10:
     frame_dig 4
     frame_bury 8
     frame_dig 6
     frame_bury 7
+    b calculate_for_footer@11
 
 calculate_for_footer@11:
     // regression_tests/leftover_branch.py:41
@@ -540,6 +605,7 @@ calculate_for_footer@11:
     b calculate_for_header@3
 
 calculate_after_for@12:
+    b calculate_for_footer@13
 
 calculate_for_footer@13:
     // regression_tests/leftover_branch.py:38

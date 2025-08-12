@@ -4,14 +4,17 @@
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 6
-    bytecblock "hello_app" 0x151f7c75
+    bytecblock "hello_app" 0x151f7c75 ""
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // inner_transactions/c2c.py:8
@@ -32,6 +36,7 @@ __init___block@0:
 
 // test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
 bootstrap:
+    b bootstrap_block@0
 
 bootstrap_block@0:
     // inner_transactions/c2c.py:12
@@ -64,6 +69,7 @@ bootstrap_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b bootstrap_next_txn@1
 
 bootstrap_next_txn@1:
     // inner_transactions/c2c.py:14-18
@@ -93,7 +99,7 @@ bootstrap_next_txn@1:
     //     .submit()
     //     .created_app
     // )
-    swap
+    uncover 1
     app_global_put
     // inner_transactions/c2c.py:21
     // return self.hello_app.id
@@ -110,6 +116,7 @@ log_greetings:
     // @arc4.abimethod()
     // def log_greetings(self, name: arc4.String) -> None:
     proto 1 0
+    b log_greetings_block@0
 
 log_greetings_block@0:
     // inner_transactions/c2c.py:25-28
@@ -137,6 +144,7 @@ log_greetings_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b log_greetings_next_txn@1
 
 log_greetings_next_txn@1:
     // inner_transactions/c2c.py:25-28
@@ -150,7 +158,7 @@ log_greetings_next_txn@1:
     // greeting = arc4.String.from_log(hello_call.last_log)
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_1 // 0x151f7c75
     ==
@@ -158,9 +166,9 @@ log_greetings_next_txn@1:
     // inner_transactions/c2c.py:30
     // log("HelloWorld returned: ", greeting.native)
     pushbytes "HelloWorld returned: "
-    pushbytes ""
+    bytec_2 // ""
     concat
-    swap
+    uncover 1
     extract 2 0
     concat
     log
@@ -169,8 +177,12 @@ log_greetings_next_txn@1:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_2 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // inner_transactions/c2c.py:6
@@ -179,6 +191,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@7
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // inner_transactions/c2c.py:6
@@ -188,17 +201,24 @@ approval_program_abi_routing@2:
     pushbytes 0x33fb5d48 // method "log_greetings(string)void"
     uncover 2
     match approval_program_bootstrap_route@3 approval_program_log_greetings_route@4
+    b approval_program_switch_case_default@5
 
 approval_program_switch_case_default@5:
+    b approval_program_switch_case_next@6
 
 approval_program_switch_case_next@6:
+    b approval_program_after_if_else@13
 
 approval_program_after_if_else@13:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@14
 
 approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@14:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_log_greetings_route@4:
@@ -219,6 +239,7 @@ approval_program_log_greetings_route@4:
     // @arc4.abimethod()
     callsub log_greetings
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@14
 
 approval_program_bootstrap_route@3:
@@ -235,10 +256,11 @@ approval_program_bootstrap_route@3:
     callsub bootstrap
     itob
     bytec_1 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@14
 
 approval_program_bare_routing@7:
@@ -246,10 +268,12 @@ approval_program_bare_routing@7:
     // class Greeter(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@8
+    b approval_program_switch_case_default@11
 
 approval_program_switch_case_default@11:
+    b approval_program_switch_case_next@12
 
 approval_program_switch_case_next@12:
     b approval_program_after_if_else@13
@@ -259,9 +283,12 @@ approval_program___algopy_default_create@8:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@9
 
 approval_program_block@9:
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@10
 
 approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@10:
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@14

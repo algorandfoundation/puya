@@ -4,13 +4,16 @@
 // test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -19,6 +22,7 @@ main_after_if_else@2:
 
 // test_cases.application.contract.Reference.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // application/contract.py:15
@@ -41,6 +45,7 @@ __init___block@0:
 
 // test_cases.application.contract.Reference.approval_program() -> uint64:
 approval_program:
+    b approval_program_block@0
 
 approval_program_block@0:
     // application/contract.py:27
@@ -59,6 +64,7 @@ approval_program_block@0:
     intc_1 // 1
     ==
     bz approval_program_after_if_else@5
+    b approval_program_if_body@1
 
 approval_program_if_body@1:
     // application/contract.py:29
@@ -67,14 +73,17 @@ approval_program_if_body@1:
     pushbytes 0x76616c6964617465
     ==
     bz approval_program_else_body@3
+    b approval_program_if_body@2
 
 approval_program_if_body@2:
     // application/contract.py:30
     // self.validate_asset(op.Global.current_application_id)
     global CurrentApplicationID
     callsub validate_asset
+    b approval_program_after_if_else@4
 
 approval_program_after_if_else@4:
+    b approval_program_after_if_else@5
 
 approval_program_after_if_else@5:
     // application/contract.py:33
@@ -94,6 +103,7 @@ validate_asset:
     // @subroutine
     // def validate_asset(self, app: Application) -> None:
     proto 1 0
+    b validate_asset_block@0
 
 validate_asset_block@0:
     // application/contract.py:40

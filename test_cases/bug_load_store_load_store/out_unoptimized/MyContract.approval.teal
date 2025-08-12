@@ -5,6 +5,7 @@
 main:
     intcblock 1 0
     pushbytes ""
+    b main_block@0
 
 main_block@0:
     // bug_load_store_load_store/contract.py:11
@@ -15,6 +16,7 @@ main_block@0:
     intc_0 // 1
     assert // Step cannot be zero
     intc_1 // 0
+    b main_for_header@1
 
 main_for_header@1:
     // bug_load_store_load_store/contract.py:12
@@ -23,16 +25,20 @@ main_for_header@1:
     pushint 2 // 2
     <
     bz main_after_for@11
+    b main_for_body@2
 
 main_for_body@2:
     // bug_load_store_load_store/contract.py:13
     // if get_bool():
     callsub get_bool
     bz main_else_body@4
+    b main_if_body@3
 
 main_if_body@3:
+    b main_after_if_else@9
 
 main_after_if_else@9:
+    b main_for_footer@10
 
 main_for_footer@10:
     // bug_load_store_load_store/contract.py:12
@@ -50,6 +56,7 @@ main_else_body@4:
     dig 2
     bury 4
     bz main_after_if_else@8
+    b main_if_body@5
 
 main_if_body@5:
     // bug_load_store_load_store/contract.py:16
@@ -58,6 +65,7 @@ main_if_body@5:
     dig 2
     bury 4
     bnz main_after_if_else@7
+    b main_if_body@6
 
 main_if_body@6:
     // bug_load_store_load_store/contract.py:17
@@ -66,8 +74,12 @@ main_if_body@6:
     pushint 123 // 123
     +
     bury 3
+    b main_after_if_else@7
 
 main_after_if_else@7:
+    dig 2
+    bury 3
+    b main_after_if_else@8
 
 main_after_if_else@8:
     dig 2
@@ -83,6 +95,7 @@ main_after_for@11:
 
 // test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:
 get_bool:
+    b get_bool_block@0
 
 get_bool_block@0:
     // bug_load_store_load_store/contract.py:6

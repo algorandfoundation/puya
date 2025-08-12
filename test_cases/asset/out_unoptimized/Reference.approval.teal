@@ -5,13 +5,16 @@
 main:
     intcblock 0 1
     bytecblock "asa"
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.asset.contract.Reference.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // asset/contract.py:18
@@ -32,6 +36,7 @@ __init___block@0:
 
 // test_cases.asset.contract.Reference.approval_program() -> uint64:
 approval_program:
+    b approval_program_block@0
 
 approval_program_block@0:
     // asset/contract.py:21
@@ -50,6 +55,7 @@ approval_program_block@0:
     intc_1 // 1
     ==
     bz approval_program_after_if_else@8
+    b approval_program_if_body@1
 
 approval_program_if_body@1:
     // asset/contract.py:23
@@ -58,6 +64,7 @@ approval_program_if_body@1:
     pushbytes 0x6f70745f696e
     ==
     bz approval_program_else_body@3
+    b approval_program_if_body@2
 
 approval_program_if_body@2:
     // asset/contract.py:24
@@ -66,8 +73,10 @@ approval_program_if_body@2:
     // asset/contract.py:25
     // self.opt_into_asset(asset)
     callsub opt_into_asset
+    b approval_program_after_if_else@7
 
 approval_program_after_if_else@7:
+    b approval_program_after_if_else@8
 
 approval_program_after_if_else@8:
     // asset/contract.py:31
@@ -82,6 +91,7 @@ approval_program_else_body@3:
     pushbytes 0x69735f6f707465645f696e
     ==
     bz approval_program_else_body@5
+    b approval_program_if_body@4
 
 approval_program_if_body@4:
     // asset/contract.py:27
@@ -90,6 +100,7 @@ approval_program_if_body@4:
     // asset/contract.py:28
     // self.is_opted_asset(asset)
     callsub is_opted_asset
+    b approval_program_after_if_else@6
 
 approval_program_after_if_else@6:
     b approval_program_after_if_else@7
@@ -106,6 +117,7 @@ opt_into_asset:
     // @subroutine
     // def opt_into_asset(self, asset: Asset) -> None:
     proto 1 0
+    b opt_into_asset_block@0
 
 opt_into_asset_block@0:
     // asset/contract.py:38-39
@@ -163,6 +175,7 @@ is_opted_asset:
     // @subroutine
     // def is_opted_asset(self, asset: Asset) -> None:
     proto 1 0
+    b is_opted_asset_block@0
 
 is_opted_asset_block@0:
     // asset/contract.py:55
@@ -275,6 +288,5 @@ is_opted_asset_block@0:
     global CurrentApplicationAddress
     frame_dig -1
     asset_holding_get AssetBalance
-    bury 1
     assert // asset opted in
     retsub

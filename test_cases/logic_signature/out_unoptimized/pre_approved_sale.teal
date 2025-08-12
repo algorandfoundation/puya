@@ -4,7 +4,8 @@
 // test_cases.logic_signature.signature.pre_approved_sale() -> uint64:
 main:
     intcblock 1 0 TMPL_PRICE TMPL_ASSET_ID
-    bytecblock TMPL_SELLER
+    bytecblock "" TMPL_SELLER
+    b main_block@0
 
 main_block@0:
     // logic_signature/signature.py:13
@@ -65,19 +66,22 @@ assert_correct_payment:
     // @subroutine
     // def assert_correct_payment(txn: gtxn.PaymentTransaction) -> None:
     proto 1 0
+    bytec_0 // ""
+    b assert_correct_payment_block@0
 
 assert_correct_payment_block@0:
     // logic_signature/signature.py:24
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
     frame_dig -1
     gtxns Receiver
-    bytec_0 // TMPL_SELLER
+    bytec_1 // TMPL_SELLER
     ==
     // logic_signature/signature.py:24-26
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
     //     txn.amount == TemplateVar[UInt64]("PRICE")
     // )
     bz assert_correct_payment_bool_false@3
+    b assert_correct_payment_and_contd@1
 
 assert_correct_payment_and_contd@1:
     // logic_signature/signature.py:25
@@ -91,20 +95,25 @@ assert_correct_payment_and_contd@1:
     //     txn.amount == TemplateVar[UInt64]("PRICE")
     // )
     bz assert_correct_payment_bool_false@3
+    b assert_correct_payment_bool_true@2
 
 assert_correct_payment_bool_true@2:
     intc_0 // 1
+    frame_bury 0
+    b assert_correct_payment_bool_merge@4
 
 assert_correct_payment_bool_merge@4:
     // logic_signature/signature.py:24-26
     // assert txn.receiver == TemplateVar[Account]("SELLER") and (
     //     txn.amount == TemplateVar[UInt64]("PRICE")
     // )
+    frame_dig 0
     assert
     retsub
 
 assert_correct_payment_bool_false@3:
     intc_1 // 0
+    frame_bury 0
     b assert_correct_payment_bool_merge@4
 
 
@@ -114,6 +123,8 @@ assert_correct_asset:
     // @subroutine
     // def assert_correct_asset(txn: gtxn.AssetTransferTransaction) -> None:
     proto 1 0
+    bytec_0 // ""
+    b assert_correct_asset_block@0
 
 assert_correct_asset_block@0:
     // logic_signature/signature.py:32
@@ -129,13 +140,14 @@ assert_correct_asset_block@0:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
+    b assert_correct_asset_and_contd@1
 
 assert_correct_asset_and_contd@1:
     // logic_signature/signature.py:33
     // and txn.sender == TemplateVar[Account]("SELLER")
     frame_dig -1
     gtxns Sender
-    bytec_0 // TMPL_SELLER
+    bytec_1 // TMPL_SELLER
     ==
     // logic_signature/signature.py:32-36
     // txn.asset_amount == 1
@@ -144,6 +156,7 @@ assert_correct_asset_and_contd@1:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
+    b assert_correct_asset_and_contd@2
 
 assert_correct_asset_and_contd@2:
     // logic_signature/signature.py:34
@@ -159,6 +172,7 @@ assert_correct_asset_and_contd@2:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
+    b assert_correct_asset_and_contd@3
 
 assert_correct_asset_and_contd@3:
     // logic_signature/signature.py:35
@@ -174,6 +188,7 @@ assert_correct_asset_and_contd@3:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
+    b assert_correct_asset_and_contd@4
 
 assert_correct_asset_and_contd@4:
     // logic_signature/signature.py:36
@@ -189,9 +204,12 @@ assert_correct_asset_and_contd@4:
     // and txn.asset_close_to == Global.zero_address
     // and txn.rekey_to == Global.zero_address
     bz assert_correct_asset_bool_false@6
+    b assert_correct_asset_bool_true@5
 
 assert_correct_asset_bool_true@5:
     intc_0 // 1
+    frame_bury 0
+    b assert_correct_asset_bool_merge@7
 
 assert_correct_asset_bool_merge@7:
     // logic_signature/signature.py:31-37
@@ -202,9 +220,11 @@ assert_correct_asset_bool_merge@7:
     //     and txn.asset_close_to == Global.zero_address
     //     and txn.rekey_to == Global.zero_address
     // )
+    frame_dig 0
     assert
     retsub
 
 assert_correct_asset_bool_false@6:
     intc_1 // 0
+    frame_bury 0
     b assert_correct_asset_bool_merge@7

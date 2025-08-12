@@ -5,6 +5,7 @@
 main:
     intcblock 0 1 2 3
     bytecblock 0x00 0x
+    b main_block@0
 
 main_block@0:
     // arc4_types/bool.py:13
@@ -15,7 +16,7 @@ main_block@0:
     setbit
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     callsub test_stuff
     pop
@@ -57,7 +58,7 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    swap
+    cover 1
     // arc4_types/bool.py:22
     // ARC4Bool(True),
     bytec_0 // 0x00
@@ -112,7 +113,7 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    swap
+    cover 1
     // arc4_types/bool.py:30
     // ARC4Bool(True),
     bytec_0 // 0x00
@@ -145,49 +146,49 @@ main_block@0:
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     intc_2 // 2
     uncover 2
     setbit
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     intc_3 // 3
     uncover 2
     setbit
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     pushint 4 // 4
     uncover 2
     setbit
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     pushint 5 // 5
     uncover 2
     setbit
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     pushint 6 // 6
     uncover 2
     setbit
     uncover 4
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     pushint 7 // 7
     uncover 2
     setbit
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     intc_0 // 0
     getbit
     uncover 4
@@ -197,14 +198,14 @@ main_block@0:
     uncover 2
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     intc_2 // 2
     uncover 2
     setbit
     uncover 2
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     intc_3 // 3
     uncover 2
     setbit
@@ -262,13 +263,13 @@ main_block@0:
     setbit
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    swap
+    cover 1
     // arc4_types/bool.py:38-40
     // dynamic_boolean_array = DynamicArray[ARC4Bool](
     //     ARC4Bool(True), ARC4Bool(False), ARC4Bool(True)
@@ -283,10 +284,10 @@ main_block@0:
     intc_1 // 1
     uncover 2
     setbit
-    swap
+    uncover 1
     intc_0 // 0
     getbit
-    swap
+    uncover 1
     intc_2 // 2
     uncover 2
     setbit
@@ -307,7 +308,7 @@ main_block@0:
     setbit
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     bytec_0 // 0x00
     intc_0 // 0
@@ -315,7 +316,7 @@ main_block@0:
     setbit
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     bytec_0 // 0x00
     intc_0 // 0
@@ -334,7 +335,7 @@ main_block@0:
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     pushint 5 // 5
     pushint 8 // 8
@@ -359,7 +360,7 @@ main_block@0:
     // assert ARC4Bool(False) != True  # noqa: E712
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     intc_0 // 0
     getbit
@@ -370,7 +371,7 @@ main_block@0:
     // assert False == ARC4Bool(False)  # noqa: E712, SIM300
     bytec_0 // 0x00
     intc_0 // 0
-    dup
+    intc_0 // 0
     setbit
     intc_0 // 0
     getbit
@@ -398,7 +399,9 @@ main_block@0:
 dynamic_array_concat_bits:
     proto 4 1
     bytec_1 // ""
-    dupn 2
+    bytec_1 // ""
+    bytec_1 // ""
+    b dynamic_array_concat_bits_block@0
 
 dynamic_array_concat_bits_block@0:
     frame_dig -4
@@ -411,19 +414,19 @@ dynamic_array_concat_bits_block@0:
     itob
     extract 6 0
     frame_dig -4
-    swap
+    uncover 1
     replace2 0
     dup
     cover 3
     cover 3
-    swap
+    uncover 1
     pushint 7 // 7
     +
     pushint 8 // 8
     /
     dup
     cover 3
-    swap
+    uncover 1
     pushint 7 // 7
     +
     pushint 8 // 8
@@ -432,6 +435,7 @@ dynamic_array_concat_bits_block@0:
     cover 3
     <
     bz dynamic_array_concat_bits_after_if_else@2
+    b dynamic_array_concat_bits_if_body@1
 
 dynamic_array_concat_bits_if_body@1:
     frame_dig 6
@@ -439,9 +443,10 @@ dynamic_array_concat_bits_if_body@1:
     -
     bzero
     frame_dig 4
-    swap
+    uncover 1
     concat
     frame_bury 7
+    b dynamic_array_concat_bits_after_if_else@2
 
 dynamic_array_concat_bits_after_if_else@2:
     frame_dig 7
@@ -456,12 +461,14 @@ dynamic_array_concat_bits_after_if_else@2:
     frame_dig -2
     +
     frame_bury 1
+    b dynamic_array_concat_bits_while_top@3
 
 dynamic_array_concat_bits_while_top@3:
     frame_dig 2
     frame_dig 1
     <
     bz dynamic_array_concat_bits_after_while@5
+    b dynamic_array_concat_bits_while_body@4
 
 dynamic_array_concat_bits_while_body@4:
     frame_dig -3
@@ -492,6 +499,7 @@ dynamic_array_concat_bits_after_while@5:
 
 // test_cases.arc4_types.bool.get_arr() -> bytes:
 get_arr:
+    b get_arr_block@0
 
 get_arr_block@0:
     // arc4_types/bool.py:74
@@ -508,6 +516,7 @@ test_stuff:
     // @subroutine
     // def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> bool:
     proto 2 1
+    b test_stuff_block@0
 
 test_stuff_block@0:
     // arc4_types/bool.py:62

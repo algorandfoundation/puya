@@ -3,8 +3,9 @@
 
 // test_cases.literals.folding.LiteralFolding.approval_program() -> uint64:
 main:
-    intcblock 0 1 8 98
+    intcblock 1 0 8 98
     bytecblock "a" "b" 0x0000000000000061 0x0000000000000063
+    b main_block@0
 
 main_block@0:
     // literals/folding.py:95
@@ -33,16 +34,18 @@ main_block@0:
     callsub tuples
     // literals/folding.py:103
     // return True
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
+    b is_substring_block@0
 
 is_substring_block@0:
-    intc_0 // 0
+    intc_1 // 0
+    b is_substring_while_top@1
 
 is_substring_while_top@1:
     frame_dig -2
@@ -53,6 +56,7 @@ is_substring_while_top@1:
     len
     <=
     bz is_substring_after_while@5
+    b is_substring_while_body@2
 
 is_substring_while_body@2:
     frame_dig -2
@@ -68,27 +72,29 @@ is_substring_while_body@2:
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
+    b is_substring_if_body@3
 
 is_substring_if_body@3:
-    intc_1 // 1
-    swap
+    intc_0 // 1
+    uncover 1
     retsub
 
 is_substring_after_if_else@4:
     frame_dig 0
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 0
     b is_substring_while_top@1
 
 is_substring_after_while@5:
-    intc_0 // 0
-    swap
+    intc_1 // 0
+    uncover 1
     retsub
 
 
 // test_cases.literals.folding.unary_str() -> void:
 unary_str:
+    b unary_str_block@0
 
 unary_str_block@0:
     retsub
@@ -96,26 +102,27 @@ unary_str_block@0:
 
 // test_cases.literals.folding.compare_str() -> void:
 compare_str:
+    b compare_str_block@0
 
 compare_str_block@0:
     // literals/folding.py:13
     // assert not ("a" == "b")  # type: ignore[comparison-overlap]
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:17
     // assert not ("a" > "b")
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:18
     // assert not ("a" >= "b")
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:20
     // assert not ("a" in "b")
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:23
@@ -168,6 +175,7 @@ compare_str_block@0:
 
 // test_cases.literals.folding.binary_op_str() -> void:
 binary_op_str:
+    b binary_op_str_block@0
 
 binary_op_str_block@0:
     retsub
@@ -175,6 +183,7 @@ binary_op_str_block@0:
 
 // test_cases.literals.folding.unary_bytes() -> void:
 unary_bytes:
+    b unary_bytes_block@0
 
 unary_bytes_block@0:
     retsub
@@ -182,6 +191,7 @@ unary_bytes_block@0:
 
 // test_cases.literals.folding.unary_int() -> void:
 unary_int:
+    b unary_int_block@0
 
 unary_int_block@0:
     retsub
@@ -189,71 +199,72 @@ unary_int_block@0:
 
 // test_cases.literals.folding.compare_int() -> void:
 compare_int:
+    b compare_int_block@0
 
 compare_int_block@0:
     // literals/folding.py:58
     // assert not (0 == 1)  # type: ignore[comparison-overlap]
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:62
     // assert not (0 > 1)
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:63
     // assert not (0 >= 1)
-    intc_0 // 0
+    intc_1 // 0
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:66
     // assert not (0 == one)
-    intc_0 // 0
+    intc_1 // 0
     ==
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:67
     // assert 0 != one
-    intc_0 // 0
+    intc_1 // 0
     !=
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:68
     // assert 0 < one
-    intc_0 // 0
+    intc_1 // 0
     >
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:69
     // assert 0 <= one
-    intc_0 // 0
+    intc_1 // 0
     >=
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:70
     // assert not (0 > one)
-    intc_0 // 0
+    intc_1 // 0
     <
     !
     assert
     // literals/folding.py:65
     // one = UInt64(1)
-    intc_1 // 1
+    intc_0 // 1
     // literals/folding.py:71
     // assert not (0 >= one)
-    intc_0 // 0
+    intc_1 // 0
     <=
     !
     assert
@@ -262,6 +273,7 @@ compare_int_block@0:
 
 // test_cases.literals.folding.unary_bool() -> void:
 unary_bool:
+    b unary_bool_block@0
 
 unary_bool_block@0:
     retsub
@@ -269,24 +281,25 @@ unary_bool_block@0:
 
 // test_cases.literals.folding.tuples() -> void:
 tuples:
+    b tuples_block@0
 
 tuples_block@0:
     // literals/folding.py:85
     // assert (97, UInt64(98), 99) == tuple(b"abc")  # type: ignore[comparison-overlap]
     intc_3 // 98
-    dup
+    intc_3 // 98
     ==
-    intc_1 // 1
+    intc_0 // 1
     &&
-    intc_1 // 1
+    intc_0 // 1
     &&
     assert
     // literals/folding.py:86
     // assert ("a", "b", "c") == tuple("abc")
-    intc_1 // 1
-    dup
+    intc_0 // 1
+    intc_0 // 1
     &&
-    intc_1 // 1
+    intc_0 // 1
     &&
     assert
     // literals/folding.py:88
@@ -298,11 +311,11 @@ tuples_block@0:
     concat
     bytec_3 // 0x0000000000000063
     concat
-    intc_0 // 0
+    intc_1 // 0
     intc_2 // 8
     *
     dig 1
-    swap
+    uncover 1
     intc_2 // 8
     extract3 // on error: index access is out of bounds
     // literals/folding.py:87
@@ -313,14 +326,14 @@ tuples_block@0:
     //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
     // )  # type: ignore[comparison-overlap]
     b==
-    swap
+    cover 1
     // literals/folding.py:88
     // arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
-    intc_1 // 1
+    intc_0 // 1
     intc_2 // 8
     *
     dig 1
-    swap
+    uncover 1
     intc_2 // 8
     extract3 // on error: index access is out of bounds
     // literals/folding.py:87
@@ -340,7 +353,7 @@ tuples_block@0:
     intc_2 // 8
     *
     uncover 2
-    swap
+    uncover 1
     intc_2 // 8
     extract3 // on error: index access is out of bounds
     // literals/folding.py:87
@@ -355,8 +368,8 @@ tuples_block@0:
     assert
     // literals/folding.py:90
     // assert (1, 2) == tuple((1, 2))
-    intc_1 // 1
-    dup
+    intc_0 // 1
+    intc_0 // 1
     &&
     assert
     retsub

@@ -5,8 +5,11 @@
 main:
     intcblock 0 1 3 6
     bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
+    pushbytes ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // typed_abi_call_txn/caller.py:14
@@ -15,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@9
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // typed_abi_call_txn/caller.py:14
@@ -26,15 +30,20 @@ main_abi_routing@2:
     pushbytes 0x00b50f1c // method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
     uncover 4
     match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6
+    b main_switch_case_default@7
 
 main_switch_case_default@7:
+    b main_switch_case_next@8
 
 main_switch_case_next@8:
+    b main_after_if_else@13
 
 main_after_if_else@13:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14:
     return
@@ -65,6 +74,7 @@ main_test_call_with_acfg_no_return_route@6:
     uncover 2
     callsub test_call_with_acfg_no_return
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 main_test_call_with_infer_route@5:
@@ -93,6 +103,7 @@ main_test_call_with_infer_route@5:
     uncover 2
     callsub test_call_with_infer
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 main_test_call_with_acfg_route@4:
@@ -121,6 +132,7 @@ main_test_call_with_acfg_route@4:
     uncover 2
     callsub test_call_with_acfg
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 main_test_call_with_txn_route@3:
@@ -149,6 +161,7 @@ main_test_call_with_txn_route@3:
     uncover 2
     callsub test_call_with_txn
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 main_bare_routing@9:
@@ -156,10 +169,12 @@ main_bare_routing@9:
     // class Caller(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@10
+    b main_switch_case_default@11
 
 main_switch_case_default@11:
+    b main_switch_case_next@12
 
 main_switch_case_next@12:
     b main_after_if_else@13
@@ -169,11 +184,14 @@ main___algopy_default_create@10:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@15
 
 main_block@15:
+    b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create@16
 
 main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create@16:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.typed_abi_call_txn.caller.Caller.__puya_arc4_router__@14
 
 
@@ -183,6 +201,7 @@ test_call_with_txn:
     // @arc4.abimethod
     // def test_call_with_txn(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
+    b test_call_with_txn_block@0
 
 test_call_with_txn_block@0:
     // typed_abi_call_txn/caller.py:22-28
@@ -212,6 +231,7 @@ test_call_with_txn_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_txn_next_txn@1
 
 test_call_with_txn_next_txn@1:
     // typed_abi_call_txn/caller.py:22-28
@@ -239,7 +259,7 @@ test_call_with_txn_next_txn@1:
     extract 6 2
     frame_dig -2
     concat
-    swap
+    cover 1
     // typed_abi_call_txn/caller.py:27
     // app_id=app,
     frame_dig -1
@@ -260,6 +280,7 @@ test_call_with_txn_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_txn_next_txn@2
 
 test_call_with_txn_next_txn@2:
     // typed_abi_call_txn/caller.py:22-28
@@ -274,7 +295,7 @@ test_call_with_txn_next_txn@2:
     gitxn 1 LastLog
     dup
     extract 4 0
-    swap
+    cover 1
     extract 0 4
     bytec_2 // 0x151f7c75
     ==
@@ -294,6 +315,7 @@ test_call_with_acfg:
     // @arc4.abimethod
     // def test_call_with_acfg(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
+    b test_call_with_acfg_block@0
 
 test_call_with_acfg_block@0:
     // typed_abi_call_txn/caller.py:38-44
@@ -323,6 +345,7 @@ test_call_with_acfg_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_acfg_next_txn@1
 
 test_call_with_acfg_next_txn@1:
     // typed_abi_call_txn/caller.py:38-44
@@ -350,7 +373,7 @@ test_call_with_acfg_next_txn@1:
     extract 6 2
     frame_dig -2
     concat
-    swap
+    cover 1
     // typed_abi_call_txn/caller.py:43
     // app_id=app,
     frame_dig -1
@@ -371,6 +394,7 @@ test_call_with_acfg_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_acfg_next_txn@2
 
 test_call_with_acfg_next_txn@2:
     // typed_abi_call_txn/caller.py:38-44
@@ -396,6 +420,7 @@ test_call_with_infer:
     // @arc4.abimethod
     // def test_call_with_infer(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
+    b test_call_with_infer_block@0
 
 test_call_with_infer_block@0:
     // typed_abi_call_txn/caller.py:53-59
@@ -425,6 +450,7 @@ test_call_with_infer_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_infer_next_txn@1
 
 test_call_with_infer_next_txn@1:
     // typed_abi_call_txn/caller.py:53-59
@@ -452,7 +478,7 @@ test_call_with_infer_next_txn@1:
     extract 6 2
     frame_dig -2
     concat
-    swap
+    cover 1
     // typed_abi_call_txn/caller.py:58
     // app_id=app,
     frame_dig -1
@@ -473,6 +499,7 @@ test_call_with_infer_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_infer_next_txn@2
 
 test_call_with_infer_next_txn@2:
     // typed_abi_call_txn/caller.py:53-59
@@ -498,6 +525,7 @@ test_call_with_acfg_no_return:
     // @arc4.abimethod
     // def test_call_with_acfg_no_return(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
+    b test_call_with_acfg_no_return_block@0
 
 test_call_with_acfg_no_return_block@0:
     // typed_abi_call_txn/caller.py:68-70
@@ -523,6 +551,7 @@ test_call_with_acfg_no_return_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_acfg_no_return_next_txn@1
 
 test_call_with_acfg_no_return_next_txn@1:
     // typed_abi_call_txn/caller.py:68-70
@@ -544,7 +573,7 @@ test_call_with_acfg_no_return_next_txn@1:
     extract 6 2
     frame_dig -2
     concat
-    swap
+    cover 1
     frame_dig -1
     pushbytes 0x31
     itxn_field Note
@@ -561,6 +590,7 @@ test_call_with_acfg_no_return_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test_call_with_acfg_no_return_next_txn@2
 
 test_call_with_acfg_no_return_next_txn@2:
     // typed_abi_call_txn/caller.py:68-70
