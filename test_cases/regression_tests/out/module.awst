@@ -103,6 +103,55 @@ subroutine invoke(): uint64
   err()
 }
 
+contract NeverReturnsFStack
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.never_returns.NeverReturnsFStack.method(): uint64
+  {
+    result: uint64 = test_cases.regression_tests.never_returns.invoke_with_fstack()
+    return result
+  }
+  
+  baremethod test_cases.regression_tests.never_returns.NeverReturnsFStack.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine invoke_with_fstack(): uint64
+{
+  x: uint64 = 1u
+  if (txn<NumAppArgs>() > 0u) {
+    x: uint64 = 2u
+  }
+  one: uint64 = 0u
+  for idx in range(0u, txn<NumAppArgs>(), 1u) {
+    x += idx
+    if (idx == 0u) {
+      one += 1u
+    }
+  }
+  log(concat(concat("you won't see this", ''), itob(one)))
+  err()
+}
+
 contract BranchElimination
 {
   method_resolution_order: (
