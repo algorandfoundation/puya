@@ -3279,9 +3279,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_config_asset_default_frozen(a: bool | UInt64 | int, /) -> None:
+    def set_config_asset_default_frozen(a: bool, /) -> None:
         """
-        :param bool | UInt64 | int a: Whether the asset's slots are frozen by default or not, 0 or 1
+        :param bool a: Whether the asset's slots are frozen by default or not, 0 or 1
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3367,9 +3367,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_freeze_asset_frozen(a: bool | UInt64 | int, /) -> None:
+    def set_freeze_asset_frozen(a: bool, /) -> None:
         """
-        :param bool | UInt64 | int a: The new frozen value, 0 or 1
+        :param bool a: The new frozen value, 0 or 1
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3431,9 +3431,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_nonparticipation(a: bool | UInt64 | int, /) -> None:
+    def set_nonparticipation(a: bool, /) -> None:
         """
-        :param bool | UInt64 | int a: Marks an account nonparticipating for rewards
+        :param bool a: Marks an account nonparticipating for rewards
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
