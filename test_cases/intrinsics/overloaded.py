@@ -8,10 +8,10 @@ class Overloaded(Contract):
     def approval_program(self) -> bool:
         assert op.AppGlobal.get_uint64(b"key") == op.AppGlobal.get_uint64(b"key")
         assert self.key.maybe()[0] == self.key.maybe()[0]
-        assert op.setbit_uint64(0, 0, 1) == op.setbit_uint64(0, 0, 1)
+        assert op.setbit_uint64(0, 0, True) == op.setbit_uint64(0, 0, True)
         assert op.select_uint64(0, 1, True) == op.select_uint64(1, 0, False)
-        assert op.getbit(op.setbit_uint64(2**64 - 1, 3, 0), 3) == 0
-        assert op.getbit(op.setbit_uint64(123, 4, 1), 4) == 1
+        assert op.getbit(op.setbit_uint64(2**64 - 1, 3, False), 3) == False  # noqa: E712
+        assert op.getbit(op.setbit_uint64(123, 4, True), 4) == True  # noqa: E712
         return True
 
     def clear_state_program(self) -> bool:

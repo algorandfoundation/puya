@@ -1,0 +1,226 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x151f7c75
+
+main_block@0:
+
+main_block@1:
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main_bare_routing@8
+
+main_abi_routing@2:
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xa85bff00 // method "set_0_convert(byte[])byte[]"
+    pushbytes 0xc4af225c // method "set_0_compare(byte[])byte[]"
+    pushbytes 0x83589f2d // method "bool_only_properties()void"
+    uncover 3
+    match main_set_0_convert_route@3 main_set_0_compare_route@4 main_bool_only_properties_route@5
+
+main_switch_case_default@6:
+
+main_switch_case_next@7:
+
+main_after_if_else@12:
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    intc_0 // 0
+
+main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__@13:
+    return
+
+main_bool_only_properties_route@5:
+    // regression_tests/bool_only.py:13
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub bool_only_properties
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__@13
+
+main_set_0_compare_route@4:
+    // regression_tests/bool_only.py:9
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // regression_tests/bool_only.py:9
+    // @arc4.abimethod()
+    callsub set_0_compare
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__@13
+
+main_set_0_convert_route@3:
+    // regression_tests/bool_only.py:5
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // regression_tests/bool_only.py:5
+    // @arc4.abimethod()
+    callsub set_0_convert
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__@13
+
+main_bare_routing@8:
+    // regression_tests/bool_only.py:4
+    // class BoolOnly(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match main___algopy_default_create@9
+
+main_switch_case_default@10:
+
+main_switch_case_next@11:
+    b main_after_if_else@12
+
+main___algopy_default_create@9:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+main_block@14:
+
+main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create@15:
+    intc_1 // 1
+    b main_after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__@13
+
+
+// test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes) -> bytes:
+set_0_convert:
+    // regression_tests/bool_only.py:5-6
+    // @arc4.abimethod()
+    // def set_0_convert(self, inp: Bytes) -> Bytes:
+    proto 1 1
+
+set_0_convert_block@0:
+    // regression_tests/bool_only.py:7
+    // return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    frame_dig -1
+    intc_0 // 0
+    uncover 2
+    setbit
+    retsub
+
+
+// test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(inp: bytes) -> bytes:
+set_0_compare:
+    // regression_tests/bool_only.py:9-10
+    // @arc4.abimethod()
+    // def set_0_compare(self, inp: Bytes) -> Bytes:
+    proto 1 1
+
+set_0_compare_block@0:
+    // regression_tests/bool_only.py:11
+    // return op.setbit_bytes(inp, 0, Txn.num_app_args > 0)
+    txn NumAppArgs
+    intc_0 // 0
+    >
+    frame_dig -1
+    intc_0 // 0
+    uncover 2
+    setbit
+    retsub
+
+
+// test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties() -> void:
+bool_only_properties:
+
+bool_only_properties_block@0:
+    // regression_tests/bool_only.py:15
+    // op.ITxnCreate.begin()
+    itxn_begin
+    // regression_tests/bool_only.py:16
+    // op.ITxnCreate.set_type_enum(TransactionType.AssetConfig)
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    // regression_tests/bool_only.py:17
+    // op.ITxnCreate.set_config_asset_default_frozen(bool(Txn.num_app_args))
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    itxn_field ConfigAssetDefaultFrozen
+    // regression_tests/bool_only.py:18
+    // op.ITxnCreate.submit()
+    itxn_submit
+    // regression_tests/bool_only.py:20-22
+    // itxn.KeyRegistration(
+    //     non_participation=True,
+    // ).submit()
+    itxn_begin
+    // regression_tests/bool_only.py:21
+    // non_participation=True,
+    intc_1 // 1
+    itxn_field Nonparticipation
+    // regression_tests/bool_only.py:20
+    // itxn.KeyRegistration(
+    pushint 2 // keyreg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+bool_only_properties_next_txn@1:
+    // regression_tests/bool_only.py:20-22
+    // itxn.KeyRegistration(
+    //     non_participation=True,
+    // ).submit()
+    itxn_submit
+    retsub

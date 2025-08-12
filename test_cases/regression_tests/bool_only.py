@@ -1,7 +1,7 @@
-from algopy import Bytes, TransactionType, Txn, arc4, op
+from algopy import Bytes, TransactionType, Txn, arc4, itxn, op
 
 
-class SetBit(arc4.ARC4Contract):
+class BoolOnly(arc4.ARC4Contract):
     @arc4.abimethod()
     def set_0_convert(self, inp: Bytes) -> Bytes:
         return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
@@ -17,7 +17,6 @@ class SetBit(arc4.ARC4Contract):
         op.ITxnCreate.set_config_asset_default_frozen(bool(Txn.num_app_args))
         op.ITxnCreate.submit()
 
-        op.ITxnCreate.begin()
-        op.ITxnCreate.set_type_enum(TransactionType.KeyRegistration)
-        op.ITxnCreate.set_nonparticipation(bool(Txn.num_app_args))
-        op.ITxnCreate.submit()
+        itxn.KeyRegistration(
+            non_participation=True,
+        ).submit()
