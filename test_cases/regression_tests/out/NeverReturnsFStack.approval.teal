@@ -61,62 +61,62 @@ method:
     // regression_tests/never_returns.py:27
     // x = UInt64(2)
     pushint 2 // 2
-    frame_bury 4
+    bury 1
 
 method_after_if_else@3:
     // regression_tests/never_returns.py:29
     // one = UInt64(0)
     intc_1 // 0
-    frame_bury 1
+    bury 4
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
     txn NumAppArgs
-    frame_bury 3
+    bury 2
     intc_1 // 0
-    frame_bury 0
+    bury 5
 
 method_for_header@4:
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
-    frame_dig 0
-    frame_dig 3
+    dig 4
+    dig 2
     <
     bz method_after_for@8
     // regression_tests/never_returns.py:31
     // x += idx
-    frame_dig 4
-    frame_dig 0
+    dup
+    dig 5
     dup
     cover 2
     +
-    frame_bury 4
-    frame_dig 1
-    frame_bury 2
+    bury 2
+    dig 4
+    bury 4
     // regression_tests/never_returns.py:32
     // if idx == 0:
     bnz method_after_if_else@7
     // regression_tests/never_returns.py:33
     // one += 1
-    frame_dig 1
+    dig 3
     intc_0 // 1
     +
-    frame_bury 2
+    bury 3
 
 method_after_if_else@7:
-    frame_dig 2
-    frame_bury 1
+    dig 2
+    bury 4
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
-    frame_dig 0
+    dig 4
     intc_0 // 1
     +
-    frame_bury 0
+    bury 5
     b method_for_header@4
 
 method_after_for@8:
     // regression_tests/never_returns.py:35
     // log("you won't see this", one)
-    frame_dig 1
+    dig 3
     itob
     pushbytes "you won't see this"
     swap
