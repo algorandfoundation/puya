@@ -10,7 +10,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         test_cases.arc4_types.mutation.Arc4MutationContract.array_concat()
         return 1u
 
-subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <uint64, bytes>:
+subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <bool, bytes>:
     block@0: // L25
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
@@ -22,8 +22,8 @@ subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <uint64, bytes>
         let result#0: bytes = tmp%4#0
         let tmp%5#0: uint64 = (+ length_minus_1#0 16u)
         let popped_location#0: uint64 = tmp%5#0
-        let tmp%6#0: uint64 = (getbit result#0 popped_location#0)
-        let popped#0: uint64 = tmp%6#0
+        let tmp%6#0: bool = (getbit result#0 popped_location#0)
+        let popped#0: bool = tmp%6#0
         let tmp%7#0: bytes = (setbit result#0 popped_location#0 0u)
         let result#1: bytes = tmp%7#0
         let tmp%8#0: uint64 = (+ length_minus_1#0 7u)
@@ -119,7 +119,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%15#0: bool = (< write_offset#1 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
     block@4: // while_body_L154
-        let tmp%16#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
+        let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#1)
         let tmp%17#0: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let result#3: bytes = tmp%17#0
         let tmp%18#0: uint64 = (+ write_offset#1 1u)
@@ -569,13 +569,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_boo
         let encoded_array%3#0: Encoded(len+bool1[]) = bytes_encode<(len+bool1[])>(tmp%24#0, tmp%25#0, tmp%26#0, tmp%27#0, tmp%28#0, tmp%29#0, tmp%30#0, tmp%31#0, tmp%32#0)
         let tmp%33#0: bool = (== dynamic_bool_array#3 encoded_array%3#0)
         (assert tmp%33#0)
-        let (tmp%34#0: uint64, tmp%35#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#3)
+        let (tmp%34#0: bool, tmp%35#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#3)
         let tmp%36#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(tmp%34#0)
         let dynamic_bool_array#4: Encoded(len+bool1[]) = tmp%35#0
         let tmp%37#0: Encoded(bool8) = bytes_encode<bool8>(1u)
         let tmp%38#0: bool = (== tmp%36#0 tmp%37#0)
         (assert tmp%38#0)
-        let (tmp%39#0: uint64, tmp%40#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#4)
+        let (tmp%39#0: bool, tmp%40#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#4)
         let tmp%41#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(tmp%39#0)
         let dynamic_bool_array#5: Encoded(len+bool1[]) = tmp%40#0
         let tmp%42#0: Encoded(bool8) = bytes_encode<bool8>(0u)

@@ -3,7 +3,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__()
         return tmp%0#0
 
-subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <uint64, bytes>:
+subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <bool, bytes>:
     block@0: // L25
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
@@ -15,8 +15,8 @@ subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <uint64, bytes>
         let result#0: bytes = tmp%4#0
         let tmp%5#0: uint64 = (+ length_minus_1#0 16u)
         let popped_location#0: uint64 = tmp%5#0
-        let tmp%6#0: uint64 = (getbit result#0 popped_location#0)
-        let popped#0: uint64 = tmp%6#0
+        let tmp%6#0: bool = (getbit result#0 popped_location#0)
+        let popped#0: bool = tmp%6#0
         let tmp%7#0: bytes = (setbit result#0 popped_location#0 0u)
         let result#1: bytes = tmp%7#0
         let tmp%8#0: uint64 = (+ length_minus_1#0 7u)
@@ -133,7 +133,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%15#0: bool = (< write_offset#1 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
     block@4: // while_body_L154
-        let tmp%16#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
+        let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#1)
         let tmp%17#0: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let result#3: bytes = tmp%17#0
         let tmp%18#0: uint64 = (+ write_offset#1 1u)
@@ -1091,7 +1091,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%15#0: bool = (!= length#0 0u)
         goto tmp%15#0 ? block@13 : block@14
     block@13: // if_body_L176
-        let (tmp%16#0: uint64, tmp%17#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(arr#1)
+        let (tmp%16#0: bool, tmp%17#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(arr#1)
         let tmp%18#0: bool = decode_bytes<bool>(tmp%16#0)
         let arr#7: Encoded(len+bool1[]) = tmp%17#0
         let tmp%19#0: uint64 = array_len(arr#7)

@@ -396,7 +396,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%15#0: bool = (< write_offset#1 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
     block@4: // while_body_L154
-        let tmp%16#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
+        let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#1)
         let result#3: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let write_offset#2: uint64 = (+ write_offset#1 1u)
         let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
@@ -1072,7 +1072,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%2#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%add%0#0: uint64 = (+ 0u 16u)
-        let aggregate%get_bit%0#0: uint64 = (getbit arr#1 aggregate%add%0#0)
+        let aggregate%get_bit%0#0: bool = (getbit arr#1 aggregate%add%0#0)
         let array_item%0#0: bool = aggregate%get_bit%0#0
         let values%0#0: bool = array_item%0#0
         let tmp%8#0: bool = (! values%0#0)
@@ -1086,7 +1086,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let aggregate%lt%1#0: bool = (< 1u aggregate%array_length%3#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%add%1#0: uint64 = (+ 1u 16u)
-        let aggregate%get_bit%1#0: uint64 = (getbit arr#1 aggregate%add%1#0)
+        let aggregate%get_bit%1#0: bool = (getbit arr#1 aggregate%add%1#0)
         let array_item%1#0: bool = aggregate%get_bit%1#0
         let values%1#0: bool = array_item%1#0
         let tmp%10#0: bool = (! values%1#0)
@@ -1100,7 +1100,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let aggregate%lt%2#0: bool = (< 2u aggregate%array_length%4#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%add%2#0: uint64 = (+ 2u 16u)
-        let aggregate%get_bit%2#0: uint64 = (getbit arr#1 aggregate%add%2#0)
+        let aggregate%get_bit%2#0: bool = (getbit arr#1 aggregate%add%2#0)
         let array_item%2#0: bool = aggregate%get_bit%2#0
         let values%2#0: bool = array_item%2#0
         (assert values%2#0) // expected element 2 to be True
@@ -1114,7 +1114,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let aggregate%lt%3#0: bool = (< tmp%13#0 aggregate%array_length%5#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%add%3#0: uint64 = (+ tmp%13#0 16u)
-        let aggregate%get_bit%3#0: uint64 = (getbit arr#1 aggregate%add%3#0)
+        let aggregate%get_bit%3#0: bool = (getbit arr#1 aggregate%add%3#0)
         let array_item%3#0: bool = aggregate%get_bit%3#0
         let values%3#0: bool = array_item%3#0
         let tmp%14#0: bool = (! values%3#0)
@@ -1309,8 +1309,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let array_item%0#0: Encoded(uint64,bool1,bool1) = aggregate%encoded_element%0#0
         let aggregate%extract%0#0: bytes = (extract3 array_item%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%get_bit%0#0: uint64 = (getbit array_item%0#0 64u)
-        let aggregate%get_bit%1#0: uint64 = (getbit array_item%0#0 65u)
+        let aggregate%get_bit%0#0: bool = (getbit array_item%0#0 64u)
+        let aggregate%get_bit%1#0: bool = (getbit array_item%0#0 65u)
         let (foo#0: uint64, bar#0: bool, baz#0: bool) = (aggregate%item0%0#0, aggregate%get_bit%0#0, aggregate%get_bit%1#0)
         let tmp%10#0: bool = (! foo#0)
         (assert tmp%10#0)
@@ -1955,7 +1955,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L353
         let aggregate%add%0#0: uint64 = (+ item_index_internal%1#1 16u)
-        let aggregate%get_bit%0#0: uint64 = (getbit arr2#0 aggregate%add%0#0)
+        let aggregate%get_bit%0#0: bool = (getbit arr2#0 aggregate%add%0#0)
         let array_item%1#0: bool = aggregate%get_bit%0#0
         let b#0: bool = array_item%1#0
         goto b#0 ? block@7 : block@8
@@ -1984,8 +1984,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let array_item%2#0: Encoded(uint64,bool1,bool1) = aggregate%encoded_element%1#0
         let aggregate%extract%0#0: bytes = (extract3 array_item%2#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%get_bit%1#0: uint64 = (getbit array_item%2#0 64u)
-        let aggregate%get_bit%2#0: uint64 = (getbit array_item%2#0 65u)
+        let aggregate%get_bit%1#0: bool = (getbit array_item%2#0 64u)
+        let aggregate%get_bit%2#0: bool = (getbit array_item%2#0 65u)
         let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = (aggregate%item0%0#0, aggregate%get_bit%1#0, aggregate%get_bit%2#0)
         let sum3#2: uint64 = (+ sum3#1 tup.foo#0)
         goto tup.bar#0 ? block@13 : block@14

@@ -543,6 +543,51 @@ contract VRFVerifier
   }
 }
 
+contract BoolOnly
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes): bytes
+  {
+    return setbit(inp, 0u, txn<NumAppArgs>() != 0u)
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(inp: bytes): bytes
+  {
+    return setbit(inp, 0u, txn<NumAppArgs>() > 0u)
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties(): void
+  {
+    itxn_begin()
+    itxn_field<TypeEnum>(acfg)
+    itxn_field<ConfigAssetDefaultFrozen>(txn<NumAppArgs>() != 0u)
+    itxn_submit()
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=keyreg, Nonparticipation=true))
+  }
+  
+  baremethod test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract ConstBigIntToIntOverflow
 {
   method_resolution_order: (
