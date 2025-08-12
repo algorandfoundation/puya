@@ -4677,7 +4677,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ConfigAssetDefaultFrozen"],
-                    args=[(pytypes.BoolType, pytypes.UInt64Type)],
+                    args=[(pytypes.BoolType,)],
                 ),
             ],
         ),
@@ -4787,7 +4787,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["FreezeAssetFrozen"],
-                    args=[(pytypes.BoolType, pytypes.UInt64Type)],
+                    args=[(pytypes.BoolType,)],
                 ),
             ],
         ),
@@ -4867,7 +4867,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["Nonparticipation"],
-                    args=[(pytypes.BoolType, pytypes.UInt64Type)],
+                    args=[(pytypes.BoolType,)],
                 ),
             ],
         ),

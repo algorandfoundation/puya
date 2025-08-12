@@ -325,6 +325,15 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     _patch_arg_enum_type(txn, "CreatedApplicationID", "uint64", "application")
     _patch_arg_enum_type(txn, "CreatedAssetID", "uint64", "asset")
 
+    # patch txn enum fields with bool only types
+    for op in (txn, itxn_field):
+        for immediate in [
+            "ConfigAssetDefaultFrozen",
+            "FreezeAssetFrozen",
+            "Nonparticipation",
+        ]:
+            _patch_arg_enum_type(op, immediate, "bool", "bool_only")
+
     # patch txna enums
     txna = ops["txna"]
     _patch_arg_enum_type(txna, "Assets", "uint64", "asset")
