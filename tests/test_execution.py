@@ -668,7 +668,9 @@ def test_literal_conditional_expressions(harness: _TestHarness) -> None:
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "contains", request=AppCallRequest(increase_budget=1))
+    harness.deploy(
+        TEST_CASES_DIR / "contains", request=AppCallRequest(increase_budget=1, extra_pages=1)
+    )
 
 
 def test_boolean_binary_ops(harness: _TestHarness) -> None:
@@ -1183,7 +1185,7 @@ def iteration_idfn(value: object) -> str:
         return ""
 
 
-_test_iteration_params = [("tuple", 0), ("indexable", 0), ("urange", 1)]
+_test_iteration_params = [("tuple", 0), ("indexable", 1), ("urange", 1)]
 
 
 @pytest.mark.parametrize(
