@@ -135,6 +135,7 @@ class StackType(enum.StrEnum):
     bytes_1232 = "[1232]byte"
     bytes_1793 = "[1793]byte"
     bool = enum.auto()
+    bool_only = enum.auto()
     address = enum.auto()
     address_or_index = enum.auto()
     any = enum.auto()
@@ -278,8 +279,16 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     # for return types that should be a bool
     for op_name in [
         "!",
+        "getbit",
     ]:
         _patch_return_type(ops, op_name, 0, "uint64", "bool")
+
+    # patch ops that use a stack type of uint64
+    # for arguments that should be a bool and only a bool
+    for op_name, arg_index in {
+        "setbit": 2,
+    }.items():
+        _patch_arg_type(ops, op_name, arg_index, "uint64", "bool_only")
 
     # patch ops that use a stack type of uint64
     # for arguments that should be an Asset

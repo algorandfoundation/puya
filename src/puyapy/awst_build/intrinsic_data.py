@@ -354,7 +354,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         ],
     ),
     getbit=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
+        result=pytypes.BoolType,
         arity=2,
         overloads=[
             FunctionOpMapping(
@@ -524,7 +524,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "setbit",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.BoolType,)],
             ),
         ],
     ),
@@ -534,7 +534,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "setbit",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.BoolType,)],
             ),
         ],
     ),

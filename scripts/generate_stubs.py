@@ -63,6 +63,7 @@ STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.bytes_1232: [pytypes.BytesType],
     StackType.bytes_1793: [pytypes.BytesType],
     StackType.bool: [pytypes.BoolType, pytypes.UInt64Type],
+    StackType.bool_only: [pytypes.BoolType],
     StackType.uint64: [pytypes.UInt64Type],
     StackType.any: [pytypes.BytesType, pytypes.UInt64Type],
     StackType.box_name: [pytypes.BytesType],  # TODO: should this be another type..?
