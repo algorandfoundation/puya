@@ -25,8 +25,8 @@ subroutine test_cases.compile.apps.Hello.__puya_arc4_router__() -> bool:
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
-        test_cases.compile.apps.Hello.create(tmp%7#0)
+        let greeting#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
+        (app_global_put "greeting" greeting#0)
         return 1u
     block@3: // delete_route_L24
         let tmp%8#0: uint64 = (txn OnCompletion)
@@ -60,11 +60,6 @@ subroutine test_cases.compile.apps.Hello.__puya_arc4_router__() -> bool:
         return 1u
     block@11: // after_if_else_L52
         return 0u
-
-subroutine test_cases.compile.apps.Hello.create(greeting: string) -> void:
-    block@0: // L53
-        (app_global_put "greeting" greeting#0)
-        return 
 
 subroutine test_cases.compile.apps.HelloBase.greet(name: string) -> string:
     block@0: // L32

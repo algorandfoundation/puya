@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0
-    bytecblock 0x151f7c75 0x151f7c7500000000000004d2 "apps" "assets" "accounts"
+    bytecblock 0x151f7c75 "accounts" "assets" "apps" 0x151f7c7500000000000004d2
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn NumAppArgs
@@ -72,12 +72,17 @@ main_store_accounts_route@9:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // arc4_conversions/reference.py:33
+    // self.accounts = accounts
+    bytec_1 // "accounts"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    // arc4_conversions/reference.py:33
+    // self.accounts = accounts
+    app_global_put
     // arc4_conversions/reference.py:31
     // @arc4.abimethod
-    callsub store_accounts
     intc_0 // 1
     return
 
@@ -89,12 +94,17 @@ main_store_assets_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // arc4_conversions/reference.py:29
+    // self.assets = assets
+    bytec_2 // "assets"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    // arc4_conversions/reference.py:29
+    // self.assets = assets
+    app_global_put
     // arc4_conversions/reference.py:27
     // @arc4.abimethod
-    callsub store_assets
     intc_0 // 1
     return
 
@@ -106,12 +116,17 @@ main_store_apps_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // arc4_conversions/reference.py:25
+    // self.apps = apps
+    bytec_3 // "apps"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    // arc4_conversions/reference.py:25
+    // self.apps = apps
+    app_global_put
     // arc4_conversions/reference.py:23
     // @arc4.abimethod
-    callsub store_apps
     intc_0 // 1
     return
 
@@ -144,7 +159,7 @@ main_app_ret_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_1 // 0x151f7c7500000000000004d2
+    bytec 4 // 0x151f7c7500000000000004d2
     log
     intc_0 // 1
     return
@@ -157,7 +172,7 @@ main_asset_ret_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_1 // 0x151f7c7500000000000004d2
+    bytec 4 // 0x151f7c7500000000000004d2
     log
     intc_0 // 1
     return
@@ -222,54 +237,12 @@ store:
     retsub
 
 
-// test_cases.arc4_conversions.reference.ReferenceReturn.store_apps(apps: bytes) -> void:
-store_apps:
-    // arc4_conversions/reference.py:23-24
-    // @arc4.abimethod
-    // def store_apps(self, apps: ImmutableArray[Application]) -> None:
-    proto 1 0
-    // arc4_conversions/reference.py:25
-    // self.apps = apps
-    bytec_2 // "apps"
-    frame_dig -1
-    app_global_put
-    retsub
-
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.store_assets(assets: bytes) -> void:
-store_assets:
-    // arc4_conversions/reference.py:27-28
-    // @arc4.abimethod
-    // def store_assets(self, assets: ImmutableArray[Asset]) -> None:
-    proto 1 0
-    // arc4_conversions/reference.py:29
-    // self.assets = assets
-    bytec_3 // "assets"
-    frame_dig -1
-    app_global_put
-    retsub
-
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts(accounts: bytes) -> void:
-store_accounts:
-    // arc4_conversions/reference.py:31-32
-    // @arc4.abimethod
-    // def store_accounts(self, accounts: ImmutableArray[Account]) -> None:
-    proto 1 0
-    // arc4_conversions/reference.py:33
-    // self.accounts = accounts
-    bytec 4 // "accounts"
-    frame_dig -1
-    app_global_put
-    retsub
-
-
 // test_cases.arc4_conversions.reference.ReferenceReturn.return_apps() -> bytes:
 return_apps:
     // arc4_conversions/reference.py:37
     // return self.apps
     intc_1 // 0
-    bytec_2 // "apps"
+    bytec_3 // "apps"
     app_global_get_ex
     assert // check self.apps exists
     retsub
@@ -280,7 +253,7 @@ return_assets:
     // arc4_conversions/reference.py:41
     // return self.assets
     intc_1 // 0
-    bytec_3 // "assets"
+    bytec_2 // "assets"
     app_global_get_ex
     assert // check self.assets exists
     retsub
@@ -291,7 +264,7 @@ return_accounts:
     // arc4_conversions/reference.py:45
     // return self.accounts
     intc_1 // 0
-    bytec 4 // "accounts"
+    bytec_1 // "accounts"
     app_global_get_ex
     assert // check self.accounts exists
     retsub

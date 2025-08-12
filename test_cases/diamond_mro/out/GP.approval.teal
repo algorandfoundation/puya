@@ -30,7 +30,12 @@ main_method_route@6:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub method
+    // diamond_mro/gp.py:17
+    // log("gp.method")
+    pushbytes "gp.method"
+    log
+    // diamond_mro/gp.py:15
+    // @arc4.abimethod
     pushint 1 // 1
     return
 
@@ -45,12 +50,3 @@ main_create_route@5:
     assert // can only call when creating
     pushint 1 // 1
     return
-
-
-// test_cases.diamond_mro.gp.GP.method() -> void:
-method:
-    // diamond_mro/gp.py:17
-    // log("gp.method")
-    pushbytes "gp.method"
-    log
-    retsub

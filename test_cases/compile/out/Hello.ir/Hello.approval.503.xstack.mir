@@ -41,10 +41,14 @@ subroutine main:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txna ApplicationArgs 1                                                     reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                tmp%7#0
+        extract 2 0                                                                greeting#0
+        // compile/apps.py:55
+        // self.greeting = greeting
+        byte "greeting"                                                            greeting#0,"greeting"
+        l-load greeting#0 1                                                        "greeting",greeting#0
+        app_global_put
         // compile/apps.py:53
         // @arc4.abimethod(create="require")
-        callsub create
         int 1                                                                      test_cases.compile.apps.Hello.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                            (𝕏) tmp%0#0 |
         b main_after_inlined_test_cases.compile.apps.Hello.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
@@ -118,17 +122,6 @@ subroutine main:
     main_after_inlined_test_cases.compile.apps.Hello.__puya_arc4_router__@11:      (𝕏) tmp%0#0 |
         x-load tmp%0#0                                                             tmp%0#0
         return
-
-
-// test_cases.compile.apps.Hello.create(greeting: bytes) -> void:
-subroutine create:
-    create_block@0:                                                                (𝕡) greeting#0 |
-        // compile/apps.py:55
-        // self.greeting = greeting
-        byte "greeting"                                                            (𝕡) greeting#0 | "greeting"
-        p-load greeting#0                                                          (𝕡) greeting#0 | "greeting",greeting#0 (copy)
-        app_global_put                                                             (𝕡) greeting#0 |
-        retsub
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:

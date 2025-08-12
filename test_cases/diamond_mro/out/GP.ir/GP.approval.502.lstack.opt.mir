@@ -48,7 +48,12 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                        tmp%9#0
         assert // can only call when not creating
-        callsub method
+        // diamond_mro/gp.py:17
+        // log("gp.method")
+        byte "gp.method"                                                         "gp.method"
+        log
+        // diamond_mro/gp.py:15
+        // @arc4.abimethod
         int 1                                                                    test_cases.diamond_mro.gp.GP.__puya_arc4_router__%0#0
         v-store tmp%0#0
         b main_after_inlined_test_cases.diamond_mro.gp.GP.__puya_arc4_router__@8
@@ -63,15 +68,5 @@ subroutine main:
     main_after_inlined_test_cases.diamond_mro.gp.GP.__puya_arc4_router__@8:
         v-load tmp%0#0                                                           tmp%0#0
         return
-
-
-// test_cases.diamond_mro.gp.GP.method() -> void:
-subroutine method:
-    method_block@0:
-        // diamond_mro/gp.py:17
-        // log("gp.method")
-        byte "gp.method"                                                         "gp.method"
-        log
-        retsub
 
 
