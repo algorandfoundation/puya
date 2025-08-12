@@ -2145,8 +2145,7 @@ class AVMOp(enum.StrEnum):
         op_code="getbit",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.any, PrimitiveIRType.uint64],
-                returns=[PrimitiveIRType.uint64],
+                args=[PrimitiveIRType.any, PrimitiveIRType.uint64], returns=[PrimitiveIRType.bool]
             ),
             enum=None,
             supported_modes=RunMode.any,
@@ -5813,7 +5812,7 @@ class AVMOp(enum.StrEnum):
         op_code="setbit",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.any, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                args=[PrimitiveIRType.any, PrimitiveIRType.uint64, PrimitiveIRType.bool],
                 returns=[PrimitiveIRType.any],
             ),
             enum=None,

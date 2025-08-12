@@ -292,7 +292,7 @@ def gaid(a: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`gaid`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaid), [`gaids`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaids)
     """
 
-def getbit(a: Bytes | UInt64 | bytes | int, b: UInt64 | int, /) -> UInt64:
+def getbit(a: Bytes | UInt64 | bytes | int, b: UInt64 | int, /) -> bool:
     """
     Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     see explanation of bit ordering in setbit
@@ -392,7 +392,7 @@ def select_uint64(a: UInt64 | int, b: UInt64 | int, c: bool | UInt64 | int, /) -
     Native TEAL opcode: [`select`](https://dev.algorand.co/reference/algorand-teal/opcodes/#select)
     """
 
-def setbit_bytes(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
+def setbit_bytes(a: Bytes | bytes, b: UInt64 | int, c: bool, /) -> Bytes:
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
@@ -400,7 +400,7 @@ def setbit_bytes(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes
     Native TEAL opcode: [`setbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbit)
     """
 
-def setbit_uint64(a: UInt64 | int, b: UInt64 | int, c: UInt64 | int, /) -> UInt64:
+def setbit_uint64(a: UInt64 | int, b: UInt64 | int, c: bool, /) -> UInt64:
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.

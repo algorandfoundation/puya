@@ -25,6 +25,7 @@ VCS_ROOT = Path(__file__).parent.parent
 SUPPORTED_IMMEDIATE_KINDS = (langspec.ImmediateKind.uint8, langspec.ImmediateKind.arg_enum)
 STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {
     langspec.StackType.bool: PrimitiveIRType.bool,
+    langspec.StackType.bool_only: PrimitiveIRType.bool,
     langspec.StackType.bigint: PrimitiveIRType.biguint,
     langspec.StackType.uint64: PrimitiveIRType.uint64,
     langspec.StackType.asset: PrimitiveIRType.uint64,
