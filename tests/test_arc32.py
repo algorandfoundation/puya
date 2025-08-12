@@ -2794,6 +2794,39 @@ def test_marketplace_with_tups(
     assert int.from_bytes(box_value[:8]) == deposited
 
 
+def test_bool_only(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "regression_tests",
+            contract_name="BoolOnly",
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    resposne = app_client.call("set_0_convert", inp=b"\x00")
+    assert resposne.return_value == [2**7]
+    resposne = app_client.call("set_0_compare", inp=b"\x00")
+    assert resposne.return_value == [2**7]
+
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 1_000 * 4
+    fees = algokit_utils.OnCompleteCallParameters(
+        suggested_params=sp,
+    )
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=100_000,
+        ),
+    )
+    app_client.call("bool_only_properties", transaction_parameters=fees)
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,
