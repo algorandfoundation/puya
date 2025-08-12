@@ -11,8 +11,6 @@ main:
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     txna ApplicationArgs 0
     match main_create_and_transfer_route@3
-
-main_after_if_else@10:
     err
 
 main_create_and_transfer_route@3:
@@ -23,15 +21,14 @@ main_create_and_transfer_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub create_and_transfer
-    intc_1 // 1
-    return
+    b create_and_transfer
 
 main_bare_routing@6:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -39,7 +36,7 @@ main_bare_routing@6:
     return
 
 
-// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
+// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:
 create_and_transfer:
     // inner_transactions/asset_transfer.py:15-23
     // itxn.AssetConfig(
@@ -146,4 +143,7 @@ create_and_transfer:
     //     xfer_asset=new_asset,
     // ).submit()
     itxn_submit
-    retsub
+    // inner_transactions/asset_transfer.py:11
+    // @arc4.abimethod()
+    intc_1 // 1
+    return

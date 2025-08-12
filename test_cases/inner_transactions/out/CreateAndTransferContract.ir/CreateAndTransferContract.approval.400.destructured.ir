@@ -11,28 +11,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer()
-        let test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
-        goto block@11
+        test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]()
+        goto block@10
     block@6: // bare_routing_L10
         let tmp%7#0: uint64 = (txn OnCompletion)
-        goto tmp%7#0 ? block@10 : block@7
-    block@7: // __algopy_default_create_L1
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        let test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
-        goto block@11
+        exit 1u
     block@10: // after_if_else_L10
-        let test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router__%0#0
-        goto block@11
-    block@11: // after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__puya_arc4_router___L1
-        return tmp%0#0
+        fail
 
-subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
+subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:
     block@0: // L11
         itxn_begin
         let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: account = (global CurrentApplicationAddress)
@@ -58,4 +50,4 @@ subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContrac
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u

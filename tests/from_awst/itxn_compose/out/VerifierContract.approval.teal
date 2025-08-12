@@ -9,8 +9,6 @@ main:
     pushbytes 0x65a9aecc // method "verify()void"
     txna ApplicationArgs 0
     match main_verify_route@3
-
-main_after_if_else@10:
     err
 
 main_verify_route@3:
@@ -19,13 +17,12 @@ main_verify_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub verify
-    intc_0 // 1
-    return
+    b verify
 
 main_bare_routing@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -33,26 +30,25 @@ main_bare_routing@6:
     return
 
 
-// tests/approvals/itxn-compose.algo.ts::VerifierContract.verify() -> void:
+// tests/approvals/itxn-compose.algo.ts::VerifierContract.verify[routing]() -> void:
 verify:
-    proto 0 0
     pushint 0 // 0
 
-verify_while_top@1:
-    frame_dig 0
+verify_while_top@2:
+    dup
     txn GroupIndex
     <
-    bz verify_after_while@3
-    frame_dig 0
-    dup
+    bz verify_after_while@4
+    dupn 2
     gtxns TypeEnum
     intc_0 // 1
     ==
     assert // Txn must be pay
     intc_0 // 1
     +
-    frame_bury 0
-    b verify_while_top@1
+    bury 1
+    b verify_while_top@2
 
-verify_after_while@3:
-    retsub
+verify_after_while@4:
+    intc_0 // 1
+    return

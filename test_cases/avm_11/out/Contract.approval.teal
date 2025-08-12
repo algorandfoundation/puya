@@ -11,8 +11,6 @@ main:
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     txna ApplicationArgs 0
     match main_test_new_ops_route@3
-
-main_after_if_else@10:
     err
 
 main_test_new_ops_route@3:
@@ -23,15 +21,14 @@ main_test_new_ops_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_new_ops
-    intc_1 // 1
-    return
+    b test_new_ops
 
 main_bare_routing@6:
     // avm_11/contract.py:4
     // class Contract(ARC4Contract, avm_version=11):
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -39,7 +36,7 @@ main_bare_routing@6:
     return
 
 
-// test_cases.avm_11.contract.Contract.test_new_ops() -> void:
+// test_cases.avm_11.contract.Contract.test_new_ops[routing]() -> void:
 test_new_ops:
     // avm_11/contract.py:7-8
     // # op functions
@@ -125,4 +122,7 @@ test_new_ops:
     intc_0 // 0
     voter_params_get VoterIncentiveEligible
     popn 2
-    retsub
+    // avm_11/contract.py:5
+    // @arc4.abimethod
+    intc_1 // 1
+    return

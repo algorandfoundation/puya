@@ -11,8 +11,6 @@ main:
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     txna ApplicationArgs 0
     match main_test_array_rebinding_route@3
-
-main_after_if_else@10:
     err
 
 main_test_array_rebinding_route@3:
@@ -23,15 +21,14 @@ main_test_array_rebinding_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub test_array_rebinding
-    intc_0 // 1
-    return
+    b test_array_rebinding
 
 main_bare_routing@6:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -39,7 +36,7 @@ main_bare_routing@6:
     return
 
 
-// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
 test_array_rebinding:
     // arc4_types/mutable_params2.py:7
     // a = arc4.DynamicBytes(0)
@@ -65,7 +62,10 @@ test_array_rebinding:
     pushbytes 0x0003012a04
     ==
     assert
-    retsub
+    // arc4_types/mutable_params2.py:5
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
 
 
 // test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: bytes, assign_local: uint64) -> bytes:

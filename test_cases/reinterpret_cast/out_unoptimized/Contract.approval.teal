@@ -4,8 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    bytecblock 0x
-    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,104 +15,117 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz main_bare_routing@16
     b main_abi_routing@2
 
 main_abi_routing@2:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
     txna ApplicationArgs 0
+    match
+    b main_route_NoOp@3
+
+main_route_NoOp@3:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txna ApplicationArgs 0
+    match
+    b main_switch_case_default@4
+
+main_switch_case_default@4:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    bz main_create_NoOp@10
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 0
     pushbytes 0x4034b731 // method "bytes_to_bool()bool"
     pushbytes 0x7e9fd4cf // method "test_bytes_to_biguint()void"
     uncover 2
-    match main_bytes_to_bool_route@3 main_test_bytes_to_biguint_route@4
-    b main_switch_case_default@5
+    match main_bytes_to_bool_route@6 main_test_bytes_to_biguint_route@7
+    b main_switch_case_default@8
 
-main_switch_case_default@5:
-    b main_switch_case_next@6
+main_switch_case_default@8:
+    b main_switch_case_next@9
 
-main_switch_case_next@6:
-    b main_after_if_else@11
+main_switch_case_next@9:
+    b main_after_if_else@13
 
-main_after_if_else@11:
+main_after_if_else@13:
+    b main_switch_case_next@14
+
+main_switch_case_next@14:
+    b main_switch_case_next@15
+
+main_switch_case_next@15:
+    b main_after_if_else@20
+
+main_after_if_else@20:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
+    err
 
-main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12:
-    return
-
-main_test_bytes_to_biguint_route@4:
+main_test_bytes_to_biguint_route@7:
     // reinterpret_cast/contract.py:9
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_bytes_to_biguint
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
+    b main_switch_case_next@9
 
-main_bytes_to_bool_route@3:
+main_bytes_to_bool_route@6:
     // reinterpret_cast/contract.py:5
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub bytes_to_bool
-    pushbytes 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
-    pushbytes 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
+    b main_switch_case_next@9
 
-main_bare_routing@7:
+main_create_NoOp@10:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 0
+    match
+    b main_switch_case_default@11
+
+main_switch_case_default@11:
+    b main_switch_case_next@12
+
+main_switch_case_next@12:
+    b main_after_if_else@13
+
+main_bare_routing@16:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     uncover 1
-    match main___algopy_default_create@8
-    b main_switch_case_default@9
+    match main___algopy_default_create@17
+    b main_switch_case_default@18
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
+main_switch_case_default@18:
+    b main_switch_case_next@19
 
-main_switch_case_next@10:
-    b main_after_if_else@11
+main_switch_case_next@19:
+    b main_after_if_else@20
 
-main___algopy_default_create@8:
+main___algopy_default_create@17:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    b main_block@13
+    b main_block@22
 
-main_block@13:
-    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14
+main_block@22:
+    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@23
 
-main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14:
+main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@23:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
+    return
 
 
 // test_cases.reinterpret_cast.contract.bytes_to_biguint() -> bytes:
@@ -124,18 +135,50 @@ bytes_to_biguint:
 bytes_to_biguint_block@0:
     // reinterpret_cast/contract.py:16
     // return BigUInt.from_bytes(Bytes())
-    bytec_0 // 0x
+    pushbytes 0x
     retsub
 
 
-// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
+// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool[routing]() -> void:
 bytes_to_bool:
     b bytes_to_bool_block@0
 
 bytes_to_bool_block@0:
+    // reinterpret_cast/contract.py:5
+    // @arc4.abimethod()
+    callsub test_cases.reinterpret_cast.contract.Contract.bytes_to_bool
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint[routing]() -> void:
+test_bytes_to_biguint:
+    b test_bytes_to_biguint_block@0
+
+test_bytes_to_biguint_block@0:
+    // reinterpret_cast/contract.py:9
+    // @arc4.abimethod()
+    callsub test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint
+    intc_1 // 1
+    return
+
+
+// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
+test_cases.reinterpret_cast.contract.Contract.bytes_to_bool:
+    b test_cases.reinterpret_cast.contract.Contract.bytes_to_bool_block@0
+
+test_cases.reinterpret_cast.contract.Contract.bytes_to_bool_block@0:
     // reinterpret_cast/contract.py:7
     // return bool(Bytes())
-    bytec_0 // 0x
+    pushbytes 0x
     len
     intc_0 // 0
     !=
@@ -143,14 +186,14 @@ bytes_to_bool_block@0:
 
 
 // test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint() -> void:
-test_bytes_to_biguint:
-    b test_bytes_to_biguint_block@0
+test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint:
+    b test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint_block@0
 
-test_bytes_to_biguint_block@0:
+test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint_block@0:
     // reinterpret_cast/contract.py:11
     // assert bytes_to_biguint()
     callsub bytes_to_biguint
-    bytec_0 // 0x
+    pushbytes 0x
     b!=
     assert
     retsub

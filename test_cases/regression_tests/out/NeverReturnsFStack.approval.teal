@@ -11,8 +11,6 @@ main:
     pushbytes 0x3f27f4a4 // method "method()uint64"
     txna ApplicationArgs 0
     match main_method_route@3
-
-main_after_if_else@10:
     err
 
 main_method_route@3:
@@ -23,20 +21,14 @@ main_method_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub method
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
+    b method
 
 main_bare_routing@6:
     // regression_tests/never_returns.py:16
     // class NeverReturnsFStack(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -44,7 +36,7 @@ main_bare_routing@6:
     return
 
 
-// test_cases.regression_tests.never_returns.NeverReturnsFStack.method() -> uint64:
+// test_cases.regression_tests.never_returns.NeverReturnsFStack.method[routing]() -> void:
 method:
     pushbytes ""
     dupn 3

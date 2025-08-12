@@ -11,8 +11,6 @@ main:
     pushbytes 0xd3ad7a55 // method "method(uint64)void"
     txna ApplicationArgs 0
     match main_method_route@3
-
-main_after_if_else@10:
     err
 
 main_method_route@3:
@@ -24,22 +22,14 @@ main_method_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // regression_tests/issue_434.py:4
-    // class Issue434(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // regression_tests/issue_434.py:5-6
-    // # ref: https://github.com/algorandfoundation/puya/issues/434
-    // @arc4.abimethod
-    callsub method
-    intc_1 // 1
-    return
+    b method
 
 main_bare_routing@6:
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -47,21 +37,21 @@ main_bare_routing@6:
     return
 
 
-// test_cases.regression_tests.issue_434.Issue434.method(c: uint64) -> void:
+// test_cases.regression_tests.issue_434.Issue434.method[routing]() -> void:
 method:
-    // regression_tests/issue_434.py:5-7
+    // regression_tests/issue_434.py:5-6
     // # ref: https://github.com/algorandfoundation/puya/issues/434
     // @arc4.abimethod
-    // def method(self, c: UInt64) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
+    btoi
 
-method_while_top@1:
+method_while_top@2:
     // regression_tests/issue_434.py:8
     // while Global.opcode_budget() > 350:
     global OpcodeBudget
     pushint 350 // 350
     >
-    bz method_after_while@3
+    bz method_after_while@4
     // regression_tests/issue_434.py:9
     // assert op.sha3_256(Txn.sender.bytes) != Txn.sender.bytes
     txn Sender
@@ -69,33 +59,37 @@ method_while_top@1:
     txn Sender
     !=
     assert
-    b method_while_top@1
+    b method_while_top@2
 
-method_after_while@3:
+method_after_while@4:
     // regression_tests/issue_434.py:11
     // if c > 0:
-    frame_dig -1
-    bz method_else_body@5
+    dup
+    bz method_else_body@6
     // regression_tests/issue_434.py:12
     // x = c + 2
-    frame_dig -1
+    dup
     intc_0 // 2
     +
 
-method_after_if_else@6:
+method_after_if_else@7:
     // regression_tests/issue_434.py:16
     // assert x - 2 == c
     intc_0 // 2
     -
-    frame_dig -1
+    dig 1
     ==
     assert
-    retsub
+    // regression_tests/issue_434.py:5-6
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
-method_else_body@5:
+method_else_body@6:
     // regression_tests/issue_434.py:14
     // x = c + 2
-    frame_dig -1
+    dup
     intc_0 // 2
     +
-    b method_after_if_else@6
+    b method_after_if_else@7

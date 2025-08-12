@@ -3,16 +3,15 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0 1
+    intcblock 6 0
     bytecblock 0x098101 0x31 0x32 0x33
     pushbytes ""
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     txna ApplicationArgs 0
     match main_test_branching_array_call_route@3
-
-main_after_if_else@10:
     err
 
 main_test_branching_array_call_route@3:
@@ -25,8 +24,8 @@ main_test_branching_array_call_route@3:
     pushbytes 0x00
     !=
     dup
-    bury 2
-    bz main_else_body@16
+    bury 3
+    bz main_else_body@15
     itxn_begin
     bytec_1 // 0x31
     itxn_field ApplicationArgs
@@ -42,9 +41,9 @@ main_test_branching_array_call_route@3:
     itxn_field Fee
     itxn_submit
 
-main_after_if_else@17:
-    dup
-    bz main_else_body@19
+main_after_if_else@16:
+    dig 1
+    bz main_else_body@18
     itxna ApplicationArgs 0
     bytec_1 // 0x31
     ==
@@ -53,12 +52,9 @@ main_after_if_else@17:
     bytec_2 // 0x32
     ==
     assert // correct args used 2
-
-main_after_if_else@20:
-    intc_2 // 1
     return
 
-main_else_body@19:
+main_else_body@18:
     itxna ApplicationArgs 0
     bytec_3 // 0x33
     ==
@@ -71,9 +67,9 @@ main_else_body@19:
     pushbytes 0x35
     ==
     assert // correct args used 3
-    b main_after_if_else@20
+    return
 
-main_else_body@16:
+main_else_body@15:
     itxn_begin
     pushbytes 0x646966666572656e7420706172616d20736574
     itxn_field Note
@@ -92,13 +88,13 @@ main_else_body@16:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    b main_after_if_else@17
+    b main_after_if_else@16
 
 main_bare_routing@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
     return

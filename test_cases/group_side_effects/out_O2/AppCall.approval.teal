@@ -3,13 +3,12 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
     match main_some_value_route@3
-
-main_after_if_else@10:
     err
 
 main_some_value_route@3:
@@ -28,14 +27,13 @@ main_some_value_route@3:
     swap
     concat
     log
-    pushint 1 // 1
     return
 
 main_bare_routing@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
     return

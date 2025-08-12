@@ -1,0 +1,48 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@16
+    block@2: // abi_routing_L4
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%6#0: bool = (txn ApplicationID)
+        (assert tmp%6#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "xyz()string[]" => block@6, method "xyz_raw()string[]" => block@7, * => block@20}
+    block@6: // xyz_route_L5
+        test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]()
+        goto block@20
+    block@7: // xyz_raw_route_L13
+        test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]()
+        goto block@20
+    block@16: // bare_routing_L4
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // can only call when creating
+        exit 1u
+    block@20: // after_if_else_L4
+        fail
+
+subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]() -> void:
+    block@0: // L5
+        let tmp%0#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("X")
+        let tmp%1#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Y")
+        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Z")
+        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#1, tmp%1#1, tmp%2#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 encoded_array%0#0)
+        (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]() -> void:
+    block@0: // L13
+        let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x58)
+        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x59)
+        let encoded_array%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x5a)
+        let raw#0: Encoded(len+(len+uint8[])[]) = bytes_encode<(len+(len+uint8[])[])>(encoded_array%0#0, encoded_array%1#0, encoded_array%2#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 raw#0)
+        (log tmp%1#0)
+        exit 1u
