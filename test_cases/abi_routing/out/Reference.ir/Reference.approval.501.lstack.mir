@@ -777,7 +777,21 @@ subroutine main:
         !                                                                                          tmp%123#0
         l-load tmp%123#0 0                                                                         tmp%123#0
         assert // can only call when creating
-        callsub bare_abi_config
+        // abi_routing/contract.py:90
+        // log("Hello World")
+        byte "Hello World"                                                                         "Hello World"
+        log
+        // abi_routing/contract.py:79-88
+        // @arc4.baremethod(
+        //     allow_actions=[
+        //         "NoOp",
+        //         "OptIn",
+        //         "CloseOut",
+        //         "UpdateApplication",
+        //         "DeleteApplication",
+        //     ],
+        //     create="require",
+        // )
         int 1                                                                                      1
         l-store test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0 0               test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         l-load test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0 0                test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
@@ -897,16 +911,6 @@ subroutine mixed_oca:
         extract 7 1                                                                                (𝕡) a#0 | aggregate%uint8%0#0
         l-load aggregate%uint8%0#0 0                                                               (𝕡) a#0 | aggregate%uint8%0#0
         retsub                                                                                     aggregate%uint8%0#0
-
-
-// test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
-subroutine bare_abi_config:
-    bare_abi_config_block@0:
-        // abi_routing/contract.py:90
-        // log("Hello World")
-        byte "Hello World"                                                                         "Hello World"
-        log
-        retsub
 
 
 // test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint64) -> void:

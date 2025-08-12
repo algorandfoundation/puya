@@ -204,7 +204,7 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         let tmp%14#0: uint64 = (txn ApplicationID)
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         (assert tmp%14#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.create_many_ints()
+        (box_create "many_ints" 4104u)
         return 1u
     block@5: // set_many_ints_route_L142
         let tmp%16#0: uint64 = (txn OnCompletion)
@@ -289,7 +289,7 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         let tmp%63#0: uint64 = (txn ApplicationID)
         let tmp%64#0: bool = (!= tmp%63#0 0u)
         (assert tmp%63#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct()
+        (box_del "dynamic_arr_struct")
         return 1u
     block@13: // append_dynamic_arr_struct_route_L199
         let tmp%65#0: uint64 = (txn OnCompletion)
@@ -379,7 +379,7 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         let tmp%110#0: uint64 = (txn ApplicationID)
         let tmp%111#0: bool = (!= tmp%110#0 0u)
         (assert tmp%110#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.create_bools()
+        (box_create "too_many_bools" 4125u)
         return 1u
     block@20: // set_bool_route_L304
         let tmp%112#0: uint64 = (txn OnCompletion)
@@ -424,7 +424,7 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         let tmp%132#0: uint64 = (txn ApplicationID)
         let tmp%133#0: bool = (!= tmp%132#0 0u)
         (assert tmp%132#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.delete_dynamic_box()
+        (box_del "dynamic_box")
         return 1u
     block@24: // append_dynamic_box_route_L326
         let tmp%134#0: uint64 = (txn OnCompletion)
@@ -724,11 +724,6 @@ subroutine examples.box_storage.contract.BoxContract.check_keys() -> void:
         let tmp%3#0: bool = 1u
         return 
 
-subroutine examples.box_storage.contract.BoxContract.create_many_ints() -> void:
-    block@0: // L138
-        (box_create "many_ints" 4104u)
-        return 
-
 subroutine examples.box_storage.contract.BoxContract.set_many_ints(index: uint64, value: uint64) -> void:
     block@0: // L142
         let storage_value%0#0: bytes = box_read("many_ints")
@@ -857,11 +852,6 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_arr_struct()
         let tmp%2#0: uint64 = (* tmp%1#0 2u)
         let tmp%3#0: Encoded(uint64,(len+uint64[]),uint64,(len+uint64[])) = bytes_encode<(uint64,(len+uint64[]),uint64,(len+uint64[]))>(tmp%0#0, encoded_array%0#0, tmp%2#0, encoded_array%0#0)
         box_write("dynamic_arr_struct", tmp%3#0)
-        return 
-
-subroutine examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct() -> void:
-    block@0: // L195
-        (box_del "dynamic_arr_struct")
         return 
 
 subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(times: uint64) -> uint64:
@@ -1325,11 +1315,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() ->
     block@8: // after_for_L296
         return total#3
 
-subroutine examples.box_storage.contract.BoxContract.create_bools() -> void:
-    block@0: // L300
-        (box_create "too_many_bools" 4125u)
-        return 
-
 subroutine examples.box_storage.contract.BoxContract.set_bool(index: uint64, value: bool) -> void:
     block@0: // L304
         let storage_value%0#0: bytes = box_read("too_many_bools")
@@ -1383,11 +1368,6 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_box() -> voi
     block@0: // L318
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
         box_write("dynamic_box", encoded_array%0#0)
-        return 
-
-subroutine examples.box_storage.contract.BoxContract.delete_dynamic_box() -> void:
-    block@0: // L322
-        (box_del "dynamic_box")
         return 
 
 subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: uint64) -> uint64:

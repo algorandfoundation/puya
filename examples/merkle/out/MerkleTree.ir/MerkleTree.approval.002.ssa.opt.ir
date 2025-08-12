@@ -12,8 +12,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
-        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        examples.merkle.contract.MerkleTree.create(reinterpret_Encoded(uint8[32])%0#0)
+        let root#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        (app_global_put "root" root#0)
         let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 1u
         goto block@9
     block@4: // verify_route_L14
@@ -36,11 +36,6 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@9: // after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router___L1
         let tmp%0#0: bool = φ(examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0 <- block@3, examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#1 <- block@4, examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#2 <- block@8)
         return tmp%0#0
-
-subroutine examples.merkle.contract.MerkleTree.create(root: Encoded(uint8[32])) -> void:
-    block@0: // L10
-        (app_global_put "root" root#0)
-        return 
 
 subroutine examples.merkle.contract.MerkleTree.verify(proof: Encoded(len+uint8[32][]), leaf: Encoded(uint8[32])) -> bool:
     block@0: // L14

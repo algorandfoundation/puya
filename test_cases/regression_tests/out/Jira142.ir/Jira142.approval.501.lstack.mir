@@ -27,7 +27,14 @@ subroutine main:
         txn ApplicationID                                                                    tmp%5#0
         l-load tmp%5#0 0                                                                     tmp%5#0
         assert // can only call when not creating
-        callsub battle
+        // regression_tests/jira_142.py:15
+        // my_struct = MyStruct(foo=arc4.UInt64(200))
+        byte 0x00000000000000c8                                                              0x00000000000000c8
+        // regression_tests/jira_142.py:20
+        // log(my_struct.copy())
+        log
+        // regression_tests/jira_142.py:13
+        // @arc4.abimethod
         int 1                                                                                1
         l-store test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router__%0#0 0      test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router__%0#0
         l-load test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router__%0#0 0       test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router__%0#0
@@ -65,17 +72,5 @@ subroutine main:
     main_after_inlined_test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router__@11:
         v-load tmp%0#0                                                                       tmp%0#0
         return
-
-
-// test_cases.regression_tests.jira_142.Jira142.battle() -> void:
-subroutine battle:
-    battle_block@0:
-        // regression_tests/jira_142.py:15
-        // my_struct = MyStruct(foo=arc4.UInt64(200))
-        byte 0x00000000000000c8                                                              0x00000000000000c8
-        // regression_tests/jira_142.py:20
-        // log(my_struct.copy())
-        log
-        retsub
 
 

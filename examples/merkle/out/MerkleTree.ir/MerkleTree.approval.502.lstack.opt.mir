@@ -27,10 +27,14 @@ subroutine main:
         assert // can only call when creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint8[32])%0#0
+        txna ApplicationArgs 1                                                                 root#0
+        // merkle/contract.py:12
+        // self.root = root.bytes
+        byte "root"                                                                            root#0,"root"
+        l-load root#0 1                                                                        "root",root#0
+        app_global_put
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
-        callsub create
         int 1                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
         v-store tmp%0#0
         b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
@@ -74,17 +78,6 @@ subroutine main:
     main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9:
         v-load tmp%0#0                                                                         tmp%0#0
         return
-
-
-// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
-subroutine create:
-    create_block@0:                                                                            (𝕡) root#0 |
-        // merkle/contract.py:12
-        // self.root = root.bytes
-        byte "root"                                                                            (𝕡) root#0 | "root"
-        p-load root#0                                                                          (𝕡) root#0 | "root",root#0 (copy)
-        app_global_put                                                                         (𝕡) root#0 |
-        retsub
 
 
 // examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
