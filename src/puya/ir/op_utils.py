@@ -457,6 +457,7 @@ class OpFactory:
         index: Value | int,
         replacement: Value | bytes,
         temp_desc: str = "replace",
+        error_message: str | None = None,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -464,6 +465,7 @@ class OpFactory:
             source_location=self.source_location,
             op=AVMOp.replace3,
             args=[value, index, replacement],
+            error_message=error_message,
         )
         return result
 

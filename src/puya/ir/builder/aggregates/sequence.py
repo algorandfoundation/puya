@@ -216,7 +216,13 @@ class _FixedElementArrayBuilder(_ArrayBuilderImpl):
         if self.array_encoding.length_header:
             write_offset = self.factory.add(write_offset, 2, "write_offset_with_length_header")
 
-        array = self.factory.replace(array, write_offset, value, "updated_array")
+        array = self.factory.replace(
+            array,
+            write_offset,
+            value,
+            "updated_array",
+            error_message="index access is out of bounds",
+        )
         return array
 
 
