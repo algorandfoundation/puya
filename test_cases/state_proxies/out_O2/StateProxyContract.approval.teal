@@ -3,12 +3,12 @@
 
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 42
+    intcblock 1 42 0
     bytecblock "l1" "g1" "box_map" 0x6c32
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes 0x6732
-    intc_1 // 0
+    intc_2 // 0
     app_global_put
     pushbytess "town" "funky" // "town", "funky"
     txn NumAppArgs
@@ -24,8 +24,7 @@ main_after_if_else@2:
     match main_create_route@5 main_clear_route@6 main_order_of_eval_global_route@7 main_order_of_eval_local_route@8 main_order_of_eval_box_route@9
 
 main_after_if_else@10:
-    intc_1 // 0
-    return
+    err
 
 main_order_of_eval_box_route@9:
     txn OnCompletion
@@ -44,7 +43,7 @@ main_order_of_eval_box_route@9:
     btoi
     swap
     select
-    intc_2 // 42
+    intc_1 // 42
     ==
     assert
     intc_0 // 1
@@ -59,11 +58,11 @@ main_order_of_eval_local_route@8:
     callsub get_account
     callsub default_value
     swap
-    intc_1 // 0
+    intc_2 // 0
     bytec_0 // "l1"
     app_local_get_ex
     select
-    intc_2 // 42
+    intc_1 // 42
     ==
     assert
     intc_0 // 1
@@ -76,11 +75,11 @@ main_order_of_eval_global_route@7:
     txn ApplicationID
     assert // can only call when not creating
     callsub default_value
-    intc_1 // 0
+    intc_2 // 0
     bytec_1 // "g1"
     app_global_get_ex
     select
-    intc_2 // 42
+    intc_1 // 42
     ==
     assert
     intc_0 // 1
@@ -152,5 +151,5 @@ get_account:
 default_value:
     pushbytes "default"
     log
-    intc_2 // 42
+    intc_1 // 42
     retsub
