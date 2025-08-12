@@ -147,11 +147,10 @@ PYTHON_ITXN_ARGUMENTS = {
         field=TxnField.VoteKeyDilution,
         type=pytypes.UInt64Type,
     ),
-    # non_participation: UInt64 | int | bool = ...,
+    # non_participation: bool = ...,
     "non_participation": PythonITxnArgument(
         field=TxnField.Nonparticipation,
-        type=pytypes.UInt64Type,
-        additional_types=(pytypes.BoolType,),
+        type=pytypes.BoolType,
     ),
     # state_proof_key: Bytes | bytes = ...,
     "state_proof_key": PythonITxnArgument(

@@ -6,9 +6,9 @@ from algopy import (
     Asset,
     Bytes,
     OnCompleteAction,
+    String,
     TransactionType,
     UInt64,
-    String,
 )
 from algopy._transaction import (
     _ApplicationProtocol,
@@ -84,7 +84,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         vote_first: UInt64 | int = ...,
         vote_last: UInt64 | int = ...,
         vote_key_dilution: UInt64 | int = ...,
-        non_participation: UInt64 | int | bool = ...,
+        non_participation: bool = ...,
         state_proof_key: Bytes | bytes = ...,
         ## asset config
         config_asset: Asset | UInt64 | int = ...,
@@ -143,7 +143,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         vote_first: UInt64 | int = ...,
         vote_last: UInt64 | int = ...,
         vote_key_dilution: UInt64 | int = ...,
-        non_participation: UInt64 | int | bool = ...,
+        non_participation: bool = ...,
         state_proof_key: Bytes | bytes = ...,
         ## asset config
         config_asset: Asset | UInt64 | int = ...,
@@ -228,7 +228,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         vote_first: UInt64 | int,
         vote_last: UInt64 | int,
         vote_key_dilution: UInt64 | int,
-        non_participation: UInt64 | int | bool = ...,
+        non_participation: bool = ...,
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
@@ -243,7 +243,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         vote_first: UInt64 | int = ...,
         vote_last: UInt64 | int = ...,
         vote_key_dilution: UInt64 | int = ...,
-        non_participation: UInt64 | int | bool = ...,
+        non_participation: bool = ...,
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
