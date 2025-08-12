@@ -411,7 +411,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let aggregate%item%2#0: bytes = (extract3 aggregate%array_head_and_tail%2#0 aggregate%item_offset%2#0 aggregate%item_head_tail_length%2#0)
         let aggregate%write_offset%0#0: uint64 = (* 1u 1u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let aggregate%updated_array%1#0: bytes = (replace3 aggregate%item%2#0 aggregate%write_offset_with_length_header%0#0 0x00)
+        let aggregate%updated_array%1#0: bytes = (replace3 aggregate%item%2#0 aggregate%write_offset_with_length_header%0#0 0x00) // on error: index access is out of bounds
         let aggregate%array_length%4#0: uint64 = (extract_uint16 array_of_array#0 0u)
         let aggregate%lt%4#0: bool = (< 0u aggregate%array_length%4#0)
         (assert aggregate%lt%4#0) // index access is out of bounds
@@ -444,7 +444,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let aggregate%as_Encoded(uint8[2])%2#0: Encoded(uint8[2]) = aggregate%head%7#0
         let encoded_array%3#0: Encoded(uint8[2]) = aggregate%as_Encoded(uint8[2])%2#0
         let aggregate%write_offset%0#0: uint64 = (* 0u 2u)
-        let aggregate%updated_array%0#0: bytes = (replace3 array_of_array#0 aggregate%write_offset%0#0 encoded_array%3#0)
+        let aggregate%updated_array%0#0: bytes = (replace3 array_of_array#0 aggregate%write_offset%0#0 encoded_array%3#0) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(uint8[2][2]) = aggregate%updated_array%0#0
         let array_of_array#0: Encoded(uint8[2][2]) = updated_array%0#0
         let tmp%1#0: bool = (== array_of_array#0 0xfffe4080)
@@ -452,9 +452,9 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let aggregate%bytes_offset%1#0: uint64 = (* 1u 2u)
         let aggregate%encoded_element%1#0: bytes = (extract3 array_of_array#0 aggregate%bytes_offset%1#0 2u) // on error: index access is out of bounds
         let aggregate%write_offset%1#0: uint64 = (* 0u 1u)
-        let aggregate%updated_array%1#0: bytes = (replace3 aggregate%encoded_element%1#0 aggregate%write_offset%1#0 0x01)
+        let aggregate%updated_array%1#0: bytes = (replace3 aggregate%encoded_element%1#0 aggregate%write_offset%1#0 0x01) // on error: index access is out of bounds
         let aggregate%write_offset%2#0: uint64 = (* 1u 2u)
-        let aggregate%updated_array%2#0: bytes = (replace3 array_of_array#0 aggregate%write_offset%2#0 aggregate%updated_array%1#0)
+        let aggregate%updated_array%2#0: bytes = (replace3 array_of_array#0 aggregate%write_offset%2#0 aggregate%updated_array%1#0) // on error: index access is out of bounds
         let updated_array%1#0: Encoded(uint8[2][2]) = aggregate%updated_array%2#0
         let array_of_array#0: Encoded(uint8[2][2]) = updated_array%1#0
         let tmp%2#0: bool = (== array_of_array#0 0xfffe0180)
@@ -472,7 +472,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = encoded_array%0#0
         let aggregate%write_offset%0#0: uint64 = (* 0u 1u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
-        let aggregate%updated_array%0#0: bytes = (replace3 dynamic_uint8_array#0 aggregate%write_offset_with_length_header%0#0 0xff)
+        let aggregate%updated_array%0#0: bytes = (replace3 dynamic_uint8_array#0 aggregate%write_offset_with_length_header%0#0 0xff) // on error: index access is out of bounds
         let updated_array%0#0: Encoded(len+uint8[]) = aggregate%updated_array%0#0
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = updated_array%0#0
         let tmp%0#0: bool = (== dynamic_uint8_array#0 0x0002ff02)
@@ -483,7 +483,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let encoded_array%1#0: Encoded(uint8[2]) = aggregate%as_Encoded(uint8[2])%0#0
         let static_uint8_array#0: Encoded(uint8[2]) = encoded_array%1#0
         let aggregate%write_offset%1#0: uint64 = (* 1u 1u)
-        let aggregate%updated_array%1#0: bytes = (replace3 static_uint8_array#0 aggregate%write_offset%1#0 0xff)
+        let aggregate%updated_array%1#0: bytes = (replace3 static_uint8_array#0 aggregate%write_offset%1#0 0xff) // on error: index access is out of bounds
         let updated_array%1#0: Encoded(uint8[2]) = aggregate%updated_array%1#0
         let static_uint8_array#0: Encoded(uint8[2]) = updated_array%1#0
         let tmp%1#0: bool = (== static_uint8_array#0 0x01ff)

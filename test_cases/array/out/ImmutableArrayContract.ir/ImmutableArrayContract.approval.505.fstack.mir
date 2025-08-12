@@ -1370,7 +1370,7 @@ subroutine test_uint64_array:
         itob                                                                                                                                                                                (𝕗) arr#2,_i#0 | arr#2,aggregate%val_as_bytes%3#0
         l-load arr#2 1                                                                                                                                                                      (𝕗) arr#2,_i#0 | aggregate%val_as_bytes%3#0,arr#2
         l-load aggregate%val_as_bytes%3#0 1                                                                                                                                                 (𝕗) arr#2,_i#0 | arr#2,aggregate%val_as_bytes%3#0
-        replace2 18                                                                                                                                                                         (𝕗) arr#2,_i#0 | arr#2
+        replace2 18 // on error: index access is out of bounds                                                                                                                              (𝕗) arr#2,_i#0 | arr#2
         // array/immutable.py:125
         // assert arr.length == 15
         l-load-copy arr#2 0                                                                                                                                                                 (𝕗) arr#2,_i#0 | arr#2,arr#2 (copy)
@@ -4010,7 +4010,7 @@ subroutine test_immutable_arc4:
         p-load imm#0                                                                                                                                                                        (𝕡) imm#0 | aggregate%encoded_element%0#0,aggregate%write_offset_with_length_header%0#0,imm#0 (copy)
         l-load aggregate%write_offset_with_length_header%0#0 1                                                                                                                              (𝕡) imm#0 | aggregate%encoded_element%0#0,imm#0 (copy),aggregate%write_offset_with_length_header%0#0
         l-load aggregate%encoded_element%0#0 2                                                                                                                                              (𝕡) imm#0 | imm#0 (copy),aggregate%write_offset_with_length_header%0#0,aggregate%encoded_element%0#0
-        replace3                                                                                                                                                                            (𝕡) imm#0 | imm#0
+        replace3 // on error: index access is out of bounds                                                                                                                                 (𝕡) imm#0 | imm#0
         p-store imm#0                                                                                                                                                                       (𝕡) imm#0 |
         // array/immutable.py:448
         // return imm
@@ -4084,7 +4084,7 @@ subroutine test_imm_fixed_arr:
         f-load arr1#0                                                                                                                                                                       (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0,aggregate%write_offset%0#0,arr1#0
         l-load aggregate%write_offset%0#0 1                                                                                                                                                 (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0,arr1#0,aggregate%write_offset%0#0
         f-load struct12#0                                                                                                                                                                   (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0,arr1#0,aggregate%write_offset%0#0,struct12#0
-        replace3                                                                                                                                                                            (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0,arr1#0
+        replace3 // on error: index access is out of bounds                                                                                                                                 (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0,arr1#0
         f-store arr1#0                                                                                                                                                                      (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | i#0
         // array/immutable.py:459
         // for i in urange(3):
@@ -4153,7 +4153,7 @@ subroutine test_imm_fixed_arr:
         // mut_arr[0] = NativeStruct(UInt64(), UInt64())
         l-load arr1#0 0                                                                                                                                                                     (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | arr1#0
         byte 0x00000000000000000000000000000000                                                                                                                                             (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | arr1#0,0x00000000000000000000000000000000
-        replace2 0                                                                                                                                                                          (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | mut_arr#1
+        replace2 0 // on error: index access is out of bounds                                                                                                                               (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | mut_arr#1
         // array/immutable.py:474
         // assert sum_imm_fixed(mut_arr.freeze()) == 10, "expected sum to be 10"
         callsub sum_imm_fixed                                                                                                                                                               (𝕗) item_index_internal%0#0,arr1#0,struct12#0,arr2#0,i#0 | tmp%17#0

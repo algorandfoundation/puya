@@ -1855,7 +1855,7 @@ subroutine test_uint64_array:
         v-store aggregate%val_as_bytes%3#0
         v-load arr#2                                                                              arr#2
         v-load aggregate%val_as_bytes%3#0                                                         arr#2,aggregate%val_as_bytes%3#0
-        replace2 18                                                                               arr#2
+        replace2 18 // on error: index access is out of bounds                                    arr#2
         v-store arr#2
         // array/immutable.py:125
         // assert arr.length == 15
@@ -5139,7 +5139,7 @@ subroutine test_immutable_arc4:
         p-load imm#0                                                                              (𝕡) imm#0 | imm#0 (copy)
         v-load aggregate%write_offset_with_length_header%0#0                                      (𝕡) imm#0 | imm#0 (copy),aggregate%write_offset_with_length_header%0#0
         v-load aggregate%encoded_element%0#0                                                      (𝕡) imm#0 | imm#0 (copy),aggregate%write_offset_with_length_header%0#0,aggregate%encoded_element%0#0
-        replace3                                                                                  (𝕡) imm#0 | imm#0
+        replace3 // on error: index access is out of bounds                                       (𝕡) imm#0 | imm#0
         p-store imm#0                                                                             (𝕡) imm#0 |
         // array/immutable.py:448
         // return imm
@@ -5223,7 +5223,7 @@ subroutine test_imm_fixed_arr:
         v-load arr1#0                                                                             arr1#0
         v-load aggregate%write_offset%0#0                                                         arr1#0,aggregate%write_offset%0#0
         v-load struct12#0                                                                         arr1#0,aggregate%write_offset%0#0,struct12#0
-        replace3                                                                                  arr1#0
+        replace3 // on error: index access is out of bounds                                       arr1#0
         v-store arr1#0
         // array/immutable.py:459
         // for i in urange(3):
@@ -5303,7 +5303,7 @@ subroutine test_imm_fixed_arr:
         // mut_arr[0] = NativeStruct(UInt64(), UInt64())
         v-load arr1#0                                                                             arr1#0
         byte 0x00000000000000000000000000000000                                                   arr1#0,0x00000000000000000000000000000000
-        replace2 0                                                                                mut_arr#1
+        replace2 0 // on error: index access is out of bounds                                     mut_arr#1
         v-store mut_arr#1
         // array/immutable.py:474
         // assert sum_imm_fixed(mut_arr.freeze()) == 10, "expected sum to be 10"

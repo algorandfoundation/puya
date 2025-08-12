@@ -398,11 +398,11 @@ subroutine quicksort_window:
         l-load slot_contents%3#0 3                                                    (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%3#0,aggregate%encoded_element%4#0,slot_contents%3#0
         l-load aggregate%bytes_offset%1#0 3                                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%encoded_element%3#0,aggregate%encoded_element%4#0,slot_contents%3#0,aggregate%bytes_offset%1#0
         l-load aggregate%encoded_element%3#0 3                                        (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0,slot_contents%3#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%3#0
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0,aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0,aggregate%updated_array%0#0
         l-load aggregate%updated_array%0#0 0                                          (𝕡) arr#0,window_left#0,window_right#0 | aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0,aggregate%updated_array%0#0
         l-load aggregate%bytes_offset%2#0 2                                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%encoded_element%4#0,aggregate%updated_array%0#0,aggregate%bytes_offset%2#0
         l-load aggregate%encoded_element%4#0 2                                        (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%0#0,aggregate%bytes_offset%2#0,aggregate%encoded_element%4#0
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%1#0
+        replace3 // on error: index access is out of bounds                           (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%1#0
         p-load arr#0                                                                  (𝕡) arr#0,window_left#0,window_right#0 | aggregate%updated_array%1#0,arr#0 (copy)
         l-load aggregate%updated_array%1#0 1                                          (𝕡) arr#0,window_left#0,window_right#0 | arr#0 (copy),aggregate%updated_array%1#0
         stores                                                                        (𝕡) arr#0,window_left#0,window_right#0 |
@@ -963,7 +963,7 @@ subroutine test_array:
         itob                                                                          arr#0,concat%1#0,aggregate%val_as_bytes%5#0
         l-load concat%1#0 1                                                           arr#0,aggregate%val_as_bytes%5#0,concat%1#0
         l-load aggregate%val_as_bytes%5#0 1                                           arr#0,concat%1#0,aggregate%val_as_bytes%5#0
-        replace2 0                                                                    arr#0,aggregate%updated_array%0#0
+        replace2 0 // on error: index access is out of bounds                         arr#0,aggregate%updated_array%0#0
         l-load arr#0 1                                                                aggregate%updated_array%0#0,arr#0
         l-load-copy aggregate%updated_array%0#0 1                                     aggregate%updated_array%0#0,arr#0,aggregate%updated_array%0#0 (copy)
         stores                                                                        aggregate%updated_array%0#0
@@ -1536,7 +1536,7 @@ subroutine test_array_evaluation_order:
         l-load slot_contents%11#0 1                                                   arr#0,aggregate%encoded_element%6#0,aggregate%write_offset%0#0,slot_contents%11#0
         l-load aggregate%write_offset%0#0 1                                           arr#0,aggregate%encoded_element%6#0,slot_contents%11#0,aggregate%write_offset%0#0
         l-load aggregate%encoded_element%6#0 2                                        arr#0,slot_contents%11#0,aggregate%write_offset%0#0,aggregate%encoded_element%6#0
-        replace3                                                                      arr#0,aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           arr#0,aggregate%updated_array%0#0
         l-load arr#0 1                                                                aggregate%updated_array%0#0,arr#0
         l-load-copy aggregate%updated_array%0#0 1                                     aggregate%updated_array%0#0,arr#0,aggregate%updated_array%0#0 (copy)
         stores                                                                        aggregate%updated_array%0#0
@@ -1608,7 +1608,7 @@ subroutine test_array_assignment_maximum_cursage:
         loads                                                                         arr#0,update_assignment_current_base_value%0#0,aggregate%val_as_bytes%1#0,slot_contents%1#0
         l-load slot_contents%1#0 0                                                    arr#0,update_assignment_current_base_value%0#0,aggregate%val_as_bytes%1#0,slot_contents%1#0
         l-load aggregate%val_as_bytes%1#0 1                                           arr#0,update_assignment_current_base_value%0#0,slot_contents%1#0,aggregate%val_as_bytes%1#0
-        replace2 0                                                                    arr#0,update_assignment_current_base_value%0#0,aggregate%updated_array%0#0
+        replace2 0 // on error: index access is out of bounds                         arr#0,update_assignment_current_base_value%0#0,aggregate%updated_array%0#0
         l-load update_assignment_current_base_value%0#0 1                             arr#0,aggregate%updated_array%0#0,update_assignment_current_base_value%0#0
         l-load aggregate%updated_array%0#0 1                                          arr#0,update_assignment_current_base_value%0#0,aggregate%updated_array%0#0
         stores                                                                        arr#0
@@ -2193,7 +2193,7 @@ subroutine test_unobserved_write:
         l-load aggregate%slot_contents%0#0 2                                          arr#0,aggregate%val_as_bytes%0#0,aggregate%write_offset%0#0,aggregate%slot_contents%0#0
         l-load-copy aggregate%write_offset%0#0 1                                      arr#0,aggregate%val_as_bytes%0#0,aggregate%write_offset%0#0,aggregate%slot_contents%0#0,aggregate%write_offset%0#0 (copy)
         l-load aggregate%val_as_bytes%0#0 3                                           arr#0,aggregate%write_offset%0#0,aggregate%slot_contents%0#0,aggregate%write_offset%0#0 (copy),aggregate%val_as_bytes%0#0
-        replace3                                                                      arr#0,aggregate%write_offset%0#0,aggregate%updated_array%0#0
+        replace3 // on error: index access is out of bounds                           arr#0,aggregate%write_offset%0#0,aggregate%updated_array%0#0
         l-load-copy arr#0 2                                                           arr#0,aggregate%write_offset%0#0,aggregate%updated_array%0#0,arr#0 (copy)
         l-load aggregate%updated_array%0#0 1                                          arr#0,aggregate%write_offset%0#0,arr#0 (copy),aggregate%updated_array%0#0
         stores                                                                        arr#0,aggregate%write_offset%0#0
@@ -2210,7 +2210,7 @@ subroutine test_unobserved_write:
         l-load slot_contents%1#0 0                                                    arr#0,aggregate%write_offset%0#0,aggregate%val_as_bytes%1#0,slot_contents%1#0
         l-load-copy aggregate%write_offset%0#0 2                                      arr#0,aggregate%write_offset%0#0,aggregate%val_as_bytes%1#0,slot_contents%1#0,aggregate%write_offset%0#0 (copy)
         l-load aggregate%val_as_bytes%1#0 2                                           arr#0,aggregate%write_offset%0#0,slot_contents%1#0,aggregate%write_offset%0#0 (copy),aggregate%val_as_bytes%1#0
-        replace3                                                                      arr#0,aggregate%write_offset%0#0,aggregate%updated_array%1#0
+        replace3 // on error: index access is out of bounds                           arr#0,aggregate%write_offset%0#0,aggregate%updated_array%1#0
         l-load arr#0 2                                                                aggregate%write_offset%0#0,aggregate%updated_array%1#0,arr#0
         l-load-copy aggregate%updated_array%1#0 1                                     aggregate%write_offset%0#0,aggregate%updated_array%1#0,arr#0,aggregate%updated_array%1#0 (copy)
         stores                                                                        aggregate%write_offset%0#0,aggregate%updated_array%1#0
