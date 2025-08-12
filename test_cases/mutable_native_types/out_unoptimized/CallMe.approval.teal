@@ -5,13 +5,16 @@
 main:
     intcblock 0 1
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.mutable_native_types.abi_call.CallMe.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     retsub
@@ -27,6 +31,7 @@ __init___block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.delete() -> void:
 delete:
+    b delete_block@0
 
 delete_block@0:
     retsub
@@ -38,6 +43,7 @@ fixed_struct_arg:
     // @arc4.abimethod()
     // def fixed_struct_arg(self, arg: FixedStruct) -> None:
     proto 1 0
+    b fixed_struct_arg_block@0
 
 fixed_struct_arg_block@0:
     // mutable_native_types/abi_call.py:55
@@ -50,6 +56,7 @@ fixed_struct_arg_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret() -> bytes:
 fixed_struct_ret:
+    b fixed_struct_ret_block@0
 
 fixed_struct_ret_block@0:
     // mutable_native_types/abi_call.py:59
@@ -67,6 +74,7 @@ nested_struct_arg:
     // @arc4.abimethod()
     // def nested_struct_arg(self, arg: NestedStruct) -> None:
     proto 1 0
+    b nested_struct_arg_block@0
 
 nested_struct_arg_block@0:
     // mutable_native_types/abi_call.py:63
@@ -79,6 +87,7 @@ nested_struct_arg_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret() -> bytes:
 nested_struct_ret:
+    b nested_struct_ret_block@0
 
 nested_struct_ret_block@0:
     // mutable_native_types/abi_call.py:67
@@ -96,6 +105,7 @@ dynamic_struct_arg:
     // @arc4.abimethod()
     // def dynamic_struct_arg(self, arg: DynamicStruct) -> None:
     proto 1 0
+    b dynamic_struct_arg_block@0
 
 dynamic_struct_arg_block@0:
     // mutable_native_types/abi_call.py:71
@@ -108,6 +118,7 @@ dynamic_struct_arg_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret() -> bytes:
 dynamic_struct_ret:
+    b dynamic_struct_ret_block@0
 
 dynamic_struct_ret_block@0:
     // mutable_native_types/abi_call.py:75
@@ -125,6 +136,7 @@ fixed_arr_arg:
     // @arc4.abimethod()
     // def fixed_arr_arg(self, arg: FixedStruct3) -> None:
     proto 1 0
+    b fixed_arr_arg_block@0
 
 fixed_arr_arg_block@0:
     // mutable_native_types/abi_call.py:79
@@ -137,6 +149,7 @@ fixed_arr_arg_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret() -> bytes:
 fixed_arr_ret:
+    b fixed_arr_ret_block@0
 
 fixed_arr_ret_block@0:
     // mutable_native_types/abi_call.py:83
@@ -154,6 +167,7 @@ native_arr_arg:
     // @arc4.abimethod()
     // def native_arr_arg(self, arg: NativeArray[FixedStruct]) -> None:
     proto 1 0
+    b native_arr_arg_block@0
 
 native_arr_arg_block@0:
     // mutable_native_types/abi_call.py:87
@@ -166,6 +180,7 @@ native_arr_arg_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret() -> bytes:
 native_arr_ret:
+    b native_arr_ret_block@0
 
 native_arr_ret_block@0:
     // mutable_native_types/abi_call.py:91
@@ -179,6 +194,7 @@ native_arr_ret_block@0:
 
 // test_cases.mutable_native_types.abi_call.CallMe.log_it() -> void:
 log_it:
+    b log_it_block@0
 
 log_it_block@0:
     // mutable_native_types/abi_call.py:95
@@ -221,8 +237,12 @@ log_it_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // mutable_native_types/abi_call.py:41
@@ -231,6 +251,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@17
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // mutable_native_types/abi_call.py:41
@@ -250,17 +271,24 @@ approval_program_abi_routing@2:
     pushbytes 0x9bbe1032 // method "log_it()void"
     uncover 12
     match approval_program_delete_route@3 approval_program_fixed_struct_arg_route@4 approval_program_fixed_struct_ret_route@5 approval_program_nested_struct_arg_route@6 approval_program_nested_struct_ret_route@7 approval_program_dynamic_struct_arg_route@8 approval_program_dynamic_struct_ret_route@9 approval_program_fixed_arr_arg_route@10 approval_program_fixed_arr_ret_route@11 approval_program_native_arr_arg_route@12 approval_program_native_arr_ret_route@13 approval_program_log_it_route@14
+    b approval_program_switch_case_default@15
 
 approval_program_switch_case_default@15:
+    b approval_program_switch_case_next@16
 
 approval_program_switch_case_next@16:
+    b approval_program_after_if_else@23
 
 approval_program_after_if_else@23:
     // mutable_native_types/abi_call.py:41
     // class CallMe(arc4.ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_log_it_route@14:
@@ -276,6 +304,7 @@ approval_program_log_it_route@14:
     assert // can only call when not creating
     callsub log_it
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_native_arr_ret_route@13:
@@ -291,10 +320,11 @@ approval_program_native_arr_ret_route@13:
     assert // can only call when not creating
     callsub native_arr_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_native_arr_arg_route@12:
@@ -315,6 +345,7 @@ approval_program_native_arr_arg_route@12:
     // @arc4.abimethod()
     callsub native_arr_arg
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_fixed_arr_ret_route@11:
@@ -330,10 +361,11 @@ approval_program_fixed_arr_ret_route@11:
     assert // can only call when not creating
     callsub fixed_arr_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_fixed_arr_arg_route@10:
@@ -354,6 +386,7 @@ approval_program_fixed_arr_arg_route@10:
     // @arc4.abimethod()
     callsub fixed_arr_arg
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_dynamic_struct_ret_route@9:
@@ -369,10 +402,11 @@ approval_program_dynamic_struct_ret_route@9:
     assert // can only call when not creating
     callsub dynamic_struct_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_dynamic_struct_arg_route@8:
@@ -393,6 +427,7 @@ approval_program_dynamic_struct_arg_route@8:
     // @arc4.abimethod()
     callsub dynamic_struct_arg
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_nested_struct_ret_route@7:
@@ -408,10 +443,11 @@ approval_program_nested_struct_ret_route@7:
     assert // can only call when not creating
     callsub nested_struct_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_nested_struct_arg_route@6:
@@ -432,6 +468,7 @@ approval_program_nested_struct_arg_route@6:
     // @arc4.abimethod()
     callsub nested_struct_arg
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_fixed_struct_ret_route@5:
@@ -447,10 +484,11 @@ approval_program_fixed_struct_ret_route@5:
     assert // can only call when not creating
     callsub fixed_struct_ret
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_fixed_struct_arg_route@4:
@@ -471,6 +509,7 @@ approval_program_fixed_struct_arg_route@4:
     // @arc4.abimethod()
     callsub fixed_struct_arg
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_delete_route@3:
@@ -486,6 +525,7 @@ approval_program_delete_route@3:
     assert // can only call when not creating
     callsub delete
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24
 
 approval_program_bare_routing@17:
@@ -493,10 +533,12 @@ approval_program_bare_routing@17:
     // class CallMe(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@18
+    b approval_program_switch_case_default@21
 
 approval_program_switch_case_default@21:
+    b approval_program_switch_case_next@22
 
 approval_program_switch_case_next@22:
     b approval_program_after_if_else@23
@@ -506,9 +548,12 @@ approval_program___algopy_default_create@18:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@19
 
 approval_program_block@19:
+    b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@20
 
 approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@20:
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__@24

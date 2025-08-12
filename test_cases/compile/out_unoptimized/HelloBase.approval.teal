@@ -4,14 +4,17 @@
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1
-    bytecblock "greeting"
+    bytecblock "greeting" ""
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,18 +23,20 @@ main_after_if_else@2:
 
 // test_cases.compile.apps.HelloBase.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // compile/apps.py:22
     // self.greeting = String()
     bytec_0 // "greeting"
-    pushbytes ""
+    bytec_1 // ""
     app_global_put
     retsub
 
 
 // test_cases.compile.apps.HelloBase.delete() -> void:
 delete:
+    b delete_block@0
 
 delete_block@0:
     retsub
@@ -39,6 +44,7 @@ delete_block@0:
 
 // test_cases.compile.apps.HelloBase.update() -> void:
 update:
+    b update_block@0
 
 update_block@0:
     retsub
@@ -50,6 +56,7 @@ greet:
     // @arc4.abimethod()
     // def greet(self, name: String) -> String:
     proto 1 1
+    b greet_block@0
 
 greet_block@0:
     // compile/apps.py:34
@@ -67,8 +74,12 @@ greet_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_1 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // compile/apps.py:20
@@ -77,6 +88,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@7
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // compile/apps.py:20
@@ -86,17 +98,24 @@ approval_program_abi_routing@2:
     pushbytes 0xd0a28200 // method "greet(string)string"
     uncover 2
     match approval_program_delete_route@3 approval_program_greet_route@4
+    b approval_program_switch_case_default@5
 
 approval_program_switch_case_default@5:
+    b approval_program_switch_case_next@6
 
 approval_program_switch_case_next@6:
+    b approval_program_after_if_else@14
 
 approval_program_after_if_else@14:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_greet_route@4:
@@ -121,13 +140,14 @@ approval_program_greet_route@4:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     pushbytes 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_delete_route@3:
@@ -143,6 +163,7 @@ approval_program_delete_route@3:
     assert // can only call when not creating
     callsub delete
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_bare_routing@7:
@@ -153,8 +174,10 @@ approval_program_bare_routing@7:
     intc_0 // 0
     uncover 2
     match approval_program_update@8 approval_program___algopy_default_create@9
+    b approval_program_switch_case_default@12
 
 approval_program_switch_case_default@12:
+    b approval_program_switch_case_next@13
 
 approval_program_switch_case_next@13:
     b approval_program_after_if_else@14
@@ -164,11 +187,14 @@ approval_program___algopy_default_create@9:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@10
 
 approval_program_block@10:
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@11
 
 approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@11:
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
 approval_program_update@8:
@@ -180,4 +206,5 @@ approval_program_update@8:
     assert // can only call when not creating
     callsub update
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15

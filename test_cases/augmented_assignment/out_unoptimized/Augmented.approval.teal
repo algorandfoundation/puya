@@ -5,13 +5,16 @@
 main:
     intcblock 0 1
     bytecblock "counter" "my_uint" "global_uint" "global_bytes" "my_bytes"
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.augmented_assignment.contract.Augmented.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // augmented_assignment/contract.py:18
@@ -45,6 +49,7 @@ approval_program:
     // augmented_assignment/contract.py:22
     // def approval_program(self) -> bool:
     proto 0 1
+    b approval_program_block@0
 
 approval_program_block@0:
     // augmented_assignment/contract.py:23
@@ -56,6 +61,7 @@ approval_program_block@0:
     intc_1 // OptIn
     ==
     bz approval_program_after_if_else@2
+    b approval_program_if_body@1
 
 approval_program_if_body@1:
     // augmented_assignment/contract.py:26
@@ -70,6 +76,7 @@ approval_program_if_body@1:
     bytec 4 // "my_bytes"
     pushbytes 0x
     app_local_put
+    b approval_program_after_if_else@2
 
 approval_program_after_if_else@2:
     // augmented_assignment/contract.py:28
@@ -78,6 +85,7 @@ approval_program_after_if_else@2:
     intc_0 // 0
     !=
     bz approval_program_after_if_else@4
+    b approval_program_if_body@3
 
 approval_program_if_body@3:
     // augmented_assignment/contract.py:29-30
@@ -88,7 +96,7 @@ approval_program_if_body@3:
     // bytes_to_add = BigUInt(n).bytes
     dup
     itob
-    swap
+    cover 1
     // augmented_assignment/contract.py:33-34
     // # local augmented assignment
     // self.my_uint[me] += n
@@ -113,7 +121,7 @@ approval_program_if_body@3:
     assert // check self.my_bytes exists for account
     dig 3
     concat
-    swap
+    uncover 1
     bytec 4 // "my_bytes"
     uncover 2
     app_local_put
@@ -126,7 +134,7 @@ approval_program_if_body@3:
     assert // check self.global_uint exists
     +
     bytec_2 // "global_uint"
-    swap
+    uncover 1
     app_global_put
     // augmented_assignment/contract.py:39
     // self.global_bytes += bytes_to_add
@@ -134,10 +142,10 @@ approval_program_if_body@3:
     bytec_3 // "global_bytes"
     app_global_get_ex
     assert // check self.global_bytes exists
-    swap
+    uncover 1
     concat
     bytec_3 // "global_bytes"
-    swap
+    uncover 1
     app_global_put
     // augmented_assignment/contract.py:41
     // self.counter = UInt64()
@@ -163,7 +171,7 @@ approval_program_if_body@3:
     assert // check self.my_uint exists for account
     intc_1 // 1
     +
-    swap
+    uncover 1
     bytec_1 // "my_uint"
     uncover 2
     app_local_put
@@ -186,7 +194,7 @@ approval_program_if_body@3:
     assert // check self.my_uint exists for account
     intc_1 // 1
     -
-    swap
+    uncover 1
     bytec_1 // "my_uint"
     uncover 2
     app_local_put
@@ -199,17 +207,19 @@ approval_program_if_body@3:
     pushint 2 // 2
     ==
     assert // this should not error
+    b approval_program_after_if_else@4
 
 approval_program_after_if_else@4:
     // augmented_assignment/contract.py:48
     // return True
     intc_1 // 1
-    swap
+    uncover 1
     retsub
 
 
 // test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> bytes:
 get_sender_with_side_effect:
+    b get_sender_with_side_effect_block@0
 
 get_sender_with_side_effect_block@0:
     // augmented_assignment/contract.py:55
@@ -221,7 +231,7 @@ get_sender_with_side_effect_block@0:
     intc_1 // 1
     +
     bytec_0 // "counter"
-    swap
+    uncover 1
     app_global_put
     // augmented_assignment/contract.py:56
     // return op.Txn.sender

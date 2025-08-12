@@ -4,13 +4,16 @@
 // test_cases.abi_routing.minimal.MinimumARC4.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -19,6 +22,7 @@ main_after_if_else@2:
 
 // test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // abi_routing/minimal.py:6
@@ -31,8 +35,12 @@ __init___block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // abi_routing/minimal.py:4
@@ -41,15 +49,21 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@3
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
+    b approval_program_after_if_else@9
 
 approval_program_after_if_else@9:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__@10
 
 approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__@10:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_bare_routing@3:
@@ -57,10 +71,12 @@ approval_program_bare_routing@3:
     // class MinimumARC4(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@4
+    b approval_program_switch_case_default@7
 
 approval_program_switch_case_default@7:
+    b approval_program_switch_case_next@8
 
 approval_program_switch_case_next@8:
     b approval_program_after_if_else@9
@@ -70,9 +86,12 @@ approval_program___algopy_default_create@4:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@5
 
 approval_program_block@5:
+    b approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create@6
 
 approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create@6:
     pushint 1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.abi_routing.minimal.MinimumARC4.__puya_arc4_router__@10

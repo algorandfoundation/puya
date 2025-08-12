@@ -4,7 +4,8 @@
 // test_cases.iteration.base.IterationTestBase.approval_program() -> uint64:
 main:
     intcblock 1 0
-    bytecblock 0x616263 0x 0x74
+    bytecblock 0x 0x616263 0x74
+    b main_block@0
 
 main_block@0:
     // iteration/base.py:8
@@ -83,13 +84,15 @@ test_forwards:
     // @subroutine
     // def test_forwards(self) -> None:
     proto 0 0
+    b test_forwards_block@0
 
 test_forwards_block@0:
     // iteration/iterate_indexable.py:12
     // for i in Bytes(b"abc"):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
     intc_1 // 0
+    b test_forwards_for_header@1
 
 test_forwards_for_header@1:
     // iteration/iterate_indexable.py:12
@@ -98,17 +101,19 @@ test_forwards_for_header@1:
     frame_dig 0
     <
     bz test_forwards_after_for@4
+    b test_forwards_for_body@2
 
 test_forwards_for_body@2:
     // iteration/iterate_indexable.py:12
     // for i in Bytes(b"abc"):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     frame_dig 1
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:13
     // log(i)
     log
+    b test_forwards_for_footer@3
 
 test_forwards_for_footer@3:
     frame_dig 1
@@ -128,12 +133,14 @@ test_reversed:
     // @subroutine
     // def test_reversed(self) -> None:
     proto 0 0
+    b test_reversed_block@0
 
 test_reversed_block@0:
     // iteration/iterate_indexable.py:18
     // for i in reversed(Bytes(b"abc")):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
+    b test_reversed_for_header@1
 
 test_reversed_for_header@1:
     // iteration/iterate_indexable.py:18
@@ -142,6 +149,7 @@ test_reversed_for_header@1:
     intc_1 // 0
     >
     bz test_reversed_after_for@4
+    b test_reversed_for_body@2
 
 test_reversed_for_body@2:
     frame_dig 0
@@ -151,13 +159,14 @@ test_reversed_for_body@2:
     frame_bury 0
     // iteration/iterate_indexable.py:18
     // for i in reversed(Bytes(b"abc")):
-    bytec_0 // 0x616263
-    swap
+    bytec_1 // 0x616263
+    uncover 1
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:19
     // log(i)
     log
+    b test_reversed_for_footer@3
 
 test_reversed_for_footer@3:
     b test_reversed_for_header@1
@@ -173,13 +182,15 @@ test_forwards_with_forwards_index:
     // @subroutine
     // def test_forwards_with_forwards_index(self) -> None:
     proto 0 0
+    b test_forwards_with_forwards_index_block@0
 
 test_forwards_with_forwards_index_block@0:
     // iteration/iterate_indexable.py:24
     // for idx, i in uenumerate(Bytes(b"abc")):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
     intc_1 // 0
+    b test_forwards_with_forwards_index_for_header@1
 
 test_forwards_with_forwards_index_for_header@1:
     // iteration/iterate_indexable.py:24
@@ -188,11 +199,12 @@ test_forwards_with_forwards_index_for_header@1:
     frame_dig 0
     <
     bz test_forwards_with_forwards_index_after_for@4
+    b test_forwards_with_forwards_index_for_body@2
 
 test_forwards_with_forwards_index_for_body@2:
     // iteration/iterate_indexable.py:24
     // for idx, i in uenumerate(Bytes(b"abc")):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     frame_dig 1
     dup
     cover 2
@@ -201,6 +213,7 @@ test_forwards_with_forwards_index_for_body@2:
     // iteration/iterate_indexable.py:25
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_forwards_with_forwards_index_for_footer@3
 
 test_forwards_with_forwards_index_for_footer@3:
     frame_dig 1
@@ -220,14 +233,16 @@ test_forwards_with_reverse_index:
     // @subroutine
     // def test_forwards_with_reverse_index(self) -> None:
     proto 0 0
+    b test_forwards_with_reverse_index_block@0
 
 test_forwards_with_reverse_index_block@0:
     // iteration/iterate_indexable.py:31
     // for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
     intc_1 // 0
-    swap
+    cover 1
+    b test_forwards_with_reverse_index_for_header@1
 
 test_forwards_with_reverse_index_for_header@1:
     // iteration/iterate_indexable.py:31
@@ -236,6 +251,7 @@ test_forwards_with_reverse_index_for_header@1:
     intc_1 // 0
     >
     bz test_forwards_with_reverse_index_after_for@4
+    b test_forwards_with_reverse_index_for_body@2
 
 test_forwards_with_reverse_index_for_body@2:
     frame_dig 1
@@ -245,13 +261,14 @@ test_forwards_with_reverse_index_for_body@2:
     frame_bury 1
     // iteration/iterate_indexable.py:31
     // for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     frame_dig 0
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:32
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_forwards_with_reverse_index_for_footer@3
 
 test_forwards_with_reverse_index_for_footer@3:
     frame_dig 0
@@ -271,14 +288,16 @@ test_reverse_with_forwards_index:
     // @subroutine
     // def test_reverse_with_forwards_index(self) -> None:
     proto 0 0
+    b test_reverse_with_forwards_index_block@0
 
 test_reverse_with_forwards_index_block@0:
     // iteration/iterate_indexable.py:38
     // for idx, i in uenumerate(reversed(Bytes(b"abc"))):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
     intc_1 // 0
-    swap
+    cover 1
+    b test_reverse_with_forwards_index_for_header@1
 
 test_reverse_with_forwards_index_for_header@1:
     // iteration/iterate_indexable.py:38
@@ -287,6 +306,7 @@ test_reverse_with_forwards_index_for_header@1:
     intc_1 // 0
     >
     bz test_reverse_with_forwards_index_after_for@4
+    b test_reverse_with_forwards_index_for_body@2
 
 test_reverse_with_forwards_index_for_body@2:
     frame_dig 1
@@ -296,15 +316,16 @@ test_reverse_with_forwards_index_for_body@2:
     frame_bury 1
     // iteration/iterate_indexable.py:38
     // for idx, i in uenumerate(reversed(Bytes(b"abc"))):
-    bytec_0 // 0x616263
-    swap
+    bytec_1 // 0x616263
+    uncover 1
     intc_0 // 1
     extract3
     frame_dig 0
     // iteration/iterate_indexable.py:39
     // self._log_with_index(idx, i)
-    swap
+    uncover 1
     callsub _log_with_index
+    b test_reverse_with_forwards_index_for_footer@3
 
 test_reverse_with_forwards_index_for_footer@3:
     frame_dig 0
@@ -324,12 +345,14 @@ test_reverse_with_reverse_index:
     // @subroutine
     // def test_reverse_with_reverse_index(self) -> None:
     proto 0 0
+    b test_reverse_with_reverse_index_block@0
 
 test_reverse_with_reverse_index_block@0:
     // iteration/iterate_indexable.py:45
     // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
+    b test_reverse_with_reverse_index_for_header@1
 
 test_reverse_with_reverse_index_for_header@1:
     // iteration/iterate_indexable.py:45
@@ -338,6 +361,7 @@ test_reverse_with_reverse_index_for_header@1:
     intc_1 // 0
     >
     bz test_reverse_with_reverse_index_after_for@4
+    b test_reverse_with_reverse_index_for_body@2
 
 test_reverse_with_reverse_index_for_body@2:
     frame_dig 0
@@ -347,13 +371,14 @@ test_reverse_with_reverse_index_for_body@2:
     frame_bury 0
     // iteration/iterate_indexable.py:45
     // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     dig 1
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:46
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_reverse_with_reverse_index_for_footer@3
 
 test_reverse_with_reverse_index_for_footer@3:
     b test_reverse_with_reverse_index_for_header@1
@@ -369,15 +394,23 @@ test_empty:
     // @subroutine
     // def test_empty(self) -> None:
     proto 0 0
-    bytec_1 // ""
-    dupn 7
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    b test_empty_block@0
 
 test_empty_block@0:
     // iteration/iterate_indexable.py:52
     // for i in Bytes():
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     intc_1 // 0
+    b test_empty_for_header@1
 
 test_empty_for_header@1:
     // iteration/iterate_indexable.py:52
@@ -386,17 +419,19 @@ test_empty_for_header@1:
     frame_dig 8
     <
     bz test_empty_after_for@4
+    b test_empty_for_body@2
 
 test_empty_for_body@2:
     // iteration/iterate_indexable.py:52
     // for i in Bytes():
-    bytec_1 // 0x
+    bytec_0 // 0x
     frame_dig 9
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:53
     // log(i)
     log
+    b test_empty_for_footer@3
 
 test_empty_for_footer@3:
     frame_dig 9
@@ -408,9 +443,10 @@ test_empty_for_footer@3:
 test_empty_after_for@4:
     // iteration/iterate_indexable.py:54
     // for i in reversed(Bytes()):
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     frame_bury 4
+    b test_empty_for_header@5
 
 test_empty_for_header@5:
     // iteration/iterate_indexable.py:54
@@ -419,6 +455,7 @@ test_empty_for_header@5:
     intc_1 // 0
     >
     bz test_empty_after_for@8
+    b test_empty_for_body@6
 
 test_empty_for_body@6:
     frame_dig 4
@@ -428,13 +465,14 @@ test_empty_for_body@6:
     frame_bury 4
     // iteration/iterate_indexable.py:54
     // for i in reversed(Bytes()):
-    bytec_1 // 0x
-    swap
+    bytec_0 // 0x
+    uncover 1
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:55
     // log(i)
     log
+    b test_empty_for_footer@7
 
 test_empty_for_footer@7:
     b test_empty_for_header@5
@@ -442,11 +480,12 @@ test_empty_for_footer@7:
 test_empty_after_for@8:
     // iteration/iterate_indexable.py:56
     // for idx, i in uenumerate(Bytes()):
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     frame_bury 0
     intc_1 // 0
     frame_bury 1
+    b test_empty_for_header@9
 
 test_empty_for_header@9:
     // iteration/iterate_indexable.py:56
@@ -455,11 +494,12 @@ test_empty_for_header@9:
     frame_dig 0
     <
     bz test_empty_after_for@12
+    b test_empty_for_body@10
 
 test_empty_for_body@10:
     // iteration/iterate_indexable.py:56
     // for idx, i in uenumerate(Bytes()):
-    bytec_1 // 0x
+    bytec_0 // 0x
     frame_dig 1
     dup
     cover 2
@@ -468,6 +508,7 @@ test_empty_for_body@10:
     // iteration/iterate_indexable.py:57
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_empty_for_footer@11
 
 test_empty_for_footer@11:
     frame_dig 1
@@ -479,11 +520,12 @@ test_empty_for_footer@11:
 test_empty_after_for@12:
     // iteration/iterate_indexable.py:58
     // for idx, i in reversed(uenumerate(reversed(Bytes()))):
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     intc_1 // 0
     frame_bury 2
     frame_bury 5
+    b test_empty_for_header@13
 
 test_empty_for_header@13:
     // iteration/iterate_indexable.py:58
@@ -492,6 +534,7 @@ test_empty_for_header@13:
     intc_1 // 0
     >
     bz test_empty_after_for@16
+    b test_empty_for_body@14
 
 test_empty_for_body@14:
     frame_dig 5
@@ -501,13 +544,14 @@ test_empty_for_body@14:
     frame_bury 5
     // iteration/iterate_indexable.py:58
     // for idx, i in reversed(uenumerate(reversed(Bytes()))):
-    bytec_1 // 0x
+    bytec_0 // 0x
     frame_dig 2
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:59
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_empty_for_footer@15
 
 test_empty_for_footer@15:
     frame_dig 2
@@ -519,11 +563,12 @@ test_empty_for_footer@15:
 test_empty_after_for@16:
     // iteration/iterate_indexable.py:60
     // for idx, i in uenumerate(reversed(Bytes())):
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     intc_1 // 0
     frame_bury 3
     frame_bury 6
+    b test_empty_for_header@17
 
 test_empty_for_header@17:
     // iteration/iterate_indexable.py:60
@@ -532,6 +577,7 @@ test_empty_for_header@17:
     intc_1 // 0
     >
     bz test_empty_after_for@20
+    b test_empty_for_body@18
 
 test_empty_for_body@18:
     frame_dig 6
@@ -541,15 +587,16 @@ test_empty_for_body@18:
     frame_bury 6
     // iteration/iterate_indexable.py:60
     // for idx, i in uenumerate(reversed(Bytes())):
-    bytec_1 // 0x
-    swap
+    bytec_0 // 0x
+    uncover 1
     intc_0 // 1
     extract3
     frame_dig 3
     // iteration/iterate_indexable.py:61
     // self._log_with_index(idx, i)
-    swap
+    uncover 1
     callsub _log_with_index
+    b test_empty_for_footer@19
 
 test_empty_for_footer@19:
     frame_dig 3
@@ -561,9 +608,10 @@ test_empty_for_footer@19:
 test_empty_after_for@20:
     // iteration/iterate_indexable.py:62
     // for idx, i in reversed(uenumerate(Bytes())):
-    bytec_1 // 0x
+    bytec_0 // 0x
     len
     frame_bury 7
+    b test_empty_for_header@21
 
 test_empty_for_header@21:
     // iteration/iterate_indexable.py:62
@@ -572,6 +620,7 @@ test_empty_for_header@21:
     intc_1 // 0
     >
     bz test_empty_after_for@24
+    b test_empty_for_body@22
 
 test_empty_for_body@22:
     frame_dig 7
@@ -581,13 +630,14 @@ test_empty_for_body@22:
     frame_bury 7
     // iteration/iterate_indexable.py:62
     // for idx, i in reversed(uenumerate(Bytes())):
-    bytec_1 // 0x
+    bytec_0 // 0x
     dig 1
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:63
     // self._log_with_index(idx, i)
     callsub _log_with_index
+    b test_empty_for_footer@23
 
 test_empty_for_footer@23:
     b test_empty_for_header@21
@@ -598,30 +648,42 @@ test_empty_after_for@24:
 
 // test_cases.iteration.iterate_indexable.IndexableIterationTest.test_break() -> void:
 test_break:
+    // iteration/iterate_indexable.py:65-67
+    // @typing.override
+    // @subroutine
+    // def test_break(self) -> None:
+    proto 0 0
+    b test_break_block@0
 
 test_break_block@0:
     // iteration/iterate_indexable.py:68
     // for b in Bytes(b"abc"):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     len
+    b test_break_for_header@1
 
 test_break_for_header@1:
     intc_1 // 0
     // iteration/iterate_indexable.py:68
     // for b in Bytes(b"abc"):
-    >
+    frame_dig 0
+    <
     bz test_break_after_for@3
+    b test_break_for_body@2
 
 test_break_for_body@2:
     // iteration/iterate_indexable.py:68
     // for b in Bytes(b"abc"):
-    bytec_0 // 0x616263
+    bytec_1 // 0x616263
     intc_1 // 0
     intc_0 // 1
     extract3
     // iteration/iterate_indexable.py:69
     // log(b)
     log
+    // iteration/iterate_indexable.py:70
+    // break
+    b test_break_after_for@3
 
 test_break_after_for@3:
     retsub
@@ -634,6 +696,7 @@ test_tuple_target:
     // @subroutine
     // def test_tuple_target(self) -> None:
     proto 0 0
+    b test_tuple_target_block@0
 
 test_tuple_target_block@0:
     // iteration/iterate_indexable.py:75
@@ -641,6 +704,7 @@ test_tuple_target_block@0:
     bytec_2 // 0x74
     len
     intc_1 // 0
+    b test_tuple_target_for_header@1
 
 test_tuple_target_for_header@1:
     // iteration/iterate_indexable.py:75
@@ -649,6 +713,7 @@ test_tuple_target_for_header@1:
     frame_dig 0
     <
     bz test_tuple_target_after_for@4
+    b test_tuple_target_for_body@2
 
 test_tuple_target_for_body@2:
     // iteration/iterate_indexable.py:75
@@ -662,6 +727,7 @@ test_tuple_target_for_body@2:
     // iteration/iterate_indexable.py:76
     // self._log_with_index(tup[0], tup[1])
     callsub _log_with_index
+    b test_tuple_target_for_footer@3
 
 test_tuple_target_for_footer@3:
     frame_dig 1
@@ -680,6 +746,7 @@ _log_with_index:
     // @subroutine
     // def _log_with_index(self, idx: UInt64, value: Bytes) -> None:
     proto 2 0
+    b _log_with_index_block@0
 
 _log_with_index_block@0:
     // iteration/base.py:33

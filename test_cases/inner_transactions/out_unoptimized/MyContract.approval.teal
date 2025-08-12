@@ -4,14 +4,17 @@
 // test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 6 5 3 1000
-    bytecblock 0x098101 0x09361a00b08101 "name" 0x31 0x756e6974 0x32 0x41535431 0x41535432 0x41535433 0x33 0x34 0x35 0x337264 0x77697468206172677320706172616d20736574 0x3432 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136
+    bytecblock 0x098101 0x09361a00b08101 0x "name" 0x31 0x756e6974 0x32 0x41535431 0x41535432 0x41535433 0x33 0x34 0x35 0x337264 0x77697468206172677320706172616d20736574 0x3432 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,18 +23,20 @@ main_after_if_else@2:
 
 // test_cases.inner_transactions.contract.MyContract.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // inner_transactions/contract.py:24
     // self.name = Bytes(b"")
-    bytec_2 // "name"
-    pushbytes 0x
+    bytec_3 // "name"
+    bytec_2 // 0x
     app_global_put
     retsub
 
 
 // test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
 approval_program:
+    b approval_program_block@0
 
 approval_program_block@0:
     // inner_transactions/contract.py:27
@@ -40,6 +45,7 @@ approval_program_block@0:
     intc_0 // 0
     !=
     bz approval_program_after_if_else@8
+    b approval_program_if_body@1
 
 approval_program_if_body@1:
     // inner_transactions/contract.py:28
@@ -69,10 +75,13 @@ approval_program_if_body@1:
     //         self.test4()
     uncover 4
     match approval_program_switch_case_0@2 approval_program_switch_case_1@3 approval_program_switch_case_2@4 approval_program_switch_case_3@5
+    b approval_program_switch_case_default@6
 
 approval_program_switch_case_default@6:
+    b approval_program_switch_case_next@7
 
 approval_program_switch_case_next@7:
+    b approval_program_after_if_else@8
 
 approval_program_after_if_else@8:
     // inner_transactions/contract.py:37
@@ -112,17 +121,19 @@ test1:
     // def test1(self) -> None:
     proto 0 0
     intc_0 // 0
+    bytec_2 // ""
+    b test1_block@0
 
 test1_block@0:
     // inner_transactions/contract.py:44
     // self.name = Bytes(b"AST1")
-    bytec_2 // "name"
-    bytec 6 // 0x41535431
+    bytec_3 // "name"
+    bytec 7 // 0x41535431
     app_global_put
     // inner_transactions/contract.py:47
     // asset_name=self.name,
     intc_0 // 0
-    bytec_2 // "name"
+    bytec_3 // "name"
     app_global_get_ex
     assert // check self.name exists
     // inner_transactions/contract.py:50
@@ -137,8 +148,8 @@ test1_block@0:
     cover 3
     // inner_transactions/contract.py:53
     // self.name = Bytes(b"AST2")
-    bytec_2 // "name"
-    bytec 7 // 0x41535432
+    bytec_3 // "name"
+    bytec 8 // 0x41535432
     app_global_put
     // inner_transactions/contract.py:54
     // asset1_txn = asset_params.submit()
@@ -151,7 +162,7 @@ test1_block@0:
     itxn_field ConfigAssetDecimals
     // inner_transactions/contract.py:48
     // unit_name=b"unit",
-    bytec 4 // 0x756e6974
+    bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
@@ -164,6 +175,7 @@ test1_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@1
 
 test1_next_txn@1:
     // inner_transactions/contract.py:54
@@ -172,18 +184,19 @@ test1_next_txn@1:
     itxn ConfigAssetName
     frame_bury 0
     itxn CreatedAssetID
+    frame_bury 1
     // inner_transactions/contract.py:57
     // asset_name=self.name,
     intc_0 // 0
-    bytec_2 // "name"
+    bytec_3 // "name"
     app_global_get_ex
     assert // check self.name exists
     // inner_transactions/contract.py:60
     // asset2_txn = asset_params.submit()
     itxn_begin
-    frame_dig 2
+    frame_dig 3
     itxn_field ConfigAssetReserve
-    frame_dig 1
+    frame_dig 2
     itxn_field ConfigAssetManager
     // inner_transactions/contract.py:49
     // decimals=3,
@@ -191,7 +204,7 @@ test1_next_txn@1:
     itxn_field ConfigAssetDecimals
     // inner_transactions/contract.py:48
     // unit_name=b"unit",
-    bytec 4 // 0x756e6974
+    bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
@@ -204,6 +217,7 @@ test1_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@2
 
 test1_next_txn@2:
     // inner_transactions/contract.py:60
@@ -211,31 +225,31 @@ test1_next_txn@2:
     itxn_submit
     itxn ConfigAssetName
     itxn CreatedAssetID
-    swap
+    cover 1
     // inner_transactions/contract.py:62
     // assert asset1_txn.asset_name == b"AST1", "asset1_txn is correct"
     frame_dig 0
-    bytec 6 // 0x41535431
+    bytec 7 // 0x41535431
     ==
     assert // asset1_txn is correct
     // inner_transactions/contract.py:63
     // assert asset2_txn.asset_name == b"AST2", "asset2_txn is correct"
-    bytec 7 // 0x41535432
+    bytec 8 // 0x41535432
     ==
     assert // asset2_txn is correct
     // inner_transactions/contract.py:65
     // assert asset1_txn.created_asset.name == b"AST1", "created asset 1 is correct"
-    swap
+    frame_dig 1
     asset_params_get AssetName
     assert // asset exists
-    bytec 6 // 0x41535431
+    bytec 7 // 0x41535431
     ==
     assert // created asset 1 is correct
     // inner_transactions/contract.py:66
     // assert asset2_txn.created_asset.name == b"AST2", "created asset 2 is correct"
     asset_params_get AssetName
     assert // asset exists
-    bytec 7 // 0x41535432
+    bytec 8 // 0x41535432
     ==
     assert // created asset 2 is correct
     // inner_transactions/contract.py:78
@@ -257,14 +271,15 @@ test1_next_txn@2:
     // fee=0,
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@3
 
 test1_next_txn@3:
     // inner_transactions/contract.py:78
     // app_create_txn, asset3_txn = itxn.submit_txns(app_create_params, asset_params)
     itxn_next
-    frame_dig 2
+    frame_dig 3
     itxn_field ConfigAssetReserve
-    frame_dig 1
+    frame_dig 2
     itxn_field ConfigAssetManager
     // inner_transactions/contract.py:49
     // decimals=3,
@@ -272,11 +287,11 @@ test1_next_txn@3:
     itxn_field ConfigAssetDecimals
     // inner_transactions/contract.py:48
     // unit_name=b"unit",
-    bytec 4 // 0x756e6974
+    bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
     // inner_transactions/contract.py:75
     // asset_name=Bytes(b"AST3"),
-    bytec 8 // 0x41535433
+    bytec 9 // 0x41535433
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,
@@ -288,6 +303,7 @@ test1_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@4
 
 test1_next_txn@4:
     // inner_transactions/contract.py:78
@@ -295,7 +311,7 @@ test1_next_txn@4:
     itxn_submit
     gitxn 0 CreatedApplicationID
     itxn ConfigAssetName
-    swap
+    cover 1
     // inner_transactions/contract.py:80
     // assert app_create_txn.created_app, "created app"
     intc_0 // 0
@@ -303,7 +319,7 @@ test1_next_txn@4:
     assert // created app
     // inner_transactions/contract.py:81
     // assert asset3_txn.asset_name == b"AST3", "asset3_txn is correct"
-    bytec 8 // 0x41535433
+    bytec 9 // 0x41535433
     ==
     assert // asset3_txn is correct
     // inner_transactions/contract.py:85-86
@@ -313,18 +329,20 @@ test1_next_txn@4:
     // inner_transactions/contract.py:83
     // app_create_params.set(note=b"3rd")
     pushint 1 // 1
-    dup
+    pushint 1 // 1
     >=
     // inner_transactions/contract.py:85-86
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
     bz test1_next_field@6
+    b test1_set_Note_0_to_0@5
 
 test1_set_Note_0_to_0@5:
     // inner_transactions/contract.py:83
     // app_create_params.set(note=b"3rd")
-    bytec 12 // 0x337264
+    bytec 13 // 0x337264
     itxn_field Note
+    b test1_next_field@6
 
 test1_next_field@6:
     // inner_transactions/contract.py:70
@@ -343,6 +361,7 @@ test1_next_field@6:
     // fee=0,
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@7
 
 test1_next_txn@7:
     // inner_transactions/contract.py:85-86
@@ -352,23 +371,25 @@ test1_next_txn@7:
     // inner_transactions/contract.py:84
     // asset_params.set(note=b"3rd")
     pushint 1 // 1
-    dup
+    pushint 1 // 1
     >=
     // inner_transactions/contract.py:85-86
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
     bz test1_next_field@9
+    b test1_set_Note_0_to_0@8
 
 test1_set_Note_0_to_0@8:
     // inner_transactions/contract.py:84
     // asset_params.set(note=b"3rd")
-    bytec 12 // 0x337264
+    bytec 13 // 0x337264
     itxn_field Note
+    b test1_next_field@9
 
 test1_next_field@9:
-    frame_dig 2
+    frame_dig 3
     itxn_field ConfigAssetReserve
-    frame_dig 1
+    frame_dig 2
     itxn_field ConfigAssetManager
     // inner_transactions/contract.py:49
     // decimals=3,
@@ -376,11 +397,11 @@ test1_next_field@9:
     itxn_field ConfigAssetDecimals
     // inner_transactions/contract.py:48
     // unit_name=b"unit",
-    bytec 4 // 0x756e6974
+    bytec 5 // 0x756e6974
     itxn_field ConfigAssetUnitName
     // inner_transactions/contract.py:75
     // asset_name=Bytes(b"AST3"),
-    bytec 8 // 0x41535433
+    bytec 9 // 0x41535433
     itxn_field ConfigAssetName
     // inner_transactions/contract.py:46
     // total=1000,
@@ -392,6 +413,7 @@ test1_next_field@9:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test1_next_txn@10
 
 test1_next_txn@10:
     // inner_transactions/contract.py:85-86
@@ -408,70 +430,81 @@ test2:
     // def test2(self) -> None:
     proto 0 0
     intc_0 // 0
-    dupn 2
-    pushbytes ""
-    dup
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_2 // ""
+    bytec_2 // ""
+    b test2_block@0
 
 test2_block@0:
     intc_0 // 0
-    pushbytes ""
+    bytec_2 // ""
     // inner_transactions/contract.py:90
     // if op.Txn.num_app_args:
     txn NumAppArgs
     intc_0 // 0
     !=
     bz test2_else_body@2
+    b test2_if_body@1
 
 test2_if_body@1:
     // inner_transactions/contract.py:91
     // args = Bytes(b"1"), Bytes(b"2")
-    bytec_3 // 0x31
+    bytec 4 // 0x31
     frame_bury 0
-    bytec 5 // 0x32
+    bytec 6 // 0x32
     frame_bury 1
     // inner_transactions/contract.py:95
     // app_args=args,
     pushint 2 // 2
-    frame_bury 3
+    frame_bury 4
     // inner_transactions/contract.py:96
     // on_completion=OnCompleteAction.NoOp,
     intc_0 // NoOp
-    frame_bury 6
+    frame_bury 7
     pushint 1 // 1
-    frame_bury 4
+    frame_bury 5
     // inner_transactions/contract.py:97
     // note=b"with args param set",
-    bytec 13 // 0x77697468206172677320706172616d20736574
+    bytec 14 // 0x77697468206172677320706172616d20736574
+    frame_bury 2
+    b test2_after_if_else@3
 
 test2_after_if_else@3:
     // inner_transactions/contract.py:106
     // create_app_txn = create_app_params.submit()
     itxn_begin
+    frame_dig 2
     itxn_field Note
-    frame_dig 4
+    frame_dig 5
     pushint 1 // 1
     >=
     bz test2_next_field@5
+    b test2_set_OnCompletion_0_to_0@4
 
 test2_set_OnCompletion_0_to_0@4:
-    frame_dig 6
+    frame_dig 7
     itxn_field OnCompletion
+    b test2_next_field@5
 
 test2_next_field@5:
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
     itxn_field ApplicationArgs
-    frame_dig 3
+    frame_dig 4
     intc_3 // 3
     >=
     // inner_transactions/contract.py:106
     // create_app_txn = create_app_params.submit()
     bz test2_next_field@7
+    b test2_set_ApplicationArgs_2_to_2@6
 
 test2_set_ApplicationArgs_2_to_2@6:
-    frame_dig 5
+    frame_dig 6
     itxn_field ApplicationArgs
+    b test2_next_field@7
 
 test2_next_field@7:
     // inner_transactions/contract.py:94
@@ -488,25 +521,26 @@ test2_next_field@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test2_next_txn@8
 
 test2_next_txn@8:
     // inner_transactions/contract.py:106
     // create_app_txn = create_app_params.submit()
     itxn_submit
     itxn Note
-    frame_bury 2
+    frame_bury 3
     // inner_transactions/contract.py:107
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     intc_0 // 0
     itxnas ApplicationArgs
-    bytec_3 // 0x31
+    bytec 4 // 0x31
     ==
     assert // correct args used 1
     // inner_transactions/contract.py:108
     // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
     pushint 1 // 1
     itxnas ApplicationArgs
-    bytec 5 // 0x32
+    bytec 6 // 0x32
     ==
     assert // correct args used 2
     // inner_transactions/contract.py:110
@@ -515,6 +549,7 @@ test2_next_txn@8:
     pushint 1 // 1
     >
     bz test2_after_if_else@11
+    b test2_if_body@9
 
 test2_if_body@9:
     // inner_transactions/contract.py:111-116
@@ -527,7 +562,7 @@ test2_if_body@9:
     itxn_begin
     // inner_transactions/contract.py:115
     // app_args=(Bytes(b"42"),),
-    bytec 14 // 0x3432
+    bytec 15 // 0x3432
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:114
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -547,6 +582,7 @@ test2_if_body@9:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test2_next_txn@10
 
 test2_next_txn@10:
     // inner_transactions/contract.py:111-116
@@ -561,15 +597,16 @@ test2_next_txn@10:
     // assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
     intc_0 // 0
     itxnas ApplicationArgs
-    bytec 14 // 0x3432
+    bytec 15 // 0x3432
     ==
     assert // correct args used 2
     // inner_transactions/contract.py:118
     // assert create_app_txn.note == b"with args param set"
-    frame_dig 2
-    bytec 13 // 0x77697468206172677320706172616d20736574
+    frame_dig 3
+    bytec 14 // 0x77697468206172677320706172616d20736574
     ==
     assert
+    b test2_after_if_else@11
 
 test2_after_if_else@11:
     retsub
@@ -577,26 +614,28 @@ test2_after_if_else@11:
 test2_else_body@2:
     // inner_transactions/contract.py:103
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
-    bytec 9 // 0x33
+    bytec 10 // 0x33
     frame_bury 0
-    bytec 10 // 0x34
+    bytec 11 // 0x34
     frame_bury 1
-    bytec 11 // 0x35
-    frame_bury 5
+    bytec 12 // 0x35
+    frame_bury 6
     intc_3 // 3
-    frame_bury 3
+    frame_bury 4
     // inner_transactions/contract.py:104
     // note=b"no args param set",
     pushbytes 0x6e6f206172677320706172616d20736574
+    frame_bury 2
     // inner_transactions/contract.py:100
     // create_app_params = itxn.ApplicationCall(
     intc_0 // 0
-    frame_bury 4
+    frame_bury 5
     b test2_after_if_else@3
 
 
 // test_cases.inner_transactions.contract.MyContract.test3() -> void:
 test3:
+    b test3_block@0
 
 test3_block@0:
     // inner_transactions/contract.py:190-207
@@ -621,7 +660,7 @@ test3_block@0:
     itxn_begin
     // inner_transactions/contract.py:126
     // app_args=(Bytes(b"1"),),
-    bytec_3 // 0x31
+    bytec 4 // 0x31
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -641,6 +680,7 @@ test3_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@1
 
 test3_next_txn@1:
     // inner_transactions/contract.py:192
@@ -656,7 +696,7 @@ test3_next_txn@1:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:130
     // app_p_2.set(app_args=(Bytes(b"2"),))
-    bytec 5 // 0x32
+    bytec 6 // 0x32
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -668,6 +708,7 @@ test3_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@2
 
 test3_next_txn@2:
     // inner_transactions/contract.py:193
@@ -683,7 +724,7 @@ test3_next_txn@2:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:133
     // app_p_3.set(app_args=(Bytes(b"3"),))
-    bytec 9 // 0x33
+    bytec 10 // 0x33
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -695,6 +736,7 @@ test3_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@3
 
 test3_next_txn@3:
     // inner_transactions/contract.py:194
@@ -710,7 +752,7 @@ test3_next_txn@3:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:136
     // app_p_4.set(app_args=(Bytes(b"4"),))
-    bytec 10 // 0x34
+    bytec 11 // 0x34
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -722,6 +764,7 @@ test3_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@4
 
 test3_next_txn@4:
     // inner_transactions/contract.py:195
@@ -737,7 +780,7 @@ test3_next_txn@4:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:139
     // app_p_5.set(app_args=(Bytes(b"5"),))
-    bytec 11 // 0x35
+    bytec 12 // 0x35
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -749,6 +792,7 @@ test3_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@5
 
 test3_next_txn@5:
     // inner_transactions/contract.py:196
@@ -776,6 +820,7 @@ test3_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@6
 
 test3_next_txn@6:
     // inner_transactions/contract.py:197
@@ -803,6 +848,7 @@ test3_next_txn@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@7
 
 test3_next_txn@7:
     // inner_transactions/contract.py:198
@@ -830,6 +876,7 @@ test3_next_txn@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@8
 
 test3_next_txn@8:
     // inner_transactions/contract.py:199
@@ -857,6 +904,7 @@ test3_next_txn@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@9
 
 test3_next_txn@9:
     // inner_transactions/contract.py:200
@@ -872,7 +920,7 @@ test3_next_txn@9:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:154
     // app_p_10.set(app_args=(Bytes(b"10"),))
-    bytec 15 // 0x3130
+    bytec 16 // 0x3130
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -884,6 +932,7 @@ test3_next_txn@9:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@10
 
 test3_next_txn@10:
     // inner_transactions/contract.py:201
@@ -899,7 +948,7 @@ test3_next_txn@10:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:157
     // app_p_11.set(app_args=(Bytes(b"11"),))
-    bytec 16 // 0x3131
+    bytec 17 // 0x3131
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -911,6 +960,7 @@ test3_next_txn@10:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@11
 
 test3_next_txn@11:
     // inner_transactions/contract.py:202
@@ -926,7 +976,7 @@ test3_next_txn@11:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:160
     // app_p_12.set(app_args=(Bytes(b"12"),))
-    bytec 17 // 0x3132
+    bytec 18 // 0x3132
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -938,6 +988,7 @@ test3_next_txn@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@12
 
 test3_next_txn@12:
     // inner_transactions/contract.py:203
@@ -953,7 +1004,7 @@ test3_next_txn@12:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:163
     // app_p_13.set(app_args=(Bytes(b"13"),))
-    bytec 18 // 0x3133
+    bytec 19 // 0x3133
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -965,6 +1016,7 @@ test3_next_txn@12:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@13
 
 test3_next_txn@13:
     // inner_transactions/contract.py:204
@@ -980,7 +1032,7 @@ test3_next_txn@13:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:166
     // app_p_14.set(app_args=(Bytes(b"14"),))
-    bytec 19 // 0x3134
+    bytec 20 // 0x3134
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -992,6 +1044,7 @@ test3_next_txn@13:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@14
 
 test3_next_txn@14:
     // inner_transactions/contract.py:205
@@ -1007,7 +1060,7 @@ test3_next_txn@14:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:169
     // app_p_15.set(app_args=(Bytes(b"15"),))
-    bytec 20 // 0x3135
+    bytec 21 // 0x3135
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -1019,6 +1072,7 @@ test3_next_txn@14:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@15
 
 test3_next_txn@15:
     // inner_transactions/contract.py:206
@@ -1034,7 +1088,7 @@ test3_next_txn@15:
     itxn_field ApprovalProgramPages
     // inner_transactions/contract.py:172
     // app_p_16.set(app_args=(Bytes(b"16"),))
-    bytec 21 // 0x3136
+    bytec 22 // 0x3136
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:125
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -1046,6 +1100,7 @@ test3_next_txn@15:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test3_next_txn@16
 
 test3_next_txn@16:
     // inner_transactions/contract.py:190-207
@@ -1078,35 +1133,35 @@ test3_next_txn@16:
     // assert app1.logs(0) == b"1"
     intc_0 // 0
     gitxnas 0 Logs
-    bytec_3 // 0x31
+    bytec 4 // 0x31
     ==
     assert
     // inner_transactions/contract.py:210
     // assert app2.logs(0) == b"2"
     intc_0 // 0
     gitxnas 1 Logs
-    bytec 5 // 0x32
+    bytec 6 // 0x32
     ==
     assert
     // inner_transactions/contract.py:211
     // assert app3.logs(0) == b"3"
     intc_0 // 0
     gitxnas 2 Logs
-    bytec 9 // 0x33
+    bytec 10 // 0x33
     ==
     assert
     // inner_transactions/contract.py:212
     // assert app4.logs(0) == b"4"
     intc_0 // 0
     gitxnas 3 Logs
-    bytec 10 // 0x34
+    bytec 11 // 0x34
     ==
     assert
     // inner_transactions/contract.py:213
     // assert app5.logs(0) == b"5"
     intc_0 // 0
     gitxnas 4 Logs
-    bytec 11 // 0x35
+    bytec 12 // 0x35
     ==
     assert
     // inner_transactions/contract.py:214
@@ -1141,49 +1196,49 @@ test3_next_txn@16:
     // assert app10.logs(0) == b"10"
     intc_0 // 0
     gitxnas 9 Logs
-    bytec 15 // 0x3130
+    bytec 16 // 0x3130
     ==
     assert
     // inner_transactions/contract.py:219
     // assert app11.logs(0) == b"11"
     intc_0 // 0
     gitxnas 10 Logs
-    bytec 16 // 0x3131
+    bytec 17 // 0x3131
     ==
     assert
     // inner_transactions/contract.py:220
     // assert app12.logs(0) == b"12"
     intc_0 // 0
     gitxnas 11 Logs
-    bytec 17 // 0x3132
+    bytec 18 // 0x3132
     ==
     assert
     // inner_transactions/contract.py:221
     // assert app13.logs(0) == b"13"
     intc_0 // 0
     gitxnas 12 Logs
-    bytec 18 // 0x3133
+    bytec 19 // 0x3133
     ==
     assert
     // inner_transactions/contract.py:222
     // assert app14.logs(0) == b"14"
     intc_0 // 0
     gitxnas 13 Logs
-    bytec 19 // 0x3134
+    bytec 20 // 0x3134
     ==
     assert
     // inner_transactions/contract.py:223
     // assert app15.logs(0) == b"15"
     intc_0 // 0
     gitxnas 14 Logs
-    bytec 20 // 0x3135
+    bytec 21 // 0x3135
     ==
     assert
     // inner_transactions/contract.py:224
     // assert app16.logs(0) == b"16"
     intc_0 // 0
     itxnas Logs
-    bytec 21 // 0x3136
+    bytec 22 // 0x3136
     ==
     assert
     // inner_transactions/contract.py:226
@@ -1198,7 +1253,7 @@ test3_next_txn@16:
     assert
     // inner_transactions/contract.py:228
     // assert app4.txn_id != b""
-    pushbytes 0x
+    bytec_2 // 0x
     !=
     assert
     retsub
@@ -1206,6 +1261,11 @@ test3_next_txn@16:
 
 // test_cases.inner_transactions.contract.MyContract.test4() -> void:
 test4:
+    // inner_transactions/contract.py:230-231
+    // @subroutine
+    // def test4(self) -> None:
+    proto 0 0
+    b test4_block@0
 
 test4_block@0:
     // inner_transactions/contract.py:232
@@ -1224,7 +1284,7 @@ test4_block@0:
     //     b"\xfc\x0f"  # varuint 2044
     // )
     // + lots_of_bytes
-    swap
+    uncover 1
     concat
     // inner_transactions/contract.py:240
     // + Bytes(b"\x48")  # pop
@@ -1260,7 +1320,7 @@ test4_block@0:
     itxn_field ExtraProgramPages
     // inner_transactions/contract.py:246
     // app_args=(Bytes(b"1"),),
-    bytec_3 // 0x31
+    bytec 4 // 0x31
     itxn_field ApplicationArgs
     // inner_transactions/contract.py:245
     // on_completion=OnCompleteAction.DeleteApplication,
@@ -1283,6 +1343,7 @@ test4_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b test4_next_txn@1
 
 test4_next_txn@1:
     // inner_transactions/contract.py:249
@@ -1290,7 +1351,7 @@ test4_next_txn@1:
     itxn_submit
     itxn ExtraProgramPages
     itxn NumApprovalProgramPages
-    swap
+    cover 1
     itxn NumClearStateProgramPages
     cover 2
     // inner_transactions/contract.py:250
@@ -1312,11 +1373,11 @@ test4_next_txn@1:
     bytec_0 // 0x098101
     // inner_transactions/contract.py:253
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
-    uncover 3
+    frame_dig 0
     dup
     cover 2
     concat
-    swap
+    cover 1
     dup
     len
     intc_3 // 3
@@ -1332,7 +1393,7 @@ test4_next_txn@1:
     uncover 2
     substring3
     uncover 2
-    swap
+    uncover 1
     concat
     uncover 2
     ==
@@ -1345,7 +1406,7 @@ test4_next_txn@1:
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     pushint 1 // 1
     itxnas ApprovalProgramPages
-    swap
+    cover 1
     dup
     len
     intc_3 // 3
@@ -1356,13 +1417,13 @@ test4_next_txn@1:
     uncover 2
     select
     dig 1
-    swap
+    uncover 1
     -
     dig 2
-    swap
+    uncover 1
     uncover 2
     substring3
-    swap
+    uncover 1
     concat
     ==
     // inner_transactions/contract.py:255-257

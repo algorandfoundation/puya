@@ -5,6 +5,7 @@
 main:
     intcblock 1 5 0 2
     bytecblock 0x48656c6c6f20576f726c64 0x6c617374
+    b main_block@0
 
 main_block@0:
     // scratch_slots/contract.py:9
@@ -17,7 +18,7 @@ main_block@0:
     uncover 2
     select
     intc_0 // 1
-    swap
+    uncover 1
     stores
     // scratch_slots/contract.py:12
     // op.Scratch.store(TWO, hello_world)
@@ -33,6 +34,7 @@ main_block@0:
     intc_0 // 1
     assert // Step cannot be zero
     pushint 3 // 3
+    b main_for_header@1
 
 main_for_header@1:
     // scratch_slots/contract.py:14
@@ -41,12 +43,14 @@ main_for_header@1:
     pushint 20 // 20
     <
     bz main_after_for@4
+    b main_for_body@2
 
 main_for_body@2:
     // scratch_slots/contract.py:15
     // op.Scratch.store(i, i)
     dupn 2
     stores
+    b main_for_footer@3
 
 main_for_footer@3:
     // scratch_slots/contract.py:14

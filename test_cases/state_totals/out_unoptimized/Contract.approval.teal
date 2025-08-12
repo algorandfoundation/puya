@@ -4,13 +4,16 @@
 // test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -19,6 +22,7 @@ main_after_if_else@2:
 
 // test_cases.state_totals.contract.Contract.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     retsub
@@ -26,6 +30,7 @@ __init___block@0:
 
 // test_cases.state_totals.contract.Contract.create() -> void:
 create:
+    b create_block@0
 
 create_block@0:
     retsub
@@ -33,8 +38,12 @@ create_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // state_totals/contract.py:6-9
@@ -46,8 +55,10 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@3
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
+    b approval_program_after_if_else@7
 
 approval_program_after_if_else@7:
     // state_totals/contract.py:6-9
@@ -56,8 +67,12 @@ approval_program_after_if_else@7:
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8
 
 approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_bare_routing@3:
@@ -68,10 +83,12 @@ approval_program_bare_routing@3:
     // ):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program_create@4
+    b approval_program_switch_case_default@5
 
 approval_program_switch_case_default@5:
+    b approval_program_switch_case_next@6
 
 approval_program_switch_case_next@6:
     b approval_program_after_if_else@7
@@ -85,4 +102,5 @@ approval_program_create@4:
     assert // can only call when creating
     callsub create
     pushint 1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8

@@ -4,9 +4,12 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8
-    bytecblock 0x151f7c75 0x48656c6c6f20576f726c64
+    bytecblock 0x151f7c75 0x48656c6c6f20576f726c64 0x
+    bytec_2 // ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // intrinsics/optimizations.py:4
@@ -15,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@10
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // intrinsics/optimizations.py:4
@@ -27,15 +31,20 @@ main_abi_routing@2:
     pushbytes 0xb15dc12a // method "all(byte[])(byte[],byte[],byte[],byte[])"
     uncover 5
     match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7
+    b main_switch_case_default@8
 
 main_switch_case_default@8:
+    b main_switch_case_next@9
 
 main_switch_case_next@9:
+    b main_after_if_else@14
 
 main_after_if_else@14:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15:
     return
@@ -60,20 +69,20 @@ main_all_route@7:
     callsub all
     cover 3
     cover 2
-    swap
+    cover 1
     dup
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     intc_2 // 8
     itob
     extract 6 2
-    pushbytes 0x
-    swap
+    bytec_2 // 0x
+    uncover 1
     concat
-    swap
+    cover 1
     dup
     len
     intc_2 // 8
@@ -88,7 +97,7 @@ main_all_route@7:
     itob
     extract 6 2
     uncover 4
-    swap
+    uncover 1
     concat
     cover 2
     dup
@@ -105,7 +114,7 @@ main_all_route@7:
     itob
     extract 6 2
     uncover 4
-    swap
+    uncover 1
     concat
     cover 2
     dup
@@ -118,11 +127,11 @@ main_all_route@7:
     extract 6 2
     uncover 6
     concat
-    swap
+    cover 1
     itob
     extract 6 2
     uncover 3
-    swap
+    uncover 1
     concat
     uncover 4
     concat
@@ -130,13 +139,14 @@ main_all_route@7:
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_keccak256_route@6:
@@ -155,13 +165,14 @@ main_keccak256_route@6:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha512_256_route@5:
@@ -180,13 +191,14 @@ main_sha512_256_route@5:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha3_256_route@4:
@@ -205,13 +217,14 @@ main_sha3_256_route@4:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha256_route@3:
@@ -230,13 +243,14 @@ main_sha256_route@3:
     len
     itob
     extract 6 2
-    swap
+    uncover 1
     concat
     bytec_0 // 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_bare_routing@10:
@@ -244,10 +258,12 @@ main_bare_routing@10:
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@11
+    b main_switch_case_default@12
 
 main_switch_case_default@12:
+    b main_switch_case_next@13
 
 main_switch_case_next@13:
     b main_after_if_else@14
@@ -257,16 +273,20 @@ main___algopy_default_create@11:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@16
 
 main_block@16:
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17
 
 main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 
 // test_cases.intrinsics.optimizations.Optimizations.sha256() -> bytes:
 sha256:
+    b sha256_block@0
 
 sha256_block@0:
     // intrinsics/optimizations.py:7
@@ -278,6 +298,7 @@ sha256_block@0:
 
 // test_cases.intrinsics.optimizations.Optimizations.sha3_256() -> bytes:
 sha3_256:
+    b sha3_256_block@0
 
 sha3_256_block@0:
     // intrinsics/optimizations.py:11
@@ -289,6 +310,7 @@ sha3_256_block@0:
 
 // test_cases.intrinsics.optimizations.Optimizations.sha512_256() -> bytes:
 sha512_256:
+    b sha512_256_block@0
 
 sha512_256_block@0:
     // intrinsics/optimizations.py:15
@@ -300,6 +322,7 @@ sha512_256_block@0:
 
 // test_cases.intrinsics.optimizations.Optimizations.keccak256() -> bytes:
 keccak256:
+    b keccak256_block@0
 
 keccak256_block@0:
     // intrinsics/optimizations.py:19
@@ -315,6 +338,7 @@ all:
     // @arc4.abimethod()
     // def all(self, value_to_hash: Bytes) -> tuple[Bytes, Bytes, Bytes, Bytes]:
     proto 1 4
+    b all_block@0
 
 all_block@0:
     // intrinsics/optimizations.py:24

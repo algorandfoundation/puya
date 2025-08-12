@@ -4,13 +4,16 @@
 // test_cases.diamond_mro.base1.Base1.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -19,6 +22,7 @@ main_after_if_else@2:
 
 // test_cases.diamond_mro.base1.Base1.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // diamond_mro/base1.py:8
@@ -33,6 +37,7 @@ __init___block@0:
 
 // test_cases.diamond_mro.base1.Base1.method() -> void:
 method:
+    b method_block@0
 
 method_block@0:
     // diamond_mro/base1.py:13
@@ -47,6 +52,7 @@ method_block@0:
 
 // test_cases.diamond_mro.gp.GP.__init__() -> void:
 test_cases.diamond_mro.gp.GP.__init__:
+    b test_cases.diamond_mro.gp.GP.__init___block@0
 
 test_cases.diamond_mro.gp.GP.__init___block@0:
     // diamond_mro/gp.py:8
@@ -61,6 +67,7 @@ test_cases.diamond_mro.gp.GP.__init___block@0:
 
 // test_cases.diamond_mro.gp.GP.create() -> void:
 create:
+    b create_block@0
 
 create_block@0:
     retsub
@@ -68,6 +75,7 @@ create_block@0:
 
 // test_cases.diamond_mro.gp.GP.method() -> void:
 test_cases.diamond_mro.gp.GP.method:
+    b test_cases.diamond_mro.gp.GP.method_block@0
 
 test_cases.diamond_mro.gp.GP.method_block@0:
     // diamond_mro/gp.py:17
@@ -79,8 +87,12 @@ test_cases.diamond_mro.gp.GP.method_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    pushbytes ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // diamond_mro/base1.py:6
@@ -89,6 +101,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@7
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // diamond_mro/base1.py:6
@@ -98,17 +111,24 @@ approval_program_abi_routing@2:
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 2
     match approval_program_method_route@3 approval_program_create_route@4
+    b approval_program_switch_case_default@5
 
 approval_program_switch_case_default@5:
+    b approval_program_switch_case_next@6
 
 approval_program_switch_case_next@6:
+    b approval_program_after_if_else@8
 
 approval_program_after_if_else@8:
     // diamond_mro/base1.py:6
     // class Base1(GP):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
 
 approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_create_route@4:
@@ -124,6 +144,7 @@ approval_program_create_route@4:
     assert // can only call when creating
     callsub create
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
 
 approval_program_method_route@3:
@@ -139,6 +160,7 @@ approval_program_method_route@3:
     assert // can only call when not creating
     callsub method
     intc_1 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
 
 approval_program_bare_routing@7:
@@ -147,6 +169,7 @@ approval_program_bare_routing@7:
 
 // algopy._contract.Contract.__init__() -> void:
 algopy._contract.Contract.__init__:
+    b algopy._contract.Contract.__init___block@0
 
 algopy._contract.Contract.__init___block@0:
     retsub

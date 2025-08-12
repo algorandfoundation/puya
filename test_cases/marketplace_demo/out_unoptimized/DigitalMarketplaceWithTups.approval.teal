@@ -3,15 +3,18 @@
 
 // test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 8 4
+    intcblock 0 8 1 4
     bytecblock 0x 0x6c697374696e6773
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // marketplace_demo/marketplace_with_tups.py:40
@@ -31,6 +35,7 @@ __init___block@0:
 
 // test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr() -> uint64:
 listings_box_mbr:
+    b listings_box_mbr_block@0
 
 listings_box_mbr_block@0:
     // marketplace_demo/marketplace_with_tups.py:45-66
@@ -66,6 +71,7 @@ quantity_price:
     // @subroutine
     // def quantity_price(self, quantity: UInt64, price: UInt64, asset_decimals: UInt64) -> UInt64:
     proto 3 1
+    b quantity_price_block@0
 
 quantity_price_block@0:
     // marketplace_demo/marketplace_with_tups.py:70
@@ -87,8 +93,9 @@ quantity_price_block@0:
     uncover 3
     uncover 3
     divmodw
-    popn 2
-    swap
+    cover 3
+    cover 2
+    cover 1
     // marketplace_demo/marketplace_with_tups.py:75
     // assert _quotient_high == 0
     intc_0 // 0
@@ -96,11 +103,13 @@ quantity_price_block@0:
     assert
     // marketplace_demo/marketplace_with_tups.py:77
     // return amount_to_be_paid
+    frame_bury 0
     retsub
 
 
 // test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.get_listings_mbr() -> uint64:
 get_listings_mbr:
+    b get_listings_mbr_block@0
 
 get_listings_mbr_block@0:
     // marketplace_demo/marketplace_with_tups.py:81
@@ -115,6 +124,7 @@ allow_asset:
     // @arc4.abimethod(name="allowAsset")
     // def allow_asset(self, mbr_pay: gtxn.PaymentTransaction, asset: Asset) -> None:
     proto 2 0
+    b allow_asset_block@0
 
 allow_asset_block@0:
     // marketplace_demo/marketplace_with_tups.py:85
@@ -122,7 +132,6 @@ allow_asset_block@0:
     global CurrentApplicationAddress
     frame_dig -1
     asset_holding_get AssetBalance
-    bury 1
     !
     assert
     // marketplace_demo/marketplace_with_tups.py:87
@@ -158,6 +167,7 @@ allow_asset_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b allow_asset_next_txn@1
 
 allow_asset_next_txn@1:
     // marketplace_demo/marketplace_with_tups.py:90-92
@@ -180,6 +190,7 @@ first_deposit:
     //     nonce: UInt64,
     // ) -> None:
     proto 4 0
+    b first_deposit_block@0
 
 first_deposit_block@0:
     // marketplace_demo/marketplace_with_tups.py:102
@@ -208,14 +219,14 @@ first_deposit_block@0:
     txn Sender
     frame_dig -3
     gtxns XferAsset
-    swap
+    cover 1
     frame_dig -1
     cover 2
     // marketplace_demo/marketplace_with_tups.py:107
     // assert key not in self.listings
     dup
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     dig 2
     itob
@@ -224,10 +235,11 @@ first_deposit_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_len
-    bury 1
+    cover 1
+    cover 4
     !
     assert
     // marketplace_demo/marketplace_with_tups.py:109
@@ -258,12 +270,12 @@ first_deposit_block@0:
     // marketplace_demo/marketplace_with_tups.py:116
     // bidder=Account(),
     global ZeroAddress
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_tups.py:113
     // self.listings[key] = ListingValue(
     uncover 2
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 3
     itob
@@ -272,12 +284,12 @@ first_deposit_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -2
     itob
@@ -316,6 +328,7 @@ deposit:
     // @arc4.abimethod
     // def deposit(self, xfer: gtxn.AssetTransferTransaction, nonce: UInt64) -> None:
     proto 2 0
+    b deposit_block@0
 
 deposit_block@0:
     // marketplace_demo/marketplace_with_tups.py:123
@@ -323,7 +336,7 @@ deposit_block@0:
     txn Sender
     frame_dig -2
     gtxns XferAsset
-    swap
+    cover 1
     frame_dig -1
     cover 2
     // marketplace_demo/marketplace_with_tups.py:125
@@ -351,7 +364,7 @@ deposit_block@0:
     // existing = self.listings[key]
     dup
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     dig 2
     itob
@@ -360,39 +373,39 @@ deposit_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    intc_2 // 8
-    dup
+    intc_1 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -412,7 +425,7 @@ deposit_block@0:
     // self.listings[key] = ListingValue(
     uncover 5
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 6
     itob
@@ -421,12 +434,12 @@ deposit_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 2
     itob
@@ -457,20 +470,21 @@ set_price:
     // @arc4.abimethod(name="setPrice")
     // def set_price(self, asset: Asset, nonce: UInt64, unitary_price: UInt64) -> None:
     proto 3 0
+    b set_price_block@0
 
 set_price_block@0:
     // marketplace_demo/marketplace_with_tups.py:140
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
     txn Sender
     frame_dig -3
-    swap
+    cover 1
     frame_dig -2
     cover 2
     // marketplace_demo/marketplace_with_tups.py:142
     // existing = self.listings[key]
     dup
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     dig 2
     itob
@@ -479,33 +493,33 @@ set_price_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -517,7 +531,7 @@ set_price_block@0:
     // self.listings[key] = ListingValue(
     uncover 4
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 5
     itob
@@ -526,12 +540,12 @@ set_price_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -1
     itob
@@ -569,20 +583,21 @@ buy:
     //     quantity: UInt64,
     // ) -> None:
     proto 5 0
+    b buy_block@0
 
 buy_block@0:
     // marketplace_demo/marketplace_with_tups.py:160
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
     frame_dig -5
     frame_dig -4
-    swap
+    cover 1
     frame_dig -3
     cover 2
     // marketplace_demo/marketplace_with_tups.py:162
     // listing = self.listings[key]
     dup
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     dig 2
     itob
@@ -591,39 +606,39 @@ buy_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    intc_2 // 8
-    dup
+    intc_1 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -665,14 +680,14 @@ buy_block@0:
     assert
     // marketplace_demo/marketplace_with_tups.py:175
     // deposited=listing.deposited - quantity,
-    swap
+    uncover 1
     frame_dig -1
     -
     // marketplace_demo/marketplace_with_tups.py:170
     // self.listings[key] = ListingValue(
     uncover 5
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 6
     itob
@@ -681,12 +696,12 @@ buy_block@0:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
-    swap
+    cover 1
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 2
     itob
@@ -727,6 +742,7 @@ buy_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b buy_next_txn@1
 
 buy_next_txn@1:
     // marketplace_demo/marketplace_with_tups.py:178-180
@@ -743,6 +759,7 @@ withdraw:
     // @arc4.abimethod
     // def withdraw(self, asset: Asset, nonce: UInt64) -> None:
     proto 2 0
+    b withdraw_block@0
 
 withdraw_block@0:
     // marketplace_demo/marketplace_with_tups.py:184
@@ -760,42 +777,42 @@ withdraw_block@0:
     // marketplace_demo/marketplace_with_tups.py:186
     // listing = self.listings[key]
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 3
-    swap
+    cover 1
     uncover 3
     cover 2
     cover 3
@@ -804,12 +821,13 @@ withdraw_block@0:
     cover 3
     cover 3
     cover 2
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_tups.py:187
     // if listing.bidder != Account():
     global ZeroAddress
     !=
     bz withdraw_after_if_else@3
+    b withdraw_if_body@1
 
 withdraw_if_body@1:
     // marketplace_demo/marketplace_with_tups.py:189
@@ -831,27 +849,29 @@ withdraw_if_body@1:
     // marketplace_demo/marketplace_with_tups.py:186
     // listing = self.listings[key]
     frame_dig 4
-    swap
+    cover 1
     itxn_field Amount
     itxn_field Receiver
     // marketplace_demo/marketplace_with_tups.py:191
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
-    intc_1 // pay
+    intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@2
 
 withdraw_next_txn@2:
     // marketplace_demo/marketplace_with_tups.py:191
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
     itxn_submit
+    b withdraw_after_if_else@3
 
 withdraw_after_if_else@3:
     // marketplace_demo/marketplace_with_tups.py:193
     // del self.listings[key]
     frame_dig 0
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig 1
     itob
@@ -860,7 +880,7 @@ withdraw_after_if_else@3:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_del
     pop
@@ -871,10 +891,11 @@ withdraw_after_if_else@3:
     callsub listings_box_mbr
     itxn_field Amount
     itxn_field Receiver
-    intc_1 // pay
+    intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@4
 
 withdraw_next_txn@4:
     // marketplace_demo/marketplace_with_tups.py:195
@@ -901,6 +922,7 @@ withdraw_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@5
 
 withdraw_next_txn@5:
     // marketplace_demo/marketplace_with_tups.py:197-199
@@ -925,6 +947,7 @@ bid:
     //     unitary_price: UInt64,
     // ) -> None:
     proto 6 0
+    b bid_block@0
 
 bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:211
@@ -942,48 +965,48 @@ bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:213
     // listing = self.listings[key]
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    intc_2 // 8
-    dup
+    intc_1 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -993,13 +1016,14 @@ bid_block@0:
     cover 3
     dup
     cover 3
-    swap
+    uncover 1
     cover 2
     // marketplace_demo/marketplace_with_tups.py:214
     // if listing.bidder != Account():
     global ZeroAddress
     !=
     bz bid_after_if_else@3
+    b bid_if_body@1
 
 bid_if_body@1:
     // marketplace_demo/marketplace_with_tups.py:215
@@ -1029,20 +1053,22 @@ bid_if_body@1:
     // marketplace_demo/marketplace_with_tups.py:213
     // listing = self.listings[key]
     frame_dig 5
-    swap
+    cover 1
     itxn_field Amount
     itxn_field Receiver
     // marketplace_demo/marketplace_with_tups.py:221
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
-    intc_1 // pay
+    intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b bid_next_txn@2
 
 bid_next_txn@2:
     // marketplace_demo/marketplace_with_tups.py:221
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
     itxn_submit
+    b bid_after_if_else@3
 
 bid_after_if_else@3:
     // marketplace_demo/marketplace_with_tups.py:223
@@ -1081,7 +1107,7 @@ bid_after_if_else@3:
     // self.listings[key] = ListingValue(
     frame_dig 0
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig 1
     itob
@@ -1090,12 +1116,12 @@ bid_after_if_else@3:
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     frame_dig 3
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig 4
     itob
@@ -1127,6 +1153,8 @@ accept_bid:
     // def accept_bid(self, asset: Asset, nonce: UInt64) -> None:
     proto 2 0
     bytec_0 // ""
+    bytec_0 // ""
+    b accept_bid_block@0
 
 accept_bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:239
@@ -1144,48 +1172,48 @@ accept_bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:241
     // listing = self.listings[key]
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
     dup
     intc_0 // 0
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
-    intc_2 // 8
-    dup
+    intc_1 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 16 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     dup
     pushint 48 // 48
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 56 // 56
-    intc_2 // 8
+    intc_1 // 8
     extract3
     btoi
     uncover 4
-    swap
+    cover 1
     uncover 4
     cover 2
     uncover 4
@@ -1197,11 +1225,11 @@ accept_bid_block@0:
     cover 4
     dup
     cover 4
-    swap
+    uncover 1
     dup
     cover 3
     cover 4
-    swap
+    uncover 1
     cover 3
     // marketplace_demo/marketplace_with_tups.py:242
     // assert listing.bidder != Account()
@@ -1212,15 +1240,19 @@ accept_bid_block@0:
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
     <
     bz accept_bid_ternary_false@2
+    b accept_bid_ternary_true@1
 
 accept_bid_ternary_true@1:
     // marketplace_demo/marketplace_with_tups.py:244
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
-    frame_dig 4
+    frame_dig 5
+    frame_bury 1
+    b accept_bid_ternary_merge@3
 
 accept_bid_ternary_merge@3:
     // marketplace_demo/marketplace_with_tups.py:244
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    frame_dig 1
     dup
     frame_bury 0
     // marketplace_demo/marketplace_with_tups.py:247
@@ -1232,21 +1264,22 @@ accept_bid_ternary_merge@3:
     // best_bid_amount = self.quantity_price(
     //     min_quantity, listing.bidUnitaryPrice, asset.decimals
     // )
-    swap
-    frame_dig 8
+    uncover 1
+    frame_dig 9
     uncover 2
     callsub quantity_price
     // marketplace_demo/marketplace_with_tups.py:250
     // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
     itxn_begin
     txn Sender
-    swap
+    cover 1
     itxn_field Amount
     itxn_field Receiver
-    intc_1 // pay
+    intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b accept_bid_next_txn@4
 
 accept_bid_next_txn@4:
     // marketplace_demo/marketplace_with_tups.py:250
@@ -1262,7 +1295,7 @@ accept_bid_next_txn@4:
     frame_dig -2
     // marketplace_demo/marketplace_with_tups.py:241
     // listing = self.listings[key]
-    frame_dig 6
+    frame_dig 7
     // marketplace_demo/marketplace_with_tups.py:253
     // xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
     frame_dig 0
@@ -1275,6 +1308,7 @@ accept_bid_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b accept_bid_next_txn@5
 
 accept_bid_next_txn@5:
     // marketplace_demo/marketplace_with_tups.py:252-254
@@ -1284,47 +1318,47 @@ accept_bid_next_txn@5:
     itxn_submit
     // marketplace_demo/marketplace_with_tups.py:260
     // deposited=listing.deposited - min_quantity,
-    frame_dig 4
+    frame_dig 5
     frame_dig 0
     dup
     cover 2
     -
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_tups.py:261
     // bid=listing.bid - min_quantity,
-    frame_dig 7
-    swap
+    frame_dig 8
+    uncover 1
     -
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_tups.py:256
     // self.listings[key] = ListingValue(
-    frame_dig 1
-    bytec_0 // 0x
-    swap
-    concat
     frame_dig 2
-    itob
+    bytec_0 // 0x
+    uncover 1
     concat
     frame_dig 3
     itob
     concat
-    bytec_1 // 0x6c697374696e6773
-    swap
+    frame_dig 4
+    itob
     concat
-    swap
+    bytec_1 // 0x6c697374696e6773
+    uncover 1
+    concat
+    cover 1
     itob
     bytec_0 // 0x
-    swap
-    concat
-    frame_dig 5
-    itob
+    uncover 1
     concat
     frame_dig 6
+    itob
+    concat
+    frame_dig 7
     concat
     uncover 2
     itob
     concat
-    frame_dig 8
+    frame_dig 9
     itob
     concat
     // marketplace_demo/marketplace_with_tups.py:256-262
@@ -1341,14 +1375,19 @@ accept_bid_next_txn@5:
 accept_bid_ternary_false@2:
     // marketplace_demo/marketplace_with_tups.py:244
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
-    frame_dig 7
+    frame_dig 8
+    frame_bury 1
     b accept_bid_ternary_merge@3
 
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_0 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // marketplace_demo/marketplace_with_tups.py:38
@@ -1357,6 +1396,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@14
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // marketplace_demo/marketplace_with_tups.py:38
@@ -1373,17 +1413,24 @@ approval_program_abi_routing@2:
     pushbytes 0xcc826346 // method "acceptBid(uint64,uint64)void"
     uncover 9
     match approval_program_getListingsMbr_route@3 approval_program_allowAsset_route@4 approval_program_firstDeposit_route@5 approval_program_deposit_route@6 approval_program_setPrice_route@7 approval_program_buy_route@8 approval_program_withdraw_route@9 approval_program_bid_route@10 approval_program_acceptBid_route@11
+    b approval_program_switch_case_default@12
 
 approval_program_switch_case_default@12:
+    b approval_program_switch_case_next@13
 
 approval_program_switch_case_next@13:
+    b approval_program_after_if_else@20
 
 approval_program_after_if_else@20:
     // marketplace_demo/marketplace_with_tups.py:38
     // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_acceptBid_route@11:
@@ -1406,7 +1453,8 @@ approval_program_acceptBid_route@11:
     // marketplace_demo/marketplace_with_tups.py:237
     // @arc4.abimethod(name="acceptBid")
     callsub accept_bid
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_bid_route@10:
@@ -1428,11 +1476,11 @@ approval_program_bid_route@10:
     txna ApplicationArgs 3
     btoi
     txn GroupIndex
-    intc_1 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_2 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
@@ -1448,7 +1496,8 @@ approval_program_bid_route@10:
     uncover 5
     uncover 5
     callsub bid
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_withdraw_route@9:
@@ -1471,7 +1520,8 @@ approval_program_withdraw_route@9:
     // marketplace_demo/marketplace_with_tups.py:182
     // @arc4.abimethod
     callsub withdraw
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_buy_route@8:
@@ -1493,11 +1543,11 @@ approval_program_buy_route@8:
     txna ApplicationArgs 3
     btoi
     txn GroupIndex
-    intc_1 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_2 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
@@ -1510,7 +1560,8 @@ approval_program_buy_route@8:
     uncover 4
     uncover 4
     callsub buy
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_setPrice_route@7:
@@ -1538,7 +1589,8 @@ approval_program_setPrice_route@7:
     uncover 2
     uncover 2
     callsub set_price
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_deposit_route@6:
@@ -1555,7 +1607,7 @@ approval_program_deposit_route@6:
     // marketplace_demo/marketplace_with_tups.py:38
     // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     txn GroupIndex
-    intc_1 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
@@ -1567,7 +1619,8 @@ approval_program_deposit_route@6:
     // marketplace_demo/marketplace_with_tups.py:121
     // @arc4.abimethod
     callsub deposit
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_firstDeposit_route@5:
@@ -1588,11 +1641,11 @@ approval_program_firstDeposit_route@5:
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_2 // pay
     ==
     assert // transaction type is pay
     txn GroupIndex
-    intc_1 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
@@ -1610,7 +1663,8 @@ approval_program_firstDeposit_route@5:
     uncover 3
     uncover 3
     callsub first_deposit
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_allowAsset_route@4:
@@ -1627,11 +1681,11 @@ approval_program_allowAsset_route@4:
     // marketplace_demo/marketplace_with_tups.py:38
     // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     txn GroupIndex
-    intc_1 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_2 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
@@ -1639,7 +1693,8 @@ approval_program_allowAsset_route@4:
     // marketplace_demo/marketplace_with_tups.py:83
     // @arc4.abimethod(name="allowAsset")
     callsub allow_asset
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_getListingsMbr_route@3:
@@ -1656,10 +1711,11 @@ approval_program_getListingsMbr_route@3:
     callsub get_listings_mbr
     itob
     pushbytes 0x151f7c75
-    swap
+    uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
 
 approval_program_bare_routing@14:
@@ -1667,10 +1723,12 @@ approval_program_bare_routing@14:
     // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@15
+    b approval_program_switch_case_default@18
 
 approval_program_switch_case_default@18:
+    b approval_program_switch_case_next@19
 
 approval_program_switch_case_next@19:
     b approval_program_after_if_else@20
@@ -1680,9 +1738,12 @@ approval_program___algopy_default_create@15:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@16
 
 approval_program_block@16:
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_default_create@17
 
 approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_default_create@17:
-    intc_1 // 1
+    intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21

@@ -5,13 +5,16 @@
 main:
     intcblock 0 8 1 16
     bytecblock 0x 0x6c697374696e6773
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -20,6 +23,7 @@ main_after_if_else@2:
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:39
@@ -31,6 +35,7 @@ __init___block@0:
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.listings_box_mbr() -> uint64:
 listings_box_mbr:
+    b listings_box_mbr_block@0
 
 listings_box_mbr_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:44-65
@@ -66,6 +71,7 @@ quantity_price:
     // @subroutine
     // def quantity_price(self, quantity: UInt64, price: UInt64, asset_decimals: UInt64) -> UInt64:
     proto 3 1
+    b quantity_price_block@0
 
 quantity_price_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:69
@@ -87,8 +93,9 @@ quantity_price_block@0:
     uncover 3
     uncover 3
     divmodw
-    popn 2
-    swap
+    cover 3
+    cover 2
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:74
     // assert _quotient_high == 0
     intc_0 // 0
@@ -96,11 +103,13 @@ quantity_price_block@0:
     assert
     // marketplace_demo/marketplace_with_mutable_struct.py:76
     // return amount_to_be_paid
+    frame_bury 0
     retsub
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr() -> uint64:
 get_listings_mbr:
+    b get_listings_mbr_block@0
 
 get_listings_mbr_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:80
@@ -115,6 +124,7 @@ allow_asset:
     // @arc4.abimethod(name="allowAsset")
     // def allow_asset(self, mbr_pay: gtxn.PaymentTransaction, asset: Asset) -> None:
     proto 2 0
+    b allow_asset_block@0
 
 allow_asset_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:84
@@ -122,7 +132,6 @@ allow_asset_block@0:
     global CurrentApplicationAddress
     frame_dig -1
     asset_holding_get AssetBalance
-    bury 1
     !
     assert
     // marketplace_demo/marketplace_with_mutable_struct.py:86
@@ -158,6 +167,7 @@ allow_asset_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b allow_asset_next_txn@1
 
 allow_asset_next_txn@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:89-91
@@ -180,6 +190,7 @@ first_deposit:
     //     nonce: UInt64,
     // ) -> None:
     proto 4 0
+    b first_deposit_block@0
 
 first_deposit_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:101
@@ -208,11 +219,11 @@ first_deposit_block@0:
     txn Sender
     frame_dig -3
     gtxns XferAsset
-    swap
+    cover 1
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
     frame_dig -1
@@ -224,7 +235,8 @@ first_deposit_block@0:
     dig 1
     concat
     box_len
-    bury 1
+    cover 1
+    cover 2
     !
     assert
     // marketplace_demo/marketplace_with_mutable_struct.py:108
@@ -255,7 +267,7 @@ first_deposit_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:115
     // bidder=Account(),
     global ZeroAddress
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:112-118
     // self.listings[key] = ListingValue(
     //     deposited=xfer.asset_amount,
@@ -266,12 +278,12 @@ first_deposit_block@0:
     // )
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -2
     itob
     concat
-    swap
+    uncover 1
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:116
     // bid=UInt64(),
@@ -312,7 +324,7 @@ first_deposit_block@0:
     //     bid=UInt64(),
     //     bidUnitaryPrice=UInt64(),
     // )
-    swap
+    uncover 1
     box_put
     retsub
 
@@ -323,6 +335,7 @@ deposit:
     // @arc4.abimethod
     // def deposit(self, xfer: gtxn.AssetTransferTransaction, nonce: UInt64) -> None:
     proto 2 0
+    b deposit_block@0
 
 deposit_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:122
@@ -330,11 +343,11 @@ deposit_block@0:
     txn Sender
     frame_dig -2
     gtxns XferAsset
-    swap
+    cover 1
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
     frame_dig -1
@@ -375,7 +388,7 @@ deposit_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:131
     // bidUnitaryPrice=existing.bidUnitaryPrice,
     dup
@@ -383,22 +396,22 @@ deposit_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:132
     // bidder=existing.bidder,
     dup
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:133
     // unitaryPrice=existing.unitaryPrice,
     dup
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:134
     // deposited=existing.deposited + xfer.asset_amount,
     intc_0 // 0
@@ -418,17 +431,17 @@ deposit_block@0:
     // )
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     concat
     uncover 2
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:129
@@ -444,7 +457,7 @@ deposit_block@0:
     //     unitaryPrice=existing.unitaryPrice,
     //     deposited=existing.deposited + xfer.asset_amount,
     // )
-    swap
+    uncover 1
     box_put
     retsub
 
@@ -455,13 +468,14 @@ set_price:
     // @arc4.abimethod(name="setPrice")
     // def set_price(self, asset: Asset, nonce: UInt64, unitary_price: UInt64) -> None:
     proto 3 0
+    b set_price_block@0
 
 set_price_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:139
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
     txn Sender
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -3
     itob
@@ -483,7 +497,7 @@ set_price_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:144
     // bidUnitaryPrice=existing.bidUnitaryPrice,
     dup
@@ -491,14 +505,14 @@ set_price_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:145
     // bidder=existing.bidder,
     dup
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:146
     // deposited=existing.deposited,
     intc_0 // 0
@@ -515,17 +529,17 @@ set_price_block@0:
     // )
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -1
     itob
     concat
-    swap
+    uncover 1
     concat
     uncover 2
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:142
@@ -541,7 +555,7 @@ set_price_block@0:
     //     deposited=existing.deposited,
     //     unitaryPrice=unitary_price,
     // )
-    swap
+    uncover 1
     box_put
     retsub
 
@@ -559,13 +573,14 @@ buy:
     //     quantity: UInt64,
     // ) -> None:
     proto 5 0
+    b buy_block@0
 
 buy_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:159
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
     frame_dig -5
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -4
     itob
@@ -584,7 +599,7 @@ buy_block@0:
     // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
     dup
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     frame_dig -4
@@ -621,7 +636,7 @@ buy_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:171
     // bidUnitaryPrice=listing.bidUnitaryPrice,
     dup
@@ -629,22 +644,22 @@ buy_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:172
     // bidder=listing.bidder,
     dup
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:173
     // unitaryPrice=listing.unitaryPrice,
     dup
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:174
     // deposited=listing.deposited - quantity,
     intc_0 // 0
@@ -663,17 +678,17 @@ buy_block@0:
     // )
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     concat
     uncover 2
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:169
@@ -689,7 +704,7 @@ buy_block@0:
     //     unitaryPrice=listing.unitaryPrice,
     //     deposited=listing.deposited - quantity,
     // )
-    swap
+    uncover 1
     box_put
     // marketplace_demo/marketplace_with_mutable_struct.py:177-179
     // itxn.AssetTransfer(
@@ -710,6 +725,7 @@ buy_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b buy_next_txn@1
 
 buy_next_txn@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:177-179
@@ -726,13 +742,14 @@ withdraw:
     // @arc4.abimethod
     // def withdraw(self, asset: Asset, nonce: UInt64) -> None:
     proto 2 0
+    b withdraw_block@0
 
 withdraw_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:183
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
     txn Sender
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -2
     itob
@@ -744,7 +761,7 @@ withdraw_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:185
     // listing = self.listings[key].copy()
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
@@ -757,6 +774,7 @@ withdraw_block@0:
     global ZeroAddress
     !=
     bz withdraw_after_if_else@3
+    b withdraw_if_body@1
 
 withdraw_if_body@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:188
@@ -767,7 +785,7 @@ withdraw_if_body@1:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 56 // 56
     intc_1 // 8
@@ -787,22 +805,24 @@ withdraw_if_body@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:190
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
     itxn_begin
-    swap
+    uncover 1
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    uncover 1
     itxn_field Amount
     itxn_field Receiver
     intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@2
 
 withdraw_next_txn@2:
     // marketplace_demo/marketplace_with_mutable_struct.py:190
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
     itxn_submit
+    b withdraw_after_if_else@3
 
 withdraw_after_if_else@3:
     // marketplace_demo/marketplace_with_mutable_struct.py:192
@@ -823,6 +843,7 @@ withdraw_after_if_else@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@4
 
 withdraw_next_txn@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:194
@@ -851,6 +872,7 @@ withdraw_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b withdraw_next_txn@5
 
 withdraw_next_txn@5:
     // marketplace_demo/marketplace_with_mutable_struct.py:196-198
@@ -875,13 +897,14 @@ bid:
     //     unitary_price: UInt64,
     // ) -> None:
     proto 6 0
+    b bid_block@0
 
 bid_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:210
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
     frame_dig -6
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -5
     itob
@@ -893,7 +916,7 @@ bid_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:212
     // listing = self.listings[key].copy()
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
@@ -906,6 +929,7 @@ bid_block@0:
     global ZeroAddress
     !=
     bz bid_after_if_else@3
+    b bid_if_body@1
 
 bid_if_body@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:214
@@ -926,7 +950,7 @@ bid_if_body@1:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     dup
     pushint 56 // 56
     intc_1 // 8
@@ -946,22 +970,24 @@ bid_if_body@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:220
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
     itxn_begin
-    swap
+    uncover 1
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    uncover 1
     itxn_field Amount
     itxn_field Receiver
     intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b bid_next_txn@2
 
 bid_next_txn@2:
     // marketplace_demo/marketplace_with_mutable_struct.py:220
     // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
     itxn_submit
+    b bid_after_if_else@3
 
 bid_after_if_else@3:
     // marketplace_demo/marketplace_with_mutable_struct.py:222
@@ -1001,11 +1027,11 @@ bid_after_if_else@3:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:230
     // unitaryPrice=listing.unitaryPrice,
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:231
@@ -1020,15 +1046,15 @@ bid_after_if_else@3:
     //     bid=quantity,
     //     bidUnitaryPrice=unitary_price,
     // )
-    swap
+    uncover 1
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     concat
     frame_dig -2
     itob
@@ -1049,7 +1075,7 @@ bid_after_if_else@3:
     //     bid=quantity,
     //     bidUnitaryPrice=unitary_price,
     // )
-    swap
+    uncover 1
     box_put
     retsub
 
@@ -1061,13 +1087,15 @@ accept_bid:
     // def accept_bid(self, asset: Asset, nonce: UInt64) -> None:
     proto 2 0
     bytec_0 // ""
+    bytec_0 // ""
+    b accept_bid_block@0
 
 accept_bid_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:238
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
     txn Sender
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     frame_dig -2
     itob
@@ -1079,7 +1107,7 @@ accept_bid_block@0:
     // marketplace_demo/marketplace_with_mutable_struct.py:240
     // listing = self.listings[key].copy()
     bytec_1 // 0x6c697374696e6773
-    swap
+    uncover 1
     concat
     box_get
     assert // check self.listings entry exists
@@ -1099,31 +1127,35 @@ accept_bid_block@0:
     intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     pushint 48 // 48
     intc_1 // 8
     extract3
     btoi
     <
     bz accept_bid_ternary_false@2
+    b accept_bid_ternary_true@1
 
 accept_bid_ternary_true@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:243
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
-    frame_dig 2
+    frame_dig 3
     intc_0 // 0
     intc_1 // 8
     extract3
     btoi
+    frame_bury 1
+    b accept_bid_ternary_merge@3
 
 accept_bid_ternary_merge@3:
     // marketplace_demo/marketplace_with_mutable_struct.py:243
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    frame_dig 1
     dup
     frame_bury 0
     // marketplace_demo/marketplace_with_mutable_struct.py:246
     // min_quantity, listing.bidUnitaryPrice, asset.decimals
-    frame_dig 2
+    frame_dig 3
     pushint 56 // 56
     intc_1 // 8
     extract3
@@ -1143,13 +1175,14 @@ accept_bid_ternary_merge@3:
     // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
     itxn_begin
     txn Sender
-    swap
+    cover 1
     itxn_field Amount
     itxn_field Receiver
     intc_2 // pay
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b accept_bid_next_txn@4
 
 accept_bid_next_txn@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:249
@@ -1163,7 +1196,7 @@ accept_bid_next_txn@4:
     // marketplace_demo/marketplace_with_mutable_struct.py:252
     // xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
     frame_dig -2
-    frame_dig 2
+    frame_dig 3
     intc_3 // 16
     pushint 32 // 32
     extract3
@@ -1177,6 +1210,7 @@ accept_bid_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
+    b accept_bid_next_txn@5
 
 accept_bid_next_txn@5:
     // marketplace_demo/marketplace_with_mutable_struct.py:251-253
@@ -1186,12 +1220,12 @@ accept_bid_next_txn@5:
     itxn_submit
     // marketplace_demo/marketplace_with_mutable_struct.py:256
     // bidder=listing.bidder,
-    frame_dig 2
+    frame_dig 3
     dup
     intc_3 // 16
     pushint 32 // 32
     extract3
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:257
     // bidUnitaryPrice=listing.bidUnitaryPrice,
     dup
@@ -1204,10 +1238,10 @@ accept_bid_next_txn@5:
     // unitaryPrice=listing.unitaryPrice,
     dup
     intc_1 // 8
-    dup
+    intc_1 // 8
     extract3
     btoi
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:259
     // deposited=listing.deposited - min_quantity,
     dup
@@ -1226,9 +1260,9 @@ accept_bid_next_txn@5:
     intc_1 // 8
     extract3
     btoi
-    swap
+    uncover 1
     -
-    swap
+    cover 1
     // marketplace_demo/marketplace_with_mutable_struct.py:255-261
     // self.listings[key] = ListingValue(
     //     bidder=listing.bidder,
@@ -1239,23 +1273,23 @@ accept_bid_next_txn@5:
     // )
     itob
     bytec_0 // 0x
-    swap
+    uncover 1
     concat
     uncover 2
     itob
     concat
     uncover 2
     concat
-    swap
+    uncover 1
     itob
     concat
-    swap
+    uncover 1
     itob
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:255
     // self.listings[key] = ListingValue(
     bytec_1 // 0x6c697374696e6773
-    frame_dig 1
+    frame_dig 2
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:255-261
     // self.listings[key] = ListingValue(
@@ -1265,25 +1299,30 @@ accept_bid_next_txn@5:
     //     deposited=listing.deposited - min_quantity,
     //     bid=listing.bid - min_quantity,
     // )
-    swap
+    uncover 1
     box_put
     retsub
 
 accept_bid_ternary_false@2:
     // marketplace_demo/marketplace_with_mutable_struct.py:243
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
-    frame_dig 2
+    frame_dig 3
     pushint 48 // 48
     intc_1 // 8
     extract3
     btoi
+    frame_bury 1
     b accept_bid_ternary_merge@3
 
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
+    proto 0 1
+    bytec_0 // ""
+    b approval_program_block@0
 
 approval_program_block@0:
+    b approval_program_block@1
 
 approval_program_block@1:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
@@ -1292,6 +1331,7 @@ approval_program_block@1:
     intc_0 // 0
     !=
     bz approval_program_bare_routing@14
+    b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
@@ -1308,17 +1348,24 @@ approval_program_abi_routing@2:
     pushbytes 0xcc826346 // method "acceptBid(uint64,uint64)void"
     uncover 9
     match approval_program_getListingsMbr_route@3 approval_program_allowAsset_route@4 approval_program_firstDeposit_route@5 approval_program_deposit_route@6 approval_program_setPrice_route@7 approval_program_buy_route@8 approval_program_withdraw_route@9 approval_program_bid_route@10 approval_program_acceptBid_route@11
+    b approval_program_switch_case_default@12
 
 approval_program_switch_case_default@12:
+    b approval_program_switch_case_next@13
 
 approval_program_switch_case_next@13:
+    b approval_program_after_if_else@20
 
 approval_program_after_if_else@20:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
     intc_0 // 0
+    frame_bury 0
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21:
+    frame_dig 0
+    uncover 1
     retsub
 
 approval_program_acceptBid_route@11:
@@ -1342,6 +1389,7 @@ approval_program_acceptBid_route@11:
     // @arc4.abimethod(name="acceptBid")
     callsub accept_bid
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_bid_route@10:
@@ -1384,6 +1432,7 @@ approval_program_bid_route@10:
     uncover 5
     callsub bid
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_withdraw_route@9:
@@ -1407,6 +1456,7 @@ approval_program_withdraw_route@9:
     // @arc4.abimethod
     callsub withdraw
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_buy_route@8:
@@ -1446,6 +1496,7 @@ approval_program_buy_route@8:
     uncover 4
     callsub buy
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_setPrice_route@7:
@@ -1474,6 +1525,7 @@ approval_program_setPrice_route@7:
     uncover 2
     callsub set_price
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_deposit_route@6:
@@ -1503,6 +1555,7 @@ approval_program_deposit_route@6:
     // @arc4.abimethod
     callsub deposit
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_firstDeposit_route@5:
@@ -1546,6 +1599,7 @@ approval_program_firstDeposit_route@5:
     uncover 3
     callsub first_deposit
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_allowAsset_route@4:
@@ -1575,6 +1629,7 @@ approval_program_allowAsset_route@4:
     // @arc4.abimethod(name="allowAsset")
     callsub allow_asset
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_getListingsMbr_route@3:
@@ -1591,10 +1646,11 @@ approval_program_getListingsMbr_route@3:
     callsub get_listings_mbr
     itob
     pushbytes 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21
 
 approval_program_bare_routing@14:
@@ -1602,10 +1658,12 @@ approval_program_bare_routing@14:
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match approval_program___algopy_default_create@15
+    b approval_program_switch_case_default@18
 
 approval_program_switch_case_default@18:
+    b approval_program_switch_case_next@19
 
 approval_program_switch_case_next@19:
     b approval_program_after_if_else@20
@@ -1615,9 +1673,12 @@ approval_program___algopy_default_create@15:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b approval_program_block@16
 
 approval_program_block@16:
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@17
 
 approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@17:
     intc_2 // 1
+    frame_bury 0
     b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__@21

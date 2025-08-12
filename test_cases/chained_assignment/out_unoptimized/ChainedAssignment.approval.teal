@@ -3,13 +3,16 @@
 
 // test_cases.chained_assignment.contract.ChainedAssignment.__algopy_entrypoint_with_init() -> uint64:
 main:
+    b main_block@0
 
 main_block@0:
     txn ApplicationID
     bnz main_after_if_else@2
+    b main_call___init__@1
 
 main_call___init__@1:
     callsub __init__
+    b main_after_if_else@2
 
 main_after_if_else@2:
     callsub approval_program
@@ -22,6 +25,7 @@ join_log_and_return:
     // @subroutine
     // def join_log_and_return(*, left: Bytes, right: Bytes) -> Bytes:
     proto 2 1
+    b join_log_and_return_block@0
 
 join_log_and_return_block@0:
     // chained_assignment/contract.py:29
@@ -42,6 +46,7 @@ join_log_and_return_block@0:
 
 // test_cases.chained_assignment.contract.ChainedAssignment.__init__() -> void:
 __init__:
+    b __init___block@0
 
 __init___block@0:
     // chained_assignment/contract.py:18
@@ -52,6 +57,7 @@ __init___block@0:
 
 // test_cases.chained_assignment.contract.ChainedAssignment.approval_program() -> uint64:
 approval_program:
+    b approval_program_block@0
 
 approval_program_block@0:
     // chained_assignment/contract.py:21
@@ -62,6 +68,7 @@ approval_program_block@0:
 
 // test_cases.chained_assignment.contract.BaseContract.__init__() -> void:
 test_cases.chained_assignment.contract.BaseContract.__init__:
+    b test_cases.chained_assignment.contract.BaseContract.__init___block@0
 
 test_cases.chained_assignment.contract.BaseContract.__init___block@0:
     // chained_assignment/contract.py:12
@@ -94,6 +101,6 @@ test_cases.chained_assignment.contract.BaseContract.__init___block@0:
     //     right=Bytes(WAVE),
     //     left=Bytes(b"Hello, world!"),
     // )
-    swap
+    uncover 1
     app_global_put
     retsub

@@ -7,6 +7,7 @@ main:
     bytecblock 0x068101 0x
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
+    b main_block@0
 
 main_block@0:
     // regression_tests/slot_allocation_inlining.py:14
@@ -26,17 +27,20 @@ main_block@0:
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
 ensure_budget:
     proto 2 0
+    b ensure_budget_block@0
 
 ensure_budget_block@0:
     frame_dig -2
     pushint 10 // 10
     +
+    b ensure_budget_while_top@1
 
 ensure_budget_while_top@1:
     global OpcodeBudget
     frame_dig 0
     <
     bz ensure_budget_after_while@7
+    b ensure_budget_while_body@2
 
 ensure_budget_while_body@2:
     itxn_begin
@@ -52,8 +56,10 @@ ensure_budget_while_body@2:
     intc_1 // 1
     frame_dig -1
     match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+    b ensure_budget_switch_case_default@5
 
 ensure_budget_switch_case_default@5:
+    b ensure_budget_switch_case_next@6
 
 ensure_budget_switch_case_next@6:
     itxn_submit
@@ -75,6 +81,7 @@ ensure_budget_after_while@7:
 
 // test_cases.regression_tests.slot_allocation_inlining.do_something_with_array() -> void:
 do_something_with_array:
+    b do_something_with_array_block@0
 
 do_something_with_array_block@0:
     // regression_tests/slot_allocation_inlining.py:24-25
@@ -106,6 +113,7 @@ append_to_array:
     // @subroutine(inline=False)
     // def append_to_array(arr: ReferenceArray[UInt64]) -> None:
     proto 1 0
+    b append_to_array_block@0
 
 append_to_array_block@0:
     // regression_tests/slot_allocation_inlining.py:32
@@ -114,6 +122,7 @@ append_to_array_block@0:
     dup
     len
     intc_0 // 0
+    b append_to_array_for_header@1
 
 append_to_array_for_header@1:
     // regression_tests/slot_allocation_inlining.py:32
@@ -122,6 +131,7 @@ append_to_array_for_header@1:
     frame_dig 1
     <
     bz append_to_array_after_for@4
+    b append_to_array_for_body@2
 
 append_to_array_for_body@2:
     // regression_tests/slot_allocation_inlining.py:32
@@ -135,15 +145,16 @@ append_to_array_for_body@2:
     btoi
     frame_dig -1
     loads
-    swap
+    cover 1
     itob
     bytec_1 // 0x
-    swap
+    uncover 1
     concat
     concat // on error: max array length exceeded
     frame_dig -1
-    swap
+    uncover 1
     stores
+    b append_to_array_for_footer@3
 
 append_to_array_for_footer@3:
     frame_dig 2
@@ -158,6 +169,7 @@ append_to_array_after_for@4:
 
 // _puya_lib.mem.new_slot() -> uint64:
 _puya_lib.mem.new_slot:
+    b _puya_lib.mem.new_slot@entry
 
 _puya_lib.mem.new_slot@entry:
     load 0

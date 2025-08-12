@@ -5,6 +5,7 @@
 main:
     intcblock 1 0
     bytecblock 0x54686520717569636b2062726f776e20666f78206a756d706564206f76657220746865206c617a7920646f67 0x62726f776e20666f78 0x72656420666f78
+    b main_block@0
 
 main_block@0:
     // string_ops/contract.py:6
@@ -42,9 +43,11 @@ main_block@0:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
+    b is_substring_block@0
 
 is_substring_block@0:
     intc_1 // 0
+    b is_substring_while_top@1
 
 is_substring_while_top@1:
     frame_dig -2
@@ -55,6 +58,7 @@ is_substring_while_top@1:
     len
     <=
     bz is_substring_after_while@5
+    b is_substring_while_body@2
 
 is_substring_while_body@2:
     frame_dig -2
@@ -70,10 +74,11 @@ is_substring_while_body@2:
     frame_dig -2
     ==
     bz is_substring_after_if_else@4
+    b is_substring_if_body@3
 
 is_substring_if_body@3:
     intc_0 // 1
-    swap
+    uncover 1
     retsub
 
 is_substring_after_if_else@4:
@@ -85,5 +90,5 @@ is_substring_after_if_else@4:
 
 is_substring_after_while@5:
     intc_1 // 0
-    swap
+    uncover 1
     retsub

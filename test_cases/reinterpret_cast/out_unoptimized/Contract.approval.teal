@@ -4,8 +4,12 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
+    bytecblock 0x
+    bytec_0 // ""
+    b main_block@0
 
 main_block@0:
+    b main_block@1
 
 main_block@1:
     // reinterpret_cast/contract.py:4
@@ -14,6 +18,7 @@ main_block@1:
     intc_0 // 0
     !=
     bz main_bare_routing@7
+    b main_abi_routing@2
 
 main_abi_routing@2:
     // reinterpret_cast/contract.py:4
@@ -23,15 +28,20 @@ main_abi_routing@2:
     pushbytes 0x7e9fd4cf // method "test_bytes_to_biguint()void"
     uncover 2
     match main_bytes_to_bool_route@3 main_test_bytes_to_biguint_route@4
+    b main_switch_case_default@5
 
 main_switch_case_default@5:
+    b main_switch_case_next@6
 
 main_switch_case_next@6:
+    b main_after_if_else@11
 
 main_after_if_else@11:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
     intc_0 // 0
+    bury 1
+    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
 
 main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12:
     return
@@ -49,6 +59,7 @@ main_test_bytes_to_biguint_route@4:
     assert // can only call when not creating
     callsub test_bytes_to_biguint
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
 
 main_bytes_to_bool_route@3:
@@ -68,10 +79,11 @@ main_bytes_to_bool_route@3:
     uncover 2
     setbit
     pushbytes 0x151f7c75
-    swap
+    uncover 1
     concat
     log
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
 
 main_bare_routing@7:
@@ -79,10 +91,12 @@ main_bare_routing@7:
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
-    swap
+    uncover 1
     match main___algopy_default_create@8
+    b main_switch_case_default@9
 
 main_switch_case_default@9:
+    b main_switch_case_next@10
 
 main_switch_case_next@10:
     b main_after_if_else@11
@@ -92,31 +106,36 @@ main___algopy_default_create@8:
     intc_0 // 0
     ==
     assert // can only call when creating
+    b main_block@13
 
 main_block@13:
+    b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14
 
 main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14:
     intc_1 // 1
+    bury 1
     b main_after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__@12
 
 
 // test_cases.reinterpret_cast.contract.bytes_to_biguint() -> bytes:
 bytes_to_biguint:
+    b bytes_to_biguint_block@0
 
 bytes_to_biguint_block@0:
     // reinterpret_cast/contract.py:16
     // return BigUInt.from_bytes(Bytes())
-    pushbytes 0x
+    bytec_0 // 0x
     retsub
 
 
 // test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
 bytes_to_bool:
+    b bytes_to_bool_block@0
 
 bytes_to_bool_block@0:
     // reinterpret_cast/contract.py:7
     // return bool(Bytes())
-    pushbytes 0x
+    bytec_0 // 0x
     len
     intc_0 // 0
     !=
@@ -125,12 +144,13 @@ bytes_to_bool_block@0:
 
 // test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint() -> void:
 test_bytes_to_biguint:
+    b test_bytes_to_biguint_block@0
 
 test_bytes_to_biguint_block@0:
     // reinterpret_cast/contract.py:11
     // assert bytes_to_biguint()
     callsub bytes_to_biguint
-    pushbytes 0x
+    bytec_0 // 0x
     b!=
     assert
     retsub

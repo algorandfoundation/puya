@@ -3,7 +3,8 @@
 
 // test_cases.unary.contract.UnaryContract.approval_program() -> uint64:
 main:
-    intcblock 1 0 18446744073709551615 2
+    intcblock 0 1 18446744073709551615 2
+    b main_block@0
 
 main_block@0:
     // unary/contract.py:15
@@ -17,7 +18,7 @@ main_block@0:
     callsub bytes_unary
     // unary/contract.py:19
     // return True
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -27,32 +28,35 @@ uint_unary:
     // @subroutine
     // def uint_unary() -> None:
     proto 0 0
+    b uint_unary_block@0
 
 uint_unary_block@0:
     // unary/contract.py:27-28
     // # test not
     // assert not UInt64(0), "not uint"
-    intc_1 // 0
-    dup
+    intc_0 // 0
+    intc_0 // 0
     ==
     assert // not uint
-    intc_1 // 0
+    intc_0 // 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
-    intc_0 // 1
+    intc_1 // 1
+    b uint_unary_for_body@1
 
 uint_unary_for_body@1:
     // unary/contract.py:32
     // assert ~(MAX_UINT64 - i) == i, "~ uint"
     intc_2 // 18446744073709551615
-    swap
+    frame_dig 1
     dup
     cover 2
     -
     ~
     ==
     assert // ~ uint
+    b uint_unary_for_footer@2
 
 uint_unary_for_footer@2:
     // unary/contract.py:30-31
@@ -60,6 +64,7 @@ uint_unary_for_footer@2:
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     frame_dig 0
     switch uint_unary_for_header_1@3 uint_unary_for_header_2@4 uint_unary_for_header_3@5
+    b uint_unary_after_for@6
 
 uint_unary_after_for@6:
     retsub
@@ -71,6 +76,7 @@ uint_unary_for_header_3@5:
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     intc_2 // 18446744073709551615
+    frame_bury 1
     b uint_unary_for_body@1
 
 uint_unary_for_header_2@4:
@@ -80,27 +86,30 @@ uint_unary_for_header_2@4:
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     pushint 150 // 150
+    frame_bury 1
     b uint_unary_for_body@1
 
 uint_unary_for_header_1@3:
-    intc_0 // 1
+    intc_1 // 1
     frame_bury 0
     // unary/contract.py:30-31
     // # test ~
     // for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):
     intc_3 // 2
+    frame_bury 1
     b uint_unary_for_body@1
 
 
 // test_cases.unary.contract.biguint_unary() -> void:
 biguint_unary:
+    b biguint_unary_block@0
 
 biguint_unary_block@0:
     // unary/contract.py:37-38
     // # test not
     // assert not BigUInt(0), "not biguint"
     pushbytes 0x
-    dup
+    pushbytes 0x
     b==
     assert // not biguint
     retsub
@@ -108,6 +117,7 @@ biguint_unary_block@0:
 
 // test_cases.unary.contract.bytes_unary() -> void:
 bytes_unary:
+    b bytes_unary_block@0
 
 bytes_unary_block@0:
     // unary/contract.py:43-44
@@ -115,7 +125,7 @@ bytes_unary_block@0:
     // assert not Bytes(b""), "not bytes"
     pushbytes 0x
     len
-    intc_1 // 0
+    intc_0 // 0
     ==
     assert // not bytes
     // unary/contract.py:46-47
