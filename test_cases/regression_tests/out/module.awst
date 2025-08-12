@@ -66,6 +66,43 @@ subroutine append_to_array(arr: ref_array<uint64>): void
   }
 }
 
+contract NeverReturnsInlining
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.never_returns.NeverReturnsInlining.method(): uint64
+  {
+    result: uint64 = test_cases.regression_tests.never_returns.invoke()
+    return result
+  }
+  
+  baremethod test_cases.regression_tests.never_returns.NeverReturnsInlining.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine invoke(): uint64
+{
+  err()
+}
+
 contract BranchElimination
 {
   method_resolution_order: (

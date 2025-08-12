@@ -1,0 +1,41 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // regression_tests/never_returns.py:4
+    // class NeverReturnsInlining(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x3f27f4a4 // method "method()uint64"
+    txna ApplicationArgs 0
+    match main_method_route@3
+
+main_after_if_else@10:
+    // regression_tests/never_returns.py:4
+    // class NeverReturnsInlining(ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_method_route@3:
+    // regression_tests/never_returns.py:5
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // regression_tests/never_returns.py:13
+    // op.err()
+    err
+
+main_bare_routing@6:
+    // regression_tests/never_returns.py:4
+    // class NeverReturnsInlining(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
