@@ -18,6 +18,7 @@ import attrs
 import structlog
 
 from puya.parse import SourceLocation
+from puya.utils import get_cwd
 
 
 class LogFormat(StrEnum):
@@ -292,7 +293,7 @@ def configure_logging(
         raise ValueError(
             "Logging can not be configured more than once if using cache_logger = True"
         )
-    base_path = str(Path.cwd())  # TODO: don't assume this?
+    base_path = str(get_cwd())
     match log_format:
         case LogFormat.json:
             log_renderer: structlog.typing.Processor = PuyaJsonRender(base_path=base_path)

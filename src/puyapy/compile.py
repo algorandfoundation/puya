@@ -12,7 +12,7 @@ from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
 from puya.program_refs import ContractReference, LogicSigReference
-from puya.utils import make_path_relative_to_cwd
+from puya.utils import get_cwd, make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_arc56
@@ -60,9 +60,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
 def output_inputs(
     awst: Sequence[RootNode], parse_result: ParseResult, puyapy_options: PuyaPyOptions
 ) -> None:
-    awst_out_dir = (
-        puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
-    )
+    awst_out_dir = puyapy_options.out_dir or get_cwd()
     nodes = [n for n in awst if n.source_location.file in parse_result.explicit_source_paths]
     if puyapy_options.output_awst:
         output_awst(nodes, awst_out_dir)
