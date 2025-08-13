@@ -5,6 +5,7 @@ import math
 import os
 import typing
 from collections.abc import Callable, Iterable, Iterator, MutableMapping, MutableSet, Sequence, Set
+from contextvars import ContextVar
 from pathlib import Path
 
 import attrs
@@ -153,8 +154,25 @@ def make_path_relative_to(*, to: Path, path: Path, walk_up: bool = False) -> str
     return normalize_path(path)
 
 
+_CWD = ContextVar[Path]("_CWD")
+_CWD.set(Path.cwd())
+
+
+@contextlib.contextmanager
+def set_cwd(cwd: Path) -> Iterator[None]:
+    token = _CWD.set(cwd)
+    try:
+        yield
+    finally:
+        _CWD.reset(token)
+
+
+def get_cwd() -> Path:
+    return _CWD.get()
+
+
 def make_path_relative_to_cwd(path: Path) -> str:
-    return make_path_relative_to(to=Path.cwd(), path=path)
+    return make_path_relative_to(to=get_cwd(), path=path)
 
 
 def unique[T](items: Iterable[T]) -> list[T]:
@@ -283,12 +301,8 @@ def round_bits_to_nearest_bytes(bit_size: int) -> int:
 
 @contextlib.contextmanager
 def pushd(new_dir: Path) -> Iterator[None]:
-    orig_dir = Path.cwd()
-    os.chdir(new_dir)
-    try:
+    with set_cwd(new_dir):
         yield
-    finally:
-        os.chdir(orig_dir)
 
 
 def normalise_path_to_str(path: Path) -> str:
