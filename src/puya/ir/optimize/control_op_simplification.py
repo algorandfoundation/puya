@@ -69,6 +69,47 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 block.terminator = models.Goto(target=non_zero, source_location=source_location)
                 if err_block not in block.successors:
                     remove_target(block, err_block)
+            case models.Switch(
+                value=models.Register() as value,
+                cases=cases,
+                default=models.BasicBlock(
+                    phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
+                ) as err_block,
+                source_location=source_location,
+            ) if len(cases) == 1:
+                case_value, case_block = cases.popitem()
+                logger.debug(
+                    "inlining switch of single case with err block fallthrough into an assert true"
+                )
+                eq_condition = models.Register(
+                    name=f"eq%{value.name}",
+                    ir_type=PrimitiveIRType.bool,
+                    version=value.version,
+                    source_location=source_location,
+                )
+                if get_definition(subroutine, eq_condition, should_exist=False) is None:
+                    block.ops.append(
+                        models.Assignment(
+                            targets=[eq_condition],
+                            source=models.Intrinsic(
+                                op=AVMOp.eq,
+                                args=[value, case_value],
+                                source_location=source_location,
+                            ),
+                            source_location=source_location,
+                        )
+                    )
+                block.ops.append(
+                    models.Intrinsic(
+                        op=AVMOp.assert_,
+                        args=[eq_condition],
+                        error_message=fail_comment,
+                        source_location=source_location,
+                    )
+                )
+                block.terminator = models.Goto(target=case_block, source_location=source_location)
+                if err_block not in block.successors:
+                    remove_target(block, err_block)
             case models.ConditionalBranch(
                 condition=models.Register() as condition,
                 non_zero=models.BasicBlock(
