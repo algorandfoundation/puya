@@ -173,7 +173,7 @@ def route_bare_methods(
         "bare_routing",
         *_maybe_switch(
             on_completion(location),
-            {constant(oca.value, location): block for oca, block in bare_blocks.items()},
+            {oca_constant(oca, location): block for oca, block in bare_blocks.items()},
         ),
     )
 
@@ -234,6 +234,12 @@ def assert_create_state(
 
 def constant(value: int, location: SourceLocation) -> awst_nodes.Expression:
     return awst_nodes.UInt64Constant(value=value, source_location=location)
+
+
+def oca_constant(value: OnCompletionAction, location: SourceLocation) -> awst_nodes.Expression:
+    return awst_nodes.UInt64Constant(
+        value=value.value, source_location=location, teal_alias=value.name
+    )
 
 
 def left_shift(value: awst_nodes.Expression, location: SourceLocation) -> awst_nodes.Expression:
@@ -570,7 +576,7 @@ def route_abi_methods(
                     source_location=router_location,
                     value=on_completion(router_location),
                     cases={
-                        constant(oca.value, router_location): oca_block
+                        oca_constant(oca, router_location): oca_block
                         for oca, oca_block in single_oca_route_blocks.items()
                     },
                     default_case=None,
