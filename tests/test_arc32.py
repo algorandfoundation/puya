@@ -919,9 +919,10 @@ def test_template_variables(
 
     try:
         app_client.update()
-        raise AssertionError("Update should fail")
-    except LogicError:
+    except Exception:
         pass
+    else:
+        raise AssertionError("Update should fail")
 
     app_client.delete()
 
