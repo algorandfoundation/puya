@@ -148,42 +148,106 @@ def on_completion(location: SourceLocation) -> awst_nodes.Expression:
 
 
 def route_bare_methods(
-    location: SourceLocation,
+    router_location: SourceLocation,
     bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
+    # TODO: order here and ABI by OCA value
+
+    methods_by_create = dict[
+        awst_nodes.ARC4CreateOption, list[tuple[md.ARC4BareMethod, awst_nodes.Subroutine]]
+    ]()
     for method, sig in bare_methods.items():
         bare_location = method.config_location
         bare_wrapper = _build_bare_wrapper(method, sig)
         arc4_wrapper_methods.append(bare_wrapper)
-        bare_block = create_block(
-            bare_location,
-            sig.target.member_name,
-            awst_nodes.ExpressionStatement(
-                awst_nodes.SubroutineCallExpression(
-                    target=awst_nodes.SubroutineID(bare_wrapper.id),
-                    args=[],
-                    wtype=wtypes.void_wtype,
-                    source_location=bare_location,
-                )
-            ),
-        )
-        for oca in method.allowed_completion_types:
-            if bare_blocks.setdefault(oca, bare_block) is not bare_block:
-                logger.error(
-                    f"cannot have multiple bare methods handling the same "
-                    f"OnCompletionAction: {oca.name}",
-                    location=bare_location,
-                )
-    return create_block(
-        location,
+        methods_by_create.setdefault(method.create, []).append((method, bare_wrapper))
+        # bare_block = create_block(
+        #     bare_location,
+        #     sig.target.member_name,
+        #     awst_nodes.ExpressionStatement(
+        #         awst_nodes.SubroutineCallExpression(
+        #             target=awst_nodes.SubroutineID(bare_wrapper.id),
+        #             args=[],
+        #             wtype=wtypes.void_wtype,
+        #             source_location=bare_location,
+        #         )
+        #     ),
+        # )
+
+    bare_routing_block = create_block(
+        router_location,
         "bare_routing",
-        *_maybe_switch(
-            on_completion(location),
-            {oca_constant(oca, location): block for oca, block in bare_blocks.items()},
+        *_create_bare_switch(
+            router_location,
+            methods_by_create.get(awst_nodes.ARC4CreateOption.allow, []),
         ),
-    ), arc4_wrapper_methods
+        awst_nodes.IfElse(
+            source_location=router_location,
+            condition=_txn("ApplicationID", wtypes.bool_wtype, router_location),
+            if_branch=create_block(
+                router_location,
+                "call_bare",
+                *_create_bare_switch(
+                    router_location,
+                    methods_by_create.get(awst_nodes.ARC4CreateOption.disallow, []),
+                ),
+            ),
+            else_branch=create_block(
+                router_location,
+                "create_bare",
+                *_create_bare_switch(
+                    router_location,
+                    methods_by_create.get(awst_nodes.ARC4CreateOption.require, []),
+                ),
+            ),
+        ),
+    )
+
+    # create_block(
+    #         router_location,
+    #         "bare_routing",
+    #         *_maybe_switch(
+    #             on_completion(router_location),
+    #             {oca_constant(oca, router_location): block for oca, block in bare_blocks.items()},
+    #         ),
+    #     )
+
+    return bare_routing_block, arc4_wrapper_methods
+
+
+def _create_bare_switch(
+    router_location: SourceLocation,
+    cases: Iterable[tuple[md.ARC4BareMethod, awst_nodes.Subroutine]],
+) -> Sequence[awst_nodes.Statement]:
+    if not cases:
+        return ()
+    case_blocks = dict[awst_nodes.Expression, awst_nodes.Block]()
+    for method, method_wrapper in cases:
+        bare_loc = method.config_location
+        for oca in method.allowed_completion_types:
+            call_block = create_block(
+                bare_loc,
+                f"{oca.name}_bare_route",
+                awst_nodes.ExpressionStatement(
+                    awst_nodes.SubroutineCallExpression(
+                        target=awst_nodes.SubroutineID(method_wrapper.id),
+                        args=[],
+                        wtype=wtypes.void_wtype,
+                        source_location=bare_loc,
+                    )
+                ),
+            )
+            case_blocks[oca_constant(oca, bare_loc)] = call_block
+    return (
+        awst_nodes.Switch(
+            source_location=router_location,
+            value=on_completion(router_location),
+            cases=case_blocks,
+            default_case=None,
+        ),
+    )
 
 
 def _build_bare_wrapper(
@@ -197,7 +261,6 @@ def _build_bare_wrapper(
         return_type=wtypes.void_wtype,
         body=awst_nodes.Block(
             body=[
-                *assert_create_state(method.create, bare_location),
                 call_sub,
                 approve(bare_location),
             ],
@@ -476,16 +539,30 @@ def _build_abi_wrapper(
     return wrapper_method
 
 
-def _check_for_duplicates(methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature]) -> None:
+def _check_for_duplicates(
+    abi_methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
+    bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
+) -> None:
     seen_signatures = set[str]()
     duplicate_errors = [
         CodeError(
-            f"Cannot have duplicate ARC-4 method signatures: {method.signature}",
-            method.config_location,
+            f"Cannot have duplicate ARC-4 method signatures: {abi_method.signature}",
+            abi_method.config_location,
         )
-        for method in methods
-        if not set_add(seen_signatures, method.signature)
+        for abi_method in abi_methods
+        if not set_add(seen_signatures, abi_method.signature)
     ]
+    seen_ocas = set[OnCompletionAction]()
+    for bare_method, bare_sig in bare_methods.items():
+        for oca in bare_method.allowed_completion_types:
+            if not set_add(seen_ocas, oca):
+                duplicate_errors.append(
+                    CodeError(
+                        f"cannot have multiple bare methods handling the same "
+                        f"OnCompletionAction: {oca.name}",
+                        bare_method.config_location,
+                    )
+                )
     if duplicate_errors:
         raise ExceptionGroup("ARC-4 signature errors", duplicate_errors)
 
@@ -539,8 +616,6 @@ def route_abi_methods(
     router_location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
-    _check_for_duplicates(methods)
-
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
     single_oca_methods_by_create = dict[
         OnCompletionAction,
@@ -648,6 +723,7 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
+    _check_for_duplicates(abi_methods, bare_methods)
     abi_routing, abi_wrapper_methods = route_abi_methods(router_location, abi_methods)
     router: list[awst_nodes.Statement]
     if not bare_methods:
