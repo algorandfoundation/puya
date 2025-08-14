@@ -150,16 +150,24 @@ def on_completion(location: SourceLocation) -> awst_nodes.Expression:
 def route_bare_methods(
     location: SourceLocation,
     bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
-) -> awst_nodes.Block | None:
+) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
+    arc4_wrapper_methods = list[awst_nodes.Subroutine]()
     for method, sig in bare_methods.items():
         bare_location = method.config_location
+        bare_wrapper = _build_bare_wrapper(method, sig)
+        arc4_wrapper_methods.append(bare_wrapper)
         bare_block = create_block(
             bare_location,
             sig.target.member_name,
-            *assert_create_state(method.create, bare_location),
-            awst_nodes.ExpressionStatement(expr=call(bare_location, sig)),
-            approve(bare_location),
+            awst_nodes.ExpressionStatement(
+                awst_nodes.SubroutineCallExpression(
+                    target=awst_nodes.SubroutineID(bare_wrapper.id),
+                    args=[],
+                    wtype=wtypes.void_wtype,
+                    source_location=bare_location,
+                )
+            ),
         )
         for oca in method.allowed_completion_types:
             if bare_blocks.setdefault(oca, bare_block) is not bare_block:
@@ -175,7 +183,32 @@ def route_bare_methods(
             on_completion(location),
             {oca_constant(oca, location): block for oca, block in bare_blocks.items()},
         ),
+    ), arc4_wrapper_methods
+
+
+def _build_bare_wrapper(
+    method: md.ARC4BareMethod, sig: AWSTContractMethodSignature
+) -> awst_nodes.Subroutine:
+    bare_location = method.config_location
+    call_sub = awst_nodes.ExpressionStatement(call(bare_location, sig))
+    qualified_name = ".".join((sig.target.cref, sig.target.member_name))
+    wrapper_method = awst_nodes.Subroutine(
+        args=[],
+        return_type=wtypes.void_wtype,
+        body=awst_nodes.Block(
+            body=[
+                *assert_create_state(method.create, bare_location),
+                call_sub,
+                approve(bare_location),
+            ],
+            source_location=bare_location,
+        ),
+        documentation=awst_nodes.MethodDocumentation(),
+        name=sig.target.member_name,
+        id=f"{qualified_name}[routing]",
+        source_location=bare_location,
     )
+    return wrapper_method
 
 
 def log_arc4_result(
@@ -620,7 +653,8 @@ def create_abi_router(
     if not bare_methods:
         router = [*abi_routing.body]
     else:
-        bare_routing = route_bare_methods(router_location, bare_methods)
+        bare_routing, bare_wrappers = route_bare_methods(router_location, bare_methods)
+        abi_wrapper_methods.extend(bare_wrappers)
         router = [
             awst_nodes.IfElse(
                 condition=_non_zero(_txn("NumAppArgs", wtypes.uint64_wtype, router_location)),
