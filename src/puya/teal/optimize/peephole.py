@@ -144,8 +144,14 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
                     error_message=ret_zero.error_message,
                 )
             ], True
-        case models.TealOp(op_code="dup"), models.Return() as ret_op:
-            return [ret_op], True
+        case models.TealOp(op_code="dup" | "assert") as eliminate_op, models.Return() as ret_op:
+            return [
+                attrs.evolve(
+                    ret_op,
+                    error_message=ret_op.error_message or eliminate_op.error_message,
+                    source_location=ret_op.source_location or eliminate_op.source_location,
+                )
+            ], True
     return [a, b], False
 
 
