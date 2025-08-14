@@ -457,7 +457,11 @@ def _create_abi_switch(
     *,
     check_oca_and_create: bool,
     default_case: awst_nodes.Block | None,
-) -> awst_nodes.Switch:
+) -> Sequence[awst_nodes.Statement]:
+    if not cases:
+        if default_case is None:
+            return ()
+        return default_case.body
     case_blocks = dict[awst_nodes.Expression, awst_nodes.Block]()
     for method, method_wrapper in cases:
         abi_loc = method.config_location
@@ -482,11 +486,13 @@ def _create_abi_switch(
             ),
         )
         case_blocks[method_const] = call_block
-    return awst_nodes.Switch(
-        source_location=router_location,
-        value=_txn_app_args(0, router_location),
-        cases=case_blocks,
-        default_case=default_case,
+    return (
+        awst_nodes.Switch(
+            source_location=router_location,
+            value=_txn_app_args(0, router_location),
+            cases=case_blocks,
+            default_case=default_case,
+        ),
     )
 
 
@@ -497,80 +503,79 @@ def route_abi_methods(
     _check_for_duplicates(methods)
 
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
-
-    # TODO: most common OCA, not just NoOp vs rest
-    no_op_only_routing_methods = {}
-    other_routing_methods = {}
+    single_oca_methods_by_create = dict[
+        OnCompletionAction,
+        dict[awst_nodes.ARC4CreateOption, list[tuple[md.ARC4ABIMethod, awst_nodes.Subroutine]]],
+    ]()
+    multi_oca_methods = {}
     for method, sig in methods.items():
         wrapper_method = _build_abi_wrapper(method, sig)
         arc4_wrapper_methods.append(wrapper_method)
         match method:
-            case md.ARC4ABIMethod(allowed_completion_types=[OnCompletionAction.NoOp]):
-                no_op_only_routing_methods[method] = wrapper_method
+            case md.ARC4ABIMethod(allowed_completion_types=[single_oca]):
+                single_oca_methods_by_create.setdefault(single_oca, {}).setdefault(
+                    method.create, []
+                ).append((method, wrapper_method))
             case _:
-                other_routing_methods[method] = wrapper_method
+                multi_oca_methods[method] = wrapper_method
 
-    no_op_by_create = dict[
-        awst_nodes.ARC4CreateOption, list[tuple[md.ARC4ABIMethod, awst_nodes.Subroutine]]
-    ]()
-    if len(no_op_only_routing_methods) == 1:
-        other_routing_methods.update(no_op_only_routing_methods)
-        no_op_only_routing_methods.clear()
-    else:
-        for method, wrapper_method in no_op_only_routing_methods.items():
-            no_op_by_create.setdefault(method.create, []).append((method, wrapper_method))
-
-    if not no_op_by_create:
-        route_no_op_block = None
-    else:
-        route_no_op_checked_app_id = create_block(
+    single_oca_route_blocks = dict[OnCompletionAction, awst_nodes.Block]()
+    for the_oca, methods_by_create in single_oca_methods_by_create.items():
+        single_oca_route_blocks[the_oca] = create_block(
             router_location,
-            None,
+            f"route_{the_oca.name}",
+            *_create_abi_switch(
+                router_location,
+                methods_by_create.get(awst_nodes.ARC4CreateOption.allow, []),
+                check_oca_and_create=False,
+                default_case=None,
+            ),
             awst_nodes.IfElse(
                 source_location=router_location,
                 condition=_txn("ApplicationID", wtypes.bool_wtype, router_location),
                 if_branch=create_block(
                     router_location,
-                    "call_NoOp",
-                    _create_abi_switch(
+                    f"call_{the_oca.name}",
+                    *_create_abi_switch(
                         router_location,
-                        no_op_by_create.get(awst_nodes.ARC4CreateOption.disallow, []),
+                        methods_by_create.get(awst_nodes.ARC4CreateOption.disallow, []),
                         check_oca_and_create=False,
                         default_case=None,
                     ),
                 ),
                 else_branch=create_block(
                     router_location,
-                    "create_NoOp",
-                    _create_abi_switch(
+                    f"create_{the_oca.name}",
+                    *_create_abi_switch(
                         router_location,
-                        no_op_by_create.get(awst_nodes.ARC4CreateOption.require, []),
+                        methods_by_create.get(awst_nodes.ARC4CreateOption.require, []),
                         check_oca_and_create=False,
                         default_case=None,
                     ),
                 ),
             ),
         )
-        route_no_op_block = create_block(
-            router_location,
-            "route_NoOp",
-            *check_allowed_oca([OnCompletionAction.NoOp], router_location),
-            _create_abi_switch(
-                router_location,
-                no_op_by_create.get(awst_nodes.ARC4CreateOption.allow, []),
-                check_oca_and_create=False,
-                default_case=route_no_op_checked_app_id,
-            ),
-        )
 
     abi_routing_block = create_block(
         router_location,
         "abi_routing",
-        _create_abi_switch(
+        *_create_abi_switch(
             router_location,
-            other_routing_methods.items(),
+            multi_oca_methods.items(),
             check_oca_and_create=True,
-            default_case=route_no_op_block,
+            default_case=create_block(
+                router_location,
+                "route_single_oca_methods",
+                awst_nodes.Switch(
+                    source_location=router_location,
+                    value=on_completion(router_location),
+                    cases={
+                        constant(oca.value, router_location): oca_block
+                        for oca, oca_block in single_oca_route_blocks.items()
+                    },
+                    default_case=None,
+                ),
+            ),
         ),
     )
     return abi_routing_block, arc4_wrapper_methods
