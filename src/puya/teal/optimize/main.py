@@ -67,6 +67,17 @@ def _optimize_subroutine_blocks(context: CompileContext, teal_sub: models.TealSu
         # thus this still maintains the "almost basic" structure as outlined above.
         _inline_single_op_blocks(teal_sub)
         _inline_singly_referenced_blocks(teal_sub, level=context.options.optimization_level)
+        for block in teal_sub.blocks:
+            for op_idx, op in enumerate(block.ops):
+                match op:
+                    case models.CallSub(can_branch=True) as callsub:
+                        block.ops[op_idx:] = [
+                            models.Branch(
+                                target=callsub.target, source_location=callsub.source_location
+                            )
+                        ]
+                        break
+        _inline_jump_chains(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
 
 
