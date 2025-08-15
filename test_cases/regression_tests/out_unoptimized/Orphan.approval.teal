@@ -3,7 +3,6 @@
 
 // test_cases.regression_tests.issue_491.Orphan.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0
     b main_block@0
 
 main_block@0:
@@ -33,8 +32,6 @@ __init___block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
-    proto 0 1
-    pushbytes ""
     b approval_program_block@0
 
 approval_program_block@0:
@@ -44,55 +41,36 @@ approval_program_block@1:
     // regression_tests/issue_491.py:10
     // class Orphan(ARC4Contract):
     txn NumAppArgs
-    intc_0 // 0
+    pushint 0 // 0
     !=
-    bz approval_program_bare_routing@3
+    bz approval_program___algopy_default_create@3
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
-    b approval_program_after_if_else@9
+    b approval_program_after_if_else@6
 
-approval_program_after_if_else@9:
+approval_program_after_if_else@6:
     // regression_tests/issue_491.py:10
     // class Orphan(ARC4Contract):
-    intc_0 // 0
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@10
+    err
 
-approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@10:
-    frame_dig 0
-    uncover 1
-    retsub
-
-approval_program_bare_routing@3:
-    // regression_tests/issue_491.py:10
-    // class Orphan(ARC4Contract):
+approval_program___algopy_default_create@3:
     txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match approval_program___algopy_default_create@4
-    b approval_program_switch_case_default@7
-
-approval_program_switch_case_default@7:
-    b approval_program_switch_case_next@8
-
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@9
-
-approval_program___algopy_default_create@4:
-    txn ApplicationID
-    intc_0 // 0
+    pushint 0 // NoOp
     ==
-    assert // can only call when creating
-    b approval_program_block@5
+    txn ApplicationID
+    pushint 0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b approval_program_block@4
 
-approval_program_block@5:
-    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__algopy_default_create@6
+approval_program_block@4:
+    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__algopy_default_create@5
 
-approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__algopy_default_create@6:
+approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__algopy_default_create@5:
     pushint 1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@10
+    return
 
 
 // algopy._contract.Contract.__init__() -> void:

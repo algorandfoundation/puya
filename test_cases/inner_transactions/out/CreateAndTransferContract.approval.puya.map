@@ -3,7 +3,7 @@
   "sources": [
     "../asset_transfer.py"
   ],
-  "mappings": ";;;;;;;AASA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;;AACK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AADL;;AAAA;;;;;;;;;AAKY;AAKY;;AACC;;;;;AAFA;;;AADC;;;;;;;AADC;;;;;;;;AADL;;;AADV;;;;AAAA;;;AAAA;AAAA;;AAaJ;AACiB;AAAA;;AAAA;AACE;;;;;;AACF;;;;;;;AAHjB;;;;AAAA;;;AAAA;",
+  "mappings": ";;;;;;AASA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AACK;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;;;;;;;;;AAIO;AAKY;;AACC;;;;;AAFA;;;AADC;;;;;;;AADC;;;;;;;;AADL;;;AADV;;;;AAAA;;;AAAA;AAAA;;AAaJ;AACiB;AAAA;;AAAA;AACE;;;;;;AACF;;;;;;;AAHjB;;;;AAAA;;;AAAA;AAjBH;;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,9 +11,9 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1 1000"
+      "op": "intcblock 0 1000"
     },
-    "7": {
+    "6": {
       "op": "txn NumAppArgs",
       "defined_out": [
         "tmp%0#1"
@@ -22,11 +22,11 @@
         "tmp%0#1"
       ]
     },
-    "9": {
-      "op": "bz main_bare_routing@6",
+    "8": {
+      "op": "bz main___algopy_default_create@6",
       "stack_out": []
     },
-    "12": {
+    "11": {
       "op": "pushbytes 0x48e9ed7c // method \"create_and_transfer()void\"",
       "defined_out": [
         "Method(create_and_transfer()void)"
@@ -35,7 +35,7 @@
         "Method(create_and_transfer()void)"
       ]
     },
-    "18": {
+    "17": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(create_and_transfer()void)",
@@ -46,17 +46,14 @@
         "tmp%2#0"
       ]
     },
-    "21": {
+    "20": {
       "op": "match main_create_and_transfer_route@3",
       "stack_out": []
     },
-    "25": {
-      "block": "main_after_if_else@10",
-      "stack_in": [],
-      "op": "err",
-      "defined_out": []
+    "24": {
+      "op": "err"
     },
-    "26": {
+    "25": {
       "block": "main_create_and_transfer_route@3",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -67,7 +64,7 @@
         "tmp%3#0"
       ]
     },
-    "28": {
+    "27": {
       "op": "!",
       "defined_out": [
         "tmp%4#0"
@@ -76,67 +73,46 @@
         "tmp%4#0"
       ]
     },
-    "29": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "30": {
+    "28": {
       "op": "txn ApplicationID",
       "defined_out": [
+        "tmp%4#0",
         "tmp%5#0"
       ],
       "stack_out": [
+        "tmp%4#0",
         "tmp%5#0"
       ]
+    },
+    "30": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "31": {
+      "error": "OnCompletion must be NoOp && can only call when not creating",
+      "op": "assert // OnCompletion must be NoOp && can only call when not creating",
+      "stack_out": []
     },
     "32": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
+      "op": "b create_and_transfer"
     },
-    "33": {
-      "callsub": "test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer",
-      "op": "callsub create_and_transfer"
-    },
-    "36": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "37": {
-      "op": "return",
-      "stack_out": []
-    },
-    "38": {
-      "block": "main_bare_routing@6",
+    "35": {
+      "block": "main___algopy_default_create@6",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0"
-      ]
-    },
-    "40": {
-      "op": "bnz main_after_if_else@10",
-      "stack_out": []
-    },
-    "43": {
-      "op": "txn ApplicationID",
-      "defined_out": [
         "tmp%8#0"
       ],
       "stack_out": [
         "tmp%8#0"
       ]
     },
-    "45": {
+    "37": {
       "op": "!",
       "defined_out": [
         "tmp%9#0"
@@ -145,32 +121,51 @@
         "tmp%9#0"
       ]
     },
-    "46": {
-      "error": "can only call when creating",
-      "op": "assert // can only call when creating",
-      "stack_out": []
-    },
-    "47": {
-      "op": "intc_1 // 1",
+    "38": {
+      "op": "txn ApplicationID",
       "defined_out": [
-        "tmp%0#0"
+        "tmp%10#0",
+        "tmp%9#0"
       ],
       "stack_out": [
-        "tmp%0#0"
+        "tmp%9#0",
+        "tmp%10#0"
       ]
     },
-    "48": {
-      "op": "return",
+    "40": {
+      "op": "!",
+      "defined_out": [
+        "tmp%11#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0",
+        "tmp%11#0"
+      ]
+    },
+    "41": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "42": {
+      "error": "OnCompletion must be NoOp && can only call when creating",
+      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "defined_out": [],
       "stack_out": []
     },
-    "49": {
-      "subroutine": "test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer",
+    "43": {
+      "subroutine": "test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]",
       "params": {},
       "block": "create_and_transfer",
       "stack_in": [],
       "op": "itxn_begin"
     },
-    "50": {
+    "44": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
@@ -179,7 +174,7 @@
         "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
       ]
     },
-    "52": {
+    "46": {
       "op": "dup",
       "defined_out": [
         "inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0",
@@ -190,17 +185,17 @@
         "inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0"
       ]
     },
-    "53": {
+    "47": {
       "op": "itxn_field ConfigAssetClawback",
       "stack_out": [
         "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
       ]
     },
-    "55": {
+    "49": {
       "op": "itxn_field ConfigAssetManager",
       "stack_out": []
     },
-    "57": {
+    "51": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -209,11 +204,11 @@
         "0"
       ]
     },
-    "58": {
+    "52": {
       "op": "itxn_field ConfigAssetDecimals",
       "stack_out": []
     },
-    "60": {
+    "54": {
       "op": "pushbytes \"TST\"",
       "defined_out": [
         "\"TST\""
@@ -222,11 +217,11 @@
         "\"TST\""
       ]
     },
-    "65": {
+    "59": {
       "op": "itxn_field ConfigAssetUnitName",
       "stack_out": []
     },
-    "67": {
+    "61": {
       "op": "pushbytes \"test\"",
       "defined_out": [
         "\"test\""
@@ -235,12 +230,12 @@
         "\"test\""
       ]
     },
-    "73": {
+    "67": {
       "op": "itxn_field ConfigAssetName",
       "stack_out": []
     },
-    "75": {
-      "op": "intc_2 // 1000",
+    "69": {
+      "op": "intc_1 // 1000",
       "defined_out": [
         "1000"
       ],
@@ -248,11 +243,11 @@
         "1000"
       ]
     },
-    "76": {
+    "70": {
       "op": "itxn_field ConfigAssetTotal",
       "stack_out": []
     },
-    "78": {
+    "72": {
       "op": "pushint 3 // acfg",
       "defined_out": [
         "acfg"
@@ -261,24 +256,24 @@
         "acfg"
       ]
     },
-    "80": {
+    "74": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "82": {
+    "76": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "83": {
+    "77": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "85": {
+    "79": {
       "op": "itxn_submit"
     },
-    "86": {
+    "80": {
       "op": "itxn CreatedAssetID",
       "defined_out": [
         "new_asset#0"
@@ -287,10 +282,10 @@
         "new_asset#0"
       ]
     },
-    "88": {
+    "82": {
       "op": "itxn_begin"
     },
-    "89": {
+    "83": {
       "op": "dup",
       "defined_out": [
         "new_asset#0",
@@ -301,7 +296,7 @@
         "new_asset#0 (copy)"
       ]
     },
-    "90": {
+    "84": {
       "op": "asset_params_get AssetCreator",
       "defined_out": [
         "check%0#0",
@@ -314,7 +309,7 @@
         "check%0#0"
       ]
     },
-    "92": {
+    "86": {
       "error": "asset exists",
       "op": "assert // asset exists",
       "stack_out": [
@@ -322,7 +317,7 @@
         "value%0#0"
       ]
     },
-    "93": {
+    "87": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "inner_txn_params%1%%param_AssetReceiver_idx_0#0",
@@ -335,7 +330,7 @@
         "inner_txn_params%1%%param_AssetReceiver_idx_0#0"
       ]
     },
-    "95": {
+    "89": {
       "op": "uncover 2",
       "stack_out": [
         "value%0#0",
@@ -343,39 +338,39 @@
         "new_asset#0"
       ]
     },
-    "97": {
+    "91": {
       "op": "itxn_field XferAsset",
       "stack_out": [
         "value%0#0",
         "inner_txn_params%1%%param_AssetReceiver_idx_0#0"
       ]
     },
-    "99": {
-      "op": "intc_2 // 1000",
+    "93": {
+      "op": "intc_1 // 1000",
       "stack_out": [
         "value%0#0",
         "inner_txn_params%1%%param_AssetReceiver_idx_0#0",
         "1000"
       ]
     },
-    "100": {
+    "94": {
       "op": "itxn_field AssetAmount",
       "stack_out": [
         "value%0#0",
         "inner_txn_params%1%%param_AssetReceiver_idx_0#0"
       ]
     },
-    "102": {
+    "96": {
       "op": "itxn_field AssetReceiver",
       "stack_out": [
         "value%0#0"
       ]
     },
-    "104": {
+    "98": {
       "op": "itxn_field AssetSender",
       "stack_out": []
     },
-    "106": {
+    "100": {
       "op": "pushint 4 // axfer",
       "defined_out": [
         "axfer"
@@ -384,26 +379,35 @@
         "axfer"
       ]
     },
-    "108": {
+    "102": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "110": {
+    "104": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "111": {
+    "105": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "113": {
+    "107": {
       "op": "itxn_submit"
     },
-    "114": {
-      "retsub": true,
-      "op": "retsub"
+    "108": {
+      "op": "pushint 1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "110": {
+      "op": "return",
+      "stack_out": []
     }
   }
 }

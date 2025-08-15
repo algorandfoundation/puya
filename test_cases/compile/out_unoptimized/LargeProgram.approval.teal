@@ -4,7 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    pushbytes ""
     b main_block@0
 
 main_block@0:
@@ -16,101 +15,75 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz main___algopy_default_create@7
     b main_abi_routing@2
 
 main_abi_routing@2:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txna ApplicationArgs 0
-    pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
     pushbytes 0x24378d3c // method "delete()void"
+    pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
     uncover 2
-    match main_get_big_bytes_length_route@3 main_delete_route@4
+    match main_delete_route@3 main_get_big_bytes_length_route@4
     b main_switch_case_default@5
 
 main_switch_case_default@5:
     b main_switch_case_next@6
 
 main_switch_case_next@6:
-    b main_after_if_else@11
+    b main_after_if_else@8
 
-main_after_if_else@11:
+main_after_if_else@8:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
+    err
 
-main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12:
-    return
-
-main_delete_route@4:
-    // compile/apps.py:42
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub delete
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
-
-main_get_big_bytes_length_route@3:
+main_get_big_bytes_length_route@4:
     // compile/apps.py:38
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     intc_0 // 0
     !=
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     callsub get_big_bytes_length
-    itob
-    pushbytes 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
+    b main_switch_case_next@6
 
-main_bare_routing@7:
-    // compile/apps.py:37
-    // class LargeProgram(ARC4Contract):
+main_delete_route@3:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
     intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@8
-    b main_switch_case_default@9
+    !=
+    &&
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    callsub delete
+    b main_switch_case_next@6
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
-
-main_switch_case_next@10:
-    b main_after_if_else@11
-
-main___algopy_default_create@8:
+main___algopy_default_create@7:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
-    b main_block@13
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@10
 
-main_block@13:
-    b main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@14
+main_block@10:
+    b main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@11
 
-main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@14:
+main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@11:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12
+    return
 
 
 // test_cases.compile.apps.get_big_bytes() -> bytes:
@@ -124,11 +97,40 @@ get_big_bytes_block@0:
     retsub
 
 
-// test_cases.compile.apps.LargeProgram.get_big_bytes_length() -> uint64:
+// test_cases.compile.apps.LargeProgram.get_big_bytes_length[routing]() -> void:
 get_big_bytes_length:
     b get_big_bytes_length_block@0
 
 get_big_bytes_length_block@0:
+    // compile/apps.py:38
+    // @arc4.abimethod()
+    callsub test_cases.compile.apps.LargeProgram.get_big_bytes_length
+    itob
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.compile.apps.LargeProgram.delete[routing]() -> void:
+delete:
+    b delete_block@0
+
+delete_block@0:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    callsub test_cases.compile.apps.LargeProgram.delete
+    intc_1 // 1
+    return
+
+
+// test_cases.compile.apps.LargeProgram.get_big_bytes_length() -> uint64:
+test_cases.compile.apps.LargeProgram.get_big_bytes_length:
+    b test_cases.compile.apps.LargeProgram.get_big_bytes_length_block@0
+
+test_cases.compile.apps.LargeProgram.get_big_bytes_length_block@0:
     // compile/apps.py:40
     // return get_big_bytes().length
     callsub get_big_bytes
@@ -137,8 +139,8 @@ get_big_bytes_length_block@0:
 
 
 // test_cases.compile.apps.LargeProgram.delete() -> void:
-delete:
-    b delete_block@0
+test_cases.compile.apps.LargeProgram.delete:
+    b test_cases.compile.apps.LargeProgram.delete_block@0
 
-delete_block@0:
+test_cases.compile.apps.LargeProgram.delete_block@0:
     retsub

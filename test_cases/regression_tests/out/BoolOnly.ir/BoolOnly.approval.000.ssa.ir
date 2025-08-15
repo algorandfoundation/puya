@@ -7,66 +7,70 @@ subroutine test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__()
     block@0: // L4
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@7
+        goto tmp%1#0 ? block@1 : block@10
     block@1: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_0_convert(byte[])byte[]" => block@2, method "set_0_compare(byte[])byte[]" => block@3, method "bool_only_properties()void" => block@4, * => block@5}
-    block@2: // set_0_convert_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%8#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%7#0)
-        let tmp%9#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%8#0)
-        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
-        (log tmp%10#0)
-        return 1u
-    block@3: // set_0_compare_route_L9
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%15#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        let tmp%16#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%15#0)
-        let tmp%17#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%16#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
-        return 1u
-    block@4: // bool_only_properties_route_L13
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties()
-        return 1u
-    block@5: // switch_case_default_L4
-        goto block@6
-    block@6: // switch_case_next_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@8
+    block@2: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "set_0_convert(byte[])byte[]" => block@3, method "set_0_compare(byte[])byte[]" => block@4, method "bool_only_properties()void" => block@5, * => block@6}
+    block@3: // set_0_convert_route_L5
+        test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]()
+        goto block@7
+    block@4: // set_0_compare_route_L9
+        test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]()
+        goto block@7
+    block@5: // bool_only_properties_route_L13
+        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]()
+        goto block@7
+    block@6: // switch_case_default_L4
+        goto block@7
+    block@7: // switch_case_next_L4
+        goto block@9
+    block@8: // create_NoOp_L4
+        goto block@9
+    block@9: // after_if_else_L4
         goto block@11
-    block@7: // bare_routing_L4
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        switch tmp%23#0 {0u => block@8, * => block@9}
-    block@8: // __algopy_default_create_L1
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (== tmp%24#0 0u)
-        (assert tmp%25#0) // can only call when creating
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create()
-        return 1u
-    block@9: // switch_case_default_L4
-        goto block@10
-    block@10: // switch_case_next_L4
-        goto block@11
+        exit 1u
     block@11: // after_if_else_L4
-        return 0u
+        exit 0u
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
+    block@0: // L5
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%0#0)
+        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]() -> void:
+    block@0: // L9
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%0#0)
+        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]() -> void:
+    block@0: // L13
+        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties()
+        exit 1u
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes) -> bytes:
     block@0: // L5

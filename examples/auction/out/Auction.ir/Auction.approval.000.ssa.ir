@@ -13,101 +13,102 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
     block@0: // L16
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@10
+        goto tmp%1#0 ? block@1 : block@13
     block@1: // abi_routing_L16
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "opt_into_asset(uint64)void" => block@2, method "start_auction(uint64,uint64,axfer)void" => block@3, method "opt_in()void" => block@4, method "bid(pay)void" => block@5, method "claim_bids()void" => block@6, method "claim_asset(uint64)void" => block@7, * => block@8}
-    block@2: // opt_into_asset_route_L25
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@11
+    block@2: // call_NoOp_L16
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@3, method "start_auction(uint64,uint64,axfer)void" => block@4, method "opt_in()void" => block@5, method "bid(pay)void" => block@6, method "claim_bids()void" => block@7, method "claim_asset(uint64)void" => block@8, * => block@9}
+    block@3: // opt_into_asset_route_L25
+        examples.auction.contract.Auction.opt_into_asset[routing]()
+        goto block@10
+    block@4: // start_auction_route_L40
+        examples.auction.contract.Auction.start_auction[routing]()
+        goto block@10
+    block@5: // opt_in_route_L62
+        examples.auction.contract.Auction.opt_in[routing]()
+        goto block@10
+    block@6: // bid_route_L66
+        examples.auction.contract.Auction.bid[routing]()
+        goto block@10
+    block@7: // claim_bids_route_L82
+        examples.auction.contract.Auction.claim_bids[routing]()
+        goto block@10
+    block@8: // claim_asset_route_L97
+        examples.auction.contract.Auction.claim_asset[routing]()
+        goto block@10
+    block@9: // switch_case_default_L16
+        goto block@10
+    block@10: // switch_case_next_L16
+        goto block@12
+    block@11: // create_NoOp_L16
+        goto block@12
+    block@12: // after_if_else_L16
+        goto block@14
+    block@13: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        examples.auction.contract.Auction.__algopy_default_create()
+        exit 1u
+    block@14: // after_if_else_L16
+        exit 0u
+
+subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
+    block@0: // L25
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        examples.auction.contract.Auction.opt_into_asset(tmp%7#0)
-        return 1u
-    block@3: // start_auction_route_L40
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 NoOp)
-        (assert tmp%9#0) // OnCompletion is not NoOp
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%12#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%13#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        let tmp%14#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%14#0 1u)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        examples.auction.contract.Auction.opt_into_asset(tmp%0#0)
+        exit 1u
+
+subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
+    block@0: // L40
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%2#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
-        examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%13#0, gtxn_idx%0#0)
-        return 1u
-    block@4: // opt_in_route_L62
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (== tmp%15#0 NoOp)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when not creating
+        examples.auction.contract.Auction.start_auction(tmp%0#0, tmp%1#0, gtxn_idx%0#0)
+        exit 1u
+
+subroutine examples.auction.contract.Auction.opt_in[routing]() -> void:
+    block@0: // L62
         examples.auction.contract.Auction.opt_in()
-        return 1u
-    block@5: // bid_route_L66
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        let tmp%23#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%23#0 1u)
-        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
-        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
-        (assert gtxn_type_matches%1#0) // transaction type is pay
-        examples.auction.contract.Auction.bid(gtxn_idx%1#0)
-        return 1u
-    block@6: // claim_bids_route_L82
-        let tmp%24#0: uint64 = (txn OnCompletion)
-        let tmp%25#0: bool = (== tmp%24#0 NoOp)
-        (assert tmp%25#0) // OnCompletion is not NoOp
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        let tmp%27#0: bool = (!= tmp%26#0 0u)
-        (assert tmp%27#0) // can only call when not creating
+        exit 1u
+
+subroutine examples.auction.contract.Auction.bid[routing]() -> void:
+    block@0: // L66
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        examples.auction.contract.Auction.bid(gtxn_idx%0#0)
+        exit 1u
+
+subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
+    block@0: // L82
         examples.auction.contract.Auction.claim_bids()
-        return 1u
-    block@7: // claim_asset_route_L97
-        let tmp%28#0: uint64 = (txn OnCompletion)
-        let tmp%29#0: bool = (== tmp%28#0 NoOp)
-        (assert tmp%29#0) // OnCompletion is not NoOp
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        let tmp%31#0: bool = (!= tmp%30#0 0u)
-        (assert tmp%31#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%32#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        examples.auction.contract.Auction.claim_asset(tmp%32#0)
-        return 1u
-    block@8: // switch_case_default_L16
-        goto block@9
-    block@9: // switch_case_next_L16
-        goto block@14
-    block@10: // bare_routing_L16
-        let tmp%33#0: uint64 = (txn OnCompletion)
-        switch tmp%33#0 {0u => block@11, * => block@12}
-    block@11: // __algopy_default_create_L1
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        let tmp%35#0: bool = (== tmp%34#0 0u)
-        (assert tmp%35#0) // can only call when creating
-        examples.auction.contract.Auction.__algopy_default_create()
-        return 1u
-    block@12: // switch_case_default_L16
-        goto block@13
-    block@13: // switch_case_next_L16
-        goto block@14
-    block@14: // after_if_else_L16
-        return 0u
+        exit 1u
+
+subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
+    block@0: // L97
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        examples.auction.contract.Auction.claim_asset(tmp%0#0)
+        exit 1u
 
 subroutine examples.auction.contract.Auction.__init__() -> void:
     block@0: // L17

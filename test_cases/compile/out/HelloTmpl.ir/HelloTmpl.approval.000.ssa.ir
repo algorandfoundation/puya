@@ -13,61 +13,81 @@ subroutine test_cases.compile.apps.HelloTmpl.__puya_arc4_router__() -> bool:
     block@0: // L58
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@7
+        goto tmp%1#0 ? block@1 : block@14
     block@1: // abi_routing_L58
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@2, method "delete()void" => block@3, method "greet(string)string" => block@4, * => block@5}
-    block@2: // create_route_L62
+        switch tmp%2#0 {method "delete()void" => block@2, * => block@3}
+    block@2: // delete_route_L24
         let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
+        let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
         let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (== tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when creating
-        test_cases.compile.apps.HelloTmpl.create()
-        return 1u
-    block@3: // delete_route_L24
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 DeleteApplication)
-        (assert tmp%8#0) // OnCompletion is not DeleteApplication
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        test_cases.compile.apps.HelloBase.delete()
-        return 1u
-    block@4: // greet_route_L32
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%15#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
-        let tmp%16#0: string = test_cases.compile.apps.HelloBase.greet(tmp%15#0)
-        let tmp%17#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%16#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
-        return 1u
-    block@5: // switch_case_default_L58
-        goto block@6
-    block@6: // switch_case_next_L58
-        goto block@11
-    block@7: // bare_routing_L58
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        switch tmp%19#0 {4u => block@8, * => block@9}
-    block@8: // update_L28
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (!= tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
+        (assert tmp%7#0) // OnCompletion must be DeleteApplication && can only call when not creating
+        test_cases.compile.apps.HelloBase.delete[routing]()
+        goto block@4
+    block@3: // switch_case_default_L58
+        goto block@4
+    block@4: // switch_case_next_L58
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 NoOp)
+        (assert tmp%9#0) // OnCompletion must be NoOp
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (!= tmp%10#0 0u)
+        goto tmp%11#0 ? block@5 : block@9
+    block@5: // call_NoOp_L58
+        let tmp%12#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%12#0 {method "greet(string)string" => block@6, * => block@7}
+    block@6: // greet_route_L32
+        test_cases.compile.apps.HelloBase.greet[routing]()
+        goto block@8
+    block@7: // switch_case_default_L58
+        goto block@8
+    block@8: // switch_case_next_L58
+        goto block@13
+    block@9: // create_NoOp_L58
+        let tmp%13#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%13#0 {method "create()void" => block@10, * => block@11}
+    block@10: // create_route_L62
+        test_cases.compile.apps.HelloTmpl.create[routing]()
+        goto block@12
+    block@11: // switch_case_default_L58
+        goto block@12
+    block@12: // switch_case_next_L58
+        goto block@13
+    block@13: // after_if_else_L58
+        goto block@15
+    block@14: // update_L28
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        let tmp%15#0: bool = (== tmp%14#0 UpdateApplication)
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (!= tmp%16#0 0u)
+        let tmp%18#0: bool = (&& tmp%15#0 tmp%17#0)
+        (assert tmp%18#0) // OnCompletion must be UpdateApplication && can only call when not creating
         test_cases.compile.apps.HelloBase.update()
-        return 1u
-    block@9: // switch_case_default_L58
-        goto block@10
-    block@10: // switch_case_next_L58
-        goto block@11
-    block@11: // after_if_else_L58
-        return 0u
+        exit 1u
+    block@15: // after_if_else_L58
+        exit 0u
+
+subroutine test_cases.compile.apps.HelloTmpl.create[routing]() -> void:
+    block@0: // L62
+        test_cases.compile.apps.HelloTmpl.create()
+        exit 1u
+
+subroutine test_cases.compile.apps.HelloBase.delete[routing]() -> void:
+    block@0: // L24
+        test_cases.compile.apps.HelloBase.delete()
+        exit 1u
+
+subroutine test_cases.compile.apps.HelloBase.greet[routing]() -> void:
+    block@0: // L32
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%1#0: string = test_cases.compile.apps.HelloBase.greet(tmp%0#0)
+        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
 
 subroutine test_cases.compile.apps.HelloTmpl.__init__() -> void:
     block@0: // L59

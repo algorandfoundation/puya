@@ -22,211 +22,68 @@ subroutine main:
     main_after_if_else@2:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txn NumAppArgs                                                                            tmp%0#2
+        txn OnCompletion                                                                          tmp%0#2
         l-load tmp%0#2 0                                                                          tmp%0#2
-        bz main_after_if_else@10 ; b main_abi_routing@4
+        !                                                                                         tmp%1#0
+        l-load tmp%1#0 0                                                                          tmp%1#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                         tmp%2#0
+        l-load tmp%2#0 0                                                                          tmp%2#0
+        bz main_create_NoOp@9 ; b main_call_NoOp@4
 
-    main_abi_routing@4:
+    main_call_NoOp@4:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%2#0
-        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               tmp%2#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
-        method bootstrap(pay)void                                                                 tmp%2#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),Method(bootstrap(pay)void)
-        method close()void                                                                        tmp%2#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),Method(bootstrap(pay)void),Method(close()void)
-        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%2#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
-        method vote(pay,byte[],uint8[])void                                                       tmp%2#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
-        l-load tmp%2#0 5                                                                          Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%2#0
-        match main_create_route@5 main_bootstrap_route@6 main_close_route@7 main_get_preconditions_route@8 main_vote_route@9 ; b main_after_if_else@10 
+        txna ApplicationArgs 0                                                                    tmp%4#0
+        method bootstrap(pay)void                                                                 tmp%4#0,Method(bootstrap(pay)void)
+        method close()void                                                                        tmp%4#0,Method(bootstrap(pay)void),Method(close()void)
+        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
+        method vote(pay,byte[],uint8[])void                                                       tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
+        l-load tmp%4#0 4                                                                          Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%4#0
+        match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8 ; b main_after_if_else@11 
 
-    main_create_route@5:
-        // voting/voting.py:58
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                          tmp%3#0
-        l-load tmp%3#0 0                                                                          tmp%3#0
-        !                                                                                         tmp%4#0
-        l-load tmp%4#0 0                                                                          tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%5#0
-        l-load tmp%5#0 0                                                                          tmp%5#0
-        !                                                                                         tmp%6#0
-        l-load tmp%6#0 0                                                                          tmp%6#0
-        assert // can only call when creating
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+utf8[])%0#0
-        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                              reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                               tmp%7#0
-        txna ApplicationArgs 2                                                                    tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                             tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0
-        extract 2 0                                                                               tmp%7#0,tmp%8#0
-        txna ApplicationArgs 3                                                                    tmp%7#0,tmp%8#0,reinterpret_Encoded(len+utf8[])%1#0
-        l-load reinterpret_Encoded(len+utf8[])%1#0 0                                              tmp%7#0,tmp%8#0,reinterpret_Encoded(len+utf8[])%1#0
-        extract 2 0                                                                               tmp%7#0,tmp%8#0,tmp%9#0
-        txna ApplicationArgs 4                                                                    tmp%7#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                  tmp%7#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                                      tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0
-        txna ApplicationArgs 5                                                                    tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,reinterpret_Encoded(uint64)%1#0
-        l-load reinterpret_Encoded(uint64)%1#0 0                                                  tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,reinterpret_Encoded(uint64)%1#0
-        btoi                                                                                      tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0
-        txna ApplicationArgs 6                                                                    tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 7                                                                    tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%2#0
-        l-load reinterpret_Encoded(uint64)%2#0 0                                                  tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%2#0
-        btoi                                                                                      tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0
-        txna ApplicationArgs 8                                                                    tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,reinterpret_Encoded(len+utf8[])%2#0
-        l-load reinterpret_Encoded(len+utf8[])%2#0 0                                              tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,reinterpret_Encoded(len+utf8[])%2#0
-        extract 2 0                                                                               tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0
-        // voting/voting.py:58
-        // @arc4.abimethod(create="require")
-        l-load tmp%7#0 7                                                                          tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0,tmp%7#0
-        l-load tmp%8#0 7                                                                          tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0,tmp%7#0,tmp%8#0
-        l-load tmp%9#0 7                                                                          tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0,tmp%7#0,tmp%8#0,tmp%9#0
-        l-load tmp%10#0 7                                                                         tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0
-        l-load tmp%11#0 7                                                                         reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 7                                             tmp%12#0,tmp%13#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load tmp%12#0 7                                                                         tmp%13#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0
-        l-load tmp%13#0 7                                                                         tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,reinterpret_Encoded(len+uint8[])%1#0,tmp%12#0,tmp%13#0
-        callsub create
-        int 1                                                                                     1
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
-
-    main_bootstrap_route@6:
+    main_bootstrap_route@5:
         // voting/voting.py:82
         // @arc4.abimethod
-        txn OnCompletion                                                                          tmp%14#0
-        l-load tmp%14#0 0                                                                         tmp%14#0
-        !                                                                                         tmp%15#0
-        l-load tmp%15#0 0                                                                         tmp%15#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%16#0
-        l-load tmp%16#0 0                                                                         tmp%16#0
-        assert // can only call when not creating
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
-        txn GroupIndex                                                                            tmp%18#0
-        l-load tmp%18#0 0                                                                         tmp%18#0
-        int 1                                                                                     tmp%18#0,1
-        -                                                                                         gtxn_idx%0#0
-        l-load-copy gtxn_idx%0#0 0                                                                gtxn_idx%0#0,gtxn_idx%0#0 (copy)
-        gtxns TypeEnum                                                                            gtxn_idx%0#0,gtxn_type%0#0
-        l-load gtxn_type%0#0 0                                                                    gtxn_idx%0#0,gtxn_type%0#0
-        int pay                                                                                   gtxn_idx%0#0,gtxn_type%0#0,pay
-        ==                                                                                        gtxn_idx%0#0,gtxn_type_matches%0#0
-        l-load gtxn_type_matches%0#0 0                                                            gtxn_idx%0#0,gtxn_type_matches%0#0
-        assert // transaction type is pay                                                         gtxn_idx%0#0
-        // voting/voting.py:82
-        // @arc4.abimethod
-        l-load gtxn_idx%0#0 0                                                                     gtxn_idx%0#0
         callsub bootstrap
-        int 1                                                                                     1
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
+        b main_after_if_else@11
 
-    main_close_route@7:
+    main_close_route@6:
         // voting/voting.py:110
         // @arc4.abimethod
-        txn OnCompletion                                                                          tmp%19#0
-        l-load tmp%19#0 0                                                                         tmp%19#0
-        !                                                                                         tmp%20#0
-        l-load tmp%20#0 0                                                                         tmp%20#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%21#0
-        l-load tmp%21#0 0                                                                         tmp%21#0
-        assert // can only call when not creating
         callsub close
-        int 1                                                                                     1
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
+        b main_after_if_else@11
 
-    main_get_preconditions_route@8:
+    main_get_preconditions_route@7:
         // voting/voting.py:160
         // @arc4.abimethod(readonly=True)
-        txn OnCompletion                                                                          tmp%23#0
-        l-load tmp%23#0 0                                                                         tmp%23#0
-        !                                                                                         tmp%24#0
-        l-load tmp%24#0 0                                                                         tmp%24#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%25#0
-        l-load tmp%25#0 0                                                                         tmp%25#0
-        assert // can only call when not creating
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+uint8[])%2#0
-        l-load reinterpret_Encoded(len+uint8[])%2#0 0                                             reinterpret_Encoded(len+uint8[])%2#0
-        extract 2 0                                                                               tmp%27#0
-        // voting/voting.py:160
-        // @arc4.abimethod(readonly=True)
-        l-load tmp%27#0 0                                                                         tmp%27#0
-        callsub get_preconditions                                                                 tmp%28#0
-        byte 0x151f7c75                                                                           tmp%28#0,0x151f7c75
-        l-load tmp%28#0 1                                                                         0x151f7c75,tmp%28#0
-        concat                                                                                    tmp%29#0
-        l-load tmp%29#0 0                                                                         tmp%29#0
-        log
-        int 1                                                                                     1
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
+        callsub get_preconditions
+        b main_after_if_else@11
 
-    main_vote_route@9:
+    main_vote_route@8:
         // voting/voting.py:169
         // @arc4.abimethod
-        txn OnCompletion                                                                          tmp%30#0
-        l-load tmp%30#0 0                                                                         tmp%30#0
-        !                                                                                         tmp%31#0
-        l-load tmp%31#0 0                                                                         tmp%31#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%32#0
-        l-load tmp%32#0 0                                                                         tmp%32#0
-        assert // can only call when not creating
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
-        txn GroupIndex                                                                            tmp%34#0
-        l-load tmp%34#0 0                                                                         tmp%34#0
-        int 1                                                                                     tmp%34#0,1
-        -                                                                                         gtxn_idx%1#0
-        l-load-copy gtxn_idx%1#0 0                                                                gtxn_idx%1#0,gtxn_idx%1#0 (copy)
-        gtxns TypeEnum                                                                            gtxn_idx%1#0,gtxn_type%1#0
-        l-load gtxn_type%1#0 0                                                                    gtxn_idx%1#0,gtxn_type%1#0
-        int pay                                                                                   gtxn_idx%1#0,gtxn_type%1#0,pay
-        ==                                                                                        gtxn_idx%1#0,gtxn_type_matches%1#0
-        l-load gtxn_type_matches%1#0 0                                                            gtxn_idx%1#0,gtxn_type_matches%1#0
-        assert // transaction type is pay                                                         gtxn_idx%1#0
-        txna ApplicationArgs 1                                                                    gtxn_idx%1#0,reinterpret_Encoded(len+uint8[])%3#0
-        l-load reinterpret_Encoded(len+uint8[])%3#0 0                                             gtxn_idx%1#0,reinterpret_Encoded(len+uint8[])%3#0
-        extract 2 0                                                                               gtxn_idx%1#0,tmp%35#0
-        txna ApplicationArgs 2                                                                    gtxn_idx%1#0,tmp%35#0,reinterpret_Encoded(len+uint8[])%4#0
-        // voting/voting.py:169
-        // @arc4.abimethod
-        l-load gtxn_idx%1#0 2                                                                     tmp%35#0,reinterpret_Encoded(len+uint8[])%4#0,gtxn_idx%1#0
-        l-load tmp%35#0 2                                                                         reinterpret_Encoded(len+uint8[])%4#0,gtxn_idx%1#0,tmp%35#0
-        l-load reinterpret_Encoded(len+uint8[])%4#0 2                                             gtxn_idx%1#0,tmp%35#0,reinterpret_Encoded(len+uint8[])%4#0
         callsub vote
-        int 1                                                                                     1
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
+        b main_after_if_else@11
 
-    main_after_if_else@10:
+    main_create_NoOp@9:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        int 0                                                                                     0
-        l-store examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                  examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        l-load examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0 0                   examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11 
+        txna ApplicationArgs 0                                                                    tmp%5#0
+        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               tmp%5#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
+        l-load tmp%5#0 1                                                                          Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),tmp%5#0
+        match main_create_route@10 ; b main_after_if_else@11
 
-    main_after_inlined_examples.voting.voting.VotingRoundApp.__puya_arc4_router__@11:
-        v-load tmp%0#0                                                                            tmp%0#0
-        return
+    main_create_route@10:
+        // voting/voting.py:58
+        // @arc4.abimethod(create="require")
+        callsub create
+        b main_after_if_else@11
+
+    main_after_if_else@11:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        err
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -339,183 +196,225 @@ subroutine itoa:
         retsub                                                                                    tmp%5#0
 
 
-// examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.create[routing]() -> void:
 subroutine create:
-    create_block@0:                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+    create_block@0:
+        // voting/voting.py:58
+        // @arc4.abimethod(create="require")
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+utf8[])%0#0
+        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                              reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                               vote_id#0
+        txna ApplicationArgs 2                                                                    vote_id#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                             vote_id#0,reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                               vote_id#0,snapshot_public_key#0
+        txna ApplicationArgs 3                                                                    vote_id#0,snapshot_public_key#0,reinterpret_Encoded(len+utf8[])%1#0
+        l-load reinterpret_Encoded(len+utf8[])%1#0 0                                              vote_id#0,snapshot_public_key#0,reinterpret_Encoded(len+utf8[])%1#0
+        extract 2 0                                                                               vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0
+        txna ApplicationArgs 4                                                                    vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,reinterpret_Encoded(uint64)%0#0
+        l-load reinterpret_Encoded(uint64)%0#0 0                                                  vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,reinterpret_Encoded(uint64)%0#0
+        btoi                                                                                      vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0
+        txna ApplicationArgs 5                                                                    vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,reinterpret_Encoded(uint64)%1#0
+        l-load reinterpret_Encoded(uint64)%1#0 0                                                  vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,reinterpret_Encoded(uint64)%1#0
+        btoi                                                                                      vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0
+        txna ApplicationArgs 6                                                                    vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0
+        l-store-copy option_counts#0 4                                                            vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0 (copy)
+        v-store option_counts#0                                                                   vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0
+        txna ApplicationArgs 7                                                                    vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,reinterpret_Encoded(uint64)%2#0
+        l-load reinterpret_Encoded(uint64)%2#0 0                                                  vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,reinterpret_Encoded(uint64)%2#0
+        btoi                                                                                      vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0
+        txna ApplicationArgs 8                                                                    vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,reinterpret_Encoded(len+utf8[])%2#0
+        l-load reinterpret_Encoded(len+utf8[])%2#0 0                                              vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,reinterpret_Encoded(len+utf8[])%2#0
+        extract 2 0                                                                               vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:70
         // assert start_time < end_time, "End time should be after start time"
-        p-load start_time#0                                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | start_time#0 (copy)
-        p-load end_time#0                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | start_time#0 (copy),end_time#0 (copy)
-        <                                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%0#0
-        assert // End time should be after start time                                             (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        l-load-copy start_time#0 3                                                                vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,start_time#0 (copy)
+        l-load-copy end_time#0 3                                                                  vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,start_time#0 (copy),end_time#0 (copy)
+        <                                                                                         vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%0#1
+        l-load tmp%0#1 0                                                                          vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%0#1
+        assert // End time should be after start time                                             vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:71
         // assert end_time >= Global.latest_timestamp, "End time should be in the future"
-        global LatestTimestamp                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%1#0
-        p-load end_time#0                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%1#0,end_time#0 (copy)
-        l-load tmp%1#0 1                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | end_time#0 (copy),tmp%1#0
-        >=                                                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%2#0
-        l-load tmp%2#0 0                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%2#0
-        assert // End time should be in the future                                                (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        global LatestTimestamp                                                                    vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%1#1
+        l-load-copy end_time#0 3                                                                  vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%1#1,end_time#0 (copy)
+        l-load tmp%1#1 1                                                                          vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,end_time#0 (copy),tmp%1#1
+        >=                                                                                        vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%2#1
+        l-load tmp%2#1 0                                                                          vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,tmp%2#1
+        assert // End time should be in the future                                                vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:73
         // self.vote_id = vote_id
-        byte "vote_id"                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "vote_id"
-        p-load vote_id#0                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "vote_id",vote_id#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "vote_id"                                                                            vote_id#0,option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"vote_id"
+        l-load vote_id#0 8                                                                        option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"vote_id",vote_id#0
+        app_global_put                                                                            option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:74
         // self.snapshot_public_key = snapshot_public_key
-        byte "snapshot_public_key"                                                                (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "snapshot_public_key"
-        p-load snapshot_public_key#0                                                              (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "snapshot_public_key",snapshot_public_key#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "snapshot_public_key"                                                                option_counts#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"snapshot_public_key"
+        l-load snapshot_public_key#0 6                                                            option_counts#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"snapshot_public_key",snapshot_public_key#0
+        app_global_put                                                                            option_counts#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:75
         // self.metadata_ipfs_cid = metadata_ipfs_cid
-        byte "metadata_ipfs_cid"                                                                  (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "metadata_ipfs_cid"
-        p-load metadata_ipfs_cid#0                                                                (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "metadata_ipfs_cid",metadata_ipfs_cid#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "metadata_ipfs_cid"                                                                  option_counts#0,metadata_ipfs_cid#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"metadata_ipfs_cid"
+        l-load metadata_ipfs_cid#0 5                                                              option_counts#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"metadata_ipfs_cid",metadata_ipfs_cid#0
+        app_global_put                                                                            option_counts#0,start_time#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:76
         // self.start_time = start_time
-        byte "start_time"                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "start_time"
-        p-load start_time#0                                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "start_time",start_time#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "start_time"                                                                         option_counts#0,start_time#0,end_time#0,quorum#0,nft_image_url#0,"start_time"
+        l-load start_time#0 4                                                                     option_counts#0,end_time#0,quorum#0,nft_image_url#0,"start_time",start_time#0
+        app_global_put                                                                            option_counts#0,end_time#0,quorum#0,nft_image_url#0
         // voting/voting.py:77
         // self.end_time = end_time
-        byte "end_time"                                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "end_time"
-        p-load end_time#0                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "end_time",end_time#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "end_time"                                                                           option_counts#0,end_time#0,quorum#0,nft_image_url#0,"end_time"
+        l-load end_time#0 3                                                                       option_counts#0,quorum#0,nft_image_url#0,"end_time",end_time#0
+        app_global_put                                                                            option_counts#0,quorum#0,nft_image_url#0
         // voting/voting.py:78
         // self.quorum = quorum
-        byte "quorum"                                                                             (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "quorum"
-        p-load quorum#0                                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "quorum",quorum#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "quorum"                                                                             option_counts#0,quorum#0,nft_image_url#0,"quorum"
+        l-load quorum#0 2                                                                         option_counts#0,nft_image_url#0,"quorum",quorum#0
+        app_global_put                                                                            option_counts#0,nft_image_url#0
         // voting/voting.py:79
         // self.nft_image_url = nft_image_url
-        byte "nft_image_url"                                                                      (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "nft_image_url"
-        p-load nft_image_url#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "nft_image_url",nft_image_url#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        byte "nft_image_url"                                                                      option_counts#0,nft_image_url#0,"nft_image_url"
+        l-load nft_image_url#0 1                                                                  option_counts#0,"nft_image_url",nft_image_url#0
+        app_global_put                                                                            option_counts#0
         // voting/voting.py:219
         // assert option_counts.length, "option_counts should be non-empty"
-        p-load option_counts#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | option_counts#0 (copy)
-        int 0                                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | option_counts#0 (copy),0
-        extract_uint16                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                                 (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                                  (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        assert // option_counts should be non-empty                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0
+        l-load option_counts#0 0                                                                  option_counts#0
+        int 0                                                                                     option_counts#0,0
+        extract_uint16                                                                            aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                                 aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                        aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                  aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        assert // option_counts should be non-empty                                               aggregate%array_length%0#0
         // voting/voting.py:220
         // assert option_counts.length <= 112, "Can't have more than 112 questions"
-        l-load aggregate%array_length%0#0 0                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0
-        int 112                                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_length%0#0,112
-        <=                                                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%3#0
-        l-load tmp%3#0 0                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%3#0
-        assert // Can't have more than 112 questions                                              (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        l-load aggregate%array_length%0#0 0                                                       aggregate%array_length%0#0
+        int 112                                                                                   aggregate%array_length%0#0,112
+        <=                                                                                        tmp%3#0
+        l-load tmp%3#0 0                                                                          tmp%3#0
+        assert // Can't have more than 112 questions
         // voting/voting.py:222
         // total_options = UInt64(0)
-        int 0                                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | 0
-        v-store total_options#0                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
-        int 0                                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | 0
-        v-store item_index_internal%0#0                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
-        b create_for_header@2                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        int 0                                                                                     0
+        v-store total_options#0
+        int 0                                                                                     0
+        v-store item_index_internal%0#0
+        b create_for_header@2
 
-    create_for_header@2:                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+    create_for_header@2:
         // voting/voting.py:223
         // for item in option_counts:
-        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0
-        v-load aggregate%array_length%0#0                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,aggregate%array_length%0#0
-        <                                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | continue_looping%0#0
-        l-load continue_looping%0#0 0                                                             (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | continue_looping%0#0
-        bz create_after_for@5 ; b create_for_body@3                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        v-load item_index_internal%0#0                                                            item_index_internal%0#0
+        v-load aggregate%array_length%0#0                                                         item_index_internal%0#0,aggregate%array_length%0#0
+        <                                                                                         continue_looping%0#0
+        l-load continue_looping%0#0 0                                                             continue_looping%0#0
+        bz create_after_for@4 ; b create_for_body@3
 
-    create_for_body@3:                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+    create_for_body@3:
         // voting/voting.py:223
         // for item in option_counts:
-        p-load option_counts#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | option_counts#0 (copy)
-        extract 2 0                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0
+        v-load option_counts#0                                                                    option_counts#0
+        extract 2 0                                                                               aggregate%array_trimmed%0#0
         // voting/voting.py:224
         // total_options += item.native
-        l-load aggregate%array_trimmed%0#0 0                                                      (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0
-        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
-        getbyte                                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,tmp%4#0
-        v-load total_options#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,tmp%4#0,total_options#0
-        l-load tmp%4#0 1                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,total_options#0,tmp%4#0
-        +                                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,total_options#0
-        v-store total_options#0                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0
-        int 1                                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,1
-        +                                                                                         (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0
-        v-store item_index_internal%0#0                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
-        b create_for_header@2                                                                     (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        l-load aggregate%array_trimmed%0#0 0                                                      aggregate%array_trimmed%0#0
+        v-load item_index_internal%0#0                                                            aggregate%array_trimmed%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                    item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
+        getbyte                                                                                   item_index_internal%0#0,tmp%4#0
+        v-load total_options#0                                                                    item_index_internal%0#0,tmp%4#0,total_options#0
+        l-load tmp%4#0 1                                                                          item_index_internal%0#0,total_options#0,tmp%4#0
+        +                                                                                         item_index_internal%0#0,total_options#0
+        v-store total_options#0                                                                   item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                          item_index_internal%0#0
+        int 1                                                                                     item_index_internal%0#0,1
+        +                                                                                         item_index_internal%0#0
+        v-store item_index_internal%0#0
+        b create_for_header@2
 
-    create_after_for@5:                                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+    create_after_for@4:
         // voting/voting.py:225
         // assert total_options <= 128, "Can't have more than 128 vote options"
-        v-load total_options#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0
-        l-store-copy total_options#0 0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,total_options#0 (copy)
-        int 128                                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,total_options#0 (copy),128
-        <=                                                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,tmp%6#0
-        l-load tmp%6#0 0                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,tmp%6#0
-        assert // Can't have more than 128 vote options                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0
+        v-load total_options#0                                                                    total_options#0
+        l-store-copy total_options#0 0                                                            total_options#0,total_options#0 (copy)
+        int 128                                                                                   total_options#0,total_options#0 (copy),128
+        <=                                                                                        total_options#0,tmp%6#0
+        l-load tmp%6#0 0                                                                          total_options#0,tmp%6#0
+        assert // Can't have more than 128 vote options                                           total_options#0
         // voting/voting.py:227
         // self.option_counts = option_counts.copy()
-        byte "option_counts"                                                                      (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,"option_counts"
-        p-load option_counts#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,"option_counts",option_counts#0 (copy)
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0
+        byte "option_counts"                                                                      total_options#0,"option_counts"
+        v-load option_counts#0                                                                    total_options#0,"option_counts",option_counts#0
+        app_global_put                                                                            total_options#0
         // voting/voting.py:228
         // self.total_options = total_options
-        byte "total_options"                                                                      (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0,"total_options"
-        l-load total_options#0 1                                                                  (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | "total_options",total_options#0
-        app_global_put                                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
-        retsub
+        byte "total_options"                                                                      total_options#0,"total_options"
+        l-load total_options#0 1                                                                  "total_options",total_options#0
+        app_global_put
+        // voting/voting.py:58
+        // @arc4.abimethod(create="require")
+        int 1                                                                                     1
+        return
 
 
-// examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
+// examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
 subroutine bootstrap:
-    bootstrap_block@0:                                                                            (𝕡) fund_min_bal_req#0 |
+    bootstrap_block@0:
+        // voting/voting.py:82
+        // @arc4.abimethod
+        txn GroupIndex                                                                            tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
+        int 1                                                                                     tmp%0#0,1
+        -                                                                                         fund_min_bal_req#0
+        l-load-copy fund_min_bal_req#0 0                                                          fund_min_bal_req#0,fund_min_bal_req#0 (copy)
+        gtxns TypeEnum                                                                            fund_min_bal_req#0,gtxn_type%0#0
+        l-load gtxn_type%0#0 0                                                                    fund_min_bal_req#0,gtxn_type%0#0
+        int pay                                                                                   fund_min_bal_req#0,gtxn_type%0#0,pay
+        ==                                                                                        fund_min_bal_req#0,gtxn_type_matches%0#0
+        l-load gtxn_type_matches%0#0 0                                                            fund_min_bal_req#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                         fund_min_bal_req#0
         // voting/voting.py:84
         // assert not self.is_bootstrapped, "Must not be already bootstrapped"
-        int 0                                                                                     (𝕡) fund_min_bal_req#0 | 0
-        byte "is_bootstrapped"                                                                    (𝕡) fund_min_bal_req#0 | 0,"is_bootstrapped"
-        app_global_get_ex                                                                         (𝕡) fund_min_bal_req#0 | maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                 (𝕡) fund_min_bal_req#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.is_bootstrapped exists                                               (𝕡) fund_min_bal_req#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                  (𝕡) fund_min_bal_req#0 | maybe_value%0#0
-        !                                                                                         (𝕡) fund_min_bal_req#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) fund_min_bal_req#0 | tmp%0#0
-        assert // Must not be already bootstrapped                                                (𝕡) fund_min_bal_req#0 |
+        int 0                                                                                     fund_min_bal_req#0,0
+        byte "is_bootstrapped"                                                                    fund_min_bal_req#0,0,"is_bootstrapped"
+        app_global_get_ex                                                                         fund_min_bal_req#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                 fund_min_bal_req#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.is_bootstrapped exists                                               fund_min_bal_req#0,maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                  fund_min_bal_req#0,maybe_value%0#0
+        !                                                                                         fund_min_bal_req#0,tmp%0#1
+        l-load tmp%0#1 0                                                                          fund_min_bal_req#0,tmp%0#1
+        assert // Must not be already bootstrapped                                                fund_min_bal_req#0
         // voting/voting.py:85
         // self.is_bootstrapped = True
-        byte "is_bootstrapped"                                                                    (𝕡) fund_min_bal_req#0 | "is_bootstrapped"
-        int 1                                                                                     (𝕡) fund_min_bal_req#0 | "is_bootstrapped",1
-        app_global_put                                                                            (𝕡) fund_min_bal_req#0 |
+        byte "is_bootstrapped"                                                                    fund_min_bal_req#0,"is_bootstrapped"
+        int 1                                                                                     fund_min_bal_req#0,"is_bootstrapped",1
+        app_global_put                                                                            fund_min_bal_req#0
         // voting/voting.py:88
         // fund_min_bal_req.receiver == Global.current_application_address
-        p-load fund_min_bal_req#0                                                                 (𝕡) fund_min_bal_req#0 | fund_min_bal_req#0 (copy)
-        gtxns Receiver                                                                            (𝕡) fund_min_bal_req#0 | tmp%1#0
-        global CurrentApplicationAddress                                                          (𝕡) fund_min_bal_req#0 | tmp%1#0,tmp%2#0
-        l-load tmp%1#0 1                                                                          (𝕡) fund_min_bal_req#0 | tmp%2#0,tmp%1#0
-        l-load tmp%2#0 1                                                                          (𝕡) fund_min_bal_req#0 | tmp%1#0,tmp%2#0
-        ==                                                                                        (𝕡) fund_min_bal_req#0 | tmp%3#0
+        l-load-copy fund_min_bal_req#0 0                                                          fund_min_bal_req#0,fund_min_bal_req#0 (copy)
+        gtxns Receiver                                                                            fund_min_bal_req#0,tmp%1#0
+        global CurrentApplicationAddress                                                          fund_min_bal_req#0,tmp%1#0,tmp%2#0
+        l-load tmp%1#0 1                                                                          fund_min_bal_req#0,tmp%2#0,tmp%1#0
+        l-load tmp%2#0 1                                                                          fund_min_bal_req#0,tmp%1#0,tmp%2#0
+        ==                                                                                        fund_min_bal_req#0,tmp%3#0
         // voting/voting.py:87-89
         // assert (
         //     fund_min_bal_req.receiver == Global.current_application_address
         // ), "Payment must be to app address"
-        l-load tmp%3#0 0                                                                          (𝕡) fund_min_bal_req#0 | tmp%3#0
-        assert // Payment must be to app address                                                  (𝕡) fund_min_bal_req#0 |
+        l-load tmp%3#0 0                                                                          fund_min_bal_req#0,tmp%3#0
+        assert // Payment must be to app address                                                  fund_min_bal_req#0
         // voting/voting.py:91
         // tally_box_size = self.total_options * VOTE_COUNT_BYTES
-        int 0                                                                                     (𝕡) fund_min_bal_req#0 | 0
-        byte "total_options"                                                                      (𝕡) fund_min_bal_req#0 | 0,"total_options"
-        app_global_get_ex                                                                         (𝕡) fund_min_bal_req#0 | maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                                 (𝕡) fund_min_bal_req#0 | maybe_value%1#0,maybe_exists%1#0
-        assert // check self.total_options exists                                                 (𝕡) fund_min_bal_req#0 | maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                  (𝕡) fund_min_bal_req#0 | maybe_value%1#0
-        int 8                                                                                     (𝕡) fund_min_bal_req#0 | maybe_value%1#0,8
-        *                                                                                         (𝕡) fund_min_bal_req#0 | tally_box_size#0
+        int 0                                                                                     fund_min_bal_req#0,0
+        byte "total_options"                                                                      fund_min_bal_req#0,0,"total_options"
+        app_global_get_ex                                                                         fund_min_bal_req#0,maybe_value%1#0,maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                                 fund_min_bal_req#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.total_options exists                                                 fund_min_bal_req#0,maybe_value%1#0
+        l-load maybe_value%1#0 0                                                                  fund_min_bal_req#0,maybe_value%1#0
+        int 8                                                                                     fund_min_bal_req#0,maybe_value%1#0,8
+        *                                                                                         fund_min_bal_req#0,tally_box_size#0
         // voting/voting.py:102
         // + (tally_box_size * BOX_BYTE_MIN_BALANCE)
-        l-load-copy tally_box_size#0 0                                                            (𝕡) fund_min_bal_req#0 | tally_box_size#0,tally_box_size#0 (copy)
-        int 400                                                                                   (𝕡) fund_min_bal_req#0 | tally_box_size#0,tally_box_size#0 (copy),400
-        *                                                                                         (𝕡) fund_min_bal_req#0 | tally_box_size#0,tmp%5#0
+        l-load-copy tally_box_size#0 0                                                            fund_min_bal_req#0,tally_box_size#0,tally_box_size#0 (copy)
+        int 400                                                                                   fund_min_bal_req#0,tally_box_size#0,tally_box_size#0 (copy),400
+        *                                                                                         fund_min_bal_req#0,tally_box_size#0,tmp%5#0
         // voting/voting.py:94-100
         // ASSET_MIN_BALANCE * 2
         // # create NFT fee
@@ -524,7 +423,7 @@ subroutine bootstrap:
         // + BOX_FLAT_MIN_BALANCE
         // # tally box key "V"
         // + BOX_BYTE_MIN_BALANCE
-        int 203900                                                                                (𝕡) fund_min_bal_req#0 | tally_box_size#0,tmp%5#0,203900
+        int 203900                                                                                fund_min_bal_req#0,tally_box_size#0,tmp%5#0,203900
         // voting/voting.py:94-102
         // ASSET_MIN_BALANCE * 2
         // # create NFT fee
@@ -535,38 +434,41 @@ subroutine bootstrap:
         // + BOX_BYTE_MIN_BALANCE
         // # tally box value
         // + (tally_box_size * BOX_BYTE_MIN_BALANCE)
-        l-load tmp%5#0 1                                                                          (𝕡) fund_min_bal_req#0 | tally_box_size#0,203900,tmp%5#0
-        +                                                                                         (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0
+        l-load tmp%5#0 1                                                                          fund_min_bal_req#0,tally_box_size#0,203900,tmp%5#0
+        +                                                                                         fund_min_bal_req#0,tally_box_size#0,min_balance_req#0
         // voting/voting.py:104
         // log(min_balance_req)
-        l-load-copy min_balance_req#0 0                                                           (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,min_balance_req#0 (copy)
-        itob                                                                                      (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,tmp%7#0
-        l-load tmp%7#0 0                                                                          (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,tmp%7#0
-        log                                                                                       (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0
+        l-load-copy min_balance_req#0 0                                                           fund_min_bal_req#0,tally_box_size#0,min_balance_req#0,min_balance_req#0 (copy)
+        itob                                                                                      fund_min_bal_req#0,tally_box_size#0,min_balance_req#0,tmp%7#0
+        l-load tmp%7#0 0                                                                          fund_min_bal_req#0,tally_box_size#0,min_balance_req#0,tmp%7#0
+        log                                                                                       fund_min_bal_req#0,tally_box_size#0,min_balance_req#0
         // voting/voting.py:106
         // fund_min_bal_req.amount == min_balance_req
-        p-load fund_min_bal_req#0                                                                 (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,fund_min_bal_req#0 (copy)
-        gtxns Amount                                                                              (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,tmp%8#0
-        l-load tmp%8#0 0                                                                          (𝕡) fund_min_bal_req#0 | tally_box_size#0,min_balance_req#0,tmp%8#0
-        l-load min_balance_req#0 1                                                                (𝕡) fund_min_bal_req#0 | tally_box_size#0,tmp%8#0,min_balance_req#0
-        ==                                                                                        (𝕡) fund_min_bal_req#0 | tally_box_size#0,tmp%9#0
+        l-load fund_min_bal_req#0 2                                                               tally_box_size#0,min_balance_req#0,fund_min_bal_req#0
+        gtxns Amount                                                                              tally_box_size#0,min_balance_req#0,tmp%8#0
+        l-load tmp%8#0 0                                                                          tally_box_size#0,min_balance_req#0,tmp%8#0
+        l-load min_balance_req#0 1                                                                tally_box_size#0,tmp%8#0,min_balance_req#0
+        ==                                                                                        tally_box_size#0,tmp%9#0
         // voting/voting.py:105-107
         // assert (
         //     fund_min_bal_req.amount == min_balance_req
         // ), "Payment must be for the exact min balance requirement"
-        l-load tmp%9#0 0                                                                          (𝕡) fund_min_bal_req#0 | tally_box_size#0,tmp%9#0
-        assert // Payment must be for the exact min balance requirement                           (𝕡) fund_min_bal_req#0 | tally_box_size#0
+        l-load tmp%9#0 0                                                                          tally_box_size#0,tmp%9#0
+        assert // Payment must be for the exact min balance requirement                           tally_box_size#0
         // voting/voting.py:108
         // assert self.tally_box.create(size=tally_box_size)
-        byte "V"                                                                                  (𝕡) fund_min_bal_req#0 | tally_box_size#0,"V"
-        l-load tally_box_size#0 1                                                                 (𝕡) fund_min_bal_req#0 | "V",tally_box_size#0
-        box_create                                                                                (𝕡) fund_min_bal_req#0 | tmp%10#0
-        l-load tmp%10#0 0                                                                         (𝕡) fund_min_bal_req#0 | tmp%10#0
-        assert                                                                                    (𝕡) fund_min_bal_req#0 |
-        retsub
+        byte "V"                                                                                  tally_box_size#0,"V"
+        l-load tally_box_size#0 1                                                                 "V",tally_box_size#0
+        box_create                                                                                tmp%10#0
+        l-load tmp%10#0 0                                                                         tmp%10#0
+        assert
+        // voting/voting.py:82
+        // @arc4.abimethod
+        int 1                                                                                     1
+        return
 
 
-// examples.voting.voting.VotingRoundApp.close() -> void:
+// examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 subroutine close:
     close_block@0:
         // voting/voting.py:112
@@ -819,18 +721,18 @@ subroutine close:
         l-store item_index_internal%0#0 0                                                         item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                          item_index_internal%0#0
         v-store question_index#0
-        b close_for_header@1
+        b close_for_header@2
 
-    close_for_header@1:
+    close_for_header@2:
         // voting/voting.py:132
         // for question_index, question_options in uenumerate(self.option_counts):
         v-load question_index#0                                                                   question_index#0
         v-load aggregate%array_length%0#0                                                         question_index#0,aggregate%array_length%0#0
         <                                                                                         continue_looping%0#0
         l-load continue_looping%0#0 0                                                             continue_looping%0#0
-        bz close_after_for@14 ; b close_for_body@2
+        bz close_after_for@15 ; b close_for_body@3
 
-    close_for_body@2:
+    close_for_body@3:
         // voting/voting.py:132
         // for question_index, question_options in uenumerate(self.option_counts):
         v-load maybe_value%5#0                                                                    maybe_value%5#0
@@ -848,9 +750,9 @@ subroutine close:
         // voting/voting.py:133
         // if question_index > 0:
         l-load question_index#0 0                                                                 question_index#0
-        bz close_after_if_else@4 ; b close_if_body@3
+        bz close_after_if_else@5 ; b close_if_body@4
 
-    close_if_body@3:
+    close_if_body@4:
         // voting/voting.py:134
         // note += ","
         v-load note#0                                                                             note#0
@@ -858,9 +760,9 @@ subroutine close:
         concat                                                                                    note#0
         l-load note#0 0                                                                           note#0
         v-store note#17
-        b close_after_if_else@4
+        b close_after_if_else@5
 
-    close_after_if_else@4:
+    close_after_if_else@5:
         v-load note#17                                                                            note#17
         l-store-copy note#0 0                                                                     note#0,note#0 (copy)
         v-store note#0                                                                            note#0
@@ -874,9 +776,9 @@ subroutine close:
         l-load note#0 1                                                                           tmp%16#0,note#0
         v-store note#17                                                                           tmp%16#0
         l-load tmp%16#0 0                                                                         tmp%16#0
-        bz close_after_if_else@12 ; b close_if_body@5
+        bz close_after_if_else@13 ; b close_if_body@6
 
-    close_if_body@5:
+    close_if_body@6:
         // voting/voting.py:136
         // note += "["
         v-load note#0                                                                             note#0
@@ -891,26 +793,26 @@ subroutine close:
         v-store tmp%18#0
         int 0                                                                                     0
         v-store option_index#0
-        b close_for_header@6
+        b close_for_header@7
 
-    close_for_header@6:
+    close_for_header@7:
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
         v-load option_index#0                                                                     option_index#0
         v-load tmp%18#0                                                                           option_index#0,tmp%18#0
         <                                                                                         continue_looping%1#0
         l-load continue_looping%1#0 0                                                             continue_looping%1#0
-        bz close_after_for@11 ; b close_for_body@7
+        bz close_after_for@12 ; b close_for_body@8
 
-    close_for_body@7:
+    close_for_body@8:
         v-load note#0                                                                             note#0
         v-store note#17
         // voting/voting.py:138
         // if option_index > 0:
         v-load option_index#0                                                                     option_index#0
-        bz close_after_if_else@9 ; b close_if_body@8
+        bz close_after_if_else@10 ; b close_if_body@9
 
-    close_if_body@8:
+    close_if_body@9:
         // voting/voting.py:139
         // note += ","
         v-load note#0                                                                             note#0
@@ -918,9 +820,9 @@ subroutine close:
         concat                                                                                    note#0
         l-load note#0 0                                                                           note#0
         v-store note#17
-        b close_after_if_else@9
+        b close_after_if_else@10
 
-    close_after_if_else@9:
+    close_after_if_else@10:
         v-load note#17                                                                            note#17
         l-store note#0 0                                                                          note#0
         // voting/voting.py:241
@@ -952,9 +854,9 @@ subroutine close:
         int 1                                                                                     option_index#0,1
         +                                                                                         option_index#0
         v-store option_index#0
-        b close_for_header@6
+        b close_for_header@7
 
-    close_after_for@11:
+    close_after_for@12:
         // voting/voting.py:143
         // note += "]"
         v-load note#0                                                                             note#0
@@ -964,9 +866,9 @@ subroutine close:
         v-store current_index#15                                                                  note#0
         l-load note#0 0                                                                           note#0
         v-store note#17
-        b close_after_if_else@12
+        b close_after_if_else@13
 
-    close_after_if_else@12:
+    close_after_if_else@13:
         v-load current_index#15                                                                   current_index#15
         v-store current_index#0
         v-load note#17                                                                            note#17
@@ -976,9 +878,9 @@ subroutine close:
         +                                                                                         item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                          item_index_internal%0#0
         v-store question_index#0
-        b close_for_header@1
+        b close_for_header@2
 
-    close_after_for@14:
+    close_after_for@15:
         // voting/voting.py:144
         // note += "]}}"
         v-load note#0                                                                             note#0
@@ -1092,39 +994,47 @@ subroutine close:
         // )
         l-load tmp%27#0 1                                                                         "nft_asset_id",tmp%27#0
         app_global_put
-        retsub
+        // voting/voting.py:110
+        // @arc4.abimethod
+        int 1                                                                                     1
+        return
 
 
-// examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
+// examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
 subroutine get_preconditions:
-    get_preconditions_block@0:                                                                    (𝕡) signature#0 |
+    get_preconditions_block@0:
+        // voting/voting.py:160
+        // @arc4.abimethod(readonly=True)
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                             reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                               signature#0
         // voting/voting.py:163
         // is_voting_open=arc4.UInt64(self.voting_open()),
-        callsub voting_open                                                                       (𝕡) signature#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) signature#0 | tmp%0#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#0
+        callsub voting_open                                                                       signature#0,tmp%0#1
+        l-load tmp%0#1 0                                                                          signature#0,tmp%0#1
+        itob                                                                                      signature#0,aggregate%val_as_bytes%0#0
         // voting/voting.py:164
         // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
-        p-load signature#0                                                                        (𝕡) signature#0 | aggregate%val_as_bytes%0#0,signature#0 (copy)
-        callsub allowed_to_vote                                                                   (𝕡) signature#0 | aggregate%val_as_bytes%0#0,tmp%2#0
-        l-load tmp%2#0 0                                                                          (𝕡) signature#0 | aggregate%val_as_bytes%0#0,tmp%2#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load signature#0 1                                                                      aggregate%val_as_bytes%0#0,signature#0
+        callsub allowed_to_vote                                                                   aggregate%val_as_bytes%0#0,tmp%2#1
+        l-load tmp%2#1 0                                                                          aggregate%val_as_bytes%0#0,tmp%2#1
+        itob                                                                                      aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
-        txn Sender                                                                                (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,materialized_values%0#0
-        l-load materialized_values%0#0 0                                                          (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,materialized_values%0#0
-        box_len                                                                                   (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,_%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0,_%0#0
-        v-store _%0#0                                                                             (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0
+        txn Sender                                                                                aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,materialized_values%0#0
+        box_len                                                                                   aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,_%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0,_%0#0
+        v-store _%0#0                                                                             aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0
         // voting/voting.py:165
         // has_already_voted=arc4.UInt64(self.already_voted()),
-        l-load maybe_exists%0#0 0                                                                 (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
+        l-load maybe_exists%0#0 0                                                                 aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,maybe_exists%0#0
+        itob                                                                                      aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
         // voting/voting.py:166
         // current_time=arc4.UInt64(Global.latest_timestamp),
-        global LatestTimestamp                                                                    (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,tmp%6#0
-        l-load tmp%6#0 0                                                                          (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,tmp%6#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        global LatestTimestamp                                                                    aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,tmp%6#0
+        l-load tmp%6#0 0                                                                          aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,tmp%6#0
+        itob                                                                                      aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         // voting/voting.py:162-167
         // return VotingPreconditions(
         //     is_voting_open=arc4.UInt64(self.voting_open()),
@@ -1132,229 +1042,259 @@ subroutine get_preconditions:
         //     has_already_voted=arc4.UInt64(self.already_voted()),
         //     current_time=arc4.UInt64(Global.latest_timestamp),
         // )
-        l-load aggregate%val_as_bytes%0#0 3                                                       (𝕡) signature#0 | aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 3                                                       (𝕡) signature#0 | aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                    (𝕡) signature#0 | aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%head%1#0
-        l-load aggregate%head%1#0 0                                                               (𝕡) signature#0 | aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%2#0 2                                                       (𝕡) signature#0 | aggregate%val_as_bytes%3#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0
-        concat                                                                                    (𝕡) signature#0 | aggregate%val_as_bytes%3#0,aggregate%head%2#0
-        l-load aggregate%head%2#0 0                                                               (𝕡) signature#0 | aggregate%val_as_bytes%3#0,aggregate%head%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                       (𝕡) signature#0 | aggregate%head%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                    (𝕡) signature#0 | aggregate%head%3#0
-        l-load aggregate%head%3#0 0                                                               (𝕡) signature#0 | aggregate%head%3#0
-        retsub                                                                                    aggregate%head%3#0
+        l-load aggregate%val_as_bytes%0#0 3                                                       aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 3                                                       aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                    aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%head%1#0
+        l-load aggregate%head%1#0 0                                                               aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%head%1#0
+        l-load aggregate%val_as_bytes%2#0 2                                                       aggregate%val_as_bytes%3#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0
+        concat                                                                                    aggregate%val_as_bytes%3#0,aggregate%head%2#0
+        l-load aggregate%head%2#0 0                                                               aggregate%val_as_bytes%3#0,aggregate%head%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                       aggregate%head%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                    aggregate%head%3#0
+        // voting/voting.py:160
+        // @arc4.abimethod(readonly=True)
+        byte 0x151f7c75                                                                           aggregate%head%3#0,0x151f7c75
+        l-load aggregate%head%3#0 1                                                               0x151f7c75,aggregate%head%3#0
+        concat                                                                                    tmp%2#0
+        l-load tmp%2#0 0                                                                          tmp%2#0
+        log
+        int 1                                                                                     1
+        return
 
 
-// examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
 subroutine vote:
-    vote_block@0:                                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+    vote_block@0:
+        // voting/voting.py:169
+        // @arc4.abimethod
+        txn GroupIndex                                                                            tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
+        int 1                                                                                     tmp%0#0,1
+        -                                                                                         fund_min_bal_req#0
+        l-load-copy fund_min_bal_req#0 0                                                          fund_min_bal_req#0,fund_min_bal_req#0 (copy)
+        gtxns TypeEnum                                                                            fund_min_bal_req#0,gtxn_type%0#0
+        l-load gtxn_type%0#0 0                                                                    fund_min_bal_req#0,gtxn_type%0#0
+        int pay                                                                                   fund_min_bal_req#0,gtxn_type%0#0,pay
+        ==                                                                                        fund_min_bal_req#0,gtxn_type_matches%0#0
+        l-load gtxn_type_matches%0#0 0                                                            fund_min_bal_req#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                         fund_min_bal_req#0
+        txna ApplicationArgs 1                                                                    fund_min_bal_req#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                             fund_min_bal_req#0,reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                               fund_min_bal_req#0,signature#0
+        txna ApplicationArgs 2                                                                    fund_min_bal_req#0,signature#0,answer_ids#0
+        l-store-copy answer_ids#0 1                                                               fund_min_bal_req#0,answer_ids#0,signature#0,answer_ids#0 (copy)
+        v-store answer_ids#0                                                                      fund_min_bal_req#0,answer_ids#0,signature#0
         // voting/voting.py:176
         // ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
-        int 7700                                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 7700
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 7700,0
-        callsub ensure_budget                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        int 7700                                                                                  fund_min_bal_req#0,answer_ids#0,signature#0,7700
+        int 0                                                                                     fund_min_bal_req#0,answer_ids#0,signature#0,7700,0
+        callsub ensure_budget                                                                     fund_min_bal_req#0,answer_ids#0,signature#0
         // voting/voting.py:178
         // assert self.allowed_to_vote(signature), "Not allowed to vote"
-        p-load signature#0                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | signature#0 (copy)
-        callsub allowed_to_vote                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%0#0
-        assert // Not allowed to vote                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        l-load signature#0 0                                                                      fund_min_bal_req#0,answer_ids#0,signature#0
+        callsub allowed_to_vote                                                                   fund_min_bal_req#0,answer_ids#0,tmp%0#1
+        l-load tmp%0#1 0                                                                          fund_min_bal_req#0,answer_ids#0,tmp%0#1
+        assert // Not allowed to vote                                                             fund_min_bal_req#0,answer_ids#0
         // voting/voting.py:179
         // assert self.voting_open(), "Voting not open"
-        callsub voting_open                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%1#0
-        assert // Voting not open                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        callsub voting_open                                                                       fund_min_bal_req#0,answer_ids#0,tmp%1#1
+        l-load tmp%1#1 0                                                                          fund_min_bal_req#0,answer_ids#0,tmp%1#1
+        assert // Voting not open                                                                 fund_min_bal_req#0,answer_ids#0
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
-        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | materialized_values%0#0
-        l-load materialized_values%0#0 0                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | materialized_values%0#0
-        box_len                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | _%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0,_%0#0
-        v-store _%0#0                                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0
+        txn Sender                                                                                fund_min_bal_req#0,answer_ids#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          fund_min_bal_req#0,answer_ids#0,materialized_values%0#0
+        box_len                                                                                   fund_min_bal_req#0,answer_ids#0,_%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                fund_min_bal_req#0,answer_ids#0,maybe_exists%0#0,_%0#0
+        v-store _%0#0                                                                             fund_min_bal_req#0,answer_ids#0,maybe_exists%0#0
         // voting/voting.py:180
         // assert not self.already_voted(), "Already voted"
-        l-load maybe_exists%0#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%0#0
-        !                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%3#0
-        l-load tmp%3#0 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%3#0
-        assert // Already voted                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        l-load maybe_exists%0#0 0                                                                 fund_min_bal_req#0,answer_ids#0,maybe_exists%0#0
+        !                                                                                         fund_min_bal_req#0,answer_ids#0,tmp%3#0
+        l-load tmp%3#0 0                                                                          fund_min_bal_req#0,answer_ids#0,tmp%3#0
+        assert // Already voted                                                                   fund_min_bal_req#0,answer_ids#0
         // voting/voting.py:181
         // questions_count = self.option_counts.length
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 0
-        byte "option_counts"                                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 0,"option_counts"
-        app_global_get_ex                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.option_counts exists                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#0
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%0#0,0
-        extract_uint16                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0
-        l-store-copy questions_count#0 0                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0,questions_count#0 (copy)
-        v-store questions_count#0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0
+        int 0                                                                                     fund_min_bal_req#0,answer_ids#0,0
+        byte "option_counts"                                                                      fund_min_bal_req#0,answer_ids#0,0,"option_counts"
+        app_global_get_ex                                                                         fund_min_bal_req#0,answer_ids#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                 fund_min_bal_req#0,answer_ids#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.option_counts exists                                                 fund_min_bal_req#0,answer_ids#0,maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                  fund_min_bal_req#0,answer_ids#0,maybe_value%0#0
+        int 0                                                                                     fund_min_bal_req#0,answer_ids#0,maybe_value%0#0,0
+        extract_uint16                                                                            fund_min_bal_req#0,answer_ids#0,questions_count#0
+        l-store-copy questions_count#0 0                                                          fund_min_bal_req#0,answer_ids#0,questions_count#0,questions_count#0 (copy)
+        v-store questions_count#0                                                                 fund_min_bal_req#0,answer_ids#0,questions_count#0
         // voting/voting.py:182
         // assert answer_ids.length == questions_count, "Number of answers incorrect"
-        p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0,answer_ids#0 (copy)
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0,answer_ids#0 (copy),0
-        extract_uint16                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0,aggregate%array_length%1#0
-        l-load-copy aggregate%array_length%1#0 0                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | questions_count#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
-        l-load questions_count#0 2                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_length%1#0,aggregate%array_length%1#0 (copy),questions_count#0
-        ==                                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_length%1#0,tmp%6#0
-        l-load tmp%6#0 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_length%1#0,tmp%6#0
-        assert // Number of answers incorrect                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_length%1#0
+        l-load answer_ids#0 1                                                                     fund_min_bal_req#0,questions_count#0,answer_ids#0
+        int 0                                                                                     fund_min_bal_req#0,questions_count#0,answer_ids#0,0
+        extract_uint16                                                                            fund_min_bal_req#0,questions_count#0,aggregate%array_length%1#0
+        l-load-copy aggregate%array_length%1#0 0                                                  fund_min_bal_req#0,questions_count#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
+        l-load questions_count#0 2                                                                fund_min_bal_req#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy),questions_count#0
+        ==                                                                                        fund_min_bal_req#0,aggregate%array_length%1#0,tmp%6#0
+        l-load tmp%6#0 0                                                                          fund_min_bal_req#0,aggregate%array_length%1#0,tmp%6#0
+        assert // Number of answers incorrect                                                     fund_min_bal_req#0,aggregate%array_length%1#0
         // voting/voting.py:185
         // (32 + 2 + VOTE_INDEX_BYTES * answer_ids.length) * BOX_BYTE_MIN_BALANCE
-        int 34                                                                                    (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_length%1#0,34
-        l-load aggregate%array_length%1#0 1                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 34,aggregate%array_length%1#0
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%9#0
-        l-load tmp%9#0 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%9#0
-        int 400                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%9#0,400
-        *                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%10#0
+        int 34                                                                                    fund_min_bal_req#0,aggregate%array_length%1#0,34
+        l-load aggregate%array_length%1#0 1                                                       fund_min_bal_req#0,34,aggregate%array_length%1#0
+        +                                                                                         fund_min_bal_req#0,tmp%9#0
+        l-load tmp%9#0 0                                                                          fund_min_bal_req#0,tmp%9#0
+        int 400                                                                                   fund_min_bal_req#0,tmp%9#0,400
+        *                                                                                         fund_min_bal_req#0,tmp%10#0
         // voting/voting.py:184
         // min_bal_req = BOX_FLAT_MIN_BALANCE + (
-        int 2500                                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%10#0,2500
+        int 2500                                                                                  fund_min_bal_req#0,tmp%10#0,2500
         // voting/voting.py:184-186
         // min_bal_req = BOX_FLAT_MIN_BALANCE + (
         //     (32 + 2 + VOTE_INDEX_BYTES * answer_ids.length) * BOX_BYTE_MIN_BALANCE
         // )
-        l-load tmp%10#0 1                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 2500,tmp%10#0
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0
+        l-load tmp%10#0 1                                                                         fund_min_bal_req#0,2500,tmp%10#0
+        +                                                                                         fund_min_bal_req#0,min_bal_req#0
         // voting/voting.py:188
         // fund_min_bal_req.receiver == Global.current_application_address
-        p-load fund_min_bal_req#0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,fund_min_bal_req#0 (copy)
-        gtxns Receiver                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%12#0
-        global CurrentApplicationAddress                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%12#0,tmp%13#0
-        l-load tmp%12#0 1                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%13#0,tmp%12#0
-        l-load tmp%13#0 1                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%12#0,tmp%13#0
-        ==                                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%14#0
+        l-load-copy fund_min_bal_req#0 1                                                          fund_min_bal_req#0,min_bal_req#0,fund_min_bal_req#0 (copy)
+        gtxns Receiver                                                                            fund_min_bal_req#0,min_bal_req#0,tmp%12#0
+        global CurrentApplicationAddress                                                          fund_min_bal_req#0,min_bal_req#0,tmp%12#0,tmp%13#0
+        l-load tmp%12#0 1                                                                         fund_min_bal_req#0,min_bal_req#0,tmp%13#0,tmp%12#0
+        l-load tmp%13#0 1                                                                         fund_min_bal_req#0,min_bal_req#0,tmp%12#0,tmp%13#0
+        ==                                                                                        fund_min_bal_req#0,min_bal_req#0,tmp%14#0
         // voting/voting.py:187-189
         // assert (
         //     fund_min_bal_req.receiver == Global.current_application_address
         // ), "Payment must be to app address"
-        l-load tmp%14#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%14#0
-        assert // Payment must be to app address                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0
+        l-load tmp%14#0 0                                                                         fund_min_bal_req#0,min_bal_req#0,tmp%14#0
+        assert // Payment must be to app address                                                  fund_min_bal_req#0,min_bal_req#0
         // voting/voting.py:191
         // log(min_bal_req)
-        l-load-copy min_bal_req#0 0                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,min_bal_req#0 (copy)
-        itob                                                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%15#0
-        l-load tmp%15#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%15#0
-        log                                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0
+        l-load-copy min_bal_req#0 0                                                               fund_min_bal_req#0,min_bal_req#0,min_bal_req#0 (copy)
+        itob                                                                                      fund_min_bal_req#0,min_bal_req#0,tmp%15#0
+        l-load tmp%15#0 0                                                                         fund_min_bal_req#0,min_bal_req#0,tmp%15#0
+        log                                                                                       fund_min_bal_req#0,min_bal_req#0
         // voting/voting.py:192
         // assert fund_min_bal_req.amount == min_bal_req, "Payment must be the exact min balance"
-        p-load fund_min_bal_req#0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,fund_min_bal_req#0 (copy)
-        gtxns Amount                                                                              (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%16#0
-        l-load tmp%16#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | min_bal_req#0,tmp%16#0
-        l-load min_bal_req#0 1                                                                    (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%16#0,min_bal_req#0
-        ==                                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%17#0
-        l-load tmp%17#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | tmp%17#0
-        assert // Payment must be the exact min balance                                           (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        l-load fund_min_bal_req#0 1                                                               min_bal_req#0,fund_min_bal_req#0
+        gtxns Amount                                                                              min_bal_req#0,tmp%16#0
+        l-load tmp%16#0 0                                                                         min_bal_req#0,tmp%16#0
+        l-load min_bal_req#0 1                                                                    tmp%16#0,min_bal_req#0
+        ==                                                                                        tmp%17#0
+        l-load tmp%17#0 0                                                                         tmp%17#0
+        assert // Payment must be the exact min balance
         // voting/voting.py:194
         // cumulative_offset = UInt64(0)
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 0
-        v-store cumulative_offset#0                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        int 0                                                                                     0
+        v-store cumulative_offset#0
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | 0
-        v-store question_index#0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
-        b vote_for_header@1                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        int 0                                                                                     0
+        v-store question_index#0
+        b vote_for_header@2
 
-    vote_for_header@1:                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+    vote_for_header@2:
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
-        v-load questions_count#0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,questions_count#0
-        <                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | continue_looping%0#0
-        l-load continue_looping%0#0 0                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | continue_looping%0#0
-        bz vote_after_for@4 ; b vote_for_body@2                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        v-load question_index#0                                                                   question_index#0
+        v-load questions_count#0                                                                  question_index#0,questions_count#0
+        <                                                                                         continue_looping%0#0
+        l-load continue_looping%0#0 0                                                             continue_looping%0#0
+        bz vote_after_for@5 ; b vote_for_body@3
 
-    vote_for_body@2:                                                                              (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+    vote_for_body@3:
         // voting/voting.py:197
         // answer_option_index = answer_ids[question_index].native
-        p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | answer_ids#0 (copy)
-        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0
-        l-load aggregate%array_trimmed%0#0 0                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0
-        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0,question_index#0
-        l-store-copy question_index#0 1                                                           (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,aggregate%array_trimmed%0#0,question_index#0 (copy)
-        getbyte                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0
+        v-load answer_ids#0                                                                       answer_ids#0
+        l-store-copy answer_ids#0 0                                                               answer_ids#0,answer_ids#0 (copy)
+        extract 2 0                                                                               answer_ids#0,aggregate%array_trimmed%0#0
+        l-load aggregate%array_trimmed%0#0 0                                                      answer_ids#0,aggregate%array_trimmed%0#0
+        v-load question_index#0                                                                   answer_ids#0,aggregate%array_trimmed%0#0,question_index#0
+        l-store-copy question_index#0 1                                                           answer_ids#0,question_index#0,aggregate%array_trimmed%0#0,question_index#0 (copy)
+        getbyte                                                                                   answer_ids#0,question_index#0,answer_option_index#0
         // voting/voting.py:198
         // options_count = self.option_counts[question_index].native
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,0
-        byte "option_counts"                                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,0,"option_counts"
-        app_global_get_ex                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.option_counts exists                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,maybe_value%1#0
-        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
-        l-load aggregate%array_trimmed%1#0 0                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
-        l-load-copy question_index#0 2                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0,question_index#0 (copy)
-        getbyte                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0
+        int 0                                                                                     answer_ids#0,question_index#0,answer_option_index#0,0
+        byte "option_counts"                                                                      answer_ids#0,question_index#0,answer_option_index#0,0,"option_counts"
+        app_global_get_ex                                                                         answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                                 answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.option_counts exists                                                 answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0
+        l-load maybe_value%1#0 0                                                                  answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0
+        extract 2 0                                                                               answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
+        l-load aggregate%array_trimmed%1#0 0                                                      answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
+        l-load-copy question_index#0 2                                                            answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0,question_index#0 (copy)
+        getbyte                                                                                   answer_ids#0,question_index#0,answer_option_index#0,options_count#0
         // voting/voting.py:199
         // assert answer_option_index < options_count, "Answer option index invalid"
-        l-load-copy answer_option_index#0 1                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy)
-        l-load-copy options_count#0 1                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy),options_count#0 (copy)
-        <                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0,tmp%20#0
-        l-load tmp%20#0 0                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0,tmp%20#0
-        assert // Answer option index invalid                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0
+        l-load-copy answer_option_index#0 1                                                       answer_ids#0,question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy)
+        l-load-copy options_count#0 1                                                             answer_ids#0,question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy),options_count#0 (copy)
+        <                                                                                         answer_ids#0,question_index#0,answer_option_index#0,options_count#0,tmp%20#0
+        l-load tmp%20#0 0                                                                         answer_ids#0,question_index#0,answer_option_index#0,options_count#0,tmp%20#0
+        assert // Answer option index invalid                                                     answer_ids#0,question_index#0,answer_option_index#0,options_count#0
         // voting/voting.py:200
         // self.increment_vote_in_box(cumulative_offset + answer_option_index)
-        v-load cumulative_offset#0                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,options_count#0,cumulative_offset#0
-        l-store-copy cumulative_offset#0 1                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,answer_option_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy)
-        l-load answer_option_index#0 3                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy),answer_option_index#0
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0
+        v-load cumulative_offset#0                                                                answer_ids#0,question_index#0,answer_option_index#0,options_count#0,cumulative_offset#0
+        l-store-copy cumulative_offset#0 1                                                        answer_ids#0,question_index#0,answer_option_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy)
+        l-load answer_option_index#0 3                                                            answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy),answer_option_index#0
+        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0
         // voting/voting.py:241
         // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
-        byte "V"                                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,"V"
-        l-load-copy index#0 1                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy)
-        int 8                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy),8
-        box_extract                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#1
-        l-load tmp%0#1 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#1
-        btoi                                                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
+        byte "V"                                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V"
+        l-load-copy index#0 1                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy)
+        int 8                                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy),8
+        box_extract                                                                               answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#2
+        l-load tmp%0#2 0                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#2
+        btoi                                                                                      answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
         // voting/voting.py:246
         // self.tally_box.replace(index, op.itob(current_vote + 1))
-        l-load current_vote#0 0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
-        int 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0,1
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#1
-        l-load tmp%1#1 0                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#1
-        itob                                                                                      (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1
-        byte "V"                                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1,"V"
-        l-load index#0 2                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,tmp%2#1,"V",index#0
-        l-load tmp%2#1 2                                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0,"V",index#0,tmp%2#1
-        box_replace                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0
+        l-load current_vote#0 0                                                                   answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
+        int 1                                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0,1
+        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#2
+        l-load tmp%1#2 0                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#2
+        itob                                                                                      answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1
+        byte "V"                                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1,"V"
+        l-load index#0 2                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,tmp%2#1,"V",index#0
+        l-load tmp%2#1 2                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,"V",index#0,tmp%2#1
+        box_replace                                                                               answer_ids#0,question_index#0,cumulative_offset#0,options_count#0
         // voting/voting.py:201
         // cumulative_offset += options_count
-        l-load cumulative_offset#0 1                                                              (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,options_count#0,cumulative_offset#0
-        l-load options_count#0 1                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0,options_count#0
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,cumulative_offset#0
-        v-store cumulative_offset#0                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
+        l-load cumulative_offset#0 1                                                              answer_ids#0,question_index#0,options_count#0,cumulative_offset#0
+        l-load options_count#0 1                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0
+        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0
+        v-store cumulative_offset#0                                                               answer_ids#0,question_index#0
         // voting/voting.py:202
         // self.votes_by_account[Txn.sender] = answer_ids.copy()
-        txn Sender                                                                                (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
-        l-load-copy materialized_values%0#0 0                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,materialized_values%0#0 (copy)
-        box_del                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,{box_del}
-        pop 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
-        l-load materialized_values%0#0 0                                                          (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0
-        p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,materialized_values%0#0,answer_ids#0 (copy)
-        box_put                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
+        txn Sender                                                                                answer_ids#0,question_index#0,materialized_values%0#0
+        l-load-copy materialized_values%0#0 0                                                     answer_ids#0,question_index#0,materialized_values%0#0,materialized_values%0#0 (copy)
+        box_del                                                                                   answer_ids#0,question_index#0,materialized_values%0#0,{box_del}
+        pop 1                                                                                     answer_ids#0,question_index#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          answer_ids#0,question_index#0,materialized_values%0#0
+        l-load answer_ids#0 2                                                                     question_index#0,materialized_values%0#0,answer_ids#0
+        box_put                                                                                   question_index#0
         // voting/voting.py:203
         // self.voter_count += 1
-        int 0                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,0
-        byte "voter_count"                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,0,"voter_count"
-        app_global_get_ex                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.voter_count exists                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0
-        int 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,maybe_value%2#0,1
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%23#0
-        byte "voter_count"                                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,tmp%23#0,"voter_count"
-        l-load tmp%23#0 1                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,"voter_count",tmp%23#0
-        app_global_put                                                                            (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
+        int 0                                                                                     question_index#0,0
+        byte "voter_count"                                                                        question_index#0,0,"voter_count"
+        app_global_get_ex                                                                         question_index#0,maybe_value%2#0,maybe_exists%2#0
+        l-load maybe_exists%2#0 0                                                                 question_index#0,maybe_value%2#0,maybe_exists%2#0
+        assert // check self.voter_count exists                                                   question_index#0,maybe_value%2#0
+        l-load maybe_value%2#0 0                                                                  question_index#0,maybe_value%2#0
+        int 1                                                                                     question_index#0,maybe_value%2#0,1
+        +                                                                                         question_index#0,tmp%23#0
+        byte "voter_count"                                                                        question_index#0,tmp%23#0,"voter_count"
+        l-load tmp%23#0 1                                                                         question_index#0,"voter_count",tmp%23#0
+        app_global_put                                                                            question_index#0
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        l-load question_index#0 0                                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
-        int 1                                                                                     (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0,1
-        +                                                                                         (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | question_index#0
-        v-store question_index#0                                                                  (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
-        b vote_for_header@1                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        l-load question_index#0 0                                                                 question_index#0
+        int 1                                                                                     question_index#0,1
+        +                                                                                         question_index#0
+        v-store question_index#0
+        b vote_for_header@2
 
-    vote_after_for@4:                                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
-        retsub
+    vote_after_for@5:
+        // voting/voting.py:169
+        // @arc4.abimethod
+        int 1                                                                                     1
+        return
 
 
 // examples.voting.voting.VotingRoundApp.voting_open() -> uint64:

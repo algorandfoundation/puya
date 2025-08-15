@@ -2,61 +2,37 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@8
+        goto tmp%0#1 ? block@2 : block@11
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "umm()uint64" => block@3, method "umm2()void" => block@4, method "calculate(uint64[][],uint64)void" => block@5, * => block@12}
-    block@3: // umm_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%5#0) // can only call when not creating
-        let tmp%7#0: uint64 = test_cases.regression_tests.leftover_branch.BranchElimination.umm()
-        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
-        (log tmp%9#0)
-        let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0: bool = 1u
-        goto block@13
-    block@4: // umm2_route_L18
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%12#0) // can only call when not creating
-        test_cases.regression_tests.leftover_branch.BranchElimination.umm2()
-        let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#1: bool = 1u
-        goto block@13
-    block@5: // calculate_route_L29
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%16#0) // can only call when not creating
-        let reinterpret_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        test_cases.regression_tests.leftover_branch.BranchElimination.calculate(reinterpret_Encoded(len+(len+uint64[])[])%0#0, reinterpret_Encoded(uint64)%0#0)
-        let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#2: bool = 1u
-        goto block@13
-    block@8: // bare_routing_L4
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        goto tmp%18#0 ? block@12 : block@9
-    block@9: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%4#0 ? block@3 : block@10
+    block@3: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "umm()uint64" => block@4, method "umm2()void" => block@5, method "calculate(uint64[][],uint64)void" => block@6, * => block@10}
+    block@4: // umm_route_L5
+        test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]()
+        goto block@10
+    block@5: // umm2_route_L18
+        test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]()
+        goto block@10
+    block@6: // calculate_route_L29
+        test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]()
+        goto block@10
+    block@10: // after_if_else_L4
+        fail
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create()
-        let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#3: bool = 1u
-        goto block@13
-    block@12: // after_if_else_L4
-        let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#4: bool = 0u
-        goto block@13
-    block@13: // after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0 <- block@3, test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#1 <- block@4, test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#2 <- block@5, test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#3 <- block@9, test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#4 <- block@12)
-        return tmp%0#0
+        exit 1u
 
 subroutine test_cases.regression_tests.leftover_branch.hmm() -> bool:
     block@0: // L53
@@ -66,145 +42,150 @@ subroutine test_cases.regression_tests.leftover_branch.hmm_uint64() -> uint64:
     block@0: // L58
         return 0u
 
-subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm() -> uint64:
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]() -> void:
     block@0: // L5
         let ahuh#0: uint64 = 0u
-        goto block@1
-    block@1: // while_top_L8
-        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@14)
-        let tmp%0#0: uint64 = test_cases.regression_tests.leftover_branch.hmm_uint64()
+        goto block@2
+    block@2: // while_top_L8
+        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@15)
+        let tmp%0#1: uint64 = test_cases.regression_tests.leftover_branch.hmm_uint64()
         let _i#0: uint64 = 0u
-        goto block@3
-    block@3: // for_header_L9
-        let _i#1: uint64 = φ(_i#0 <- block@1, _i#2 <- block@10)
-        let ahuh#1: uint64 = φ(ahuh#3 <- block@1, ahuh#4 <- block@10)
-        let continue_looping%0#0: bool = (< _i#1 tmp%0#0)
-        goto continue_looping%0#0 ? block@4 : block@12
-    block@4: // for_body_L10
-        let tmp%1#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%1#0 ? block@5 : block@10
-    block@5: // if_body_L11
-        let tmp%2#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%2#0 ? block@6 : block@9
-    block@6: // if_body_L12
+        goto block@4
+    block@4: // for_header_L9
+        let _i#1: uint64 = φ(_i#0 <- block@2, _i#2 <- block@11)
+        let ahuh#1: uint64 = φ(ahuh#3 <- block@2, ahuh#4 <- block@11)
+        let continue_looping%0#0: bool = (< _i#1 tmp%0#1)
+        goto continue_looping%0#0 ? block@5 : block@13
+    block@5: // for_body_L10
+        let tmp%1#1: bool = test_cases.regression_tests.leftover_branch.hmm()
+        goto tmp%1#1 ? block@6 : block@11
+    block@6: // if_body_L11
+        let tmp%2#1: bool = test_cases.regression_tests.leftover_branch.hmm()
+        goto tmp%2#1 ? block@7 : block@10
+    block@7: // if_body_L12
         let tmp%3#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%3#0 ? block@7 : block@8
-    block@7: // if_body_L13
+        goto tmp%3#0 ? block@8 : block@9
+    block@8: // if_body_L13
         let tmp%4#0: bool = test_cases.regression_tests.leftover_branch.hmm()
         let ahuh#2: uint64 = (+ ahuh#1 tmp%4#0)
-        goto block@8
-    block@8: // after_if_else_L12
-        let ahuh#6: uint64 = φ(ahuh#1 <- block@6, ahuh#2 <- block@7)
         goto block@9
-    block@9: // after_if_else_L11
-        let ahuh#5: uint64 = φ(ahuh#1 <- block@5, ahuh#6 <- block@8)
+    block@9: // after_if_else_L12
+        let ahuh#6: uint64 = φ(ahuh#1 <- block@7, ahuh#2 <- block@8)
         goto block@10
-    block@10: // after_if_else_L10
-        let ahuh#4: uint64 = φ(ahuh#1 <- block@4, ahuh#5 <- block@9)
+    block@10: // after_if_else_L11
+        let ahuh#5: uint64 = φ(ahuh#1 <- block@6, ahuh#6 <- block@9)
+        goto block@11
+    block@11: // after_if_else_L10
+        let ahuh#4: uint64 = φ(ahuh#1 <- block@5, ahuh#5 <- block@10)
         let _i#2: uint64 = (+ _i#1 1u)
-        goto block@3
-    block@12: // after_for_L9
+        goto block@4
+    block@13: // after_for_L9
         let tmp%6#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%6#0 ? block@13 : block@14
-    block@13: // if_body_L15
-        return ahuh#1
-    block@14: // after_if_else_L14
-        goto block@1
+        goto tmp%6#0 ? block@14 : block@15
+    block@14: // if_body_L15
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(ahuh#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+    block@15: // after_if_else_L14
+        goto block@2
 
-subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2() -> void:
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]() -> void:
     block@0: // L18
         let ahuh#0: uint64 = 0u
-        goto block@1
-    block@1: // while_top_L21
-        let ahuh#1: uint64 = φ(ahuh#0 <- block@0, ahuh#3 <- block@10)
+        goto block@2
+    block@2: // while_top_L21
+        let ahuh#1: uint64 = φ(ahuh#0 <- block@0, ahuh#3 <- block@11)
         let tmp%0#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%0#0 ? block@3 : block@8
-    block@3: // if_body_L23
+        goto tmp%0#0 ? block@4 : block@9
+    block@4: // if_body_L23
         let tmp%1#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%1#0 ? block@4 : block@7
-    block@4: // if_body_L24
+        goto tmp%1#0 ? block@5 : block@8
+    block@5: // if_body_L24
         let tmp%2#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%2#0 ? block@5 : block@6
-    block@5: // if_body_L25
+        goto tmp%2#0 ? block@6 : block@7
+    block@6: // if_body_L25
         let tmp%3#0: bool = test_cases.regression_tests.leftover_branch.hmm()
         let ahuh#2: uint64 = (+ ahuh#1 tmp%3#0)
-        goto block@6
-    block@6: // after_if_else_L24
-        let ahuh#5: uint64 = φ(ahuh#1 <- block@4, ahuh#2 <- block@5)
         goto block@7
-    block@7: // after_if_else_L23
-        let ahuh#4: uint64 = φ(ahuh#1 <- block@3, ahuh#5 <- block@6)
+    block@7: // after_if_else_L24
+        let ahuh#5: uint64 = φ(ahuh#1 <- block@5, ahuh#2 <- block@6)
         goto block@8
-    block@8: // after_if_else_L22
-        let ahuh#3: uint64 = φ(ahuh#1 <- block@1, ahuh#4 <- block@7)
+    block@8: // after_if_else_L23
+        let ahuh#4: uint64 = φ(ahuh#1 <- block@4, ahuh#5 <- block@7)
+        goto block@9
+    block@9: // after_if_else_L22
+        let ahuh#3: uint64 = φ(ahuh#1 <- block@2, ahuh#4 <- block@8)
         let tmp%5#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%5#0 ? block@9 : block@10
-    block@9: // if_body_L27
-        return 
-    block@10: // after_if_else_L26
-        goto block@1
+        goto tmp%5#0 ? block@10 : block@11
+    block@10: // if_body_L27
+        exit 1u
+    block@11: // after_if_else_L26
+        goto block@2
 
-subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calculate(nested_list: Encoded(len+(len+uint64[])[]), threshold: Encoded(uint64)) -> void:
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
     block@0: // L29
+        let nested_list#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
+        let threshold#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let total#0: uint64 = 0u
         let num_boosts#0: uint64 = 0u
         let tmp%0#0: uint64 = array_len(nested_list#0)
         let i#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L38
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@12)
-        let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@12)
-        let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@12)
+        goto block@2
+    block@2: // for_header_L38
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@13)
+        let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@13)
+        let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@13)
         let continue_looping%0#0: bool = (< i#1 tmp%0#0)
-        goto continue_looping%0#0 ? block@2 : block@14
-    block@2: // for_body_L39
+        goto continue_looping%0#0 ? block@3 : block@15
+    block@3: // for_body_L39
         let inner_list#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#1)
         let tmp%1#0: uint64 = array_len(inner_list#0)
         let last_inner_list_index#0: uint64 = (- tmp%1#0 1u)
         let tmp%3#0: uint64 = array_len(inner_list#0)
         let j#0: uint64 = 0u
-        goto block@3
-    block@3: // for_header_L41
-        let j#1: uint64 = φ(j#0 <- block@2, j#2 <- block@10)
-        let total#1: uint64 = φ(total#4 <- block@2, total#5 <- block@10)
-        let num_boosts#1: uint64 = φ(num_boosts#3 <- block@2, num_boosts#4 <- block@10)
+        goto block@4
+    block@4: // for_header_L41
+        let j#1: uint64 = φ(j#0 <- block@3, j#2 <- block@11)
+        let total#1: uint64 = φ(total#4 <- block@3, total#5 <- block@11)
+        let num_boosts#1: uint64 = φ(num_boosts#3 <- block@3, num_boosts#4 <- block@11)
         let continue_looping%1#0: bool = (< j#1 tmp%3#0)
-        goto continue_looping%1#0 ? block@4 : block@12
-    block@4: // for_body_L42
+        goto continue_looping%1#0 ? block@5 : block@13
+    block@5: // for_body_L42
         let value#0: Encoded(uint64) = extract_value(nested_list#0, i#1, j#1)
         let tmp%4#0: bool = (b>= value#0 threshold#0)
-        goto tmp%4#0 ? block@5 : block@10
-    block@5: // if_body_L44
+        goto tmp%4#0 ? block@6 : block@11
+    block@6: // if_body_L44
         let has_next#0: bool = (< j#1 last_inner_list_index#0)
-        goto has_next#0 ? block@6 : block@9
-    block@6: // if_body_L46
+        goto has_next#0 ? block@7 : block@10
+    block@7: // if_body_L46
         let total#2: uint64 = (+ total#1 1u)
         let tmp%7#0: uint64 = (+ j#1 1u)
         let next_value#0: Encoded(uint64) = extract_value(nested_list#0, i#1, tmp%7#0)
         let tmp%8#0: bool = (b< value#0 next_value#0)
-        goto tmp%8#0 ? block@7 : block@8
-    block@7: // if_body_L49
+        goto tmp%8#0 ? block@8 : block@9
+    block@8: // if_body_L49
         let total#3: uint64 = (* total#2 2u)
         let num_boosts#2: uint64 = (+ num_boosts#1 1u)
-        goto block@8
-    block@8: // after_if_else_L48
-        let total#7: uint64 = φ(total#2 <- block@6, total#3 <- block@7)
-        let num_boosts#6: uint64 = φ(num_boosts#1 <- block@6, num_boosts#2 <- block@7)
         goto block@9
-    block@9: // after_if_else_L45
-        let total#6: uint64 = φ(total#1 <- block@5, total#7 <- block@8)
-        let num_boosts#5: uint64 = φ(num_boosts#1 <- block@5, num_boosts#6 <- block@8)
+    block@9: // after_if_else_L48
+        let total#7: uint64 = φ(total#2 <- block@7, total#3 <- block@8)
+        let num_boosts#6: uint64 = φ(num_boosts#1 <- block@7, num_boosts#2 <- block@8)
         goto block@10
-    block@10: // after_if_else_L43
-        let total#5: uint64 = φ(total#1 <- block@4, total#6 <- block@9)
-        let num_boosts#4: uint64 = φ(num_boosts#1 <- block@4, num_boosts#5 <- block@9)
+    block@10: // after_if_else_L45
+        let total#6: uint64 = φ(total#1 <- block@6, total#7 <- block@9)
+        let num_boosts#5: uint64 = φ(num_boosts#1 <- block@6, num_boosts#6 <- block@9)
+        goto block@11
+    block@11: // after_if_else_L43
+        let total#5: uint64 = φ(total#1 <- block@5, total#6 <- block@10)
+        let num_boosts#4: uint64 = φ(num_boosts#1 <- block@5, num_boosts#5 <- block@10)
         let j#2: uint64 = (+ j#1 1u)
-        goto block@3
-    block@12: // after_for_L41
+        goto block@4
+    block@13: // after_for_L41
         let i#2: uint64 = (+ i#1 1u)
-        goto block@1
-    block@14: // after_for_L38
-        return 
+        goto block@2
+    block@15: // after_for_L38
+        exit 1u
 
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create() -> void:
     block@0: // L1

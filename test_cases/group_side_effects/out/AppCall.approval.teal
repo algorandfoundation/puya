@@ -6,12 +6,10 @@ main:
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
     match main_some_value_route@3
-
-main_after_if_else@10:
     err
 
 main_some_value_route@3:
@@ -19,31 +17,21 @@ main_some_value_route@3:
     // @arc4.abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub some_value
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    pushint 1 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b some_value
 
-main_bare_routing@6:
-    // group_side_effects/other.py:4
-    // class AppCall(ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
+// test_cases.group_side_effects.other.AppCall.some_value[routing]() -> void:
 some_value:
     // group_side_effects/other.py:7
     // return Global.group_size * (Txn.group_index + 1)
@@ -52,4 +40,12 @@ some_value:
     pushint 1 // 1
     +
     *
-    retsub
+    // group_side_effects/other.py:5
+    // @arc4.abimethod()
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return

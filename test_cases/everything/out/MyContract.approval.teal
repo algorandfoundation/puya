@@ -7,67 +7,43 @@ main:
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn NumAppArgs
-    bz main_after_if_else@10
-    pushbytess 0x4c5c61ba 0xbd6099e5 0x5d5c84c7 0xfd07264e 0x1658aa2f // method "create()void", method "register(string)void", method "say_hello()string", method "calculate(uint64,uint64)uint64", method "close_out()void"
+    pushbytess 0xbd6099e5 0x1658aa2f // method "register(string)void", method "close_out()void"
     txna ApplicationArgs 0
-    match main_create_route@5 main_register_route@6 main_say_hello_route@7 main_calculate_route@8 main_close_out_route@9
+    match main_register_route@4 main_close_out_route@5
 
-main_after_if_else@10:
+main_switch_case_next@6:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    bz main_create_NoOp@10
+    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match say_hello calculate
     err
 
-main_close_out_route@9:
+main_create_NoOp@10:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+main_close_out_route@5:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
     pushint 2 // CloseOut
     ==
-    assert // OnCompletion is not CloseOut
     txn ApplicationID
-    assert // can only call when not creating
-    callsub close_out
-    intc_0 // 1
-    return
+    &&
+    assert // OnCompletion must be CloseOut && can only call when not creating
+    b close_out
 
-main_calculate_route@8:
-    // everything/contract.py:64
-    // @abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    // everything/contract.py:64
-    // @abimethod
-    callsub calculate
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_say_hello_route@7:
-    // everything/contract.py:56
-    // @abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub say_hello
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_register_route@6:
+main_register_route@4:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     intc_0 // 1
@@ -75,33 +51,13 @@ main_register_route@6:
     shl
     pushint 3 // 3
     &
-    assert // OnCompletion is not one of NoOp, OptIn
     txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
-    // everything/contract.py:47
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
-    callsub register
-    intc_0 // 1
-    return
-
-main_create_route@5:
-    // everything/contract.py:41
-    // @abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    callsub create
-    intc_0 // 1
-    return
+    &&
+    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
+    b register
 
 
-// test_cases.everything.contract.Everything.create() -> void:
+// test_cases.everything.contract.Everything.create[routing]() -> void:
 create:
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
@@ -123,15 +79,17 @@ create:
     bytec_0 // "counter"
     intc_1 // 0
     app_global_put
-    retsub
+    // everything/contract.py:41
+    // @abimethod(create="require")
+    intc_0 // 1
+    return
 
 
-// test_cases.everything.contract.Everything.register(name: bytes) -> void:
+// test_cases.everything.contract.Everything.register[routing]() -> void:
 register:
-    // everything/contract.py:47-48
+    // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
-    // def register(self, name: String) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
     txn Sender
@@ -147,7 +105,7 @@ register:
     txn OnCompletion
     intc_0 // OptIn
     ==
-    bz register_after_if_else@4
+    bz register_after_if_else@5
     // everything/contract.py:51
     // sender_name, sender_name_existed = self.name.maybe(account=0)
     intc_1 // 0
@@ -157,7 +115,7 @@ register:
     bury 1
     // everything/contract.py:52
     // if not sender_name_existed:
-    bnz register_after_if_else@4
+    bnz register_after_if_else@5
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
     intc_1 // 0
@@ -174,22 +132,21 @@ register:
     swap
     app_global_put
 
-register_after_if_else@4:
+register_after_if_else@5:
     // everything/contract.py:54
     // self.name[0] = name
     intc_1 // 0
     bytec_2 // "name"
-    frame_dig -1
+    dig 2
     app_local_put
-    retsub
+    // everything/contract.py:47
+    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
 
 
-// test_cases.everything.contract.Everything.say_hello() -> bytes:
+// test_cases.everything.contract.Everything.say_hello[routing]() -> void:
 say_hello:
-    // everything/contract.py:56-57
-    // @abimethod
-    // def say_hello(self) -> String:
-    proto 0 1
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
     txn Sender
@@ -208,17 +165,25 @@ say_hello:
     app_local_get_ex
     // everything/contract.py:60
     // if not exists:
-    bnz say_hello_after_if_else@2
+    bnz say_hello_after_if_else@3
     // everything/contract.py:61
     // return String("Howdy stranger!")
     pushbytes 0x000f486f77647920737472616e67657221
-    swap
-    retsub
 
-say_hello_after_if_else@2:
+say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
+    // everything/contract.py:56
+    // @abimethod
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+say_hello_after_if_else@3:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    frame_dig 0
+    dup
     extract 2 0
     pushbytes 0x000748656c6c6f2c20
     swap
@@ -237,21 +202,21 @@ say_hello_after_if_else@2:
     itob
     extract 6 2
     replace2 0
-    swap
-    retsub
-
-
-// test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
-calculate:
-    // everything/contract.py:64-65
+    // everything/contract.py:56
     // @abimethod
-    // def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
-    proto 2 1
+    b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4
+
+
+// test_cases.everything.contract.Everything.calculate[routing]() -> void:
+calculate:
+    // everything/contract.py:64
+    // @abimethod
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
     // everything/my_base.py:15
     // return arc4.UInt64(a.native + b.native)
-    frame_dig -2
     btoi
-    frame_dig -1
+    swap
     btoi
     swap
     dig 1
@@ -260,10 +225,17 @@ calculate:
     // return arc4_UInt64(c.native * b.native)
     *
     itob
-    retsub
+    // everything/contract.py:64
+    // @abimethod
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.everything.contract.Everything.close_out() -> void:
+// test_cases.everything.contract.Everything.close_out[routing]() -> void:
 close_out:
     // everything/contract.py:83
     // self.counter -= positive_one()
@@ -280,4 +252,7 @@ close_out:
     bytec_0 // "counter"
     swap
     app_global_put
-    retsub
+    // everything/contract.py:69
+    // @abimethod(allow_actions=["CloseOut"])
+    intc_0 // 1
+    return

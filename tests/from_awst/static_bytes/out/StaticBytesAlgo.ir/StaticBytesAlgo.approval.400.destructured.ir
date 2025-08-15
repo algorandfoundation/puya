@@ -1,144 +1,93 @@
 main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@11
+        goto tmp%0#1 ? block@2 : block@14
     block@2: // abi_routing_L14
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "hashAddresses(byte[32],byte[32])byte[32]" => block@3, method "receiveB32(byte[32])byte[32]" => block@4, method "receiveBytes(byte[],uint64)void" => block@5, method "returnLength(byte[32])uint64" => block@6, method "test()void" => block@7, method "testArray()void" => block@8, * => block@15}
-    block@3: // hashAddresses_route_L15
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "hashAddresses(byte[32],byte[32])byte[32]" => block@4, method "receiveB32(byte[32])byte[32]" => block@5, method "receiveBytes(byte[],uint64)void" => block@6, method "returnLength(byte[32])uint64" => block@7, method "test()void" => block@8, method "testArray()void" => block@9, * => block@13}
+    block@4: // hashAddresses_route_L15
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]()
+        goto block@13
+    block@5: // receiveB32_route_L19
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]()
+        goto block@13
+    block@6: // receiveBytes_route_L23
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]()
+        goto block@13
+    block@7: // returnLength_route_L27
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]()
+        goto block@13
+    block@8: // test_route_L31
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]()
+        goto block@13
+    block@9: // testArray_route_L41
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routing]()
+        goto block@13
+    block@13: // after_if_else_L14
+        fail
+    block@14: // __algots__.defaultCreate_L14
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
+    block@0: // L15
+        let a1#0: bytes[32] = (txna ApplicationArgs 1)
+        let a2#0: bytes[32] = (txna ApplicationArgs 2)
+        let tmp%0#1: bytes = (concat a1#0 a2#0)
+        let tmp%1#1: bytes[32] = (sha512_256 tmp%0#1)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%1#1)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
+    block@0: // L19
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = (txna ApplicationArgs 2)
-        let tmp%9#0: bytes[32] = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses(reinterpret_Encoded(uint8[32])%0#0, reinterpret_Encoded(uint8[32])%1#0)
-        let aggregate%length%0#0: uint64 = (len tmp%9#0)
+        let tmp%1#0: bytes[32] = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_Encoded(uint8[32])%0#0)
+        let aggregate%length%0#0: uint64 = (len tmp%1#0)
         let aggregate%lengths_equal%0#0: bool = (== aggregate%length%0#0 32u)
         (assert aggregate%lengths_equal%0#0) // invalid size
-        let tmp%11#0: bytes = (concat 0x151f7c75 tmp%9#0)
-        (log tmp%11#0)
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@4: // receiveB32_route_L19
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // OnCompletion is not NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        (assert tmp%14#0) // can only call when not creating
-        let reinterpret_Encoded(uint8[32])%2#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%17#0: bytes[32] = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_Encoded(uint8[32])%2#0)
-        let aggregate%length%1#0: uint64 = (len tmp%17#0)
-        let aggregate%lengths_equal%1#0: bool = (== aggregate%length%1#0 32u)
-        (assert aggregate%lengths_equal%1#0) // invalid size
-        let tmp%19#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%19#0)
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@5: // receiveBytes_route_L23
-        let tmp%20#0: uint64 = (txn OnCompletion)
-        let tmp%21#0: bool = (! tmp%20#0)
-        (assert tmp%21#0) // OnCompletion is not NoOp
-        let tmp%22#0: uint64 = (txn ApplicationID)
-        (assert tmp%22#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%24#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%25#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(tmp%24#0, tmp%25#0)
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@6: // returnLength_route_L27
-        let tmp%26#0: uint64 = (txn OnCompletion)
-        let tmp%27#0: bool = (! tmp%26#0)
-        (assert tmp%27#0) // OnCompletion is not NoOp
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        (assert tmp%28#0) // can only call when not creating
-        let reinterpret_Encoded(uint8[32])%3#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%31#0: uint64 = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength(reinterpret_Encoded(uint8[32])%3#0)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%31#0)
-        let tmp%33#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%33#0)
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@7: // test_route_L31
-        let tmp%34#0: uint64 = (txn OnCompletion)
-        let tmp%35#0: bool = (! tmp%34#0)
-        (assert tmp%35#0) // OnCompletion is not NoOp
-        let tmp%36#0: uint64 = (txn ApplicationID)
-        (assert tmp%36#0) // can only call when not creating
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test()
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@8: // testArray_route_L41
-        let tmp%38#0: uint64 = (txn OnCompletion)
-        let tmp%39#0: bool = (! tmp%38#0)
-        (assert tmp%39#0) // OnCompletion is not NoOp
-        let tmp%40#0: uint64 = (txn ApplicationID)
-        (assert tmp%40#0) // can only call when not creating
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray()
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@11: // bare_routing_L14
-        let tmp%42#0: uint64 = (txn OnCompletion)
-        goto tmp%42#0 ? block@15 : block@12
-    block@12: // __algots__.defaultCreate_L14
-        let tmp%43#0: uint64 = (txn ApplicationID)
-        let tmp%44#0: bool = (! tmp%43#0)
-        (assert tmp%44#0) // can only call when creating
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@15: // after_if_else_L14
-        let tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router__%0#0
-        goto block@16
-    block@16: // after_inlined_tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.__puya_arc4_router___L1
-        return tmp%0#0
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%3#0)
+        exit 1u
 
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses(a1: bytes[32], a2: bytes[32]) -> bytes[32]:
-    block@0: // L15
-        let tmp%0#0: bytes = (concat a1#0 a2#0)
-        let tmp%1#0: bytes[32] = (sha512_256 tmp%0#0)
-        return tmp%1#0
-
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes[32]) -> bytes[32]:
-    block@0: // L19
-        let tmp%0#0: uint64 = (len b#0)
-        let tmp%1#0: bool = (== tmp%0#0 32u)
-        (assert tmp%1#0)
-        let tmp%2#0: bytes[32] = (sha512_256 b#0)
-        return tmp%2#0
-
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(b: bytes, length: uint64) -> void:
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
     block@0: // L23
-        let tmp%0#0: uint64 = (len b#0)
-        let tmp%1#0: bool = (== tmp%0#0 length#0)
-        (assert tmp%1#0)
-        return 
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let b#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let length#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#1: uint64 = (len b#0)
+        let tmp%1#1: bool = (== tmp%0#1 length#0)
+        (assert tmp%1#1)
+        exit 1u
 
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength(b: bytes[32]) -> uint64:
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
     block@0: // L27
-        let tmp%0#0: uint64 = (len b#0)
-        return tmp%0#0
+        let b#0: bytes[32] = (txna ApplicationArgs 1)
+        let tmp%0#1: uint64 = (len b#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%3#0)
+        exit 1u
 
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test() -> void:
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
     block@0: // L31
         let reinterpret_bytes[32]%0#0: bytes[32] = (txn Sender)
         tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_bytes[32]%0#0)
-        let reinterpret_bytes[32]%1#0: bytes[32] = (txn Sender)
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(reinterpret_bytes[32]%1#0, 32u)
         tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32("abcdefghabcdefghabcdefghabcdefgh")
-        return 
+        exit 1u
 
-subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> void:
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routing]() -> void:
     block@0: // L41
         let a.0#0: bytes[32] = (txn Sender)
         let a.1#0: bytes[32] = (txn Sender)
@@ -151,4 +100,12 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> 
         let reinterpret_bytes[32]%3#0: bytes[32] = (txn Sender)
         let tmp%2#0: bool = (== bitAnd#0 reinterpret_bytes[32]%3#0)
         (assert tmp%2#0)
-        return 
+        exit 1u
+
+subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes[32]) -> bytes[32]:
+    block@0: // L19
+        let tmp%0#0: uint64 = (len b#0)
+        let tmp%1#0: bool = (== tmp%0#0 32u)
+        (assert tmp%1#0)
+        let tmp%2#0: bytes[32] = (sha512_256 b#0)
+        return tmp%2#0

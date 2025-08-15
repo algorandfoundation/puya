@@ -5,7 +5,6 @@
 main:
     intcblock 2 0 1 4
     bytecblock 0x "a" "bee" "Hello World"
-    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main_bare_routing@11
+    bz main___algopy_default_create@14
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // arc4_dynamic_arrays/contract.py:38
+    // class DynamicArrayContract(ARC4Contract):
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    bz main_create_NoOp@12
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -31,141 +43,71 @@ main_abi_routing@2:
     pushbytes 0x51aa8c49 // method "test_nested_struct_replacement()void"
     pushbytes 0x283a186f // method "test_nested_tuple_modification()void"
     uncover 6
-    match main_test_static_elements_route@3 main_test_dynamic_elements_route@4 main_test_mixed_single_dynamic_elements_route@5 main_test_mixed_multiple_dynamic_elements_route@6 main_test_nested_struct_replacement_route@7 main_test_nested_tuple_modification_route@8
-    b main_switch_case_default@9
+    match main_test_static_elements_route@4 main_test_dynamic_elements_route@5 main_test_mixed_single_dynamic_elements_route@6 main_test_mixed_multiple_dynamic_elements_route@7 main_test_nested_struct_replacement_route@8 main_test_nested_tuple_modification_route@9
+    b main_switch_case_default@10
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
+main_switch_case_default@10:
+    b main_switch_case_next@11
 
-main_switch_case_next@10:
+main_switch_case_next@11:
+    b main_after_if_else@13
+
+main_after_if_else@13:
     b main_after_if_else@15
 
 main_after_if_else@15:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
-    intc_1 // 0
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    err
 
-main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16:
-    return
-
-main_test_nested_tuple_modification_route@8:
+main_test_nested_tuple_modification_route@9:
     // arc4_dynamic_arrays/contract.py:141
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     callsub test_nested_tuple_modification
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_nested_struct_replacement_route@7:
+main_test_nested_struct_replacement_route@8:
     // arc4_dynamic_arrays/contract.py:114
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     callsub test_nested_struct_replacement
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_mixed_multiple_dynamic_elements_route@6:
+main_test_mixed_multiple_dynamic_elements_route@7:
     // arc4_dynamic_arrays/contract.py:97
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     callsub test_mixed_multiple_dynamic_elements
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_mixed_single_dynamic_elements_route@5:
+main_test_mixed_single_dynamic_elements_route@6:
     // arc4_dynamic_arrays/contract.py:74
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     callsub test_mixed_single_dynamic_elements
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_dynamic_elements_route@4:
+main_test_dynamic_elements_route@5:
     // arc4_dynamic_arrays/contract.py:55
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     callsub test_dynamic_elements
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_static_elements_route@3:
+main_test_static_elements_route@4:
     // arc4_dynamic_arrays/contract.py:39
     // @arc4.abimethod()
+    callsub test_static_elements
+    b main_switch_case_next@11
+
+main_create_NoOp@12:
+    b main_after_if_else@13
+
+main___algopy_default_create@14:
     txn OnCompletion
     intc_1 // NoOp
     ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_static_elements
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
-
-main_bare_routing@11:
-    // arc4_dynamic_arrays/contract.py:38
-    // class DynamicArrayContract(ARC4Contract):
-    txn OnCompletion
-    intc_1 // 0
-    uncover 1
-    match main___algopy_default_create@12
-    b main_switch_case_default@13
-
-main_switch_case_default@13:
-    b main_switch_case_next@14
-
-main_switch_case_next@14:
-    b main_after_if_else@15
-
-main___algopy_default_create@12:
     txn ApplicationID
     intc_1 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@17
 
 main_block@17:
@@ -173,8 +115,7 @@ main_block@17:
 
 main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@18:
     intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__@16
+    return
 
 
 // _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
@@ -695,15 +636,87 @@ get_u16_arr2_block@0:
     retsub
 
 
-// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]() -> void:
 test_static_elements:
+    b test_static_elements_block@0
+
+test_static_elements_block@0:
+    // arc4_dynamic_arrays/contract.py:39
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]() -> void:
+test_dynamic_elements:
+    b test_dynamic_elements_block@0
+
+test_dynamic_elements_block@0:
+    // arc4_dynamic_arrays/contract.py:55
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]() -> void:
+test_mixed_single_dynamic_elements:
+    b test_mixed_single_dynamic_elements_block@0
+
+test_mixed_single_dynamic_elements_block@0:
+    // arc4_dynamic_arrays/contract.py:74
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]() -> void:
+test_mixed_multiple_dynamic_elements:
+    b test_mixed_multiple_dynamic_elements_block@0
+
+test_mixed_multiple_dynamic_elements_block@0:
+    // arc4_dynamic_arrays/contract.py:97
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]() -> void:
+test_nested_struct_replacement:
+    b test_nested_struct_replacement_block@0
+
+test_nested_struct_replacement_block@0:
+    // arc4_dynamic_arrays/contract.py:114
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]() -> void:
+test_nested_tuple_modification:
+    b test_nested_tuple_modification_block@0
+
+test_nested_tuple_modification_block@0:
+    // arc4_dynamic_arrays/contract.py:141
+    // @arc4.abimethod()
+    callsub test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification
+    intc_2 // 1
+    return
+
+
+// test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements:
     // arc4_dynamic_arrays/contract.py:39-40
     // @arc4.abimethod()
     // def test_static_elements(self) -> None:
     proto 0 0
-    b test_static_elements_block@0
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements_block@0
 
-test_static_elements_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements_block@0:
     // arc4_dynamic_arrays/contract.py:41
     // byte_array1 = arc4.StaticArray(get_byte1(), get_byte2())
     callsub get_byte1
@@ -813,10 +826,10 @@ test_static_elements_block@0:
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
-test_dynamic_elements:
-    b test_dynamic_elements_block@0
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements:
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements_block@0
 
-test_dynamic_elements_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements_block@0:
     // arc4_dynamic_arrays/contract.py:57
     // struct1 = DynamicStruct(get_string1(), get_string2())
     callsub get_string1
@@ -1099,14 +1112,14 @@ test_dynamic_elements_block@0:
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements() -> void:
-test_mixed_single_dynamic_elements:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements:
     // arc4_dynamic_arrays/contract.py:74-75
     // @arc4.abimethod()
     // def test_mixed_single_dynamic_elements(self) -> None:
     proto 0 0
-    b test_mixed_single_dynamic_elements_block@0
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements_block@0
 
-test_mixed_single_dynamic_elements_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements_block@0:
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
     callsub get_uint1
@@ -1473,14 +1486,14 @@ test_mixed_single_dynamic_elements_block@0:
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
-test_mixed_multiple_dynamic_elements:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements:
     // arc4_dynamic_arrays/contract.py:97-98
     // @arc4.abimethod()
     // def test_mixed_multiple_dynamic_elements(self) -> None:
     proto 0 0
-    b test_mixed_multiple_dynamic_elements_block@0
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements_block@0
 
-test_mixed_multiple_dynamic_elements_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements_block@0:
     // arc4_dynamic_arrays/contract.py:100
     // get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
     callsub get_uint1
@@ -1701,10 +1714,10 @@ test_mixed_multiple_dynamic_elements_block@0:
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
-test_nested_struct_replacement:
-    b test_nested_struct_replacement_block@0
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement:
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement_block@0
 
-test_nested_struct_replacement_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement_block@0:
     // arc4_dynamic_arrays/contract.py:116
     // one = StaticStruct(get_uint1(), arc4.StaticArray(get_byte1(), get_byte2()))
     callsub get_uint1
@@ -2000,14 +2013,14 @@ test_nested_struct_replacement_block@0:
 
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
-test_nested_tuple_modification:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification:
     // arc4_dynamic_arrays/contract.py:141-142
     // @arc4.abimethod()
     // def test_nested_tuple_modification(self) -> None:
     proto 0 0
-    b test_nested_tuple_modification_block@0
+    b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@0
 
-test_nested_tuple_modification_block@0:
+test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@0:
     // arc4_dynamic_arrays/contract.py:143
     // one = StaticStruct(get_uint1(), arc4.StaticArray(get_byte1(), get_byte2()))
     callsub get_uint1

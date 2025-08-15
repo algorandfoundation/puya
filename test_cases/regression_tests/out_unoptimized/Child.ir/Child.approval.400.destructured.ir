@@ -33,30 +33,23 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@3
     block@2: // abi_routing_L15
-        goto block@9
-    block@3: // bare_routing_L15
-        let tmp%2#0: uint64 = (txn OnCompletion)
-        switch tmp%2#0 {0u => block@4, * => block@7}
-    block@4: // __algopy_default_create_L1
-        let tmp%3#0: uint64 = (txn ApplicationID)
-        let tmp%4#0: bool = (== tmp%3#0 0u)
-        (assert tmp%4#0) // can only call when creating
-        goto block@5
-    block@5: // L1
         goto block@6
-    block@6: // after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create_L1
-        let test_cases.regression_tests.issue_491.Child.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.issue_491.Child.__puya_arc4_router__%0#0
-        goto block@10
-    block@7: // switch_case_default_L15
-        goto block@8
-    block@8: // switch_case_next_L15
-        goto block@9
-    block@9: // after_if_else_L15
-        let test_cases.regression_tests.issue_491.Child.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.regression_tests.issue_491.Child.__puya_arc4_router__%0#0
-        goto block@10
-    block@10: // after_inlined_test_cases.regression_tests.issue_491.Child.__puya_arc4_router___L1
+    block@3: // __algopy_default_create_L1
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (== tmp%4#0 0u)
+        let tmp%6#0: bool = (&& tmp%3#0 tmp%5#0)
+        (assert tmp%6#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@4
+    block@4: // L1
+        goto block@5
+    block@5: // after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create_L1
+        exit 1u
+    block@6: // after_if_else_L15
+        exit 0u
+    block@7: // after_inlined_test_cases.regression_tests.issue_491.Child.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
         return tmp%0#0
 
 subroutine algopy._contract.Contract.__init__() -> void:

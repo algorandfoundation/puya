@@ -6,12 +6,10 @@ main:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
     match main_hello_route@3
-
-main_after_if_else@10:
     err
 
 main_hello_route@3:
@@ -19,16 +17,33 @@ main_hello_route@3:
     // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b hello
+
+main___algopy_default_create@6:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.hello[routing]() -> void:
+hello:
     // hello_world_arc4/contract.py:10
     // @arc4.abimethod
-    callsub hello
+    txna ApplicationArgs 1
+    extract 2 0
+    // hello_world_arc4/contract.py:12
+    // return "Hello, " + name
+    pushbytes "Hello, "
+    swap
+    concat
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
     dup
     len
     itob
@@ -41,28 +56,3 @@ main_hello_route@3:
     log
     pushint 1 // 1
     return
-
-main_bare_routing@6:
-    // hello_world_arc4/contract.py:9
-    // class HelloWorldContract(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
-
-
-// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
-hello:
-    // hello_world_arc4/contract.py:10-11
-    // @arc4.abimethod
-    // def hello(self, name: String) -> String:
-    proto 1 1
-    // hello_world_arc4/contract.py:12
-    // return "Hello, " + name
-    pushbytes "Hello, "
-    frame_dig -1
-    concat
-    retsub

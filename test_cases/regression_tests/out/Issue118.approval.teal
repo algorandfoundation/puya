@@ -3,17 +3,14 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
     bytecblock 0x00030000
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
     match main_verify_route@3
-
-main_after_if_else@10:
     err
 
 main_verify_route@3:
@@ -22,72 +19,69 @@ main_verify_route@3:
     // @abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/issue_118.py:5
-    // class Issue118(ARC4Contract):
-    txna ApplicationArgs 1
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b verify
+
+main___algopy_default_create@6:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
+verify:
     // regression_tests/issue_118.py:6-7
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
-    callsub verify
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-main_bare_routing@6:
-    // regression_tests/issue_118.py:5
-    // class Issue118(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_1 // 1
-    return
-
-
-// test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
-verify:
-    // regression_tests/issue_118.py:6-8
-    // # ref: https://github.com/algorandfoundation/puya/issues/118
-    // @abimethod
-    // def verify(self, values: DynamicArray[UInt256]) -> Tuple[Bool, String]:
-    proto 1 1
+    txna ApplicationArgs 1
     // regression_tests/issue_118.py:10
     // bool(Txn.num_app_args)
     txn NumAppArgs
-    intc_0 // 0
+    pushint 0 // 0
     !=
     // regression_tests/issue_118.py:9-11
     // val1 = Bool(
     //     bool(Txn.num_app_args)
     // )  # use a non constant value so the repeated expression is not simplified
     pushbytes 0x00
-    intc_0 // 0
+    pushint 0 // 0
     uncover 2
     setbit
+    swap
     // regression_tests/issue_118.py:12
     // if values.length != 2:
-    frame_dig -1
-    intc_0 // 0
+    pushint 0 // 0
     extract_uint16
     pushint 2 // 2
     !=
-    bz verify_after_if_else@2
+    bz verify_after_if_else@3
     // regression_tests/issue_118.py:13
     // return Tuple((val1, String("")))
     bytec_0 // 0x00030000
     concat
-    retsub
 
-verify_after_if_else@2:
+verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4:
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
+
+verify_after_if_else@3:
     // regression_tests/issue_118.py:14
     // return Tuple((val1, String("")))
     bytec_0 // 0x00030000
     concat
-    retsub
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4

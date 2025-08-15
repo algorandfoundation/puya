@@ -8,131 +8,87 @@ main:
     // regression_tests/bool_only.py:4
     // class BoolOnly(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0xa85bff00 0xc4af225c 0x83589f2d // method "set_0_convert(byte[])byte[]", method "set_0_compare(byte[])byte[]", method "bool_only_properties()void"
     txna ApplicationArgs 0
-    match main_set_0_convert_route@3 main_set_0_compare_route@4 main_bool_only_properties_route@5
-
-main_after_if_else@12:
+    match set_0_convert set_0_compare bool_only_properties
     err
 
-main_bool_only_properties_route@5:
-    // regression_tests/bool_only.py:13
-    // @arc4.abimethod()
+main___algopy_default_create@11:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub bool_only_properties
-    intc_1 // 1
-    return
-
-main_set_0_compare_route@4:
-    // regression_tests/bool_only.py:9
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/bool_only.py:4
-    // class BoolOnly(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    // regression_tests/bool_only.py:9
-    // @arc4.abimethod()
-    callsub set_0_compare
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-main_set_0_convert_route@3:
-    // regression_tests/bool_only.py:5
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/bool_only.py:4
-    // class BoolOnly(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    // regression_tests/bool_only.py:5
-    // @arc4.abimethod()
-    callsub set_0_convert
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-main_bare_routing@8:
-    // regression_tests/bool_only.py:4
-    // class BoolOnly(arc4.ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@12
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes) -> bytes:
+// test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
 set_0_convert:
-    // regression_tests/bool_only.py:5-6
+    // regression_tests/bool_only.py:5
     // @arc4.abimethod()
-    // def set_0_convert(self, inp: Bytes) -> Bytes:
-    proto 1 1
+    txna ApplicationArgs 1
+    extract 2 0
     // regression_tests/bool_only.py:7
     // return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
     txn NumAppArgs
     intc_0 // 0
     !=
-    frame_dig -1
     intc_0 // 0
-    uncover 2
+    swap
     setbit
-    retsub
-
-
-// test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(inp: bytes) -> bytes:
-set_0_compare:
-    // regression_tests/bool_only.py:9-10
+    // regression_tests/bool_only.py:5
     // @arc4.abimethod()
-    // def set_0_compare(self, inp: Bytes) -> Bytes:
-    proto 1 1
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]() -> void:
+set_0_compare:
+    // regression_tests/bool_only.py:9
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    extract 2 0
     // regression_tests/bool_only.py:11
     // return op.setbit_bytes(inp, 0, Txn.num_app_args > 0)
     txn NumAppArgs
     intc_0 // 0
     >
-    frame_dig -1
     intc_0 // 0
-    uncover 2
+    swap
     setbit
-    retsub
+    // regression_tests/bool_only.py:9
+    // @arc4.abimethod()
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
 
 
-// test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties() -> void:
+// test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]() -> void:
 bool_only_properties:
     // regression_tests/bool_only.py:15
     // op.ITxnCreate.begin()
@@ -170,4 +126,7 @@ bool_only_properties:
     //     non_participation=True,
     // ).submit()
     itxn_submit
-    retsub
+    // regression_tests/bool_only.py:13
+    // @arc4.abimethod()
+    intc_1 // 1
+    return

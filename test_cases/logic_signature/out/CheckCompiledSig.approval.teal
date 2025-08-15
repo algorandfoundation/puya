@@ -6,12 +6,10 @@ main:
     // logic_signature/compiled_logic_sig.py:15
     // class CheckCompiledSig(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xbb31fc82 // method "check_sig_with_logic_sig_only_op_compiles()void"
     txna ApplicationArgs 0
     match main_check_sig_with_logic_sig_only_op_compiles_route@3
-
-main_after_if_else@10:
     err
 
 main_check_sig_with_logic_sig_only_op_compiles_route@3:
@@ -19,35 +17,27 @@ main_check_sig_with_logic_sig_only_op_compiles_route@3:
     // @arc4.abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub check_sig_with_logic_sig_only_op_compiles
-    pushint 1 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b check_sig_with_logic_sig_only_op_compiles
 
-main_bare_routing@6:
-    // logic_signature/compiled_logic_sig.py:15
-    // class CheckCompiledSig(arc4.ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles() -> void:
+// test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles[routing]() -> void:
 check_sig_with_logic_sig_only_op_compiles:
     // logic_signature/compiled_logic_sig.py:19
     // Txn.sender == compile_logicsig(dont_use_this).account
     txn Sender
-    pushbytes base32(L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBA) // addr L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBCSLJBGI
+    pushbytes base32(XFVQVIX76GWVJE3FEPZ5QKF2QWHX2RLJVSREIIXYAJYQWXP6RQKA) // addr XFVQVIX76GWVJE3FEPZ5QKF2QWHX2RLJVSREIIXYAJYQWXP6RQKM4RLYNY
     ==
-    // logic_signature/compiled_logic_sig.py:18-20
-    // assert (
-    //     Txn.sender == compile_logicsig(dont_use_this).account
-    // ), "expected to be signed by logic sig"
-    assert // expected to be signed by logic sig
-    retsub
+    // logic_signature/compiled_logic_sig.py:16
+    // @arc4.abimethod()
+    return // on error: expected to be signed by logic sig

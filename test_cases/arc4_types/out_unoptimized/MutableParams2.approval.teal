@@ -4,8 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 3
-    bytecblock 0x01 0x 0x04 0x00
-    bytec_1 // ""
+    bytecblock 0x01 0x04 0x 0x00
     b main_block@0
 
 main_block@0:
@@ -17,7 +16,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -33,17 +32,12 @@ main_switch_case_default@4:
     b main_switch_case_next@5
 
 main_switch_case_next@5:
-    b main_after_if_else@10
+    b main_after_if_else@7
 
-main_after_if_else@10:
+main_after_if_else@7:
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11
-
-main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11:
-    return
+    err
 
 main_test_array_rebinding_route@3:
     // arc4_types/mutable_params2.py:5
@@ -51,52 +45,50 @@ main_test_array_rebinding_route@3:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     intc_0 // 0
     !=
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     callsub test_array_rebinding
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11
+    b main_switch_case_next@5
 
-main_bare_routing@6:
-    // arc4_types/mutable_params2.py:4
-    // class MutableParams2(arc4.ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@7
-    b main_switch_case_default@8
-
-main_switch_case_default@8:
-    b main_switch_case_next@9
-
-main_switch_case_next@9:
-    b main_after_if_else@10
-
-main___algopy_default_create@7:
+    intc_0 // NoOp
+    ==
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
-    b main_block@12
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@9
 
-main_block@12:
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@13
+main_block@9:
+    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@10
 
-main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@13:
+main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__algopy_default_create@10:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__@11
+    return
 
 
-// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
 test_array_rebinding:
     b test_array_rebinding_block@0
 
 test_array_rebinding_block@0:
+    // arc4_types/mutable_params2.py:5
+    // @arc4.abimethod()
+    callsub test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding
+    intc_1 // 1
+    return
+
+
+// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding:
+    b test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding_block@0
+
+test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding_block@0:
     // arc4_types/mutable_params2.py:7
     // a = arc4.DynamicBytes(0)
     intc_1 // 1
@@ -139,7 +131,7 @@ test_array_rebinding_block@0:
     concat
     pushbytes 0x2a
     concat
-    bytec_2 // 0x04
+    bytec_1 // 0x04
     concat
     ==
     assert
@@ -166,7 +158,7 @@ maybe_modify_array_block@0:
 maybe_modify_array_if_body@1:
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
-    bytec_1 // 0x
+    bytec_2 // 0x
     bytec_0 // 0x01
     concat
     frame_dig -2
@@ -218,8 +210,8 @@ maybe_modify_array_if_body@4:
 maybe_modify_array_after_if_else@5:
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
-    bytec_1 // 0x
-    bytec_2 // 0x04
+    bytec_2 // 0x
+    bytec_1 // 0x04
     concat
     frame_dig -2
     uncover 1
@@ -255,7 +247,7 @@ maybe_modify_array_after_if_else@7:
     concat
     pushbytes 0x02
     concat
-    bytec_2 // 0x04
+    bytec_1 // 0x04
     concat
     intc_0 // 0
     frame_bury 0
@@ -275,8 +267,8 @@ maybe_modify_array_after_if_else@9:
 maybe_modify_array_after_if_else@13:
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
-    bytec_1 // 0x
-    bytec_2 // 0x04
+    bytec_2 // 0x
+    bytec_1 // 0x04
     concat
     frame_dig -2
     uncover 1
@@ -310,7 +302,7 @@ maybe_modify_array_after_if_else@15:
 maybe_modify_array_else_body@10:
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
-    bytec_1 // 0x
+    bytec_2 // 0x
     pushbytes 0x2a
     concat
     frame_dig -2

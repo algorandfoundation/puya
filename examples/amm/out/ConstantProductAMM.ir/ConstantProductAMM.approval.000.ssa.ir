@@ -149,134 +149,136 @@ subroutine examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> bo
     block@0: // L27
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@9
+        goto tmp%1#0 ? block@1 : block@12
     block@1: // abi_routing_L27
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_governor(address)void" => block@2, method "bootstrap(pay,asset,asset)uint64" => block@3, method "mint(axfer,axfer,asset,asset,asset)void" => block@4, method "burn(axfer,asset,asset,asset)void" => block@5, method "swap(axfer,asset,asset)void" => block@6, * => block@7}
-    block@2: // set_governor_route_L43
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@10
+    block@2: // call_NoOp_L27
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "set_governor(address)void" => block@3, method "bootstrap(pay,asset,asset)uint64" => block@4, method "mint(axfer,axfer,asset,asset,asset)void" => block@5, method "burn(axfer,asset,asset,asset)void" => block@6, method "swap(axfer,asset,asset)void" => block@7, * => block@8}
+    block@3: // set_governor_route_L43
+        examples.amm.contract.ConstantProductAMM.set_governor[routing]()
+        goto block@9
+    block@4: // bootstrap_route_L49
+        examples.amm.contract.ConstantProductAMM.bootstrap[routing]()
+        goto block@9
+    block@5: // mint_route_L81
+        examples.amm.contract.ConstantProductAMM.mint[routing]()
+        goto block@9
+    block@6: // burn_route_L148
+        examples.amm.contract.ConstantProductAMM.burn[routing]()
+        goto block@9
+    block@7: // swap_route_L206
+        examples.amm.contract.ConstantProductAMM.swap[routing]()
+        goto block@9
+    block@8: // switch_case_default_L27
+        goto block@9
+    block@9: // switch_case_next_L27
+        goto block@11
+    block@10: // create_NoOp_L27
+        goto block@11
+    block@11: // after_if_else_L27
+        goto block@13
+    block@12: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        examples.amm.contract.ConstantProductAMM.__algopy_default_create()
+        exit 1u
+    block@13: // after_if_else_L27
+        exit 0u
+
+subroutine examples.amm.contract.ConstantProductAMM.set_governor[routing]() -> void:
+    block@0: // L43
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%7#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
-        examples.amm.contract.ConstantProductAMM.set_governor(tmp%7#0)
-        return 1u
-    block@3: // bootstrap_route_L49
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 NoOp)
-        (assert tmp%9#0) // OnCompletion is not NoOp
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%12#0 1u)
+        let tmp%0#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
+        examples.amm.contract.ConstantProductAMM.set_governor(tmp%0#0)
+        exit 1u
+
+subroutine examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void:
+    block@0: // L49
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%13#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%14#0: uint64 = ((txnas Assets) tmp%13#0)
+        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
+        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%15#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%16#0: uint64 = ((txnas Assets) tmp%15#0)
-        let tmp%17#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%14#0, tmp%16#0)
-        let tmp%18#0: Encoded(uint64) = bytes_encode<uint64>(tmp%17#0)
-        let tmp%19#0: bytes = (concat 0x151f7c75 tmp%18#0)
-        (log tmp%19#0)
-        return 1u
-    block@4: // mint_route_L81
-        let tmp%20#0: uint64 = (txn OnCompletion)
-        let tmp%21#0: bool = (== tmp%20#0 NoOp)
-        (assert tmp%21#0) // OnCompletion is not NoOp
-        let tmp%22#0: uint64 = (txn ApplicationID)
-        let tmp%23#0: bool = (!= tmp%22#0 0u)
-        (assert tmp%23#0) // can only call when not creating
-        let tmp%24#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%24#0 2u)
+        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
+        let tmp%5#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%2#0, tmp%4#0)
+        let tmp%6#0: Encoded(uint64) = bytes_encode<uint64>(tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+        (log tmp%7#0)
+        exit 1u
+
+subroutine examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
+    block@0: // L81
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+        (assert gtxn_type_matches%0#0) // transaction type is axfer
+        let tmp%1#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%1#0 1u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
-        let tmp%25#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%25#0 1u)
-        let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
-        let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 axfer)
-        (assert gtxn_type_matches%2#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%26#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
-        let tmp%27#0: uint64 = ((txnas Assets) tmp%26#0)
-        let reinterpret_Encoded(uint8)%3#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%28#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
-        let tmp%29#0: uint64 = ((txnas Assets) tmp%28#0)
-        let reinterpret_Encoded(uint8)%4#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%30#0: uint64 = (btoi reinterpret_Encoded(uint8)%4#0)
-        let tmp%31#0: uint64 = ((txnas Assets) tmp%30#0)
-        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%27#0, tmp%29#0, tmp%31#0)
-        return 1u
-    block@5: // burn_route_L148
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (== tmp%32#0 NoOp)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        let tmp%35#0: bool = (!= tmp%34#0 0u)
-        (assert tmp%35#0) // can only call when not creating
-        let tmp%36#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%3#0: uint64 = (- tmp%36#0 1u)
-        let gtxn_type%3#0: uint64 = ((gtxns TypeEnum) gtxn_idx%3#0)
-        let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
-        (assert gtxn_type_matches%3#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%5#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%37#0: uint64 = (btoi reinterpret_Encoded(uint8)%5#0)
-        let tmp%38#0: uint64 = ((txnas Assets) tmp%37#0)
-        let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%39#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let tmp%40#0: uint64 = ((txnas Assets) tmp%39#0)
-        let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%41#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let tmp%42#0: uint64 = ((txnas Assets) tmp%41#0)
-        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%38#0, tmp%40#0, tmp%42#0)
-        return 1u
-    block@6: // swap_route_L206
-        let tmp%43#0: uint64 = (txn OnCompletion)
-        let tmp%44#0: bool = (== tmp%43#0 NoOp)
-        (assert tmp%44#0) // OnCompletion is not NoOp
-        let tmp%45#0: uint64 = (txn ApplicationID)
-        let tmp%46#0: bool = (!= tmp%45#0 0u)
-        (assert tmp%46#0) // can only call when not creating
-        let tmp%47#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%4#0: uint64 = (- tmp%47#0 1u)
-        let gtxn_type%4#0: uint64 = ((gtxns TypeEnum) gtxn_idx%4#0)
-        let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 axfer)
-        (assert gtxn_type_matches%4#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%8#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%48#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
-        let tmp%49#0: uint64 = ((txnas Assets) tmp%48#0)
-        let reinterpret_Encoded(uint8)%9#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%50#0: uint64 = (btoi reinterpret_Encoded(uint8)%9#0)
-        let tmp%51#0: uint64 = ((txnas Assets) tmp%50#0)
-        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%49#0, tmp%51#0)
-        return 1u
-    block@7: // switch_case_default_L27
-        goto block@8
-    block@8: // switch_case_next_L27
-        goto block@13
-    block@9: // bare_routing_L27
-        let tmp%52#0: uint64 = (txn OnCompletion)
-        switch tmp%52#0 {0u => block@10, * => block@11}
-    block@10: // __algopy_default_create_L1
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        let tmp%54#0: bool = (== tmp%53#0 0u)
-        (assert tmp%54#0) // can only call when creating
-        examples.amm.contract.ConstantProductAMM.__algopy_default_create()
-        return 1u
-    block@11: // switch_case_default_L27
-        goto block@12
-    block@12: // switch_case_next_L27
-        goto block@13
-    block@13: // after_if_else_L27
-        return 0u
+        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
+        let tmp%2#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
+        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
+        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
+        let tmp%4#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let tmp%5#0: uint64 = ((txnas Assets) tmp%4#0)
+        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
+        let tmp%6#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
+        let tmp%7#0: uint64 = ((txnas Assets) tmp%6#0)
+        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%0#0, gtxn_idx%1#0, tmp%3#0, tmp%5#0, tmp%7#0)
+        exit 1u
+
+subroutine examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
+    block@0: // L148
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+        (assert gtxn_type_matches%0#0) // transaction type is axfer
+        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
+        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
+        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
+        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
+        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
+        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
+        let tmp%5#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
+        let tmp%6#0: uint64 = ((txnas Assets) tmp%5#0)
+        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%0#0, tmp%2#0, tmp%4#0, tmp%6#0)
+        exit 1u
+
+subroutine examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
+    block@0: // L206
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+        (assert gtxn_type_matches%0#0) // transaction type is axfer
+        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
+        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
+        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
+        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
+        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
+        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%0#0, tmp%2#0, tmp%4#0)
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:
     block@0: // L28
