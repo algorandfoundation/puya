@@ -31,70 +31,52 @@ subroutine test_cases.state_proxies.contract.default_value() -> uint64:
 
 subroutine test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__() -> bool:
     block@0: // L17
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%0#0 ? block@1 : block@10
-    block@1: // abi_routing_L17
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@2, method "clear()void" => block@3, method "order_of_eval_global()void" => block@4, method "order_of_eval_local()void" => block@5, method "order_of_eval_box()void" => block@6, * => block@10}
-    block@2: // create_route_L31
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 OptIn)
-        (assert tmp%4#0) // OnCompletion is not OptIn
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (! tmp%5#0)
-        (assert tmp%6#0) // can only call when creating
-        test_cases.state_proxies.contract.StateProxyContract.create()
-        return 1u
-    block@3: // clear_route_L37
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%9#0) // can only call when not creating
-        test_cases.state_proxies.contract.StateProxyContract.clear()
-        return 1u
-    block@4: // order_of_eval_global_route_L44
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%13#0) // can only call when not creating
-        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global()
-        return 1u
-    block@5: // order_of_eval_local_route_L49
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%17#0) // can only call when not creating
-        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local()
-        return 1u
-    block@6: // order_of_eval_box_route_L54
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%21#0) // can only call when not creating
-        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box()
-        return 1u
-    block@10: // after_if_else_L17
-        return 0u
+        let tmp%0#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%0#0 {method "create()void" => block@1, * => block@3}
+    block@1: // create_route_L31
+        let tmp%1#0: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (== tmp%1#0 OptIn)
+        let tmp%3#0: uint64 = (txn ApplicationID)
+        let tmp%4#0: bool = (! tmp%3#0)
+        let tmp%5#0: bool = (&& tmp%2#0 tmp%4#0)
+        (assert tmp%5#0) // OnCompletion must be OptIn && can only call when creating
+        test_cases.state_proxies.contract.StateProxyContract.create[routing]()
+        goto block@3
+    block@3: // switch_case_next_L17
+        let tmp%6#0: uint64 = (txn OnCompletion)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // OnCompletion must be NoOp
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (!= tmp%8#0 0u)
+        goto tmp%8#0 ? block@4 : block@12
+    block@4: // call_NoOp_L17
+        let tmp%10#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%10#0 {method "clear()void" => block@5, method "order_of_eval_global()void" => block@6, method "order_of_eval_local()void" => block@7, method "order_of_eval_box()void" => block@8, * => block@12}
+    block@5: // clear_route_L37
+        test_cases.state_proxies.contract.StateProxyContract.clear[routing]()
+        goto block@12
+    block@6: // order_of_eval_global_route_L44
+        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]()
+        goto block@12
+    block@7: // order_of_eval_local_route_L49
+        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local[routing]()
+        goto block@12
+    block@8: // order_of_eval_box_route_L54
+        test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]()
+        goto block@12
+    block@12: // after_if_else_L17
+        fail
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
+subroutine test_cases.state_proxies.contract.StateProxyContract.create[routing]() -> void:
     block@0: // L31
         (app_global_put "g1" 1u)
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "l1" 2u)
         let tmp%1#0: account = (txn Sender)
         (app_local_put tmp%1#0 0x6c32 3u)
-        return 
+        exit 1u
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.clear() -> void:
+subroutine test_cases.state_proxies.contract.StateProxyContract.clear[routing]() -> void:
     block@0: // L37
         (app_global_del "g1")
         let tmp%0#0: account = (txn Sender)
@@ -104,18 +86,18 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.clear() -> void:
         let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
         let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
-        return 
+        exit 1u
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global() -> void:
+subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]() -> void:
     block@0: // L44
         let tmp%0#0: uint64 = test_cases.state_proxies.contract.default_value()
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "g1")
         let val#0: uint64 = (select tmp%0#0 maybe_value%0#0 maybe_exists%0#0)
         let tmp%1#0: bool = (== val#0 42u)
         (assert tmp%1#0)
-        return 
+        exit 1u
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local() -> void:
+subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local[routing]() -> void:
     block@0: // L49
         let tmp%0#0: account = test_cases.state_proxies.contract.get_account()
         let tmp%1#0: uint64 = test_cases.state_proxies.contract.default_value()
@@ -123,9 +105,9 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_lo
         let val#0: uint64 = (select tmp%1#0 maybe_value%0#0 maybe_exists%0#0)
         let tmp%2#0: bool = (== val#0 42u)
         (assert tmp%2#0)
-        return 
+        exit 1u
 
-subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box() -> void:
+subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]() -> void:
     block@0: // L54
         let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
         let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
@@ -135,4 +117,4 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_bo
         let val#0: uint64 = (select tmp%0#0 maybe_value_converted%0#0 maybe_exists%0#0)
         let tmp%1#0: bool = (== val#0 42u)
         (assert tmp%1#0)
-        return 
+        exit 1u

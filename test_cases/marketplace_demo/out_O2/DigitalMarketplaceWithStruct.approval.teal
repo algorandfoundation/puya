@@ -3,12 +3,13 @@
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 4 10 50500
+    intcblock 0 1 4 10 50500
     bytecblock 0x6c697374696e6773
-    intc_1 // 0
+    intc_0 // 0
     dupn 4
     pushbytes ""
     dupn 5
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes "init"
@@ -16,24 +17,22 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@21
-    pushbytess 0xd98ef6a9 0x6a4e7fca 0x12f08c98 0x9b4b8234 0x4d8b23d8 0x52ac5df7 0xe3aeb25c 0x3234b711 0xcc826346 // method "getListingsMbr()uint64", method "allowAsset(pay,uint64)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(uint64,uint64,uint64)void", method "buy(address,uint64,uint64,pay,uint64)void", method "withdraw(uint64,uint64)void", method "bid(address,uint64,uint64,pay,uint64,uint64)void", method "acceptBid(uint64,uint64)void"
-    txna ApplicationArgs 0
-    match main_getListingsMbr_route@5 main_allowAsset_route@6 main_firstDeposit_route@7 main_deposit_route@8 main_setPrice_route@9 main_buy_route@10 main_withdraw_route@11 main_bid_route@14 main_acceptBid_route@17
-
-main_after_if_else@23:
-    err
-
-main_acceptBid_route@17:
+    bz main___algopy_default_create@16
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0xd98ef6a9 0x6a4e7fca 0x12f08c98 0x9b4b8234 0x4d8b23d8 0x52ac5df7 0xe3aeb25c 0x3234b711 0xcc826346 // method "getListingsMbr()uint64", method "allowAsset(pay,uint64)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(uint64,uint64,uint64)void", method "buy(address,uint64,uint64,pay,uint64)void", method "withdraw(uint64,uint64)void", method "bid(address,uint64,uint64,pay,uint64,uint64)void", method "acceptBid(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_getListingsMbr_route@6 main_allowAsset_route@7 main_firstDeposit_route@8 main_deposit_route@9 main_setPrice_route@10 main_buy_route@11 main_withdraw_route@12 main_bid_route@13 main_acceptBid_route@14
+    err
+
+main_acceptBid_route@14:
     txna ApplicationArgs 1
     btoi
     dup
-    bury 7
+    bury 8
     txna ApplicationArgs 2
     btoi
     txn Sender
@@ -47,40 +46,40 @@ main_acceptBid_route@17:
     swap
     concat
     dup
-    bury 9
+    bury 10
     box_get
     swap
     dup
     cover 2
-    bury 9
+    bury 10
     assert // check self.listings entry exists
     dup
     extract 16 32
     dup
-    bury 11
+    bury 12
     global ZeroAddress
     !=
     assert
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dup
     cover 2
-    bury 4
+    bury 5
     pushint 48 // 48
     extract_uint64
     dup
-    bury 3
+    bury 4
     <
     bz main_ternary_false@19
-    dig 1
+    dig 2
 
 main_ternary_merge@20:
-    dig 7
+    dig 8
     dup
     pushint 56 // 56
     extract_uint64
-    dig 8
+    dig 9
     dup
     cover 2
     asset_params_get AssetDecimals
@@ -102,15 +101,15 @@ main_ternary_merge@20:
     txn Sender
     itxn_field Receiver
     itxn_field Amount
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn_begin
     dup
     itxn_field AssetAmount
-    dig 12
+    dig 13
     dup
     cover 2
     itxn_field AssetReceiver
@@ -118,15 +117,15 @@ main_ternary_merge@20:
     itxn_field XferAsset
     intc_2 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     uncover 3
     extract 8 8
-    dig 5
+    dig 6
     dig 2
     -
-    dig 5
+    dig 6
     uncover 3
     -
     swap
@@ -141,44 +140,38 @@ main_ternary_merge@20:
     swap
     itob
     concat
-    dig 8
+    dig 9
     swap
     box_put
-    intc_0 // 1
     return
 
 main_ternary_false@19:
-    dup
+    dig 1
     b main_ternary_merge@20
 
-main_bid_route@14:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_bid_route@13:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
     dup
-    bury 8
+    bury 9
     txna ApplicationArgs 3
     btoi
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
-    bury 9
+    bury 10
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
     btoi
-    bury 7
+    bury 8
     txna ApplicationArgs 5
     btoi
-    bury 6
+    bury 7
     swap
     itob
     uncover 2
@@ -191,31 +184,31 @@ main_bid_route@14:
     swap
     concat
     dup
-    bury 9
+    bury 10
     box_get
     swap
     dup
     cover 2
-    bury 9
+    bury 10
     assert // check self.listings entry exists
     extract 16 32
     dup
-    bury 11
+    bury 12
     global ZeroAddress
     !=
-    bz main_after_if_else@16
-    dig 6
+    bz main_after_if_else@24
+    dig 7
     dup
     pushint 56 // 56
     extract_uint64
-    dig 4
+    dig 5
     dig 1
     >
     assert
     swap
     pushint 48 // 48
     extract_uint64
-    dig 7
+    dig 8
     asset_params_get AssetDecimals
     assert // asset exists
     cover 2
@@ -230,22 +223,22 @@ main_bid_route@14:
     assert
     itxn_begin
     itxn_field Amount
-    dig 9
+    dig 10
     itxn_field Receiver
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
 
-main_after_if_else@16:
-    dig 5
+main_after_if_else@24:
+    dig 6
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 3
+    dig 4
     dup
     cover 2
-    dig 6
+    dig 7
     dup
     cover 3
     mulw
@@ -257,7 +250,7 @@ main_after_if_else@16:
     swap
     !
     assert
-    dig 7
+    dig 8
     dup
     gtxns Sender
     txn Sender
@@ -271,7 +264,7 @@ main_after_if_else@16:
     gtxns Amount
     ==
     assert
-    dig 8
+    dig 9
     dup
     extract 0 8
     swap
@@ -287,22 +280,16 @@ main_after_if_else@16:
     swap
     itob
     concat
-    dig 8
+    dig 9
     swap
     box_put
-    intc_0 // 1
     return
 
-main_withdraw_route@11:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_withdraw_route@12:
     txna ApplicationArgs 1
     btoi
     dup
-    bury 7
+    bury 8
     txna ApplicationArgs 2
     btoi
     txn Sender
@@ -316,27 +303,27 @@ main_withdraw_route@11:
     swap
     concat
     dup
-    bury 9
+    bury 10
     box_get
     swap
     dup
     cover 2
-    bury 9
+    bury 10
     assert // check self.listings entry exists
     extract 16 32
     dup
-    bury 12
+    bury 13
     global ZeroAddress
     !=
-    bz main_after_if_else@13
-    dig 6
+    bz main_after_if_else@28
+    dig 7
     dup
     pushint 48 // 48
     extract_uint64
     swap
     pushint 56 // 56
     extract_uint64
-    dig 7
+    dig 8
     asset_params_get AssetDecimals
     assert // asset exists
     swap
@@ -352,16 +339,16 @@ main_withdraw_route@11:
     assert
     itxn_begin
     itxn_field Amount
-    dig 10
+    dig 11
     itxn_field Receiver
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
 
-main_after_if_else@13:
-    dig 7
+main_after_if_else@28:
+    dig 8
     box_del
     pop
     itxn_begin
@@ -369,45 +356,39 @@ main_after_if_else@13:
     intc 4 // 50500
     itxn_field Amount
     itxn_field Receiver
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn_begin
     txn Sender
-    dig 7
-    intc_1 // 0
+    dig 8
+    intc_0 // 0
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    dig 5
+    dig 6
     itxn_field XferAsset
     intc_2 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
     return
 
-main_buy_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_buy_route@11:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
     txna ApplicationArgs 3
     btoi
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
@@ -464,7 +445,7 @@ main_buy_route@10:
     dig 3
     extract 16 32
     uncover 4
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dig 6
     -
@@ -486,18 +467,12 @@ main_buy_route@10:
     itxn_field XferAsset
     intc_2 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
     return
 
-main_setPrice_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_setPrice_route@10:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -535,17 +510,11 @@ main_setPrice_route@9:
     swap
     concat
     box_put
-    intc_0 // 1
     return
 
-main_deposit_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_deposit_route@9:
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
@@ -591,7 +560,7 @@ main_deposit_route@8:
     dig 3
     extract 8 8
     uncover 4
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     uncover 6
     +
@@ -605,25 +574,19 @@ main_deposit_route@8:
     swap
     concat
     box_put
-    intc_0 // 1
     return
 
-main_firstDeposit_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_firstDeposit_route@8:
     txn GroupIndex
     pushint 2 // 2
     -
     dup
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
@@ -687,7 +650,7 @@ main_firstDeposit_route@7:
     concat
     swap
     concat
-    intc_1 // 0
+    intc_0 // 0
     itob
     swap
     dig 1
@@ -695,21 +658,15 @@ main_firstDeposit_route@7:
     swap
     concat
     box_put
-    intc_0 // 1
     return
 
-main_allowAsset_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_allowAsset_route@7:
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
@@ -732,34 +689,26 @@ main_allowAsset_route@6:
     assert
     itxn_begin
     global CurrentApplicationAddress
-    intc_1 // 0
+    intc_0 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
     intc_2 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
     return
 
-main_getListingsMbr_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_getListingsMbr_route@6:
     pushbytes 0x151f7c75000000000000c544
     log
-    intc_0 // 1
     return
 
-main_bare_routing@21:
+main___algopy_default_create@16:
     txn OnCompletion
-    bnz main_after_if_else@23
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

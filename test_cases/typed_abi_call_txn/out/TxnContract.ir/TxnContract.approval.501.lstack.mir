@@ -1,279 +1,227 @@
-// Op                                                                                                  Stack (out)
+// Op                                                                               Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
-        txn NumAppArgs                                                                                 tmp%0#1
-        l-load tmp%0#1 0                                                                               tmp%0#1
-        bz main_bare_routing@8 ; b main_abi_routing@2
+        txn NumAppArgs                                                              tmp%0#1
+        l-load tmp%0#1 0                                                            tmp%0#1
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
-        txna ApplicationArgs 0                                                                         tmp%2#0
-        method call_with_txn(byte[],txn,byte[])uint64                                                  tmp%2#0,Method(call_with_txn(byte[],txn,byte[])uint64)
-        method call_with_acfg(byte[],acfg,byte[])uint64                                                tmp%2#0,Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64)
-        method call_with_acfg_no_return(byte[],acfg,byte[])void                                        tmp%2#0,Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
-        l-load tmp%2#0 3                                                                               Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void),tmp%2#0
-        match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5 ; b main_after_if_else@12 
+        txn OnCompletion                                                            tmp%2#0
+        l-load tmp%2#0 0                                                            tmp%2#0
+        !                                                                           tmp%3#0
+        l-load tmp%3#0 0                                                            tmp%3#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                           tmp%4#0
+        l-load tmp%4#0 0                                                            tmp%4#0
+        assert
+        txna ApplicationArgs 0                                                      tmp%6#0
+        method call_with_txn(byte[],txn,byte[])uint64                               tmp%6#0,Method(call_with_txn(byte[],txn,byte[])uint64)
+        method call_with_acfg(byte[],acfg,byte[])uint64                             tmp%6#0,Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64)
+        method call_with_acfg_no_return(byte[],acfg,byte[])void                     tmp%6#0,Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
+        l-load tmp%6#0 3                                                            Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void),tmp%6#0
+        match main_call_with_txn_route@4 main_call_with_acfg_route@5 main_call_with_acfg_no_return_route@6 ; b main_after_if_else@10 
 
-    main_call_with_txn_route@3:
+    main_call_with_txn_route@4:
         // typed_abi_call_txn/txn_contract.py:12
         // @arc4.abimethod
-        txn OnCompletion                                                                               tmp%3#0
-        l-load tmp%3#0 0                                                                               tmp%3#0
-        !                                                                                              tmp%4#0
-        l-load tmp%4#0 0                                                                               tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                              tmp%5#0
-        l-load tmp%5#0 0                                                                               tmp%5#0
-        assert // can only call when not creating
-        // typed_abi_call_txn/txn_contract.py:11
-        // class TxnContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                         reinterpret_Encoded(len+uint8[])%0#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                                  reinterpret_Encoded(len+uint8[])%0#0
-        extract 2 0                                                                                    tmp%7#0
-        txn GroupIndex                                                                                 tmp%7#0,tmp%8#0
-        l-load tmp%8#0 0                                                                               tmp%7#0,tmp%8#0
-        int 1                                                                                          tmp%7#0,tmp%8#0,1
-        -                                                                                              tmp%7#0,gtxn_idx%0#0
-        txna ApplicationArgs 2                                                                         tmp%7#0,gtxn_idx%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 0                                                  tmp%7#0,gtxn_idx%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        extract 2 0                                                                                    tmp%7#0,gtxn_idx%0#0,tmp%9#0
-        // typed_abi_call_txn/txn_contract.py:12
-        // @arc4.abimethod
-        l-load tmp%7#0 2                                                                               gtxn_idx%0#0,tmp%9#0,tmp%7#0
-        l-load gtxn_idx%0#0 2                                                                          tmp%9#0,tmp%7#0,gtxn_idx%0#0
-        l-load tmp%9#0 2                                                                               tmp%7#0,gtxn_idx%0#0,tmp%9#0
-        callsub call_with_txn                                                                          tmp%10#0
-        l-load tmp%10#0 0                                                                              tmp%10#0
-        itob                                                                                           aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                                aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                            0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                         tmp%12#0
-        l-load tmp%12#0 0                                                                              tmp%12#0
-        log
-        int 1                                                                                          1
-        l-store test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        l-load test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13 
+        callsub call_with_txn
+        b main_after_if_else@10
 
-    main_call_with_acfg_route@4:
+    main_call_with_acfg_route@5:
         // typed_abi_call_txn/txn_contract.py:20
         // @arc4.abimethod
-        txn OnCompletion                                                                               tmp%13#0
-        l-load tmp%13#0 0                                                                              tmp%13#0
-        !                                                                                              tmp%14#0
-        l-load tmp%14#0 0                                                                              tmp%14#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                              tmp%15#0
-        l-load tmp%15#0 0                                                                              tmp%15#0
-        assert // can only call when not creating
-        // typed_abi_call_txn/txn_contract.py:11
-        // class TxnContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                         reinterpret_Encoded(len+uint8[])%2#0
-        l-load reinterpret_Encoded(len+uint8[])%2#0 0                                                  reinterpret_Encoded(len+uint8[])%2#0
-        extract 2 0                                                                                    tmp%17#0
-        txn GroupIndex                                                                                 tmp%17#0,tmp%18#0
-        l-load tmp%18#0 0                                                                              tmp%17#0,tmp%18#0
-        int 1                                                                                          tmp%17#0,tmp%18#0,1
-        -                                                                                              tmp%17#0,gtxn_idx%1#0
-        l-load-copy gtxn_idx%1#0 0                                                                     tmp%17#0,gtxn_idx%1#0,gtxn_idx%1#0 (copy)
-        gtxns TypeEnum                                                                                 tmp%17#0,gtxn_idx%1#0,gtxn_type%0#0
-        l-load gtxn_type%0#0 0                                                                         tmp%17#0,gtxn_idx%1#0,gtxn_type%0#0
-        int acfg                                                                                       tmp%17#0,gtxn_idx%1#0,gtxn_type%0#0,acfg
-        ==                                                                                             tmp%17#0,gtxn_idx%1#0,gtxn_type_matches%0#0
-        l-load gtxn_type_matches%0#0 0                                                                 tmp%17#0,gtxn_idx%1#0,gtxn_type_matches%0#0
-        assert // transaction type is acfg                                                             tmp%17#0,gtxn_idx%1#0
-        txna ApplicationArgs 2                                                                         tmp%17#0,gtxn_idx%1#0,reinterpret_Encoded(len+uint8[])%3#0
-        l-load reinterpret_Encoded(len+uint8[])%3#0 0                                                  tmp%17#0,gtxn_idx%1#0,reinterpret_Encoded(len+uint8[])%3#0
-        extract 2 0                                                                                    tmp%17#0,gtxn_idx%1#0,tmp%19#0
-        // typed_abi_call_txn/txn_contract.py:20
-        // @arc4.abimethod
-        l-load tmp%17#0 2                                                                              gtxn_idx%1#0,tmp%19#0,tmp%17#0
-        l-load gtxn_idx%1#0 2                                                                          tmp%19#0,tmp%17#0,gtxn_idx%1#0
-        l-load tmp%19#0 2                                                                              tmp%17#0,gtxn_idx%1#0,tmp%19#0
-        callsub call_with_acfg                                                                         tmp%20#0
-        l-load tmp%20#0 0                                                                              tmp%20#0
-        itob                                                                                           aggregate%val_as_bytes%1#0
-        byte 0x151f7c75                                                                                aggregate%val_as_bytes%1#0,0x151f7c75
-        l-load aggregate%val_as_bytes%1#0 1                                                            0x151f7c75,aggregate%val_as_bytes%1#0
-        concat                                                                                         tmp%22#0
-        l-load tmp%22#0 0                                                                              tmp%22#0
-        log
-        int 1                                                                                          1
-        l-store test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        l-load test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13 
+        callsub call_with_acfg
+        b main_after_if_else@10
 
-    main_call_with_acfg_no_return_route@5:
+    main_call_with_acfg_no_return_route@6:
         // typed_abi_call_txn/txn_contract.py:27
         // @arc4.abimethod
-        txn OnCompletion                                                                               tmp%23#0
-        l-load tmp%23#0 0                                                                              tmp%23#0
-        !                                                                                              tmp%24#0
-        l-load tmp%24#0 0                                                                              tmp%24#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                              tmp%25#0
-        l-load tmp%25#0 0                                                                              tmp%25#0
-        assert // can only call when not creating
-        // typed_abi_call_txn/txn_contract.py:11
-        // class TxnContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                         reinterpret_Encoded(len+uint8[])%4#0
-        l-load reinterpret_Encoded(len+uint8[])%4#0 0                                                  reinterpret_Encoded(len+uint8[])%4#0
-        extract 2 0                                                                                    tmp%27#0
-        txn GroupIndex                                                                                 tmp%27#0,tmp%28#0
-        l-load tmp%28#0 0                                                                              tmp%27#0,tmp%28#0
-        int 1                                                                                          tmp%27#0,tmp%28#0,1
-        -                                                                                              tmp%27#0,gtxn_idx%2#0
-        l-load-copy gtxn_idx%2#0 0                                                                     tmp%27#0,gtxn_idx%2#0,gtxn_idx%2#0 (copy)
-        gtxns TypeEnum                                                                                 tmp%27#0,gtxn_idx%2#0,gtxn_type%1#0
-        l-load gtxn_type%1#0 0                                                                         tmp%27#0,gtxn_idx%2#0,gtxn_type%1#0
-        int acfg                                                                                       tmp%27#0,gtxn_idx%2#0,gtxn_type%1#0,acfg
-        ==                                                                                             tmp%27#0,gtxn_idx%2#0,gtxn_type_matches%1#0
-        l-load gtxn_type_matches%1#0 0                                                                 tmp%27#0,gtxn_idx%2#0,gtxn_type_matches%1#0
-        assert // transaction type is acfg                                                             tmp%27#0,gtxn_idx%2#0
-        txna ApplicationArgs 2                                                                         tmp%27#0,gtxn_idx%2#0,reinterpret_Encoded(len+uint8[])%5#0
-        l-load reinterpret_Encoded(len+uint8[])%5#0 0                                                  tmp%27#0,gtxn_idx%2#0,reinterpret_Encoded(len+uint8[])%5#0
-        extract 2 0                                                                                    tmp%27#0,gtxn_idx%2#0,tmp%29#0
-        // typed_abi_call_txn/txn_contract.py:27
-        // @arc4.abimethod
-        l-load tmp%27#0 2                                                                              gtxn_idx%2#0,tmp%29#0,tmp%27#0
-        l-load gtxn_idx%2#0 2                                                                          tmp%29#0,tmp%27#0,gtxn_idx%2#0
-        l-load tmp%29#0 2                                                                              tmp%27#0,gtxn_idx%2#0,tmp%29#0
         callsub call_with_acfg_no_return
-        int 1                                                                                          1
-        l-store test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        l-load test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13 
+        b main_after_if_else@10
 
-    main_bare_routing@8:
+    main_after_if_else@10:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
-        txn OnCompletion                                                                               tmp%30#0
-        l-load tmp%30#0 0                                                                              tmp%30#0
-        bz main___algopy_default_create@9 ; b main_after_if_else@12
+        err
 
-    main___algopy_default_create@9:
-        txn ApplicationID                                                                              tmp%31#0
-        l-load tmp%31#0 0                                                                              tmp%31#0
-        !                                                                                              tmp%32#0
-        l-load tmp%32#0 0                                                                              tmp%32#0
-        assert // can only call when creating
-        int 1                                                                                          1
-        l-store test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        l-load test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13 
-
-    main_after_if_else@12:
-        // typed_abi_call_txn/txn_contract.py:11
-        // class TxnContract(ARC4Contract):
-        int 0                                                                                          0
-        l-store test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        l-load test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0 0 test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13 
-
-    main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13:
-        v-load tmp%0#0                                                                                 tmp%0#0
+    main___algopy_default_create@11:
+        txn OnCompletion                                                            tmp%7#0
+        l-load tmp%7#0 0                                                            tmp%7#0
+        !                                                                           tmp%8#0
+        txn ApplicationID                                                           tmp%8#0,tmp%9#0
+        l-load tmp%9#0 0                                                            tmp%8#0,tmp%9#0
+        !                                                                           tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                            tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                           tmp%8#0,tmp%10#0
+        &&                                                                          tmp%11#0
+        l-load tmp%11#0 0                                                           tmp%11#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                       1
         return
 
 
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:
 subroutine call_with_txn:
-    call_with_txn_block@0:                                                                             (𝕡) a#0,acfg#0,b#0 |
+    call_with_txn_block@0:
+        // typed_abi_call_txn/txn_contract.py:12
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                               reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                 a#0
+        txn GroupIndex                                                              a#0,tmp%1#0
+        l-load tmp%1#0 0                                                            a#0,tmp%1#0
+        int 1                                                                       a#0,tmp%1#0,1
+        -                                                                           a#0,acfg#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        l-load reinterpret_Encoded(len+uint8[])%1#0 0                               a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:14
         // assert a == b"a", "a is not a"
-        p-load a#0                                                                                     (𝕡) a#0,acfg#0,b#0 | a#0 (copy)
-        byte 0x61                                                                                      (𝕡) a#0,acfg#0,b#0 | a#0 (copy),0x61
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        assert // a is not a                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load a#0 2                                                                acfg#0,b#0,a#0
+        byte 0x61                                                                   acfg#0,b#0,a#0,0x61
+        ==                                                                          acfg#0,b#0,tmp%0#1
+        l-load tmp%0#1 0                                                            acfg#0,b#0,tmp%0#1
+        assert // a is not a                                                        acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:15
         // assert b == b"b", "b is not b"
-        p-load b#0                                                                                     (𝕡) a#0,acfg#0,b#0 | b#0 (copy)
-        byte 0x62                                                                                      (𝕡) a#0,acfg#0,b#0 | b#0 (copy),0x62
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        assert // b is not b                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load b#0 0                                                                acfg#0,b#0
+        byte 0x62                                                                   acfg#0,b#0,0x62
+        ==                                                                          acfg#0,tmp%1#1
+        l-load tmp%1#1 0                                                            acfg#0,tmp%1#1
+        assert // b is not b                                                        acfg#0
         // typed_abi_call_txn/txn_contract.py:16
         // assert acfg.type == TransactionType.AssetConfig, "expected asset config"
-        p-load acfg#0                                                                                  (𝕡) a#0,acfg#0,b#0 | acfg#0 (copy)
-        gtxns TypeEnum                                                                                 (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        int acfg                                                                                       (𝕡) a#0,acfg#0,b#0 | tmp%2#0,acfg
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%3#0
-        assert // expected asset config                                                                (𝕡) a#0,acfg#0,b#0 |
+        l-load-copy acfg#0 0                                                        acfg#0,acfg#0 (copy)
+        gtxns TypeEnum                                                              acfg#0,tmp%2#1
+        l-load tmp%2#1 0                                                            acfg#0,tmp%2#1
+        int acfg                                                                    acfg#0,tmp%2#1,acfg
+        ==                                                                          acfg#0,tmp%3#1
+        l-load tmp%3#1 0                                                            acfg#0,tmp%3#1
+        assert // expected asset config                                             acfg#0
         // typed_abi_call_txn/txn_contract.py:17
         // assert acfg.created_asset.id, "expected asset id"
-        p-load acfg#0                                                                                  (𝕡) a#0,acfg#0,b#0 | acfg#0 (copy)
-        gtxns CreatedAssetID                                                                           (𝕡) a#0,acfg#0,b#0 | tmp%4#0
-        l-load-copy tmp%4#0 0                                                                          (𝕡) a#0,acfg#0,b#0 | tmp%4#0,tmp%4#0 (copy)
-        assert // expected asset id                                                                    (𝕡) a#0,acfg#0,b#0 | tmp%4#0
-        // typed_abi_call_txn/txn_contract.py:18
-        // return acfg.created_asset.id
-        l-load tmp%4#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%4#0
-        retsub                                                                                         tmp%4#0
+        l-load acfg#0 0                                                             acfg#0
+        gtxns CreatedAssetID                                                        tmp%4#1
+        l-load-copy tmp%4#1 0                                                       tmp%4#1,tmp%4#1 (copy)
+        assert // expected asset id                                                 tmp%4#1
+        // typed_abi_call_txn/txn_contract.py:12
+        // @arc4.abimethod
+        l-load tmp%4#1 0                                                            tmp%4#1
+        itob                                                                        aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                             aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                         0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                      tmp%5#0
+        l-load tmp%5#0 0                                                            tmp%5#0
+        log
+        int 1                                                                       1
+        return
 
 
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(a: bytes, acfg: uint64, b: bytes) -> uint64:
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
 subroutine call_with_acfg:
-    call_with_acfg_block@0:                                                                            (𝕡) a#0,acfg#0,b#0 |
+    call_with_acfg_block@0:
+        // typed_abi_call_txn/txn_contract.py:20
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                               reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                 a#0
+        txn GroupIndex                                                              a#0,tmp%1#0
+        l-load tmp%1#0 0                                                            a#0,tmp%1#0
+        int 1                                                                       a#0,tmp%1#0,1
+        -                                                                           a#0,acfg#0
+        l-load-copy acfg#0 0                                                        a#0,acfg#0,acfg#0 (copy)
+        gtxns TypeEnum                                                              a#0,acfg#0,gtxn_type%0#0
+        l-load gtxn_type%0#0 0                                                      a#0,acfg#0,gtxn_type%0#0
+        int acfg                                                                    a#0,acfg#0,gtxn_type%0#0,acfg
+        ==                                                                          a#0,acfg#0,gtxn_type_matches%0#0
+        l-load gtxn_type_matches%0#0 0                                              a#0,acfg#0,gtxn_type_matches%0#0
+        assert // transaction type is acfg                                          a#0,acfg#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        l-load reinterpret_Encoded(len+uint8[])%1#0 0                               a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:22
         // assert a == b"a", "a is not a"
-        p-load a#0                                                                                     (𝕡) a#0,acfg#0,b#0 | a#0 (copy)
-        byte 0x61                                                                                      (𝕡) a#0,acfg#0,b#0 | a#0 (copy),0x61
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        assert // a is not a                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load a#0 2                                                                acfg#0,b#0,a#0
+        byte 0x61                                                                   acfg#0,b#0,a#0,0x61
+        ==                                                                          acfg#0,b#0,tmp%0#1
+        l-load tmp%0#1 0                                                            acfg#0,b#0,tmp%0#1
+        assert // a is not a                                                        acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:23
         // assert b == b"b", "b is not b"
-        p-load b#0                                                                                     (𝕡) a#0,acfg#0,b#0 | b#0 (copy)
-        byte 0x62                                                                                      (𝕡) a#0,acfg#0,b#0 | b#0 (copy),0x62
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        assert // b is not b                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load b#0 0                                                                acfg#0,b#0
+        byte 0x62                                                                   acfg#0,b#0,0x62
+        ==                                                                          acfg#0,tmp%1#1
+        l-load tmp%1#1 0                                                            acfg#0,tmp%1#1
+        assert // b is not b                                                        acfg#0
         // typed_abi_call_txn/txn_contract.py:24
         // assert acfg.created_asset.id, "expected asset id"
-        p-load acfg#0                                                                                  (𝕡) a#0,acfg#0,b#0 | acfg#0 (copy)
-        gtxns CreatedAssetID                                                                           (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        l-load-copy tmp%2#0 0                                                                          (𝕡) a#0,acfg#0,b#0 | tmp%2#0,tmp%2#0 (copy)
-        assert // expected asset id                                                                    (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        // typed_abi_call_txn/txn_contract.py:25
-        // return acfg.created_asset.id
-        l-load tmp%2#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        retsub                                                                                         tmp%2#0
+        l-load acfg#0 0                                                             acfg#0
+        gtxns CreatedAssetID                                                        tmp%2#1
+        l-load-copy tmp%2#1 0                                                       tmp%2#1,tmp%2#1 (copy)
+        assert // expected asset id                                                 tmp%2#1
+        // typed_abi_call_txn/txn_contract.py:20
+        // @arc4.abimethod
+        l-load tmp%2#1 0                                                            tmp%2#1
+        itob                                                                        aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                             aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                         0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                      tmp%5#0
+        l-load tmp%5#0 0                                                            tmp%5#0
+        log
+        int 1                                                                       1
+        return
 
 
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
 subroutine call_with_acfg_no_return:
-    call_with_acfg_no_return_block@0:                                                                  (𝕡) a#0,acfg#0,b#0 |
+    call_with_acfg_no_return_block@0:
+        // typed_abi_call_txn/txn_contract.py:27
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 0                               reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                 a#0
+        txn GroupIndex                                                              a#0,tmp%1#0
+        l-load tmp%1#0 0                                                            a#0,tmp%1#0
+        int 1                                                                       a#0,tmp%1#0,1
+        -                                                                           a#0,acfg#0
+        l-load-copy acfg#0 0                                                        a#0,acfg#0,acfg#0 (copy)
+        gtxns TypeEnum                                                              a#0,acfg#0,gtxn_type%0#0
+        l-load gtxn_type%0#0 0                                                      a#0,acfg#0,gtxn_type%0#0
+        int acfg                                                                    a#0,acfg#0,gtxn_type%0#0,acfg
+        ==                                                                          a#0,acfg#0,gtxn_type_matches%0#0
+        l-load gtxn_type_matches%0#0 0                                              a#0,acfg#0,gtxn_type_matches%0#0
+        assert // transaction type is acfg                                          a#0,acfg#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        l-load reinterpret_Encoded(len+uint8[])%1#0 0                               a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:31
         // assert a == b"a", "a is not a"
-        p-load a#0                                                                                     (𝕡) a#0,acfg#0,b#0 | a#0 (copy)
-        byte 0x61                                                                                      (𝕡) a#0,acfg#0,b#0 | a#0 (copy),0x61
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%0#0
-        assert // a is not a                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load a#0 2                                                                acfg#0,b#0,a#0
+        byte 0x61                                                                   acfg#0,b#0,a#0,0x61
+        ==                                                                          acfg#0,b#0,tmp%0#1
+        l-load tmp%0#1 0                                                            acfg#0,b#0,tmp%0#1
+        assert // a is not a                                                        acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:32
         // assert b == b"b", "b is not b"
-        p-load b#0                                                                                     (𝕡) a#0,acfg#0,b#0 | b#0 (copy)
-        byte 0x62                                                                                      (𝕡) a#0,acfg#0,b#0 | b#0 (copy),0x62
-        ==                                                                                             (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%1#0
-        assert // b is not b                                                                           (𝕡) a#0,acfg#0,b#0 |
+        l-load b#0 0                                                                acfg#0,b#0
+        byte 0x62                                                                   acfg#0,b#0,0x62
+        ==                                                                          acfg#0,tmp%1#1
+        l-load tmp%1#1 0                                                            acfg#0,tmp%1#1
+        assert // b is not b                                                        acfg#0
         // typed_abi_call_txn/txn_contract.py:33
         // assert acfg.created_asset.id, "expected asset id"
-        p-load acfg#0                                                                                  (𝕡) a#0,acfg#0,b#0 | acfg#0 (copy)
-        gtxns CreatedAssetID                                                                           (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        l-load tmp%2#0 0                                                                               (𝕡) a#0,acfg#0,b#0 | tmp%2#0
-        assert // expected asset id                                                                    (𝕡) a#0,acfg#0,b#0 |
-        retsub
+        l-load acfg#0 0                                                             acfg#0
+        gtxns CreatedAssetID                                                        tmp%2#1
+        l-load tmp%2#1 0                                                            tmp%2#1
+        assert // expected asset id
+        // typed_abi_call_txn/txn_contract.py:27
+        // @arc4.abimethod
+        int 1                                                                       1
+        return
 
 

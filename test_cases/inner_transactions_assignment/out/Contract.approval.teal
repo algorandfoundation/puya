@@ -8,51 +8,27 @@ main:
     // inner_transactions_assignment/contract.py:11
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0xe46d9019 0xf883853e // method "test_itxn_slice()void", method "test_itxn_nested()void"
     txna ApplicationArgs 0
-    match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
-
-main_after_if_else@11:
+    match test_itxn_slice test_itxn_nested
     err
 
-main_test_itxn_nested_route@4:
-    // inner_transactions_assignment/contract.py:29
-    // @arc4.abimethod
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_itxn_nested
-    intc_1 // 1
-    return
-
-main_test_itxn_slice_route@3:
-    // inner_transactions_assignment/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_itxn_slice
-    intc_1 // 1
-    return
-
-main_bare_routing@7:
-    // inner_transactions_assignment/contract.py:11
-    // class Contract(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@11
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]() -> void:
 test_itxn_slice:
     // inner_transactions_assignment/contract.py:20
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
@@ -148,11 +124,12 @@ test_itxn_slice:
     // assert sliced_txns[1].note == b"pay2"
     bytec_1 // 0x70617932
     ==
-    assert
-    retsub
+    // inner_transactions_assignment/contract.py:12
+    // @arc4.abimethod
+    return
 
 
-// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]() -> void:
 test_itxn_nested:
     // inner_transactions_assignment/contract.py:37
     // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
@@ -322,5 +299,6 @@ test_itxn_nested:
     // assert nested_tuple[1][1].note == b"pay5"
     bytec 7 // 0x70617935
     ==
-    assert
-    retsub
+    // inner_transactions_assignment/contract.py:29
+    // @arc4.abimethod
+    return

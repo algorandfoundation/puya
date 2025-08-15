@@ -6,42 +6,73 @@ main:
     intcblock 1 32
     bytecblock 0x151f7c75
     txn NumAppArgs
-    bz main_bare_routing@11
+    bz main___algots__.defaultCreate@14
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x25bb3465 0x63fbedbe 0x5c6f499c 0xd71280ea 0xa78000de 0xb976788f // method "hashAddresses(byte[32],byte[32])byte[32]", method "receiveB32(byte[32])byte[32]", method "receiveBytes(byte[],uint64)void", method "returnLength(byte[32])uint64", method "test()void", method "testArray()void"
     txna ApplicationArgs 0
-    match main_hashAddresses_route@3 main_receiveB32_route@4 main_receiveBytes_route@5 main_returnLength_route@6 main_test_route@7 main_testArray_route@8
-
-main_after_if_else@15:
+    match hashAddresses receiveB32 receiveBytes returnLength test testArray
     err
 
-main_testArray_route@8:
+main___algots__.defaultCreate@14:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub testArray
-    intc_0 // 1
-    return
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
-main_test_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test
-    intc_0 // 1
-    return
 
-main_returnLength_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
+hashAddresses:
     txna ApplicationArgs 1
-    callsub returnLength
+    txna ApplicationArgs 2
+    concat
+    sha512_256
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
+receiveB32:
+    txna ApplicationArgs 1
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid size
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
+receiveBytes:
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    swap
+    len
+    ==
+    return
+
+
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
+returnLength:
+    txna ApplicationArgs 1
+    len
     itob
     bytec_0 // 0x151f7c75
     swap
@@ -50,128 +81,20 @@ main_returnLength_route@6:
     intc_0 // 1
     return
 
-main_receiveBytes_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    btoi
-    callsub receiveBytes
-    intc_0 // 1
-    return
 
-main_receiveB32_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    callsub receiveB32
-    dup
-    len
-    intc_1 // 32
-    ==
-    assert // invalid size
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_hashAddresses_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    callsub hashAddresses
-    dup
-    len
-    intc_1 // 32
-    ==
-    assert // invalid size
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_bare_routing@11:
-    txn OnCompletion
-    bnz main_after_if_else@15
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
-
-
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses(a1: bytes, a2: bytes) -> bytes:
-hashAddresses:
-    proto 2 1
-    frame_dig -2
-    frame_dig -1
-    concat
-    sha512_256
-    retsub
-
-
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes) -> bytes:
-receiveB32:
-    proto 1 1
-    frame_dig -1
-    len
-    intc_1 // 32
-    ==
-    assert
-    frame_dig -1
-    sha512_256
-    retsub
-
-
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(b: bytes, length: uint64) -> void:
-receiveBytes:
-    proto 2 0
-    frame_dig -2
-    len
-    frame_dig -1
-    ==
-    assert
-    retsub
-
-
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength(b: bytes) -> uint64:
-returnLength:
-    proto 1 1
-    frame_dig -1
-    len
-    retsub
-
-
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test() -> void:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
 test:
     txn Sender
-    callsub receiveB32
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
-    txn Sender
-    intc_1 // 32
-    callsub receiveBytes
     pushbytes "abcdefghabcdefghabcdefghabcdefgh"
-    callsub receiveB32
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
-    retsub
+    intc_0 // 1
+    return
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> void:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routing]() -> void:
 testArray:
     txn Sender
     dupn 2
@@ -183,5 +106,17 @@ testArray:
     b&
     txn Sender
     ==
+    return
+
+
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes) -> bytes:
+tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32:
+    proto 1 1
+    frame_dig -1
+    len
+    intc_1 // 32
+    ==
     assert
+    frame_dig -1
+    sha512_256
     retsub

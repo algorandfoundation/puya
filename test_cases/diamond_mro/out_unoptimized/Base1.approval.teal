@@ -3,7 +3,7 @@
 
 // test_cases.diamond_mro.base1.Base1.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     b main_block@0
 
 main_block@0:
@@ -17,6 +17,30 @@ main_call___init__@1:
 
 main_after_if_else@2:
     callsub approval_program
+    return
+
+
+// test_cases.diamond_mro.base1.Base1.method[routing]() -> void:
+method:
+    b method_block@0
+
+method_block@0:
+    // diamond_mro/base1.py:11
+    // @arc4.abimethod
+    callsub test_cases.diamond_mro.base1.Base1.method
+    intc_0 // 1
+    return
+
+
+// test_cases.diamond_mro.gp.GP.create[routing]() -> void:
+create:
+    b create_block@0
+
+create_block@0:
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
+    callsub test_cases.diamond_mro.gp.GP.create
+    intc_0 // 1
     return
 
 
@@ -36,10 +60,10 @@ __init___block@0:
 
 
 // test_cases.diamond_mro.base1.Base1.method() -> void:
-method:
-    b method_block@0
+test_cases.diamond_mro.base1.Base1.method:
+    b test_cases.diamond_mro.base1.Base1.method_block@0
 
-method_block@0:
+test_cases.diamond_mro.base1.Base1.method_block@0:
     // diamond_mro/base1.py:13
     // log("base1.method")
     pushbytes "base1.method"
@@ -66,10 +90,10 @@ test_cases.diamond_mro.gp.GP.__init___block@0:
 
 
 // test_cases.diamond_mro.gp.GP.create() -> void:
-create:
-    b create_block@0
+test_cases.diamond_mro.gp.GP.create:
+    b test_cases.diamond_mro.gp.GP.create_block@0
 
-create_block@0:
+test_cases.diamond_mro.gp.GP.create_block@0:
     retsub
 
 
@@ -87,8 +111,6 @@ test_cases.diamond_mro.gp.GP.method_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
-    proto 0 1
-    pushbytes ""
     b approval_program_block@0
 
 approval_program_block@0:
@@ -97,74 +119,62 @@ approval_program_block@0:
 approval_program_block@1:
     // diamond_mro/base1.py:6
     // class Base1(GP):
-    txn NumAppArgs
-    intc_0 // 0
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_1 // 0
     !=
-    bz approval_program_bare_routing@7
-    b approval_program_abi_routing@2
+    bz approval_program_create_NoOp@6
+    b approval_program_call_NoOp@2
 
-approval_program_abi_routing@2:
+approval_program_call_NoOp@2:
     // diamond_mro/base1.py:6
     // class Base1(GP):
     txna ApplicationArgs 0
     pushbytes 0x4f045d84 // method "method()void"
-    pushbytes 0x4c5c61ba // method "create()void"
-    uncover 2
-    match approval_program_method_route@3 approval_program_create_route@4
-    b approval_program_switch_case_default@5
+    uncover 1
+    match approval_program_method_route@3
+    b approval_program_switch_case_default@4
 
-approval_program_switch_case_default@5:
-    b approval_program_switch_case_next@6
+approval_program_switch_case_default@4:
+    b approval_program_switch_case_next@5
 
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@8
+approval_program_switch_case_next@5:
+    b approval_program_after_if_else@10
 
-approval_program_after_if_else@8:
+approval_program_after_if_else@10:
     // diamond_mro/base1.py:6
     // class Base1(GP):
-    intc_0 // 0
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
-
-approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9:
-    frame_dig 0
-    uncover 1
-    retsub
-
-approval_program_create_route@4:
-    // diamond_mro/gp.py:11
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
-    callsub create
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
+    err
 
 approval_program_method_route@3:
     // diamond_mro/base1.py:11
     // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub method
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.diamond_mro.base1.Base1.__puya_arc4_router__@9
+    b approval_program_switch_case_next@5
 
-approval_program_bare_routing@7:
-    b approval_program_after_if_else@8
+approval_program_create_NoOp@6:
+    // diamond_mro/base1.py:6
+    // class Base1(GP):
+    txna ApplicationArgs 0
+    pushbytes 0x4c5c61ba // method "create()void"
+    uncover 1
+    match approval_program_create_route@7
+    b approval_program_switch_case_default@8
+
+approval_program_switch_case_default@8:
+    b approval_program_switch_case_next@9
+
+approval_program_switch_case_next@9:
+    b approval_program_after_if_else@10
+
+approval_program_create_route@7:
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
+    callsub create
+    b approval_program_switch_case_next@9
 
 
 // algopy._contract.Contract.__init__() -> void:

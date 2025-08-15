@@ -8,48 +8,30 @@ main:
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
     txna ApplicationArgs 0
-    match main_create_group_route@3 main_log_group_route@4
-
-main_after_if_else@11:
+    match create_group log_group
     err
 
-main_log_group_route@4:
-    // group_side_effects/contract.py:22
-    // @arc4.abimethod
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // group_side_effects/contract.py:4
-    // class AppExpectingEffects(ARC4Contract):
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // appl
-    ==
-    assert // transaction type is appl
-    // group_side_effects/contract.py:22
-    // @arc4.abimethod
-    callsub log_group
-    intc_0 // 1
-    return
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
-main_create_group_route@3:
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]() -> void:
+create_group:
     // group_side_effects/contract.py:5
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // group_side_effects/contract.py:4
-    // class AppExpectingEffects(ARC4Contract):
     txn GroupIndex
     pushint 2 // 2
     -
@@ -66,9 +48,44 @@ main_create_group_route@3:
     intc_1 // appl
     ==
     assert // transaction type is appl
+    // group_side_effects/contract.py:11
+    // assert asset_create.created_asset.id, "expected asset created"
+    dig 1
+    gtxns CreatedAssetID
+    dup
+    assert // expected asset created
+    // group_side_effects/contract.py:13
+    // op.gaid(asset_create.group_index) == asset_create.created_asset.id
+    uncover 2
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    // group_side_effects/contract.py:12-14
+    // assert (
+    //     op.gaid(asset_create.group_index) == asset_create.created_asset.id
+    // ), "expected correct asset id"
+    assert // expected correct asset id
+    // group_side_effects/contract.py:15
+    // assert app_create.created_app.id, "expected app created"
+    dig 1
+    gtxns CreatedApplicationID
+    dup
+    assert // expected app created
+    // group_side_effects/contract.py:17
+    // op.gaid(app_create.group_index) == app_create.created_app.id
+    uncover 2
+    gtxns GroupIndex
+    gaids
+    dig 1
+    ==
+    // group_side_effects/contract.py:16-18
+    // assert (
+    //     op.gaid(app_create.group_index) == app_create.created_app.id
+    // ), "expected correct app id"
+    assert // expected correct app id
     // group_side_effects/contract.py:5
     // @arc4.abimethod
-    callsub create_group
     swap
     itob
     swap
@@ -81,78 +98,22 @@ main_create_group_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@7:
-    // group_side_effects/contract.py:4
-    // class AppExpectingEffects(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
 
-
-// test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:
-create_group:
-    // group_side_effects/contract.py:5-10
-    // @arc4.abimethod
-    // def create_group(
-    //     self,
-    //     asset_create: gtxn.AssetConfigTransaction,
-    //     app_create: gtxn.ApplicationCallTransaction,
-    // ) -> tuple[UInt64, UInt64]:
-    proto 2 2
-    // group_side_effects/contract.py:11
-    // assert asset_create.created_asset.id, "expected asset created"
-    frame_dig -2
-    gtxns CreatedAssetID
-    dup
-    assert // expected asset created
-    // group_side_effects/contract.py:13
-    // op.gaid(asset_create.group_index) == asset_create.created_asset.id
-    frame_dig -2
-    gtxns GroupIndex
-    gaids
-    dig 1
-    ==
-    // group_side_effects/contract.py:12-14
-    // assert (
-    //     op.gaid(asset_create.group_index) == asset_create.created_asset.id
-    // ), "expected correct asset id"
-    assert // expected correct asset id
-    // group_side_effects/contract.py:15
-    // assert app_create.created_app.id, "expected app created"
-    frame_dig -1
-    gtxns CreatedApplicationID
-    dup
-    assert // expected app created
-    // group_side_effects/contract.py:17
-    // op.gaid(app_create.group_index) == app_create.created_app.id
-    frame_dig -1
-    gtxns GroupIndex
-    gaids
-    dig 1
-    ==
-    // group_side_effects/contract.py:16-18
-    // assert (
-    //     op.gaid(app_create.group_index) == app_create.created_app.id
-    // ), "expected correct app id"
-    assert // expected correct app id
-    // group_side_effects/contract.py:20
-    // return asset_create.created_asset.id, app_create.created_app.id
-    retsub
-
-
-// test_cases.group_side_effects.contract.AppExpectingEffects.log_group(app_call: uint64) -> void:
+// test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]() -> void:
 log_group:
-    // group_side_effects/contract.py:22-23
+    // group_side_effects/contract.py:22
     // @arc4.abimethod
-    // def log_group(self, app_call: gtxn.ApplicationCallTransaction) -> None:
-    proto 1 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // appl
+    ==
+    assert // transaction type is appl
     // group_side_effects/contract.py:24
     // assert app_call.app_args(0) == arc4.arc4_signature(
-    frame_dig -1
+    dup
     pushint 0 // 0
     gtxnsas ApplicationArgs
     // group_side_effects/contract.py:24-26
@@ -164,14 +125,14 @@ log_group:
     assert // expected correct method called
     // group_side_effects/contract.py:27
     // assert app_call.num_logs == 1, "expected logs"
-    frame_dig -1
+    dup
     gtxns NumLogs
     intc_0 // 1
     ==
     assert // expected logs
     // group_side_effects/contract.py:29
     // arc4.UInt64.from_log(app_call.last_log)
-    frame_dig -1
+    dup
     gtxns LastLog
     dup
     extract 4 0
@@ -182,7 +143,7 @@ log_group:
     assert // application log value is not the result of an ABI return
     // group_side_effects/contract.py:30
     // == (app_call.group_index + 1) * Global.group_size
-    frame_dig -1
+    swap
     gtxns GroupIndex
     intc_0 // 1
     +
@@ -193,10 +154,6 @@ log_group:
     // == (app_call.group_index + 1) * Global.group_size
     itob
     b==
-    // group_side_effects/contract.py:28-31
-    // assert (
-    //     arc4.UInt64.from_log(app_call.last_log)
-    //     == (app_call.group_index + 1) * Global.group_size
-    // )
-    assert
-    retsub
+    // group_side_effects/contract.py:22
+    // @arc4.abimethod
+    return

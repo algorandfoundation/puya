@@ -3,68 +3,34 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64
+    intcblock 64 1
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
     txna ApplicationArgs 0
-    match main_build_tuple_route@3 main_test_tuple_route@4
-
-main_after_if_else@11:
+    match build_tuple test_tuple
     err
 
-main_test_tuple_route@4:
-    // named_tuples/contract.py:31
-    // @arc4.abimethod()
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // named_tuples/contract.py:15
-    // class NamedTuplesContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    dup
-    pushint 0 // 0
-    extract_uint64
-    dig 1
-    extract 8 64
-    dig 2
-    pushint 72 // 72
-    extract_uint16
-    dig 3
-    pushint 74 // 74
-    extract_uint16
-    dig 4
-    uncover 2
-    dig 2
-    substring3
-    extract 2 0
-    dig 4
-    len
-    uncover 5
-    uncover 3
-    uncover 2
-    substring3
-    extract 2 0
-    // named_tuples/contract.py:31
-    // @arc4.abimethod()
-    callsub test_tuple
-    intc_0 // 1
-    return
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
-main_build_tuple_route@3:
+
+// test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
+build_tuple:
     // named_tuples/contract.py:16
     // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // named_tuples/contract.py:15
-    // class NamedTuplesContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -72,16 +38,14 @@ main_build_tuple_route@3:
     extract 2 0
     txna ApplicationArgs 4
     extract 2 0
-    // named_tuples/contract.py:16
-    // @arc4.abimethod()
     uncover 3
     itob
     dig 3
     len
-    intc_1 // 64
+    intc_0 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_0 // 64
     bzero
     uncover 4
     b|
@@ -119,50 +83,61 @@ main_build_tuple_route@3:
     swap
     concat
     log
-    intc_0 // 1
-    return
-
-main_bare_routing@7:
-    // named_tuples/contract.py:15
-    // class NamedTuplesContract(arc4.ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
-// test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: bytes, value.c: bytes, value.d: bytes) -> void:
+// test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
 test_tuple:
-    // named_tuples/contract.py:31-32
+    // named_tuples/contract.py:31
     // @arc4.abimethod()
-    // def test_tuple(self, value: TestTuple) -> None:
-    proto 4 0
+    txna ApplicationArgs 1
+    dup
+    pushint 0 // 0
+    extract_uint64
+    dig 1
+    extract 8 64
+    dig 2
+    pushint 72 // 72
+    extract_uint16
+    dig 3
+    pushint 74 // 74
+    extract_uint16
+    dig 4
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 4
+    len
+    uncover 5
+    uncover 3
+    uncover 2
+    substring3
+    extract 2 0
     // named_tuples/contract.py:33
     // assert value.a < 1000
-    frame_dig -4
+    uncover 3
     pushint 1000 // 1000
     <
     assert
     // named_tuples/contract.py:34
     // assert value.b < 2**65
-    frame_dig -3
+    uncover 2
     pushbytes 0x020000000000000000
     b<
     assert
     // named_tuples/contract.py:35
     // assert value.c.bytes.length > 1
-    frame_dig -2
+    swap
     len
-    intc_0 // 1
+    intc_1 // 1
     >
     assert
     // named_tuples/contract.py:36
     // assert value.d == Txn.sender.bytes
-    frame_dig -1
     txn Sender
     ==
-    assert
-    retsub
+    // named_tuples/contract.py:31
+    // @arc4.abimethod()
+    return

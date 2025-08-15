@@ -1,44 +1,37 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "bytes_to_bool()bool" => block@3, method "test_bytes_to_biguint()void" => block@4, * => block@11}
-    block@3: // bytes_to_bool_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "bytes_to_bool()bool" => block@4, method "test_bytes_to_biguint()void" => block@5, * => block@9}
+    block@4: // bytes_to_bool_route_L5
+        test_cases.reinterpret_cast.contract.Contract.bytes_to_bool[routing]()
+        goto block@9
+    block@5: // test_bytes_to_biguint_route_L9
+        (assert 0u)
+        exit 1u
+    block@9: // after_if_else_L4
+        fail
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine test_cases.reinterpret_cast.contract.Contract.bytes_to_bool[routing]() -> void:
+    block@0: // L5
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
-        let tmp%8#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
-        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
-        (log tmp%9#0)
-        let test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
-        goto block@12
-    block@4: // test_bytes_to_biguint_route_L9
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        (assert tmp%12#0) // can only call when not creating
-        (assert 0u)
-        let test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#1: bool = 1u
-        goto block@12
-    block@7: // bare_routing_L4
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        goto tmp%14#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // can only call when creating
-        let test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#2: bool = 1u
-        goto block@12
-    block@11: // after_if_else_L4
-        let test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#3: bool = 0u
-        goto block@12
-    block@12: // after_inlined_test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#0 <- block@3, test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#1 <- block@4, test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#2 <- block@8, test_cases.reinterpret_cast.contract.Contract.__puya_arc4_router__%0#3 <- block@11)
-        return tmp%0#0
+        let tmp%1#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u

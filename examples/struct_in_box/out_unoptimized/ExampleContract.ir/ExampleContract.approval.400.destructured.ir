@@ -4,78 +4,73 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // L10
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@8
+        goto tmp%1#0 ? block@2 : block@11
     block@2: // abi_routing_L10
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "add_user((string,uint64,uint64))void" => block@3, method "attach_asset_to_user(uint64,uint64)void" => block@4, method "get_user(uint64)(string,uint64,uint64)" => block@5, * => block@6}
-    block@3: // add_user_route_L30
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
-        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0)
-        let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
-        goto block@13
-    block@4: // attach_asset_to_user_route_L35
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@3 : block@9
+    block@3: // call_NoOp_L10
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "add_user((string,uint64,uint64))void" => block@4, method "attach_asset_to_user(uint64,uint64)void" => block@5, method "get_user(uint64)(string,uint64,uint64)" => block@6, * => block@7}
+    block@4: // add_user_route_L30
+        examples.struct_in_box.contract.ExampleContract.add_user[routing]()
+        goto block@8
+    block@5: // attach_asset_to_user_route_L35
+        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]()
+        goto block@8
+    block@6: // get_user_route_L41
+        examples.struct_in_box.contract.ExampleContract.get_user[routing]()
+        goto block@8
+    block@7: // switch_case_default_L10
+        goto block@8
+    block@8: // switch_case_next_L10
+        goto block@10
+    block@9: // create_NoOp_L10
+        goto block@10
+    block@10: // after_if_else_L10
+        goto block@12
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%11#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(reinterpret_Encoded(uint64)%0#0, tmp%11#0)
-        let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
-        goto block@13
-    block@5: // get_user_route_L41
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (== tmp%12#0 NoOp)
-        (assert tmp%13#0) // OnCompletion is not NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (!= tmp%14#0 0u)
-        (assert tmp%15#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%16#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%2#0)
-        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
-        (log tmp%17#0)
-        let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
-        goto block@13
-    block@6: // switch_case_default_L10
-        goto block@7
-    block@7: // switch_case_next_L10
-        goto block@12
-    block@8: // bare_routing_L10
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        switch tmp%18#0 {0u => block@9, * => block@10}
-    block@9: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (== tmp%19#0 0u)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         goto block@14
     block@14: // L1
         goto block@15
     block@15: // after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create_L1
-        let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
-        goto block@13
-    block@10: // switch_case_default_L10
-        goto block@11
-    block@11: // switch_case_next_L10
-        goto block@12
+        exit 1u
     block@12: // after_if_else_L10
-        let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
-        goto block@13
+        exit 0u
     block@13: // after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
         return tmp%0#0
+
+subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
+    block@0: // L30
+        let reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
+        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0)
+        exit 1u
+
+subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]() -> void:
+    block@0: // L35
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%0#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
+        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(reinterpret_Encoded(uint64)%0#0, tmp%0#0)
+        exit 1u
+
+subroutine examples.struct_in_box.contract.ExampleContract.get_user[routing]() -> void:
+    block@0: // L41
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
 
 subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: Encoded(uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L11

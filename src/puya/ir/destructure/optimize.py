@@ -1,10 +1,12 @@
+import collections
 import contextlib
 import itertools
+import typing
 
 from puya import log
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
-from puya.utils import unique
+from puya.utils import not_none, unique
 
 logger = log.get_logger(__name__)
 
@@ -15,6 +17,8 @@ def post_ssa_optimizer(sub: models.Subroutine, optimization_level: int) -> None:
         _remove_linear_jumps(sub)
     if optimization_level >= 2:
         _block_deduplication(sub)
+    if optimization_level >= 1:
+        _lift_returns(sub)
 
 
 def _remove_linear_jumps(subroutine: models.Subroutine) -> None:
@@ -69,3 +73,55 @@ def _block_deduplication(subroutine: models.Subroutine) -> None:
             )
         else:
             seen[all_ops] = block
+
+
+def _lift_returns(subroutine: models.Subroutine) -> None:
+    if len(subroutine.body) < 2:
+        return
+    exit_value_count = collections.Counter(
+        _get_constant_return(not_none(b.terminator)) for b in subroutine.body
+    )
+    if "other_return" in exit_value_count:
+        return
+    exit_value_count.pop(None, None)
+    if not exit_value_count:
+        return
+    (value, count) = exit_value_count.popitem()
+    if exit_value_count:
+        return
+    assert isinstance(value, models.Constant)
+    if count <= 1:
+        return
+    target = models.Register(
+        ir_type=value.ir_type,
+        name=f"lifted{models.TMP_VAR_INDICATOR}return",
+        version=0,
+        source_location=value.source_location,
+    )
+    lifted_assignment = models.Assignment(
+        source=value,
+        targets=[target],
+        source_location=value.source_location,
+    )
+    subroutine.body[0].ops.insert(0, lifted_assignment)
+    for b in subroutine.body:
+        match b.terminator:
+            case models.SubroutineReturn():
+                assert len(b.terminator.result) == 1
+                b.terminator.result[:] = [target]
+            case models.ProgramExit():
+                b.terminator.result = target
+
+
+def _get_constant_return(
+    t: models.ControlOp,
+) -> models.Constant | typing.Literal["other_return"] | None:
+    match t:
+        case models.SubroutineReturn(result=[models.Constant() as value]):
+            return value
+        case models.ProgramExit(result=models.Constant() as value):
+            return value
+        case models.SubroutineReturn() | models.ProgramExit():
+            return "other_return"
+        case _:
+            return None

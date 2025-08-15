@@ -431,7 +431,7 @@ def _try_simplify_bool_intrinsic(cond_op: models.ValueProvider) -> models.Value 
             ) as intrinsic
         ):
             cond_maybe_simplified = _try_simplify_uint64_binary_op(
-                intrinsic, a, b, bool_context=True
+                {}, intrinsic, a, b, bool_context=True
             )
             if isinstance(cond_maybe_simplified, models.Value):
                 return cond_maybe_simplified
@@ -771,7 +771,7 @@ def _try_fold_intrinsic(
                 models.Value(atype=AVMType.uint64) as a,
                 models.Value(atype=AVMType.uint64) as b,
             ]:
-                return _try_simplify_uint64_binary_op(intrinsic, a, b)
+                return _try_simplify_uint64_binary_op(register_assignments, intrinsic, a, b)
             case [models.Value(atype=AVMType.bytes) as x]:
                 return _try_simplify_bytes_unary_op(register_assignments, intrinsic, x)
             case [
@@ -1288,8 +1288,8 @@ def _try_simplify_bytes_unary_op(
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
         elif intrinsic.op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
-            # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
             match arg_defn.source:
+                # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
                 case models.Intrinsic(
                     op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
                 ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
@@ -1307,11 +1307,19 @@ def _try_simplify_bytes_unary_op(
                         op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
                         args=[bites, start_arg],
                     )
+                # btoi(itob(x)) = x
+                case models.Intrinsic(op=AVMOp.itob, args=[source_uint64], immediates=[]):
+                    return source_uint64
     return None
 
 
 def _try_simplify_uint64_binary_op(
-    intrinsic: models.Intrinsic, a: models.Value, b: models.Value, *, bool_context: bool = False
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    a: models.Value,
+    b: models.Value,
+    *,
+    bool_context: bool = False,
 ) -> models.Value | models.Intrinsic | None:
     op = intrinsic.op
     c: models.Value | int | None = None
@@ -1420,6 +1428,11 @@ def _try_simplify_uint64_binary_op(
         # a == 0 <-> !a
         elif b_const == 0 and op == AVMOp.eq:
             return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+    if c is None and op in (AVMOp.and_, AVMOp.or_):
+        new_a = _try_simplify_bool_condition(register_assignments, a) or a
+        new_b = _try_simplify_bool_condition(register_assignments, b) or b
+        if new_a is not a or new_b is not b:
+            return attrs.evolve(intrinsic, args=[new_a, new_b])
     if not isinstance(c, int):
         return c
     if c < 0:

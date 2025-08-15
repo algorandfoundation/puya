@@ -13,183 +13,181 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
     block@0: // L37
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@13
+        goto tmp%1#0 ? block@1 : block@16
     block@1: // abi_routing_L37
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "getListingsMbr()uint64" => block@2, method "allowAsset(pay,uint64)void" => block@3, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@4, method "deposit(axfer,uint64)void" => block@5, method "setPrice(uint64,uint64,uint64)void" => block@6, method "buy(address,uint64,uint64,pay,uint64)void" => block@7, method "withdraw(uint64,uint64)void" => block@8, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@9, method "acceptBid(uint64,uint64)void" => block@10, * => block@11}
-    block@2: // getListingsMbr_route_L78
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: uint64 = test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr()
-        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
-        (log tmp%9#0)
-        return 1u
-    block@3: // allowAsset_route_L82
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
-        let tmp%14#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%14#0 1u)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@14
+    block@2: // call_NoOp_L37
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "getListingsMbr()uint64" => block@3, method "allowAsset(pay,uint64)void" => block@4, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@5, method "deposit(axfer,uint64)void" => block@6, method "setPrice(uint64,uint64,uint64)void" => block@7, method "buy(address,uint64,uint64,pay,uint64)void" => block@8, method "withdraw(uint64,uint64)void" => block@9, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@10, method "acceptBid(uint64,uint64)void" => block@11, * => block@12}
+    block@3: // getListingsMbr_route_L78
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]()
+        goto block@13
+    block@4: // allowAsset_route_L82
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
+        goto block@13
+    block@5: // firstDeposit_route_L93
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]()
+        goto block@13
+    block@6: // deposit_route_L120
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]()
+        goto block@13
+    block@7: // setPrice_route_L137
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]()
+        goto block@13
+    block@8: // buy_route_L150
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]()
+        goto block@13
+    block@9: // withdraw_route_L181
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]()
+        goto block@13
+    block@10: // bid_route_L200
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]()
+        goto block@13
+    block@11: // acceptBid_route_L236
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]()
+        goto block@13
+    block@12: // switch_case_default_L37
+        goto block@13
+    block@13: // switch_case_next_L37
+        goto block@15
+    block@14: // create_NoOp_L37
+        goto block@15
+    block@15: // after_if_else_L37
+        goto block@17
+    block@16: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create()
+        exit 1u
+    block@17: // after_if_else_L37
+        exit 0u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]() -> void:
+    block@0: // L78
+        let tmp%0#0: uint64 = test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]() -> void:
+    block@0: // L82
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%15#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset(gtxn_idx%0#0, tmp%15#0)
-        return 1u
-    block@4: // firstDeposit_route_L93
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        let tmp%17#0: bool = (== tmp%16#0 NoOp)
-        (assert tmp%17#0) // OnCompletion is not NoOp
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (!= tmp%18#0 0u)
-        (assert tmp%19#0) // can only call when not creating
-        let tmp%20#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%20#0 2u)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset(gtxn_idx%0#0, tmp%1#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]() -> void:
+    block@0: // L93
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%1#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%1#0 1u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
-        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
-        (assert gtxn_type_matches%1#0) // transaction type is pay
-        let tmp%21#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%21#0 1u)
-        let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
-        let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 axfer)
-        (assert gtxn_type_matches%2#0) // transaction type is axfer
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%22#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%23#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit(gtxn_idx%1#0, gtxn_idx%2#0, tmp%22#0, tmp%23#0)
-        return 1u
-    block@5: // deposit_route_L120
-        let tmp%24#0: uint64 = (txn OnCompletion)
-        let tmp%25#0: bool = (== tmp%24#0 NoOp)
-        (assert tmp%25#0) // OnCompletion is not NoOp
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        let tmp%27#0: bool = (!= tmp%26#0 0u)
-        (assert tmp%27#0) // can only call when not creating
-        let tmp%28#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%3#0: uint64 = (- tmp%28#0 1u)
-        let gtxn_type%3#0: uint64 = ((gtxns TypeEnum) gtxn_idx%3#0)
-        let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
-        (assert gtxn_type_matches%3#0) // transaction type is axfer
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%29#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(gtxn_idx%3#0, tmp%29#0)
-        return 1u
-    block@6: // setPrice_route_L137
-        let tmp%30#0: uint64 = (txn OnCompletion)
-        let tmp%31#0: bool = (== tmp%30#0 NoOp)
-        (assert tmp%31#0) // OnCompletion is not NoOp
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        let tmp%33#0: bool = (!= tmp%32#0 0u)
-        (assert tmp%33#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%34#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
-        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%35#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
-        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%36#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%6#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price(tmp%34#0, tmp%35#0, tmp%36#0)
-        return 1u
-    block@7: // buy_route_L150
-        let tmp%37#0: uint64 = (txn OnCompletion)
-        let tmp%38#0: bool = (== tmp%37#0 NoOp)
-        (assert tmp%38#0) // OnCompletion is not NoOp
-        let tmp%39#0: uint64 = (txn ApplicationID)
-        let tmp%40#0: bool = (!= tmp%39#0 0u)
-        (assert tmp%40#0) // can only call when not creating
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
+        (assert gtxn_type_matches%1#0) // transaction type is axfer
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%3#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit(gtxn_idx%0#0, gtxn_idx%1#0, tmp%2#0, tmp%3#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]() -> void:
+    block@0: // L120
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
+        (assert gtxn_type_matches%0#0) // transaction type is axfer
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(gtxn_idx%0#0, tmp%1#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]() -> void:
+    block@0: // L137
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price(tmp%0#0, tmp%1#0, tmp%2#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]() -> void:
+    block@0: // L150
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%41#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
-        let reinterpret_Encoded(uint64)%7#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%42#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%7#0)
-        let reinterpret_Encoded(uint64)%8#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%43#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%8#0)
-        let tmp%44#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%4#0: uint64 = (- tmp%44#0 1u)
-        let gtxn_type%4#0: uint64 = ((gtxns TypeEnum) gtxn_idx%4#0)
-        let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 pay)
-        (assert gtxn_type_matches%4#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%9#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%45#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%9#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(tmp%41#0, tmp%42#0, tmp%43#0, gtxn_idx%4#0, tmp%45#0)
-        return 1u
-    block@8: // withdraw_route_L181
-        let tmp%46#0: uint64 = (txn OnCompletion)
-        let tmp%47#0: bool = (== tmp%46#0 NoOp)
-        (assert tmp%47#0) // OnCompletion is not NoOp
-        let tmp%48#0: uint64 = (txn ApplicationID)
-        let tmp%49#0: bool = (!= tmp%48#0 0u)
-        (assert tmp%49#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%10#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%50#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%10#0)
-        let reinterpret_Encoded(uint64)%11#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%51#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%11#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw(tmp%50#0, tmp%51#0)
-        return 1u
-    block@9: // bid_route_L200
-        let tmp%52#0: uint64 = (txn OnCompletion)
-        let tmp%53#0: bool = (== tmp%52#0 NoOp)
-        (assert tmp%53#0) // OnCompletion is not NoOp
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        let tmp%55#0: bool = (!= tmp%54#0 0u)
-        (assert tmp%55#0) // can only call when not creating
-        let reinterpret_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%56#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%1#0)
-        let reinterpret_Encoded(uint64)%12#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%57#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%12#0)
-        let reinterpret_Encoded(uint64)%13#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%58#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%13#0)
-        let tmp%59#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%5#0: uint64 = (- tmp%59#0 1u)
-        let gtxn_type%5#0: uint64 = ((gtxns TypeEnum) gtxn_idx%5#0)
-        let gtxn_type_matches%5#0: bool = (== gtxn_type%5#0 pay)
-        (assert gtxn_type_matches%5#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%14#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%60#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%14#0)
-        let reinterpret_Encoded(uint64)%15#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%61#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%15#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(tmp%56#0, tmp%57#0, tmp%58#0, gtxn_idx%5#0, tmp%60#0, tmp%61#0)
-        return 1u
-    block@10: // acceptBid_route_L236
-        let tmp%62#0: uint64 = (txn OnCompletion)
-        let tmp%63#0: bool = (== tmp%62#0 NoOp)
-        (assert tmp%63#0) // OnCompletion is not NoOp
-        let tmp%64#0: uint64 = (txn ApplicationID)
-        let tmp%65#0: bool = (!= tmp%64#0 0u)
-        (assert tmp%65#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%16#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%66#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%16#0)
-        let reinterpret_Encoded(uint64)%17#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%67#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%17#0)
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid(tmp%66#0, tmp%67#0)
-        return 1u
-    block@11: // switch_case_default_L37
-        goto block@12
-    block@12: // switch_case_next_L37
-        goto block@17
-    block@13: // bare_routing_L37
-        let tmp%68#0: uint64 = (txn OnCompletion)
-        switch tmp%68#0 {0u => block@14, * => block@15}
-    block@14: // __algopy_default_create_L1
-        let tmp%69#0: uint64 = (txn ApplicationID)
-        let tmp%70#0: bool = (== tmp%69#0 0u)
-        (assert tmp%70#0) // can only call when creating
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create()
-        return 1u
-    block@15: // switch_case_default_L37
-        goto block@16
-    block@16: // switch_case_next_L37
-        goto block@17
-    block@17: // after_if_else_L37
-        return 0u
+        let tmp%0#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%3#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%3#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(tmp%0#0, tmp%1#0, tmp%2#0, gtxn_idx%0#0, tmp%4#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]() -> void:
+    block@0: // L181
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw(tmp%0#0, tmp%1#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]() -> void:
+    block@0: // L200
+        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let tmp%0#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%3#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%3#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 5)
+        let tmp%5#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(tmp%0#0, tmp%1#0, tmp%2#0, gtxn_idx%0#0, tmp%4#0, tmp%5#0)
+        exit 1u
+
+subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]() -> void:
+    block@0: // L236
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid(tmp%0#0, tmp%1#0)
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__init__() -> void:
     block@0: // L38

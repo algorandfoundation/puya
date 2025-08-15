@@ -3,7 +3,7 @@
   "sources": [
     "../contract.py"
   ],
-  "mappings": ";;;;;;;;;;;;;AAQA;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;AAKK;;AAAA;AAAA;AAAA;;AAAA;AALL;;;AAAA;;;AAKK;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAEG;AAHR;;;AAGQ;AAFH;;AAIL;;;AAEe;AAAA;AAAA;AAAA;AAMO;;AAAA;AAAA;AAAP;;;AAAA;;AAAA;;AAAA;AAAf;;;AACuC;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAMT;;AAAA;AAAT;;;AAAA;;AAAA;AAAA;AAAV;AAAA;;AAPI;;AAAA;AAAA;AAAA;;;;;AAOkE;;AAAA;;;;AAblE;;AAAA;;AAAA;AAAP;;AAAA",
+  "mappings": ";;;;;;;;;;;;;AAQA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAGQ;AAFH;;;AAEG;AAFH;AAAA;AAIA;;;AAAA;AAAA;;;AAEU;AAAA;AAAA;AAAA;AAAA;;AAAA;AAMO;AAAA;AAAA;AAAA;AAAP;AAAP;AAAO;;AAAA;;AAAA;AAAf;;;AACuC;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAMT;;AAAA;AAAT;;;AAAA;;AAAA;AAAA;AAAV;AAAA;;AAPI;;AAAA;AAAA;AAAA;;;;;AAOkE;;AAAA;;;;AAblE;;AAAA;;AAAA;AAFV;;;AAAA;AAAA;;AAAA;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -17,7 +17,7 @@
       "op": "bytecblock \"root\""
     },
     "13": {
-      "op": "txn NumAppArgs",
+      "op": "txn OnCompletion",
       "defined_out": [
         "tmp%0#1"
       ],
@@ -26,246 +26,93 @@
       ]
     },
     "15": {
-      "op": "bz main_after_if_else@8",
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "16": {
+      "error": "OnCompletion must be NoOp",
+      "op": "assert // OnCompletion must be NoOp",
       "stack_out": []
     },
-    "18": {
-      "op": "pushbytess 0x8424203b 0xc0290ad5 // method \"create(byte[32])void\", method \"verify(byte[32][],byte[32])bool\"",
+    "17": {
+      "op": "txn ApplicationID",
       "defined_out": [
-        "Method(create(byte[32])void)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "19": {
+      "op": "bz main_create_NoOp@6",
+      "stack_out": []
+    },
+    "22": {
+      "op": "pushbytes 0xc0290ad5 // method \"verify(byte[32][],byte[32])bool\"",
+      "defined_out": [
         "Method(verify(byte[32][],byte[32])bool)"
       ],
       "stack_out": [
-        "Method(create(byte[32])void)",
         "Method(verify(byte[32][],byte[32])bool)"
       ]
     },
-    "30": {
+    "28": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
-        "Method(create(byte[32])void)",
         "Method(verify(byte[32][],byte[32])bool)",
-        "tmp%2#0"
+        "tmp%4#0"
       ],
       "stack_out": [
-        "Method(create(byte[32])void)",
         "Method(verify(byte[32][],byte[32])bool)",
-        "tmp%2#0"
+        "tmp%4#0"
       ]
     },
-    "33": {
-      "op": "match main_create_route@3 main_verify_route@4",
+    "31": {
+      "op": "match verify",
       "stack_out": []
     },
-    "39": {
-      "block": "main_after_if_else@8",
-      "stack_in": [],
-      "op": "err",
-      "defined_out": []
+    "35": {
+      "op": "err"
     },
-    "40": {
-      "block": "main_verify_route@4",
+    "36": {
+      "block": "main_create_NoOp@6",
       "stack_in": [],
-      "op": "txn OnCompletion",
+      "op": "pushbytes 0x8424203b // method \"create(byte[32])void\"",
       "defined_out": [
-        "tmp%7#0"
+        "Method(create(byte[32])void)"
       ],
       "stack_out": [
-        "tmp%7#0"
+        "Method(create(byte[32])void)"
       ]
     },
     "42": {
-      "op": "!",
+      "op": "txna ApplicationArgs 0",
       "defined_out": [
-        "tmp%8#0"
+        "Method(create(byte[32])void)",
+        "tmp%5#0"
       ],
       "stack_out": [
-        "tmp%8#0"
+        "Method(create(byte[32])void)",
+        "tmp%5#0"
       ]
     },
-    "43": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
+    "45": {
+      "op": "match create",
       "stack_out": []
     },
-    "44": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%9#0"
-      ],
-      "stack_out": [
-        "tmp%9#0"
-      ]
-    },
-    "46": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "47": {
-      "op": "txna ApplicationArgs 1",
-      "defined_out": [
-        "reinterpret_Encoded(len+uint8[32][])%0#0"
-      ],
-      "stack_out": [
-        "reinterpret_Encoded(len+uint8[32][])%0#0"
-      ]
+    "49": {
+      "op": "err"
     },
     "50": {
-      "op": "txna ApplicationArgs 2",
-      "defined_out": [
-        "reinterpret_Encoded(len+uint8[32][])%0#0",
-        "reinterpret_Encoded(uint8[32])%1#0"
-      ],
-      "stack_out": [
-        "reinterpret_Encoded(len+uint8[32][])%0#0",
-        "reinterpret_Encoded(uint8[32])%1#0"
-      ]
-    },
-    "53": {
-      "callsub": "examples.merkle.contract.MerkleTree.verify",
-      "op": "callsub verify",
-      "defined_out": [
-        "tmp%11#0"
-      ],
-      "stack_out": [
-        "tmp%11#0"
-      ]
-    },
-    "56": {
-      "op": "pushbytes 0x00",
-      "defined_out": [
-        "0x00",
-        "tmp%11#0"
-      ],
-      "stack_out": [
-        "tmp%11#0",
-        "0x00"
-      ]
-    },
-    "59": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0",
-        "0x00",
-        "tmp%11#0"
-      ],
-      "stack_out": [
-        "tmp%11#0",
-        "0x00",
-        "0"
-      ]
-    },
-    "60": {
-      "op": "uncover 2",
-      "stack_out": [
-        "0x00",
-        "0",
-        "tmp%11#0"
-      ]
-    },
-    "62": {
-      "op": "setbit",
-      "defined_out": [
-        "aggregate%encoded_bool%0#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_bool%0#0"
-      ]
-    },
-    "63": {
-      "op": "pushbytes 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "aggregate%encoded_bool%0#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_bool%0#0",
-        "0x151f7c75"
-      ]
-    },
-    "69": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "aggregate%encoded_bool%0#0"
-      ]
-    },
-    "70": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%13#0"
-      ],
-      "stack_out": [
-        "tmp%13#0"
-      ]
-    },
-    "71": {
-      "op": "log",
-      "stack_out": []
-    },
-    "72": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "73": {
-      "op": "return",
-      "stack_out": []
-    },
-    "74": {
-      "block": "main_create_route@3",
+      "subroutine": "examples.merkle.contract.MerkleTree.create[routing]",
+      "params": {},
+      "block": "create",
       "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "76": {
-      "op": "!",
-      "defined_out": [
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%4#0"
-      ]
-    },
-    "77": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "78": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%5#0"
-      ],
-      "stack_out": [
-        "tmp%5#0"
-      ]
-    },
-    "80": {
-      "op": "!",
-      "defined_out": [
-        "tmp%6#0"
-      ],
-      "stack_out": [
-        "tmp%6#0"
-      ]
-    },
-    "81": {
-      "error": "can only call when creating",
-      "op": "assert // can only call when creating",
-      "stack_out": []
-    },
-    "82": {
       "op": "bytec_0 // \"root\"",
       "defined_out": [
         "\"root\""
@@ -274,7 +121,7 @@
         "\"root\""
       ]
     },
-    "83": {
+    "51": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "\"root\"",
@@ -285,132 +132,205 @@
         "root#0"
       ]
     },
-    "86": {
+    "54": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "87": {
+    "55": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "tmp%0#0"
+        "1"
       ],
       "stack_out": [
-        "tmp%0#0"
+        "1"
       ]
     },
-    "88": {
+    "56": {
       "op": "return",
       "stack_out": []
     },
-    "89": {
-      "subroutine": "examples.merkle.contract.MerkleTree.verify",
-      "params": {
-        "proof#0": "bytes",
-        "leaf#0": "bytes"
-      },
+    "57": {
+      "subroutine": "examples.merkle.contract.MerkleTree.verify[routing]",
+      "params": {},
       "block": "verify",
       "stack_in": [],
-      "op": "proto 2 1"
+      "op": "txna ApplicationArgs 1"
     },
-    "92": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
+    "60": {
+      "op": "dup"
     },
-    "93": {
+    "61": {
+      "op": "txna ApplicationArgs 2"
+    },
+    "64": {
+      "op": "intc_0 // 0"
+    },
+    "65": {
       "op": "bytec_0 // \"root\"",
       "defined_out": [
         "\"root\"",
-        "0"
+        "0",
+        "leaf#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
+        "proof#0",
+        "leaf#0",
         "0",
         "\"root\""
       ]
     },
-    "94": {
+    "66": {
       "op": "app_global_get_ex",
       "defined_out": [
+        "leaf#0",
         "maybe_exists%0#0",
-        "maybe_value%0#0"
+        "maybe_value%0#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
+        "proof#0",
+        "leaf#0",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "95": {
+    "67": {
+      "op": "swap",
+      "stack_out": [
+        "proof#0",
+        "proof#0",
+        "leaf#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "68": {
+      "op": "cover 3",
+      "defined_out": [
+        "leaf#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "proof#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "proof#0",
+        "leaf#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "70": {
       "error": "check self.root exists",
       "op": "assert // check self.root exists",
       "stack_out": [
-        "maybe_value%0#0"
+        "proof#0",
+        "maybe_value%0#0",
+        "proof#0",
+        "leaf#0"
       ]
     },
-    "96": {
-      "op": "frame_dig -2",
-      "defined_out": [
-        "maybe_value%0#0",
-        "proof#0 (copy)"
-      ],
+    "71": {
+      "op": "swap",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
-        "proof#0 (copy)"
+        "leaf#0",
+        "proof#0"
       ]
     },
-    "98": {
+    "72": {
       "op": "intc_0 // 0",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
-        "proof#0 (copy)",
+        "leaf#0",
+        "proof#0",
         "0"
       ]
     },
-    "99": {
+    "73": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
-        "maybe_value%0#0"
+        "leaf#0",
+        "maybe_value%0#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
+        "leaf#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "100": {
-      "op": "intc_0 // 0"
+    "74": {
+      "op": "swap",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "leaf#0",
+        "maybe_value%0#0",
+        "proof#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "leaf#0"
+      ]
     },
-    "101": {
-      "op": "frame_dig -1",
+    "75": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "leaf#0",
+        "maybe_value%0#0",
+        "proof#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "leaf#0",
+        "idx#0"
+      ]
+    },
+    "76": {
+      "op": "swap",
       "defined_out": [
         "aggregate%array_length%0#0",
         "computed#1",
         "idx#0",
-        "maybe_value%0#0"
+        "maybe_value%0#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ]
     },
-    "103": {
+    "77": {
       "block": "verify_for_header@2",
       "stack_in": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ],
-      "op": "frame_dig 2",
+      "op": "dig 1",
       "defined_out": [
         "idx#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -418,13 +338,14 @@
         "idx#0"
       ]
     },
-    "105": {
-      "op": "frame_dig 1",
+    "79": {
+      "op": "dig 3",
       "defined_out": [
         "aggregate%array_length%0#0",
         "idx#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -433,7 +354,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "107": {
+    "81": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -441,6 +362,7 @@
         "idx#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -448,38 +370,42 @@
         "continue_looping%0#0"
       ]
     },
-    "108": {
+    "82": {
       "op": "bz verify_after_for@7",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ]
     },
-    "111": {
-      "op": "frame_dig -2",
+    "85": {
+      "op": "dig 4",
       "defined_out": [
         "aggregate%array_length%0#0",
         "idx#0",
-        "proof#0 (copy)"
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1",
-        "proof#0 (copy)"
+        "proof#0"
       ]
     },
-    "113": {
+    "87": {
       "op": "extract 2 0",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -487,9 +413,10 @@
         "aggregate%array_trimmed%0#0"
       ]
     },
-    "116": {
-      "op": "frame_dig 2",
+    "90": {
+      "op": "dig 2",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -498,15 +425,17 @@
         "idx#0"
       ]
     },
-    "118": {
+    "92": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -516,15 +445,17 @@
         "32"
       ]
     },
-    "119": {
+    "93": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
         "aggregate%bytes_offset%0#0",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -533,9 +464,10 @@
         "aggregate%bytes_offset%0#0"
       ]
     },
-    "120": {
+    "94": {
       "op": "intc_2 // 32",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -545,15 +477,17 @@
         "32"
       ]
     },
-    "121": {
+    "95": {
       "error": "index access is out of bounds",
       "op": "extract3 // on error: index access is out of bounds",
       "defined_out": [
         "aggregate%array_length%0#0",
         "b#0",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -561,14 +495,16 @@
         "b#0"
       ]
     },
-    "122": {
+    "96": {
       "op": "dup",
       "defined_out": [
         "aggregate%array_length%0#0",
         "b#0",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -577,15 +513,17 @@
         "b#0"
       ]
     },
-    "123": {
-      "op": "frame_dig 3",
+    "97": {
+      "op": "dig 2",
       "defined_out": [
         "aggregate%array_length%0#0",
         "b#0",
         "computed#1",
-        "idx#0"
+        "idx#0",
+        "proof#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -595,27 +533,30 @@
         "computed#1"
       ]
     },
-    "125": {
+    "99": {
       "op": "b>",
       "defined_out": [
         "aggregate%array_length%0#0",
         "b#0",
         "computed#1",
         "idx#0",
-        "tmp%0#0"
+        "proof#0",
+        "tmp%0#1"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1",
         "b#0",
-        "tmp%0#0"
+        "tmp%0#1"
       ]
     },
-    "126": {
+    "100": {
       "op": "bz verify_ternary_false@5",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -623,9 +564,10 @@
         "b#0"
       ]
     },
-    "129": {
-      "op": "frame_dig 3",
+    "103": {
+      "op": "dig 1",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -634,9 +576,10 @@
         "computed#1"
       ]
     },
-    "131": {
+    "105": {
       "op": "swap",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -645,15 +588,17 @@
         "b#0"
       ]
     },
-    "132": {
+    "106": {
       "op": "concat",
       "defined_out": [
         "aggregate%array_length%0#0",
         "computed#1",
         "idx#0",
+        "proof#0",
         "ternary_result%0#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -661,9 +606,10 @@
         "ternary_result%0#0"
       ]
     },
-    "133": {
+    "107": {
       "block": "verify_ternary_merge@6",
       "stack_in": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -675,6 +621,7 @@
         "computed#1"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -682,25 +629,27 @@
         "computed#1"
       ]
     },
-    "134": {
-      "op": "frame_bury 3",
+    "108": {
+      "op": "bury 1",
       "defined_out": [
         "computed#1"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ]
     },
-    "136": {
-      "op": "frame_dig 2",
+    "110": {
+      "op": "dig 1",
       "defined_out": [
         "computed#1",
         "idx#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -708,9 +657,10 @@
         "idx#0"
       ]
     },
-    "138": {
+    "112": {
       "op": "intc_1 // 1",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -719,9 +669,10 @@
         "1"
       ]
     },
-    "139": {
+    "113": {
       "op": "+",
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -729,37 +680,40 @@
         "idx#0"
       ]
     },
-    "140": {
-      "op": "frame_bury 2",
+    "114": {
+      "op": "bury 2",
       "defined_out": [
         "computed#1",
         "idx#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ]
     },
-    "142": {
+    "116": {
       "op": "b verify_for_header@2"
     },
-    "145": {
+    "119": {
       "block": "verify_ternary_false@5",
       "stack_in": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1",
         "b#0"
       ],
-      "op": "frame_dig 3",
+      "op": "dig 1",
       "defined_out": [
         "b#0",
         "computed#1"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -768,13 +722,14 @@
         "computed#1"
       ]
     },
-    "147": {
+    "121": {
       "op": "concat",
       "defined_out": [
         "computed#1",
         "ternary_result%0#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -782,22 +737,24 @@
         "ternary_result%0#0"
       ]
     },
-    "148": {
+    "122": {
       "op": "b verify_ternary_merge@6"
     },
-    "151": {
+    "125": {
       "block": "verify_after_for@7",
       "stack_in": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1"
       ],
-      "op": "frame_dig 0",
+      "op": "dig 3",
       "defined_out": [
         "maybe_value%0#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -805,13 +762,14 @@
         "maybe_value%0#0"
       ]
     },
-    "153": {
-      "op": "frame_dig 3",
+    "127": {
+      "op": "dig 1",
       "defined_out": [
         "computed#1",
         "maybe_value%0#0"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
@@ -820,27 +778,170 @@
         "computed#1"
       ]
     },
-    "155": {
+    "129": {
       "op": "==",
       "defined_out": [
         "computed#1",
         "maybe_value%0#0",
-        "tmp%0#0"
+        "tmp%0#1"
       ],
       "stack_out": [
+        "proof#0",
         "maybe_value%0#0",
         "aggregate%array_length%0#0",
         "idx#0",
         "computed#1",
-        "tmp%0#0"
+        "tmp%0#1"
       ]
     },
-    "156": {
-      "op": "frame_bury 0"
+    "130": {
+      "op": "pushbytes 0x00",
+      "defined_out": [
+        "0x00",
+        "computed#1",
+        "maybe_value%0#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "tmp%0#1",
+        "0x00"
+      ]
     },
-    "158": {
-      "retsub": true,
-      "op": "retsub"
+    "133": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "0x00",
+        "computed#1",
+        "maybe_value%0#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "tmp%0#1",
+        "0x00",
+        "0"
+      ]
+    },
+    "134": {
+      "op": "uncover 2",
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "0x00",
+        "0",
+        "tmp%0#1"
+      ]
+    },
+    "136": {
+      "op": "setbit",
+      "defined_out": [
+        "aggregate%encoded_bool%0#0",
+        "computed#1",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "aggregate%encoded_bool%0#0"
+      ]
+    },
+    "137": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%encoded_bool%0#0",
+        "computed#1",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "aggregate%encoded_bool%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "143": {
+      "op": "swap",
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "0x151f7c75",
+        "aggregate%encoded_bool%0#0"
+      ]
+    },
+    "144": {
+      "op": "concat",
+      "defined_out": [
+        "computed#1",
+        "maybe_value%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "tmp%2#0"
+      ]
+    },
+    "145": {
+      "op": "log",
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1"
+      ]
+    },
+    "146": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "computed#1",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1",
+        "1"
+      ]
+    },
+    "147": {
+      "op": "return",
+      "stack_out": [
+        "proof#0",
+        "maybe_value%0#0",
+        "aggregate%array_length%0#0",
+        "idx#0",
+        "computed#1"
+      ]
     }
   }
 }

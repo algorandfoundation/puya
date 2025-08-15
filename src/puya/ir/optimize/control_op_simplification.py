@@ -171,6 +171,13 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     non_zero=non_zero,
                     source_location=terminator.source_location,
                 )
+            case models.ControlOp(unique_targets=[single_target]) if type(
+                terminator
+            ) is not models.Goto:
+                block.terminator = models.Goto(
+                    target=single_target,
+                    source_location=terminator.source_location,
+                )
             case _:
                 continue
         changes = True

@@ -3,17 +3,15 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 6 0
+    intcblock 6 0
     bytecblock 0x098101 0x31 0x32 0x33
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     txna ApplicationArgs 0
     match main_test_branching_array_call_route@3
-
-main_after_if_else@10:
     err
 
 main_test_branching_array_call_route@3:
@@ -21,43 +19,31 @@ main_test_branching_array_call_route@3:
     // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // inner_transactions/array_access.py:20
-    // class ArrayAccessContract(ARC4Contract):
-    txna ApplicationArgs 1
-    // inner_transactions/array_access.py:21
-    // @arc4.abimethod
-    callsub test_branching_array_call
-    intc_0 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b test_branching_array_call
 
-main_bare_routing@6:
-    // inner_transactions/array_access.py:20
-    // class ArrayAccessContract(ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes) -> void:
+// test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call[routing]() -> void:
 test_branching_array_call:
-    // inner_transactions/array_access.py:21-22
+    // inner_transactions/array_access.py:21
     // @arc4.abimethod
-    // def test_branching_array_call(self, maybe: arc4.Bool) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
     // inner_transactions/array_access.py:23
     // if maybe:
-    frame_dig -1
     pushbytes 0x00
     !=
     dup
-    bz test_branching_array_call_else_body@3
+    bz test_branching_array_call_else_body@4
     // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
@@ -81,9 +67,9 @@ test_branching_array_call:
     itxn_field ApprovalProgramPages
     // inner_transactions/array_access.py:24
     // create_app_txn = itxn.ApplicationCall(
-    intc_1 // appl
+    intc_0 // appl
     itxn_field TypeEnum
-    intc_2 // 0
+    intc_1 // 0
     itxn_field Fee
     // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
@@ -93,11 +79,11 @@ test_branching_array_call:
     // ).submit()
     itxn_submit
 
-test_branching_array_call_after_if_else@5:
+test_branching_array_call_after_if_else@6:
     // inner_transactions/array_access.py:36
     // if maybe:
-    frame_dig 0
-    bz test_branching_array_call_else_body@7
+    dup
+    bz test_branching_array_call_else_body@8
     // inner_transactions/array_access.py:37
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
@@ -110,9 +96,14 @@ test_branching_array_call_after_if_else@5:
     bytec_2 // 0x32
     ==
     assert // correct args used 2
-    retsub
 
-test_branching_array_call_else_body@7:
+test_branching_array_call_after_if_else@9:
+    // inner_transactions/array_access.py:21
+    // @arc4.abimethod
+    pushint 1 // 1
+    return
+
+test_branching_array_call_else_body@8:
     // inner_transactions/array_access.py:40
     // assert create_app_txn.app_args(0) == b"3", "correct args used 1"
     itxna ApplicationArgs 0
@@ -131,9 +122,9 @@ test_branching_array_call_else_body@7:
     pushbytes 0x35
     ==
     assert // correct args used 3
-    retsub
+    b test_branching_array_call_after_if_else@9
 
-test_branching_array_call_else_body@3:
+test_branching_array_call_else_body@4:
     // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
@@ -164,9 +155,9 @@ test_branching_array_call_else_body@3:
     itxn_field ApprovalProgramPages
     // inner_transactions/array_access.py:30
     // create_app_txn = itxn.ApplicationCall(
-    intc_1 // appl
+    intc_0 // appl
     itxn_field TypeEnum
-    intc_2 // 0
+    intc_1 // 0
     itxn_field Fee
     // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(
@@ -176,4 +167,4 @@ test_branching_array_call_else_body@3:
     //     note=b"different param set",
     // ).submit()
     itxn_submit
-    b test_branching_array_call_after_if_else@5
+    b test_branching_array_call_after_if_else@6

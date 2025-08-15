@@ -4,7 +4,7 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2
-    bytecblock "counter" "name" "Howdy stranger!" "Hello, " 0x151f7c75
+    bytecblock "counter" "name" 0x151f7c75 "Howdy stranger!" "Hello, "
     b main_block@0
 
 main_block@0:
@@ -56,6 +56,77 @@ positive_one_block@0:
     retsub
 
 
+// test_cases.everything.contract.Everything.create[routing]() -> void:
+create:
+    b create_block@0
+
+create_block@0:
+    // everything/contract.py:41
+    // @abimethod(create="require")
+    callsub test_cases.everything.contract.Everything.create
+    intc_1 // 1
+    return
+
+
+// test_cases.everything.contract.Everything.register[routing]() -> void:
+register:
+    b register_block@0
+
+register_block@0:
+    // everything/contract.py:47
+    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    txna ApplicationArgs 1
+    callsub test_cases.everything.contract.Everything.register
+    intc_1 // 1
+    return
+
+
+// test_cases.everything.contract.Everything.say_hello[routing]() -> void:
+say_hello:
+    b say_hello_block@0
+
+say_hello_block@0:
+    // everything/contract.py:56
+    // @abimethod
+    callsub test_cases.everything.contract.Everything.say_hello
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.everything.contract.Everything.calculate[routing]() -> void:
+calculate:
+    b calculate_block@0
+
+calculate_block@0:
+    // everything/contract.py:64
+    // @abimethod
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub test_cases.everything.contract.Everything.calculate
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.everything.contract.Everything.close_out[routing]() -> void:
+close_out:
+    b close_out_block@0
+
+close_out_block@0:
+    // everything/contract.py:69
+    // @abimethod(allow_actions=["CloseOut"])
+    callsub test_cases.everything.contract.Everything.close_out
+    intc_1 // 1
+    return
+
+
 // test_cases.everything.contract.Everything.__init__() -> void:
 __init__:
     b __init___block@0
@@ -65,10 +136,10 @@ __init___block@0:
 
 
 // test_cases.everything.contract.Everything.create() -> void:
-create:
-    b create_block@0
+test_cases.everything.contract.Everything.create:
+    b test_cases.everything.contract.Everything.create_block@0
 
-create_block@0:
+test_cases.everything.contract.Everything.create_block@0:
     // everything/contract.py:43
     // self._check_ban_list()
     callsub _check_ban_list
@@ -84,15 +155,15 @@ create_block@0:
 
 
 // test_cases.everything.contract.Everything.register(name: bytes) -> void:
-register:
+test_cases.everything.contract.Everything.register:
     // everything/contract.py:47-48
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     // def register(self, name: String) -> None:
     proto 1 0
     intc_0 // 0
-    b register_block@0
+    b test_cases.everything.contract.Everything.register_block@0
 
-register_block@0:
+test_cases.everything.contract.Everything.register_block@0:
     // everything/contract.py:49
     // self._check_ban_list()
     callsub _check_ban_list
@@ -101,10 +172,10 @@ register_block@0:
     txn OnCompletion
     intc_1 // OptIn
     ==
-    bz register_after_if_else@4
-    b register_if_body@1
+    bz test_cases.everything.contract.Everything.register_after_if_else@4
+    b test_cases.everything.contract.Everything.register_if_body@1
 
-register_if_body@1:
+test_cases.everything.contract.Everything.register_if_body@1:
     // everything/contract.py:51
     // sender_name, sender_name_existed = self.name.maybe(account=0)
     intc_0 // 0
@@ -115,10 +186,10 @@ register_if_body@1:
     frame_bury 0
     // everything/contract.py:52
     // if not sender_name_existed:
-    bnz register_after_if_else@3
-    b register_if_body@2
+    bnz test_cases.everything.contract.Everything.register_after_if_else@3
+    b test_cases.everything.contract.Everything.register_if_body@2
 
-register_if_body@2:
+test_cases.everything.contract.Everything.register_if_body@2:
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
     intc_0 // 0
@@ -130,12 +201,12 @@ register_if_body@2:
     bytec_0 // "counter"
     uncover 1
     app_global_put
-    b register_after_if_else@3
+    b test_cases.everything.contract.Everything.register_after_if_else@3
 
-register_after_if_else@3:
-    b register_after_if_else@4
+test_cases.everything.contract.Everything.register_after_if_else@3:
+    b test_cases.everything.contract.Everything.register_after_if_else@4
 
-register_after_if_else@4:
+test_cases.everything.contract.Everything.register_after_if_else@4:
     // everything/contract.py:54
     // self.name[0] = name
     intc_0 // 0
@@ -146,14 +217,14 @@ register_after_if_else@4:
 
 
 // test_cases.everything.contract.Everything.say_hello() -> bytes:
-say_hello:
+test_cases.everything.contract.Everything.say_hello:
     // everything/contract.py:56-57
     // @abimethod
     // def say_hello(self) -> String:
     proto 0 1
-    b say_hello_block@0
+    b test_cases.everything.contract.Everything.say_hello_block@0
 
-say_hello_block@0:
+test_cases.everything.contract.Everything.say_hello_block@0:
     // everything/contract.py:58
     // self._check_ban_list()
     callsub _check_ban_list
@@ -165,29 +236,29 @@ say_hello_block@0:
     app_local_get_ex
     // everything/contract.py:60
     // if not exists:
-    bnz say_hello_after_if_else@2
-    b say_hello_if_body@1
+    bnz test_cases.everything.contract.Everything.say_hello_after_if_else@2
+    b test_cases.everything.contract.Everything.say_hello_if_body@1
 
-say_hello_if_body@1:
+test_cases.everything.contract.Everything.say_hello_if_body@1:
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    bytec_2 // "Howdy stranger!"
+    bytec_3 // "Howdy stranger!"
     len
     itob
     extract 6 2
-    bytec_2 // "Howdy stranger!"
+    bytec_3 // "Howdy stranger!"
     concat
     uncover 1
     retsub
 
-say_hello_after_if_else@2:
+test_cases.everything.contract.Everything.say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    bytec_3 // "Hello, "
+    bytec 4 // "Hello, "
     len
     itob
     extract 6 2
-    bytec_3 // "Hello, "
+    bytec 4 // "Hello, "
     concat
     frame_dig 0
     dup
@@ -247,14 +318,14 @@ say_hello_after_if_else@2:
 
 
 // test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
-calculate:
+test_cases.everything.contract.Everything.calculate:
     // everything/contract.py:64-65
     // @abimethod
     // def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
     proto 2 1
-    b calculate_block@0
+    b test_cases.everything.contract.Everything.calculate_block@0
 
-calculate_block@0:
+test_cases.everything.contract.Everything.calculate_block@0:
     // everything/contract.py:66
     // c = super().calculate(a, b)
     frame_dig -2
@@ -271,10 +342,10 @@ calculate_block@0:
 
 
 // test_cases.everything.contract.Everything.close_out() -> void:
-close_out:
-    b close_out_block@0
+test_cases.everything.contract.Everything.close_out:
+    b test_cases.everything.contract.Everything.close_out_block@0
 
-close_out_block@0:
+test_cases.everything.contract.Everything.close_out_block@0:
     // everything/contract.py:71
     // self._remove_sender()
     callsub _remove_sender
@@ -316,8 +387,6 @@ _remove_sender_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
-    proto 0 1
-    pushbytes ""
     b approval_program_block@0
 
 approval_program_block@0:
@@ -326,106 +395,98 @@ approval_program_block@0:
 approval_program_block@1:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn NumAppArgs
+    txna ApplicationArgs 0
+    pushbytes 0xbd6099e5 // method "register(string)void"
+    pushbytes 0x1658aa2f // method "close_out()void"
+    uncover 2
+    match approval_program_register_route@2 approval_program_close_out_route@3
+    b approval_program_switch_case_default@4
+
+approval_program_switch_case_default@4:
+    b approval_program_switch_case_next@5
+
+approval_program_switch_case_next@5:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@10
-    b approval_program_abi_routing@2
+    bz approval_program_create_NoOp@11
+    b approval_program_call_NoOp@6
 
-approval_program_abi_routing@2:
+approval_program_call_NoOp@6:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txna ApplicationArgs 0
+    pushbytes 0x5d5c84c7 // method "say_hello()string"
+    pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
+    uncover 2
+    match approval_program_say_hello_route@7 approval_program_calculate_route@8
+    b approval_program_switch_case_default@9
+
+approval_program_switch_case_default@9:
+    b approval_program_switch_case_next@10
+
+approval_program_switch_case_next@10:
+    b approval_program_after_if_else@15
+
+approval_program_after_if_else@15:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    err
+
+approval_program_calculate_route@8:
+    // everything/contract.py:64
+    // @abimethod
+    callsub calculate
+    b approval_program_switch_case_next@10
+
+approval_program_say_hello_route@7:
+    // everything/contract.py:56
+    // @abimethod
+    callsub say_hello
+    b approval_program_switch_case_next@10
+
+approval_program_create_NoOp@11:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 0
     pushbytes 0x4c5c61ba // method "create()void"
-    pushbytes 0xbd6099e5 // method "register(string)void"
-    pushbytes 0x5d5c84c7 // method "say_hello()string"
-    pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
-    pushbytes 0x1658aa2f // method "close_out()void"
-    uncover 5
-    match approval_program_create_route@3 approval_program_register_route@4 approval_program_say_hello_route@5 approval_program_calculate_route@6 approval_program_close_out_route@7
-    b approval_program_switch_case_default@8
-
-approval_program_switch_case_default@8:
-    b approval_program_switch_case_next@9
-
-approval_program_switch_case_next@9:
-    b approval_program_after_if_else@11
-
-approval_program_after_if_else@11:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    intc_0 // 0
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
-
-approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12:
-    frame_dig 0
     uncover 1
-    retsub
+    match approval_program_create_route@12
+    b approval_program_switch_case_default@13
 
-approval_program_close_out_route@7:
+approval_program_switch_case_default@13:
+    b approval_program_switch_case_next@14
+
+approval_program_switch_case_next@14:
+    b approval_program_after_if_else@15
+
+approval_program_create_route@12:
+    // everything/contract.py:41
+    // @abimethod(create="require")
+    callsub create
+    b approval_program_switch_case_next@14
+
+approval_program_close_out_route@3:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
     intc_2 // CloseOut
     ==
-    assert // OnCompletion is not CloseOut
     txn ApplicationID
     intc_0 // 0
     !=
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be CloseOut && can only call when not creating
     callsub close_out
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
+    b approval_program_switch_case_next@5
 
-approval_program_calculate_route@6:
-    // everything/contract.py:64
-    // @abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    // everything/contract.py:64
-    // @abimethod
-    callsub calculate
-    bytec 4 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
-
-approval_program_say_hello_route@5:
-    // everything/contract.py:56
-    // @abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub say_hello
-    bytec 4 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
-
-approval_program_register_route@4:
+approval_program_register_route@2:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
@@ -434,39 +495,13 @@ approval_program_register_route@4:
     shl
     pushint 3 // 3
     &
-    assert // OnCompletion is not one of NoOp, OptIn
     txn ApplicationID
     intc_0 // 0
     !=
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
-    // everything/contract.py:47
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    &&
+    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
     callsub register
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
-
-approval_program_create_route@3:
-    // everything/contract.py:41
-    // @abimethod(create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
-    callsub create
-    intc_1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.everything.contract.Everything.__puya_arc4_router__@12
-
-approval_program_bare_routing@10:
-    b approval_program_after_if_else@11
+    b approval_program_switch_case_next@5
 
 
 // test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:

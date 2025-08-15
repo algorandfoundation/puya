@@ -8,203 +8,144 @@ main:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0xa1f5040d 0x6d4700ad 0xc840077d // method "call_with_txn(byte[],txn,byte[])uint64", method "call_with_acfg(byte[],acfg,byte[])uint64", method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     txna ApplicationArgs 0
-    match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5
-
-main_after_if_else@12:
+    match call_with_txn call_with_acfg call_with_acfg_no_return
     err
 
-main_call_with_acfg_no_return_route@5:
-    // typed_abi_call_txn/txn_contract.py:27
-    // @arc4.abimethod
+main___algopy_default_create@11:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // acfg
-    ==
-    assert // transaction type is acfg
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:27
-    // @arc4.abimethod
-    callsub call_with_acfg_no_return
-    intc_0 // 1
-    return
-
-main_call_with_acfg_route@4:
-    // typed_abi_call_txn/txn_contract.py:20
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // acfg
-    ==
-    assert // transaction type is acfg
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:20
-    // @arc4.abimethod
-    callsub call_with_acfg
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_call_with_txn_route@3:
-    // typed_abi_call_txn/txn_contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_0 // 1
-    -
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:12
-    // @arc4.abimethod
-    callsub call_with_txn
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_bare_routing@8:
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@12
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:
 call_with_txn:
-    // typed_abi_call_txn/txn_contract.py:12-13
+    // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
-    // def call_with_txn(self, a: Bytes, acfg: gtxn.Transaction, b: Bytes) -> UInt64:
-    proto 3 1
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    txna ApplicationArgs 2
+    extract 2 0
     // typed_abi_call_txn/txn_contract.py:14
     // assert a == b"a", "a is not a"
-    frame_dig -3
+    uncover 2
     bytec_0 // 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:15
     // assert b == b"b", "b is not b"
-    frame_dig -1
     bytec_1 // 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:16
     // assert acfg.type == TransactionType.AssetConfig, "expected asset config"
-    frame_dig -2
+    dup
     gtxns TypeEnum
     intc_1 // acfg
     ==
     assert // expected asset config
     // typed_abi_call_txn/txn_contract.py:17
     // assert acfg.created_asset.id, "expected asset id"
-    frame_dig -2
     gtxns CreatedAssetID
     dup
     assert // expected asset id
-    // typed_abi_call_txn/txn_contract.py:18
-    // return acfg.created_asset.id
-    retsub
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(a: bytes, acfg: uint64, b: bytes) -> uint64:
-call_with_acfg:
-    // typed_abi_call_txn/txn_contract.py:20-21
+    // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
-    // def call_with_acfg(self, a: Bytes, acfg: gtxn.AssetConfigTransaction, b: Bytes) -> UInt64:
-    proto 3 1
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
+call_with_acfg:
+    // typed_abi_call_txn/txn_contract.py:20
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
     // typed_abi_call_txn/txn_contract.py:22
     // assert a == b"a", "a is not a"
-    frame_dig -3
+    uncover 2
     bytec_0 // 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:23
     // assert b == b"b", "b is not b"
-    frame_dig -1
     bytec_1 // 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:24
     // assert acfg.created_asset.id, "expected asset id"
-    frame_dig -2
     gtxns CreatedAssetID
     dup
     assert // expected asset id
-    // typed_abi_call_txn/txn_contract.py:25
-    // return acfg.created_asset.id
-    retsub
-
-
-// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
-call_with_acfg_no_return:
-    // typed_abi_call_txn/txn_contract.py:27-30
+    // typed_abi_call_txn/txn_contract.py:20
     // @arc4.abimethod
-    // def call_with_acfg_no_return(
-    //     self, a: Bytes, acfg: gtxn.AssetConfigTransaction, b: Bytes
-    // ) -> None:
-    proto 3 0
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
+call_with_acfg_no_return:
+    // typed_abi_call_txn/txn_contract.py:27
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
     // typed_abi_call_txn/txn_contract.py:31
     // assert a == b"a", "a is not a"
-    frame_dig -3
+    uncover 2
     bytec_0 // 0x61
     ==
     assert // a is not a
     // typed_abi_call_txn/txn_contract.py:32
     // assert b == b"b", "b is not b"
-    frame_dig -1
     bytec_1 // 0x62
     ==
     assert // b is not b
     // typed_abi_call_txn/txn_contract.py:33
     // assert acfg.created_asset.id, "expected asset id"
-    frame_dig -2
     gtxns CreatedAssetID
-    assert // expected asset id
-    retsub
+    // typed_abi_call_txn/txn_contract.py:27
+    // @arc4.abimethod
+    return // on error: expected asset id

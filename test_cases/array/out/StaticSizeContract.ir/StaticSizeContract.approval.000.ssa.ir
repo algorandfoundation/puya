@@ -128,123 +128,123 @@ subroutine test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__(
     block@0: // L37
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@11
+        goto tmp%1#0 ? block@1 : block@14
     block@1: // abi_routing_L37
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@2, method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@3, method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@4, method "test_bool_array(uint64)uint64" => block@5, method "test_arc4_conversion(uint64)uint64[]" => block@6, method "sum_array(uint64[])uint64" => block@7, method "test_arc4_bool()bool[]" => block@8, * => block@9}
-    block@2: // test_array_route_L41
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@12
+    block@2: // call_NoOp_L37
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@3, method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@4, method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@5, method "test_bool_array(uint64)uint64" => block@6, method "test_arc4_conversion(uint64)uint64[]" => block@7, method "sum_array(uint64[])uint64" => block@8, method "test_arc4_bool()bool[]" => block@9, * => block@10}
+    block@3: // test_array_route_L41
+        test_cases.array.static_size.StaticSizeContract.test_array[routing]()
+        goto block@11
+    block@4: // test_extend_from_tuple_route_L57
+        test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple[routing]()
+        goto block@11
+    block@5: // test_extend_from_arc4_tuple_route_L67
+        test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple[routing]()
+        goto block@11
+    block@6: // test_bool_array_route_L75
+        test_cases.array.static_size.StaticSizeContract.test_bool_array[routing]()
+        goto block@11
+    block@7: // test_arc4_conversion_route_L94
+        test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[routing]()
+        goto block@11
+    block@8: // sum_array_route_L112
+        test_cases.array.static_size.StaticSizeContract.sum_array[routing]()
+        goto block@11
+    block@9: // test_arc4_bool_route_L138
+        test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routing]()
+        goto block@11
+    block@10: // switch_case_default_L37
+        goto block@11
+    block@11: // switch_case_next_L37
+        goto block@13
+    block@12: // create_NoOp_L37
+        goto block@13
+    block@13: // after_if_else_L37
+        goto block@15
+    block@14: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        test_cases.array.static_size.StaticSizeContract.__algopy_default_create()
+        exit 1u
+    block@15: // after_if_else_L37
+        exit 0u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]() -> void:
+    block@0: // L41
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%7#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
         let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 3)
         let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%8#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        let tmp%9#0: uint64 = test_cases.array.static_size.StaticSizeContract.test_array(reinterpret_Encoded(uint64)%0#0, tmp%7#0, reinterpret_Encoded(uint64)%2#0, tmp%8#0)
-        let tmp%10#0: Encoded(uint64) = bytes_encode<uint64>(tmp%9#0)
-        let tmp%11#0: bytes = (concat 0x151f7c75 tmp%10#0)
-        (log tmp%11#0)
-        return 1u
-    block@3: // test_extend_from_tuple_route_L57
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (== tmp%12#0 NoOp)
-        (assert tmp%13#0) // OnCompletion is not NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (!= tmp%14#0 0u)
-        (assert tmp%15#0) // can only call when not creating
+        let tmp%1#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
+        let tmp%2#0: uint64 = test_cases.array.static_size.StaticSizeContract.test_array(reinterpret_Encoded(uint64)%0#0, tmp%0#0, reinterpret_Encoded(uint64)%2#0, tmp%1#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple[routing]() -> void:
+    block@0: // L57
         let reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0: Encoded((uint64,uint64),(uint64,uint64)) = (txna ApplicationArgs 1)
-        let (tmp%16#0: Encoded(uint64,uint64), tmp%17#0: Encoded(uint64,uint64)) = decode_bytes<(Encoded(uint64,uint64),Encoded(uint64,uint64),)>(reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0)
-        let tmp%18#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(tmp%16#0, tmp%17#0)
-        let tmp%19#0: bytes = (concat 0x151f7c75 tmp%18#0)
-        (log tmp%19#0)
-        return 1u
-    block@4: // test_extend_from_arc4_tuple_route_L67
-        let tmp%20#0: uint64 = (txn OnCompletion)
-        let tmp%21#0: bool = (== tmp%20#0 NoOp)
-        (assert tmp%21#0) // OnCompletion is not NoOp
-        let tmp%22#0: uint64 = (txn ApplicationID)
-        let tmp%23#0: bool = (!= tmp%22#0 0u)
-        (assert tmp%23#0) // can only call when not creating
-        let reinterpret_Encoded((uint64,uint64),(uint64,uint64))%1#0: Encoded((uint64,uint64),(uint64,uint64)) = (txna ApplicationArgs 1)
-        let tmp%24#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(reinterpret_Encoded((uint64,uint64),(uint64,uint64))%1#0)
-        let tmp%25#0: bytes = (concat 0x151f7c75 tmp%24#0)
-        (log tmp%25#0)
-        return 1u
-    block@5: // test_bool_array_route_L75
-        let tmp%26#0: uint64 = (txn OnCompletion)
-        let tmp%27#0: bool = (== tmp%26#0 NoOp)
-        (assert tmp%27#0) // OnCompletion is not NoOp
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (!= tmp%28#0 0u)
-        (assert tmp%29#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%30#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
-        let tmp%31#0: uint64 = test_cases.array.static_size.StaticSizeContract.test_bool_array(tmp%30#0)
-        let tmp%32#0: Encoded(uint64) = bytes_encode<uint64>(tmp%31#0)
-        let tmp%33#0: bytes = (concat 0x151f7c75 tmp%32#0)
-        (log tmp%33#0)
-        return 1u
-    block@6: // test_arc4_conversion_route_L94
-        let tmp%34#0: uint64 = (txn OnCompletion)
-        let tmp%35#0: bool = (== tmp%34#0 NoOp)
-        (assert tmp%35#0) // OnCompletion is not NoOp
-        let tmp%36#0: uint64 = (txn ApplicationID)
-        let tmp%37#0: bool = (!= tmp%36#0 0u)
-        (assert tmp%37#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%38#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
-        let tmp%39#0: Encoded(len+uint64[]) = test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(tmp%38#0)
-        let tmp%40#0: bytes = (concat 0x151f7c75 tmp%39#0)
-        (log tmp%40#0)
-        return 1u
-    block@7: // sum_array_route_L112
-        let tmp%41#0: uint64 = (txn OnCompletion)
-        let tmp%42#0: bool = (== tmp%41#0 NoOp)
-        (assert tmp%42#0) // OnCompletion is not NoOp
-        let tmp%43#0: uint64 = (txn ApplicationID)
-        let tmp%44#0: bool = (!= tmp%43#0 0u)
-        (assert tmp%44#0) // can only call when not creating
+        let (tmp%0#0: Encoded(uint64,uint64), tmp%1#0: Encoded(uint64,uint64)) = decode_bytes<(Encoded(uint64,uint64),Encoded(uint64,uint64),)>(reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0)
+        let tmp%2#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(tmp%0#0, tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple[routing]() -> void:
+    block@0: // L67
+        let reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0: Encoded((uint64,uint64),(uint64,uint64)) = (txna ApplicationArgs 1)
+        let tmp%0#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple(reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array[routing]() -> void:
+    block@0: // L75
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: uint64 = test_cases.array.static_size.StaticSizeContract.test_bool_array(tmp%0#0)
+        let tmp%2#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[routing]() -> void:
+    block@0: // L94
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: Encoded(len+uint64[]) = test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.sum_array[routing]() -> void:
+    block@0: // L112
         let reinterpret_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let tmp%45#0: uint64 = test_cases.array.static_size.StaticSizeContract.sum_array(reinterpret_Encoded(len+uint64[])%0#0)
-        let tmp%46#0: Encoded(uint64) = bytes_encode<uint64>(tmp%45#0)
-        let tmp%47#0: bytes = (concat 0x151f7c75 tmp%46#0)
-        (log tmp%47#0)
-        return 1u
-    block@8: // test_arc4_bool_route_L138
-        let tmp%48#0: uint64 = (txn OnCompletion)
-        let tmp%49#0: bool = (== tmp%48#0 NoOp)
-        (assert tmp%49#0) // OnCompletion is not NoOp
-        let tmp%50#0: uint64 = (txn ApplicationID)
-        let tmp%51#0: bool = (!= tmp%50#0 0u)
-        (assert tmp%51#0) // can only call when not creating
-        let tmp%52#0: Encoded(len+bool1[]) = test_cases.array.static_size.StaticSizeContract.test_arc4_bool()
-        let tmp%53#0: bytes = (concat 0x151f7c75 tmp%52#0)
-        (log tmp%53#0)
-        return 1u
-    block@9: // switch_case_default_L37
-        goto block@10
-    block@10: // switch_case_next_L37
-        goto block@15
-    block@11: // bare_routing_L37
-        let tmp%54#0: uint64 = (txn OnCompletion)
-        switch tmp%54#0 {0u => block@12, * => block@13}
-    block@12: // __algopy_default_create_L1
-        let tmp%55#0: uint64 = (txn ApplicationID)
-        let tmp%56#0: bool = (== tmp%55#0 0u)
-        (assert tmp%56#0) // can only call when creating
-        test_cases.array.static_size.StaticSizeContract.__algopy_default_create()
-        return 1u
-    block@13: // switch_case_default_L37
-        goto block@14
-    block@14: // switch_case_next_L37
-        goto block@15
-    block@15: // after_if_else_L37
-        return 0u
+        let tmp%0#0: uint64 = test_cases.array.static_size.StaticSizeContract.sum_array(reinterpret_Encoded(len+uint64[])%0#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routing]() -> void:
+    block@0: // L138
+        let tmp%0#0: Encoded(len+bool1[]) = test_cases.array.static_size.StaticSizeContract.test_arc4_bool()
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
 
 subroutine test_cases.array.static_size.StaticSizeContract.__init__() -> void:
     block@0: // L38

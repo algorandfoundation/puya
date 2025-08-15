@@ -3,96 +3,37 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
-    match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
-
-main_after_if_else@12:
+    match add_user attach_asset_to_user get_user
     err
 
-main_get_user_route@5:
-    // struct_in_box/contract.py:41
-    // @arc4.abimethod()
+main___algopy_default_create@11:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    txna ApplicationArgs 1
-    // struct_in_box/contract.py:41
-    // @arc4.abimethod()
-    callsub get_user
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_attach_asset_to_user_route@4:
-    // struct_in_box/contract.py:35
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    btoi
-    // struct_in_box/contract.py:35
-    // @arc4.abimethod()
-    callsub attach_asset_to_user
-    intc_0 // 1
-    return
-
-main_add_user_route@3:
-    // struct_in_box/contract.py:30
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    txna ApplicationArgs 1
-    // struct_in_box/contract.py:30
-    // @arc4.abimethod()
-    callsub add_user
-    intc_0 // 1
-    return
-
-main_bare_routing@8:
-    // struct_in_box/contract.py:10
-    // class ExampleContract(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@12
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// examples.struct_in_box.contract.ExampleContract.add_user(user: bytes) -> void:
+// examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
 add_user:
-    // struct_in_box/contract.py:30-31
+    // struct_in_box/contract.py:30
     // @arc4.abimethod()
-    // def add_user(self, user: UserStruct) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
     // struct_in_box/contract.py:32
     // assert not self.box_exists(user.id), "User with id must not exist"
-    frame_dig -1
+    dup
     extract 2 8
     // struct_in_box/contract.py:27
     // _data, exists = op.Box.get(user_id.bytes)
@@ -111,28 +52,29 @@ add_user:
     pop
     // struct_in_box/contract.py:23
     // op.Box.put(box_key, user.bytes)
-    frame_dig -1
+    swap
     box_put
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: bytes, asset: uint64) -> void:
-attach_asset_to_user:
-    // struct_in_box/contract.py:35-36
+    // struct_in_box/contract.py:30
     // @arc4.abimethod()
-    // def attach_asset_to_user(self, user_id: arc4.UInt64, asset: Asset) -> None:
-    proto 2 0
+    pushint 1 // 1
+    return
+
+
+// examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]() -> void:
+attach_asset_to_user:
+    // struct_in_box/contract.py:35
+    // @arc4.abimethod()
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
-    frame_dig -2
     box_get
     // struct_in_box/contract.py:14
     // assert exists, "User with that id does not exist"
     assert // User with that id does not exist
     // struct_in_box/contract.py:38
     // user.asset = arc4.UInt64(asset.id)
-    frame_dig -1
-    itob
+    swap
     replace2 10
     // struct_in_box/contract.py:19
     // box_key = user.id.bytes
@@ -148,22 +90,28 @@ attach_asset_to_user:
     // op.Box.put(box_key, user.bytes)
     swap
     box_put
-    retsub
-
-
-// examples.struct_in_box.contract.ExampleContract.get_user(user_id: bytes) -> bytes:
-get_user:
-    // struct_in_box/contract.py:41-42
+    // struct_in_box/contract.py:35
     // @arc4.abimethod()
-    // def get_user(self, user_id: arc4.UInt64) -> UserStruct:
-    proto 1 1
+    pushint 1 // 1
+    return
+
+
+// examples.struct_in_box.contract.ExampleContract.get_user[routing]() -> void:
+get_user:
+    // struct_in_box/contract.py:41
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
-    frame_dig -1
     box_get
     // struct_in_box/contract.py:14
     // assert exists, "User with that id does not exist"
     assert // User with that id does not exist
-    // struct_in_box/contract.py:43
-    // return self.read_from_box(user_id)
-    retsub
+    // struct_in_box/contract.py:41
+    // @arc4.abimethod()
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
