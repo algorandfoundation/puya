@@ -13,30 +13,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@11
     block@5: // call_NoOp_L4
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "set_0_convert(byte[])byte[]" => block@6, method "set_0_compare(byte[])byte[]" => block@7, method "bool_only_properties()void" => block@8, * => block@21}
+        switch tmp%7#0 {method "set_0_convert(byte[])byte[]" => block@6, method "set_0_compare(byte[])byte[]" => block@7, method "bool_only_properties()void" => block@8, * => block@9}
     block@6: // set_0_convert_route_L5
         test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]()
-        goto block@21
+        fail
     block@7: // set_0_compare_route_L9
         test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]()
-        goto block@21
+        fail
     block@8: // bool_only_properties_route_L13
         test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]()
-        goto block@21
+        fail
+    block@9: // switch_case_default_L4
+        fail
     block@11: // create_NoOp_L4
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@21
+        fail
     block@17: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@21 : block@18
-    block@18: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create()
         exit 1u
-    block@21: // after_if_else_L4
-        fail
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
     block@0: // L5

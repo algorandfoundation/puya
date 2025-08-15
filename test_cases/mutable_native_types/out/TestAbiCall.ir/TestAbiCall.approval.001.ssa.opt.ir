@@ -13,39 +13,39 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@14
     block@5: // call_NoOp_L102
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_fixed_struct()void" => block@6, method "test_nested_struct()void" => block@7, method "test_dynamic_struct()void" => block@8, method "test_fixed_array()void" => block@9, method "test_native_array()void" => block@10, method "test_log()void" => block@11, * => block@24}
+        switch tmp%7#0 {method "test_fixed_struct()void" => block@6, method "test_nested_struct()void" => block@7, method "test_dynamic_struct()void" => block@8, method "test_fixed_array()void" => block@9, method "test_native_array()void" => block@10, method "test_log()void" => block@11, * => block@12}
     block@6: // test_fixed_struct_route_L103
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]()
-        goto block@24
+        fail
     block@7: // test_nested_struct_route_L122
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct[routing]()
-        goto block@24
+        fail
     block@8: // test_dynamic_struct_route_L149
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct[routing]()
-        goto block@24
+        fail
     block@9: // test_fixed_array_route_L188
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array[routing]()
-        goto block@24
+        fail
     block@10: // test_native_array_route_L214
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array[routing]()
-        goto block@24
+        fail
     block@11: // test_log_route_L242
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing]()
-        goto block@24
+        fail
+    block@12: // switch_case_default_L102
+        fail
     block@14: // create_NoOp_L102
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@24
+        fail
     block@20: // bare_routing_L102
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@24 : block@21
-    block@21: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create()
         exit 1u
-    block@24: // after_if_else_L102
-        fail
 
 subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]() -> void:
     block@0: // L103

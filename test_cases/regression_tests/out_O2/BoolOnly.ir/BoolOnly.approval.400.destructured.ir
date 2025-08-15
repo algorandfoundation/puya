@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "set_0_convert(byte[])byte[]" => block@6, method "set_0_compare(byte[])byte[]" => block@7, method "bool_only_properties()void" => block@8, * => block@21}
+        switch tmp%7#0 {method "set_0_convert(byte[])byte[]" => block@6, method "set_0_compare(byte[])byte[]" => block@7, method "bool_only_properties()void" => block@8, * => block@9}
     block@6: // set_0_convert_route_L5
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let inp#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
@@ -50,6 +50,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
+    block@9: // switch_case_default_L4
+        fail
     block@17: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -58,5 +60,3 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@21: // after_if_else_L4
-        fail

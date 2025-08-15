@@ -7,16 +7,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%6#0: bool = (txn ApplicationID)
-        goto tmp%6#0 ? block@5 : block@20
-    block@5: // call_NoOp_L11
+        (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "emit_swapped(uint64,uint64)void" => block@6, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@7, * => block@20}
+        switch tmp%7#0 {method "emit_swapped(uint64,uint64)void" => block@6, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@7, * => block@8}
     block@6: // emit_swapped_route_L12
         examples.arc_28.contract.EventEmitter.emit_swapped[routing]()
-        goto block@20
+        fail
     block@7: // emit_ufixed_route_L18
         examples.arc_28.contract.EventEmitter.emit_ufixed[routing]()
-        goto block@20
+        fail
+    block@8: // switch_case_default_L11
+        fail
     block@16: // bare_routing_L11
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -25,8 +26,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@20: // after_if_else_L11
-        fail
 
 subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
     block@0: // L12

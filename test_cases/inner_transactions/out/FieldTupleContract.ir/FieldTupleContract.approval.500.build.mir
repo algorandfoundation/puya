@@ -28,19 +28,22 @@ subroutine main:
         method test_assign_tuple()void                                                   Method(test_assign_tuple()void)
         method test_assign_tuple_mixed()void                                             Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void)
         v-load tmp%7#0                                                                   Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void),tmp%7#0
-        match main_test_assign_tuple_route@6 main_test_assign_tuple_mixed_route@7 ; b main_after_if_else@20 
+        match main_test_assign_tuple_route@6 main_test_assign_tuple_mixed_route@7 ; b main_switch_case_default@8 
 
     main_test_assign_tuple_route@6:
         // inner_transactions/field_tuple_assignment.py:25
         // @arc4.abimethod
         callsub test_assign_tuple
-        b main_after_if_else@20
+        err
 
     main_test_assign_tuple_mixed_route@7:
         // inner_transactions/field_tuple_assignment.py:85
         // @arc4.abimethod
         callsub test_assign_tuple_mixed
-        b main_after_if_else@20
+        err
+
+    main_switch_case_default@8:
+        err
 
     main_bare_routing@16:
         // inner_transactions/field_tuple_assignment.py:24
@@ -61,11 +64,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                            1
         return
-
-    main_after_if_else@20:
-        // inner_transactions/field_tuple_assignment.py:24
-        // class FieldTupleContract(ARC4Contract):
-        err
 
 
 // test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple[routing]() -> void:

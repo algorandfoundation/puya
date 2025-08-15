@@ -13,20 +13,18 @@ main test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init:
         let tmp%2#0: bool = (! tmp%1#0)
         (assert tmp%2#0) // OnCompletion is not NoOp
         let tmp%4#0: bool = (txn ApplicationID)
-        goto tmp%4#0 ? block@4 : block@6
+        goto tmp%4#0 ? block@4 : block@5
     block@4: // call_NoOp_L7
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
         let eq%tmp%5#0: bool = (== tmp%5#0 method "method()void")
         (assert eq%tmp%5#0)
         test_cases.diamond_mro.derived.Derived.method[routing]()
-        goto block@8
-    block@6: // create_NoOp_L7
+        fail
+    block@5: // create_NoOp_L7
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         let eq%tmp%6#0: bool = (== tmp%6#0 method "create()void")
         (assert eq%tmp%6#0)
         exit 1u
-    block@8: // after_if_else_L7
-        fail
 
 subroutine test_cases.diamond_mro.derived.Derived.method[routing]() -> void:
     block@0: // L12

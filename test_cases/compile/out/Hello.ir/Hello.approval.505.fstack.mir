@@ -21,7 +21,7 @@ subroutine main:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txn NumAppArgs                                           (𝕗) lifted%return#0 | tmp%0#2
-        bz main_bare_routing@11 ; b main_abi_routing@4           (𝕗) lifted%return#0 |
+        bz main_bare_routing@9 ; b main_abi_routing@4            (𝕗) lifted%return#0 |
 
     main_abi_routing@4:                                          (𝕗) lifted%return#0 |
         // compile/apps.py:52
@@ -50,7 +50,7 @@ subroutine main:
         !                                                        (𝕗) lifted%return#0 | tmp%8#0
         assert // OnCompletion is not NoOp                       (𝕗) lifted%return#0 |
         txn ApplicationID                                        (𝕗) lifted%return#0 | tmp%10#0
-        bz main_create_NoOp@9 ; b main_call_NoOp@7               (𝕗) lifted%return#0 |
+        bz main_create_NoOp@8 ; b main_call_NoOp@7               (𝕗) lifted%return#0 |
 
     main_call_NoOp@7:                                            (𝕗) lifted%return#0 |
         // compile/apps.py:52
@@ -62,9 +62,9 @@ subroutine main:
         // compile/apps.py:32
         // @arc4.abimethod()
         callsub greet                                            (𝕗) lifted%return#0 |
-        b main_after_if_else@13                                  (𝕗) lifted%return#0 |
+        err                                                      (𝕗) lifted%return#0 |
 
-    main_create_NoOp@9:                                          (𝕗) lifted%return#0 |
+    main_create_NoOp@8:                                          (𝕗) lifted%return#0 |
         // compile/apps.py:52
         // class Hello(HelloBase):
         txna ApplicationArgs 0                                   (𝕗) lifted%return#0 | tmp%12#0
@@ -74,9 +74,9 @@ subroutine main:
         // compile/apps.py:53
         // @arc4.abimethod(create="require")
         callsub create                                           (𝕗) lifted%return#0 |
-        b main_after_if_else@13                                  (𝕗) lifted%return#0 |
+        err                                                      (𝕗) lifted%return#0 |
 
-    main_bare_routing@11:                                        (𝕗) lifted%return#0 |
+    main_bare_routing@9:                                         (𝕗) lifted%return#0 |
         // compile/apps.py:52
         // class Hello(HelloBase):
         txn OnCompletion                                         (𝕗) lifted%return#0 | tmp%13#0
@@ -89,11 +89,6 @@ subroutine main:
         assert // can only call when not creating                (𝕗) lifted%return#0 |
         f-load lifted%return#0                                   (𝕗) lifted%return#0 | lifted%return#0
         return                                                   (𝕗) lifted%return#0 |
-
-    main_after_if_else@13:                                       (𝕗) lifted%return#0 |
-        // compile/apps.py:52
-        // class Hello(HelloBase):
-        err                                                      (𝕗) lifted%return#0 |
 
 
 // test_cases.compile.apps.Hello.create[routing]() -> void:

@@ -9,7 +9,7 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@21
+        goto tmp%0#2 ? block@4 : block@22
     block@4: // abi_routing_L48
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -17,7 +17,7 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@6, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@7, method "store_tuple_in_box((uint64,uint64))void" => block@8, method "is_tuple_in_box((uint64,uint64))bool" => block@9, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@10, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@11, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@12, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@13, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@14, method "mutate_tuple_in_storage_currently_supported_method()void" => block@15, method "run_tests()bool" => block@16, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@17, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@18, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@19, * => block@23}
+        switch tmp%7#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@6, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@7, method "store_tuple_in_box((uint64,uint64))void" => block@8, method "is_tuple_in_box((uint64,uint64))bool" => block@9, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@10, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@11, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@12, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@13, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@14, method "mutate_tuple_in_storage_currently_supported_method()void" => block@15, method "run_tests()bool" => block@16, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@17, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@18, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@19, * => block@20}
     block@6: // store_tuple_route_L61
         let reinterpret_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0: Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) = (txna ApplicationArgs 1)
         (app_global_put "pwl" reinterpret_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0)
@@ -58,20 +58,20 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let box_prefixed_key%0#0: bytes = (concat "box" reinterpret_Encoded(uint64,uint64)%0#0)
         let (maybe_value%0#2: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
-        goto exists#0 ? block@60 : block@61
-    block@60: // ternary_true_L83
+        goto exists#0 ? block@59 : block@60
+    block@59: // ternary_true_L83
         let aggregate%item0%1#0: uint64 = (extract_uint64 maybe_value%0#2 0u)
         let aggregate%item1%1#0: uint64 = (extract_uint64 maybe_value%0#2 8u)
         let maybe_value.b#0: uint64 = aggregate%item1%1#0
         let maybe_value.a#0: uint64 = aggregate%item0%1#0
-        goto block@62
-    block@61: // ternary_false_L83
+        goto block@61
+    block@60: // ternary_false_L83
         let ternary_result%0.a#2: uint64 = undefined
         let ternary_result%0.b#2: uint64 = undefined
         let maybe_value.b#0: uint64 = ternary_result%0.b#2
         let maybe_value.a#0: uint64 = ternary_result%0.a#2
-        goto block@62
-    block@62: // ternary_merge_L83
+        goto block@61
+    block@61: // ternary_merge_L83
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob maybe_value.a#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob maybe_value.b#0)
         let aggregate%head%8#0: bytes = (concat aggregate%val_as_bytes%3#0 aggregate%val_as_bytes%4#0)
@@ -85,18 +85,18 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let box_prefixed_key%0#0: bytes = (concat "box" reinterpret_Encoded(uint64,uint64)%0#0)
         let (tmp%0#2: uint64, tmp%1#22: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#2: bytes, maybe_exists%0#2: bool) = (box_get box_prefixed_key%0#0)
-        goto maybe_exists%0#2 ? block@55 : block@56
-    block@55: // ternary_true_L88
+        goto maybe_exists%0#2 ? block@54 : block@55
+    block@54: // ternary_true_L88
         let aggregate%item0%2#0: uint64 = (extract_uint64 maybe_value%0#2 0u)
         let aggregate%item1%2#0: uint64 = (extract_uint64 maybe_value%0#2 8u)
         let ternary_result%0.b#2: uint64 = aggregate%item1%2#0
         let ternary_result%0.a#2: uint64 = aggregate%item0%2#0
-        goto block@57
-    block@56: // ternary_false_L88
+        goto block@56
+    block@55: // ternary_false_L88
         let ternary_result%0.b#2: uint64 = tmp%1#22
         let ternary_result%0.a#2: uint64 = tmp%0#2
-        goto block@57
-    block@57: // ternary_merge_L88
+        goto block@56
+    block@56: // ternary_merge_L88
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob ternary_result%0.a#2)
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob ternary_result%0.b#2)
         let aggregate%head%12#0: bytes = (concat aggregate%val_as_bytes%5#0 aggregate%val_as_bytes%6#0)
@@ -110,18 +110,18 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%1#21: account = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
         let (tmp%2#19: uint64, tmp%3#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#2: bytes, maybe_exists%0#2: bool) = (app_local_get_ex tmp%1#21 0u local#0)
-        goto maybe_exists%0#2 ? block@50 : block@51
-    block@50: // ternary_true_L93
+        goto maybe_exists%0#2 ? block@49 : block@50
+    block@49: // ternary_true_L93
         let aggregate%item0%3#0: uint64 = (extract_uint64 maybe_value%0#2 0u)
         let aggregate%item1%3#0: uint64 = (extract_uint64 maybe_value%0#2 8u)
         let ternary_result%0.b#2: uint64 = aggregate%item1%3#0
         let ternary_result%0.a#2: uint64 = aggregate%item0%3#0
-        goto block@52
-    block@51: // ternary_false_L93
+        goto block@51
+    block@50: // ternary_false_L93
         let ternary_result%0.b#2: uint64 = tmp%3#0
         let ternary_result%0.a#2: uint64 = tmp%2#19
-        goto block@52
-    block@52: // ternary_merge_L93
+        goto block@51
+    block@51: // ternary_merge_L93
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob ternary_result%0.a#2)
         let aggregate%val_as_bytes%8#0: bytes[8] = (itob ternary_result%0.b#2)
         let aggregate%head%14#0: bytes = (concat aggregate%val_as_bytes%7#0 aggregate%val_as_bytes%8#0)
@@ -130,19 +130,19 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         exit lifted%return#0
     block@14: // mutate_local_tuple_route_L95
         let i#0: uint64 = 0u
-        goto block@45
-    block@45: // for_header_L107
+        goto block@44
+    block@44: // for_header_L107
         let continue_looping%0#0: bool = (< i#0 3u)
-        goto continue_looping%0#0 ? block@46 : block@47
-    block@46: // for_body_L108
+        goto continue_looping%0#0 ? block@45 : block@46
+    block@45: // for_body_L108
         let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 0x000000000000000000000000000000010000000000000002 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let tmp%2#21: biguint = (itob i#0)
         let tmp%3#13: bool = (b== aggregate%encoded_element%0#0 tmp%2#21)
         (assert tmp%3#13)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@45
-    block@47: // after_for_L107
+        goto block@44
+    block@46: // after_for_L107
         (log 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000)
         exit lifted%return#0
     block@15: // mutate_tuple_in_storage_currently_supported_method_route_L114
@@ -204,51 +204,51 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 2u
-        goto block@31
-    block@31: // for_body_L298
+        goto block@30
+    block@30: // for_body_L298
         let tmp%0#2: uint64 = (+ t.0#0 t.1#0)
         let total#0: uint64 = (+ total#0 tmp%0#2)
-        goto_nth [block@32, block@33, block@34][loop_counter%0#0] else goto block@35
-    block@32: // for_header_1_L297
+        goto_nth [block@31, block@32, block@33][loop_counter%0#0] else goto block@34
+    block@31: // for_header_1_L297
         let loop_counter%0#0: uint64 = 1u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 1u
-        goto block@31
-    block@33: // for_header_2_L297
+        goto block@30
+    block@32: // for_header_2_L297
         let loop_counter%0#0: uint64 = 2u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 1u
-        goto block@31
-    block@34: // for_header_3_L297
+        goto block@30
+    block@33: // for_header_3_L297
         let loop_counter%0#0: uint64 = 3u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 2u
-        goto block@31
-    block@35: // after_for_L297
+        goto block@30
+    block@34: // after_for_L297
         let loop_counter%1#0: uint64 = 0u
         let a#2: uint64 = 1u
         let b#2: uint64 = 2u
-        goto block@36
-    block@36: // for_body_L302
+        goto block@35
+    block@35: // for_body_L302
         let tmp%2#19: uint64 = (+ a#2 b#2)
         let total#0: uint64 = (+ total#0 tmp%2#19)
-        goto_nth [block@37, block@38, block@39][loop_counter%1#0] else goto block@40
-    block@37: // for_header_1_L301
+        goto_nth [block@36, block@37, block@38][loop_counter%1#0] else goto block@39
+    block@36: // for_header_1_L301
         let loop_counter%1#0: uint64 = 1u
         let a#2: uint64 = 2u
         let b#2: uint64 = 1u
-        goto block@36
-    block@38: // for_header_2_L301
+        goto block@35
+    block@37: // for_header_2_L301
         let loop_counter%1#0: uint64 = 2u
         let a#2: uint64 = 1u
         let b#2: uint64 = 1u
-        goto block@36
-    block@39: // for_header_3_L301
+        goto block@35
+    block@38: // for_header_3_L301
         let loop_counter%1#0: uint64 = 3u
         let a#2: uint64 = 2u
         let b#2: uint64 = 2u
-        goto block@36
-    block@40: // after_for_L301
+        goto block@35
+    block@39: // after_for_L301
         let tmp%4#17: uint64 = (/ total#0 8u)
         let tmp%5#15: bool = (== tmp%4#17 3u)
         (assert tmp%5#15)
@@ -299,7 +299,9 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%11#1: bytes = (concat 0x151f7c75 reinterpret_Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))%0#0)
         (log tmp%11#1)
         exit lifted%return#0
-    block@21: // bare_routing_L48
+    block@20: // switch_case_default_L48
+        fail
+    block@22: // bare_routing_L48
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
         (assert not%tmp%9#0)
@@ -307,8 +309,6 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@23: // after_if_else_L48
-        fail
 
 subroutine test_cases.tuple_support.nested_tuples.get_sender_inefficiently() -> account:
     block@0: // L179

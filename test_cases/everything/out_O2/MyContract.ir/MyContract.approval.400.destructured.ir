@@ -16,17 +16,17 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (assert tmp%2#4) // You are banned, goodbye
         let tmp%0#7: uint64 = (txn OnCompletion)
         let tmp%1#7: bool = (== tmp%0#7 OptIn)
-        goto tmp%1#7 ? block@24 : block@26
-    block@24: // if_body_L51
+        goto tmp%1#7 ? block@23 : block@25
+    block@23: // if_body_L51
         let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
-        goto sender_name_existed#0 ? block@26 : block@25
-    block@25: // if_body_L53
+        goto sender_name_existed#0 ? block@25 : block@24
+    block@24: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
         let tmp%3#0: uint64 = (+ maybe_value%1#0 1u)
         (app_global_put "counter" tmp%3#0)
-        goto block@26
-    block@26: // after_if_else_L50
+        goto block@25
+    block@25: // after_if_else_L50
         (app_local_put 0u "name" name#0)
         exit lifted%return#0
     block@5: // close_out_route_L69
@@ -45,21 +45,21 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // OnCompletion is not NoOp
         let tmp%13#0: bool = (txn ApplicationID)
-        goto tmp%13#0 ? block@7 : block@10
+        goto tmp%13#0 ? block@7 : block@11
     block@7: // call_NoOp_L37
         let tmp%14#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%14#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@12}
+        switch tmp%14#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@10}
     block@8: // say_hello_route_L56
         let tmp%0#5: account = (txn Sender)
         let tmp%2#4: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         (assert tmp%2#4) // You are banned, goodbye
         let (name#0: Encoded(len+utf8[]), exists#0: bool) = (app_local_get_ex 0u 0u "name")
-        goto exists#0 ? block@19 : block@18
-    block@18: // if_body_L61
+        goto exists#0 ? block@18 : block@17
+    block@17: // if_body_L61
         let aggregate%encoded_value%0#0: bytes = 0x000f486f77647920737472616e67657221
         let tmp%0#2: bytes = aggregate%encoded_value%0#0
-        goto block@20
-    block@19: // after_if_else_L60
+        goto block@19
+    block@18: // after_if_else_L60
         let extract_to_end%0#0: bytes = ((extract 2 0) name#0)
         let concat%0#0: Encoded(len+utf8[]) = (concat 0x000748656c6c6f2c20 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
@@ -74,8 +74,8 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let tmp%0#2: bytes = replace%1#0
-        goto block@20
-    block@20: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
+        goto block@19
+    block@19: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
         let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#2)
         (log tmp%1#1)
         exit lifted%return#0
@@ -90,7 +90,9 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%1#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%1#1)
         exit lifted%return#0
-    block@10: // create_NoOp_L37
+    block@10: // switch_case_default_L37
+        fail
+    block@11: // create_NoOp_L37
         let tmp%15#0: bytes = (txna ApplicationArgs 0)
         let eq%tmp%15#0: bool = (== tmp%15#0 method "create()void")
         (assert eq%tmp%15#0)
@@ -101,5 +103,3 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (app_global_put "creator" tmp%0#5)
         (app_global_put "counter" 0u)
         exit lifted%return#0
-    block@12: // switch_case_next_L37
-        fail

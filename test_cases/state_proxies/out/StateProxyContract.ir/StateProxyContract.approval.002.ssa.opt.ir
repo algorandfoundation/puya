@@ -19,29 +19,28 @@ main test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_wi
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         test_cases.state_proxies.contract.StateProxyContract.create[routing]()
-        goto block@12
+        fail
     block@5: // route_NoOp_L17
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // OnCompletion is not NoOp
         let tmp%8#0: bool = (txn ApplicationID)
-        goto tmp%8#0 ? block@6 : block@12
-    block@6: // call_NoOp_L17
+        (assert tmp%8#0)
         let tmp%9#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%9#0 {method "clear()void" => block@7, method "order_of_eval_global()void" => block@8, method "order_of_eval_local()void" => block@9, method "order_of_eval_box()void" => block@10, * => block@12}
+        switch tmp%9#0 {method "clear()void" => block@7, method "order_of_eval_global()void" => block@8, method "order_of_eval_local()void" => block@9, method "order_of_eval_box()void" => block@10, * => block@11}
     block@7: // clear_route_L37
         test_cases.state_proxies.contract.StateProxyContract.clear[routing]()
-        goto block@12
+        fail
     block@8: // order_of_eval_global_route_L44
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]()
-        goto block@12
+        fail
     block@9: // order_of_eval_local_route_L49
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local[routing]()
-        goto block@12
+        fail
     block@10: // order_of_eval_box_route_L54
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]()
-        goto block@12
-    block@12: // switch_case_next_L17
+        fail
+    block@11: // switch_case_default_L17
         fail
 
 subroutine test_cases.state_proxies.contract.get_key() -> bytes:

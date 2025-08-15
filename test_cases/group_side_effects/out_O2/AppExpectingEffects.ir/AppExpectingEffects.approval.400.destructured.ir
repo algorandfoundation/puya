@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@6, method "log_group(appl)void" => block@7, * => block@20}
+        switch tmp%7#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@6, method "log_group(appl)void" => block@7, * => block@8}
     block@6: // create_group_route_L5
         let tmp%0#1: uint64 = (txn GroupIndex)
         let asset_create#0: uint64 = (- tmp%0#1 2u)
@@ -65,6 +65,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: bool = (b== tmp%4#1 tmp%11#1)
         (assert tmp%12#0)
         exit lifted%return#0
+    block@8: // switch_case_default_L4
+        fail
     block@16: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -73,5 +75,3 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@20: // after_if_else_L4
-        fail

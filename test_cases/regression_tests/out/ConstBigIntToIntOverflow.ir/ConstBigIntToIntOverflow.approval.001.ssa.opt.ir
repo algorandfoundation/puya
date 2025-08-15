@@ -13,27 +13,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@10
     block@5: // call_NoOp_L4
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "get_abs_bound1(uint64)uint64" => block@6, method "get_abs_bound2()uint64" => block@7, * => block@20}
+        switch tmp%7#0 {method "get_abs_bound1(uint64)uint64" => block@6, method "get_abs_bound2()uint64" => block@7, * => block@8}
     block@6: // get_abs_bound1_route_L5
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]()
-        goto block@20
+        fail
     block@7: // get_abs_bound2_route_L17
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]()
-        goto block@20
+        fail
+    block@8: // switch_case_default_L4
+        fail
     block@10: // create_NoOp_L4
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@20
+        fail
     block@16: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@20 : block@17
-    block@17: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create()
         exit 1u
-    block@20: // after_if_else_L4
-        fail
 
 subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:
     block@0: // L5

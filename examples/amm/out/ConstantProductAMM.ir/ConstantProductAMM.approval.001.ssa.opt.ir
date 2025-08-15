@@ -98,35 +98,35 @@ subroutine examples.amm.contract.ConstantProductAMM.__puya_arc4_router__() -> bo
         goto tmp%6#0 ? block@4 : block@12
     block@4: // call_NoOp_L27
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@22}
+        switch tmp%7#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@10}
     block@5: // set_governor_route_L43
         examples.amm.contract.ConstantProductAMM.set_governor[routing]()
-        goto block@22
+        fail
     block@6: // bootstrap_route_L49
         examples.amm.contract.ConstantProductAMM.bootstrap[routing]()
-        goto block@22
+        fail
     block@7: // mint_route_L81
         examples.amm.contract.ConstantProductAMM.mint[routing]()
-        goto block@22
+        fail
     block@8: // burn_route_L148
         examples.amm.contract.ConstantProductAMM.burn[routing]()
-        goto block@22
+        fail
     block@9: // swap_route_L206
         examples.amm.contract.ConstantProductAMM.swap[routing]()
-        goto block@22
+        fail
+    block@10: // switch_case_default_L27
+        fail
     block@12: // create_NoOp_L27
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@22
+        fail
     block@18: // bare_routing_L27
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@22 : block@19
-    block@19: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@22: // after_if_else_L27
-        fail
 
 subroutine examples.amm.contract.ConstantProductAMM.set_governor[routing]() -> void:
     block@0: // L43

@@ -13,27 +13,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@10
     block@5: // call_NoOp_L24
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_assign_tuple()void" => block@6, method "test_assign_tuple_mixed()void" => block@7, * => block@20}
+        switch tmp%7#0 {method "test_assign_tuple()void" => block@6, method "test_assign_tuple_mixed()void" => block@7, * => block@8}
     block@6: // test_assign_tuple_route_L25
         test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple[routing]()
-        goto block@20
+        fail
     block@7: // test_assign_tuple_mixed_route_L85
         test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed[routing]()
-        goto block@20
+        fail
+    block@8: // switch_case_default_L24
+        fail
     block@10: // create_NoOp_L24
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@20
+        fail
     block@16: // bare_routing_L24
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@20 : block@17
-    block@17: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.__algopy_default_create()
         exit 1u
-    block@20: // after_if_else_L24
-        fail
 
 subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple[routing]() -> void:
     block@0: // L25

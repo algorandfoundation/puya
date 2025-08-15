@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_literal_encoding()void" => block@6, method "test_native_encoding()void" => block@7, method "test_arc4_encoding()void" => block@8, method "test_array_uint64_encoding()void" => block@9, method "test_array_static_encoding()void" => block@10, method "test_array_dynamic_encoding()void" => block@11, method "test_bytes_to_fixed(bool)void" => block@12, * => block@25}
+        switch tmp%7#0 {method "test_literal_encoding()void" => block@6, method "test_native_encoding()void" => block@7, method "test_arc4_encoding()void" => block@8, method "test_array_uint64_encoding()void" => block@9, method "test_array_static_encoding()void" => block@10, method "test_array_dynamic_encoding()void" => block@11, method "test_bytes_to_fixed(bool)void" => block@12, * => block@13}
     block@6: // test_literal_encoding_route_L23
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
@@ -502,12 +502,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let app#0: uint64 = (itxn CreatedApplicationID)
         let sender#0: bytes = (global CurrentApplicationAddress)
         let sender#5: bytes = sender#0
-        goto wrong_size#0 ? block@29 : block@30
-    block@29: // if_body_L184
+        goto wrong_size#0 ? block@25 : block@26
+    block@25: // if_body_L184
         let sender#0: bytes = (concat sender#0 sender#0)
         let sender#5: bytes = sender#0
-        goto block@30
-    block@30: // after_if_else_L183
+        goto block@26
+    block@26: // after_if_else_L183
         let sender#0: bytes = sender#5
         itxn_begin
         let aggregate%length%32#0: uint64 = (len sender#0)
@@ -527,6 +527,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
+    block@13: // switch_case_default_L22
+        fail
     block@21: // bare_routing_L22
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -535,8 +537,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@25: // after_if_else_L22
-        fail
 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> Encoded(uint64,uint8[32],(len+uint8[])):
     block@0: // L223

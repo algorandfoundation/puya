@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "sha256()byte[]" => block@6, method "sha3_256()byte[]" => block@7, method "sha512_256()byte[]" => block@8, method "keccak256()byte[]" => block@9, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@10, * => block@23}
+        switch tmp%7#0 {method "sha256()byte[]" => block@6, method "sha3_256()byte[]" => block@7, method "sha512_256()byte[]" => block@8, method "keccak256()byte[]" => block@9, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@10, * => block@11}
     block@6: // sha256_route_L5
         (log 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e)
         exit lifted%return#0
@@ -56,6 +56,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#1: bytes = (concat 0x151f7c75 aggregate%concat%3#0)
         (log tmp%6#1)
         exit lifted%return#0
+    block@11: // switch_case_default_L4
+        fail
     block@19: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -64,5 +66,3 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@23: // after_if_else_L4
-        fail

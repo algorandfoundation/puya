@@ -13,33 +13,33 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@12
     block@5: // call_NoOp_L14
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@6, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@7, method "test_call_with_infer(byte[],byte[],uint64)void" => block@8, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@9, * => block@22}
+        switch tmp%7#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@6, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@7, method "test_call_with_infer(byte[],byte[],uint64)void" => block@8, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@9, * => block@10}
     block@6: // test_call_with_txn_route_L15
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routing]()
-        goto block@22
+        fail
     block@7: // test_call_with_acfg_route_L31
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg[routing]()
-        goto block@22
+        fail
     block@8: // test_call_with_infer_route_L46
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer[routing]()
-        goto block@22
+        fail
     block@9: // test_call_with_acfg_no_return_route_L61
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]()
-        goto block@22
+        fail
+    block@10: // switch_case_default_L14
+        fail
     block@12: // create_NoOp_L14
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@22
+        fail
     block@18: // bare_routing_L14
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@22 : block@19
-    block@19: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create()
         exit 1u
-    block@22: // after_if_else_L14
-        fail
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:
     block@0: // L15

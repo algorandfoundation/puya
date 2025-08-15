@@ -234,22 +234,24 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         goto tmp%6#0 ? block@4 : block@10
     block@4: // call_NoOp_L22
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "append()void" => block@5, method "modify()void" => block@6, method "get()(uint64,string)[]" => block@7, * => block@21}
+        switch tmp%7#0 {method "append()void" => block@5, method "modify()void" => block@6, method "get()(uint64,string)[]" => block@7, * => block@8}
     block@5: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        goto block@21
+        fail
     block@6: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        goto block@21
+        fail
     block@7: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        goto block@21
+        fail
+    block@8: // switch_case_default_L22
+        fail
     block@10: // create_NoOp_L22
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@21
+        fail
     block@16: // bare_routing_L22
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto_nth [block@18, block@17][tmp%9#0] else goto block@21
+        goto_nth [block@18, block@17][tmp%9#0] else goto block@19
     block@17: // opt_in_L29
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
@@ -268,7 +270,7 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         let tmp%13#0: bool = (! tmp%12#0)
         (assert tmp%13#0) // can only call when creating
         exit 1u
-    block@21: // after_if_else_L22
+    block@19: // switch_case_default_L22
         fail
 
 subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> void:

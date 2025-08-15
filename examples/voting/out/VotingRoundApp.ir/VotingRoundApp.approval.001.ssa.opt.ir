@@ -65,26 +65,26 @@ subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
         goto tmp%4#0 ? block@3 : block@10
     block@3: // call_NoOp_L49
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@14}
+        switch tmp%5#0 {method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@8}
     block@4: // bootstrap_route_L82
         examples.voting.voting.VotingRoundApp.bootstrap[routing]()
-        goto block@14
+        fail
     block@5: // close_route_L110
         examples.voting.voting.VotingRoundApp.close[routing]()
-        goto block@14
+        fail
     block@6: // get_preconditions_route_L160
         examples.voting.voting.VotingRoundApp.get_preconditions[routing]()
-        goto block@14
+        fail
     block@7: // vote_route_L169
         examples.voting.voting.VotingRoundApp.vote[routing]()
-        goto block@14
+        fail
+    block@8: // switch_case_default_L49
+        fail
     block@10: // create_NoOp_L49
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@11, * => block@14}
-    block@11: // create_route_L58
+        let eq%tmp%6#0: bool = (== tmp%6#0 method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void")
+        (assert eq%tmp%6#0)
         examples.voting.voting.VotingRoundApp.create[routing]()
-        goto block@14
-    block@14: // after_if_else_L49
         fail
 
 subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:

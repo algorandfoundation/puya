@@ -19,19 +19,22 @@ subroutine main:
         method get_abs_bound1(uint64)uint64                            tmp%7#0,Method(get_abs_bound1(uint64)uint64)
         method get_abs_bound2()uint64                                  tmp%7#0,Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64)
         l-load tmp%7#0 2                                               Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64),tmp%7#0
-        match main_get_abs_bound1_route@6 main_get_abs_bound2_route@7 ; b main_after_if_else@20 
+        match main_get_abs_bound1_route@6 main_get_abs_bound2_route@7 ; b main_switch_case_default@8 
 
     main_get_abs_bound1_route@6:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
         callsub get_abs_bound1
-        b main_after_if_else@20
+        err
 
     main_get_abs_bound2_route@7:
         // regression_tests/biguint_opt.py:17
         // @arc4.abimethod()
         callsub get_abs_bound2
-        b main_after_if_else@20
+        err
+
+    main_switch_case_default@8:
+        err
 
     main_bare_routing@16:
         // regression_tests/biguint_opt.py:4
@@ -44,11 +47,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                          1
         return
-
-    main_after_if_else@20:
-        // regression_tests/biguint_opt.py:4
-        // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-        err
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:

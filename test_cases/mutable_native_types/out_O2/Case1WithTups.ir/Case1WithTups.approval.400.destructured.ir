@@ -2,7 +2,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
     block@0: // L1
         let lifted%return#0: bool = 1u
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@18
+        goto tmp%0#2 ? block@4 : block@19
     block@4: // abi_routing_L41
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -10,7 +10,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@20}
+        switch tmp%7#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@17}
     block@6: // create_box_route_L45
         let tmp%0#13: bool = (box_create "tup_bag" 4273u)
         (assert tmp%0#13) // box already exists
@@ -52,11 +52,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let i#0: uint64 = 0u
-        goto block@49
-    block@49: // for_header_L71
+        goto block@48
+    block@48: // for_header_L71
         let continue_looping%0#0: bool = (< i#0 values%0#0)
-        goto continue_looping%0#0 ? block@50 : block@51
-    block@50: // for_body_L72
+        goto continue_looping%0#0 ? block@49 : block@50
+    block@49: // for_body_L72
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%1#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%1#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
@@ -65,8 +65,8 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let total#0: uint64 = (+ total#0 tup.a#2)
         let total#0: uint64 = (+ total#0 tup.b#2)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@49
-    block@51: // after_for_L71
+        goto block@48
+    block@50: // after_for_L71
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob total#0)
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
         (log tmp%2#1)
@@ -75,11 +75,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tups#0: bytes = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@44
-    block@44: // for_header_L79
+        goto block@43
+    block@43: // for_header_L79
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%0#0)
-        goto continue_looping%0#0 ? block@45 : block@46
-    block@45: // for_body_L80
+        goto continue_looping%0#0 ? block@44 : block@45
+    block@44: // for_body_L80
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
         let aggregate%bytes_offset%2#0: uint64 = (* item_index_internal%0#0 16u)
         let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
@@ -87,24 +87,24 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tup.b#2: uint64 = (extract_uint64 aggregate%encoded_element%2#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#2, tup.b#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@44
-    block@46: // after_for_L79
+        goto block@43
+    block@45: // after_for_L79
         exit lifted%return#0
     block@12: // add_fixed_tups_route_L82
         let tups#0: bytes = (txna ApplicationArgs 1)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@39
-    block@39: // for_header_L84
+        goto block@38
+    block@38: // for_header_L84
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
-        goto continue_looping%0#0 ? block@40 : block@46
-    block@40: // for_body_L85
+        goto continue_looping%0#0 ? block@39 : block@45
+    block@39: // for_body_L85
         let aggregate%bytes_offset%3#0: uint64 = (* item_index_internal%0#0 16u)
         let aggregate%encoded_element%3#0: bytes = (extract3 tups#0 aggregate%bytes_offset%3#0 16u) // on error: index access is out of bounds
         let tup.a#2: uint64 = (extract_uint64 aggregate%encoded_element%3#0 0u)
         let tup.b#2: uint64 = (extract_uint64 aggregate%encoded_element%3#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#2, tup.b#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@39
+        goto block@38
     block@13: // set_a_route_L87
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
@@ -112,11 +112,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let i#0: uint64 = 0u
-        goto block@34
-    block@34: // for_header_L90
+        goto block@33
+    block@33: // for_header_L90
         let continue_looping%0#0: bool = (< i#0 values%0#0)
-        goto continue_looping%0#0 ? block@35 : block@46
-    block@35: // for_body_L91
+        goto continue_looping%0#0 ? block@34 : block@45
+    block@34: // for_body_L91
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%4#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%4#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%4#0 16u) // on error: index access is out of bounds
@@ -128,7 +128,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%offset%4#1: uint64 = (+ 8u aggregate%bytes_offset%4#0)
         (box_replace "tup_bag" box%offset%4#1 aggregate%head%1#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@34
+        goto block@33
     block@14: // set_b_route_L94
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let b#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
@@ -136,11 +136,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let i#0: uint64 = 0u
-        goto block@29
-    block@29: // for_header_L97
+        goto block@28
+    block@28: // for_header_L97
         let continue_looping%0#0: bool = (< i#0 values%0#0)
-        goto continue_looping%0#0 ? block@30 : block@46
-    block@30: // for_body_L98
+        goto continue_looping%0#0 ? block@29 : block@45
+    block@29: // for_body_L98
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%5#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%5#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%5#0 16u) // on error: index access is out of bounds
@@ -152,7 +152,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%offset%4#1: uint64 = (+ 8u aggregate%bytes_offset%5#0)
         (box_replace "tup_bag" box%offset%4#1 aggregate%head%3#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@29
+        goto block@28
     block@15: // get_3_tups_route_L101
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let start#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
@@ -189,11 +189,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%1#0)
         let i#0: uint64 = 0u
-        goto block@22
-    block@22: // for_header_L119
+        goto block@21
+    block@21: // for_header_L119
         let continue_looping%0#0: bool = (< i#0 values%0#0)
-        goto continue_looping%0#0 ? block@23 : block@24
-    block@23: // for_body_L120
+        goto continue_looping%0#0 ? block@22 : block@23
+    block@22: // for_body_L120
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%9#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%9#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%9#0 16u) // on error: index access is out of bounds
@@ -207,12 +207,14 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let result#0: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@22
-    block@24: // after_for_L119
+        goto block@21
+    block@23: // after_for_L119
         let tmp%1#1: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#1)
         exit lifted%return#0
-    block@18: // bare_routing_L41
+    block@17: // switch_case_default_L41
+        fail
+    block@19: // bare_routing_L41
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
         (assert not%tmp%9#0)
@@ -220,8 +222,6 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@20: // after_if_else_L41
-        fail
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
     block@0: // L56

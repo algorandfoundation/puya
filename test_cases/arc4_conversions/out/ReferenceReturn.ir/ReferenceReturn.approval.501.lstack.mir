@@ -35,13 +35,13 @@ subroutine main:
         method return_assets()uint64[]                 tmp%7#0,Method(acc_ret()address),Method(asset_ret()uint64),Method(app_ret()uint64),Method(store(address,uint64,uint64)void),Method(store_apps(uint64[])void),Method(store_assets(uint64[])void),Method(store_accounts(address[])void),Method(return_apps()uint64[]),Method(return_assets()uint64[])
         method return_accounts()address[]              tmp%7#0,Method(acc_ret()address),Method(asset_ret()uint64),Method(app_ret()uint64),Method(store(address,uint64,uint64)void),Method(store_apps(uint64[])void),Method(store_assets(uint64[])void),Method(store_accounts(address[])void),Method(return_apps()uint64[]),Method(return_assets()uint64[]),Method(return_accounts()address[])
         l-load tmp%7#0 10                              Method(acc_ret()address),Method(asset_ret()uint64),Method(app_ret()uint64),Method(store(address,uint64,uint64)void),Method(store_apps(uint64[])void),Method(store_assets(uint64[])void),Method(store_accounts(address[])void),Method(return_apps()uint64[]),Method(return_assets()uint64[]),Method(return_accounts()address[]),tmp%7#0
-        match main_acc_ret_route@6 main_asset_ret_route@7 main_app_ret_route@8 main_store_route@9 main_store_apps_route@10 main_store_assets_route@11 main_store_accounts_route@12 main_return_apps_route@13 main_return_assets_route@14 main_return_accounts_route@15 ; b main_after_if_else@28 
+        match main_acc_ret_route@6 main_asset_ret_route@7 main_app_ret_route@8 main_store_route@9 main_store_apps_route@10 main_store_assets_route@11 main_store_accounts_route@12 main_return_apps_route@13 main_return_assets_route@14 main_return_accounts_route@15 ; b main_switch_case_default@16 
 
     main_acc_ret_route@6:
         // arc4_conversions/reference.py:5
         // @arc4.abimethod
         callsub acc_ret
-        b main_after_if_else@28
+        err
 
     main_asset_ret_route@7:
         // arc4_conversions/reference.py:9
@@ -63,43 +63,46 @@ subroutine main:
         // arc4_conversions/reference.py:17
         // @arc4.abimethod
         callsub store
-        b main_after_if_else@28
+        err
 
     main_store_apps_route@10:
         // arc4_conversions/reference.py:23
         // @arc4.abimethod
         callsub store_apps
-        b main_after_if_else@28
+        err
 
     main_store_assets_route@11:
         // arc4_conversions/reference.py:27
         // @arc4.abimethod
         callsub store_assets
-        b main_after_if_else@28
+        err
 
     main_store_accounts_route@12:
         // arc4_conversions/reference.py:31
         // @arc4.abimethod
         callsub store_accounts
-        b main_after_if_else@28
+        err
 
     main_return_apps_route@13:
         // arc4_conversions/reference.py:35
         // @arc4.abimethod
         callsub return_apps
-        b main_after_if_else@28
+        err
 
     main_return_assets_route@14:
         // arc4_conversions/reference.py:39
         // @arc4.abimethod
         callsub return_assets
-        b main_after_if_else@28
+        err
 
     main_return_accounts_route@15:
         // arc4_conversions/reference.py:43
         // @arc4.abimethod
         callsub return_accounts
-        b main_after_if_else@28
+        err
+
+    main_switch_case_default@16:
+        err
 
     main_bare_routing@24:
         // arc4_conversions/reference.py:4
@@ -116,11 +119,6 @@ subroutine main:
         assert // can only call when creating
         v-load lifted%return#0                         lifted%return#0
         return
-
-    main_after_if_else@28:
-        // arc4_conversions/reference.py:4
-        // class ReferenceReturn(arc4.ARC4Contract):
-        err
 
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret[routing]() -> void:

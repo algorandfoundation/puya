@@ -11,7 +11,7 @@ main:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@16
+    bz main_bare_routing@17
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match main_create_route@5
@@ -23,10 +23,6 @@ main:
     pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
     txna ApplicationArgs 0
     match struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
-
-main_after_if_else@19:
-    // arc_56/contract.py:54
-    // class Contract(ARC4Contract):
     err
 
 main_create_route@5:
@@ -39,21 +35,23 @@ main_create_route@5:
     &
     return // on error: OnCompletion is not one of NoOp, OptIn
 
-main_bare_routing@16:
+main_bare_routing@17:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main_bare_create@17 main_bare_create@17 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_transient@18
+    switch main_bare_create@18 main_bare_create@18 main_switch_case_default@20 main_switch_case_default@20 main_switch_case_default@20 main_transient@19
+
+main_switch_case_default@20:
     err
 
-main_transient@18:
+main_transient@19:
     // arc_56/contract.py:85
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
     !
     return // on error: can only call when creating
 
-main_bare_create@17:
+main_bare_create@18:
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     return

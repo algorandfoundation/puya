@@ -41,7 +41,7 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_rout
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         test_cases.state_proxies.contract.StateProxyContract.create[routing]()
-        goto block@16
+        fail
     block@2: // route_NoOp_L17
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: bool = (! tmp%5#0)
@@ -51,23 +51,23 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_rout
         goto tmp%8#0 ? block@4 : block@11
     block@4: // call_NoOp_L17
         let tmp%9#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%9#0 {method "clear()void" => block@5, method "order_of_eval_global()void" => block@6, method "order_of_eval_local()void" => block@7, method "order_of_eval_box()void" => block@8, * => block@16}
+        switch tmp%9#0 {method "clear()void" => block@5, method "order_of_eval_global()void" => block@6, method "order_of_eval_local()void" => block@7, method "order_of_eval_box()void" => block@8, * => block@9}
     block@5: // clear_route_L37
         test_cases.state_proxies.contract.StateProxyContract.clear[routing]()
-        goto block@16
+        fail
     block@6: // order_of_eval_global_route_L44
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]()
-        goto block@16
+        fail
     block@7: // order_of_eval_local_route_L49
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local[routing]()
-        goto block@16
+        fail
     block@8: // order_of_eval_box_route_L54
         test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]()
-        goto block@16
+        fail
+    block@9: // switch_case_default_L17
+        fail
     block@11: // create_NoOp_L17
         let tmp%10#0: bytes = (txna ApplicationArgs 0)
-        goto block@16
-    block@16: // switch_case_next_L17
         fail
 
 subroutine test_cases.state_proxies.contract.StateProxyContract.create[routing]() -> void:

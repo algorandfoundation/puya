@@ -31,31 +31,31 @@ subroutine main:
         method test_nested_struct_replacement()void                                 tmp%7#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void)
         method test_nested_tuple_modification()void                                 tmp%7#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void)
         l-load tmp%7#0 6                                                            Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void),tmp%7#0
-        match main_test_static_elements_route@6 main_test_dynamic_elements_route@7 main_test_mixed_single_dynamic_elements_route@8 main_test_mixed_multiple_dynamic_elements_route@9 main_test_nested_struct_replacement_route@10 main_test_nested_tuple_modification_route@11 ; b main_after_if_else@24 
+        match main_test_static_elements_route@6 main_test_dynamic_elements_route@7 main_test_mixed_single_dynamic_elements_route@8 main_test_mixed_multiple_dynamic_elements_route@9 main_test_nested_struct_replacement_route@10 main_test_nested_tuple_modification_route@11 ; b main_switch_case_default@12 
 
     main_test_static_elements_route@6:
         // arc4_dynamic_arrays/contract.py:39
         // @arc4.abimethod()
         callsub test_static_elements
-        b main_after_if_else@24
+        err
 
     main_test_dynamic_elements_route@7:
         // arc4_dynamic_arrays/contract.py:55
         // @arc4.abimethod()
         callsub test_dynamic_elements
-        b main_after_if_else@24
+        err
 
     main_test_mixed_single_dynamic_elements_route@8:
         // arc4_dynamic_arrays/contract.py:74
         // @arc4.abimethod()
         callsub test_mixed_single_dynamic_elements
-        b main_after_if_else@24
+        err
 
     main_test_mixed_multiple_dynamic_elements_route@9:
         // arc4_dynamic_arrays/contract.py:97
         // @arc4.abimethod()
         callsub test_mixed_multiple_dynamic_elements
-        b main_after_if_else@24
+        err
 
     main_test_nested_struct_replacement_route@10:
         // arc4_dynamic_arrays/contract.py:114
@@ -67,7 +67,10 @@ subroutine main:
         // arc4_dynamic_arrays/contract.py:141
         // @arc4.abimethod()
         callsub test_nested_tuple_modification
-        b main_after_if_else@24
+        err
+
+    main_switch_case_default@12:
+        err
 
     main_bare_routing@20:
         // arc4_dynamic_arrays/contract.py:38
@@ -84,11 +87,6 @@ subroutine main:
         assert // can only call when creating
         v-load lifted%return#0                                                      lifted%return#0
         return
-
-    main_after_if_else@24:
-        // arc4_dynamic_arrays/contract.py:38
-        // class DynamicArrayContract(ARC4Contract):
-        err
 
 
 // _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:

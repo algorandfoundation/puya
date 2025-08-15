@@ -26,7 +26,7 @@ subroutine main:
         method keccak256()byte[]                        (𝕗) lifted%return#0 | tmp%7#0,Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[])
         method all(byte[])(byte[],byte[],byte[],byte[]) (𝕗) lifted%return#0 | tmp%7#0,Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),Method(all(byte[])(byte[],byte[],byte[],byte[]))
         l-load tmp%7#0 5                                (𝕗) lifted%return#0 | Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),Method(all(byte[])(byte[],byte[],byte[],byte[])),tmp%7#0
-        match main_sha256_route@6 main_sha3_256_route@7 main_sha512_256_route@8 main_keccak256_route@9 main_all_route@10 ; b main_after_if_else@23 (𝕗) lifted%return#0 | 
+        match main_sha256_route@6 main_sha3_256_route@7 main_sha512_256_route@8 main_keccak256_route@9 main_all_route@10 ; b main_switch_case_default@11 (𝕗) lifted%return#0 | 
 
     main_sha256_route@6:                                (𝕗) lifted%return#0 |
         // intrinsics/optimizations.py:5
@@ -64,7 +64,10 @@ subroutine main:
         // intrinsics/optimizations.py:21
         // @arc4.abimethod()
         callsub all                                     (𝕗) lifted%return#0 |
-        b main_after_if_else@23                         (𝕗) lifted%return#0 |
+        err                                             (𝕗) lifted%return#0 |
+
+    main_switch_case_default@11:                        (𝕗) lifted%return#0 |
+        err                                             (𝕗) lifted%return#0 |
 
     main_bare_routing@19:                               (𝕗) lifted%return#0 |
         // intrinsics/optimizations.py:4
@@ -77,11 +80,6 @@ subroutine main:
         assert // can only call when creating           (𝕗) lifted%return#0 |
         f-load lifted%return#0                          (𝕗) lifted%return#0 | lifted%return#0
         return                                          (𝕗) lifted%return#0 |
-
-    main_after_if_else@23:                              (𝕗) lifted%return#0 |
-        // intrinsics/optimizations.py:4
-        // class Optimizations(arc4.ARC4Contract):
-        err                                             (𝕗) lifted%return#0 |
 
 
 // test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> void:

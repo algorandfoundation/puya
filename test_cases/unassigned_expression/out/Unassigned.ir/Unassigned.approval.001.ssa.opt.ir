@@ -13,30 +13,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%6#0 ? block@5 : block@11
     block@5: // call_NoOp_L4
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "discard_op()void" => block@6, method "discard_subroutine()void" => block@7, method "discard_constants()void" => block@8, * => block@21}
+        switch tmp%7#0 {method "discard_op()void" => block@6, method "discard_subroutine()void" => block@7, method "discard_constants()void" => block@8, * => block@9}
     block@6: // discard_op_route_L5
         test_cases.unassigned_expression.contract.Unassigned.discard_op[routing]()
-        goto block@21
+        fail
     block@7: // discard_subroutine_route_L9
         test_cases.unassigned_expression.contract.Unassigned.discard_subroutine[routing]()
-        goto block@21
+        fail
     block@8: // discard_constants_route_L13
         test_cases.unassigned_expression.contract.Unassigned.discard_constants[routing]()
-        goto block@21
+        fail
+    block@9: // switch_case_default_L4
+        fail
     block@11: // create_NoOp_L4
         let tmp%8#0: bytes = (txna ApplicationArgs 0)
-        goto block@21
+        fail
     block@17: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@21 : block@18
-    block@18: // __algopy_default_create_L1
+        let not%tmp%9#0: bool = (! tmp%9#0)
+        (assert not%tmp%9#0)
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create()
         exit 1u
-    block@21: // after_if_else_L4
-        fail
 
 subroutine test_cases.unassigned_expression.contract.get_a_value() -> uint64:
     block@0: // L20

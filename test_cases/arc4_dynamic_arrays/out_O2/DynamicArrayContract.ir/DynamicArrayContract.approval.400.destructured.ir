@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_static_elements()void" => block@6, method "test_dynamic_elements()void" => block@7, method "test_mixed_single_dynamic_elements()void" => block@8, method "test_mixed_multiple_dynamic_elements()void" => block@9, method "test_nested_struct_replacement()void" => block@10, method "test_nested_tuple_modification()void" => block@10, * => block@24}
+        switch tmp%7#0 {method "test_static_elements()void" => block@6, method "test_dynamic_elements()void" => block@7, method "test_mixed_single_dynamic_elements()void" => block@8, method "test_mixed_multiple_dynamic_elements()void" => block@9, method "test_nested_struct_replacement()void" => block@10, method "test_nested_tuple_modification()void" => block@10, * => block@12}
     block@6: // test_static_elements_route_L39
         (log 0x00020000000000000003040500000400000000002aff)
         (log 0x00000000000000030405)
@@ -141,6 +141,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit lifted%return#0
     block@10: // test_nested_struct_replacement_route_L114
         exit lifted%return#0
+    block@12: // switch_case_default_L38
+        fail
     block@20: // bare_routing_L38
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -149,8 +151,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@24: // after_if_else_L38
-        fail
 
 subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <bytes, bytes>:
     block@0: // L92

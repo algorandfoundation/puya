@@ -25,31 +25,34 @@ subroutine main:
         method test_call_with_infer(byte[],byte[],uint64)void                          tmp%7#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void)
         method test_call_with_acfg_no_return(byte[],byte[],uint64)void                 tmp%7#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void)
         l-load tmp%7#0 4                                                               Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void),tmp%7#0
-        match main_test_call_with_txn_route@6 main_test_call_with_acfg_route@7 main_test_call_with_infer_route@8 main_test_call_with_acfg_no_return_route@9 ; b main_after_if_else@22 
+        match main_test_call_with_txn_route@6 main_test_call_with_acfg_route@7 main_test_call_with_infer_route@8 main_test_call_with_acfg_no_return_route@9 ; b main_switch_case_default@10 
 
     main_test_call_with_txn_route@6:
         // typed_abi_call_txn/caller.py:15
         // @arc4.abimethod
         callsub test_call_with_txn
-        b main_after_if_else@22
+        err
 
     main_test_call_with_acfg_route@7:
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
         callsub test_call_with_acfg
-        b main_after_if_else@22
+        err
 
     main_test_call_with_infer_route@8:
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
         callsub test_call_with_infer
-        b main_after_if_else@22
+        err
 
     main_test_call_with_acfg_no_return_route@9:
         // typed_abi_call_txn/caller.py:61
         // @arc4.abimethod
         callsub test_call_with_acfg_no_return
-        b main_after_if_else@22
+        err
+
+    main_switch_case_default@10:
+        err
 
     main_bare_routing@18:
         // typed_abi_call_txn/caller.py:14
@@ -66,11 +69,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                          1
         return
-
-    main_after_if_else@22:
-        // typed_abi_call_txn/caller.py:14
-        // class Caller(ARC4Contract):
-        err
 
 
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:

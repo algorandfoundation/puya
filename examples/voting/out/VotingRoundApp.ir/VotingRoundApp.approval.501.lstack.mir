@@ -29,7 +29,7 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                         tmp%4#0
         l-load tmp%4#0 0                                                                          tmp%4#0
-        bz main_create_NoOp@9 ; b main_call_NoOp@4
+        bz main_create_NoOp@10 ; b main_call_NoOp@4
 
     main_call_NoOp@4:
         // voting/voting.py:49
@@ -40,33 +40,36 @@ subroutine main:
         method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%5#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
         method vote(pay,byte[],uint8[])void                                                       tmp%5#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
         l-load tmp%5#0 4                                                                          Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%5#0
-        match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8 ; b main_after_if_else@11 
+        match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8 ; b main_switch_case_default@9 
 
     main_bootstrap_route@5:
         // voting/voting.py:82
         // @arc4.abimethod
         callsub bootstrap
-        b main_after_if_else@11
+        err
 
     main_close_route@6:
         // voting/voting.py:110
         // @arc4.abimethod
         callsub close
-        b main_after_if_else@11
+        err
 
     main_get_preconditions_route@7:
         // voting/voting.py:160
         // @arc4.abimethod(readonly=True)
         callsub get_preconditions
-        b main_after_if_else@11
+        err
 
     main_vote_route@8:
         // voting/voting.py:169
         // @arc4.abimethod
         callsub vote
-        b main_after_if_else@11
+        err
 
-    main_create_NoOp@9:
+    main_switch_case_default@9:
+        err
+
+    main_create_NoOp@10:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
         txna ApplicationArgs 0                                                                    tmp%6#0
@@ -78,11 +81,6 @@ subroutine main:
         // voting/voting.py:58
         // @arc4.abimethod(create="require")
         callsub create
-        b main_after_if_else@11
-
-    main_after_if_else@11:
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
         err
 
 

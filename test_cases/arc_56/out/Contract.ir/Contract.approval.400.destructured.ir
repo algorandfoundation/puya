@@ -2,7 +2,7 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
     block@0: // L1
         let lifted%return#0: bool = 1u
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@16
+        goto tmp%0#2 ? block@4 : block@17
     block@4: // abi_routing_L54
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "create()void" => block@5, * => block@6}
@@ -19,39 +19,41 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
         let tmp%9#0: bool = (txn ApplicationID)
         (assert tmp%9#0)
         let tmp%10#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%10#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@8, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@9, method "emits_error((uint64,string,(byte[],uint8)))void" => block@10, method "emitter()void" => block@11, method "conditional_emit(bool)void" => block@12, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@13, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@14, * => block@19}
+        switch tmp%10#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@8, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@9, method "emits_error((uint64,string,(byte[],uint8)))void" => block@10, method "emitter()void" => block@11, method "conditional_emit(bool)void" => block@12, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@13, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@14, * => block@15}
     block@8: // struct_arg_route_L89
         test_cases.arc_56.contract.Contract.struct_arg[routing]()
-        goto block@19
+        fail
     block@9: // struct_return_route_L95
         test_cases.arc_56.contract.Contract.struct_return[routing]()
-        goto block@19
+        fail
     block@10: // emits_error_route_L100
         test_cases.arc_56.contract.Contract.errors[routing]()
-        goto block@19
+        fail
     block@11: // emitter_route_L104
         test_cases.arc_56.contract.Contract.emitter[routing]()
-        goto block@19
+        fail
     block@12: // conditional_emit_route_L114
         test_cases.arc_56.contract.Contract.conditional_emit[routing]()
-        goto block@19
+        fail
     block@13: // template_value_route_L123
         test_cases.arc_56.contract.Contract.template_value[routing]()
-        goto block@19
+        fail
     block@14: // with_constant_defaults_route_L132
         test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
-        goto block@19
-    block@16: // bare_routing_L54
+        fail
+    block@15: // switch_case_default_L54
+        fail
+    block@17: // bare_routing_L54
         let tmp%12#0: uint64 = (txn OnCompletion)
-        goto_nth [block@17, block@17, block@19, block@19, block@19, block@18][tmp%12#0] else goto block@19
-    block@17: // bare_create_L77
+        goto_nth [block@18, block@18, block@20, block@20, block@20, block@19][tmp%12#0] else goto block@20
+    block@18: // bare_create_L77
         exit lifted%return#0
-    block@18: // transient_L85
+    block@19: // transient_L85
         let tmp%13#0: uint64 = (txn ApplicationID)
         let tmp%14#0: bool = (! tmp%13#0)
         (assert tmp%14#0) // can only call when creating
         exit lifted%return#0
-    block@19: // after_if_else_L54
+    block@20: // switch_case_default_L54
         fail
 
 subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:

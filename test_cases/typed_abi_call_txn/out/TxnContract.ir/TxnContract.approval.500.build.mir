@@ -29,25 +29,28 @@ subroutine main:
         method call_with_acfg(byte[],acfg,byte[])uint64                             Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64)
         method call_with_acfg_no_return(byte[],acfg,byte[])void                     Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
         v-load tmp%7#0                                                              Method(call_with_txn(byte[],txn,byte[])uint64),Method(call_with_acfg(byte[],acfg,byte[])uint64),Method(call_with_acfg_no_return(byte[],acfg,byte[])void),tmp%7#0
-        match main_call_with_txn_route@6 main_call_with_acfg_route@7 main_call_with_acfg_no_return_route@8 ; b main_after_if_else@21 
+        match main_call_with_txn_route@6 main_call_with_acfg_route@7 main_call_with_acfg_no_return_route@8 ; b main_switch_case_default@9 
 
     main_call_with_txn_route@6:
         // typed_abi_call_txn/txn_contract.py:12
         // @arc4.abimethod
         callsub call_with_txn
-        b main_after_if_else@21
+        err
 
     main_call_with_acfg_route@7:
         // typed_abi_call_txn/txn_contract.py:20
         // @arc4.abimethod
         callsub call_with_acfg
-        b main_after_if_else@21
+        err
 
     main_call_with_acfg_no_return_route@8:
         // typed_abi_call_txn/txn_contract.py:27
         // @arc4.abimethod
         callsub call_with_acfg_no_return
-        b main_after_if_else@21
+        err
+
+    main_switch_case_default@9:
+        err
 
     main_bare_routing@17:
         // typed_abi_call_txn/txn_contract.py:11
@@ -68,11 +71,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                       1
         return
-
-    main_after_if_else@21:
-        // typed_abi_call_txn/txn_contract.py:11
-        // class TxnContract(ARC4Contract):
-        err
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:

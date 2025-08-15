@@ -1,57 +1,55 @@
-// Op                                                                          Stack (out)
+// Op                                                                               Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // regression_tests/jira_241.py:5
         // @arc4.abimethod(default_args={"wrong_size": False})
-        int 1                                                                  1
-        f-store lifted%return#0                                                (𝕗) lifted%return#0 |
+        int 1                                                                       1
+        f-store lifted%return#0                                                     (𝕗) lifted%return#0 |
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txn NumAppArgs                                                         (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@16 ; b main_abi_routing@2                         (𝕗) lifted%return#0 |
+        txn NumAppArgs                                                              (𝕗) lifted%return#0 | tmp%0#1
+        bz main_bare_routing@16 ; b main_abi_routing@2                              (𝕗) lifted%return#0 |
 
-    main_abi_routing@2:                                                        (𝕗) lifted%return#0 |
+    main_abi_routing@2:                                                             (𝕗) lifted%return#0 |
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txn OnCompletion                                                       (𝕗) lifted%return#0 | tmp%3#0
-        !                                                                      (𝕗) lifted%return#0 | tmp%4#0
-        assert // OnCompletion is not NoOp                                     (𝕗) lifted%return#0 |
-        txn ApplicationID                                                      (𝕗) lifted%return#0 | tmp%6#0
-        assert                                                                 (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                                 (𝕗) lifted%return#0 | tmp%7#0
-        method oh_no(bool)void                                                 (𝕗) lifted%return#0 | tmp%7#0,Method(oh_no(bool)void)
-        method oh_yes(bool)void                                                (𝕗) lifted%return#0 | tmp%7#0,Method(oh_no(bool)void),Method(oh_yes(bool)void)
-        l-load tmp%7#0 2                                                       (𝕗) lifted%return#0 | Method(oh_no(bool)void),Method(oh_yes(bool)void),tmp%7#0
-        match main_oh_no_route@6 main_oh_yes_route@7 ; b main_after_if_else@20 (𝕗) lifted%return#0 |
+        txn OnCompletion                                                            (𝕗) lifted%return#0 | tmp%3#0
+        !                                                                           (𝕗) lifted%return#0 | tmp%4#0
+        assert // OnCompletion is not NoOp                                          (𝕗) lifted%return#0 |
+        txn ApplicationID                                                           (𝕗) lifted%return#0 | tmp%6#0
+        assert                                                                      (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0                                                      (𝕗) lifted%return#0 | tmp%7#0
+        method oh_no(bool)void                                                      (𝕗) lifted%return#0 | tmp%7#0,Method(oh_no(bool)void)
+        method oh_yes(bool)void                                                     (𝕗) lifted%return#0 | tmp%7#0,Method(oh_no(bool)void),Method(oh_yes(bool)void)
+        l-load tmp%7#0 2                                                            (𝕗) lifted%return#0 | Method(oh_no(bool)void),Method(oh_yes(bool)void),tmp%7#0
+        match main_oh_no_route@6 main_oh_yes_route@7 ; b main_switch_case_default@8 (𝕗) lifted%return#0 |
 
-    main_oh_no_route@6:                                                        (𝕗) lifted%return#0 |
+    main_oh_no_route@6:                                                             (𝕗) lifted%return#0 |
         // regression_tests/jira_241.py:5
         // @arc4.abimethod(default_args={"wrong_size": False})
-        f-load lifted%return#0                                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                 (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                      (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                      (𝕗) lifted%return#0 |
 
-    main_oh_yes_route@7:                                                       (𝕗) lifted%return#0 |
+    main_oh_yes_route@7:                                                            (𝕗) lifted%return#0 |
         // regression_tests/jira_241.py:9
         // @arc4.abimethod(default_args={"wrong_size": True})
-        f-load lifted%return#0                                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                 (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                      (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                      (𝕗) lifted%return#0 |
 
-    main_bare_routing@16:                                                      (𝕗) lifted%return#0 |
+    main_switch_case_default@8:                                                     (𝕗) lifted%return#0 |
+        err                                                                         (𝕗) lifted%return#0 |
+
+    main_bare_routing@16:                                                           (𝕗) lifted%return#0 |
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txn OnCompletion                                                       (𝕗) lifted%return#0 | tmp%9#0
-        !                                                                      (𝕗) lifted%return#0 | not%tmp%9#0
-        assert                                                                 (𝕗) lifted%return#0 |
-        txn ApplicationID                                                      (𝕗) lifted%return#0 | tmp%10#0
-        !                                                                      (𝕗) lifted%return#0 | tmp%11#0
-        assert // can only call when creating                                  (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                 (𝕗) lifted%return#0 |
-
-    main_after_if_else@20:                                                     (𝕗) lifted%return#0 |
-        // regression_tests/jira_241.py:4
-        // class Jira241(ARC4Contract):
-        err                                                                    (𝕗) lifted%return#0 |
+        txn OnCompletion                                                            (𝕗) lifted%return#0 | tmp%9#0
+        !                                                                           (𝕗) lifted%return#0 | not%tmp%9#0
+        assert                                                                      (𝕗) lifted%return#0 |
+        txn ApplicationID                                                           (𝕗) lifted%return#0 | tmp%10#0
+        !                                                                           (𝕗) lifted%return#0 | tmp%11#0
+        assert // can only call when creating                                       (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                      (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                      (𝕗) lifted%return#0 |
 
 

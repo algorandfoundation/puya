@@ -7,22 +7,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%6#0: bool = (txn ApplicationID)
-        goto tmp%6#0 ? block@5 : block@22
-    block@5: // call_NoOp_L18
+        (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "get_one()(uint8,uint8)" => block@6, method "get_two()(uint8,uint8)" => block@7, method "get_three()(uint8,uint8)" => block@8, method "compare()bool" => block@9, * => block@22}
+        switch tmp%7#0 {method "get_one()(uint8,uint8)" => block@6, method "get_two()(uint8,uint8)" => block@7, method "get_three()(uint8,uint8)" => block@8, method "compare()bool" => block@9, * => block@10}
     block@6: // get_one_route_L25
         test_cases.struct_by_name.contract.DemoContract.get_one[routing]()
-        goto block@22
+        fail
     block@7: // get_two_route_L32
         test_cases.struct_by_name.contract.DemoContract.get_two[routing]()
-        goto block@22
+        fail
     block@8: // get_three_route_L39
         test_cases.struct_by_name.contract.DemoContract.get_three[routing]()
-        goto block@22
+        fail
     block@9: // compare_route_L46
         test_cases.struct_by_name.contract.DemoContract.compare[routing]()
-        goto block@22
+        fail
+    block@10: // switch_case_default_L18
+        fail
     block@18: // bare_routing_L18
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -31,8 +32,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@22: // after_if_else_L18
-        fail
 
 subroutine test_cases.struct_by_name.contract.DemoContract.get_one[routing]() -> void:
     block@0: // L25

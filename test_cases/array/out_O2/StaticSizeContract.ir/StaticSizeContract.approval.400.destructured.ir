@@ -8,7 +8,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@14
+        goto tmp%0#2 ? block@4 : block@15
     block@4: // abi_routing_L37
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -16,7 +16,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@6, method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@7, method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@8, method "test_bool_array(uint64)uint64" => block@9, method "test_arc4_conversion(uint64)uint64[]" => block@10, method "sum_array(uint64[])uint64" => block@11, method "test_arc4_bool()bool[]" => block@12, * => block@16}
+        switch tmp%7#0 {method "test_array(uint64,uint64,uint64,uint64)uint64" => block@6, method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@7, method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]" => block@8, method "test_bool_array(uint64)uint64" => block@9, method "test_arc4_conversion(uint64)uint64[]" => block@10, method "sum_array(uint64[])uint64" => block@11, method "test_arc4_bool()bool[]" => block@12, * => block@13}
     block@6: // test_array_route_L41
         let x1#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -70,11 +70,11 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let aggregate%head%26#0: bytes = (concat aggregate%head%17#0 aggregate%head%25#0)
         store(local.0, aggregate%head%26#0)
         let i#0: uint64 = 0u
-        goto block@52
-    block@52: // for_header_L49
+        goto block@51
+    block@51: // for_header_L49
         let continue_looping%0#0: bool = (< i#0 3u)
-        goto continue_looping%0#0 ? block@53 : block@54
-    block@53: // for_body_L50
+        goto continue_looping%0#0 ? block@52 : block@53
+    block@52: // for_body_L50
         let slot_contents%0#2: bytes = load(local.0)
         let aggregate%bytes_offset%0#0: uint64 = (* i#0 144u)
         let aggregate%encoded_element%0#0: bytes = (extract3 slot_contents%0#2 aggregate%bytes_offset%0#0 144u) // on error: index access is out of bounds
@@ -95,8 +95,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%24#0: bool = (b== aggregate%extract%25#0 tmp%23#1)
         (assert tmp%24#0)
         let i#0: uint64 = i#8
-        goto block@52
-    block@54: // after_for_L49
+        goto block@51
+    block@53: // after_for_L49
         let slot_contents%3#0: bytes = load(local.0)
         let aggregate%bytes_len%0#0: uint64 = (len slot_contents%3#0)
         let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 144u)
@@ -110,46 +110,46 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let last_point.y#0: uint64 = (extract_uint64 aggregate%encoded_element%3#0 8u)
         let length#0: uint64 = 0u
         let point_idx#0: uint64 = 1u
-        goto block@55
-    block@55: // for_header_L169
+        goto block@54
+    block@54: // for_header_L169
         let continue_looping%0#0: bool = (< point_idx#0 aggregate%array_len%0#0)
-        goto continue_looping%0#0 ? block@56 : block@63
-    block@56: // for_body_L170
+        goto continue_looping%0#0 ? block@55 : block@62
+    block@55: // for_body_L170
         let slot_contents%1#1: bytes = load(local.0)
         let aggregate%bytes_offset%4#0: uint64 = (* point_idx#0 144u)
         let aggregate%encoded_element%4#0: bytes = (extract3 slot_contents%1#1 aggregate%bytes_offset%4#0 144u) // on error: index access is out of bounds
         let point.x#0: Encoded(uint64) = ((extract 0 8) aggregate%encoded_element%4#0)
         let point.y#0: uint64 = (extract_uint64 aggregate%encoded_element%4#0 8u)
         let tmp%1#13: bool = (b< point.x#0 last_point.x#0)
-        goto tmp%1#13 ? block@57 : block@58
-    block@57: // if_body_L172
+        goto tmp%1#13 ? block@56 : block@57
+    block@56: // if_body_L172
         let tmp%2#7: uint64 = (extract_uint64 aggregate%encoded_element%3#0 0u)
         let tmp%3#0: uint64 = (extract_uint64 aggregate%encoded_element%4#0 0u)
         let dx#0: uint64 = (- tmp%2#7 tmp%3#0)
-        goto block@59
-    block@58: // else_body_L174
+        goto block@58
+    block@57: // else_body_L174
         let tmp%5#4: uint64 = (extract_uint64 aggregate%encoded_element%4#0 0u)
         let tmp%6#4: uint64 = (extract_uint64 aggregate%encoded_element%3#0 0u)
         let dx#0: uint64 = (- tmp%5#4 tmp%6#4)
-        goto block@59
-    block@59: // after_if_else_L171
+        goto block@58
+    block@58: // after_if_else_L171
         let tmp%8#3: bool = (< point.y#0 last_point.y#0)
-        goto tmp%8#3 ? block@60 : block@61
-    block@60: // if_body_L176
+        goto tmp%8#3 ? block@59 : block@60
+    block@59: // if_body_L176
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
-        goto block@62
-    block@61: // else_body_L178
+        goto block@61
+    block@60: // else_body_L178
         let dy#0: uint64 = (- point.y#0 last_point.y#0)
-        goto block@62
-    block@62: // after_if_else_L175
+        goto block@61
+    block@61: // after_if_else_L175
         let tmp%11#2: uint64 = (* dx#0 dx#0)
         let tmp%12#2: uint64 = (* dy#0 dy#0)
         let tmp%13#0: uint64 = (+ tmp%11#2 tmp%12#2)
         let tmp%14#2: uint64 = (sqrt tmp%13#0)
         let length#0: uint64 = (+ length#0 tmp%14#2)
         let point_idx#0: uint64 = (+ point_idx#0 1u)
-        goto block@55
-    block@63: // after_for_L169
+        goto block@54
+    block@62: // after_for_L169
         let aggregate%val_as_bytes%9#0: bytes[8] = (itob length#0)
         let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%9#0)
         (log tmp%4#1)
@@ -197,11 +197,11 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         store(local.3, 0x)
         let tmp%2#7: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
-        goto block@38
-    block@38: // for_header_L80
+        goto block@37
+    block@37: // for_header_L80
         let continue_looping%0#0: bool = (< i#0 tmp%2#7)
-        goto continue_looping%0#0 ? block@39 : block@40
-    block@39: // for_body_L81
+        goto continue_looping%0#0 ? block@38 : block@39
+    block@38: // for_body_L81
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#0)
         let slot_contents%0#2: bytes = load(local.3)
@@ -209,8 +209,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let concat%0#2: bytes = (concat slot_contents%0#2 aggregate%encoded_bool%0#0) // on error: max array length exceeded
         store(local.3, concat%0#2)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@38
-    block@40: // after_for_L80
+        goto block@37
+    block@39: // after_for_L80
         let aggregate%slot_contents%3#0: Encoded(bool8[]) = load(local.3)
         let aggregate%bytes_len%6#0: uint64 = (len aggregate%slot_contents%3#0)
         let tmp%7#1: bool = (== aggregate%bytes_len%6#0 length#0)
@@ -227,25 +227,25 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let aggregate%slot_contents%5#0: Encoded(bool8[]) = load(local.3)
         let aggregate%bytes_len%8#0: uint64 = (len aggregate%slot_contents%5#0)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@41
-    block@41: // for_header_L89
+        goto block@40
+    block@40: // for_header_L89
         let continue_looping%1#0: bool = (< item_index_internal%0#0 aggregate%bytes_len%8#0)
-        goto continue_looping%1#0 ? block@42 : block@45
-    block@42: // for_body_L90
+        goto continue_looping%1#0 ? block@41 : block@44
+    block@41: // for_body_L90
         let slot_contents%4#0: Encoded(bool8[]) = load(local.3)
         let aggregate%encoded_element%7#0: bytes = (extract3 slot_contents%4#0 item_index_internal%0#0 1u) // on error: index access is out of bounds
         let val#1: bool = (getbit aggregate%encoded_element%7#0 0u)
         let count#13: uint64 = count#0
-        goto val#1 ? block@43 : block@44
-    block@43: // if_body_L91
+        goto val#1 ? block@42 : block@43
+    block@42: // if_body_L91
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
-        goto block@44
-    block@44: // after_if_else_L90
+        goto block@43
+    block@43: // after_if_else_L90
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@41
-    block@45: // after_for_L89
+        goto block@40
+    block@44: // after_for_L89
         let aggregate%val_as_bytes%10#0: bytes[8] = (itob count#0)
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%10#0)
         (log tmp%3#1)
@@ -256,18 +256,18 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         store(local.5, 0x)
         let tmp%2#7: uint64 = (+ length#0 1u)
         let i#0: uint64 = 1u
-        goto block@28
-    block@28: // for_header_L99
+        goto block@27
+    block@27: // for_header_L99
         let continue_looping%0#0: bool = (< i#0 tmp%2#7)
-        goto continue_looping%0#0 ? block@29 : block@30
-    block@29: // for_body_L100
+        goto continue_looping%0#0 ? block@28 : block@29
+    block@28: // for_body_L100
         let aggregate%val_as_bytes%11#0: bytes[8] = (itob i#0)
         let slot_contents%0#2: bytes = load(local.5)
         let concat%0#2: bytes = (concat slot_contents%0#2 aggregate%val_as_bytes%11#0) // on error: max array length exceeded
         store(local.5, concat%0#2)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@28
-    block@30: // after_for_L99
+        goto block@27
+    block@29: // after_for_L99
         let aggregate%slot_contents%7#0: Encoded(uint64[]) = load(local.5)
         let aggregate%bytes_len%10#0: uint64 = (len aggregate%slot_contents%7#0)
         let aggregate%array_len%10#0: uint64 = (/ aggregate%bytes_len%10#0 8u)
@@ -275,26 +275,26 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         (assert tmp%6#0) // expected correct length
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
-        goto block@31
-    block@31: // for_header_L103
+        goto block@30
+    block@30: // for_header_L103
         let continue_looping%1#0: bool = (< item_index_internal%0#0 aggregate%array_len%10#0)
-        goto continue_looping%1#0 ? block@32 : block@35
-    block@32: // for_body_L104
+        goto continue_looping%1#0 ? block@31 : block@34
+    block@31: // for_body_L104
         let slot_contents%1#1: bytes = load(local.5)
         let aggregate%bytes_offset%8#0: uint64 = (* item_index_internal%0#0 8u)
         let val#0: Encoded(uint64) = (extract3 slot_contents%1#1 aggregate%bytes_offset%8#0 8u) // on error: index access is out of bounds
         let tmp%7#1: bool = (b!= val#0 0b)
         let count#13: uint64 = count#0
-        goto tmp%7#1 ? block@33 : block@34
-    block@33: // if_body_L105
+        goto tmp%7#1 ? block@32 : block@33
+    block@32: // if_body_L105
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
-        goto block@34
-    block@34: // after_if_else_L104
+        goto block@33
+    block@33: // after_if_else_L104
         let count#0: uint64 = count#13
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@31
-    block@35: // after_for_L103
+        goto block@30
+    block@34: // after_for_L103
         let slot_contents%2#1: bytes = load(local.5)
         let concat%1#0: bytes = (concat 0x0000 slot_contents%2#1) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
@@ -314,18 +314,18 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let aggregate%bytes_len%12#0: uint64 = (len extract_to_end%0#0)
         let aggregate%array_len%12#0: uint64 = (/ aggregate%bytes_len%12#0 8u)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@23
-    block@23: // for_header_L118
+        goto block@22
+    block@22: // for_header_L118
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_len%12#0)
-        goto continue_looping%0#0 ? block@24 : block@25
-    block@24: // for_body_L119
+        goto continue_looping%0#0 ? block@23 : block@24
+    block@23: // for_body_L119
         let slot_contents%1#1: bytes = load(local.6)
         let aggregate%bytes_offset%9#0: uint64 = (* item_index_internal%0#0 8u)
         let tmp%0#2: uint64 = (extract_uint64 slot_contents%1#1 aggregate%bytes_offset%9#0)
         let total#0: uint64 = (+ total#0 tmp%0#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@23
-    block@25: // after_for_L118
+        goto block@22
+    block@24: // after_for_L118
         let aggregate%val_as_bytes%12#0: bytes[8] = (itob total#0)
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%12#0)
         (log tmp%2#1)
@@ -371,11 +371,11 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let slot_contents%3#0: bytes = load(local.7)
         store(local.8, slot_contents%3#0)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@18
-    block@18: // for_header_L154
+        goto block@17
+    block@17: // for_header_L154
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%1#0)
-        goto continue_looping%0#0 ? block@19 : block@20
-    block@19: // for_body_L155
+        goto continue_looping%0#0 ? block@18 : block@19
+    block@18: // for_body_L155
         let aggregate%add%2#0: uint64 = (+ item_index_internal%0#0 16u)
         let aggregate%get_bit%5#0: bool = (getbit dyn_arr#1 aggregate%add%2#0)
         let b#0: Encoded(bool8) = (setbit 0x00 0u aggregate%get_bit%5#0)
@@ -383,8 +383,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let concat%2#0: Encoded(bool8[]) = (concat slot_contents%4#0 b#0) // on error: max array length exceeded
         store(local.8, concat%2#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@18
-    block@20: // after_for_L154
+        goto block@17
+    block@19: // after_for_L154
         let aggregate%slot_contents%10#0: Encoded(bool8[]) = load(local.8)
         let aggregate%bytes_len%14#0: uint64 = (len aggregate%slot_contents%10#0)
         let tmp%27#0: bool = (== aggregate%bytes_len%14#0 4u)
@@ -423,7 +423,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%1#1: bytes = (concat 0x151f7c75 bit_packed_source%0#0)
         (log tmp%1#1)
         exit lifted%return#0
-    block@14: // bare_routing_L37
+    block@13: // switch_case_default_L37
+        fail
+    block@15: // bare_routing_L37
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
         (assert not%tmp%9#0)
@@ -431,8 +433,6 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@16: // after_if_else_L37
-        fail
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
     block@0: // L124

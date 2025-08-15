@@ -9,13 +9,15 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "distribute(address[],pay,uint64)void" => block@6, method "conditionalBegin(uint64)void" => block@7, * => block@20}
+        switch tmp%7#0 {method "distribute(address[],pay,uint64)void" => block@6, method "conditionalBegin(uint64)void" => block@7, * => block@8}
     block@6: // distribute_route_L19
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]()
-        goto block@20
+        fail
     block@7: // conditionalBegin_route_L53
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]()
-        goto block@20
+        fail
+    block@8: // switch_case_default_L18
+        fail
     block@16: // bare_routing_L18
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -24,8 +26,6 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@20: // after_if_else_L18
-        fail
 
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
     block@0: // L19

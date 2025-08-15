@@ -28,19 +28,22 @@ subroutine main:
         method emit_swapped(uint64,uint64)void                 Method(emit_swapped(uint64,uint64)void)
         method emit_ufixed(ufixed256x16,ufixed64x2)void        Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void)
         v-load tmp%7#0                                         Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void),tmp%7#0
-        match main_emit_swapped_route@6 main_emit_ufixed_route@7 ; b main_after_if_else@20 
+        match main_emit_swapped_route@6 main_emit_ufixed_route@7 ; b main_switch_case_default@8 
 
     main_emit_swapped_route@6:
         // arc_28/contract.py:12
         // @arc4.abimethod
         callsub emit_swapped
-        b main_after_if_else@20
+        err
 
     main_emit_ufixed_route@7:
         // arc_28/contract.py:18
         // @arc4.abimethod()
         callsub emit_ufixed
-        b main_after_if_else@20
+        err
+
+    main_switch_case_default@8:
+        err
 
     main_bare_routing@16:
         // arc_28/contract.py:11
@@ -61,11 +64,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                  1
         return
-
-    main_after_if_else@20:
-        // arc_28/contract.py:11
-        // class EventEmitter(ARC4Contract):
-        err
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:

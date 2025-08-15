@@ -19,7 +19,7 @@ subroutine main:
         // class Greeter(ARC4Contract):
         txn NumAppArgs                                                        tmp%0#2
         l-load tmp%0#2 0                                                      tmp%0#2
-        bz main_bare_routing@9 ; b main_abi_routing@4
+        bz main_bare_routing@10 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // inner_transactions/c2c.py:6
@@ -36,21 +36,24 @@ subroutine main:
         method bootstrap()uint64                                              tmp%7#0,Method(bootstrap()uint64)
         method log_greetings(string)void                                      tmp%7#0,Method(bootstrap()uint64),Method(log_greetings(string)void)
         l-load tmp%7#0 2                                                      Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%7#0
-        match main_bootstrap_route@6 main_log_greetings_route@7 ; b main_after_if_else@11 
+        match main_bootstrap_route@6 main_log_greetings_route@7 ; b main_switch_case_default@8 
 
     main_bootstrap_route@6:
         // inner_transactions/c2c.py:10
         // @arc4.abimethod()
         callsub bootstrap
-        b main_after_if_else@11
+        err
 
     main_log_greetings_route@7:
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
         callsub log_greetings
-        b main_after_if_else@11
+        err
 
-    main_bare_routing@9:
+    main_switch_case_default@8:
+        err
+
+    main_bare_routing@10:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
         txn OnCompletion                                                      tmp%9#0
@@ -65,11 +68,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                 1
         return
-
-    main_after_if_else@11:
-        // inner_transactions/c2c.py:6
-        // class Greeter(ARC4Contract):
-        err
 
 
 // test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> void:

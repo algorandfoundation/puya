@@ -9,22 +9,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "sha256()byte[]" => block@6, method "sha3_256()byte[]" => block@7, method "sha512_256()byte[]" => block@8, method "keccak256()byte[]" => block@9, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@10, * => block@23}
+        switch tmp%7#0 {method "sha256()byte[]" => block@6, method "sha3_256()byte[]" => block@7, method "sha512_256()byte[]" => block@8, method "keccak256()byte[]" => block@9, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@10, * => block@11}
     block@6: // sha256_route_L5
         test_cases.intrinsics.optimizations.Optimizations.sha256[routing]()
-        goto block@23
+        fail
     block@7: // sha3_256_route_L9
         test_cases.intrinsics.optimizations.Optimizations.sha3_256[routing]()
-        goto block@23
+        fail
     block@8: // sha512_256_route_L13
         test_cases.intrinsics.optimizations.Optimizations.sha512_256[routing]()
-        goto block@23
+        fail
     block@9: // keccak256_route_L17
         test_cases.intrinsics.optimizations.Optimizations.keccak256[routing]()
-        goto block@23
+        fail
     block@10: // all_route_L21
         test_cases.intrinsics.optimizations.Optimizations.all[routing]()
-        goto block@23
+        fail
+    block@11: // switch_case_default_L4
+        fail
     block@19: // bare_routing_L4
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -33,8 +35,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@23: // after_if_else_L4
-        fail
 
 subroutine test_cases.intrinsics.optimizations.Optimizations.sha256[routing]() -> void:
     block@0: // L5

@@ -17,7 +17,7 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@16
+    bz main_bare_routing@17
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -71,10 +71,10 @@ main_acceptBid_route@14:
     dup
     bury 4
     <
-    bz main_ternary_false@21
+    bz main_ternary_false@20
     dig 2
 
-main_ternary_merge@22:
+main_ternary_merge@21:
     dig 8
     dup
     pushint 56 // 56
@@ -145,9 +145,9 @@ main_ternary_merge@22:
     box_put
     return
 
-main_ternary_false@21:
+main_ternary_false@20:
     dig 1
-    b main_ternary_merge@22
+    b main_ternary_merge@21
 
 main_bid_route@13:
     txna ApplicationArgs 1
@@ -196,7 +196,7 @@ main_bid_route@13:
     bury 12
     global ZeroAddress
     !=
-    bz main_after_if_else@26
+    bz main_after_if_else@25
     dig 7
     dup
     pushint 56 // 56
@@ -231,7 +231,7 @@ main_bid_route@13:
     itxn_field Fee
     itxn_submit
 
-main_after_if_else@26:
+main_after_if_else@25:
     dig 6
     asset_params_get AssetDecimals
     assert // asset exists
@@ -315,7 +315,7 @@ main_withdraw_route@12:
     bury 13
     global ZeroAddress
     !=
-    bz main_after_if_else@30
+    bz main_after_if_else@29
     dig 7
     dup
     pushint 48 // 48
@@ -347,7 +347,7 @@ main_withdraw_route@12:
     itxn_field Fee
     itxn_submit
 
-main_after_if_else@30:
+main_after_if_else@29:
     dig 8
     box_del
     pop
@@ -705,7 +705,7 @@ main_getListingsMbr_route@6:
     log
     return
 
-main_bare_routing@16:
+main_bare_routing@17:
     txn OnCompletion
     !
     assert

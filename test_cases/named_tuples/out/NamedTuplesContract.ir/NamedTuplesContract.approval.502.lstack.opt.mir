@@ -19,19 +19,22 @@ subroutine main:
         method build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])   tmp%7#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[]))
         method test_tuple((uint64,uint512,string,byte[]))void                            tmp%7#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(test_tuple((uint64,uint512,string,byte[]))void)
         l-load tmp%7#0 2                                                                 Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(test_tuple((uint64,uint512,string,byte[]))void),tmp%7#0
-        match main_build_tuple_route@6 main_test_tuple_route@7 ; b main_after_if_else@20
+        match main_build_tuple_route@6 main_test_tuple_route@7 ; b main_switch_case_default@8 
 
     main_build_tuple_route@6:
         // named_tuples/contract.py:16
         // @arc4.abimethod()
         callsub build_tuple
-        b main_after_if_else@20
+        err
 
     main_test_tuple_route@7:
         // named_tuples/contract.py:31
         // @arc4.abimethod()
         callsub test_tuple
-        b main_after_if_else@20
+        err
+
+    main_switch_case_default@8:
+        err
 
     main_bare_routing@16:
         // named_tuples/contract.py:15
@@ -44,11 +47,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                            1
         return
-
-    main_after_if_else@20:
-        // named_tuples/contract.py:15
-        // class NamedTuplesContract(arc4.ARC4Contract):
-        err
 
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:

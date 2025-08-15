@@ -13,14 +13,12 @@ subroutine test_cases.state_totals.contract.Contract.__puya_arc4_router__() -> b
         goto tmp%0#0 ? block@1 : block@4
     block@1: // abi_routing_L6
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        goto block@8
+        fail
     block@4: // bare_routing_L6
         let tmp%3#0: uint64 = (txn OnCompletion)
-        goto tmp%3#0 ? block@8 : block@5
-    block@5: // create_L14
+        let not%tmp%3#0: bool = (! tmp%3#0)
+        (assert not%tmp%3#0)
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (! tmp%4#0)
         (assert tmp%5#0) // can only call when creating
         exit 1u
-    block@8: // after_if_else_L6
-        fail

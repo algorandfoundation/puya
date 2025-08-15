@@ -20,25 +20,28 @@ subroutine main:
         method named_tuple_itxn2(uint64)void                                                   tmp%7#0,Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void)
         method named_tuple_itxn3(uint64)void                                                   tmp%7#0,Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void),Method(named_tuple_itxn3(uint64)void)
         l-load tmp%7#0 3                                                                       Method(named_tuple_itxn(uint64)void),Method(named_tuple_itxn2(uint64)void),Method(named_tuple_itxn3(uint64)void),tmp%7#0
-        match main_named_tuple_itxn_route@6 main_named_tuple_itxn2_route@7 main_named_tuple_itxn3_route@8 ; b main_after_if_else@21 
+        match main_named_tuple_itxn_route@6 main_named_tuple_itxn2_route@7 main_named_tuple_itxn3_route@8 ; b main_switch_case_default@9 
 
     main_named_tuple_itxn_route@6:
         // inner_transactions/itxn_tuple.py:12
         // @arc4.abimethod()
         callsub named_tuple_itxn
-        b main_after_if_else@21
+        err
 
     main_named_tuple_itxn2_route@7:
         // inner_transactions/itxn_tuple.py:17
         // @arc4.abimethod()
         callsub named_tuple_itxn2
-        b main_after_if_else@21
+        err
 
     main_named_tuple_itxn3_route@8:
         // inner_transactions/itxn_tuple.py:22
         // @arc4.abimethod()
         callsub named_tuple_itxn3
-        b main_after_if_else@21
+        err
+
+    main_switch_case_default@9:
+        err
 
     main_bare_routing@17:
         // inner_transactions/itxn_tuple.py:11
@@ -51,11 +54,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                                  1
         return
-
-    main_after_if_else@21:
-        // inner_transactions/itxn_tuple.py:11
-        // class ItxnNamedTuple(arc4.ARC4Contract):
-        err
 
 
 // test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn[routing]() -> void:

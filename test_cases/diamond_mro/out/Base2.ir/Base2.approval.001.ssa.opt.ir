@@ -21,17 +21,15 @@ subroutine test_cases.diamond_mro.base2.Base2.__puya_arc4_router__() -> bool:
         goto tmp%4#0 ? block@3 : block@7
     block@3: // call_NoOp_L6
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "method()void" => block@4, * => block@11}
-    block@4: // method_route_L11
+        let eq%tmp%5#0: bool = (== tmp%5#0 method "method()void")
+        (assert eq%tmp%5#0)
         test_cases.diamond_mro.base2.Base2.method[routing]()
-        goto block@11
+        fail
     block@7: // create_NoOp_L6
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create()void" => block@8, * => block@11}
-    block@8: // create_route_L11
+        let eq%tmp%6#0: bool = (== tmp%6#0 method "create()void")
+        (assert eq%tmp%6#0)
         test_cases.diamond_mro.gp.GP.create[routing]()
-        goto block@11
-    block@11: // after_if_else_L6
         fail
 
 subroutine test_cases.diamond_mro.base2.Base2.method[routing]() -> void:

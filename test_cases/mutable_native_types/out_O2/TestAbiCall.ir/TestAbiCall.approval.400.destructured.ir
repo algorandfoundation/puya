@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "test_fixed_struct()void" => block@6, method "test_nested_struct()void" => block@7, method "test_dynamic_struct()void" => block@8, method "test_fixed_array()void" => block@9, method "test_native_array()void" => block@10, method "test_log()void" => block@11, * => block@24}
+        switch tmp%7#0 {method "test_fixed_struct()void" => block@6, method "test_nested_struct()void" => block@7, method "test_dynamic_struct()void" => block@8, method "test_fixed_array()void" => block@9, method "test_native_array()void" => block@10, method "test_log()void" => block@11, * => block@12}
     block@6: // test_fixed_struct_route_L103
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
@@ -507,6 +507,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit lifted%return#0
+    block@12: // switch_case_default_L102
+        fail
     block@20: // bare_routing_L102
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -515,5 +517,3 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit lifted%return#0
-    block@24: // after_if_else_L102
-        fail

@@ -20,25 +20,28 @@ subroutine main:
         method test_uint16()void                                                             tmp%7#0,Method(test_uint8()void),Method(test_uint16()void)
         method test_uint32()void                                                             tmp%7#0,Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void)
         l-load tmp%7#0 3                                                                     Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%7#0
-        match main_test_uint8_route@6 main_test_uint16_route@7 main_test_uint32_route@8 ; b main_after_if_else@21 
+        match main_test_uint8_route@6 main_test_uint16_route@7 main_test_uint32_route@8 ; b main_switch_case_default@9 
 
     main_test_uint8_route@6:
         // arc4_types/uint_overflow.py:5
         // @arc4.abimethod()
         callsub test_uint8
-        b main_after_if_else@21
+        err
 
     main_test_uint16_route@7:
         // arc4_types/uint_overflow.py:10
         // @arc4.abimethod()
         callsub test_uint16
-        b main_after_if_else@21
+        err
 
     main_test_uint32_route@8:
         // arc4_types/uint_overflow.py:15
         // @arc4.abimethod()
         callsub test_uint32
-        b main_after_if_else@21
+        err
+
+    main_switch_case_default@9:
+        err
 
     main_bare_routing@17:
         // arc4_types/uint_overflow.py:4
@@ -51,11 +54,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                                1
         return
-
-    main_after_if_else@21:
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        err
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]() -> void:

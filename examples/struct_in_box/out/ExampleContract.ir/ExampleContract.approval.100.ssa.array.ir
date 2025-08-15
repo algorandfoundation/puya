@@ -9,16 +9,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (txn ApplicationID)
         (assert tmp%6#0)
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%7#0 {method "add_user((string,uint64,uint64))void" => block@6, method "attach_asset_to_user(uint64,uint64)void" => block@7, method "get_user(uint64)(string,uint64,uint64)" => block@8, * => block@21}
+        switch tmp%7#0 {method "add_user((string,uint64,uint64))void" => block@6, method "attach_asset_to_user(uint64,uint64)void" => block@7, method "get_user(uint64)(string,uint64,uint64)" => block@8, * => block@9}
     block@6: // add_user_route_L30
         examples.struct_in_box.contract.ExampleContract.add_user[routing]()
-        goto block@21
+        fail
     block@7: // attach_asset_to_user_route_L35
         examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]()
-        goto block@21
+        fail
     block@8: // get_user_route_L41
         examples.struct_in_box.contract.ExampleContract.get_user[routing]()
-        goto block@21
+        fail
+    block@9: // switch_case_default_L10
+        fail
     block@17: // bare_routing_L10
         let tmp%9#0: uint64 = (txn OnCompletion)
         let not%tmp%9#0: bool = (! tmp%9#0)
@@ -27,8 +29,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (! tmp%10#0)
         (assert tmp%11#0) // can only call when creating
         exit 1u
-    block@21: // after_if_else_L10
-        fail
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L221
