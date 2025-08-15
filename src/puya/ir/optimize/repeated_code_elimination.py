@@ -98,7 +98,12 @@ class RCEVisitor(NoOpIRVisitor[None]):
             # only consider ops with stack args because they're much more likely to
             # produce extra stack manipulations
             if intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
-                key = attrs.evolve(intrinsic, error_message=None).freeze()
+                # exclude error_message for the key
+                # mutating the intrinsic before/after freezing is faster than cloning
+                err = intrinsic.error_message
+                intrinsic.error_message = None
+                key = intrinsic.freeze()
+                intrinsic.error_message = err
                 self._cache_or_replace(self._assignment, key)
         elif intrinsic.op.code == "assert":
             (assert_arg,) = intrinsic.args
