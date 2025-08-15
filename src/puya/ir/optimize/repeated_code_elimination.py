@@ -1,3 +1,4 @@
+import contextlib
 import functools
 import operator
 import typing
@@ -24,32 +25,9 @@ def repeated_expression_elimination(
     modified = True
     while modified:
         modified = False
-        block_asserted = dict[models.BasicBlock, set[models.Value]]()
-        block_const_intrinsics = dict[models.BasicBlock, dict[object, Sequence[models.Register]]]()
+        block_visitors = dict[models.BasicBlock, RCEVisitor]()
         for block in subroutine.body:
-            visitor = RCEVisitor(block)
-            for op in block.ops.copy():
-                modified = bool(op.accept(visitor)) or modified
-            block_asserted[block] = visitor.asserted
-            block_const_intrinsics[block] = visitor.const_intrinsics
-
-        for block in subroutine.body:
-            dominators = dom[block]
-            if dominators:
-                visitor = RCEVisitor(
-                    block,
-                    # if there is a single dominator then reduce will return the original
-                    # collection of that dominator, so copy to ensure original collections are
-                    # not modified
-                    const_intrinsics=functools.reduce(
-                        operator.or_, (block_const_intrinsics[b] for b in dominators)
-                    ).copy(),
-                    asserted=functools.reduce(
-                        operator.or_, (block_asserted[b] for b in dominators)
-                    ).copy(),
-                )
-                for op in block.ops.copy():
-                    modified = bool(op.accept(visitor)) or modified
+            modified |= _visit_block_and_dominators(dom, block_visitors, block).modified
         if modified:
             any_modified = True
             copy_propagation(context, subroutine)
@@ -100,69 +78,67 @@ def compute_dominators(
 
 
 @attrs.define
-class RCEVisitor(NoOpIRVisitor[bool]):
+class RCEVisitor(NoOpIRVisitor[None]):
     block: models.BasicBlock
     const_intrinsics: dict[object, Sequence[models.Register]] = attrs.field(factory=dict)
     asserted: set[models.Value] = attrs.field(factory=set)
+    modified: bool = False
 
     _assignment: models.Assignment | None = None
 
     @typing.override
-    def visit_assignment(self, ass: models.Assignment) -> bool | None:
+    def visit_assignment(self, ass: models.Assignment) -> None:
         self._assignment = ass
-        remove = ass.source.accept(self)
+        ass.source.accept(self)
         self._assignment = None
-        return remove
 
     @typing.override
-    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> bool:
-        modified = False
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> None:
         if self._assignment is not None:
             # only consider ops with stack args because they're much more likely to
             # produce extra stack manipulations
             if intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
                 key = attrs.evolve(intrinsic, error_message=None).freeze()
-                modified = self._cache_or_replace(self._assignment, key)
+                self._cache_or_replace(self._assignment, key)
         elif intrinsic.op.code == "assert":
             (assert_arg,) = intrinsic.args
             if assert_arg in self.asserted:
                 logger.debug(f"Removing redundant assert of {assert_arg}")
-                modified = True
+                self.modified = True
                 self.block.ops.remove(intrinsic)
             else:
                 self.asserted.add(assert_arg)
-        return modified
 
     @typing.override
-    def visit_extract_value(self, read: models.ExtractValue) -> bool:
-        modified = False
+    def visit_extract_value(self, read: models.ExtractValue) -> None:
         if self._assignment is not None:
             key = read.freeze()
-            modified = self._cache_or_replace(self._assignment, key)
-        return modified
+            self._cache_or_replace(self._assignment, key)
 
     @typing.override
-    def visit_bytes_encode(self, encode: models.BytesEncode) -> bool:
-        modified = False
+    def visit_replace_value(self, write: models.ReplaceValue) -> None:
+        if self._assignment is not None:
+            key = write.freeze()
+            self._cache_or_replace(self._assignment, key)
+
+    @typing.override
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> None:
         if self._assignment is not None:
             key = encode.freeze()
-            modified = self._cache_or_replace(self._assignment, key)
-        return modified
+            self._cache_or_replace(self._assignment, key)
 
     @typing.override
-    def visit_decode_bytes(self, decode: models.DecodeBytes) -> bool:
-        modified = False
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> None:
         if self._assignment is not None:
             key = decode.freeze()
-            modified = self._cache_or_replace(self._assignment, key)
-        return modified
+            self._cache_or_replace(self._assignment, key)
 
-    def _cache_or_replace(self, ass: models.Assignment, key: object) -> bool:
+    def _cache_or_replace(self, ass: models.Assignment, key: object) -> None:
         try:
             existing = self.const_intrinsics[key]
         except KeyError:
             self.const_intrinsics[key] = ass.targets
-            return False
+            return
         logger.debug(
             f"Replacing redundant declaration {ass} with copy of existing registers {existing}"
         )
@@ -174,4 +150,32 @@ class RCEVisitor(NoOpIRVisitor[bool]):
                 models.Assignment(targets=[dst], source=src, source_location=ass.source_location)
                 for dst, src in zip(ass.targets, existing, strict=True)
             ]
-        return True
+        self.modified = True
+
+
+def _visit_block_and_dominators(
+    doms: dict[models.BasicBlock, list[models.BasicBlock]],
+    block_visitors: dict[models.BasicBlock, RCEVisitor],
+    block: models.BasicBlock,
+) -> RCEVisitor:
+    with contextlib.suppress(KeyError):
+        return block_visitors[block]
+    dominators = doms[block]
+    dom_visitors = [_visit_block_and_dominators(doms, block_visitors, d) for d in dominators]
+    block_visitors[block] = visitor = RCEVisitor(
+        block,
+        const_intrinsics=functools.reduce(
+            operator.or_,
+            (v.const_intrinsics for v in dom_visitors),
+            {},
+        ),
+        asserted=functools.reduce(
+            operator.or_,
+            (v.asserted for v in dom_visitors),
+            set(),
+        ),
+    )
+    for op in block.ops.copy():
+        op.accept(visitor)
+
+    return visitor
