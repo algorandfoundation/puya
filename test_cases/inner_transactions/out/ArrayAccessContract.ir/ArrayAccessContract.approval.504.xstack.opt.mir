@@ -1,115 +1,104 @@
-// Op                                                                                                          Stack (out)
+// Op                                                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
-        txn NumAppArgs                                                                                         tmp%0#1
-        bz main_bare_routing@6 ; b main_abi_routing@2
+        txn NumAppArgs                                                                   tmp%0#1
+        bz main___algopy_default_create@6 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
-        txna ApplicationArgs 0                                                                                 tmp%2#0
-        method test_branching_array_call(bool)void                                                             tmp%2#0,Method(test_branching_array_call(bool)void)
-        l-load tmp%2#0 1                                                                                       Method(test_branching_array_call(bool)void),tmp%2#0
-        match main_test_branching_array_call_route@3 ; b main_after_if_else@10
+        txna ApplicationArgs 0                                                           tmp%2#0
+        method test_branching_array_call(bool)void                                       tmp%2#0,Method(test_branching_array_call(bool)void)
+        l-load tmp%2#0 1                                                                 Method(test_branching_array_call(bool)void),tmp%2#0
+        match main_test_branching_array_call_route@3 ; b main_switch_case_next@5
 
     main_test_branching_array_call_route@3:
         // inner_transactions/array_access.py:21
         // @arc4.abimethod
-        txn OnCompletion                                                                                       tmp%3#0
-        !                                                                                                      tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                      tmp%5#0
-        assert // can only call when not creating
-        // inner_transactions/array_access.py:20
-        // class ArrayAccessContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                                 reinterpret_Encoded(bool8)%0#0
-        // inner_transactions/array_access.py:21
-        // @arc4.abimethod
+        txn OnCompletion                                                                 tmp%3#0
+        !                                                                                tmp%4#0
+        txn ApplicationID                                                                tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                                 tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                                 tmp%4#0,tmp%5#0
+        &&                                                                               tmp%7#0
+        assert // OnCompletion must be NoOp && can only call when not creating
         callsub test_branching_array_call
-        int 1                                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+        b main_switch_case_next@5
 
-    main_bare_routing@6:
+    main_switch_case_next@5:
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
-        txn OnCompletion                                                                                       tmp%7#0
-        bz main___algopy_default_create@7 ; b main_after_if_else@10
+        err
 
-    main___algopy_default_create@7:
-        txn ApplicationID                                                                                      tmp%8#0
-        !                                                                                                      tmp%9#0
-        assert // can only call when creating
-        int 1                                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@10:
-        // inner_transactions/array_access.py:20
-        // class ArrayAccessContract(ARC4Contract):
-        int 0                                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                                         tmp%0#0
+    main___algopy_default_create@6:
+        txn OnCompletion                                                                 tmp%8#0
+        !                                                                                tmp%9#0
+        txn ApplicationID                                                                tmp%9#0,tmp%10#0
+        !                                                                                tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                                 tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                                tmp%9#0,tmp%11#0
+        &&                                                                               tmp%12#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                            1
         return
 
 
-// test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes) -> void:
+// test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call[routing]() -> void:
 subroutine test_branching_array_call:
-    test_branching_array_call_block@0:                                                                         (𝕡) maybe#0 |
+    test_branching_array_call_block@0:
+        // inner_transactions/array_access.py:21
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                           maybe#0
         // inner_transactions/array_access.py:23
         // if maybe:
-        p-load maybe#0                                                                                         (𝕡) maybe#0 | maybe#0 (copy)
-        byte 0x00                                                                                              (𝕡) maybe#0 | maybe#0 (copy),0x00
-        !=                                                                                                     (𝕡) maybe#0 | tmp%1#0
-        l-store-copy tmp%1#0 0                                                                                 (𝕡) maybe#0 | tmp%1#0,tmp%1#0 (copy)
-        v-store tmp%1#0                                                                                        (𝕡) maybe#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                                       (𝕡) maybe#0 | tmp%1#0
-        bz test_branching_array_call_else_body@3 ; b test_branching_array_call_if_body@1                       (𝕡) maybe#0 |
+        byte 0x00                                                                        maybe#0,0x00
+        !=                                                                               tmp%1#0
+        l-store-copy tmp%1#0 0                                                           tmp%1#0,tmp%1#0 (copy)
+        v-store tmp%1#0                                                                  tmp%1#0
+        l-load tmp%1#0 0                                                                 tmp%1#0
+        bz test_branching_array_call_else_body@4 ; b test_branching_array_call_if_body@2
 
-    test_branching_array_call_if_body@1:                                                                       (𝕡) maybe#0 |
+    test_branching_array_call_if_body@2:
         // inner_transactions/array_access.py:24-28
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
         //     clear_state_program=ALWAYS_APPROVE,
         //     app_args=(Bytes(b"1"), Bytes(b"2")),
         // ).submit()
-        itxn_begin                                                                                             (𝕡) maybe#0 |
+        itxn_begin
         // inner_transactions/array_access.py:27
         // app_args=(Bytes(b"1"), Bytes(b"2")),
-        byte 0x31                                                                                              (𝕡) maybe#0 | 0x31
-        itxn_field ApplicationArgs                                                                             (𝕡) maybe#0 |
-        byte 0x32                                                                                              (𝕡) maybe#0 | 0x32
-        itxn_field ApplicationArgs                                                                             (𝕡) maybe#0 |
+        byte 0x31                                                                        0x31
+        itxn_field ApplicationArgs
+        byte 0x32                                                                        0x32
+        itxn_field ApplicationArgs
         // inner_transactions/array_access.py:26
         // clear_state_program=ALWAYS_APPROVE,
-        byte 0x098101                                                                                          (𝕡) maybe#0 | 0x098101
-        itxn_field ClearStateProgramPages                                                                      (𝕡) maybe#0 |
+        byte 0x098101                                                                    0x098101
+        itxn_field ClearStateProgramPages
         // inner_transactions/array_access.py:25
         // approval_program=ALWAYS_APPROVE,
-        byte 0x098101                                                                                          (𝕡) maybe#0 | 0x098101
-        itxn_field ApprovalProgramPages                                                                        (𝕡) maybe#0 |
+        byte 0x098101                                                                    0x098101
+        itxn_field ApprovalProgramPages
         // inner_transactions/array_access.py:24
         // create_app_txn = itxn.ApplicationCall(
-        int appl                                                                                               (𝕡) maybe#0 | appl
-        itxn_field TypeEnum                                                                                    (𝕡) maybe#0 |
-        int 0                                                                                                  (𝕡) maybe#0 | 0
-        itxn_field Fee                                                                                         (𝕡) maybe#0 |
+        int appl                                                                         appl
+        itxn_field TypeEnum
+        int 0                                                                            0
+        itxn_field Fee
         // inner_transactions/array_access.py:24-28
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
         //     clear_state_program=ALWAYS_APPROVE,
         //     app_args=(Bytes(b"1"), Bytes(b"2")),
         // ).submit()
-        itxn_submit                                                                                            (𝕡) maybe#0 |
-        b test_branching_array_call_after_if_else@5                                                            (𝕡) maybe#0 |
+        itxn_submit
+        b test_branching_array_call_after_if_else@6
 
-    test_branching_array_call_else_body@3:                                                                     (𝕡) maybe#0 |
+    test_branching_array_call_else_body@4:
         // inner_transactions/array_access.py:30-35
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
@@ -117,33 +106,33 @@ subroutine test_branching_array_call:
         //     app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
         //     note=b"different param set",
         // ).submit()
-        itxn_begin                                                                                             (𝕡) maybe#0 |
+        itxn_begin
         // inner_transactions/array_access.py:34
         // note=b"different param set",
-        byte 0x646966666572656e7420706172616d20736574                                                          (𝕡) maybe#0 | 0x646966666572656e7420706172616d20736574
-        itxn_field Note                                                                                        (𝕡) maybe#0 |
+        byte 0x646966666572656e7420706172616d20736574                                    0x646966666572656e7420706172616d20736574
+        itxn_field Note
         // inner_transactions/array_access.py:33
         // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
-        byte 0x33                                                                                              (𝕡) maybe#0 | 0x33
-        itxn_field ApplicationArgs                                                                             (𝕡) maybe#0 |
-        byte 0x34                                                                                              (𝕡) maybe#0 | 0x34
-        itxn_field ApplicationArgs                                                                             (𝕡) maybe#0 |
-        byte 0x35                                                                                              (𝕡) maybe#0 | 0x35
-        itxn_field ApplicationArgs                                                                             (𝕡) maybe#0 |
+        byte 0x33                                                                        0x33
+        itxn_field ApplicationArgs
+        byte 0x34                                                                        0x34
+        itxn_field ApplicationArgs
+        byte 0x35                                                                        0x35
+        itxn_field ApplicationArgs
         // inner_transactions/array_access.py:32
         // clear_state_program=ALWAYS_APPROVE,
-        byte 0x098101                                                                                          (𝕡) maybe#0 | 0x098101
-        itxn_field ClearStateProgramPages                                                                      (𝕡) maybe#0 |
+        byte 0x098101                                                                    0x098101
+        itxn_field ClearStateProgramPages
         // inner_transactions/array_access.py:31
         // approval_program=ALWAYS_APPROVE,
-        byte 0x098101                                                                                          (𝕡) maybe#0 | 0x098101
-        itxn_field ApprovalProgramPages                                                                        (𝕡) maybe#0 |
+        byte 0x098101                                                                    0x098101
+        itxn_field ApprovalProgramPages
         // inner_transactions/array_access.py:30
         // create_app_txn = itxn.ApplicationCall(
-        int appl                                                                                               (𝕡) maybe#0 | appl
-        itxn_field TypeEnum                                                                                    (𝕡) maybe#0 |
-        int 0                                                                                                  (𝕡) maybe#0 | 0
-        itxn_field Fee                                                                                         (𝕡) maybe#0 |
+        int appl                                                                         appl
+        itxn_field TypeEnum
+        int 0                                                                            0
+        itxn_field Fee
         // inner_transactions/array_access.py:30-35
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
@@ -151,52 +140,55 @@ subroutine test_branching_array_call:
         //     app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
         //     note=b"different param set",
         // ).submit()
-        itxn_submit                                                                                            (𝕡) maybe#0 |
-        b test_branching_array_call_after_if_else@5                                                            (𝕡) maybe#0 |
+        itxn_submit
+        b test_branching_array_call_after_if_else@6
 
-    test_branching_array_call_after_if_else@5:                                                                 (𝕡) maybe#0 |
+    test_branching_array_call_after_if_else@6:
         // inner_transactions/array_access.py:36
         // if maybe:
-        v-load tmp%1#0                                                                                         (𝕡) maybe#0 | tmp%1#0
-        bz test_branching_array_call_else_body@7 ; b test_branching_array_call_if_body@6                       (𝕡) maybe#0 |
+        v-load tmp%1#0                                                                   tmp%1#0
+        bz test_branching_array_call_else_body@8 ; b test_branching_array_call_if_body@7
 
-    test_branching_array_call_if_body@6:                                                                       (𝕡) maybe#0 |
+    test_branching_array_call_if_body@7:
         // inner_transactions/array_access.py:37
         // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
-        itxna ApplicationArgs 0                                                                                (𝕡) maybe#0 | tmp%4#0
-        byte 0x31                                                                                              (𝕡) maybe#0 | tmp%4#0,0x31
-        ==                                                                                                     (𝕡) maybe#0 | tmp%5#0
-        assert // correct args used 1                                                                          (𝕡) maybe#0 |
+        itxna ApplicationArgs 0                                                          tmp%4#0
+        byte 0x31                                                                        tmp%4#0,0x31
+        ==                                                                               tmp%5#0
+        assert // correct args used 1
         // inner_transactions/array_access.py:38
         // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
-        itxna ApplicationArgs 1                                                                                (𝕡) maybe#0 | tmp%6#0
-        byte 0x32                                                                                              (𝕡) maybe#0 | tmp%6#0,0x32
-        ==                                                                                                     (𝕡) maybe#0 | tmp%7#0
-        assert // correct args used 2                                                                          (𝕡) maybe#0 |
-        b test_branching_array_call_after_if_else@8                                                            (𝕡) maybe#0 |
+        itxna ApplicationArgs 1                                                          tmp%6#0
+        byte 0x32                                                                        tmp%6#0,0x32
+        ==                                                                               tmp%7#0
+        assert // correct args used 2
+        b test_branching_array_call_after_if_else@9
 
-    test_branching_array_call_else_body@7:                                                                     (𝕡) maybe#0 |
+    test_branching_array_call_else_body@8:
         // inner_transactions/array_access.py:40
         // assert create_app_txn.app_args(0) == b"3", "correct args used 1"
-        itxna ApplicationArgs 0                                                                                (𝕡) maybe#0 | tmp%8#0
-        byte 0x33                                                                                              (𝕡) maybe#0 | tmp%8#0,0x33
-        ==                                                                                                     (𝕡) maybe#0 | tmp%9#0
-        assert // correct args used 1                                                                          (𝕡) maybe#0 |
+        itxna ApplicationArgs 0                                                          tmp%8#0
+        byte 0x33                                                                        tmp%8#0,0x33
+        ==                                                                               tmp%9#0
+        assert // correct args used 1
         // inner_transactions/array_access.py:41
         // assert create_app_txn.app_args(1) == b"4", "correct args used 2"
-        itxna ApplicationArgs 1                                                                                (𝕡) maybe#0 | tmp%10#0
-        byte 0x34                                                                                              (𝕡) maybe#0 | tmp%10#0,0x34
-        ==                                                                                                     (𝕡) maybe#0 | tmp%11#0
-        assert // correct args used 2                                                                          (𝕡) maybe#0 |
+        itxna ApplicationArgs 1                                                          tmp%10#0
+        byte 0x34                                                                        tmp%10#0,0x34
+        ==                                                                               tmp%11#0
+        assert // correct args used 2
         // inner_transactions/array_access.py:42
         // assert create_app_txn.app_args(2) == b"5", "correct args used 3"
-        itxna ApplicationArgs 2                                                                                (𝕡) maybe#0 | tmp%12#0
-        byte 0x35                                                                                              (𝕡) maybe#0 | tmp%12#0,0x35
-        ==                                                                                                     (𝕡) maybe#0 | tmp%13#0
-        assert // correct args used 3                                                                          (𝕡) maybe#0 |
-        b test_branching_array_call_after_if_else@8                                                            (𝕡) maybe#0 |
+        itxna ApplicationArgs 2                                                          tmp%12#0
+        byte 0x35                                                                        tmp%12#0,0x35
+        ==                                                                               tmp%13#0
+        assert // correct args used 3
+        b test_branching_array_call_after_if_else@9
 
-    test_branching_array_call_after_if_else@8:                                                                 (𝕡) maybe#0 |
-        retsub
+    test_branching_array_call_after_if_else@9:
+        // inner_transactions/array_access.py:21
+        // @arc4.abimethod
+        int 1                                                                            1
+        return
 
 

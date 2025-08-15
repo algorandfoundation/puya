@@ -3,22 +3,20 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     txna ApplicationArgs 0
     match main_test_new_ops_route@3
-
-main_after_if_else@10:
     err
 
 main_test_new_ops_route@3:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     online_stake
     assert
     pushint 32 // 32
@@ -67,14 +65,13 @@ main_test_new_ops_route@3:
     intc_0 // 0
     voter_params_get VoterIncentiveEligible
     popn 2
-    intc_1 // 1
+    pushint 1 // 1
     return
 
-main_bare_routing@6:
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

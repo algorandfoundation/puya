@@ -7,47 +7,37 @@ main:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x6b10e527 0x94ddb1c2 // method "xyz()string[]", method "xyz_raw()string[]"
     txna ApplicationArgs 0
-    match main_xyz_route@3 main_xyz_raw_route@4
-
-main_after_if_else@11:
+    match main_xyz_route@4 main_xyz_raw_route@5
     err
 
-main_xyz_raw_route@4:
+main_xyz_raw_route@5:
     // arc4_types/dynamic_string_array.py:13
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
     pushint 1 // 1
     return
 
-main_xyz_route@3:
+main_xyz_route@4:
     // arc4_types/dynamic_string_array.py:5
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     bytec_0 // 0x151f7c75000300060009000c00015800015900015a
     log
     pushint 1 // 1
     return
 
-main_bare_routing@7:
-    // arc4_types/dynamic_string_array.py:4
-    // class Arc4DynamicStringArrayContract(ARC4Contract):
+main___algopy_default_create@10:
     txn OnCompletion
-    bnz main_after_if_else@11
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

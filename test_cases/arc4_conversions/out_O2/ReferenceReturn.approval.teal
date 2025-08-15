@@ -4,22 +4,20 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0
-    bytecblock 0x151f7c75 "accounts" "assets" "apps" 0x151f7c7500000000000004d2
+    bytecblock 0x151f7c75 "accounts" "assets" "apps"
     txn NumAppArgs
-    bz main_bare_routing@15
-    pushbytess 0x6c7a1cb5 0xc8480f0c 0x37c0cbf2 0x2d018f8a 0x6728b1a1 0xce7e6cd3 0x0a37f6e1 0x4c894d7e 0x62ebcf89 0x924e778c // method "acc_ret()address", method "asset_ret()uint64", method "app_ret()uint64", method "store(address,uint64,uint64)void", method "store_apps(uint64[])void", method "store_assets(uint64[])void", method "store_accounts(address[])void", method "return_apps()uint64[]", method "return_assets()uint64[]", method "return_accounts()address[]"
-    txna ApplicationArgs 0
-    match main_acc_ret_route@3 main_asset_ret_route@4 main_app_ret_route@5 main_store_route@6 main_store_apps_route@7 main_store_assets_route@8 main_store_accounts_route@9 main_return_apps_route@10 main_return_assets_route@11 main_return_accounts_route@12
-
-main_after_if_else@19:
-    err
-
-main_return_accounts_route@12:
+    bz main___algopy_default_create@18
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x6c7a1cb5 0xc8480f0c 0x37c0cbf2 0x2d018f8a 0x6728b1a1 0xce7e6cd3 0x0a37f6e1 0x4c894d7e 0x62ebcf89 0x924e778c // method "acc_ret()address", method "asset_ret()uint64", method "app_ret()uint64", method "store(address,uint64,uint64)void", method "store_apps(uint64[])void", method "store_assets(uint64[])void", method "store_accounts(address[])void", method "return_apps()uint64[]", method "return_assets()uint64[]", method "return_accounts()address[]"
+    txna ApplicationArgs 0
+    match main_acc_ret_route@4 main_asset_ret_route@5 main_asset_ret_route@5 main_store_route@7 main_store_apps_route@8 main_store_assets_route@9 main_store_accounts_route@10 main_return_apps_route@11 main_return_assets_route@12 main_return_accounts_route@13
+    err
+
+main_return_accounts_route@13:
     intc_1 // 0
     bytec_1 // "accounts"
     app_global_get_ex
@@ -31,12 +29,7 @@ main_return_accounts_route@12:
     intc_0 // 1
     return
 
-main_return_assets_route@11:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_return_assets_route@12:
     intc_1 // 0
     bytec_2 // "assets"
     app_global_get_ex
@@ -48,12 +41,7 @@ main_return_assets_route@11:
     intc_0 // 1
     return
 
-main_return_apps_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_return_apps_route@11:
     intc_1 // 0
     bytec_3 // "apps"
     app_global_get_ex
@@ -65,48 +53,28 @@ main_return_apps_route@10:
     intc_0 // 1
     return
 
-main_store_accounts_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_store_accounts_route@10:
     bytec_1 // "accounts"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-main_store_assets_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_store_assets_route@9:
     bytec_2 // "assets"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-main_store_apps_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_store_apps_route@8:
     bytec_3 // "apps"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-main_store_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_store_route@7:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -124,34 +92,13 @@ main_store_route@6:
     intc_0 // 1
     return
 
-main_app_ret_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    bytec 4 // 0x151f7c7500000000000004d2
+main_asset_ret_route@5:
+    pushbytes 0x151f7c7500000000000004d2
     log
     intc_0 // 1
     return
 
-main_asset_ret_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    bytec 4 // 0x151f7c7500000000000004d2
-    log
-    intc_0 // 1
-    return
-
-main_acc_ret_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_acc_ret_route@4:
     bytec_0 // 0x151f7c75
     txn Sender
     concat
@@ -159,11 +106,10 @@ main_acc_ret_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@15:
+main___algopy_default_create@18:
     txn OnCompletion
-    bnz main_after_if_else@19
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

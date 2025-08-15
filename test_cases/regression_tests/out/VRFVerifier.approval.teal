@@ -7,12 +7,10 @@ main:
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
     txna ApplicationArgs 0
     match main_verify_route@3
-
-main_after_if_else@10:
     err
 
 main_verify_route@3:
@@ -20,60 +18,30 @@ main_verify_route@3:
     // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // regression_tests/branch_to_proto.py:4
-    // class VRFVerifier(ARC4Contract):
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b verify
+
+main___algopy_default_create@6:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:
+verify:
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
     extract 2 0
     txna ApplicationArgs 3
     extract 2 0
-    // regression_tests/branch_to_proto.py:5
-    // @arc4.abimethod
-    callsub verify
-    dig 1
-    len
-    itob
-    extract 6 2
-    uncover 2
-    concat
-    pushbytes 0x00
-    pushint 0 // 0
-    uncover 3
-    setbit
-    pushbytes 0x0003
-    swap
-    concat
-    swap
-    concat
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    pushint 1 // 1
-    return
-
-main_bare_routing@6:
-    // regression_tests/branch_to_proto.py:4
-    // class VRFVerifier(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@10
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
-
-
-// test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes) -> bytes, uint64:
-verify:
-    // regression_tests/branch_to_proto.py:5-6
-    // @arc4.abimethod
-    // def verify(self, message: Bytes, proof: Bytes, pk: Bytes) -> tuple[Bytes, bool]:
-    proto 3 2
 
 verify_while_top@2:
     pushint 10010 // 10010
@@ -97,8 +65,30 @@ verify_while_top@2:
 verify_after_while@7:
     // regression_tests/branch_to_proto.py:8
     // return op.vrf_verify(op.VrfVerify.VrfAlgorand, message, proof, pk)
-    frame_dig -3
-    frame_dig -2
-    frame_dig -1
+    dig 2
+    dig 2
+    dig 2
     vrf_verify VrfAlgorand
-    retsub
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    dig 1
+    len
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    pushbytes 0x00
+    pushint 0 // 0
+    uncover 3
+    setbit
+    pushbytes 0x0003
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return

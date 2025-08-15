@@ -7,55 +7,60 @@ subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__pu
     block@0: // L4
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@6
+        goto tmp%1#0 ? block@1 : block@9
     block@1: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "get_abs_bound1(uint64)uint64" => block@2, method "get_abs_bound2()uint64" => block@3, * => block@4}
-    block@2: // get_abs_bound1_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%8#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(tmp%7#0)
-        let tmp%9#0: Encoded(uint64) = bytes_encode<uint64>(tmp%8#0)
-        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
-        (log tmp%10#0)
-        return 1u
-    block@3: // get_abs_bound2_route_L17
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        let tmp%15#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2()
-        let tmp%16#0: Encoded(uint64) = bytes_encode<uint64>(tmp%15#0)
-        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
-        (log tmp%17#0)
-        return 1u
-    block@4: // switch_case_default_L4
-        goto block@5
-    block@5: // switch_case_next_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@7
+    block@2: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "get_abs_bound1(uint64)uint64" => block@3, method "get_abs_bound2()uint64" => block@4, * => block@5}
+    block@3: // get_abs_bound1_route_L5
+        test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]()
+        goto block@6
+    block@4: // get_abs_bound2_route_L17
+        test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]()
+        goto block@6
+    block@5: // switch_case_default_L4
+        goto block@6
+    block@6: // switch_case_next_L4
+        goto block@8
+    block@7: // create_NoOp_L4
+        goto block@8
+    block@8: // after_if_else_L4
         goto block@10
-    block@6: // bare_routing_L4
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        switch tmp%18#0 {0u => block@7, * => block@8}
-    block@7: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (== tmp%19#0 0u)
-        (assert tmp%20#0) // can only call when creating
+    block@9: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create()
-        return 1u
-    block@8: // switch_case_default_L4
-        goto block@9
-    block@9: // switch_case_next_L4
-        goto block@10
+        exit 1u
     block@10: // after_if_else_L4
-        return 0u
+        exit 0u
+
+subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:
+    block@0: // L5
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(tmp%0#0)
+        let tmp%2#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]() -> void:
+    block@0: // L17
+        let tmp%0#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
 
 subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(upper_bound: uint64) -> uint64:
     block@0: // L5

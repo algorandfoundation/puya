@@ -6,21 +6,17 @@ main:
     intcblock 1 0 2 3
     pushbytes ""
     dupn 2
-    txn NumAppArgs
-    bz main_after_if_else@16
-    pushbytess 0x4c5c61ba 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "create()void", method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
-    txna ApplicationArgs 0
-    match main_create_route@3 main_pay_route@4 main_key_route@5 main_asset_config_route@6 main_asset_transfer_route@7 main_asset_freeze_route@8 main_application_call_route@9 main_multiple_txns_route@10 main_any_txn_route@11 main_group_init_route@12
-
-main_after_if_else@16:
-    err
-
-main_group_init_route@12:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@14
+    pushbytess 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
+    txna ApplicationArgs 0
+    match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
+    err
+
+main_group_init_route@11:
     txn GroupIndex
     intc_3 // 3
     -
@@ -36,7 +32,7 @@ main_group_init_route@12:
     bury 2
     intc_1 // 0
 
-main_for_body@19:
+main_for_body@22:
     swap
     dup
     gtxns GroupIndex
@@ -46,32 +42,25 @@ main_for_body@19:
     gtxns TxID
     ==
     assert
-    switch main_for_header_1@20 main_for_header_2@21
+    switch main_for_header_1@23 main_for_header_2@24
     dig 2
     gtxns TxID
     intc_1 // 0
     gtxns TxID
     ==
-    assert
-    intc_0 // 1
     return
 
-main_for_header_2@21:
+main_for_header_2@24:
     dup
     intc_2 // 2
-    b main_for_body@19
+    b main_for_body@22
 
-main_for_header_1@20:
+main_for_header_1@23:
     dig 1
     intc_0 // 1
-    b main_for_body@19
+    b main_for_body@22
 
-main_any_txn_route@11:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_any_txn_route@10:
     txn GroupIndex
     intc_3 // 3
     -
@@ -85,34 +74,29 @@ main_any_txn_route@11:
     bury 2
     intc_1 // 0
 
-main_for_body@25:
+main_for_body@28:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@26 main_for_header_2@27
+    switch main_for_header_1@29 main_for_header_2@30
 
-main_after_for@34:
+main_after_for@37:
     intc_0 // 1
     return
 
-main_for_header_2@27:
+main_for_header_2@30:
     dup
     intc_2 // 2
-    b main_for_body@25
+    b main_for_body@28
 
-main_for_header_1@26:
+main_for_header_1@29:
     dig 1
     intc_0 // 1
-    b main_for_body@25
+    b main_for_body@28
 
-main_multiple_txns_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_multiple_txns_route@9:
     txn GroupIndex
     intc_3 // 3
     -
@@ -141,31 +125,26 @@ main_multiple_txns_route@10:
     assert // transaction type is appl
     intc_1 // 0
 
-main_for_body@31:
+main_for_body@34:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@32 main_for_header_2@33
-    b main_after_for@34
+    switch main_for_header_1@35 main_for_header_2@36
+    b main_after_for@37
 
-main_for_header_2@33:
+main_for_header_2@36:
     dup
     intc_2 // 2
-    b main_for_body@31
+    b main_for_body@34
 
-main_for_header_1@32:
+main_for_header_1@35:
     dig 1
     intc_0 // 1
-    b main_for_body@31
+    b main_for_body@34
 
-main_application_call_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_application_call_route@8:
     txn GroupIndex
     intc_0 // 1
     -
@@ -254,16 +233,9 @@ main_application_call_route@9:
     intc_1 // 0
     gtxnsas ClearStateProgramPages
     len
-    assert // clear_state_program_pages(0)
-    intc_0 // 1
-    return
+    return // on error: clear_state_program_pages(0)
 
-main_asset_freeze_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_asset_freeze_route@7:
     txn GroupIndex
     intc_0 // 1
     -
@@ -283,16 +255,9 @@ main_asset_freeze_route@8:
     !=
     assert // freeze_account
     gtxns FreezeAssetFrozen
-    assert // frozen
-    intc_0 // 1
-    return
+    return // on error: frozen
 
-main_asset_transfer_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_asset_transfer_route@6:
     txn GroupIndex
     intc_0 // 1
     -
@@ -322,16 +287,9 @@ main_asset_transfer_route@7:
     gtxns AssetCloseTo
     global ZeroAddress
     !=
-    assert // asset_close_to
-    intc_0 // 1
-    return
+    return // on error: asset_close_to
 
-main_asset_config_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_asset_config_route@5:
     txn GroupIndex
     intc_0 // 1
     -
@@ -384,16 +342,9 @@ main_asset_config_route@6:
     gtxns ConfigAssetClawback
     global ZeroAddress
     !=
-    assert // clawback
-    intc_0 // 1
-    return
+    return // on error: clawback
 
-main_key_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_key_route@4:
     txn GroupIndex
     intc_0 // 1
     -
@@ -418,16 +369,9 @@ main_key_route@5:
     assert // non_participation
     gtxns StateProofPK
     len
-    assert // state_proof_key
-    intc_0 // 1
-    return
+    return // on error: state_proof_key
 
-main_pay_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_pay_route@3:
     txn GroupIndex
     intc_0 // 1
     -
@@ -451,19 +395,13 @@ main_pay_route@4:
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    assert // close_remainder_to
-    intc_0 // 1
-    return
+    return // on error: close_remainder_to
 
-main_create_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+main_create_NoOp@14:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_after_for@37
+    err
 
 
 // test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:

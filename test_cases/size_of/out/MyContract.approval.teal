@@ -6,12 +6,10 @@ main:
     // size_of/contract.py:11
     // class MyContract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xa78000de // method "test()void"
     txna ApplicationArgs 0
     match main_test_route@3
-
-main_after_if_else@10:
     err
 
 main_test_route@3:
@@ -19,19 +17,14 @@ main_test_route@3:
     // @arc4.abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when not creating
 
-main_bare_routing@6:
-    // size_of/contract.py:11
-    // class MyContract(arc4.ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

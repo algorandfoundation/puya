@@ -19,21 +19,17 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    txn NumAppArgs
-    bz main_after_if_else@25
-    pushbytess 0xae897f6b 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void", method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0
-    match main_create_route@5 main_bootstrap_route@6 main_close_route@7 main_get_preconditions_route@20 main_vote_route@21
-
-main_after_if_else@25:
-    err
-
-main_vote_route@21:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@9
+    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+    err
+
+main_vote_route@8:
     txn GroupIndex
     intc_1 // 1
     -
@@ -98,11 +94,11 @@ main_vote_route@21:
     intc_0 // 0
     bury 4
 
-main_for_header@22:
+main_for_header@18:
     dig 3
     dig 3
     <
-    bz main_after_for@24
+    bz main_after_for@20
     dig 16
     dup
     extract 2 0
@@ -156,18 +152,13 @@ main_for_header@22:
     intc_1 // 1
     +
     bury 4
-    b main_for_header@22
+    b main_for_header@18
 
-main_after_for@24:
+main_after_for@20:
     intc_1 // 1
     return
 
-main_get_preconditions_route@20:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_get_preconditions_route@7:
     txna ApplicationArgs 1
     extract 2 0
     callsub voting_open
@@ -195,12 +186,7 @@ main_get_preconditions_route@20:
     intc_1 // 1
     return
 
-main_close_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_close_route@6:
     pushint 20000 // 20000
     intc_0 // 0
     callsub ensure_budget
@@ -262,15 +248,15 @@ main_close_route@7:
     assert // check self.option_counts exists
     intc_0 // 0
     extract_uint16
-    bury 10
+    bury 11
     intc_0 // 0
     bury 4
 
-main_for_header@8:
+main_for_header@25:
     dig 3
-    dig 10
+    dig 11
     <
-    bz main_after_for@19
+    bz main_after_for@36
     dig 15
     extract 2 0
     dup
@@ -283,13 +269,13 @@ main_for_header@8:
     bury 13
     dig 15
     bury 15
-    bz main_after_if_else@11
+    bz main_after_if_else@28
     dig 14
     pushbytes ","
     concat
     bury 14
 
-main_after_if_else@11:
+main_after_if_else@28:
     dig 13
     dup
     bury 16
@@ -300,7 +286,7 @@ main_after_if_else@11:
     bury 9
     swap
     bury 15
-    bz main_after_if_else@18
+    bz main_after_if_else@35
     dig 14
     pushbytes "["
     concat
@@ -312,21 +298,21 @@ main_after_if_else@11:
     intc_0 // 0
     bury 5
 
-main_for_header@13:
+main_for_header@30:
     dig 4
     dig 2
     <
-    bz main_after_for@17
+    bz main_after_for@34
     dig 14
     bury 14
     dig 4
-    bz main_after_if_else@16
+    bz main_after_if_else@33
     dig 14
     pushbytes ","
     concat
     bury 14
 
-main_after_if_else@16:
+main_after_if_else@33:
     dig 13
     bytec_3 // "V"
     dig 9
@@ -345,9 +331,9 @@ main_after_if_else@16:
     intc_1 // 1
     +
     bury 5
-    b main_for_header@13
+    b main_for_header@30
 
-main_after_for@17:
+main_after_for@34:
     dig 14
     pushbytes "]"
     concat
@@ -355,7 +341,7 @@ main_after_for@17:
     bury 8
     bury 14
 
-main_after_if_else@18:
+main_after_if_else@35:
     dig 6
     bury 8
     dig 13
@@ -364,9 +350,9 @@ main_after_if_else@18:
     intc_1 // 1
     +
     bury 4
-    b main_for_header@8
+    b main_for_header@25
 
-main_after_for@19:
+main_after_for@36:
     dig 14
     pushbytes "]}}"
     concat
@@ -405,12 +391,7 @@ main_after_for@19:
     intc_1 // 1
     return
 
-main_bootstrap_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_bootstrap_route@5:
     txn GroupIndex
     intc_1 // 1
     -
@@ -454,17 +435,15 @@ main_bootstrap_route@6:
     bytec_3 // "V"
     swap
     box_create
-    assert
-    intc_1 // 1
     return
 
-main_create_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_create_NoOp@9:
+    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+    txna ApplicationArgs 0
+    match main_create_route@10
+    err
+
+main_create_route@10:
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -515,7 +494,7 @@ main_create_route@5:
     intc_0 // 0
     extract_uint16
     dup
-    bury 12
+    bury 11
     dup
     assert // option_counts should be non-empty
     pushint 112 // 112
@@ -526,11 +505,11 @@ main_create_route@5:
     intc_0 // 0
     bury 6
 
-main_for_header@30:
+main_for_header@13:
     dig 5
-    dig 11
+    dig 10
     <
-    bz main_after_for@32
+    bz main_after_for@15
     dig 12
     extract 2 0
     dig 6
@@ -543,9 +522,9 @@ main_for_header@30:
     intc_1 // 1
     +
     bury 6
-    b main_for_header@30
+    b main_for_header@13
 
-main_after_for@32:
+main_after_for@15:
     dupn 2
     pushint 128 // 128
     <=

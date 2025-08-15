@@ -4,219 +4,23 @@
 // test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
-    bytecblock 0x151f7c75 "native_arr" "fixed_arr" "dynamic_struct" "nested_struct" "fixed_struct"
+    bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
     // mutable_native_types/abi_call.py:41
     // class CallMe(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@17
-    pushbytess 0x24378d3c 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "delete()void", method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
+    bz main___algopy_default_create@20
+    pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@5 main_fixed_struct_arg_route@6 main_fixed_struct_ret_route@7 main_nested_struct_arg_route@8 main_nested_struct_ret_route@9 main_dynamic_struct_arg_route@10 main_dynamic_struct_ret_route@11 main_fixed_arr_arg_route@12 main_fixed_arr_ret_route@13 main_native_arr_arg_route@14 main_native_arr_ret_route@15 main_log_it_route@16
-
-main_after_if_else@19:
+    match main_delete_route@5
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
+    pushbytess 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
+    txna ApplicationArgs 0
+    match fixed_struct_arg fixed_struct_ret nested_struct_arg nested_struct_ret dynamic_struct_arg dynamic_struct_ret fixed_arr_arg fixed_arr_ret native_arr_arg native_arr_ret log_it
     err
-
-main_log_it_route@16:
-    // mutable_native_types/abi_call.py:93
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub log_it
-    intc_0 // 1
-    return
-
-main_native_arr_ret_route@15:
-    // mutable_native_types/abi_call.py:89
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub native_arr_ret
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_native_arr_arg_route@14:
-    // mutable_native_types/abi_call.py:85
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // mutable_native_types/abi_call.py:87
-    // self.native_arr.value = arg.copy()
-    bytec_1 // "native_arr"
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // mutable_native_types/abi_call.py:87
-    // self.native_arr.value = arg.copy()
-    app_global_put
-    // mutable_native_types/abi_call.py:85
-    // @arc4.abimethod()
-    intc_0 // 1
-    return
-
-main_fixed_arr_ret_route@13:
-    // mutable_native_types/abi_call.py:81
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub fixed_arr_ret
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_fixed_arr_arg_route@12:
-    // mutable_native_types/abi_call.py:77
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // mutable_native_types/abi_call.py:79
-    // self.fixed_arr.value = arg.copy()
-    bytec_2 // "fixed_arr"
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // mutable_native_types/abi_call.py:79
-    // self.fixed_arr.value = arg.copy()
-    app_global_put
-    // mutable_native_types/abi_call.py:77
-    // @arc4.abimethod()
-    intc_0 // 1
-    return
-
-main_dynamic_struct_ret_route@11:
-    // mutable_native_types/abi_call.py:73
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub dynamic_struct_ret
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_dynamic_struct_arg_route@10:
-    // mutable_native_types/abi_call.py:69
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // mutable_native_types/abi_call.py:71
-    // self.dynamic_struct.value = arg.copy()
-    bytec_3 // "dynamic_struct"
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // mutable_native_types/abi_call.py:71
-    // self.dynamic_struct.value = arg.copy()
-    app_global_put
-    // mutable_native_types/abi_call.py:69
-    // @arc4.abimethod()
-    intc_0 // 1
-    return
-
-main_nested_struct_ret_route@9:
-    // mutable_native_types/abi_call.py:65
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub nested_struct_ret
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_nested_struct_arg_route@8:
-    // mutable_native_types/abi_call.py:61
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // mutable_native_types/abi_call.py:63
-    // self.nested_struct.value = arg
-    bytec 4 // "nested_struct"
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // mutable_native_types/abi_call.py:63
-    // self.nested_struct.value = arg
-    app_global_put
-    // mutable_native_types/abi_call.py:61
-    // @arc4.abimethod()
-    intc_0 // 1
-    return
-
-main_fixed_struct_ret_route@7:
-    // mutable_native_types/abi_call.py:57
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub fixed_struct_ret
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_fixed_struct_arg_route@6:
-    // mutable_native_types/abi_call.py:53
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // mutable_native_types/abi_call.py:55
-    // self.fixed_struct.value = arg
-    bytec 5 // "fixed_struct"
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // mutable_native_types/abi_call.py:55
-    // self.fixed_struct.value = arg
-    app_global_put
-    // mutable_native_types/abi_call.py:53
-    // @arc4.abimethod()
-    intc_0 // 1
-    return
 
 main_delete_route@5:
     // mutable_native_types/abi_call.py:49
@@ -224,47 +28,107 @@ main_delete_route@5:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
-    assert // OnCompletion is not DeleteApplication
     txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_bare_routing@17:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
+main___algopy_default_create@20:
     txn OnCompletion
-    bnz main_after_if_else@19
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:
+fixed_struct_arg:
+    // mutable_native_types/abi_call.py:55
+    // self.fixed_struct.value = arg
+    bytec_1 // "fixed_struct"
+    // mutable_native_types/abi_call.py:53
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    // mutable_native_types/abi_call.py:55
+    // self.fixed_struct.value = arg
+    app_global_put
+    // mutable_native_types/abi_call.py:53
+    // @arc4.abimethod()
     intc_0 // 1
     return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret() -> bytes:
+// test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[routing]() -> void:
 fixed_struct_ret:
     // mutable_native_types/abi_call.py:59
     // return self.fixed_struct.value
     intc_1 // 0
-    bytec 5 // "fixed_struct"
+    bytec_1 // "fixed_struct"
     app_global_get_ex
     assert // check self.fixed_struct exists
-    retsub
+    // mutable_native_types/abi_call.py:57
+    // @arc4.abimethod()
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret() -> bytes:
+// test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]() -> void:
+nested_struct_arg:
+    // mutable_native_types/abi_call.py:63
+    // self.nested_struct.value = arg
+    bytec_2 // "nested_struct"
+    // mutable_native_types/abi_call.py:61
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    // mutable_native_types/abi_call.py:63
+    // self.nested_struct.value = arg
+    app_global_put
+    // mutable_native_types/abi_call.py:61
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[routing]() -> void:
 nested_struct_ret:
     // mutable_native_types/abi_call.py:67
     // return self.nested_struct.value
     intc_1 // 0
-    bytec 4 // "nested_struct"
+    bytec_2 // "nested_struct"
     app_global_get_ex
     assert // check self.nested_struct exists
-    retsub
+    // mutable_native_types/abi_call.py:65
+    // @arc4.abimethod()
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret() -> bytes:
+// test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]() -> void:
+dynamic_struct_arg:
+    // mutable_native_types/abi_call.py:71
+    // self.dynamic_struct.value = arg.copy()
+    bytec_3 // "dynamic_struct"
+    // mutable_native_types/abi_call.py:69
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    // mutable_native_types/abi_call.py:71
+    // self.dynamic_struct.value = arg.copy()
+    app_global_put
+    // mutable_native_types/abi_call.py:69
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]() -> void:
 dynamic_struct_ret:
     // mutable_native_types/abi_call.py:75
     // return self.dynamic_struct.value
@@ -272,44 +136,99 @@ dynamic_struct_ret:
     bytec_3 // "dynamic_struct"
     app_global_get_ex
     assert // check self.dynamic_struct exists
-    retsub
+    // mutable_native_types/abi_call.py:73
+    // @arc4.abimethod()
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret() -> bytes:
+// test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]() -> void:
+fixed_arr_arg:
+    // mutable_native_types/abi_call.py:79
+    // self.fixed_arr.value = arg.copy()
+    bytec 4 // "fixed_arr"
+    // mutable_native_types/abi_call.py:77
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    // mutable_native_types/abi_call.py:79
+    // self.fixed_arr.value = arg.copy()
+    app_global_put
+    // mutable_native_types/abi_call.py:77
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing]() -> void:
 fixed_arr_ret:
     // mutable_native_types/abi_call.py:83
     // return self.fixed_arr.value
     intc_1 // 0
-    bytec_2 // "fixed_arr"
+    bytec 4 // "fixed_arr"
     app_global_get_ex
     assert // check self.fixed_arr exists
-    retsub
+    // mutable_native_types/abi_call.py:81
+    // @arc4.abimethod()
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret() -> bytes:
+// test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]() -> void:
+native_arr_arg:
+    // mutable_native_types/abi_call.py:87
+    // self.native_arr.value = arg.copy()
+    bytec 5 // "native_arr"
+    // mutable_native_types/abi_call.py:85
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    // mutable_native_types/abi_call.py:87
+    // self.native_arr.value = arg.copy()
+    app_global_put
+    // mutable_native_types/abi_call.py:85
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routing]() -> void:
 native_arr_ret:
     // mutable_native_types/abi_call.py:91
     // return self.native_arr.value
     intc_1 // 0
-    bytec_1 // "native_arr"
+    bytec 5 // "native_arr"
     app_global_get_ex
     assert // check self.native_arr exists
-    retsub
+    // mutable_native_types/abi_call.py:89
+    // @arc4.abimethod()
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.mutable_native_types.abi_call.CallMe.log_it() -> void:
+// test_cases.mutable_native_types.abi_call.CallMe.log_it[routing]() -> void:
 log_it:
     // mutable_native_types/abi_call.py:95
     // log(self.fixed_struct.value)
     intc_1 // 0
-    bytec 5 // "fixed_struct"
+    bytec_1 // "fixed_struct"
     app_global_get_ex
     assert // check self.fixed_struct exists
     log
     // mutable_native_types/abi_call.py:96
     // log(self.nested_struct.value)
     intc_1 // 0
-    bytec 4 // "nested_struct"
+    bytec_2 // "nested_struct"
     app_global_get_ex
     assert // check self.nested_struct exists
     log
@@ -323,15 +242,18 @@ log_it:
     // mutable_native_types/abi_call.py:98
     // log(self.fixed_arr.value)
     intc_1 // 0
-    bytec_2 // "fixed_arr"
+    bytec 4 // "fixed_arr"
     app_global_get_ex
     assert // check self.fixed_arr exists
     log
     // mutable_native_types/abi_call.py:99
     // log(self.native_arr.value)
     intc_1 // 0
-    bytec_1 // "native_arr"
+    bytec 5 // "native_arr"
     app_global_get_ex
     assert // check self.native_arr exists
     log
-    retsub
+    // mutable_native_types/abi_call.py:93
+    // @arc4.abimethod()
+    intc_0 // 1
+    return

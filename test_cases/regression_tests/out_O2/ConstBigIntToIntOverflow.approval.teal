@@ -6,20 +6,18 @@ main:
     bytecblock 0x010000000000000000 0x151f7c75
     pushbytes ""
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
-    txna ApplicationArgs 0
-    match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
-
-main_after_if_else@11:
-    err
-
-main_get_abs_bound2_route@4:
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
+    txna ApplicationArgs 0
+    match main_get_abs_bound1_route@4 main_get_abs_bound2_route@5
+    err
+
+main_get_abs_bound2_route@5:
     bytec_0 // 0x010000000000000000
     btoi
     itob
@@ -30,22 +28,17 @@ main_get_abs_bound2_route@4:
     pushint 1 // 1
     return
 
-main_get_abs_bound1_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_get_abs_bound1_route@4:
     txna ApplicationArgs 1
     btoi
     pushint 0 // 0
     bury 2
-    bz main_after_if_else@19
+    bz main_after_if_else@17
     bytec_0 // 0x010000000000000000
     btoi
     bury 1
 
-main_after_if_else@19:
+main_after_if_else@17:
     dup
     itob
     bytec_1 // 0x151f7c75
@@ -55,11 +48,10 @@ main_after_if_else@19:
     pushint 1 // 1
     return
 
-main_bare_routing@7:
+main___algopy_default_create@10:
     txn OnCompletion
-    bnz main_after_if_else@11
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

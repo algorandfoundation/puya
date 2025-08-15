@@ -3,198 +3,53 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1
     txn NumAppArgs
-    bz main_bare_routing@18
-    pushbytess 0x33b3499e 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "delete_application()void", method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
+    bz main___algopy_default_create@23
+    pushbytes 0x33b3499e // method "delete_application()void"
     txna ApplicationArgs 0
-    match main_delete_application_route@3 main_check_uint64_route@4 main_check_dynamic_bytes_route@5 main_check_string_route@6 main_check_biguint_route@7 main_check_bool_route@8 main_check_dyn_array_uin64_route@9 main_check_static_array_uin64_3_route@10 main_check_dyn_array_struct_route@11 main_check_static_array_struct_route@12 main_check_dyn_array_dyn_struct_route@13 main_check_static_array_dyn_struct_route@14 main_check_static_bytes_route@15
-
-main_after_if_else@22:
-    err
-
-main_check_static_bytes_route@15:
+    match main_delete_application_route@3
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
+    txna ApplicationArgs 0
+    match main_check_uint64_route@7 main_check_dynamic_bytes_route@8 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_static_bytes_route@18
+    err
+
+main_check_static_bytes_route@18:
     txna ApplicationArgs 1
     txn Sender
     ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
+    return // on error: expected to encode correctly
 
-main_check_static_array_dyn_struct_route@14:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_check_uint64_route@7:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     extract 2 0
     ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
+    return // on error: expected to encode correctly
 
-main_check_dyn_array_dyn_struct_route@13:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_check_dynamic_bytes_route@8:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     extract 2 0
     ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_static_array_struct_route@12:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_dyn_array_struct_route@11:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_static_array_uin64_3_route@10:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_dyn_array_uin64_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_bool_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_biguint_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_string_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_dynamic_bytes_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
-
-main_check_uint64_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_0 // 1
-    return
+    return // on error: expected to encode correctly
 
 main_delete_application_route@3:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
-    assert // OnCompletion is not DeleteApplication
     txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_bare_routing@18:
+main___algopy_default_create@23:
     txn OnCompletion
-    bnz main_after_if_else@22
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

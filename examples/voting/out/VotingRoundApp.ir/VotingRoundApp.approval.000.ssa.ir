@@ -62,97 +62,100 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
 
 subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
     block@0: // L49
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@9
-    block@1: // abi_routing_L49
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@2, method "bootstrap(pay)void" => block@3, method "close()void" => block@4, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@5, method "vote(pay,byte[],uint8[])void" => block@6, * => block@7}
-    block@2: // create_route_L58
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (== tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when creating
+        let tmp%0#0: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (== tmp%0#0 NoOp)
+        (assert tmp%1#0) // OnCompletion must be NoOp
+        let tmp%2#0: uint64 = (txn ApplicationID)
+        let tmp%3#0: bool = (!= tmp%2#0 0u)
+        goto tmp%3#0 ? block@1 : block@8
+    block@1: // call_NoOp_L49
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%4#0 {method "bootstrap(pay)void" => block@2, method "close()void" => block@3, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@4, method "vote(pay,byte[],uint8[])void" => block@5, * => block@6}
+    block@2: // bootstrap_route_L82
+        examples.voting.voting.VotingRoundApp.bootstrap[routing]()
+        goto block@7
+    block@3: // close_route_L110
+        examples.voting.voting.VotingRoundApp.close[routing]()
+        goto block@7
+    block@4: // get_preconditions_route_L160
+        examples.voting.voting.VotingRoundApp.get_preconditions[routing]()
+        goto block@7
+    block@5: // vote_route_L169
+        examples.voting.voting.VotingRoundApp.vote[routing]()
+        goto block@7
+    block@6: // switch_case_default_L49
+        goto block@7
+    block@7: // switch_case_next_L49
+        goto block@12
+    block@8: // create_NoOp_L49
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@9, * => block@10}
+    block@9: // create_route_L58
+        examples.voting.voting.VotingRoundApp.create[routing]()
+        goto block@11
+    block@10: // switch_case_default_L49
+        goto block@11
+    block@11: // switch_case_next_L49
+        goto block@12
+    block@12: // after_if_else_L49
+        exit 0u
+
+subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
+    block@0: // L58
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%0#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%8#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
         let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let tmp%9#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
+        let tmp%2#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%10#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%3#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%11#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
         let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
         let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let tmp%12#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        let tmp%5#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
         let reinterpret_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = (txna ApplicationArgs 8)
-        let tmp%13#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%2#0)
-        examples.voting.voting.VotingRoundApp.create(tmp%7#0, tmp%8#0, tmp%9#0, tmp%10#0, tmp%11#0, reinterpret_Encoded(len+uint8[])%1#0, tmp%12#0, tmp%13#0)
-        return 1u
-    block@3: // bootstrap_route_L82
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (== tmp%14#0 NoOp)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when not creating
-        let tmp%18#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%18#0 1u)
+        let tmp%6#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%2#0)
+        examples.voting.voting.VotingRoundApp.create(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0, tmp%4#0, reinterpret_Encoded(len+uint8[])%1#0, tmp%5#0, tmp%6#0)
+        exit 1u
+
+subroutine examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
+    block@0: // L82
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         examples.voting.voting.VotingRoundApp.bootstrap(gtxn_idx%0#0)
-        return 1u
-    block@4: // close_route_L110
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
+        exit 1u
+
+subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
+    block@0: // L110
         examples.voting.voting.VotingRoundApp.close()
-        return 1u
-    block@5: // get_preconditions_route_L160
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (== tmp%23#0 NoOp)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        let tmp%26#0: bool = (!= tmp%25#0 0u)
-        (assert tmp%26#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%27#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
-        let tmp%28#0: Encoded(uint64,uint64,uint64,uint64) = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%27#0)
-        let tmp%29#0: bytes = (concat 0x151f7c75 tmp%28#0)
-        (log tmp%29#0)
-        return 1u
-    block@6: // vote_route_L169
-        let tmp%30#0: uint64 = (txn OnCompletion)
-        let tmp%31#0: bool = (== tmp%30#0 NoOp)
-        (assert tmp%31#0) // OnCompletion is not NoOp
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        let tmp%33#0: bool = (!= tmp%32#0 0u)
-        (assert tmp%33#0) // can only call when not creating
-        let tmp%34#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%34#0 1u)
-        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
-        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
-        (assert gtxn_type_matches%1#0) // transaction type is pay
-        let reinterpret_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%35#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%3#0)
-        let reinterpret_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        examples.voting.voting.VotingRoundApp.vote(gtxn_idx%1#0, tmp%35#0, reinterpret_Encoded(len+uint8[])%4#0)
-        return 1u
-    block@7: // switch_case_default_L49
-        goto block@8
-    block@8: // switch_case_next_L49
-        goto block@10
-    block@9: // bare_routing_L49
-        goto block@10
-    block@10: // after_if_else_L49
-        return 0u
+        exit 1u
+
+subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
+    block@0: // L160
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: Encoded(uint64,uint64,uint64,uint64) = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
+    block@0: // L169
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%1#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
+        examples.voting.voting.VotingRoundApp.vote(gtxn_idx%0#0, tmp%1#0, reinterpret_Encoded(len+uint8[])%1#0)
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.__init__() -> void:
     block@0: // L50

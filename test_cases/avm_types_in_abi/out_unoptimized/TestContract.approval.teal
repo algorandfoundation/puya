@@ -3,9 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 64 32
+    intcblock 0 1 64 75
     bytecblock 0x 0x151f7c75
-    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -14,90 +13,71 @@ main_block@0:
 main_block@1:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    txn NumAppArgs
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
     intc_0 // 0
     !=
-    bz main_bare_routing@7
-    b main_abi_routing@2
+    bz main_create_NoOp@6
+    b main_call_NoOp@2
 
-main_abi_routing@2:
+main_call_NoOp@2:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
+    uncover 1
+    match main_tuple_of_arc4_route@3
+    b main_switch_case_default@4
+
+main_switch_case_default@4:
+    b main_switch_case_next@5
+
+main_switch_case_next@5:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    err
+
+main_tuple_of_arc4_route@3:
+    // avm_types_in_abi/contract.py:19
+    // @arc4.abimethod
+    callsub tuple_of_arc4
+    b main_switch_case_next@5
+
+main_create_NoOp@6:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
-    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
-    uncover 2
-    match main_create_route@3 main_tuple_of_arc4_route@4
-    b main_switch_case_default@5
-
-main_switch_case_default@5:
-    b main_switch_case_next@6
-
-main_switch_case_next@6:
-    b main_after_if_else@8
-
-main_after_if_else@8:
-    // avm_types_in_abi/contract.py:4
-    // class TestContract(arc4.ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9
-
-main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9:
-    return
-
-main_tuple_of_arc4_route@4:
-    // avm_types_in_abi/contract.py:19
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // avm_types_in_abi/contract.py:4
-    // class TestContract(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    intc_1 // 1
-    extract3
-    cover 1
-    intc_1 // 1
-    intc_3 // 32
-    extract3
-    // avm_types_in_abi/contract.py:19
-    // @arc4.abimethod
-    callsub tuple_of_arc4
-    cover 1
-    bytec_0 // 0x
     uncover 1
-    concat
-    uncover 1
-    concat
-    bytec_1 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9
+    match main_create_route@7
+    b main_switch_case_default@8
 
-main_create_route@3:
+main_switch_case_default@8:
+    b main_switch_case_next@9
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main_create_route@7:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
-    // avm_types_in_abi/contract.py:4
-    // class TestContract(arc4.ARC4Contract):
+    callsub create
+    b main_switch_case_next@9
+
+
+// test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
+create:
+    b create_block@0
+
+create_block@0:
+    // avm_types_in_abi/contract.py:5
+    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txna ApplicationArgs 1
     intc_0 // 0
     getbit
@@ -124,7 +104,7 @@ main_create_route@3:
     extract_uint16
     cover 1
     dup
-    pushint 75 // 75
+    intc_3 // 75
     extract_uint16
     dig 1
     uncover 3
@@ -138,7 +118,7 @@ main_create_route@3:
     extract3
     cover 1
     dup
-    pushint 75 // 75
+    intc_3 // 75
     extract_uint16
     cover 1
     dup
@@ -156,8 +136,6 @@ main_create_route@3:
     cover 1
     uncover 4
     cover 1
-    // avm_types_in_abi/contract.py:5
-    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     uncover 9
     uncover 9
     uncover 9
@@ -168,7 +146,7 @@ main_create_route@3:
     uncover 9
     uncover 9
     uncover 9
-    callsub create
+    callsub test_cases.avm_types_in_abi.contract.TestContract.create
     cover 4
     cover 3
     cover 2
@@ -235,15 +213,42 @@ main_create_route@3:
     concat
     log
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9
+    return
 
-main_bare_routing@7:
-    b main_after_if_else@8
+
+// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]() -> void:
+tuple_of_arc4:
+    b tuple_of_arc4_block@0
+
+tuple_of_arc4_block@0:
+    // avm_types_in_abi/contract.py:19
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    intc_1 // 1
+    extract3
+    cover 1
+    intc_1 // 1
+    pushint 32 // 32
+    extract3
+    callsub test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
+    cover 1
+    bytec_0 // 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:
-create:
+test_cases.avm_types_in_abi.contract.TestContract.create:
     // avm_types_in_abi/contract.py:5-14
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     // def create(
@@ -256,9 +261,9 @@ create:
     //     tuple_param: tuple[bool, UInt64, Bytes, BigUInt, String],
     // ) -> tuple[bool, UInt64, Bytes, BigUInt, String]:
     proto 10 5
-    b create_block@0
+    b test_cases.avm_types_in_abi.contract.TestContract.create_block@0
 
-create_block@0:
+test_cases.avm_types_in_abi.contract.TestContract.create_block@0:
     // avm_types_in_abi/contract.py:15
     // result = (bool_param, uint64_param, bytes_param, biguint_param, string_param)
     frame_dig -10
@@ -302,16 +307,16 @@ create_block@0:
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
-tuple_of_arc4:
+test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4:
     // avm_types_in_abi/contract.py:19-22
     // @arc4.abimethod
     // def tuple_of_arc4(
     //     self, args: tuple[arc4.UInt8, arc4.Address]
     // ) -> tuple[arc4.UInt8, arc4.Address]:
     proto 2 2
-    b tuple_of_arc4_block@0
+    b test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4_block@0
 
-tuple_of_arc4_block@0:
+test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4_block@0:
     // avm_types_in_abi/contract.py:23
     // assert args[0].bytes.length == 1
     frame_dig -2
@@ -323,7 +328,7 @@ tuple_of_arc4_block@0:
     // assert args[1].bytes.length == 32
     frame_dig -1
     len
-    intc_3 // 32
+    pushint 32 // 32
     ==
     assert
     // avm_types_in_abi/contract.py:25

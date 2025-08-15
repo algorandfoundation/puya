@@ -3,58 +3,54 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
     bytecblock 0x00030000
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
     match main_verify_route@3
-
-main_after_if_else@10:
     err
 
 main_verify_route@3:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     txn NumAppArgs
-    intc_0 // 0
+    pushint 0 // 0
     !=
     pushbytes 0x00
-    intc_0 // 0
+    pushint 0 // 0
     uncover 2
     setbit
     swap
-    intc_0 // 0
+    pushint 0 // 0
     extract_uint16
     pushint 2 // 2
     !=
-    bz main_after_if_else@16
+    bz main_after_if_else@11
     bytec_0 // 0x00030000
     concat
 
-main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@17:
+main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@12:
     pushbytes 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    pushint 1 // 1
     return
 
-main_after_if_else@16:
+main_after_if_else@11:
     bytec_0 // 0x00030000
     concat
-    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@17
+    b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@12
 
-main_bare_routing@6:
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

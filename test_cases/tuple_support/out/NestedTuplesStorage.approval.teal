@@ -46,81 +46,23 @@ main_after_if_else@2:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
-    pushbytess 0xbec76d87 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "bootstrap()void", method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
+    bz main___algopy_default_create@13
+    pushbytes 0xbec76d87 // method "bootstrap()void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5 main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9
+    match main_bootstrap_route@5
 
-main_after_if_else@12:
+main_switch_case_next@6:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
+    pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
+    txna ApplicationArgs 0
+    match mutate_tuple mutate_box mutate_global mutate_local
     err
-
-main_mutate_local_route@9:
-    // tuple_support/tuple_storage.py:40
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // tuple_support/tuple_storage.py:11
-    // class NestedTuplesStorage(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // tuple_support/tuple_storage.py:40
-    // @arc4.abimethod()
-    callsub mutate_local
-    intc_1 // 1
-    return
-
-main_mutate_global_route@8:
-    // tuple_support/tuple_storage.py:36
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // tuple_support/tuple_storage.py:11
-    // class NestedTuplesStorage(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // tuple_support/tuple_storage.py:36
-    // @arc4.abimethod()
-    callsub mutate_global
-    intc_1 // 1
-    return
-
-main_mutate_box_route@7:
-    // tuple_support/tuple_storage.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // tuple_support/tuple_storage.py:11
-    // class NestedTuplesStorage(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // tuple_support/tuple_storage.py:32
-    // @arc4.abimethod()
-    callsub mutate_box
-    intc_1 // 1
-    return
-
-main_mutate_tuple_route@6:
-    // tuple_support/tuple_storage.py:28
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // tuple_support/tuple_storage.py:11
-    // class NestedTuplesStorage(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // tuple_support/tuple_storage.py:28
-    // @arc4.abimethod()
-    callsub mutate_tuple
-    intc_1 // 1
-    return
 
 main_bootstrap_route@5:
     // tuple_support/tuple_storage.py:23
@@ -128,26 +70,21 @@ main_bootstrap_route@5:
     txn OnCompletion
     intc_1 // OptIn
     ==
-    assert // OnCompletion is not OptIn
     txn ApplicationID
-    assert // can only call when not creating
-    callsub bootstrap
-    intc_1 // 1
-    return
+    &&
+    assert // OnCompletion must be OptIn && can only call when not creating
+    b bootstrap
 
-main_bare_routing@10:
-    // tuple_support/tuple_storage.py:11
-    // class NestedTuplesStorage(arc4.ARC4Contract):
+main___algopy_default_create@13:
     txn OnCompletion
-    bnz main_after_if_else@12
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]() -> void:
 bootstrap:
     // tuple_support/tuple_storage.py:25
     // self.box.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
@@ -173,15 +110,17 @@ bootstrap:
     bytec 4 // "loc"
     uncover 2
     app_local_put
-    retsub
+    // tuple_support/tuple_storage.py:23
+    // @arc4.abimethod(allow_actions=["OptIn"])
+    intc_1 // 1
+    return
 
 
-// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: bytes) -> void:
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]() -> void:
 mutate_tuple:
-    // tuple_support/tuple_storage.py:28-29
+    // tuple_support/tuple_storage.py:28
     // @arc4.abimethod()
-    // def mutate_tuple(self, val: arc4.UInt64) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
     // tuple_support/tuple_storage.py:30
     // self.tup.arr.append(val)
     intc_0 // 0
@@ -199,7 +138,7 @@ mutate_tuple:
     swap
     extract 2 8
     dig 1
-    frame_dig -1
+    uncover 3
     concat // on error: max array length exceeded
     uncover 2
     intc_0 // 0
@@ -217,15 +156,17 @@ mutate_tuple:
     bytec_0 // "tup"
     swap
     app_global_put
-    retsub
-
-
-// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: bytes) -> void:
-mutate_box:
-    // tuple_support/tuple_storage.py:32-33
+    // tuple_support/tuple_storage.py:28
     // @arc4.abimethod()
-    // def mutate_box(self, val: arc4.UInt64) -> None:
-    proto 1 0
+    intc_1 // 1
+    return
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box[routing]() -> void:
+mutate_box:
+    // tuple_support/tuple_storage.py:32
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
     // tuple_support/tuple_storage.py:34
     // self.box.value.arr.append(val)
     bytec_2 // "box"
@@ -242,7 +183,7 @@ mutate_box:
     swap
     extract 2 8
     dig 1
-    frame_dig -1
+    uncover 3
     concat // on error: max array length exceeded
     uncover 2
     intc_0 // 0
@@ -263,15 +204,17 @@ mutate_box:
     bytec_2 // "box"
     swap
     box_put
-    retsub
-
-
-// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: bytes) -> void:
-mutate_global:
-    // tuple_support/tuple_storage.py:36-37
+    // tuple_support/tuple_storage.py:32
     // @arc4.abimethod()
-    // def mutate_global(self, val: arc4.UInt64) -> None:
-    proto 1 0
+    intc_1 // 1
+    return
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global[routing]() -> void:
+mutate_global:
+    // tuple_support/tuple_storage.py:36
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
     // tuple_support/tuple_storage.py:38
     // self.glob.value.arr.append(val)
     intc_0 // 0
@@ -289,7 +232,7 @@ mutate_global:
     swap
     extract 2 8
     dig 1
-    frame_dig -1
+    uncover 3
     concat // on error: max array length exceeded
     uncover 2
     intc_0 // 0
@@ -307,15 +250,17 @@ mutate_global:
     bytec_3 // "glob"
     swap
     app_global_put
-    retsub
-
-
-// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: bytes) -> void:
-mutate_local:
-    // tuple_support/tuple_storage.py:40-41
+    // tuple_support/tuple_storage.py:36
     // @arc4.abimethod()
-    // def mutate_local(self, val: arc4.UInt64) -> None:
-    proto 1 0
+    intc_1 // 1
+    return
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local[routing]() -> void:
+mutate_local:
+    // tuple_support/tuple_storage.py:40
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
     // tuple_support/tuple_storage.py:42
     // self.loc[Txn.sender].arr.append(val)
     txn Sender
@@ -335,7 +280,7 @@ mutate_local:
     swap
     extract 2 8
     dig 1
-    frame_dig -1
+    uncover 4
     concat // on error: max array length exceeded
     uncover 2
     intc_0 // 0
@@ -353,4 +298,7 @@ mutate_local:
     bytec 4 // "loc"
     swap
     app_local_put
-    retsub
+    // tuple_support/tuple_storage.py:40
+    // @arc4.abimethod()
+    intc_1 // 1
+    return

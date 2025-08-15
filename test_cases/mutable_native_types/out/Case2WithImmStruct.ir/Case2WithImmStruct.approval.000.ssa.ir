@@ -147,151 +147,147 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L34
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@15
+        goto tmp%1#0 ? block@1 : block@18
     block@1: // abi_routing_L34
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_box()void" => block@2, method "num_tups()uint64" => block@3, method "add_tup((uint64,uint64))void" => block@4, method "get_tup(uint64)(uint64,uint64)" => block@5, method "sum()uint64" => block@6, method "add_many_tups((uint64,uint64)[])void" => block@7, method "add_fixed_tups((uint64,uint64)[3])void" => block@8, method "set_a(uint64)void" => block@9, method "set_b(uint64)void" => block@10, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@11, method "get_all_tups()(uint64,uint64)[]" => block@12, * => block@13}
-    block@2: // create_box_route_L38
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box()
-        return 1u
-    block@3: // num_tups_route_L45
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@16
+    block@2: // call_NoOp_L34
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create_box()void" => block@3, method "num_tups()uint64" => block@4, method "add_tup((uint64,uint64))void" => block@5, method "get_tup(uint64)(uint64,uint64)" => block@6, method "sum()uint64" => block@7, method "add_many_tups((uint64,uint64)[])void" => block@8, method "add_fixed_tups((uint64,uint64)[3])void" => block@9, method "set_a(uint64)void" => block@10, method "set_b(uint64)void" => block@11, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@12, method "get_all_tups()(uint64,uint64)[]" => block@13, * => block@14}
+    block@3: // create_box_route_L38
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box[routing]()
+        goto block@15
+    block@4: // num_tups_route_L45
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups[routing]()
+        goto block@15
+    block@5: // add_tup_route_L49
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup[routing]()
+        goto block@15
+    block@6: // get_tup_route_L56
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup[routing]()
+        goto block@15
+    block@7: // sum_route_L61
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum[routing]()
+        goto block@15
+    block@8: // add_many_tups_route_L70
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups[routing]()
+        goto block@15
+    block@9: // add_fixed_tups_route_L75
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups[routing]()
+        goto block@15
+    block@10: // set_a_route_L80
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a[routing]()
+        goto block@15
+    block@11: // set_b_route_L87
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b[routing]()
+        goto block@15
+    block@12: // get_3_tups_route_L94
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups[routing]()
+        goto block@15
+    block@13: // get_all_tups_route_L107
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups[routing]()
+        goto block@15
+    block@14: // switch_case_default_L34
+        goto block@15
+    block@15: // switch_case_next_L34
+        goto block@17
+    block@16: // create_NoOp_L34
+        goto block@17
+    block@17: // after_if_else_L34
+        goto block@19
+    block@18: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        let tmp%11#0: uint64 = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups()
-        let tmp%12#0: Encoded(uint64) = bytes_encode<uint64>(tmp%11#0)
-        let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
-        (log tmp%13#0)
-        return 1u
-    block@4: // add_tup_route_L49
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (== tmp%14#0 NoOp)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create()
+        exit 1u
+    block@19: // after_if_else_L34
+        exit 0u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box[routing]() -> void:
+    block@0: // L38
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box()
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups[routing]() -> void:
+    block@0: // L45
+        let tmp%0#0: uint64 = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup[routing]() -> void:
+    block@0: // L49
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
-        return 1u
-    block@5: // get_tup_route_L56
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: bool = (== tmp%18#0 NoOp)
-        (assert tmp%19#0) // OnCompletion is not NoOp
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (!= tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when not creating
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup[routing]() -> void:
+    block@0: // L56
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%22#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%23#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup(tmp%22#0)
-        let tmp%24#0: bytes = (concat 0x151f7c75 tmp%23#0)
-        (log tmp%24#0)
-        return 1u
-    block@6: // sum_route_L61
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (== tmp%25#0 NoOp)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        let tmp%28#0: bool = (!= tmp%27#0 0u)
-        (assert tmp%28#0) // can only call when not creating
-        let tmp%29#0: uint64 = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum()
-        let tmp%30#0: Encoded(uint64) = bytes_encode<uint64>(tmp%29#0)
-        let tmp%31#0: bytes = (concat 0x151f7c75 tmp%30#0)
-        (log tmp%31#0)
-        return 1u
-    block@7: // add_many_tups_route_L70
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (== tmp%32#0 NoOp)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        let tmp%35#0: bool = (!= tmp%34#0 0u)
-        (assert tmp%35#0) // can only call when not creating
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum[routing]() -> void:
+    block@0: // L61
+        let tmp%0#0: uint64 = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups[routing]() -> void:
+    block@0: // L70
         let reinterpret_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups(reinterpret_Encoded(len+(uint64,uint64)[])%0#0)
-        return 1u
-    block@8: // add_fixed_tups_route_L75
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (== tmp%36#0 NoOp)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        let tmp%39#0: bool = (!= tmp%38#0 0u)
-        (assert tmp%39#0) // can only call when not creating
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups[routing]() -> void:
+    block@0: // L75
         let reinterpret_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups(reinterpret_Encoded((uint64,uint64)[3])%0#0)
-        return 1u
-    block@9: // set_a_route_L80
-        let tmp%40#0: uint64 = (txn OnCompletion)
-        let tmp%41#0: bool = (== tmp%40#0 NoOp)
-        (assert tmp%41#0) // OnCompletion is not NoOp
-        let tmp%42#0: uint64 = (txn ApplicationID)
-        let tmp%43#0: bool = (!= tmp%42#0 0u)
-        (assert tmp%43#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%44#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(tmp%44#0)
-        return 1u
-    block@10: // set_b_route_L87
-        let tmp%45#0: uint64 = (txn OnCompletion)
-        let tmp%46#0: bool = (== tmp%45#0 NoOp)
-        (assert tmp%46#0) // OnCompletion is not NoOp
-        let tmp%47#0: uint64 = (txn ApplicationID)
-        let tmp%48#0: bool = (!= tmp%47#0 0u)
-        (assert tmp%48#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%49#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(tmp%49#0)
-        return 1u
-    block@11: // get_3_tups_route_L94
-        let tmp%50#0: uint64 = (txn OnCompletion)
-        let tmp%51#0: bool = (== tmp%50#0 NoOp)
-        (assert tmp%51#0) // OnCompletion is not NoOp
-        let tmp%52#0: uint64 = (txn ApplicationID)
-        let tmp%53#0: bool = (!= tmp%52#0 0u)
-        (assert tmp%53#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%54#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        let tmp%55#0: Encoded((uint64,uint64)[3]) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups(tmp%54#0)
-        let tmp%56#0: bytes = (concat 0x151f7c75 tmp%55#0)
-        (log tmp%56#0)
-        return 1u
-    block@12: // get_all_tups_route_L107
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (== tmp%57#0 NoOp)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        let tmp%60#0: bool = (!= tmp%59#0 0u)
-        (assert tmp%60#0) // can only call when not creating
-        let tmp%61#0: Encoded(len+(uint64,uint64)[]) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups()
-        let tmp%62#0: bytes = (concat 0x151f7c75 tmp%61#0)
-        (log tmp%62#0)
-        return 1u
-    block@13: // switch_case_default_L34
-        goto block@14
-    block@14: // switch_case_next_L34
-        goto block@19
-    block@15: // bare_routing_L34
-        let tmp%63#0: uint64 = (txn OnCompletion)
-        switch tmp%63#0 {0u => block@16, * => block@17}
-    block@16: // __algopy_default_create_L1
-        let tmp%64#0: uint64 = (txn ApplicationID)
-        let tmp%65#0: bool = (== tmp%64#0 0u)
-        (assert tmp%65#0) // can only call when creating
-        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create()
-        return 1u
-    block@17: // switch_case_default_L34
-        goto block@18
-    block@18: // switch_case_next_L34
-        goto block@19
-    block@19: // after_if_else_L34
-        return 0u
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a[routing]() -> void:
+    block@0: // L80
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(tmp%0#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b[routing]() -> void:
+    block@0: // L87
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(tmp%0#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups[routing]() -> void:
+    block@0: // L94
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%1#0: Encoded((uint64,uint64)[3]) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups[routing]() -> void:
+    block@0: // L107
+        let tmp%0#0: Encoded(len+(uint64,uint64)[]) = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups()
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__init__() -> void:
     block@0: // L35

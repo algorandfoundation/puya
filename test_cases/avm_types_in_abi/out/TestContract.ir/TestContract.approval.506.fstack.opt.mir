@@ -1,249 +1,214 @@
-// Op                                                                                            Stack (out)
+// Op                                                                Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                                           tmp%0#1
-        bz main_after_if_else@8 ; b main_abi_routing@2
+        txn OnCompletion                                             tmp%0#1
+        !                                                            tmp%1#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                            tmp%2#0
+        bz main_create_NoOp@6 ; b main_call_NoOp@2
 
-    main_abi_routing@2:
+    main_call_NoOp@2:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                                   tmp%2#0
-        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) tmp%2#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
-        method tuple_of_arc4((uint8,address))(uint8,address)                                     tmp%2#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),Method(tuple_of_arc4((uint8,address))(uint8,address))
-        l-load tmp%2#0 2                                                                         Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%2#0
-        match main_create_route@3 main_tuple_of_arc4_route@4 ; b main_after_if_else@8
+        txna ApplicationArgs 0                                       tmp%4#0
+        method tuple_of_arc4((uint8,address))(uint8,address)         tmp%4#0,Method(tuple_of_arc4((uint8,address))(uint8,address))
+        l-load tmp%4#0 1                                             Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
+        match main_tuple_of_arc4_route@3 ; b main_after_if_else@10
 
-    main_create_route@3:
-        // avm_types_in_abi/contract.py:5
-        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        txn OnCompletion                                                                         tmp%3#0
-        !                                                                                        tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                        tmp%5#0
-        !                                                                                        tmp%6#0
-        assert // can only call when creating
-        // avm_types_in_abi/contract.py:4
-        // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                   reinterpret_Encoded(bool8)%0#0
-        int 0                                                                                    reinterpret_Encoded(bool8)%0#0,0
-        getbit                                                                                   aggregate%get_bit%0#0
-        txna ApplicationArgs 2                                                                   aggregate%get_bit%0#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                                     aggregate%get_bit%0#0,tmp%8#0
-        txna ApplicationArgs 3                                                                   aggregate%get_bit%0#0,tmp%8#0,reinterpret_Encoded(len+uint8[])%0#0
-        extract 2 0                                                                              aggregate%get_bit%0#0,tmp%8#0,tmp%9#0
-        txna ApplicationArgs 4                                                                   aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0
-        txna ApplicationArgs 5                                                                   aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                              aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0
-        txna ApplicationArgs 6                                                                   aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 0 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        int 0                                                                                    aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),0
-        getbit                                                                                   aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 1 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        int 1                                                                                    aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),1
-        extract_uint64                                                                           aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 2 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        int 9                                                                                    aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),9
-        extract_uint16                                                                           aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%0#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 3 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        int 75                                                                                   aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),75
-        extract_uint16                                                                           aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 4 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        l-load aggregate%extract_uint16%0#0 2                                                    aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),aggregate%extract_uint16%0#0
-        l-load-copy aggregate%extract_uint16%1#0 2                                               aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0 (copy)
-        substring3                                                                               aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0
-        extract 2 0                                                                              aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 4 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        extract 11 64                                                                            aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0,aggregate%extract%1#0
-        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 5 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0,aggregate%extract%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
-        len                                                                                      aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%len%0#0
-        l-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 6 aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%extract_uint16%1#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%len%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        l-load aggregate%extract_uint16%1#0 4                                                    aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%len%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0
-        l-load aggregate%len%0#0 2                                                               aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0,aggregate%len%0#0
-        substring3                                                                               aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%substring3%1#0
-        extract 2 0                                                                              aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0
-        // avm_types_in_abi/contract.py:5
-        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        l-load aggregate%get_bit%0#0 9                                                           tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0
-        l-load tmp%8#0 9                                                                         tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0
-        l-load tmp%9#0 9                                                                         reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0
-        l-load reinterpret_Encoded(uint512)%0#0 9                                                tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0
-        l-load tmp%11#0 9                                                                        aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0
-        l-load aggregate%get_bit%1#0 9                                                           aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0
-        l-load aggregate%item1%0#0 9                                                             aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0
-        l-load aggregate%item2%0#0 9                                                             aggregate%extract%1#0,aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0
-        l-load aggregate%extract%1#0 9                                                           aggregate%item4%0#0,aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0
-        l-load aggregate%item4%0#0 9                                                             aggregate%get_bit%0#0,tmp%8#0,tmp%9#0,reinterpret_Encoded(uint512)%0#0,tmp%11#0,aggregate%get_bit%1#0,aggregate%item1%0#0,aggregate%item2%0#0,aggregate%extract%1#0,aggregate%item4%0#0
-        callsub create                                                                           tmp%17#0,tmp%18#0,tmp%19#0,tmp%20#0,tmp%21#0
-        byte 0x00                                                                                tmp%17#0,tmp%18#0,tmp%19#0,tmp%20#0,tmp%21#0,0x00
-        int 0                                                                                    tmp%17#0,tmp%18#0,tmp%19#0,tmp%20#0,tmp%21#0,0x00,0
-        l-load tmp%17#0 6                                                                        tmp%18#0,tmp%19#0,tmp%20#0,tmp%21#0,0x00,0,tmp%17#0
-        setbit                                                                                   tmp%18#0,tmp%19#0,tmp%20#0,tmp%21#0,aggregate%encoded_bool%0#0
-        l-load tmp%18#0 4                                                                        tmp%19#0,tmp%20#0,tmp%21#0,aggregate%encoded_bool%0#0,tmp%18#0
-        itob                                                                                     tmp%19#0,tmp%20#0,tmp%21#0,aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%encoded_bool%0#0 1                                                      tmp%19#0,tmp%20#0,tmp%21#0,aggregate%val_as_bytes%0#0,aggregate%encoded_bool%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                                      tmp%19#0,tmp%20#0,tmp%21#0,aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                                   tmp%19#0,tmp%20#0,tmp%21#0,aggregate%head%1#0
-        l-load-copy tmp%19#0 3                                                                   tmp%19#0,tmp%20#0,tmp%21#0,aggregate%head%1#0,tmp%19#0 (copy)
-        len                                                                                      tmp%19#0,tmp%20#0,tmp%21#0,aggregate%head%1#0,aggregate%length%0#0
-        itob                                                                                     tmp%19#0,tmp%20#0,tmp%21#0,aggregate%head%1#0,aggregate%as_bytes%0#0
-        extract 6 2                                                                              tmp%19#0,tmp%20#0,tmp%21#0,aggregate%head%1#0,aggregate%length_uint16%0#0
-        l-load tmp%19#0 4                                                                        tmp%20#0,tmp%21#0,aggregate%head%1#0,aggregate%length_uint16%0#0,tmp%19#0
-        concat                                                                                   tmp%20#0,tmp%21#0,aggregate%head%1#0,aggregate%encoded_value%0#0
-        l-load aggregate%head%1#0 1                                                              tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%1#0
-        byte 0x004d                                                                              tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%1#0,0x004d
-        concat                                                                                   tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0
-        l-load-copy aggregate%encoded_value%0#0 1                                                tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%encoded_value%0#0 (copy)
-        len                                                                                      tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%data_length%0#0
-        int 77                                                                                   tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%data_length%0#0,77
-        l-load aggregate%data_length%0#0 1                                                       tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,77,aggregate%data_length%0#0
-        +                                                                                        tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0
-        l-load-copy tmp%20#0 4                                                                   tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,tmp%20#0 (copy)
-        len                                                                                      tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%value_len%0#0
-        int 64                                                                                   tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%value_len%0#0,64
-        <=                                                                                       tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%len_ok%0#0
-        assert // overflow                                                                       tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0
-        int 64                                                                                   tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,64
-        bzero                                                                                    tmp%20#0,tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%bzero%0#0
-        l-load tmp%20#0 5                                                                        tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%bzero%0#0,tmp%20#0
-        l-load aggregate%bzero%0#0 1                                                             tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,tmp%20#0,aggregate%bzero%0#0
-        b|                                                                                       tmp%21#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%arc4_encoded%0#0
-        l-load aggregate%head%2#0 2                                                              tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%arc4_encoded%0#0,aggregate%head%2#0
-        l-load aggregate%arc4_encoded%0#0 1                                                      tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%2#0,aggregate%arc4_encoded%0#0
-        concat                                                                                   tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0
-        l-load-copy tmp%21#0 3                                                                   tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,tmp%21#0 (copy)
-        len                                                                                      tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length%1#0
-        itob                                                                                     tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%as_bytes%2#0
-        extract 6 2                                                                              tmp%21#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length_uint16%1#0
-        l-load tmp%21#0 4                                                                        aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length_uint16%1#0,tmp%21#0
-        concat                                                                                   aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0
-        l-load aggregate%current_tail_offset%0#0 2                                               aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%current_tail_offset%0#0
-        itob                                                                                     aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%as_bytes%3#0
-        extract 6 2                                                                              aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0
-        l-load aggregate%head%3#0 2                                                              aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0,aggregate%head%3#0
-        l-load aggregate%offset_as_uint16%1#0 1                                                  aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%head%3#0,aggregate%offset_as_uint16%1#0
-        concat                                                                                   aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%head%4#0
-        l-load aggregate%encoded_value%0#0 2                                                     aggregate%encoded_value%1#0,aggregate%head%4#0,aggregate%encoded_value%0#0
-        concat                                                                                   aggregate%encoded_value%1#0,aggregate%concat%0#0
-        l-load aggregate%encoded_value%1#0 1                                                     aggregate%concat%0#0,aggregate%encoded_value%1#0
-        concat                                                                                   aggregate%concat%1#0
-        byte 0x151f7c75                                                                          aggregate%concat%1#0,0x151f7c75
-        l-load aggregate%concat%1#0 1                                                            0x151f7c75,aggregate%concat%1#0
-        concat                                                                                   tmp%23#0
-        log
-        int 1                                                                                    tmp%0#0
-        x-store tmp%0#0                                                                          (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9 (𝕏) tmp%0#0 | 
-
-    main_tuple_of_arc4_route@4:
+    main_tuple_of_arc4_route@3:
         // avm_types_in_abi/contract.py:19
         // @arc4.abimethod
-        txn OnCompletion                                                                         tmp%24#0
-        !                                                                                        tmp%25#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                        tmp%26#0
-        assert // can only call when not creating
+        callsub tuple_of_arc4
+        b main_after_if_else@10
+
+    main_create_NoOp@6:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                   reinterpret_Encoded(uint8,uint8[32])%0#0
-        l-load-copy reinterpret_Encoded(uint8,uint8[32])%0#0 0                                   reinterpret_Encoded(uint8,uint8[32])%0#0,reinterpret_Encoded(uint8,uint8[32])%0#0 (copy)
-        extract 0 1                                                                              reinterpret_Encoded(uint8,uint8[32])%0#0,aggregate%extract%2#0
-        l-load reinterpret_Encoded(uint8,uint8[32])%0#0 1                                        aggregate%extract%2#0,reinterpret_Encoded(uint8,uint8[32])%0#0
-        extract 1 32                                                                             aggregate%extract%2#0,aggregate%extract%3#0
-        // avm_types_in_abi/contract.py:19
-        // @arc4.abimethod
-        l-load aggregate%extract%2#0 1                                                           aggregate%extract%3#0,aggregate%extract%2#0
-        l-load aggregate%extract%3#0 1                                                           aggregate%extract%2#0,aggregate%extract%3#0
-        callsub tuple_of_arc4                                                                    tmp%30#0,tmp%31#0
-        l-load tmp%30#0 1                                                                        tmp%31#0,tmp%30#0
-        l-load tmp%31#0 1                                                                        tmp%30#0,tmp%31#0
-        concat                                                                                   aggregate%head%6#0
-        byte 0x151f7c75                                                                          aggregate%head%6#0,0x151f7c75
-        l-load aggregate%head%6#0 1                                                              0x151f7c75,aggregate%head%6#0
-        concat                                                                                   tmp%33#0
+        txna ApplicationArgs 0                                       tmp%5#0
+        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) tmp%5#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
+        l-load tmp%5#0 1                                             Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
+        match main_create_route@7 ; b main_after_if_else@10
+
+    main_create_route@7:
+        // avm_types_in_abi/contract.py:5
+        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+        callsub create
+        b main_after_if_else@10
+
+    main_after_if_else@10:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        err
+
+
+// test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
+subroutine create:
+    create_block@0:
+        // avm_types_in_abi/contract.py:5
+        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+        txna ApplicationArgs 1                                       reinterpret_Encoded(bool8)%0#0
+        int 0                                                        reinterpret_Encoded(bool8)%0#0,0
+        getbit                                                       bool_param#0
+        txna ApplicationArgs 2                                       bool_param#0,reinterpret_Encoded(uint64)%0#0
+        btoi                                                         bool_param#0,uint64_param#0
+        txna ApplicationArgs 3                                       bool_param#0,uint64_param#0,reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                  bool_param#0,uint64_param#0,bytes_param#0
+        txna ApplicationArgs 4                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0
+        txna ApplicationArgs 5                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                  bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0
+        txna ApplicationArgs 6                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 0 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        int 0                                                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),0
+        getbit                                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 1 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        int 1                                                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),1
+        extract_uint64                                               bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 2 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        int 9                                                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),9
+        extract_uint16                                               bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%0#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 3 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        int 75                                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),75
+        extract_uint16                                               bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 4 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load-copy aggregate%extract_uint16%1#0 2                   bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0 (copy)
+        substring3                                                   bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0
+        extract 2 0                                                  bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 4 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        extract 11 64                                                bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0,tuple_param.3#0
+        l-load-copy reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 5 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0,tuple_param.3#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 (copy)
+        len                                                          bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0,tuple_param.3#0,aggregate%len%0#0
+        l-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0 6 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,aggregate%extract_uint16%1#0,tuple_param.2#0,tuple_param.3#0,aggregate%len%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
+        l-load aggregate%extract_uint16%1#0 4                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,aggregate%len%0#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0
+        l-load aggregate%len%0#0 2                                   bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0,aggregate%len%0#0
+        substring3                                                   bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,aggregate%substring3%1#0
+        extract 2 0                                                  bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0
+        // avm_types_in_abi/contract.py:16
+        // assert result == tuple_param
+        l-load-copy bool_param#0 9                                   bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,bool_param#0 (copy)
+        l-load tuple_param.0#0 5                                     bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,bool_param#0 (copy),tuple_param.0#0
+        ==                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%0#1
+        l-load-copy uint64_param#0 8                                 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%0#1,uint64_param#0 (copy)
+        l-load tuple_param.1#0 5                                     bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%0#1,uint64_param#0 (copy),tuple_param.1#0
+        ==                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%0#1,tmp%1#1
+        &&                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%2#1
+        l-load-copy bytes_param#0 6                                  bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0,tmp%2#1,bytes_param#0 (copy)
+        l-load tuple_param.2#0 4                                     bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%2#1,bytes_param#0 (copy),tuple_param.2#0
+        ==                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%2#1,tmp%3#1
+        l-load tmp%2#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%3#1,tmp%2#1
+        l-load tmp%3#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%2#1,tmp%3#1
+        &&                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%4#1
+        l-load-copy biguint_param#0 4                                bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.3#0,tuple_param.4#0,tmp%4#1,biguint_param#0 (copy)
+        l-load tuple_param.3#0 3                                     bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%4#1,biguint_param#0 (copy),tuple_param.3#0
+        b==                                                          bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%4#1,tmp%5#1
+        l-load tmp%4#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%5#1,tmp%4#1
+        l-load tmp%5#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%4#1,tmp%5#1
+        &&                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%6#1
+        l-load-copy string_param#0 2                                 bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.4#0,tmp%6#1,string_param#0 (copy)
+        l-load tuple_param.4#0 2                                     bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tmp%6#1,string_param#0 (copy),tuple_param.4#0
+        ==                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tmp%6#1,tmp%7#1
+        l-load tmp%6#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tmp%7#1,tmp%6#1
+        l-load tmp%7#1 1                                             bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tmp%6#1,tmp%7#1
+        &&                                                           bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tmp%8#1
+        assert                                                       bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0
+        // avm_types_in_abi/contract.py:5
+        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+        byte 0x00                                                    bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,0x00
+        int 0                                                        bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,0x00,0
+        l-load bool_param#0 6                                        uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,0x00,0,bool_param#0
+        setbit                                                       uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,aggregate%encoded_bool%0#0
+        l-load uint64_param#0 4                                      bytes_param#0,biguint_param#0,string_param#0,aggregate%encoded_bool%0#0,uint64_param#0
+        itob                                                         bytes_param#0,biguint_param#0,string_param#0,aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%encoded_bool%0#0 1                          bytes_param#0,biguint_param#0,string_param#0,aggregate%val_as_bytes%0#0,aggregate%encoded_bool%0#0
+        l-load aggregate%val_as_bytes%0#0 1                          bytes_param#0,biguint_param#0,string_param#0,aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
+        concat                                                       bytes_param#0,biguint_param#0,string_param#0,aggregate%head%1#0
+        l-load-copy bytes_param#0 3                                  bytes_param#0,biguint_param#0,string_param#0,aggregate%head%1#0,bytes_param#0 (copy)
+        len                                                          bytes_param#0,biguint_param#0,string_param#0,aggregate%head%1#0,aggregate%length%0#0
+        itob                                                         bytes_param#0,biguint_param#0,string_param#0,aggregate%head%1#0,aggregate%as_bytes%0#0
+        extract 6 2                                                  bytes_param#0,biguint_param#0,string_param#0,aggregate%head%1#0,aggregate%length_uint16%0#0
+        l-load bytes_param#0 4                                       biguint_param#0,string_param#0,aggregate%head%1#0,aggregate%length_uint16%0#0,bytes_param#0
+        concat                                                       biguint_param#0,string_param#0,aggregate%head%1#0,aggregate%encoded_value%0#0
+        l-load aggregate%head%1#0 1                                  biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%1#0
+        byte 0x004d                                                  biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%1#0,0x004d
+        concat                                                       biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0
+        l-load-copy aggregate%encoded_value%0#0 1                    biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%encoded_value%0#0 (copy)
+        len                                                          biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%data_length%0#0
+        int 77                                                       biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%data_length%0#0,77
+        l-load aggregate%data_length%0#0 1                           biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,77,aggregate%data_length%0#0
+        +                                                            biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0
+        l-load-copy biguint_param#0 4                                biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,biguint_param#0 (copy)
+        len                                                          biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%value_len%0#0
+        int 64                                                       biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%value_len%0#0,64
+        <=                                                           biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%len_ok%0#0
+        assert // overflow                                           biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0
+        int 64                                                       biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,64
+        bzero                                                        biguint_param#0,string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%bzero%0#0
+        l-load biguint_param#0 5                                     string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%bzero%0#0,biguint_param#0
+        l-load aggregate%bzero%0#0 1                                 string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,biguint_param#0,aggregate%bzero%0#0
+        b|                                                           string_param#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%current_tail_offset%0#0,aggregate%arc4_encoded%0#0
+        l-load aggregate%head%2#0 2                                  string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%arc4_encoded%0#0,aggregate%head%2#0
+        l-load aggregate%arc4_encoded%0#0 1                          string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%2#0,aggregate%arc4_encoded%0#0
+        concat                                                       string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0
+        l-load-copy string_param#0 3                                 string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,string_param#0 (copy)
+        len                                                          string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length%1#0
+        itob                                                         string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%as_bytes%2#0
+        extract 6 2                                                  string_param#0,aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length_uint16%1#0
+        l-load string_param#0 4                                      aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%length_uint16%1#0,string_param#0
+        concat                                                       aggregate%encoded_value%0#0,aggregate%current_tail_offset%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0
+        l-load aggregate%current_tail_offset%0#0 2                   aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%current_tail_offset%0#0
+        itob                                                         aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%as_bytes%3#0
+        extract 6 2                                                  aggregate%encoded_value%0#0,aggregate%head%3#0,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0
+        l-load aggregate%head%3#0 2                                  aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0,aggregate%head%3#0
+        l-load aggregate%offset_as_uint16%1#0 1                      aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%head%3#0,aggregate%offset_as_uint16%1#0
+        concat                                                       aggregate%encoded_value%0#0,aggregate%encoded_value%1#0,aggregate%head%4#0
+        l-load aggregate%encoded_value%0#0 2                         aggregate%encoded_value%1#0,aggregate%head%4#0,aggregate%encoded_value%0#0
+        concat                                                       aggregate%encoded_value%1#0,aggregate%concat%0#0
+        l-load aggregate%encoded_value%1#0 1                         aggregate%concat%0#0,aggregate%encoded_value%1#0
+        concat                                                       aggregate%concat%1#0
+        byte 0x151f7c75                                              aggregate%concat%1#0,0x151f7c75
+        l-load aggregate%concat%1#0 1                                0x151f7c75,aggregate%concat%1#0
+        concat                                                       tmp%16#0
         log
-        int 1                                                                                    tmp%0#0
-        x-store tmp%0#0                                                                          (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@8:
-        // avm_types_in_abi/contract.py:4
-        // class TestContract(arc4.ARC4Contract):
-        int 0                                                                                    tmp%0#0
-        x-store tmp%0#0                                                                          (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__@9: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                           tmp%0#0
+        int 1                                                        1
         return
 
 
-// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:
-subroutine create:
-    create_block@0:                                                                              (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 |
-        // avm_types_in_abi/contract.py:16
-        // assert result == tuple_param
-        p-load bool_param#0                                                                      (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy)
-        p-load tuple_param.0#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy),tuple_param.0#0 (copy)
-        ==                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%0#0
-        p-load uint64_param#0                                                                    (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%0#0,uint64_param#0 (copy)
-        p-load tuple_param.1#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%0#0,uint64_param#0 (copy),tuple_param.1#0 (copy)
-        ==                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%0#0,tmp%1#0
-        l-load tmp%0#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%1#0,tmp%0#0
-        l-load tmp%1#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%0#0,tmp%1#0
-        &&                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%2#0
-        p-load bytes_param#0                                                                     (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%2#0,bytes_param#0 (copy)
-        p-load tuple_param.2#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%2#0,bytes_param#0 (copy),tuple_param.2#0 (copy)
-        ==                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%2#0,tmp%3#0
-        l-load tmp%2#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%3#0,tmp%2#0
-        l-load tmp%3#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%2#0,tmp%3#0
-        &&                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%4#0
-        p-load biguint_param#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%4#0,biguint_param#0 (copy)
-        p-load tuple_param.3#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%4#0,biguint_param#0 (copy),tuple_param.3#0 (copy)
-        b==                                                                                      (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%4#0,tmp%5#0
-        &&                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%6#0
-        p-load string_param#0                                                                    (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%6#0,string_param#0 (copy)
-        p-load tuple_param.4#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%6#0,string_param#0 (copy),tuple_param.4#0 (copy)
-        ==                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%6#0,tmp%7#0
-        l-load tmp%6#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%7#0,tmp%6#0
-        l-load tmp%7#0 1                                                                         (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%6#0,tmp%7#0
-        &&                                                                                       (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | tmp%8#0
-        assert                                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 |
-        // avm_types_in_abi/contract.py:17
-        // return result
-        p-load bool_param#0                                                                      (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy)
-        p-load uint64_param#0                                                                    (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy),uint64_param#0 (copy)
-        p-load bytes_param#0                                                                     (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy),uint64_param#0 (copy),bytes_param#0 (copy)
-        p-load biguint_param#0                                                                   (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy),uint64_param#0 (copy),bytes_param#0 (copy),biguint_param#0 (copy)
-        p-load string_param#0                                                                    (𝕡) bool_param#0,uint64_param#0,bytes_param#0,biguint_param#0,string_param#0,tuple_param.0#0,tuple_param.1#0,tuple_param.2#0,tuple_param.3#0,tuple_param.4#0 | bool_param#0 (copy),uint64_param#0 (copy),bytes_param#0 (copy),biguint_param#0 (copy),string_param#0 (copy)
-        retsub                                                                                   bool_param#0 (copy),uint64_param#0 (copy),bytes_param#0 (copy),biguint_param#0 (copy),string_param#0 (copy)
-
-
-// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
+// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]() -> void:
 subroutine tuple_of_arc4:
-    tuple_of_arc4_block@0:                                                                       (𝕡) args.0#0,args.1#0 |
+    tuple_of_arc4_block@0:
+        // avm_types_in_abi/contract.py:19
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                       reinterpret_Encoded(uint8,uint8[32])%0#0
+        l-load-copy reinterpret_Encoded(uint8,uint8[32])%0#0 0       reinterpret_Encoded(uint8,uint8[32])%0#0,reinterpret_Encoded(uint8,uint8[32])%0#0 (copy)
+        extract 0 1                                                  reinterpret_Encoded(uint8,uint8[32])%0#0,args.0#0
+        l-load-copy reinterpret_Encoded(uint8,uint8[32])%0#0 1       reinterpret_Encoded(uint8,uint8[32])%0#0,args.0#0,reinterpret_Encoded(uint8,uint8[32])%0#0 (copy)
+        extract 1 32                                                 reinterpret_Encoded(uint8,uint8[32])%0#0,args.0#0,args.1#0
         // avm_types_in_abi/contract.py:23
         // assert args[0].bytes.length == 1
-        p-load args.0#0                                                                          (𝕡) args.0#0,args.1#0 | args.0#0 (copy)
-        len                                                                                      (𝕡) args.0#0,args.1#0 | tmp%0#0
-        int 1                                                                                    (𝕡) args.0#0,args.1#0 | tmp%0#0,1
-        ==                                                                                       (𝕡) args.0#0,args.1#0 | tmp%1#0
-        assert                                                                                   (𝕡) args.0#0,args.1#0 |
+        l-load args.0#0 1                                            reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0,args.0#0
+        len                                                          reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0,tmp%0#1
+        int 1                                                        reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0,tmp%0#1,1
+        ==                                                           reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0,tmp%1#1
+        assert                                                       reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0
         // avm_types_in_abi/contract.py:24
         // assert args[1].bytes.length == 32
-        p-load args.1#0                                                                          (𝕡) args.0#0,args.1#0 | args.1#0 (copy)
-        len                                                                                      (𝕡) args.0#0,args.1#0 | tmp%2#0
-        int 32                                                                                   (𝕡) args.0#0,args.1#0 | tmp%2#0,32
-        ==                                                                                       (𝕡) args.0#0,args.1#0 | tmp%3#0
-        assert                                                                                   (𝕡) args.0#0,args.1#0 |
-        // avm_types_in_abi/contract.py:25
-        // return args
-        p-load args.0#0                                                                          (𝕡) args.0#0,args.1#0 | args.0#0 (copy)
-        p-load args.1#0                                                                          (𝕡) args.0#0,args.1#0 | args.0#0 (copy),args.1#0 (copy)
-        retsub                                                                                   args.0#0 (copy),args.1#0 (copy)
+        l-load args.1#0 0                                            reinterpret_Encoded(uint8,uint8[32])%0#0,args.1#0
+        len                                                          reinterpret_Encoded(uint8,uint8[32])%0#0,tmp%2#1
+        int 32                                                       reinterpret_Encoded(uint8,uint8[32])%0#0,tmp%2#1,32
+        ==                                                           reinterpret_Encoded(uint8,uint8[32])%0#0,tmp%3#1
+        assert                                                       reinterpret_Encoded(uint8,uint8[32])%0#0
+        // avm_types_in_abi/contract.py:19
+        // @arc4.abimethod
+        byte 0x151f7c75                                              reinterpret_Encoded(uint8,uint8[32])%0#0,0x151f7c75
+        l-load reinterpret_Encoded(uint8,uint8[32])%0#0 1            0x151f7c75,reinterpret_Encoded(uint8,uint8[32])%0#0
+        concat                                                       tmp%5#0
+        log
+        int 1                                                        1
+        return
 
 

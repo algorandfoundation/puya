@@ -15,61 +15,65 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.__puya_
     block@0: // L4
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@7
+        goto tmp%1#0 ? block@1 : block@10
     block@1: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "umm()uint64" => block@2, method "umm2()void" => block@3, method "calculate(uint64[][],uint64)void" => block@4, * => block@5}
-    block@2: // umm_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: uint64 = test_cases.regression_tests.leftover_branch.BranchElimination.umm()
-        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
-        (log tmp%9#0)
-        return 1u
-    block@3: // umm2_route_L18
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@8
+    block@2: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "umm()uint64" => block@3, method "umm2()void" => block@4, method "calculate(uint64[][],uint64)void" => block@5, * => block@6}
+    block@3: // umm_route_L5
+        test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]()
+        goto block@7
+    block@4: // umm2_route_L18
+        test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]()
+        goto block@7
+    block@5: // calculate_route_L29
+        test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]()
+        goto block@7
+    block@6: // switch_case_default_L4
+        goto block@7
+    block@7: // switch_case_next_L4
+        goto block@9
+    block@8: // create_NoOp_L4
+        goto block@9
+    block@9: // after_if_else_L4
+        goto block@11
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create()
+        exit 1u
+    block@11: // after_if_else_L4
+        exit 0u
+
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]() -> void:
+    block@0: // L5
+        let tmp%0#0: uint64 = test_cases.regression_tests.leftover_branch.BranchElimination.umm()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]() -> void:
+    block@0: // L18
         test_cases.regression_tests.leftover_branch.BranchElimination.umm2()
-        return 1u
-    block@4: // calculate_route_L29
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (== tmp%14#0 NoOp)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when not creating
+        exit 1u
+
+subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
+    block@0: // L29
         let reinterpret_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
         test_cases.regression_tests.leftover_branch.BranchElimination.calculate(reinterpret_Encoded(len+(len+uint64[])[])%0#0, reinterpret_Encoded(uint64)%0#0)
-        return 1u
-    block@5: // switch_case_default_L4
-        goto block@6
-    block@6: // switch_case_next_L4
-        goto block@11
-    block@7: // bare_routing_L4
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        switch tmp%18#0 {0u => block@8, * => block@9}
-    block@8: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (== tmp%19#0 0u)
-        (assert tmp%20#0) // can only call when creating
-        test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create()
-        return 1u
-    block@9: // switch_case_default_L4
-        goto block@10
-    block@10: // switch_case_next_L4
-        goto block@11
-    block@11: // after_if_else_L4
-        return 0u
+        exit 1u
 
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm() -> uint64:
     block@0: // L5

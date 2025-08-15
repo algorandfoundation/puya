@@ -10,20 +10,18 @@ main:
     pushbytes ""
     dupn 6
     txn NumAppArgs
-    bz main_bare_routing@34
-    pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 0x53030b41 0x7d39df51 0x7a1e7b43 0x3447847f 0x2ba64852 0xabc9be78 0x73457a19 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)", method "sum()uint64", method "add_many_tups((uint64,uint64)[])void", method "add_fixed_tups((uint64,uint64)[3])void", method "set_a(uint64)void", method "set_b(uint64)void", method "get_3_tups(uint64)(uint64,uint64)[3]", method "get_all_tups()(uint64,uint64)[]"
-    txna ApplicationArgs 0
-    match main_create_box_route@5 main_num_tups_route@6 main_add_tup_route@7 main_get_tup_route@8 main_sum_route@9 main_add_many_tups_route@13 main_add_fixed_tups_route@17 main_set_a_route@21 main_set_b_route@25 main_get_3_tups_route@29 main_get_all_tups_route@30
-
-main_after_if_else@36:
-    err
-
-main_get_all_tups_route@30:
+    bz main___algopy_default_create@18
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 0x53030b41 0x7d39df51 0x7a1e7b43 0x3447847f 0x2ba64852 0xabc9be78 0x73457a19 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)", method "sum()uint64", method "add_many_tups((uint64,uint64)[])void", method "add_fixed_tups((uint64,uint64)[3])void", method "set_a(uint64)void", method "set_b(uint64)void", method "get_3_tups(uint64)(uint64,uint64)[3]", method "get_all_tups()(uint64,uint64)[]"
+    txna ApplicationArgs 0
+    match main_create_box_route@6 main_num_tups_route@7 main_add_tup_route@8 main_get_tup_route@9 main_sum_route@10 main_add_many_tups_route@11 main_add_fixed_tups_route@12 main_set_a_route@13 main_set_b_route@14 main_get_3_tups_route@15 main_get_all_tups_route@16
+    err
+
+main_get_all_tups_route@16:
     pushbytes 0x0000
     bury 9
     bytec_0 // "tup_bag"
@@ -35,11 +33,11 @@ main_get_all_tups_route@30:
     intc_0 // 0
     bury 4
 
-main_for_header@31:
+main_for_header@20:
     dig 3
     dig 1
     <
-    bz main_after_for@33
+    bz main_after_for@22
     bytec_0 // "tup_bag"
     intc_1 // 8
     intc 4 // 128
@@ -67,9 +65,9 @@ main_for_header@31:
     intc_3 // 1
     +
     bury 4
-    b main_for_header@31
+    b main_for_header@20
 
-main_after_for@33:
+main_after_for@22:
     bytec_1 // 0x151f7c75
     dig 9
     concat
@@ -77,12 +75,7 @@ main_after_for@33:
     intc_3 // 1
     return
 
-main_get_3_tups_route@29:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_get_3_tups_route@15:
     txna ApplicationArgs 1
     btoi
     bytec_0 // "tup_bag"
@@ -135,12 +128,7 @@ main_get_3_tups_route@29:
     intc_3 // 1
     return
 
-main_set_b_route@25:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_set_b_route@14:
     txna ApplicationArgs 1
     btoi
     bury 5
@@ -154,11 +142,11 @@ main_set_b_route@25:
     intc_0 // 0
     bury 4
 
-main_for_header@26:
+main_for_header@27:
     dig 3
     dig 1
     <
-    bz main_after_for@16
+    bz main_after_for@44
     bytec_0 // "tup_bag"
     intc_1 // 8
     intc 4 // 128
@@ -190,18 +178,13 @@ main_for_header@26:
     intc_3 // 1
     +
     bury 4
-    b main_for_header@26
+    b main_for_header@27
 
-main_after_for@16:
+main_after_for@44:
     intc_3 // 1
     return
 
-main_set_a_route@21:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_set_a_route@13:
     txna ApplicationArgs 1
     btoi
     bury 7
@@ -215,11 +198,11 @@ main_set_a_route@21:
     intc_0 // 0
     bury 4
 
-main_for_header@22:
+main_for_header@32:
     dig 3
     dig 1
     <
-    bz main_after_for@16
+    bz main_after_for@44
     bytec_0 // "tup_bag"
     intc_1 // 8
     intc 4 // 128
@@ -252,24 +235,19 @@ main_for_header@22:
     intc_3 // 1
     +
     bury 4
-    b main_for_header@22
+    b main_for_header@32
 
-main_add_fixed_tups_route@17:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_add_fixed_tups_route@12:
     txna ApplicationArgs 1
     bury 8
     intc_0 // 0
     bury 3
 
-main_for_header@18:
+main_for_header@37:
     dig 2
     pushint 3 // 3
     <
-    bz main_after_for@16
+    bz main_after_for@44
     dig 2
     dup
     intc_2 // 16
@@ -282,14 +260,9 @@ main_for_header@18:
     intc_3 // 1
     +
     bury 3
-    b main_for_header@18
+    b main_for_header@37
 
-main_add_many_tups_route@13:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_add_many_tups_route@11:
     txna ApplicationArgs 1
     dup
     bury 9
@@ -299,11 +272,11 @@ main_add_many_tups_route@13:
     intc_0 // 0
     bury 3
 
-main_for_header@14:
+main_for_header@42:
     dig 2
     dig 6
     <
-    bz main_after_for@16
+    bz main_after_for@44
     dig 7
     extract 2 0
     dig 3
@@ -317,14 +290,9 @@ main_for_header@14:
     intc_3 // 1
     +
     bury 3
-    b main_for_header@14
+    b main_for_header@42
 
-main_sum_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_sum_route@10:
     intc_0 // 0
     bury 2
     bytec_0 // "tup_bag"
@@ -336,11 +304,11 @@ main_sum_route@9:
     intc_0 // 0
     bury 4
 
-main_for_header@10:
+main_for_header@47:
     dig 3
     dig 1
     <
-    bz main_after_for@12
+    bz main_after_for@49
     bytec_0 // "tup_bag"
     intc_1 // 8
     intc 4 // 128
@@ -365,9 +333,9 @@ main_for_header@10:
     intc_3 // 1
     +
     bury 4
-    b main_for_header@10
+    b main_for_header@47
 
-main_after_for@12:
+main_after_for@49:
     dig 1
     itob
     bytec_1 // 0x151f7c75
@@ -377,12 +345,7 @@ main_after_for@12:
     intc_3 // 1
     return
 
-main_get_tup_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_get_tup_route@9:
     txna ApplicationArgs 1
     btoi
     bytec_0 // "tup_bag"
@@ -409,23 +372,13 @@ main_get_tup_route@8:
     intc_3 // 1
     return
 
-main_add_tup_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_add_tup_route@8:
     txna ApplicationArgs 1
     callsub add_tup
     intc_3 // 1
     return
 
-main_num_tups_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_num_tups_route@7:
     bytec_0 // "tup_bag"
     intc_0 // 0
     intc_1 // 8
@@ -437,12 +390,7 @@ main_num_tups_route@6:
     intc_3 // 1
     return
 
-main_create_box_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_create_box_route@6:
     bytec_0 // "tup_bag"
     pushint 4273 // 4273
     box_create
@@ -471,14 +419,13 @@ main_create_box_route@5:
     intc_3 // 1
     return
 
-main_bare_routing@34:
+main___algopy_default_create@18:
     txn OnCompletion
-    bnz main_after_if_else@36
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_3 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: bytes) -> void:

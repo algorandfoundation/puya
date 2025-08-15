@@ -9,21 +9,17 @@ main:
     dupn 2
     pushbytes ""
     dup
-    txn NumAppArgs
-    bz main_after_if_else@8
-    pushbytess 0x8424203b 0xc0290ad5 // method "create(byte[32])void", method "verify(byte[32][],byte[32])bool"
-    txna ApplicationArgs 0
-    match main_create_route@3 main_verify_route@4
-
-main_after_if_else@8:
-    err
-
-main_verify_route@4:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@6
+    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+    err
+
+main_verify_route@3:
     txna ApplicationArgs 1
     dup
     bury 4
@@ -42,11 +38,11 @@ main_verify_route@4:
     bury 2
     bury 5
 
-main_for_header@11:
+main_for_header@12:
     dup
     dig 2
     <
-    bz main_after_for@16
+    bz main_after_for@17
     dig 2
     extract 2 0
     dig 1
@@ -57,26 +53,26 @@ main_for_header@11:
     dup
     dig 6
     b>
-    bz main_ternary_false@14
+    bz main_ternary_false@15
     dig 5
     swap
     concat
 
-main_ternary_merge@15:
+main_ternary_merge@16:
     sha256
     bury 5
     dup
     intc_1 // 1
     +
     bury 1
-    b main_for_header@11
+    b main_for_header@12
 
-main_ternary_false@14:
+main_ternary_false@15:
     dig 5
     concat
-    b main_ternary_merge@15
+    b main_ternary_merge@16
 
-main_after_for@16:
+main_after_for@17:
     dig 3
     dig 5
     ==
@@ -91,13 +87,13 @@ main_after_for@16:
     intc_1 // 1
     return
 
-main_create_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_create_NoOp@6:
+    pushbytes 0x8424203b // method "create(byte[32])void"
+    txna ApplicationArgs 0
+    match main_create_route@7
+    err
+
+main_create_route@7:
     bytec_0 // "root"
     txna ApplicationArgs 1
     app_global_put

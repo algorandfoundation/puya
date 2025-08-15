@@ -1,79 +1,43 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@11
+        goto tmp%0#1 ? block@2 : block@14
     block@2: // abi_routing_L38
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_static_elements()void" => block@3, method "test_dynamic_elements()void" => block@4, method "test_mixed_single_dynamic_elements()void" => block@5, method "test_mixed_multiple_dynamic_elements()void" => block@6, method "test_nested_struct_replacement()void" => block@7, method "test_nested_tuple_modification()void" => block@8, * => block@15}
-    block@3: // test_static_elements_route_L39
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        goto block@16
-    block@4: // test_dynamic_elements_route_L55
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_static_elements()void" => block@4, method "test_dynamic_elements()void" => block@5, method "test_mixed_single_dynamic_elements()void" => block@6, method "test_mixed_multiple_dynamic_elements()void" => block@7, method "test_nested_struct_replacement()void" => block@8, method "test_nested_tuple_modification()void" => block@9, * => block@13}
+    block@4: // test_static_elements_route_L39
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]()
+        goto block@13
+    block@5: // test_dynamic_elements_route_L55
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]()
+        goto block@13
+    block@6: // test_mixed_single_dynamic_elements_route_L74
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]()
+        goto block@13
+    block@7: // test_mixed_multiple_dynamic_elements_route_L97
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]()
+        goto block@13
+    block@8: // test_nested_struct_replacement_route_L114
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]()
+        goto block@13
+    block@9: // test_nested_tuple_modification_route_L141
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]()
+        goto block@13
+    block@13: // after_if_else_L38
+        fail
+    block@14: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#1: bool = 1u
-        goto block@16
-    block@5: // test_mixed_single_dynamic_elements_route_L74
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#2: bool = 1u
-        goto block@16
-    block@6: // test_mixed_multiple_dynamic_elements_route_L97
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#3: bool = 1u
-        goto block@16
-    block@7: // test_nested_struct_replacement_route_L114
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#4: bool = 1u
-        goto block@16
-    block@8: // test_nested_tuple_modification_route_L141
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification()
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#5: bool = 1u
-        goto block@16
-    block@11: // bare_routing_L38
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        goto tmp%27#0 ? block@15 : block@12
-    block@12: // __algopy_default_create_L1
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (! tmp%28#0)
-        (assert tmp%29#0) // can only call when creating
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#6: bool = 1u
-        goto block@16
-    block@15: // after_if_else_L38
-        let test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#7: bool = 0u
-        goto block@16
-    block@16: // after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#2 <- block@5, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#3 <- block@6, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#4 <- block@7, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#5 <- block@8, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#6 <- block@12, test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__%0#7 <- block@15)
-        return tmp%0#0
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
     block@0: // L44
@@ -379,7 +343,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> Encoded(len
         let encoded_array%0#0: Encoded(len+uint16[]) = aggregate%as_Encoded(len+uint16[])%0#0
         return encoded_array%0#0
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]() -> void:
     block@0: // L39
         let aggregate%head%0#0: bytes = (concat 0x 0x04)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0x05)
@@ -430,9 +394,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         let (tmp%11#0: bytes, array#3: Encoded(len+(uint64,uint8[2])[])) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#2, 10u)
         let tmp%13#0: bool = (== tmp%11#0 struct1#0)
         (assert tmp%13#0)
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]() -> void:
     block@0: // L55
         let tmp%0#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string2()
@@ -570,9 +534,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let tmp%15#0: bool = (== tmp%13#0 struct1#0)
         (assert tmp%15#0)
         (log array#5)
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]() -> void:
     block@0: // L74
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let aggregate%head%0#0: bytes = (concat 0x 0x0000000000000003)
@@ -715,9 +679,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let array_item%3#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%substring3%4#0
         let tmp%26#0: bool = (== array_item%3#0 struct1#0)
         (assert tmp%26#0)
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]() -> void:
     block@0: // L97
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let tmp%3#0: Encoded(len+uint16[]) = test_cases.arc4_dynamic_arrays.contract.get_u16_arr1()
@@ -746,7 +710,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 0x0003)
         let aggregate%head%8#0: bytes = (concat aggregate%head%7#0 0x0004)
         let aggregate%as_Encoded(len+uint16[])%0#0: Encoded(len+uint16[]) = aggregate%head%8#0
-        let encoded_array%0#1: Encoded(len+uint16[]) = aggregate%as_Encoded(len+uint16[])%0#0
+        let encoded_array%0#0: Encoded(len+uint16[]) = aggregate%as_Encoded(len+uint16[])%0#0
         let aggregate%head%9#0: bytes = (concat 0x 0x0000040000000000)
         let aggregate%as_bytes%3#0: bytes[8] = (itob 28u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
@@ -757,11 +721,11 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
         let aggregate%head%12#0: bytes = (concat aggregate%head%11#0 aggregate%offset_as_uint16%3#0)
-        let aggregate%data_length%3#0: uint64 = (len encoded_array%0#1)
+        let aggregate%data_length%3#0: uint64 = (len encoded_array%0#0)
         let aggregate%current_tail_offset%3#0: uint64 = (+ aggregate%current_tail_offset%2#0 aggregate%data_length%3#0)
         let aggregate%head%13#0: bytes = (concat aggregate%head%12#0 0x0000040000000000)
         let aggregate%concat%2#0: bytes = (concat aggregate%head%13#0 tmp%7#0)
-        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 encoded_array%0#1)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 encoded_array%0#0)
         let aggregate%as_Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)%1#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%concat%3#0
         let struct2#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%as_Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)%1#0
         let aggregate%as_bytes%5#0: bytes[8] = (itob 2u)
@@ -832,9 +796,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let (tmp%15#0: bytes, array#3: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[])) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#2)
         let tmp%17#0: bool = (== tmp%15#0 struct1#0)
         (assert tmp%17#0)
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]() -> void:
     block@0: // L114
         let aggregate%head%0#0: bytes = (concat 0x 0x04)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0x05)
@@ -990,9 +954,9 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let struct2#1: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = aggregate%updated_data%3#0
         let tmp%25#0: bool = (== struct1#0 struct2#1)
         (assert tmp%25#0) // struct1 does not match struct2
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]() -> void:
     block@0: // L141
         let aggregate%head%0#0: bytes = (concat 0x 0x04)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0x05)
@@ -1168,4 +1132,4 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let tup2#1: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = aggregate%updated_data%3#0
         let tmp%31#0: bool = (== tup1#0 tup2#1)
         (assert tmp%31#0) // tup1 does not match tup2
-        return 
+        exit 1u

@@ -4,29 +4,51 @@ subroutine main:
     main_block@0:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txn NumAppArgs                                                                         tmp%0#1
-        bz main_after_if_else@8 ; b main_abi_routing@2
+        txn OnCompletion                                                                       tmp%0#1
+        !                                                                                      tmp%1#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                      tmp%2#0
+        bz main_create_NoOp@6 ; b main_call_NoOp@2
 
-    main_abi_routing@2:
+    main_call_NoOp@2:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                                 tmp%2#0
-        method create(byte[32])void                                                            tmp%2#0,Method(create(byte[32])void)
-        method verify(byte[32][],byte[32])bool                                                 tmp%2#0,Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
-        l-load tmp%2#0 2                                                                       Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%2#0
-        match main_create_route@3 main_verify_route@4 ; b main_after_if_else@8
+        txna ApplicationArgs 0                                                                 tmp%4#0
+        method verify(byte[32][],byte[32])bool                                                 tmp%4#0,Method(verify(byte[32][],byte[32])bool)
+        l-load tmp%4#0 1                                                                       Method(verify(byte[32][],byte[32])bool),tmp%4#0
+        match main_verify_route@3 ; b main_after_if_else@10
 
-    main_create_route@3:
+    main_verify_route@3:
+        // merkle/contract.py:14
+        // @arc4.abimethod
+        callsub verify
+        b main_after_if_else@10
+
+    main_create_NoOp@6:
+        // merkle/contract.py:9
+        // class MerkleTree(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                 tmp%5#0
+        method create(byte[32])void                                                            tmp%5#0,Method(create(byte[32])void)
+        l-load tmp%5#0 1                                                                       Method(create(byte[32])void),tmp%5#0
+        match main_create_route@7 ; b main_after_if_else@10
+
+    main_create_route@7:
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                       tmp%3#0
-        !                                                                                      tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%5#0
-        !                                                                                      tmp%6#0
-        assert // can only call when creating
+        callsub create
+        b main_after_if_else@10
+
+    main_after_if_else@10:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
+        err
+
+
+// examples.merkle.contract.MerkleTree.create[routing]() -> void:
+subroutine create:
+    create_block@0:
+        // merkle/contract.py:10
+        // @arc4.abimethod(create="require")
         txna ApplicationArgs 1                                                                 root#0
         // merkle/contract.py:12
         // self.root = root.bytes
@@ -35,142 +57,118 @@ subroutine main:
         app_global_put
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
-        int 1                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9        (𝕏) tmp%0#0 |
-
-    main_verify_route@4:
-        // merkle/contract.py:14
-        // @arc4.abimethod
-        txn OnCompletion                                                                       tmp%7#0
-        !                                                                                      tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%9#0
-        assert // can only call when not creating
-        // merkle/contract.py:9
-        // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(len+uint8[32][])%0#0
-        txna ApplicationArgs 2                                                                 reinterpret_Encoded(len+uint8[32][])%0#0,reinterpret_Encoded(uint8[32])%1#0
-        // merkle/contract.py:14
-        // @arc4.abimethod
-        l-load reinterpret_Encoded(len+uint8[32][])%0#0 1                                      reinterpret_Encoded(uint8[32])%1#0,reinterpret_Encoded(len+uint8[32][])%0#0
-        l-load reinterpret_Encoded(uint8[32])%1#0 1                                            reinterpret_Encoded(len+uint8[32][])%0#0,reinterpret_Encoded(uint8[32])%1#0
-        callsub verify                                                                         tmp%11#0
-        byte 0x00                                                                              tmp%11#0,0x00
-        int 0                                                                                  tmp%11#0,0x00,0
-        l-load tmp%11#0 2                                                                      0x00,0,tmp%11#0
-        setbit                                                                                 aggregate%encoded_bool%0#0
-        byte 0x151f7c75                                                                        aggregate%encoded_bool%0#0,0x151f7c75
-        l-load aggregate%encoded_bool%0#0 1                                                    0x151f7c75,aggregate%encoded_bool%0#0
-        concat                                                                                 tmp%13#0
-        log
-        int 1                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9        (𝕏) tmp%0#0 |
-
-    main_after_if_else@8:
-        // merkle/contract.py:9
-        // class MerkleTree(arc4.ARC4Contract):
-        int 0                                                                                  tmp%0#0
-        x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9        (𝕏) tmp%0#0 |
-
-    main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9:             (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                         tmp%0#0
+        int 1                                                                                  1
         return
 
 
-// examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
+// examples.merkle.contract.MerkleTree.verify[routing]() -> void:
 subroutine verify:
-    verify_block@0:                                                                            (𝕡) proof#0,leaf#0 |
+    verify_block@0:
+        // merkle/contract.py:14
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                                 proof#0
+        l-store-copy proof#0 0                                                                 proof#0,proof#0 (copy)
+        v-store proof#0                                                                        proof#0
+        txna ApplicationArgs 2                                                                 proof#0,leaf#0
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
-        int 0                                                                                  (𝕡) proof#0,leaf#0 | 0
-        byte "root"                                                                            (𝕡) proof#0,leaf#0 | 0,"root"
-        app_global_get_ex                                                                      (𝕡) proof#0,leaf#0 | maybe_value%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                             (𝕡) proof#0,leaf#0 | maybe_exists%0#0,maybe_value%0#0
-        v-store maybe_value%0#0                                                                (𝕡) proof#0,leaf#0 | maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                              (𝕡) proof#0,leaf#0 | maybe_exists%0#0
-        assert // check self.root exists                                                       (𝕡) proof#0,leaf#0 |
+        int 0                                                                                  proof#0,leaf#0,0
+        byte "root"                                                                            proof#0,leaf#0,0,"root"
+        app_global_get_ex                                                                      proof#0,leaf#0,maybe_value%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                             proof#0,leaf#0,maybe_exists%0#0,maybe_value%0#0
+        v-store maybe_value%0#0                                                                proof#0,leaf#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                              proof#0,leaf#0,maybe_exists%0#0
+        assert // check self.root exists                                                       proof#0,leaf#0
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        p-load proof#0                                                                         (𝕡) proof#0,leaf#0 | proof#0 (copy)
-        int 0                                                                                  (𝕡) proof#0,leaf#0 | proof#0 (copy),0
-        extract_uint16                                                                         (𝕡) proof#0,leaf#0 | aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0                                                     (𝕡) proof#0,leaf#0 |
-        int 0                                                                                  (𝕡) proof#0,leaf#0 | 0
-        v-store idx#0                                                                          (𝕡) proof#0,leaf#0 |
-        p-load leaf#0                                                                          (𝕡) proof#0,leaf#0 | leaf#0 (copy)
-        v-store computed#1                                                                     (𝕡) proof#0,leaf#0 |
-        b verify_for_header@2                                                                  (𝕡) proof#0,leaf#0 |
+        l-load proof#0 1                                                                       leaf#0,proof#0
+        int 0                                                                                  leaf#0,proof#0,0
+        extract_uint16                                                                         leaf#0,aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                                     leaf#0
+        int 0                                                                                  leaf#0,0
+        v-store idx#0                                                                          leaf#0
+        l-load leaf#0 0                                                                        leaf#0
+        v-store computed#1
+        b verify_for_header@2
 
-    verify_for_header@2:                                                                       (𝕡) proof#0,leaf#0 |
+    verify_for_header@2:
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | idx#0
-        v-load aggregate%array_length%0#0                                                      (𝕡) proof#0,leaf#0 | idx#0,aggregate%array_length%0#0
-        <                                                                                      (𝕡) proof#0,leaf#0 | continue_looping%0#0
-        bz verify_after_for@7 ; b verify_for_body@3                                            (𝕡) proof#0,leaf#0 |
+        v-load idx#0                                                                           idx#0
+        v-load aggregate%array_length%0#0                                                      idx#0,aggregate%array_length%0#0
+        <                                                                                      continue_looping%0#0
+        bz verify_after_for@7 ; b verify_for_body@3
 
-    verify_for_body@3:                                                                         (𝕡) proof#0,leaf#0 |
+    verify_for_body@3:
         // merkle/contract.py:23
         // computed = hash_pair(computed, proof[idx].bytes)
-        p-load proof#0                                                                         (𝕡) proof#0,leaf#0 | proof#0 (copy)
-        extract 2 0                                                                            (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0
-        v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,idx#0
-        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,idx#0,32
-        *                                                                                      (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        l-load aggregate%array_trimmed%0#0 1                                                   (𝕡) proof#0,leaf#0 | aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
-        l-load aggregate%bytes_offset%0#0 1                                                    (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
-        extract3 // on error: index access is out of bounds                                    (𝕡) proof#0,leaf#0 | b#0
-        l-store-copy b#0 0                                                                     (𝕡) proof#0,leaf#0 | b#0,b#0
-        x-store b#0                                                                            (𝕡) proof#0,leaf#0 | (𝕏) b#0 | b#0
+        v-load proof#0                                                                         proof#0
+        extract 2 0                                                                            aggregate%array_trimmed%0#0
+        v-load idx#0                                                                           aggregate%array_trimmed%0#0,idx#0
+        int 32                                                                                 aggregate%array_trimmed%0#0,idx#0,32
+        *                                                                                      aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                   aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                    aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        int 32                                                                                 aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
+        extract3 // on error: index access is out of bounds                                    b#0
+        l-store-copy b#0 0                                                                     b#0,b#0
+        x-store b#0                                                                            (𝕏) b#0 | b#0
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | (𝕏) b#0 | b#0,computed#1
-        l-load b#0 1                                                                           (𝕡) proof#0,leaf#0 | (𝕏) b#0 | computed#1,b#0
-        b<                                                                                     (𝕡) proof#0,leaf#0 | (𝕏) b#0 | tmp%0#0
-        bz verify_ternary_false@5 ; b verify_ternary_true@4                                    (𝕡) proof#0,leaf#0 | (𝕏) b#0 |
+        v-load computed#1                                                                      (𝕏) b#0 | b#0,computed#1
+        l-load b#0 1                                                                           (𝕏) b#0 | computed#1,b#0
+        b<                                                                                     (𝕏) b#0 | tmp%0#1
+        bz verify_ternary_false@5 ; b verify_ternary_true@4                                    (𝕏) b#0 |
 
-    verify_ternary_true@4:                                                                     (𝕡) proof#0,leaf#0 | (𝕏) b#0 |
+    verify_ternary_true@4:                                                                     (𝕏) b#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | (𝕏) b#0 | computed#1
-        x-load b#0                                                                             (𝕡) proof#0,leaf#0 | computed#1,b#0
-        concat                                                                                 (𝕡) proof#0,leaf#0 | ternary_result%0#0
-        x-store ternary_result%0#0                                                             (𝕡) proof#0,leaf#0 | (𝕏) ternary_result%0#0 |
-        b verify_ternary_merge@6                                                               (𝕡) proof#0,leaf#0 | (𝕏) ternary_result%0#0 |
+        v-load computed#1                                                                      (𝕏) b#0 | computed#1
+        x-load b#0                                                                             computed#1,b#0
+        concat                                                                                 ternary_result%0#0
+        x-store ternary_result%0#0                                                             (𝕏) ternary_result%0#0 |
+        b verify_ternary_merge@6                                                               (𝕏) ternary_result%0#0 |
 
-    verify_ternary_false@5:                                                                    (𝕡) proof#0,leaf#0 | (𝕏) b#0 |
+    verify_ternary_false@5:                                                                    (𝕏) b#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        x-load b#0                                                                             (𝕡) proof#0,leaf#0 | b#0
-        v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | b#0,computed#1
-        concat                                                                                 (𝕡) proof#0,leaf#0 | ternary_result%0#0
-        x-store ternary_result%0#0                                                             (𝕡) proof#0,leaf#0 | (𝕏) ternary_result%0#0 |
-        b verify_ternary_merge@6                                                               (𝕡) proof#0,leaf#0 | (𝕏) ternary_result%0#0 |
+        x-load b#0                                                                             b#0
+        v-load computed#1                                                                      b#0,computed#1
+        concat                                                                                 ternary_result%0#0
+        x-store ternary_result%0#0                                                             (𝕏) ternary_result%0#0 |
+        b verify_ternary_merge@6                                                               (𝕏) ternary_result%0#0 |
 
-    verify_ternary_merge@6:                                                                    (𝕡) proof#0,leaf#0 | (𝕏) ternary_result%0#0 |
+    verify_ternary_merge@6:                                                                    (𝕏) ternary_result%0#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        x-load ternary_result%0#0                                                              (𝕡) proof#0,leaf#0 | ternary_result%0#0
-        sha256                                                                                 (𝕡) proof#0,leaf#0 | computed#1
-        v-store computed#1                                                                     (𝕡) proof#0,leaf#0 |
+        x-load ternary_result%0#0                                                              ternary_result%0#0
+        sha256                                                                                 computed#1
+        v-store computed#1
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | idx#0
-        int 1                                                                                  (𝕡) proof#0,leaf#0 | idx#0,1
-        +                                                                                      (𝕡) proof#0,leaf#0 | idx#0
-        v-store idx#0                                                                          (𝕡) proof#0,leaf#0 |
-        b verify_for_header@2                                                                  (𝕡) proof#0,leaf#0 |
+        v-load idx#0                                                                           idx#0
+        int 1                                                                                  idx#0,1
+        +                                                                                      idx#0
+        v-store idx#0
+        b verify_for_header@2
 
-    verify_after_for@7:                                                                        (𝕡) proof#0,leaf#0 |
+    verify_after_for@7:
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
-        v-load maybe_value%0#0                                                                 (𝕡) proof#0,leaf#0 | maybe_value%0#0
-        v-load computed#1                                                                      (𝕡) proof#0,leaf#0 | maybe_value%0#0,computed#1
-        ==                                                                                     (𝕡) proof#0,leaf#0 | tmp%0#0
-        retsub                                                                                 tmp%0#0
+        v-load maybe_value%0#0                                                                 maybe_value%0#0
+        v-load computed#1                                                                      maybe_value%0#0,computed#1
+        ==                                                                                     tmp%0#1
+        // merkle/contract.py:14
+        // @arc4.abimethod
+        byte 0x00                                                                              tmp%0#1,0x00
+        int 0                                                                                  tmp%0#1,0x00,0
+        l-load tmp%0#1 2                                                                       0x00,0,tmp%0#1
+        setbit                                                                                 aggregate%encoded_bool%0#0
+        byte 0x151f7c75                                                                        aggregate%encoded_bool%0#0,0x151f7c75
+        l-load aggregate%encoded_bool%0#0 1                                                    0x151f7c75,aggregate%encoded_bool%0#0
+        concat                                                                                 tmp%2#0
+        log
+        int 1                                                                                  1
+        return
 
 

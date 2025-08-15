@@ -4,46 +4,94 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1
+    bytecblock 0x0020
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
-    pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 0xb15dc12a // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]", method "all(byte[])(byte[],byte[],byte[],byte[])"
-    txna ApplicationArgs 0
-    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7
-
-main_after_if_else@14:
-    err
-
-main_all_route@7:
-    // intrinsics/optimizations.py:21
-    // @arc4.abimethod()
+    bz main___algopy_default_create@13
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // intrinsics/optimizations.py:4
-    // class Optimizations(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    assert
+    pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 0xb15dc12a // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]", method "all(byte[])(byte[],byte[],byte[],byte[])"
+    txna ApplicationArgs 0
+    match main_sha256_route@4 main_sha3_256_route@5 main_sha512_256_route@6 main_keccak256_route@7 all
+    err
+
+main_keccak256_route@7:
+    // intrinsics/optimizations.py:17
+    // @arc4.abimethod()
+    pushbytes 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba
+    log
+    intc_0 // 1
+    return
+
+main_sha512_256_route@6:
+    // intrinsics/optimizations.py:13
+    // @arc4.abimethod()
+    pushbytes 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442
+    log
+    intc_0 // 1
+    return
+
+main_sha3_256_route@5:
+    // intrinsics/optimizations.py:9
+    // @arc4.abimethod()
+    pushbytes 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51
+    log
+    intc_0 // 1
+    return
+
+main_sha256_route@4:
+    // intrinsics/optimizations.py:5
+    // @arc4.abimethod()
+    pushbytes 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
+    log
+    intc_0 // 1
+    return
+
+main___algopy_default_create@13:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> void:
+all:
     // intrinsics/optimizations.py:21
     // @arc4.abimethod()
-    callsub all
-    dig 3
-    len
-    itob
-    extract 6 2
+    txna ApplicationArgs 1
+    extract 2 0
+    // intrinsics/optimizations.py:24
+    // op.sha256(value_to_hash),
+    dup
+    sha256
+    // intrinsics/optimizations.py:25
+    // op.sha3_256(value_to_hash),
+    dig 1
+    sha3_256
+    // intrinsics/optimizations.py:26
+    // op.sha512_256(value_to_hash),
+    dig 2
+    sha512_256
+    // intrinsics/optimizations.py:27
+    // op.keccak256(value_to_hash),
+    uncover 3
+    keccak256
+    // intrinsics/optimizations.py:21
+    // @arc4.abimethod()
+    bytec_0 // 0x0020
     uncover 4
     concat
     dup
     len
     pushint 8 // 8
     +
-    dig 4
-    len
-    itob
-    extract 6 2
+    bytec_0 // 0x0020
     uncover 5
     concat
     dig 1
@@ -56,10 +104,7 @@ main_all_route@7:
     len
     uncover 3
     +
-    dig 5
-    len
-    itob
-    extract 6 2
+    bytec_0 // 0x0020
     uncover 6
     concat
     dig 1
@@ -72,10 +117,7 @@ main_all_route@7:
     len
     uncover 3
     +
-    dig 5
-    len
-    itob
-    extract 6 2
+    bytec_0 // 0x0020
     uncover 6
     concat
     swap
@@ -98,98 +140,3 @@ main_all_route@7:
     log
     intc_0 // 1
     return
-
-main_keccak256_route@6:
-    // intrinsics/optimizations.py:17
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba
-    log
-    intc_0 // 1
-    return
-
-main_sha512_256_route@5:
-    // intrinsics/optimizations.py:13
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442
-    log
-    intc_0 // 1
-    return
-
-main_sha3_256_route@4:
-    // intrinsics/optimizations.py:9
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51
-    log
-    intc_0 // 1
-    return
-
-main_sha256_route@3:
-    // intrinsics/optimizations.py:5
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
-    log
-    intc_0 // 1
-    return
-
-main_bare_routing@10:
-    // intrinsics/optimizations.py:4
-    // class Optimizations(arc4.ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@14
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
-
-
-// test_cases.intrinsics.optimizations.Optimizations.all(value_to_hash: bytes) -> bytes, bytes, bytes, bytes:
-all:
-    // intrinsics/optimizations.py:21-22
-    // @arc4.abimethod()
-    // def all(self, value_to_hash: Bytes) -> tuple[Bytes, Bytes, Bytes, Bytes]:
-    proto 1 4
-    // intrinsics/optimizations.py:24
-    // op.sha256(value_to_hash),
-    frame_dig -1
-    sha256
-    // intrinsics/optimizations.py:25
-    // op.sha3_256(value_to_hash),
-    frame_dig -1
-    sha3_256
-    // intrinsics/optimizations.py:26
-    // op.sha512_256(value_to_hash),
-    frame_dig -1
-    sha512_256
-    // intrinsics/optimizations.py:27
-    // op.keccak256(value_to_hash),
-    frame_dig -1
-    keccak256
-    // intrinsics/optimizations.py:23-28
-    // return (
-    //     op.sha256(value_to_hash),
-    //     op.sha3_256(value_to_hash),
-    //     op.sha512_256(value_to_hash),
-    //     op.keccak256(value_to_hash),
-    // )
-    retsub

@@ -4,188 +4,153 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0
-    bytecblock 0x151f7c75 "accounts" "assets" "apps" 0x151f7c7500000000000004d2
+    bytecblock 0x151f7c75 0x151f7c7500000000000004d2 "apps" "assets" "accounts"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
+    bz main___algopy_default_create@18
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x6c7a1cb5 0xc8480f0c 0x37c0cbf2 0x2d018f8a 0x6728b1a1 0xce7e6cd3 0x0a37f6e1 0x4c894d7e 0x62ebcf89 0x924e778c // method "acc_ret()address", method "asset_ret()uint64", method "app_ret()uint64", method "store(address,uint64,uint64)void", method "store_apps(uint64[])void", method "store_assets(uint64[])void", method "store_accounts(address[])void", method "return_apps()uint64[]", method "return_assets()uint64[]", method "return_accounts()address[]"
     txna ApplicationArgs 0
-    match main_acc_ret_route@3 main_asset_ret_route@4 main_app_ret_route@5 main_store_route@6 main_store_apps_route@7 main_store_assets_route@8 main_store_accounts_route@9 main_return_apps_route@10 main_return_assets_route@11 main_return_accounts_route@12
-
-main_after_if_else@19:
+    match acc_ret main_asset_ret_route@5 main_app_ret_route@6 store store_apps store_assets store_accounts return_apps return_assets return_accounts
     err
 
-main_return_accounts_route@12:
-    // arc4_conversions/reference.py:43
+main_app_ret_route@6:
+    // arc4_conversions/reference.py:13
     // @arc4.abimethod
+    bytec_1 // 0x151f7c7500000000000004d2
+    log
+    intc_0 // 1
+    return
+
+main_asset_ret_route@5:
+    // arc4_conversions/reference.py:9
+    // @arc4.abimethod
+    bytec_1 // 0x151f7c7500000000000004d2
+    log
+    intc_0 // 1
+    return
+
+main___algopy_default_create@18:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub return_accounts
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret[routing]() -> void:
+acc_ret:
+    // arc4_conversions/reference.py:5
+    // @arc4.abimethod
     bytec_0 // 0x151f7c75
-    swap
+    // arc4_conversions/reference.py:7
+    // return Txn.sender
+    txn Sender
+    // arc4_conversions/reference.py:5
+    // @arc4.abimethod
     concat
     log
     intc_0 // 1
     return
 
-main_return_assets_route@11:
-    // arc4_conversions/reference.py:39
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub return_assets
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
 
-main_return_apps_route@10:
-    // arc4_conversions/reference.py:35
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub return_apps
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
-
-main_store_accounts_route@9:
-    // arc4_conversions/reference.py:31
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc4_conversions/reference.py:33
-    // self.accounts = accounts
-    bytec_1 // "accounts"
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // arc4_conversions/reference.py:33
-    // self.accounts = accounts
-    app_global_put
-    // arc4_conversions/reference.py:31
-    // @arc4.abimethod
-    intc_0 // 1
-    return
-
-main_store_assets_route@8:
-    // arc4_conversions/reference.py:27
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc4_conversions/reference.py:29
-    // self.assets = assets
-    bytec_2 // "assets"
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // arc4_conversions/reference.py:29
-    // self.assets = assets
-    app_global_put
-    // arc4_conversions/reference.py:27
-    // @arc4.abimethod
-    intc_0 // 1
-    return
-
-main_store_apps_route@7:
-    // arc4_conversions/reference.py:23
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc4_conversions/reference.py:25
-    // self.apps = apps
-    bytec_3 // "apps"
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    // arc4_conversions/reference.py:25
-    // self.apps = apps
-    app_global_put
-    // arc4_conversions/reference.py:23
-    // @arc4.abimethod
-    intc_0 // 1
-    return
-
-main_store_route@6:
+// test_cases.arc4_conversions.reference.ReferenceReturn.store[routing]() -> void:
+store:
     // arc4_conversions/reference.py:17
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
     txna ApplicationArgs 3
     btoi
+    // arc4_conversions/reference.py:19
+    // self.acc = acc
+    pushbytes "acc"
+    uncover 3
+    app_global_put
+    // arc4_conversions/reference.py:20
+    // self.asset = asset
+    pushbytes "asset"
+    swap
+    app_global_put
+    // arc4_conversions/reference.py:21
+    // self.app = app
+    pushbytes "app"
+    swap
+    app_global_put
     // arc4_conversions/reference.py:17
     // @arc4.abimethod
-    callsub store
     intc_0 // 1
     return
 
-main_app_ret_route@5:
-    // arc4_conversions/reference.py:13
+
+// test_cases.arc4_conversions.reference.ReferenceReturn.store_apps[routing]() -> void:
+store_apps:
+    // arc4_conversions/reference.py:25
+    // self.apps = apps
+    bytec_2 // "apps"
+    // arc4_conversions/reference.py:23
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    bytec 4 // 0x151f7c7500000000000004d2
-    log
+    txna ApplicationArgs 1
+    // arc4_conversions/reference.py:25
+    // self.apps = apps
+    app_global_put
+    // arc4_conversions/reference.py:23
+    // @arc4.abimethod
     intc_0 // 1
     return
 
-main_asset_ret_route@4:
-    // arc4_conversions/reference.py:9
+
+// test_cases.arc4_conversions.reference.ReferenceReturn.store_assets[routing]() -> void:
+store_assets:
+    // arc4_conversions/reference.py:29
+    // self.assets = assets
+    bytec_3 // "assets"
+    // arc4_conversions/reference.py:27
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    bytec 4 // 0x151f7c7500000000000004d2
-    log
+    txna ApplicationArgs 1
+    // arc4_conversions/reference.py:29
+    // self.assets = assets
+    app_global_put
+    // arc4_conversions/reference.py:27
+    // @arc4.abimethod
     intc_0 // 1
     return
 
-main_acc_ret_route@3:
-    // arc4_conversions/reference.py:5
+
+// test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts[routing]() -> void:
+store_accounts:
+    // arc4_conversions/reference.py:33
+    // self.accounts = accounts
+    bytec 4 // "accounts"
+    // arc4_conversions/reference.py:31
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub acc_ret
+    txna ApplicationArgs 1
+    // arc4_conversions/reference.py:33
+    // self.accounts = accounts
+    app_global_put
+    // arc4_conversions/reference.py:31
+    // @arc4.abimethod
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_conversions.reference.ReferenceReturn.return_apps[routing]() -> void:
+return_apps:
+    // arc4_conversions/reference.py:37
+    // return self.apps
+    intc_1 // 0
+    bytec_2 // "apps"
+    app_global_get_ex
+    assert // check self.apps exists
+    // arc4_conversions/reference.py:35
+    // @arc4.abimethod
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -193,78 +158,38 @@ main_acc_ret_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@15:
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@19
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
 
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret() -> bytes:
-acc_ret:
-    // arc4_conversions/reference.py:7
-    // return Txn.sender
-    txn Sender
-    retsub
-
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.store(acc: bytes, app: uint64, asset: uint64) -> void:
-store:
-    // arc4_conversions/reference.py:17-18
-    // @arc4.abimethod
-    // def store(self, acc: Account, app: Application, asset: Asset) -> None:
-    proto 3 0
-    // arc4_conversions/reference.py:19
-    // self.acc = acc
-    pushbytes "acc"
-    frame_dig -3
-    app_global_put
-    // arc4_conversions/reference.py:20
-    // self.asset = asset
-    pushbytes "asset"
-    frame_dig -1
-    app_global_put
-    // arc4_conversions/reference.py:21
-    // self.app = app
-    pushbytes "app"
-    frame_dig -2
-    app_global_put
-    retsub
-
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.return_apps() -> bytes:
-return_apps:
-    // arc4_conversions/reference.py:37
-    // return self.apps
-    intc_1 // 0
-    bytec_3 // "apps"
-    app_global_get_ex
-    assert // check self.apps exists
-    retsub
-
-
-// test_cases.arc4_conversions.reference.ReferenceReturn.return_assets() -> bytes:
+// test_cases.arc4_conversions.reference.ReferenceReturn.return_assets[routing]() -> void:
 return_assets:
     // arc4_conversions/reference.py:41
     // return self.assets
     intc_1 // 0
-    bytec_2 // "assets"
+    bytec_3 // "assets"
     app_global_get_ex
     assert // check self.assets exists
-    retsub
+    // arc4_conversions/reference.py:39
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 
-// test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts() -> bytes:
+// test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts[routing]() -> void:
 return_accounts:
     // arc4_conversions/reference.py:45
     // return self.accounts
     intc_1 // 0
-    bytec_1 // "accounts"
+    bytec 4 // "accounts"
     app_global_get_ex
     assert // check self.accounts exists
-    retsub
+    // arc4_conversions/reference.py:43
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

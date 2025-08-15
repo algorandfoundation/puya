@@ -1,76 +1,58 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@8
+        goto tmp%0#1 ? block@2 : block@11
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint8()void" => block@3, method "test_uint16()void" => block@4, method "test_uint32()void" => block@5, * => block@12}
-    block@3: // test_uint8_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8()
-        let test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#0: bool = 1u
-        goto block@13
-    block@4: // test_uint16_route_L10
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_uint8()void" => block@4, method "test_uint16()void" => block@5, method "test_uint32()void" => block@6, * => block@10}
+    block@4: // test_uint8_route_L5
+        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]()
+        goto block@10
+    block@5: // test_uint16_route_L10
+        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]()
+        goto block@10
+    block@6: // test_uint32_route_L15
+        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]()
+        goto block@10
+    block@10: // after_if_else_L4
+        fail
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
-        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16()
-        let test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#1: bool = 1u
-        goto block@13
-    block@5: // test_uint32_route_L15
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
-        test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32()
-        let test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#2: bool = 1u
-        goto block@13
-    block@8: // bare_routing_L4
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        goto tmp%15#0 ? block@12 : block@9
-    block@9: // __algopy_default_create_L1
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (! tmp%16#0)
-        (assert tmp%17#0) // can only call when creating
-        let test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#3: bool = 1u
-        goto block@13
-    block@12: // after_if_else_L4
-        let test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#4: bool = 0u
-        goto block@13
-    block@13: // after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#2 <- block@5, test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#3 <- block@9, test_cases.arc4_types.uint_overflow.UIntOverflow.__puya_arc4_router__%0#4 <- block@12)
-        return tmp%0#0
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
 
-subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8() -> void:
+subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]() -> void:
     block@0: // L5
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: uint64 = (+ tmp%0#0 256u)
         let too_big#0: Encoded(uint8) = bytes_encode<uint8>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x01)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16() -> void:
+subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]() -> void:
     block@0: // L10
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: uint64 = (+ tmp%0#0 65536u)
         let too_big#0: Encoded(uint16) = bytes_encode<uint16>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x0001)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u
 
-subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32() -> void:
+subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]() -> void:
     block@0: // L15
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: uint64 = (+ tmp%0#0 4294967296u)
         let too_big#0: Encoded(uint32) = bytes_encode<uint32>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x00000001)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u

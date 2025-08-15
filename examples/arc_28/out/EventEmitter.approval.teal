@@ -6,72 +6,34 @@ main:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match main_emit_swapped_route@3 main_emit_ufixed_route@4
-
-main_after_if_else@11:
+    match emit_swapped emit_ufixed
     err
 
-main_emit_ufixed_route@4:
-    // arc_28/contract.py:18
-    // @arc4.abimethod()
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    // arc_28/contract.py:18
-    // @arc4.abimethod()
-    callsub emit_ufixed
-    pushint 1 // 1
-    return
-
-main_emit_swapped_route@3:
-    // arc_28/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    // arc_28/contract.py:12
-    // @arc4.abimethod
-    callsub emit_swapped
-    pushint 1 // 1
-    return
-
-main_bare_routing@7:
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@11
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
+// examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
 emit_swapped:
-    // arc_28/contract.py:12-13
+    // arc_28/contract.py:12
     // @arc4.abimethod
-    // def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
-    proto 2 0
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
     // arc_28/contract.py:14
     // arc4.emit(Swapped(b, a))
-    frame_dig -1
-    frame_dig -2
     concat
     pushbytes 0x1ccbd925 // method "Swapped(uint64,uint64)"
     swap
@@ -85,26 +47,26 @@ emit_swapped:
     // arc_28/contract.py:16
     // arc4.emit("Swapped", b, a)
     log
-    retsub
+    // arc_28/contract.py:12
+    // @arc4.abimethod
+    pushint 1 // 1
+    return
 
 
-// examples.arc_28.contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
+// examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
 emit_ufixed:
-    // arc_28/contract.py:18-23
+    // arc_28/contract.py:18
     // @arc4.abimethod()
-    // def emit_ufixed(
-    //     self,
-    //     a: arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]],
-    //     b: arc4.UFixedNxM[typing.Literal[64], typing.Literal[2]],
-    // ) -> None:
-    proto 2 0
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
     // arc_28/contract.py:24
     // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
-    frame_dig -2
-    frame_dig -1
     concat
     pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
     swap
     concat
     log
-    retsub
+    // arc_28/contract.py:18
+    // @arc4.abimethod()
+    pushint 1 // 1
+    return
