@@ -8,51 +8,27 @@ main:
     // inner_transactions/field_tuple_assignment.py:24
     // class FieldTupleContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x1ca2c07e 0xec6cd0a8 // method "test_assign_tuple()void", method "test_assign_tuple_mixed()void"
     txna ApplicationArgs 0
-    match main_test_assign_tuple_route@3 main_test_assign_tuple_mixed_route@4
-
-main_after_if_else@11:
+    match test_assign_tuple test_assign_tuple_mixed
     err
 
-main_test_assign_tuple_mixed_route@4:
-    // inner_transactions/field_tuple_assignment.py:85
-    // @arc4.abimethod
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_assign_tuple_mixed
-    intc_3 // 1
-    return
-
-main_test_assign_tuple_route@3:
-    // inner_transactions/field_tuple_assignment.py:25
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub test_assign_tuple
-    intc_3 // 1
-    return
-
-main_bare_routing@7:
-    // inner_transactions/field_tuple_assignment.py:24
-    // class FieldTupleContract(ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@11
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_3 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple[routing]() -> void:
 test_assign_tuple:
     // inner_transactions/field_tuple_assignment.py:38
     // UInt64(42),
@@ -387,11 +363,12 @@ test_assign_tuple:
     itxna ApplicationArgs 2
     bytec 18 // 0x3563
     ==
-    assert
-    retsub
+    // inner_transactions/field_tuple_assignment.py:25
+    // @arc4.abimethod
+    return
 
 
-// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed[routing]() -> void:
 test_assign_tuple_mixed:
     // inner_transactions/field_tuple_assignment.py:96
     // result_with_txn = tuple_with_txn_fields[0].submit(), tuple_with_txn_fields[1]
@@ -434,5 +411,6 @@ test_assign_tuple_mixed:
     itxna ApplicationArgs 1
     bytec_2 // 0x3261
     ==
-    assert
-    retsub
+    // inner_transactions/field_tuple_assignment.py:85
+    // @arc4.abimethod
+    return

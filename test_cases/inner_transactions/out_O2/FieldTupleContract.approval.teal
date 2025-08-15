@@ -6,20 +6,18 @@ main:
     intcblock 5 6 0 1
     bytecblock 0x098101 0x3161 0x3261 0x646966666572656e7420706172616d20736574 0x68656c6c6f 0x776f726c64 0x3361 0x3461 0x3561 0x3362 0x3462 0x3562 0x3162 0x3262 0x3163 0x3263 0x3363 0x3463 0x3563
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0x1ca2c07e 0xec6cd0a8 // method "test_assign_tuple()void", method "test_assign_tuple_mixed()void"
-    txna ApplicationArgs 0
-    match main_test_assign_tuple_route@3 main_test_assign_tuple_mixed_route@4
-
-main_after_if_else@11:
-    err
-
-main_test_assign_tuple_mixed_route@4:
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x1ca2c07e 0xec6cd0a8 // method "test_assign_tuple()void", method "test_assign_tuple_mixed()void"
+    txna ApplicationArgs 0
+    match main_test_assign_tuple_route@4 main_test_assign_tuple_mixed_route@5
+    err
+
+main_test_assign_tuple_mixed_route@5:
     itxn_begin
     bytec_1 // 0x3161
     itxn_field ApplicationArgs
@@ -43,16 +41,9 @@ main_test_assign_tuple_mixed_route@4:
     itxna ApplicationArgs 1
     bytec_2 // 0x3261
     ==
-    assert
-    intc_3 // 1
     return
 
-main_test_assign_tuple_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_test_assign_tuple_route@4:
     pushint 42 // 42
     itob
     intc_3 // 1
@@ -250,15 +241,12 @@ main_test_assign_tuple_route@3:
     itxna ApplicationArgs 2
     bytec 18 // 0x3563
     ==
-    assert
-    intc_3 // 1
     return
 
-main_bare_routing@7:
+main___algopy_default_create@10:
     txn OnCompletion
-    bnz main_after_if_else@11
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_3 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

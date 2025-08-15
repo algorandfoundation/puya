@@ -6,32 +6,28 @@ main:
     intcblock 1 0 6 32
     bytecblock 0xd0a28200 0x0002686f
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algots__.defaultCreate@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x1ecad34c 0x90d29762 // method "distribute(address[],pay,uint64)void", method "conditionalBegin(uint64)void"
     txna ApplicationArgs 0
-    match main_distribute_route@3 main_conditionalBegin_route@4
-
-main_after_if_else@11:
+    match distribute conditionalBegin
     err
 
-main_conditionalBegin_route@4:
+main___algots__.defaultCreate@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    txna ApplicationArgs 1
-    btoi
-    callsub conditionalBegin
-    intc_0 // 1
-    return
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
-main_distribute_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+
+// tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
+distribute:
     txna ApplicationArgs 1
     txn GroupIndex
     intc_0 // 1
@@ -43,42 +39,29 @@ main_distribute_route@3:
     assert // transaction type is pay
     txna ApplicationArgs 2
     btoi
-    callsub distribute
-    intc_0 // 1
-    return
-
-main_bare_routing@7:
-    txn OnCompletion
-    bnz main_after_if_else@11
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
-
-
-// tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addresses: bytes, funds: uint64, verifier: uint64) -> void:
-distribute:
-    proto 3 0
-    frame_dig -2
+    cover 2
+    dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // assert target is match for conditions
-    frame_dig -3
+    dig 1
     intc_1 // 0
     extract_uint16
-    dupn 2
+    dup
+    cover 3
+    dup
     assert // must provide some accounts
-    frame_dig -2
+    swap
     gtxns Amount
     swap
     /
     dup
-    frame_dig -3
+    cover 2
+    dig 1
     extract 2 0
+    cover 2
     swap
-    frame_dig -3
     extract 2 32
     itxn_begin
     itxn_field Receiver
@@ -89,21 +72,20 @@ distribute:
     itxn_field Fee
     intc_0 // 1
 
-distribute_for_header@1:
-    frame_dig 3
-    frame_dig 0
-    <
-    bz distribute_after_for@4
-    frame_dig 3
+distribute_for_header@2:
     dup
+    dig 4
+    <
+    bz distribute_after_for@5
+    dupn 2
     intc_3 // 32
     *
-    frame_dig 2
+    dig 3
     swap
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     itxn_next
-    frame_dig 1
+    dig 4
     itxn_field Amount
     intc_0 // 1
     itxn_field TypeEnum
@@ -112,14 +94,14 @@ distribute_for_header@1:
     itxn_field Fee
     intc_0 // 1
     +
-    frame_bury 3
-    b distribute_for_header@1
+    bury 1
+    b distribute_for_header@2
 
-distribute_after_for@4:
+distribute_after_for@5:
     itxn_next
     pushbytes 0x65a9aecc // method "verify()void"
     itxn_field ApplicationArgs
-    frame_dig -1
+    dig 4
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
@@ -133,12 +115,14 @@ distribute_after_for@4:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    retsub
+    intc_0 // 1
+    return
 
 
-// tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(count: uint64) -> void:
+// tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
 conditionalBegin:
-    proto 1 0
+    txna ApplicationArgs 1
+    btoi
     itxn_begin
     pushbytes 0x009225ae // method "helloCreate(string)void"
     itxn_field ApplicationArgs
@@ -148,7 +132,7 @@ conditionalBegin:
     itxn_field GlobalNumByteSlice
     pushbytes base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBACOCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAOgAvACQAAQAxGRREMRhENhoBVwIAiAA8SRUWVwYCTFCABBUffHVMULAiQzEZgQQSRDEYRCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDigEBgQAoZUSAASBQi/9QiQ==)
+    pushbytes base64(CiYBCGdyZWV0aW5nMRhAAAQogABnggIEJDeNPASg6BhyNhoAjgIALgAlMRkURDEYQQAOgATQooIANhoAjgEALQCABACSJa42GgCOAQATADEZgQQSMRgQQzEZgQUSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
     itxn_field ApprovalProgramPages
     intc_1 // 0
     itxn_field OnCompletion
@@ -160,46 +144,47 @@ conditionalBegin:
     gitxn 0 CreatedApplicationID
     intc_1 // 0
 
-conditionalBegin_for_header@2:
-    frame_dig 1
-    frame_dig -1
+conditionalBegin_for_header@3:
+    dup
+    dig 3
     <
-    bz conditionalBegin_after_for@8
-    frame_dig 1
-    bnz conditionalBegin_else_body@5
+    bz conditionalBegin_after_for@9
+    dup
+    bnz conditionalBegin_else_body@6
     itxn_begin
     bytec_0 // method "greet(string)string"
     itxn_field ApplicationArgs
     bytec_1 // 0x0002686f
     itxn_field ApplicationArgs
-    frame_dig 0
+    dig 1
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
 
-conditionalBegin_after_if_else@6:
-    frame_dig 1
+conditionalBegin_after_if_else@7:
+    dup
     intc_0 // 1
     +
-    frame_bury 1
-    b conditionalBegin_for_header@2
+    bury 1
+    b conditionalBegin_for_header@3
 
-conditionalBegin_else_body@5:
+conditionalBegin_else_body@6:
     itxn_next
     bytec_0 // method "greet(string)string"
     itxn_field ApplicationArgs
     bytec_1 // 0x0002686f
     itxn_field ApplicationArgs
-    frame_dig 0
+    dig 1
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    b conditionalBegin_after_if_else@6
+    b conditionalBegin_after_if_else@7
 
-conditionalBegin_after_for@8:
+conditionalBegin_after_for@9:
     itxn_submit
-    retsub
+    intc_0 // 1
+    return

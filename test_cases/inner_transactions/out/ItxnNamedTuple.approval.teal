@@ -7,93 +7,38 @@ main:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0xdf478c6e 0x20694f7b 0xd6ca0578 // method "named_tuple_itxn(uint64)void", method "named_tuple_itxn2(uint64)void", method "named_tuple_itxn3(uint64)void"
     txna ApplicationArgs 0
-    match main_named_tuple_itxn_route@3 main_named_tuple_itxn2_route@4 main_named_tuple_itxn3_route@5
-
-main_after_if_else@12:
+    match named_tuple_itxn named_tuple_itxn2 named_tuple_itxn3
     err
 
-main_named_tuple_itxn3_route@5:
-    // inner_transactions/itxn_tuple.py:22
-    // @arc4.abimethod()
+main___algopy_default_create@11:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // inner_transactions/itxn_tuple.py:11
-    // class ItxnNamedTuple(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // inner_transactions/itxn_tuple.py:22
-    // @arc4.abimethod()
-    callsub named_tuple_itxn3
-    intc_0 // 1
-    return
-
-main_named_tuple_itxn2_route@4:
-    // inner_transactions/itxn_tuple.py:17
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // inner_transactions/itxn_tuple.py:11
-    // class ItxnNamedTuple(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // inner_transactions/itxn_tuple.py:17
-    // @arc4.abimethod()
-    callsub named_tuple_itxn2
-    intc_0 // 1
-    return
-
-main_named_tuple_itxn_route@3:
-    // inner_transactions/itxn_tuple.py:12
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // inner_transactions/itxn_tuple.py:11
-    // class ItxnNamedTuple(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // inner_transactions/itxn_tuple.py:12
-    // @arc4.abimethod()
-    callsub named_tuple_itxn
-    intc_0 // 1
-    return
-
-main_bare_routing@8:
-    // inner_transactions/itxn_tuple.py:11
-    // class ItxnNamedTuple(arc4.ARC4Contract):
-    txn OnCompletion
-    bnz main_after_if_else@12
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn(amt: uint64) -> void:
+// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn[routing]() -> void:
 named_tuple_itxn:
-    // inner_transactions/itxn_tuple.py:12-13
+    // inner_transactions/itxn_tuple.py:12
     // @arc4.abimethod()
-    // def named_tuple_itxn(self, amt: UInt64) -> None:
-    proto 1 0
+    txna ApplicationArgs 1
+    btoi
     // inner_transactions/itxn_tuple.py:14
     // hmm = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())
     itxn_begin
     txn Sender
-    frame_dig -1
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -103,23 +48,23 @@ named_tuple_itxn:
     // inner_transactions/itxn_tuple.py:15
     // assert hmm.bar.amount == 0
     !
-    assert
-    retsub
-
-
-// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2(amt: uint64) -> void:
-named_tuple_itxn2:
-    // inner_transactions/itxn_tuple.py:17-18
+    // inner_transactions/itxn_tuple.py:12
     // @arc4.abimethod()
-    // def named_tuple_itxn2(self, amt: UInt64) -> None:
-    proto 1 0
+    return
+
+
+// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2[routing]() -> void:
+named_tuple_itxn2:
+    // inner_transactions/itxn_tuple.py:17
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
     // inner_transactions/itxn_tuple.py:19
     // txn = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit()).bar
     itxn_begin
     txn Sender
-    frame_dig -1
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -129,23 +74,23 @@ named_tuple_itxn2:
     // inner_transactions/itxn_tuple.py:20
     // assert txn.amount == 0
     !
-    assert
-    retsub
-
-
-// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(amt: uint64) -> void:
-named_tuple_itxn3:
-    // inner_transactions/itxn_tuple.py:22-23
+    // inner_transactions/itxn_tuple.py:17
     // @arc4.abimethod()
-    // def named_tuple_itxn3(self, amt: UInt64) -> None:
-    proto 1 0
+    return
+
+
+// test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3[routing]() -> void:
+named_tuple_itxn3:
+    // inner_transactions/itxn_tuple.py:22
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
     // inner_transactions/itxn_tuple.py:24
     // hmmm = Hmmm(foo=amt, bar=itxn.Payment(receiver=Txn.sender, amount=amt).submit())
     itxn_begin
     txn Sender
-    frame_dig -1
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -155,5 +100,6 @@ named_tuple_itxn3:
     // inner_transactions/itxn_tuple.py:26
     // assert txn.amount == 0
     !
-    assert
-    retsub
+    // inner_transactions/itxn_tuple.py:22
+    // @arc4.abimethod()
+    return

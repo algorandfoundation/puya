@@ -5,7 +5,6 @@
 main:
     intcblock 0 1 2 8
     bytecblock ""
-    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     txna ApplicationArgs 0
@@ -28,104 +40,53 @@ main_abi_routing@2:
     pushbytes 0xbd4b223f // method "umm2()void"
     pushbytes 0x847f775f // method "calculate(uint64[][],uint64)void"
     uncover 3
-    match main_umm_route@3 main_umm2_route@4 main_calculate_route@5
-    b main_switch_case_default@6
+    match main_umm_route@4 main_umm2_route@5 main_calculate_route@6
+    b main_switch_case_default@7
 
-main_switch_case_default@6:
-    b main_switch_case_next@7
+main_switch_case_default@7:
+    b main_switch_case_next@8
 
-main_switch_case_next@7:
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
     b main_after_if_else@12
 
 main_after_if_else@12:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
+    err
 
-main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13:
-    return
-
-main_calculate_route@5:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // regression_tests/leftover_branch.py:4
-    // class BranchElimination(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+main_calculate_route@6:
     // regression_tests/leftover_branch.py:29
     // @arc4.abimethod
     callsub calculate
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
+    b main_switch_case_next@8
 
-main_umm2_route@4:
+main_umm2_route@5:
     // regression_tests/leftover_branch.py:18
     // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub umm2
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
+    b main_switch_case_next@8
 
-main_umm_route@3:
+main_umm_route@4:
     // regression_tests/leftover_branch.py:5
     // @arc4.abimethod
+    callsub umm
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@11:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub umm
-    itob
-    pushbytes 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
-
-main_bare_routing@8:
-    // regression_tests/leftover_branch.py:4
-    // class BranchElimination(ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@9
-    b main_switch_case_default@10
-
-main_switch_case_default@10:
-    b main_switch_case_next@11
-
-main_switch_case_next@11:
-    b main_after_if_else@12
-
-main___algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@14
 
 main_block@14:
@@ -133,8 +94,7 @@ main_block@14:
 
 main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@15:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__@13
+    return
 
 
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:
@@ -159,8 +119,51 @@ hmm_uint64_block@0:
     retsub
 
 
-// test_cases.regression_tests.leftover_branch.BranchElimination.umm() -> uint64:
+// test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]() -> void:
 umm:
+    b umm_block@0
+
+umm_block@0:
+    // regression_tests/leftover_branch.py:5
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.leftover_branch.BranchElimination.umm
+    itob
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]() -> void:
+umm2:
+    b umm2_block@0
+
+umm2_block@0:
+    // regression_tests/leftover_branch.py:18
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.leftover_branch.BranchElimination.umm2
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
+calculate:
+    b calculate_block@0
+
+calculate_block@0:
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub test_cases.regression_tests.leftover_branch.BranchElimination.calculate
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.leftover_branch.BranchElimination.umm() -> uint64:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm:
     // regression_tests/leftover_branch.py:5-6
     // @arc4.abimethod
     // def umm(self) -> UInt64:
@@ -168,24 +171,24 @@ umm:
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
-    b umm_block@0
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_block@0
 
-umm_block@0:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_block@0:
     // regression_tests/leftover_branch.py:7
     // ahuh = UInt64(0)
     intc_0 // 0
-    b umm_while_top@1
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1
 
-umm_while_top@1:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1:
     frame_dig 3
     frame_bury 1
     // regression_tests/leftover_branch.py:8
     // while True:
     intc_1 // 1
-    bz umm_after_while@15
-    b umm_while_body@2
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_while@15
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_body@2
 
-umm_while_body@2:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_body@2:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     callsub hmm_uint64
@@ -194,185 +197,185 @@ umm_while_body@2:
     assert // Step cannot be zero
     intc_0 // 0
     frame_bury 0
-    b umm_for_header@3
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3
 
-umm_for_header@3:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     frame_dig 0
     frame_dig 2
     <
-    bz umm_after_for@12
-    b umm_for_body@4
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_for@12
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_body@4
 
-umm_for_body@4:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_body@4:
     // regression_tests/leftover_branch.py:10
     // if hmm():  # noqa: SIM102
     callsub hmm
     frame_dig 3
     frame_bury 1
-    bz umm_after_if_else@10
-    b umm_if_body@5
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@10
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@5
 
-umm_if_body@5:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@5:
     // regression_tests/leftover_branch.py:11
     // if hmm():  # noqa: SIM102
     callsub hmm
     frame_dig 3
     frame_bury 1
-    bz umm_after_if_else@9
-    b umm_if_body@6
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@9
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@6
 
-umm_if_body@6:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@6:
     // regression_tests/leftover_branch.py:12
     // if hmm():
     callsub hmm
     frame_dig 3
     frame_bury 1
-    bz umm_after_if_else@8
-    b umm_if_body@7
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@8
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@7
 
-umm_if_body@7:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@7:
     // regression_tests/leftover_branch.py:13
     // ahuh += hmm()
     callsub hmm
     frame_dig 3
     +
     frame_bury 1
-    b umm_after_if_else@8
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@8
 
-umm_after_if_else@8:
-    b umm_after_if_else@9
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@8:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@9
 
-umm_after_if_else@9:
-    b umm_after_if_else@10
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@9:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@10
 
-umm_after_if_else@10:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@10:
     frame_dig 1
     frame_bury 3
-    b umm_for_footer@11
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_footer@11
 
-umm_for_footer@11:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_footer@11:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     frame_dig 0
     intc_1 // 1
     +
     frame_bury 0
-    b umm_for_header@3
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3
 
-umm_after_for@12:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_for@12:
     // regression_tests/leftover_branch.py:14
     // if hmm():
     callsub hmm
-    bz umm_after_if_else@14
-    b umm_if_body@13
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@14
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@13
 
-umm_if_body@13:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_if_body@13:
     frame_dig 3
     frame_bury 1
     // regression_tests/leftover_branch.py:15
     // break
-    b umm_after_while@15
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_while@15
 
-umm_after_while@15:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_while@15:
     frame_dig 1
     // regression_tests/leftover_branch.py:16
     // return ahuh
     frame_bury 0
     retsub
 
-umm_after_if_else@14:
-    b umm_while_top@1
+test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_if_else@14:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1
 
 
 // test_cases.regression_tests.leftover_branch.BranchElimination.umm2() -> void:
-umm2:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2:
     // regression_tests/leftover_branch.py:18-19
     // @arc4.abimethod
     // def umm2(self) -> None:
     proto 0 0
     bytec_0 // ""
-    b umm2_block@0
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_block@0
 
-umm2_block@0:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_block@0:
     // regression_tests/leftover_branch.py:20
     // ahuh = UInt64(0)
     intc_0 // 0
-    b umm2_while_top@1
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_top@1
 
-umm2_while_top@1:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_top@1:
     // regression_tests/leftover_branch.py:21
     // while True:
     intc_1 // 1
-    bz umm2_after_while@11
-    b umm2_while_body@2
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_while@11
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_body@2
 
-umm2_while_body@2:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_body@2:
     // regression_tests/leftover_branch.py:22
     // if hmm():  # noqa: SIM102
     callsub hmm
     frame_dig 1
     frame_bury 0
-    bz umm2_after_if_else@8
-    b umm2_if_body@3
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@8
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@3
 
-umm2_if_body@3:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@3:
     // regression_tests/leftover_branch.py:23
     // if hmm():  # noqa: SIM102
     callsub hmm
     frame_dig 1
     frame_bury 0
-    bz umm2_after_if_else@7
-    b umm2_if_body@4
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@7
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@4
 
-umm2_if_body@4:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@4:
     // regression_tests/leftover_branch.py:24
     // if hmm():
     callsub hmm
     frame_dig 1
     frame_bury 0
-    bz umm2_after_if_else@6
-    b umm2_if_body@5
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@6
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@5
 
-umm2_if_body@5:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@5:
     // regression_tests/leftover_branch.py:25
     // ahuh += hmm()
     callsub hmm
     frame_dig 1
     +
     frame_bury 0
-    b umm2_after_if_else@6
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@6
 
-umm2_after_if_else@6:
-    b umm2_after_if_else@7
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@6:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@7
 
-umm2_after_if_else@7:
-    b umm2_after_if_else@8
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@7:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@8
 
-umm2_after_if_else@8:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@8:
     frame_dig 0
     frame_bury 1
     // regression_tests/leftover_branch.py:26
     // if hmm():
     callsub hmm
-    bz umm2_after_if_else@10
-    b umm2_if_body@9
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@10
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@9
 
-umm2_if_body@9:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_if_body@9:
     // regression_tests/leftover_branch.py:27
     // break
-    b umm2_after_while@11
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_while@11
 
-umm2_after_while@11:
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_while@11:
     retsub
 
-umm2_after_if_else@10:
-    b umm2_while_top@1
+test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_if_else@10:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_top@1
 
 
 // test_cases.regression_tests.leftover_branch.BranchElimination.calculate(nested_list: bytes, threshold: bytes) -> void:
-calculate:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate:
     // regression_tests/leftover_branch.py:29-34
     // @arc4.abimethod
     // def calculate(
@@ -388,9 +391,9 @@ calculate:
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
-    b calculate_block@0
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_block@0
 
-calculate_block@0:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_block@0:
     // regression_tests/leftover_branch.py:35
     // total = UInt64(0)
     intc_0 // 0
@@ -405,18 +408,18 @@ calculate_block@0:
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
-    b calculate_for_header@1
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1
 
-calculate_for_header@1:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1:
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig 10
     frame_dig 9
     <
-    bz calculate_after_for@14
-    b calculate_for_body@2
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_for@14
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body@2
 
-calculate_for_body@2:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body@2:
     // regression_tests/leftover_branch.py:39
     // inner_list = nested_list[i].copy()
     frame_dig -2
@@ -467,18 +470,18 @@ calculate_for_body@2:
     assert // Step cannot be zero
     intc_0 // 0
     frame_bury 2
-    b calculate_for_header@3
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@3
 
-calculate_for_header@3:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@3:
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     frame_dig 2
     frame_dig 5
     <
-    bz calculate_after_for@12
-    b calculate_for_body@4
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_for@12
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body@4
 
-calculate_for_body@4:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body@4:
     // regression_tests/leftover_branch.py:42
     // value = inner_list[j]
     frame_dig 0
@@ -503,10 +506,10 @@ calculate_for_body@4:
     frame_bury 4
     frame_dig 7
     frame_bury 6
-    bz calculate_after_if_else@10
-    b calculate_if_body@5
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@10
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@5
 
-calculate_if_body@5:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@5:
     // regression_tests/leftover_branch.py:44
     // has_next = j < last_inner_list_index
     frame_dig 2
@@ -518,10 +521,10 @@ calculate_if_body@5:
     frame_bury 6
     // regression_tests/leftover_branch.py:45
     // if has_next:
-    bz calculate_after_if_else@9
-    b calculate_if_body@6
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@9
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@6
 
-calculate_if_body@6:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@6:
     // regression_tests/leftover_branch.py:46
     // total += 1
     frame_dig 7
@@ -554,10 +557,10 @@ calculate_if_body@6:
     frame_bury 4
     uncover 1
     frame_bury 6
-    bz calculate_after_if_else@8
-    b calculate_if_body@7
+    bz test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@8
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@7
 
-calculate_if_body@7:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@7:
     // regression_tests/leftover_branch.py:49
     // total *= 2
     frame_dig 7
@@ -570,51 +573,51 @@ calculate_if_body@7:
     +
     frame_bury 4
     frame_bury 6
-    b calculate_after_if_else@8
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@8
 
-calculate_after_if_else@8:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@8:
     frame_dig 4
     frame_dig 6
     cover 1
     frame_bury 4
     frame_bury 6
-    b calculate_after_if_else@9
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@9
 
-calculate_after_if_else@9:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@9:
     frame_dig 4
     frame_dig 6
     cover 1
     frame_bury 4
     frame_bury 6
-    b calculate_after_if_else@10
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@10
 
-calculate_after_if_else@10:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_if_else@10:
     frame_dig 4
     frame_bury 8
     frame_dig 6
     frame_bury 7
-    b calculate_for_footer@11
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_footer@11
 
-calculate_for_footer@11:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_footer@11:
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     frame_dig 2
     intc_1 // 1
     +
     frame_bury 2
-    b calculate_for_header@3
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@3
 
-calculate_after_for@12:
-    b calculate_for_footer@13
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_for@12:
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_footer@13
 
-calculate_for_footer@13:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_footer@13:
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig 10
     intc_1 // 1
     +
     frame_bury 10
-    b calculate_for_header@1
+    b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1
 
-calculate_after_for@14:
+test_cases.regression_tests.leftover_branch.BranchElimination.calculate_after_for@14:
     retsub

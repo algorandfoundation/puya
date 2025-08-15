@@ -9,6 +9,35 @@ main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypo
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]() -> void:
+    block@0: // L23
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap()
+        exit 1u
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]() -> void:
+    block@0: // L28
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(reinterpret_Encoded(uint64)%0#0)
+        exit 1u
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box[routing]() -> void:
+    block@0: // L32
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(reinterpret_Encoded(uint64)%0#0)
+        exit 1u
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global[routing]() -> void:
+    block@0: // L36
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(reinterpret_Encoded(uint64)%0#0)
+        exit 1u
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local[routing]() -> void:
+    block@0: // L40
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(reinterpret_Encoded(uint64)%0#0)
+        exit 1u
+
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__init__() -> void:
     block@0: // L12
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
@@ -255,94 +284,65 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L11
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@10
+        goto tmp%1#0 ? block@2 : block@15
     block@2: // abi_routing_L11
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "bootstrap()void" => block@3, method "mutate_tuple(uint64)void" => block@4, method "mutate_box(uint64)void" => block@5, method "mutate_global(uint64)void" => block@6, method "mutate_local(uint64)void" => block@7, * => block@8}
+        switch tmp%2#0 {method "bootstrap()void" => block@3, * => block@4}
     block@3: // bootstrap_route_L23
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 OptIn)
-        (assert tmp%4#0) // OnCompletion is not OptIn
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap()
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@4: // mutate_tuple_route_L28
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(reinterpret_Encoded(uint64)%0#0)
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@5: // mutate_box_route_L32
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(reinterpret_Encoded(uint64)%1#0)
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@6: // mutate_global_route_L36
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (== tmp%15#0 NoOp)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(reinterpret_Encoded(uint64)%2#0)
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@7: // mutate_local_route_L40
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(reinterpret_Encoded(uint64)%3#0)
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@8: // switch_case_default_L11
-        goto block@9
-    block@9: // switch_case_next_L11
-        goto block@16
-    block@10: // bare_routing_L11
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        switch tmp%23#0 {0u => block@11, * => block@14}
-    block@11: // __algopy_default_create_L1
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (== tmp%24#0 0u)
-        (assert tmp%25#0) // can only call when creating
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
+        (assert tmp%7#0) // OnCompletion must be OptIn && can only call when not creating
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]()
+        goto block@5
+    block@4: // switch_case_default_L11
+        goto block@5
+    block@5: // switch_case_next_L11
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 NoOp)
+        (assert tmp%9#0) // OnCompletion must be NoOp
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (!= tmp%10#0 0u)
+        goto tmp%11#0 ? block@6 : block@13
+    block@6: // call_NoOp_L11
+        let tmp%12#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%12#0 {method "mutate_tuple(uint64)void" => block@7, method "mutate_box(uint64)void" => block@8, method "mutate_global(uint64)void" => block@9, method "mutate_local(uint64)void" => block@10, * => block@11}
+    block@7: // mutate_tuple_route_L28
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]()
         goto block@12
-    block@12: // L1
-        goto block@13
-    block@13: // after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create_L1
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
-        goto block@17
-    block@14: // switch_case_default_L11
-        goto block@15
-    block@15: // switch_case_next_L11
+    block@8: // mutate_box_route_L32
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box[routing]()
+        goto block@12
+    block@9: // mutate_global_route_L36
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global[routing]()
+        goto block@12
+    block@10: // mutate_local_route_L40
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local[routing]()
+        goto block@12
+    block@11: // switch_case_default_L11
+        goto block@12
+    block@12: // switch_case_next_L11
+        goto block@14
+    block@13: // create_NoOp_L11
+        goto block@14
+    block@14: // after_if_else_L11
+        goto block@18
+    block@15: // __algopy_default_create_L1
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (== tmp%13#0 NoOp)
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (== tmp%15#0 0u)
+        let tmp%17#0: bool = (&& tmp%14#0 tmp%16#0)
+        (assert tmp%17#0) // OnCompletion must be NoOp && can only call when creating
         goto block@16
-    block@16: // after_if_else_L11
-        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+    block@16: // L1
         goto block@17
-    block@17: // after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router___L1
+    block@17: // after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create_L1
+        exit 1u
+    block@18: // after_if_else_L11
+        exit 0u
+    block@19: // after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
         return tmp%0#0

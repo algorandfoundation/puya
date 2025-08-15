@@ -27,94 +27,94 @@ subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router_
     block@0: // L22
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@11
+        goto tmp%1#0 ? block@1 : block@14
     block@1: // abi_routing_L22
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_literal_encoding()void" => block@2, method "test_native_encoding()void" => block@3, method "test_arc4_encoding()void" => block@4, method "test_array_uint64_encoding()void" => block@5, method "test_array_static_encoding()void" => block@6, method "test_array_dynamic_encoding()void" => block@7, method "test_bytes_to_fixed(bool)void" => block@8, * => block@9}
-    block@2: // test_literal_encoding_route_L23
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_literal_encoding()
-        return 1u
-    block@3: // test_native_encoding_route_L46
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@12
+    block@2: // call_NoOp_L22
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_literal_encoding()void" => block@3, method "test_native_encoding()void" => block@4, method "test_arc4_encoding()void" => block@5, method "test_array_uint64_encoding()void" => block@6, method "test_array_static_encoding()void" => block@7, method "test_array_dynamic_encoding()void" => block@8, method "test_bytes_to_fixed(bool)void" => block@9, * => block@10}
+    block@3: // test_literal_encoding_route_L23
+        test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]()
+        goto block@11
+    block@4: // test_native_encoding_route_L46
+        test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]()
+        goto block@11
+    block@5: // test_arc4_encoding_route_L74
+        test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]()
+        goto block@11
+    block@6: // test_array_uint64_encoding_route_L102
+        test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]()
+        goto block@11
+    block@7: // test_array_static_encoding_route_L126
+        test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]()
+        goto block@11
+    block@8: // test_array_dynamic_encoding_route_L150
+        test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]()
+        goto block@11
+    block@9: // test_bytes_to_fixed_route_L178
+        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]()
+        goto block@11
+    block@10: // switch_case_default_L22
+        goto block@11
+    block@11: // switch_case_next_L22
+        goto block@13
+    block@12: // create_NoOp_L22
+        goto block@13
+    block@13: // after_if_else_L22
+        goto block@15
+    block@14: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_native_encoding()
-        return 1u
-    block@4: // test_arc4_encoding_route_L74
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding()
-        return 1u
-    block@5: // test_array_uint64_encoding_route_L102
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (== tmp%15#0 NoOp)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding()
-        return 1u
-    block@6: // test_array_static_encoding_route_L126
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding()
-        return 1u
-    block@7: // test_array_dynamic_encoding_route_L150
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (== tmp%23#0 NoOp)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        let tmp%26#0: bool = (!= tmp%25#0 0u)
-        (assert tmp%26#0) // can only call when not creating
-        test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding()
-        return 1u
-    block@8: // test_bytes_to_fixed_route_L178
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (== tmp%27#0 NoOp)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        let tmp%30#0: bool = (!= tmp%29#0 0u)
-        (assert tmp%30#0) // can only call when not creating
-        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
-        let tmp%31#0: bool = decode_bytes<bool>(reinterpret_Encoded(bool8)%0#0)
-        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(tmp%31#0)
-        return 1u
-    block@9: // switch_case_default_L22
-        goto block@10
-    block@10: // switch_case_next_L22
-        goto block@15
-    block@11: // bare_routing_L22
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        switch tmp%32#0 {0u => block@12, * => block@13}
-    block@12: // __algopy_default_create_L1
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        let tmp%34#0: bool = (== tmp%33#0 0u)
-        (assert tmp%34#0) // can only call when creating
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.arc4_conversions.contract.TestContract.__algopy_default_create()
-        return 1u
-    block@13: // switch_case_default_L22
-        goto block@14
-    block@14: // switch_case_next_L22
-        goto block@15
+        exit 1u
     block@15: // after_if_else_L22
-        return 0u
+        exit 0u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]() -> void:
+    block@0: // L23
+        test_cases.arc4_conversions.contract.TestContract.test_literal_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]() -> void:
+    block@0: // L46
+        test_cases.arc4_conversions.contract.TestContract.test_native_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]() -> void:
+    block@0: // L74
+        test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]() -> void:
+    block@0: // L102
+        test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]() -> void:
+    block@0: // L126
+        test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]() -> void:
+    block@0: // L150
+        test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding()
+        exit 1u
+
+subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]() -> void:
+    block@0: // L178
+        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
+        let tmp%0#0: bool = decode_bytes<bool>(reinterpret_Encoded(bool8)%0#0)
+        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(tmp%0#0)
+        exit 1u
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
     block@0: // L23

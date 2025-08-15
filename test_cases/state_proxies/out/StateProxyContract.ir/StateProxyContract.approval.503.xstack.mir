@@ -1,132 +1,104 @@
-// Op                                                                                                Stack (out)
+// Op                                                                                             Stack (out)
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        txn ApplicationID                                                                            tmp%0#0
+        txn ApplicationID                                                                         tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
     main_call___init__@1:
         // state_proxies/contract.py:22
         // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
-        byte 0x6732                                                                                  0x6732
-        int 0                                                                                        0x6732,0
+        byte 0x6732                                                                               0x6732
+        int 0                                                                                     0x6732,0
         app_global_put
         // state_proxies/contract.py:25
         // if Txn.num_app_args
-        txn NumAppArgs                                                                               tmp%0#2
+        txn NumAppArgs                                                                            tmp%0#2
         // state_proxies/contract.py:26
         // else GlobalState(UInt64, key="town")
-        byte "town"                                                                                  tmp%0#2,"town"
+        byte "town"                                                                               tmp%0#2,"town"
         // state_proxies/contract.py:24
         // GlobalState(UInt64, key="funky")
-        byte "funky"                                                                                 tmp%0#2,"town","funky"
+        byte "funky"                                                                              tmp%0#2,"town","funky"
         // state_proxies/contract.py:24-26
         // GlobalState(UInt64, key="funky")
         // if Txn.num_app_args
         // else GlobalState(UInt64, key="town")
-        l-load tmp%0#2 2                                                                             "town","funky",tmp%0#2
-        select                                                                                       funky_town#0
+        l-load tmp%0#2 2                                                                          "town","funky",tmp%0#2
+        select                                                                                    funky_town#0
         // state_proxies/contract.py:28
         // funky_town.value = UInt64(123)
-        int 123                                                                                      funky_town#0,123
+        int 123                                                                                   funky_town#0,123
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        txn NumAppArgs                                                                               tmp%0#2
-        bz main_after_if_else@10 ; b main_abi_routing@4
+        txna ApplicationArgs 0                                                                    tmp%0#3
+        method create()void                                                                       tmp%0#3,Method(create()void)
+        l-load tmp%0#3 1                                                                          Method(create()void),tmp%0#3
+        match main_create_route@4 ; b main_switch_case_next@5
 
-    main_abi_routing@4:
-        // state_proxies/contract.py:17
-        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        txna ApplicationArgs 0                                                                       tmp%2#0
-        method create()void                                                                          tmp%2#0,Method(create()void)
-        method clear()void                                                                           tmp%2#0,Method(create()void),Method(clear()void)
-        method order_of_eval_global()void                                                            tmp%2#0,Method(create()void),Method(clear()void),Method(order_of_eval_global()void)
-        method order_of_eval_local()void                                                             tmp%2#0,Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
-        method order_of_eval_box()void                                                               tmp%2#0,Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
-        l-load tmp%2#0 5                                                                             Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%2#0
-        match main_create_route@5 main_clear_route@6 main_order_of_eval_global_route@7 main_order_of_eval_local_route@8 main_order_of_eval_box_route@9 ; b main_after_if_else@10 
-
-    main_create_route@5:
+    main_create_route@4:
         // state_proxies/contract.py:31
         // @arc4.abimethod(allow_actions=["OptIn"], create="require")
-        txn OnCompletion                                                                             tmp%3#0
-        int OptIn                                                                                    tmp%3#0,OptIn
-        ==                                                                                           tmp%4#0
-        assert // OnCompletion is not OptIn
-        txn ApplicationID                                                                            tmp%5#0
-        !                                                                                            tmp%6#0
-        assert // can only call when creating
+        txn OnCompletion                                                                          tmp%1#2
+        int OptIn                                                                                 tmp%1#2,OptIn
+        ==                                                                                        tmp%2#0
+        txn ApplicationID                                                                         tmp%2#0,tmp%3#0
+        !                                                                                         tmp%2#0,tmp%4#0
+        l-load tmp%2#0 1                                                                          tmp%4#0,tmp%2#0
+        l-load tmp%4#0 1                                                                          tmp%2#0,tmp%4#0
+        &&                                                                                        tmp%5#0
+        assert // OnCompletion must be OptIn && can only call when creating
         callsub create
-        int 1                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+        b main_switch_case_next@5
 
-    main_clear_route@6:
-        // state_proxies/contract.py:37
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%7#0
-        !                                                                                            tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%9#0
-        assert // can only call when not creating
-        callsub clear
-        int 1                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_order_of_eval_global_route@7:
-        // state_proxies/contract.py:44
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%11#0
-        !                                                                                            tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%13#0
-        assert // can only call when not creating
-        callsub order_of_eval_global
-        int 1                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_order_of_eval_local_route@8:
-        // state_proxies/contract.py:49
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%15#0
-        !                                                                                            tmp%16#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%17#0
-        assert // can only call when not creating
-        callsub order_of_eval_local
-        int 1                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_order_of_eval_box_route@9:
-        // state_proxies/contract.py:54
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%19#0
-        !                                                                                            tmp%20#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%21#0
-        assert // can only call when not creating
-        callsub order_of_eval_box
-        int 1                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@10:
+    main_switch_case_next@5:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        int 0                                                                                        test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+        txn OnCompletion                                                                          tmp%6#0
+        !                                                                                         tmp%7#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                         tmp%8#0
+        assert
+        txna ApplicationArgs 0                                                                    tmp%10#0
+        method clear()void                                                                        tmp%10#0,Method(clear()void)
+        method order_of_eval_global()void                                                         tmp%10#0,Method(clear()void),Method(order_of_eval_global()void)
+        method order_of_eval_local()void                                                          tmp%10#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
+        method order_of_eval_box()void                                                            tmp%10#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
+        l-load tmp%10#0 4                                                                         Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%10#0
+        match main_clear_route@7 main_order_of_eval_global_route@8 main_order_of_eval_local_route@9 main_order_of_eval_box_route@10 ; b main_after_if_else@11 
 
-    main_after_inlined_test_cases.state_proxies.contract.StateProxyContract.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                               tmp%0#0
-        return
+    main_clear_route@7:
+        // state_proxies/contract.py:37
+        // @arc4.abimethod()
+        callsub clear
+        b main_after_if_else@11
+
+    main_order_of_eval_global_route@8:
+        // state_proxies/contract.py:44
+        // @arc4.abimethod()
+        callsub order_of_eval_global
+        b main_after_if_else@11
+
+    main_order_of_eval_local_route@9:
+        // state_proxies/contract.py:49
+        // @arc4.abimethod()
+        callsub order_of_eval_local
+        b main_after_if_else@11
+
+    main_order_of_eval_box_route@10:
+        // state_proxies/contract.py:54
+        // @arc4.abimethod()
+        callsub order_of_eval_box
+        b main_after_if_else@11
+
+    main_after_if_else@11:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        err
 
 
 // test_cases.state_proxies.contract.get_key() -> bytes:
@@ -134,12 +106,12 @@ subroutine get_key:
     get_key_block@0:
         // state_proxies/contract.py:62
         // log("key")
-        byte "key"                                                                                   "key"
+        byte "key"                                                                                "key"
         log
         // state_proxies/contract.py:63
         // return Bytes(b"box")
-        byte 0x626f78                                                                                0x626f78
-        retsub                                                                                       0x626f78
+        byte 0x626f78                                                                             0x626f78
+        retsub                                                                                    0x626f78
 
 
 // test_cases.state_proxies.contract.get_account() -> bytes:
@@ -147,12 +119,12 @@ subroutine get_account:
     get_account_block@0:
         // state_proxies/contract.py:68
         // log("account")
-        byte "account"                                                                               "account"
+        byte "account"                                                                            "account"
         log
         // state_proxies/contract.py:69
         // return Txn.sender
-        txn Sender                                                                                   tmp%0#0
-        retsub                                                                                       tmp%0#0
+        txn Sender                                                                                tmp%0#0
+        retsub                                                                                    tmp%0#0
 
 
 // test_cases.state_proxies.contract.default_value() -> uint64:
@@ -160,132 +132,147 @@ subroutine default_value:
     default_value_block@0:
         // state_proxies/contract.py:74
         // log("default")
-        byte "default"                                                                               "default"
+        byte "default"                                                                            "default"
         log
         // state_proxies/contract.py:75
         // return UInt64(42)
-        int 42                                                                                       42
-        retsub                                                                                       42
+        int 42                                                                                    42
+        retsub                                                                                    42
 
 
-// test_cases.state_proxies.contract.StateProxyContract.create() -> void:
+// test_cases.state_proxies.contract.StateProxyContract.create[routing]() -> void:
 subroutine create:
     create_block@0:
         // state_proxies/contract.py:33
         // self.global1.value = UInt64(1)
-        byte "g1"                                                                                    "g1"
-        int 1                                                                                        "g1",1
+        byte "g1"                                                                                 "g1"
+        int 1                                                                                     "g1",1
         app_global_put
         // state_proxies/contract.py:34
         // self.local1[Txn.sender] = UInt64(2)
-        txn Sender                                                                                   tmp%0#0
-        byte "l1"                                                                                    tmp%0#0,"l1"
-        int 2                                                                                        tmp%0#0,"l1",2
+        txn Sender                                                                                tmp%0#0
+        byte "l1"                                                                                 tmp%0#0,"l1"
+        int 2                                                                                     tmp%0#0,"l1",2
         app_local_put
         // state_proxies/contract.py:35
         // self.local2[Txn.sender] = UInt64(3)
-        txn Sender                                                                                   tmp%1#0
-        byte 0x6c32                                                                                  tmp%1#0,0x6c32
-        int 3                                                                                        tmp%1#0,0x6c32,3
+        txn Sender                                                                                tmp%1#0
+        byte 0x6c32                                                                               tmp%1#0,0x6c32
+        int 3                                                                                     tmp%1#0,0x6c32,3
         app_local_put
-        retsub
+        // state_proxies/contract.py:31
+        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+        int 1                                                                                     1
+        return
 
 
-// test_cases.state_proxies.contract.StateProxyContract.clear() -> void:
+// test_cases.state_proxies.contract.StateProxyContract.clear[routing]() -> void:
 subroutine clear:
     clear_block@0:
         // state_proxies/contract.py:39
         // del self.global1.value
-        byte "g1"                                                                                    "g1"
+        byte "g1"                                                                                 "g1"
         app_global_del
         // state_proxies/contract.py:40
         // del self.local1[Txn.sender]
-        txn Sender                                                                                   tmp%0#0
-        byte "l1"                                                                                    tmp%0#0,"l1"
+        txn Sender                                                                                tmp%0#0
+        byte "l1"                                                                                 tmp%0#0,"l1"
         app_local_del
         // state_proxies/contract.py:41
         // del self.local2[Txn.sender]
-        txn Sender                                                                                   tmp%1#0
-        byte 0x6c32                                                                                  tmp%1#0,0x6c32
+        txn Sender                                                                                tmp%1#0
+        byte 0x6c32                                                                               tmp%1#0,0x6c32
         app_local_del
         // state_proxies/contract.py:42
         // del self.box_map[get_key()]
-        callsub get_key                                                                              materialized_values%0#0
-        byte "box_map"                                                                               materialized_values%0#0,"box_map"
-        l-load materialized_values%0#0 1                                                             "box_map",materialized_values%0#0
-        concat                                                                                       box_prefixed_key%0#0
-        box_del                                                                                      {box_del}
+        callsub get_key                                                                           materialized_values%0#0
+        byte "box_map"                                                                            materialized_values%0#0,"box_map"
+        l-load materialized_values%0#0 1                                                          "box_map",materialized_values%0#0
+        concat                                                                                    box_prefixed_key%0#0
+        box_del                                                                                   {box_del}
         pop 1
-        retsub
+        // state_proxies/contract.py:37
+        // @arc4.abimethod()
+        int 1                                                                                     1
+        return
 
 
-// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global() -> void:
+// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]() -> void:
 subroutine order_of_eval_global:
     order_of_eval_global_block@0:
         // state_proxies/contract.py:46
         // val = self.global1.get(default=default_value())
-        callsub default_value                                                                        tmp%0#0
-        int 0                                                                                        tmp%0#0,0
-        byte "g1"                                                                                    tmp%0#0,0,"g1"
-        app_global_get_ex                                                                            tmp%0#0,maybe_value%0#0,maybe_exists%0#0
-        l-load tmp%0#0 2                                                                             maybe_value%0#0,maybe_exists%0#0,tmp%0#0
-        l-load maybe_value%0#0 2                                                                     maybe_exists%0#0,tmp%0#0,maybe_value%0#0
-        l-load maybe_exists%0#0 2                                                                    tmp%0#0,maybe_value%0#0,maybe_exists%0#0
-        select                                                                                       val#0
+        callsub default_value                                                                     tmp%0#0
+        int 0                                                                                     tmp%0#0,0
+        byte "g1"                                                                                 tmp%0#0,0,"g1"
+        app_global_get_ex                                                                         tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+        l-load tmp%0#0 2                                                                          maybe_value%0#0,maybe_exists%0#0,tmp%0#0
+        l-load maybe_value%0#0 2                                                                  maybe_exists%0#0,tmp%0#0,maybe_value%0#0
+        l-load maybe_exists%0#0 2                                                                 tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+        select                                                                                    val#0
         // state_proxies/contract.py:47
         // assert val == 42
-        int 42                                                                                       val#0,42
-        ==                                                                                           tmp%1#0
+        int 42                                                                                    val#0,42
+        ==                                                                                        tmp%1#0
         assert
-        retsub
+        // state_proxies/contract.py:44
+        // @arc4.abimethod()
+        int 1                                                                                     1
+        return
 
 
-// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local() -> void:
+// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_local[routing]() -> void:
 subroutine order_of_eval_local:
     order_of_eval_local_block@0:
         // state_proxies/contract.py:51
         // val = self.local1.get(get_account(), default=default_value())
-        callsub get_account                                                                          tmp%0#0
-        callsub default_value                                                                        tmp%0#0,tmp%1#0
-        l-load tmp%0#0 1                                                                             tmp%1#0,tmp%0#0
-        int 0                                                                                        tmp%1#0,tmp%0#0,0
-        byte "l1"                                                                                    tmp%1#0,tmp%0#0,0,"l1"
-        app_local_get_ex                                                                             tmp%1#0,maybe_value%0#0,maybe_exists%0#0
-        l-load tmp%1#0 2                                                                             maybe_value%0#0,maybe_exists%0#0,tmp%1#0
-        l-load maybe_value%0#0 2                                                                     maybe_exists%0#0,tmp%1#0,maybe_value%0#0
-        l-load maybe_exists%0#0 2                                                                    tmp%1#0,maybe_value%0#0,maybe_exists%0#0
-        select                                                                                       val#0
+        callsub get_account                                                                       tmp%0#0
+        callsub default_value                                                                     tmp%0#0,tmp%1#0
+        l-load tmp%0#0 1                                                                          tmp%1#0,tmp%0#0
+        int 0                                                                                     tmp%1#0,tmp%0#0,0
+        byte "l1"                                                                                 tmp%1#0,tmp%0#0,0,"l1"
+        app_local_get_ex                                                                          tmp%1#0,maybe_value%0#0,maybe_exists%0#0
+        l-load tmp%1#0 2                                                                          maybe_value%0#0,maybe_exists%0#0,tmp%1#0
+        l-load maybe_value%0#0 2                                                                  maybe_exists%0#0,tmp%1#0,maybe_value%0#0
+        l-load maybe_exists%0#0 2                                                                 tmp%1#0,maybe_value%0#0,maybe_exists%0#0
+        select                                                                                    val#0
         // state_proxies/contract.py:52
         // assert val == 42
-        int 42                                                                                       val#0,42
-        ==                                                                                           tmp%2#0
+        int 42                                                                                    val#0,42
+        ==                                                                                        tmp%2#0
         assert
-        retsub
+        // state_proxies/contract.py:49
+        // @arc4.abimethod()
+        int 1                                                                                     1
+        return
 
 
-// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box() -> void:
+// test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]() -> void:
 subroutine order_of_eval_box:
     order_of_eval_box_block@0:
         // state_proxies/contract.py:56
         // val = self.box_map.get(get_key(), default=default_value())
-        callsub get_key                                                                              materialized_values%0#0
-        byte "box_map"                                                                               materialized_values%0#0,"box_map"
-        l-load materialized_values%0#0 1                                                             "box_map",materialized_values%0#0
-        concat                                                                                       box_prefixed_key%0#0
-        callsub default_value                                                                        box_prefixed_key%0#0,tmp%0#0
-        l-load box_prefixed_key%0#0 1                                                                tmp%0#0,box_prefixed_key%0#0
-        box_get                                                                                      tmp%0#0,maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_value%0#0 1                                                                     tmp%0#0,maybe_exists%0#0,maybe_value%0#0
-        btoi                                                                                         tmp%0#0,maybe_exists%0#0,maybe_value_converted%0#0
-        l-load tmp%0#0 2                                                                             maybe_exists%0#0,maybe_value_converted%0#0,tmp%0#0
-        l-load maybe_value_converted%0#0 1                                                           maybe_exists%0#0,tmp%0#0,maybe_value_converted%0#0
-        l-load maybe_exists%0#0 2                                                                    tmp%0#0,maybe_value_converted%0#0,maybe_exists%0#0
-        select                                                                                       val#0
+        callsub get_key                                                                           materialized_values%0#0
+        byte "box_map"                                                                            materialized_values%0#0,"box_map"
+        l-load materialized_values%0#0 1                                                          "box_map",materialized_values%0#0
+        concat                                                                                    box_prefixed_key%0#0
+        callsub default_value                                                                     box_prefixed_key%0#0,tmp%0#0
+        l-load box_prefixed_key%0#0 1                                                             tmp%0#0,box_prefixed_key%0#0
+        box_get                                                                                   tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_value%0#0 1                                                                  tmp%0#0,maybe_exists%0#0,maybe_value%0#0
+        btoi                                                                                      tmp%0#0,maybe_exists%0#0,maybe_value_converted%0#0
+        l-load tmp%0#0 2                                                                          maybe_exists%0#0,maybe_value_converted%0#0,tmp%0#0
+        l-load maybe_value_converted%0#0 1                                                        maybe_exists%0#0,tmp%0#0,maybe_value_converted%0#0
+        l-load maybe_exists%0#0 2                                                                 tmp%0#0,maybe_value_converted%0#0,maybe_exists%0#0
+        select                                                                                    val#0
         // state_proxies/contract.py:57
         // assert val == 42
-        int 42                                                                                       val#0,42
-        ==                                                                                           tmp%1#0
+        int 42                                                                                    val#0,42
+        ==                                                                                        tmp%1#0
         assert
-        retsub
+        // state_proxies/contract.py:54
+        // @arc4.abimethod()
+        int 1                                                                                     1
+        return
 
 

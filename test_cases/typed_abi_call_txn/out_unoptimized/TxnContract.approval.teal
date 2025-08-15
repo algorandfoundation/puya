@@ -5,7 +5,6 @@
 main:
     intcblock 0 1 3
     bytecblock 0x61 0x62 0x151f7c75
-    pushbytes ""
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@8
+    bz main___algopy_default_create@11
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // typed_abi_call_txn/txn_contract.py:11
+    // class TxnContract(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -28,155 +40,53 @@ main_abi_routing@2:
     pushbytes 0x6d4700ad // method "call_with_acfg(byte[],acfg,byte[])uint64"
     pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     uncover 3
-    match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5
-    b main_switch_case_default@6
+    match main_call_with_txn_route@4 main_call_with_acfg_route@5 main_call_with_acfg_no_return_route@6
+    b main_switch_case_default@7
 
-main_switch_case_default@6:
-    b main_switch_case_next@7
+main_switch_case_default@7:
+    b main_switch_case_next@8
 
-main_switch_case_next@7:
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
     b main_after_if_else@12
 
 main_after_if_else@12:
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
+    err
 
-main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13:
-    return
-
-main_call_with_acfg_no_return_route@5:
+main_call_with_acfg_no_return_route@6:
     // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // acfg
-    ==
-    assert // transaction type is acfg
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:27
-    // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
     callsub call_with_acfg_no_return
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
+    b main_switch_case_next@8
 
-main_call_with_acfg_route@4:
+main_call_with_acfg_route@5:
     // typed_abi_call_txn/txn_contract.py:20
     // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // acfg
-    ==
-    assert // transaction type is acfg
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:20
-    // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
     callsub call_with_acfg
-    itob
-    bytec_2 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
+    b main_switch_case_next@8
 
-main_call_with_txn_route@3:
+main_call_with_txn_route@4:
     // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
+    callsub call_with_txn
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@11:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txn GroupIndex
-    intc_1 // 1
-    -
-    txna ApplicationArgs 2
-    extract 2 0
-    // typed_abi_call_txn/txn_contract.py:12
-    // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub call_with_txn
-    itob
-    bytec_2 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
-
-main_bare_routing@8:
-    // typed_abi_call_txn/txn_contract.py:11
-    // class TxnContract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@9
-    b main_switch_case_default@10
-
-main_switch_case_default@10:
-    b main_switch_case_next@11
-
-main_switch_case_next@11:
-    b main_after_if_else@12
-
-main___algopy_default_create@9:
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@14
 
 main_block@14:
@@ -184,19 +94,104 @@ main_block@14:
 
 main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__algopy_default_create@15:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_router__@13
+    return
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:
+call_with_txn:
+    b call_with_txn_block@0
+
+call_with_txn_block@0:
+    // typed_abi_call_txn/txn_contract.py:12
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_1 // 1
+    -
+    txna ApplicationArgs 2
+    extract 2 0
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn
+    itob
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
+call_with_acfg:
+    b call_with_acfg_block@0
+
+call_with_acfg_block@0:
+    // typed_abi_call_txn/txn_contract.py:20
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
+    itob
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
+call_with_acfg_no_return:
+    b call_with_acfg_no_return_block@0
+
+call_with_acfg_no_return_block@0:
+    // typed_abi_call_txn/txn_contract.py:27
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // acfg
+    ==
+    assert // transaction type is acfg
+    txna ApplicationArgs 2
+    extract 2 0
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return
+    intc_1 // 1
+    return
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:
-call_with_txn:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn:
     // typed_abi_call_txn/txn_contract.py:12-13
     // @arc4.abimethod
     // def call_with_txn(self, a: Bytes, acfg: gtxn.Transaction, b: Bytes) -> UInt64:
     proto 3 1
-    b call_with_txn_block@0
+    b test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn_block@0
 
-call_with_txn_block@0:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn_block@0:
     // typed_abi_call_txn/txn_contract.py:14
     // assert a == b"a", "a is not a"
     frame_dig -3
@@ -231,14 +226,14 @@ call_with_txn_block@0:
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(a: bytes, acfg: uint64, b: bytes) -> uint64:
-call_with_acfg:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg:
     // typed_abi_call_txn/txn_contract.py:20-21
     // @arc4.abimethod
     // def call_with_acfg(self, a: Bytes, acfg: gtxn.AssetConfigTransaction, b: Bytes) -> UInt64:
     proto 3 1
-    b call_with_acfg_block@0
+    b test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_block@0
 
-call_with_acfg_block@0:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_block@0:
     // typed_abi_call_txn/txn_contract.py:22
     // assert a == b"a", "a is not a"
     frame_dig -3
@@ -266,16 +261,16 @@ call_with_acfg_block@0:
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(a: bytes, acfg: uint64, b: bytes) -> void:
-call_with_acfg_no_return:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return:
     // typed_abi_call_txn/txn_contract.py:27-30
     // @arc4.abimethod
     // def call_with_acfg_no_return(
     //     self, a: Bytes, acfg: gtxn.AssetConfigTransaction, b: Bytes
     // ) -> None:
     proto 3 0
-    b call_with_acfg_no_return_block@0
+    b test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return_block@0
 
-call_with_acfg_no_return_block@0:
+test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return_block@0:
     // typed_abi_call_txn/txn_contract.py:31
     // assert a == b"a", "a is not a"
     frame_dig -3

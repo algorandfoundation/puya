@@ -15,31 +15,17 @@ main:
     log
 
 main_after_if_else@2:
-    txn NumAppArgs
-    bz main_after_if_else@7
-    pushbytess 0x4f045d84 0x4c5c61ba // method "method()void", method "create()void"
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytes 0x4f045d84 // method "method()void"
     txna ApplicationArgs 0
-    match main_method_route@5 main_create_route@6
-
-main_after_if_else@7:
+    match main_method_route@5
     err
 
-main_create_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
-
 main_method_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes "derived.method"
     log
     pushbytes "base1.method"
@@ -48,5 +34,15 @@ main_method_route@5:
     log
     pushbytes "gp.method"
     log
+    pushint 1 // 1
+    return
+
+main_create_NoOp@6:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@7
+    err
+
+main_create_route@7:
     pushint 1 // 1
     return

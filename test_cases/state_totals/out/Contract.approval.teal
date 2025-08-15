@@ -9,22 +9,13 @@ main:
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
     txn NumAppArgs
-    bnz main_after_if_else@6
-    txn OnCompletion
-    bnz main_after_if_else@6
+    !
+    assert
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
+    txn OnCompletion
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
-
-main_after_if_else@6:
-    // state_totals/contract.py:6-9
-    // class Contract(
-    //     arc4.ARC4Contract,
-    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
-    // ):
-    pushint 0 // 0
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

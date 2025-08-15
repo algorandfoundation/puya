@@ -1,41 +1,26 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "oh_no(bool)void" => block@3, method "oh_yes(bool)void" => block@4, * => block@11}
-    block@3: // oh_no_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0
-        goto block@12
-    block@4: // oh_yes_route_L9
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // OnCompletion is not NoOp
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        (assert tmp%10#0) // can only call when not creating
-        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0
-        goto block@12
-    block@7: // bare_routing_L4
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        goto tmp%13#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // can only call when creating
-        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0
-        goto block@12
-    block@11: // after_if_else_L4
-        let test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__%0#0
-        goto block@12
-    block@12: // after_inlined_test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router___L1
-        return tmp%0#0
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "oh_no(bool)void" => block@4, method "oh_yes(bool)void" => block@5, * => block@9}
+    block@4: // oh_no_route_L5
+        exit 1u
+    block@5: // oh_yes_route_L9
+        exit 1u
+    block@9: // after_if_else_L4
+        fail
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u

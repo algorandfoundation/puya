@@ -1,895 +1,833 @@
-// Op                                                                                               Stack (out)
+// Op                                                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                                              tmp%0#1
-        bz main_after_if_else@16 ; b main_abi_routing@2
+        txn OnCompletion                                                                 tmp%0#1
+        !                                                                                tmp%1#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                tmp%2#0
+        bz main_create_NoOp@14 ; b main_call_NoOp@2
 
-    main_abi_routing@2:
+    main_call_NoOp@2:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                                      tmp%2#0
-        method create()void                                                                         tmp%2#0,Method(create()void)
-        method pay(pay)void                                                                         tmp%2#0,Method(create()void),Method(pay(pay)void)
-        method key(keyreg)void                                                                      tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void)
-        method asset_config(acfg)void                                                               tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void)
-        method asset_transfer(axfer)void                                                            tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void)
-        method asset_freeze(afrz)void                                                               tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void)
-        method application_call(appl)void                                                           tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void)
-        method multiple_txns(appl,appl,appl)void                                                    tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void)
-        method any_txn(txn,txn,txn)void                                                             tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void)
-        method group_init(txn,txn,txn)void                                                          tmp%2#0,Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void)
-        l-load tmp%2#0 10                                                                           Method(create()void),Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void),tmp%2#0
-        match main_create_route@3 main_pay_route@4 main_key_route@5 main_asset_config_route@6 main_asset_transfer_route@7 main_asset_freeze_route@8 main_application_call_route@9 main_multiple_txns_route@10 main_any_txn_route@11 main_group_init_route@12 ; b main_after_if_else@16 
+        txna ApplicationArgs 0                                                           tmp%4#0
+        method pay(pay)void                                                              tmp%4#0,Method(pay(pay)void)
+        method key(keyreg)void                                                           tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void)
+        method asset_config(acfg)void                                                    tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void)
+        method asset_transfer(axfer)void                                                 tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void)
+        method asset_freeze(afrz)void                                                    tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void)
+        method application_call(appl)void                                                tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void)
+        method multiple_txns(appl,appl,appl)void                                         tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void)
+        method any_txn(txn,txn,txn)void                                                  tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void)
+        method group_init(txn,txn,txn)void                                               tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void)
+        l-load tmp%4#0 9                                                                 Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void),tmp%4#0
+        match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11 ; b main_after_if_else@18 
 
-    main_create_route@3:
+    main_pay_route@3:
+        // transaction/contract.py:31
+        // @arc4.abimethod
+        callsub pay
+        b main_after_if_else@18
+
+    main_key_route@4:
+        // transaction/contract.py:40
+        // @arc4.abimethod
+        callsub key
+        b main_after_if_else@18
+
+    main_asset_config_route@5:
+        // transaction/contract.py:51
+        // @arc4.abimethod
+        callsub asset_config
+        b main_after_if_else@18
+
+    main_asset_transfer_route@6:
+        // transaction/contract.py:68
+        // @arc4.abimethod
+        callsub asset_transfer
+        b main_after_if_else@18
+
+    main_asset_freeze_route@7:
+        // transaction/contract.py:77
+        // @arc4.abimethod
+        callsub asset_freeze
+        b main_after_if_else@18
+
+    main_application_call_route@8:
+        // transaction/contract.py:85
+        // @arc4.abimethod
+        callsub application_call
+        b main_after_if_else@18
+
+    main_multiple_txns_route@9:
+        // transaction/contract.py:111
+        // @arc4.abimethod
+        callsub multiple_txns
+        b main_after_if_else@18
+
+    main_any_txn_route@10:
+        // transaction/contract.py:121
+        // @arc4.abimethod
+        callsub any_txn
+        b main_after_if_else@18
+
+    main_group_init_route@11:
+        // transaction/contract.py:131
+        // @arc4.abimethod
+        callsub group_init
+        b main_after_if_else@18
+
+    main_create_NoOp@14:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                           tmp%5#0
+        method create()void                                                              tmp%5#0,Method(create()void)
+        l-load tmp%5#0 1                                                                 Method(create()void),tmp%5#0
+        match main_create_route@15 ; b main_after_if_else@18
+
+    main_create_route@15:
         // transaction/contract.py:12
         // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                            tmp%3#0
-        !                                                                                           tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%5#0
-        !                                                                                           tmp%6#0
-        assert // can only call when creating
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_pay_route@4:
+    main_after_if_else@18:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        err
+
+
+// test_cases.transaction.contract.TransactionContract.pay[routing]() -> void:
+subroutine pay:
+    pay_block@0:
         // transaction/contract.py:31
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%7#0
-        !                                                                                           tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%9#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%11#0
-        int 1                                                                                       tmp%11#0,1
-        -                                                                                           gtxn_idx%0#0
-        l-load-copy gtxn_idx%0#0 0                                                                  gtxn_idx%0#0,gtxn_idx%0#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%0#0,gtxn_type%0#0
-        int pay                                                                                     gtxn_idx%0#0,gtxn_type%0#0,pay
-        ==                                                                                          gtxn_idx%0#0,gtxn_type_matches%0#0
-        assert // transaction type is pay                                                           gtxn_idx%0#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int pay                                                                          txn#0,gtxn_type%0#0,pay
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                txn#0
+        // transaction/contract.py:33
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:35
+        // txn.receiver == op.Global.current_application_address
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns Receiver                                                                   txn#0,tmp%0#1
+        global CurrentApplicationAddress                                                 txn#0,tmp%0#1,tmp%1#0
+        l-load tmp%0#1 1                                                                 txn#0,tmp%1#0,tmp%0#1
+        l-load tmp%1#0 1                                                                 txn#0,tmp%0#1,tmp%1#0
+        ==                                                                               txn#0,tmp%2#0
+        // transaction/contract.py:34-36
+        // assert (
+        //     txn.receiver == op.Global.current_application_address
+        // ), "Payment should be for this app"
+        assert // Payment should be for this app                                         txn#0
+        // transaction/contract.py:37
+        // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns Amount                                                                     txn#0,tmp%3#0
+        int 1000                                                                         txn#0,tmp%3#0,1000
+        >                                                                                txn#0,tmp%4#0
+        assert // Payment should be for >1000 micro algos                                txn#0
+        // transaction/contract.py:38
+        // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
+        l-load txn#0 0                                                                   txn#0
+        gtxns CloseRemainderTo                                                           tmp%5#0
+        global ZeroAddress                                                               tmp%5#0,tmp%6#0
+        l-load tmp%5#0 1                                                                 tmp%6#0,tmp%5#0
+        l-load tmp%6#0 1                                                                 tmp%5#0,tmp%6#0
+        ==                                                                               tmp%7#0
+        assert // close_remainder_to
         // transaction/contract.py:31
         // @arc4.abimethod
-        l-load gtxn_idx%0#0 0                                                                       gtxn_idx%0#0
-        callsub pay
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_key_route@5:
+
+// test_cases.transaction.contract.TransactionContract.key[routing]() -> void:
+subroutine key:
+    key_block@0:
         // transaction/contract.py:40
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%12#0
-        !                                                                                           tmp%13#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%14#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%16#0
-        int 1                                                                                       tmp%16#0,1
-        -                                                                                           gtxn_idx%1#0
-        l-load-copy gtxn_idx%1#0 0                                                                  gtxn_idx%1#0,gtxn_idx%1#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%1#0,gtxn_type%1#0
-        int keyreg                                                                                  gtxn_idx%1#0,gtxn_type%1#0,keyreg
-        ==                                                                                          gtxn_idx%1#0,gtxn_type_matches%1#0
-        assert // transaction type is keyreg                                                        gtxn_idx%1#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int keyreg                                                                       txn#0,gtxn_type%0#0,keyreg
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is keyreg                                             txn#0
+        // transaction/contract.py:42
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:45
+        // assert txn.vote_key_dilution, "vote_key_dilution"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns VoteKeyDilution                                                            txn#0,tmp%6#0
+        assert // vote_key_dilution                                                      txn#0
+        // transaction/contract.py:46
+        // assert txn.vote_first, "vote_first"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns VoteFirst                                                                  txn#0,tmp%8#0
+        assert // vote_first                                                             txn#0
+        // transaction/contract.py:47
+        // assert txn.vote_last, "vote_last"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns VoteLast                                                                   txn#0,tmp%10#0
+        assert // vote_last                                                              txn#0
+        // transaction/contract.py:48
+        // assert txn.non_participation, "non_participation"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns Nonparticipation                                                           txn#0,tmp%12#0
+        assert // non_participation                                                      txn#0
+        // transaction/contract.py:49
+        // assert txn.state_proof_key, "state_proof_key"
+        l-load txn#0 0                                                                   txn#0
+        gtxns StateProofPK                                                               tmp%13#0
+        len                                                                              tmp%14#0
+        assert // state_proof_key
         // transaction/contract.py:40
         // @arc4.abimethod
-        l-load gtxn_idx%1#0 0                                                                       gtxn_idx%1#0
-        callsub key
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_asset_config_route@6:
+
+// test_cases.transaction.contract.TransactionContract.asset_config[routing]() -> void:
+subroutine asset_config:
+    asset_config_block@0:
         // transaction/contract.py:51
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%17#0
-        !                                                                                           tmp%18#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%19#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%21#0
-        int 1                                                                                       tmp%21#0,1
-        -                                                                                           gtxn_idx%2#0
-        l-load-copy gtxn_idx%2#0 0                                                                  gtxn_idx%2#0,gtxn_idx%2#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%2#0,gtxn_type%2#0
-        int acfg                                                                                    gtxn_idx%2#0,gtxn_type%2#0,acfg
-        ==                                                                                          gtxn_idx%2#0,gtxn_type_matches%2#0
-        assert // transaction type is acfg                                                          gtxn_idx%2#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int acfg                                                                         txn#0,gtxn_type%0#0,acfg
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is acfg                                               txn#0
+        // transaction/contract.py:53
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:55
+        // assert txn.config_asset, "config_asset"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAsset                                                                txn#0,tmp%0#0
+        assert // config_asset                                                           txn#0
+        // transaction/contract.py:56
+        // assert txn.total, "total"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetTotal                                                           txn#0,tmp%2#0
+        assert // total                                                                  txn#0
+        // transaction/contract.py:57
+        // assert txn.decimals, "decimals"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetDecimals                                                        txn#0,tmp%4#0
+        assert // decimals                                                               txn#0
+        // transaction/contract.py:58
+        // assert txn.default_frozen, "default_frozen"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetDefaultFrozen                                                   txn#0,tmp%6#0
+        assert // default_frozen                                                         txn#0
+        // transaction/contract.py:59
+        // assert txn.unit_name, "unit_name"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetUnitName                                                        txn#0,tmp%7#0
+        len                                                                              txn#0,tmp%8#0
+        assert // unit_name                                                              txn#0
+        // transaction/contract.py:60
+        // assert txn.asset_name, "asset_name"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetName                                                            txn#0,tmp%10#0
+        len                                                                              txn#0,tmp%11#0
+        assert // asset_name                                                             txn#0
+        // transaction/contract.py:61
+        // assert txn.url, "url"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetURL                                                             txn#0,tmp%13#0
+        len                                                                              txn#0,tmp%14#0
+        assert // url                                                                    txn#0
+        // transaction/contract.py:63
+        // assert txn.manager, "manager"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetManager                                                         txn#0,tmp%19#0
+        global ZeroAddress                                                               txn#0,tmp%19#0,tmp%20#0
+        l-load tmp%19#0 1                                                                txn#0,tmp%20#0,tmp%19#0
+        l-load tmp%20#0 1                                                                txn#0,tmp%19#0,tmp%20#0
+        !=                                                                               txn#0,tmp%21#0
+        assert // manager                                                                txn#0
+        // transaction/contract.py:64
+        // assert txn.reserve, "reserve"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetReserve                                                         txn#0,tmp%22#0
+        global ZeroAddress                                                               txn#0,tmp%22#0,tmp%23#0
+        l-load tmp%22#0 1                                                                txn#0,tmp%23#0,tmp%22#0
+        l-load tmp%23#0 1                                                                txn#0,tmp%22#0,tmp%23#0
+        !=                                                                               txn#0,tmp%24#0
+        assert // reserve                                                                txn#0
+        // transaction/contract.py:65
+        // assert txn.freeze, "freeze"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ConfigAssetFreeze                                                          txn#0,tmp%25#0
+        global ZeroAddress                                                               txn#0,tmp%25#0,tmp%26#0
+        l-load tmp%25#0 1                                                                txn#0,tmp%26#0,tmp%25#0
+        l-load tmp%26#0 1                                                                txn#0,tmp%25#0,tmp%26#0
+        !=                                                                               txn#0,tmp%27#0
+        assert // freeze                                                                 txn#0
+        // transaction/contract.py:66
+        // assert txn.clawback, "clawback"
+        l-load txn#0 0                                                                   txn#0
+        gtxns ConfigAssetClawback                                                        tmp%28#0
+        global ZeroAddress                                                               tmp%28#0,tmp%29#0
+        l-load tmp%28#0 1                                                                tmp%29#0,tmp%28#0
+        l-load tmp%29#0 1                                                                tmp%28#0,tmp%29#0
+        !=                                                                               tmp%30#0
+        assert // clawback
         // transaction/contract.py:51
         // @arc4.abimethod
-        l-load gtxn_idx%2#0 0                                                                       gtxn_idx%2#0
-        callsub asset_config
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_asset_transfer_route@7:
+
+// test_cases.transaction.contract.TransactionContract.asset_transfer[routing]() -> void:
+subroutine asset_transfer:
+    asset_transfer_block@0:
         // transaction/contract.py:68
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%22#0
-        !                                                                                           tmp%23#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%24#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%26#0
-        int 1                                                                                       tmp%26#0,1
-        -                                                                                           gtxn_idx%3#0
-        l-load-copy gtxn_idx%3#0 0                                                                  gtxn_idx%3#0,gtxn_idx%3#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%3#0,gtxn_type%3#0
-        int axfer                                                                                   gtxn_idx%3#0,gtxn_type%3#0,axfer
-        ==                                                                                          gtxn_idx%3#0,gtxn_type_matches%3#0
-        assert // transaction type is axfer                                                         gtxn_idx%3#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int axfer                                                                        txn#0,gtxn_type%0#0,axfer
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is axfer                                              txn#0
+        // transaction/contract.py:70
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:71
+        // assert txn.xfer_asset, "xfer_asset"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns XferAsset                                                                  txn#0,tmp%0#0
+        assert // xfer_asset                                                             txn#0
+        // transaction/contract.py:72
+        // assert txn.asset_amount, "asset_amount"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns AssetAmount                                                                txn#0,tmp%2#0
+        assert // asset_amount                                                           txn#0
+        // transaction/contract.py:73
+        // assert txn.asset_sender, "asset_sender"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns AssetSender                                                                txn#0,tmp%4#0
+        global ZeroAddress                                                               txn#0,tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                                 txn#0,tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                                 txn#0,tmp%4#0,tmp%5#0
+        !=                                                                               txn#0,tmp%6#0
+        assert // asset_sender                                                           txn#0
+        // transaction/contract.py:74
+        // assert txn.asset_receiver, "asset_receiver"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns AssetReceiver                                                              txn#0,tmp%7#0
+        global ZeroAddress                                                               txn#0,tmp%7#0,tmp%8#0
+        l-load tmp%7#0 1                                                                 txn#0,tmp%8#0,tmp%7#0
+        l-load tmp%8#0 1                                                                 txn#0,tmp%7#0,tmp%8#0
+        !=                                                                               txn#0,tmp%9#0
+        assert // asset_receiver                                                         txn#0
+        // transaction/contract.py:75
+        // assert txn.asset_close_to, "asset_close_to"
+        l-load txn#0 0                                                                   txn#0
+        gtxns AssetCloseTo                                                               tmp%10#0
+        global ZeroAddress                                                               tmp%10#0,tmp%11#0
+        l-load tmp%10#0 1                                                                tmp%11#0,tmp%10#0
+        l-load tmp%11#0 1                                                                tmp%10#0,tmp%11#0
+        !=                                                                               tmp%12#0
+        assert // asset_close_to
         // transaction/contract.py:68
         // @arc4.abimethod
-        l-load gtxn_idx%3#0 0                                                                       gtxn_idx%3#0
-        callsub asset_transfer
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_asset_freeze_route@8:
+
+// test_cases.transaction.contract.TransactionContract.asset_freeze[routing]() -> void:
+subroutine asset_freeze:
+    asset_freeze_block@0:
         // transaction/contract.py:77
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%27#0
-        !                                                                                           tmp%28#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%29#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%31#0
-        int 1                                                                                       tmp%31#0,1
-        -                                                                                           gtxn_idx%4#0
-        l-load-copy gtxn_idx%4#0 0                                                                  gtxn_idx%4#0,gtxn_idx%4#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%4#0,gtxn_type%4#0
-        int afrz                                                                                    gtxn_idx%4#0,gtxn_type%4#0,afrz
-        ==                                                                                          gtxn_idx%4#0,gtxn_type_matches%4#0
-        assert // transaction type is afrz                                                          gtxn_idx%4#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int afrz                                                                         txn#0,gtxn_type%0#0,afrz
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is afrz                                               txn#0
+        // transaction/contract.py:79
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:81
+        // assert txn.freeze_asset, "freeze_asset"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns FreezeAsset                                                                txn#0,tmp%0#0
+        assert // freeze_asset                                                           txn#0
+        // transaction/contract.py:82
+        // assert txn.freeze_account, "freeze_account"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns FreezeAssetAccount                                                         txn#0,tmp%2#0
+        global ZeroAddress                                                               txn#0,tmp%2#0,tmp%3#0
+        l-load tmp%2#0 1                                                                 txn#0,tmp%3#0,tmp%2#0
+        l-load tmp%3#0 1                                                                 txn#0,tmp%2#0,tmp%3#0
+        !=                                                                               txn#0,tmp%4#0
+        assert // freeze_account                                                         txn#0
+        // transaction/contract.py:83
+        // assert txn.frozen, "frozen"
+        l-load txn#0 0                                                                   txn#0
+        gtxns FreezeAssetFrozen                                                          tmp%5#0
+        assert // frozen
         // transaction/contract.py:77
         // @arc4.abimethod
-        l-load gtxn_idx%4#0 0                                                                       gtxn_idx%4#0
-        callsub asset_freeze
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_application_call_route@9:
+
+// test_cases.transaction.contract.TransactionContract.application_call[routing]() -> void:
+subroutine application_call:
+    application_call_block@0:
         // transaction/contract.py:85
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%32#0
-        !                                                                                           tmp%33#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%34#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%36#0
-        int 1                                                                                       tmp%36#0,1
-        -                                                                                           gtxn_idx%5#0
-        l-load-copy gtxn_idx%5#0 0                                                                  gtxn_idx%5#0,gtxn_idx%5#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%5#0,gtxn_type%5#0
-        int appl                                                                                    gtxn_idx%5#0,gtxn_type%5#0,appl
-        ==                                                                                          gtxn_idx%5#0,gtxn_type_matches%5#0
-        assert // transaction type is appl                                                          gtxn_idx%5#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 1                                                                            tmp%0#0,1
+        -                                                                                txn#0
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns TypeEnum                                                                   txn#0,gtxn_type%0#0
+        int appl                                                                         txn#0,gtxn_type%0#0,appl
+        ==                                                                               txn#0,gtxn_type_matches%0#0
+        assert // transaction type is appl                                               txn#0
+        // transaction/contract.py:87
+        // self._common_checks(txn)
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        callsub _common_checks                                                           txn#0
+        // transaction/contract.py:88
+        // assert txn.app_id, "app_id"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ApplicationID                                                              txn#0,tmp%0#0
+        assert // app_id                                                                 txn#0
+        // transaction/contract.py:89
+        // assert txn.on_completion, "on_completion"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns OnCompletion                                                               txn#0,tmp%2#0
+        assert // on_completion                                                          txn#0
+        // transaction/contract.py:90
+        // assert txn.num_app_args, "num_app_args"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumAppArgs                                                                 txn#0,tmp%4#0
+        assert // num_app_args                                                           txn#0
+        // transaction/contract.py:91
+        // assert txn.num_accounts, "num_accounts"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumAccounts                                                                txn#0,tmp%6#0
+        assert // num_accounts                                                           txn#0
+        // transaction/contract.py:92
+        // assert txn.approval_program, "approval_program"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ApprovalProgram                                                            txn#0,tmp%8#0
+        len                                                                              txn#0,tmp%9#0
+        assert // approval_program                                                       txn#0
+        // transaction/contract.py:93
+        // assert txn.clear_state_program, "clear_state_program"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ClearStateProgram                                                          txn#0,tmp%11#0
+        len                                                                              txn#0,tmp%12#0
+        assert // clear_state_program                                                    txn#0
+        // transaction/contract.py:94
+        // assert txn.num_assets, "num_assets"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumAssets                                                                  txn#0,tmp%14#0
+        assert // num_assets                                                             txn#0
+        // transaction/contract.py:95
+        // assert txn.num_apps, "num_apps"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumApplications                                                            txn#0,tmp%16#0
+        assert // num_apps                                                               txn#0
+        // transaction/contract.py:96
+        // assert txn.global_num_uint, "global_num_uint"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns GlobalNumUint                                                              txn#0,tmp%18#0
+        assert // global_num_uint                                                        txn#0
+        // transaction/contract.py:97
+        // assert txn.global_num_bytes, "global_num_bytes"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns GlobalNumByteSlice                                                         txn#0,tmp%20#0
+        assert // global_num_bytes                                                       txn#0
+        // transaction/contract.py:98
+        // assert txn.local_num_uint, "local_num_uint"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns LocalNumUint                                                               txn#0,tmp%22#0
+        assert // local_num_uint                                                         txn#0
+        // transaction/contract.py:99
+        // assert txn.local_num_bytes, "local_num_bytes"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns LocalNumByteSlice                                                          txn#0,tmp%24#0
+        assert // local_num_bytes                                                        txn#0
+        // transaction/contract.py:100
+        // assert txn.extra_program_pages, "extra_program_pages"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns ExtraProgramPages                                                          txn#0,tmp%26#0
+        assert // extra_program_pages                                                    txn#0
+        // transaction/contract.py:101
+        // assert txn.last_log, "last_log"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns LastLog                                                                    txn#0,tmp%28#0
+        len                                                                              txn#0,tmp%29#0
+        assert // last_log                                                               txn#0
+        // transaction/contract.py:102
+        // assert txn.num_approval_program_pages, "num_approval_program_pages"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumApprovalProgramPages                                                    txn#0,tmp%31#0
+        assert // num_approval_program_pages                                             txn#0
+        // transaction/contract.py:103
+        // assert txn.num_clear_state_program_pages, "num_clear_state_program_pages"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        gtxns NumClearStateProgramPages                                                  txn#0,tmp%33#0
+        assert // num_clear_state_program_pages                                          txn#0
+        // transaction/contract.py:104
+        // assert txn.app_args(0), "app_args(0)"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        int 0                                                                            txn#0,txn#0 (copy),0
+        gtxnsas ApplicationArgs                                                          txn#0,tmp%35#0
+        len                                                                              txn#0,tmp%36#0
+        assert // app_args(0)                                                            txn#0
+        // transaction/contract.py:105
+        // assert txn.accounts(0), "accounts(0)"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        int 0                                                                            txn#0,txn#0 (copy),0
+        gtxnsas Accounts                                                                 txn#0,tmp%38#0
+        global ZeroAddress                                                               txn#0,tmp%38#0,tmp%39#0
+        l-load tmp%38#0 1                                                                txn#0,tmp%39#0,tmp%38#0
+        l-load tmp%39#0 1                                                                txn#0,tmp%38#0,tmp%39#0
+        !=                                                                               txn#0,tmp%40#0
+        assert // accounts(0)                                                            txn#0
+        // transaction/contract.py:106
+        // assert txn.assets(0), "assets(0)"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        int 0                                                                            txn#0,txn#0 (copy),0
+        gtxnsas Assets                                                                   txn#0,tmp%41#0
+        assert // assets(0)                                                              txn#0
+        // transaction/contract.py:107
+        // assert txn.apps(0), "apps(0)"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        int 0                                                                            txn#0,txn#0 (copy),0
+        gtxnsas Applications                                                             txn#0,tmp%43#0
+        assert // apps(0)                                                                txn#0
+        // transaction/contract.py:108
+        // assert txn.approval_program_pages(0), "approval_program_pages(0)"
+        l-load-copy txn#0 0                                                              txn#0,txn#0 (copy)
+        int 0                                                                            txn#0,txn#0 (copy),0
+        gtxnsas ApprovalProgramPages                                                     txn#0,tmp%45#0
+        len                                                                              txn#0,tmp%46#0
+        assert // approval_program_pages(0)                                              txn#0
+        // transaction/contract.py:109
+        // assert txn.clear_state_program_pages(0), "clear_state_program_pages(0)"
+        l-load txn#0 0                                                                   txn#0
+        int 0                                                                            txn#0,0
+        gtxnsas ClearStateProgramPages                                                   tmp%48#0
+        len                                                                              tmp%49#0
+        assert // clear_state_program_pages(0)
         // transaction/contract.py:85
         // @arc4.abimethod
-        l-load gtxn_idx%5#0 0                                                                       gtxn_idx%5#0
-        callsub application_call
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_multiple_txns_route@10:
+
+// test_cases.transaction.contract.TransactionContract.multiple_txns[routing]() -> void:
+subroutine multiple_txns:
+    multiple_txns_block@0:
         // transaction/contract.py:111
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%37#0
-        !                                                                                           tmp%38#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%39#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%41#0
-        int 3                                                                                       tmp%41#0,3
-        -                                                                                           gtxn_idx%6#0
-        l-load-copy gtxn_idx%6#0 0                                                                  gtxn_idx%6#0,gtxn_idx%6#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%6#0,gtxn_type%6#0
-        int appl                                                                                    gtxn_idx%6#0,gtxn_type%6#0,appl
-        ==                                                                                          gtxn_idx%6#0,gtxn_type_matches%6#0
-        assert // transaction type is appl                                                          gtxn_idx%6#0
-        txn GroupIndex                                                                              gtxn_idx%6#0,tmp%42#0
-        int 2                                                                                       gtxn_idx%6#0,tmp%42#0,2
-        -                                                                                           gtxn_idx%6#0,gtxn_idx%7#0
-        l-load-copy gtxn_idx%7#0 0                                                                  gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%7#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%6#0,gtxn_idx%7#0,gtxn_type%7#0
-        int appl                                                                                    gtxn_idx%6#0,gtxn_idx%7#0,gtxn_type%7#0,appl
-        ==                                                                                          gtxn_idx%6#0,gtxn_idx%7#0,gtxn_type_matches%7#0
-        assert // transaction type is appl                                                          gtxn_idx%6#0,gtxn_idx%7#0
-        txn GroupIndex                                                                              gtxn_idx%6#0,gtxn_idx%7#0,tmp%43#0
-        int 1                                                                                       gtxn_idx%6#0,gtxn_idx%7#0,tmp%43#0,1
-        -                                                                                           gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0
-        l-load-copy gtxn_idx%8#0 0                                                                  gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0,gtxn_idx%8#0 (copy)
-        gtxns TypeEnum                                                                              gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0,gtxn_type%8#0
-        int appl                                                                                    gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0,gtxn_type%8#0,appl
-        ==                                                                                          gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0,gtxn_type_matches%8#0
-        assert // transaction type is appl                                                          gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 3                                                                            tmp%0#0,3
+        -                                                                                txn1#0
+        l-load-copy txn1#0 0                                                             txn1#0,txn1#0 (copy)
+        gtxns TypeEnum                                                                   txn1#0,gtxn_type%0#0
+        int appl                                                                         txn1#0,gtxn_type%0#0,appl
+        ==                                                                               txn1#0,gtxn_type_matches%0#0
+        assert // transaction type is appl                                               txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%1#0
+        int 2                                                                            txn1#0,tmp%1#0,2
+        -                                                                                txn1#0,txn2#0
+        l-store-copy txn2#0 0                                                            txn1#0,txn2#0,txn2#0 (copy)
+        v-store txn2#0                                                                   txn1#0,txn2#0
+        l-load txn2#0 0                                                                  txn1#0,txn2#0
+        gtxns TypeEnum                                                                   txn1#0,gtxn_type%1#0
+        int appl                                                                         txn1#0,gtxn_type%1#0,appl
+        ==                                                                               txn1#0,gtxn_type_matches%1#0
+        assert // transaction type is appl                                               txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%2#0
+        int 1                                                                            txn1#0,tmp%2#0,1
+        -                                                                                txn1#0,txn3#0
+        l-store-copy txn3#0 0                                                            txn1#0,txn3#0,txn3#0 (copy)
+        v-store txn3#0                                                                   txn1#0,txn3#0
+        l-load txn3#0 0                                                                  txn1#0,txn3#0
+        gtxns TypeEnum                                                                   txn1#0,gtxn_type%2#0
+        int appl                                                                         txn1#0,gtxn_type%2#0,appl
+        ==                                                                               txn1#0,gtxn_type_matches%2#0
+        assert // transaction type is appl                                               txn1#0
+        int 0                                                                            txn1#0,index#0
+        // transaction/contract.py:118
+        // for index, app in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 | txn1#0
+        l-load txn1#0 0                                                                  (𝕏) index#0 | app#1
+        x-store app#1                                                                    (𝕏) app#1,index#0 |
+        b multiple_txns_for_body@2                                                       (𝕏) app#1,index#0 |
+
+    multiple_txns_for_body@2:                                                            (𝕏) app#1,index#0 |
+        // transaction/contract.py:119
+        // assert app.group_index == index
+        x-load app#1                                                                     (𝕏) index#0 | app#1
+        gtxns GroupIndex                                                                 (𝕏) index#0 | tmp%0#0
+        x-load index#0                                                                   tmp%0#0,index#0
+        l-store-copy index#0 1                                                           index#0,tmp%0#0,index#0 (copy)
+        ==                                                                               index#0,tmp%1#1
+        assert                                                                           index#0
+        // transaction/contract.py:118
+        // for index, app in uenumerate((txn1, txn2, txn3)):
+        l-load index#0 0                                                                 index#0
+        switch multiple_txns_for_header_1@4 multiple_txns_for_header_2@5 ; b multiple_txns_after_for@6 
+
+    multiple_txns_for_header_1@4:
+        int 1                                                                            index#0
+        // transaction/contract.py:118
+        // for index, app in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 |
+        v-load txn2#0                                                                    (𝕏) index#0 | app#1
+        x-store app#1                                                                    (𝕏) app#1,index#0 |
+        b multiple_txns_for_body@2                                                       (𝕏) app#1,index#0 |
+
+    multiple_txns_for_header_2@5:
+        int 2                                                                            index#0
+        // transaction/contract.py:118
+        // for index, app in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 |
+        v-load txn3#0                                                                    (𝕏) index#0 | app#1
+        x-store app#1                                                                    (𝕏) app#1,index#0 |
+        b multiple_txns_for_body@2                                                       (𝕏) app#1,index#0 |
+
+    multiple_txns_after_for@6:
         // transaction/contract.py:111
         // @arc4.abimethod
-        l-load gtxn_idx%6#0 2                                                                       gtxn_idx%7#0,gtxn_idx%8#0,gtxn_idx%6#0
-        l-load gtxn_idx%7#0 2                                                                       gtxn_idx%8#0,gtxn_idx%6#0,gtxn_idx%7#0
-        l-load gtxn_idx%8#0 2                                                                       gtxn_idx%6#0,gtxn_idx%7#0,gtxn_idx%8#0
-        callsub multiple_txns
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_any_txn_route@11:
+
+// test_cases.transaction.contract.TransactionContract.any_txn[routing]() -> void:
+subroutine any_txn:
+    any_txn_block@0:
         // transaction/contract.py:121
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%44#0
-        !                                                                                           tmp%45#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%46#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%48#0
-        int 3                                                                                       tmp%48#0,3
-        -                                                                                           gtxn_idx%9#0
-        txn GroupIndex                                                                              gtxn_idx%9#0,tmp%49#0
-        int 2                                                                                       gtxn_idx%9#0,tmp%49#0,2
-        -                                                                                           gtxn_idx%9#0,gtxn_idx%10#0
-        txn GroupIndex                                                                              gtxn_idx%9#0,gtxn_idx%10#0,tmp%50#0
-        int 1                                                                                       gtxn_idx%9#0,gtxn_idx%10#0,tmp%50#0,1
-        -                                                                                           gtxn_idx%9#0,gtxn_idx%10#0,gtxn_idx%11#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 3                                                                            tmp%0#0,3
+        -                                                                                txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%1#0
+        int 2                                                                            txn1#0,tmp%1#0,2
+        -                                                                                txn1#0,txn2#0
+        v-store txn2#0                                                                   txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%2#0
+        int 1                                                                            txn1#0,tmp%2#0,1
+        -                                                                                txn1#0,txn3#0
+        v-store txn3#0                                                                   txn1#0
+        int 0                                                                            txn1#0,index#0
+        // transaction/contract.py:128
+        // for index, txn in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 | txn1#0
+        l-load txn1#0 0                                                                  (𝕏) index#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,index#0 |
+        b any_txn_for_body@2                                                             (𝕏) txn#1,index#0 |
+
+    any_txn_for_body@2:                                                                  (𝕏) txn#1,index#0 |
+        // transaction/contract.py:129
+        // assert txn.group_index == index
+        x-load txn#1                                                                     (𝕏) index#0 | txn#1
+        gtxns GroupIndex                                                                 (𝕏) index#0 | tmp%0#0
+        x-load index#0                                                                   tmp%0#0,index#0
+        l-store-copy index#0 1                                                           index#0,tmp%0#0,index#0 (copy)
+        ==                                                                               index#0,tmp%1#1
+        assert                                                                           index#0
+        // transaction/contract.py:128
+        // for index, txn in uenumerate((txn1, txn2, txn3)):
+        l-load index#0 0                                                                 index#0
+        switch any_txn_for_header_1@4 any_txn_for_header_2@5 ; b any_txn_after_for@6
+
+    any_txn_for_header_1@4:
+        int 1                                                                            index#0
+        // transaction/contract.py:128
+        // for index, txn in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 |
+        v-load txn2#0                                                                    (𝕏) index#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,index#0 |
+        b any_txn_for_body@2                                                             (𝕏) txn#1,index#0 |
+
+    any_txn_for_header_2@5:
+        int 2                                                                            index#0
+        // transaction/contract.py:128
+        // for index, txn in uenumerate((txn1, txn2, txn3)):
+        x-store index#0                                                                  (𝕏) index#0 |
+        v-load txn3#0                                                                    (𝕏) index#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,index#0 |
+        b any_txn_for_body@2                                                             (𝕏) txn#1,index#0 |
+
+    any_txn_after_for@6:
         // transaction/contract.py:121
         // @arc4.abimethod
-        l-load gtxn_idx%9#0 2                                                                       gtxn_idx%10#0,gtxn_idx%11#0,gtxn_idx%9#0
-        l-load gtxn_idx%10#0 2                                                                      gtxn_idx%11#0,gtxn_idx%9#0,gtxn_idx%10#0
-        l-load gtxn_idx%11#0 2                                                                      gtxn_idx%9#0,gtxn_idx%10#0,gtxn_idx%11#0
-        callsub any_txn
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
+        int 1                                                                            1
+        return
 
-    main_group_init_route@12:
+
+// test_cases.transaction.contract.TransactionContract.group_init[routing]() -> void:
+subroutine group_init:
+    group_init_block@0:
         // transaction/contract.py:131
         // @arc4.abimethod
-        txn OnCompletion                                                                            tmp%51#0
-        !                                                                                           tmp%52#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                           tmp%53#0
-        assert // can only call when not creating
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        txn GroupIndex                                                                              tmp%55#0
-        int 3                                                                                       tmp%55#0,3
-        -                                                                                           gtxn_idx%12#0
-        txn GroupIndex                                                                              gtxn_idx%12#0,tmp%56#0
-        int 2                                                                                       gtxn_idx%12#0,tmp%56#0,2
-        -                                                                                           gtxn_idx%12#0,gtxn_idx%13#0
-        txn GroupIndex                                                                              gtxn_idx%12#0,gtxn_idx%13#0,tmp%57#0
-        int 1                                                                                       gtxn_idx%12#0,gtxn_idx%13#0,tmp%57#0,1
-        -                                                                                           gtxn_idx%12#0,gtxn_idx%13#0,gtxn_idx%14#0
+        txn GroupIndex                                                                   tmp%0#0
+        int 3                                                                            tmp%0#0,3
+        -                                                                                txn1#0
+        l-store-copy txn1#0 0                                                            txn1#0,txn1#0 (copy)
+        v-store txn1#0                                                                   txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%1#0
+        int 2                                                                            txn1#0,tmp%1#0,2
+        -                                                                                txn1#0,txn2#0
+        v-store txn2#0                                                                   txn1#0
+        txn GroupIndex                                                                   txn1#0,tmp%2#0
+        int 1                                                                            txn1#0,tmp%2#0,1
+        -                                                                                txn1#0,txn3#0
+        v-store txn3#0                                                                   txn1#0
+        int 0                                                                            txn1#0,loop_counter%0#0
+        x-store loop_counter%0#0                                                         (𝕏) loop_counter%0#0 | txn1#0
+        l-load txn1#0 0                                                                  (𝕏) loop_counter%0#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,loop_counter%0#0 |
+        b group_init_for_body@2                                                          (𝕏) txn#1,loop_counter%0#0 |
+
+    group_init_for_body@2:                                                               (𝕏) txn#1,loop_counter%0#0 |
+        // transaction/contract.py:139
+        // txn_from_index = gtxn.Transaction(txn.group_index)
+        x-load txn#1                                                                     (𝕏) loop_counter%0#0 | txn#1
+        l-store-copy txn#1 0                                                             (𝕏) loop_counter%0#0 | txn#1,txn#1 (copy)
+        gtxns GroupIndex                                                                 (𝕏) loop_counter%0#0 | txn#1,txn_from_index#0
+        // transaction/contract.py:140
+        // assert txn.txn_id == txn_from_index.txn_id
+        l-load txn#1 1                                                                   (𝕏) loop_counter%0#0 | txn_from_index#0,txn#1
+        gtxns TxID                                                                       (𝕏) loop_counter%0#0 | txn_from_index#0,tmp%0#1
+        l-load txn_from_index#0 1                                                        (𝕏) loop_counter%0#0 | tmp%0#1,txn_from_index#0
+        gtxns TxID                                                                       (𝕏) loop_counter%0#0 | tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                 (𝕏) loop_counter%0#0 | tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                 (𝕏) loop_counter%0#0 | tmp%0#1,tmp%1#1
+        ==                                                                               (𝕏) loop_counter%0#0 | tmp%2#1
+        assert                                                                           (𝕏) loop_counter%0#0 |
+        // transaction/contract.py:138
+        // for txn in (txn1, txn2, txn3):
+        x-load loop_counter%0#0                                                          loop_counter%0#0
+        switch group_init_for_header_1@4 group_init_for_header_2@5 ; b group_init_after_for@6 
+
+    group_init_for_header_1@4:
+        int 1                                                                            loop_counter%0#0
+        x-store loop_counter%0#0                                                         (𝕏) loop_counter%0#0 |
+        v-load txn2#0                                                                    (𝕏) loop_counter%0#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,loop_counter%0#0 |
+        b group_init_for_body@2                                                          (𝕏) txn#1,loop_counter%0#0 |
+
+    group_init_for_header_2@5:
+        int 2                                                                            loop_counter%0#0
+        x-store loop_counter%0#0                                                         (𝕏) loop_counter%0#0 |
+        v-load txn3#0                                                                    (𝕏) loop_counter%0#0 | txn#1
+        x-store txn#1                                                                    (𝕏) txn#1,loop_counter%0#0 |
+        b group_init_for_body@2                                                          (𝕏) txn#1,loop_counter%0#0 |
+
+    group_init_after_for@6:
+        // transaction/contract.py:141
+        // assert txn1.txn_id == gtxn.Transaction(0).txn_id
+        v-load txn1#0                                                                    txn1#0
+        gtxns TxID                                                                       tmp%3#0
+        int 0                                                                            tmp%3#0,0
+        gtxns TxID                                                                       tmp%3#0,tmp%4#0
+        l-load tmp%3#0 1                                                                 tmp%4#0,tmp%3#0
+        l-load tmp%4#0 1                                                                 tmp%3#0,tmp%4#0
+        ==                                                                               tmp%5#0
+        assert
         // transaction/contract.py:131
         // @arc4.abimethod
-        l-load gtxn_idx%12#0 2                                                                      gtxn_idx%13#0,gtxn_idx%14#0,gtxn_idx%12#0
-        l-load gtxn_idx%13#0 2                                                                      gtxn_idx%14#0,gtxn_idx%12#0,gtxn_idx%13#0
-        l-load gtxn_idx%14#0 2                                                                      gtxn_idx%12#0,gtxn_idx%13#0,gtxn_idx%14#0
-        callsub group_init
-        int 1                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@16:
-        // transaction/contract.py:11
-        // class TransactionContract(arc4.ARC4Contract):
-        int 0                                                                                       tmp%0#0
-        x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router__@17: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                              tmp%0#0
+        int 1                                                                            1
         return
 
 
 // test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
 subroutine _common_checks:
-    _common_checks_block@0:                                                                         (𝕡) txn#0 |
+    _common_checks_block@0:                                                              (𝕡) txn#0 |
         // transaction/contract.py:19
         // assert txn.sender == op.Global.creator_address, "sender"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Sender                                                                                (𝕡) txn#0 | tmp%3#0
-        global CreatorAddress                                                                       (𝕡) txn#0 | tmp%3#0,tmp%4#0
-        l-load tmp%3#0 1                                                                            (𝕡) txn#0 | tmp%4#0,tmp%3#0
-        l-load tmp%4#0 1                                                                            (𝕡) txn#0 | tmp%3#0,tmp%4#0
-        ==                                                                                          (𝕡) txn#0 | tmp%5#0
-        assert // sender                                                                            (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns Sender                                                                     (𝕡) txn#0 | tmp%3#0
+        global CreatorAddress                                                            (𝕡) txn#0 | tmp%3#0,tmp%4#0
+        l-load tmp%3#0 1                                                                 (𝕡) txn#0 | tmp%4#0,tmp%3#0
+        l-load tmp%4#0 1                                                                 (𝕡) txn#0 | tmp%3#0,tmp%4#0
+        ==                                                                               (𝕡) txn#0 | tmp%5#0
+        assert // sender                                                                 (𝕡) txn#0 |
         // transaction/contract.py:20
         // assert txn.fee, "fee"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Fee                                                                                   (𝕡) txn#0 | tmp%6#0
-        assert // fee                                                                               (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns Fee                                                                        (𝕡) txn#0 | tmp%6#0
+        assert // fee                                                                    (𝕡) txn#0 |
         // transaction/contract.py:21
         // assert txn.type, "type"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns TypeEnum                                                                              (𝕡) txn#0 | tmp%8#0
-        assert // type                                                                              (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns TypeEnum                                                                   (𝕡) txn#0 | tmp%8#0
+        assert // type                                                                   (𝕡) txn#0 |
         // transaction/contract.py:22
         // assert txn.type_bytes, "type_bytes"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Type                                                                                  (𝕡) txn#0 | tmp%10#0
-        len                                                                                         (𝕡) txn#0 | tmp%11#0
-        assert // type_bytes                                                                        (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns Type                                                                       (𝕡) txn#0 | tmp%10#0
+        len                                                                              (𝕡) txn#0 | tmp%11#0
+        assert // type_bytes                                                             (𝕡) txn#0 |
         // transaction/contract.py:23
         // assert txn.note == Bytes(b""), "note"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Note                                                                                  (𝕡) txn#0 | tmp%13#0
-        byte 0x                                                                                     (𝕡) txn#0 | tmp%13#0,0x
-        ==                                                                                          (𝕡) txn#0 | tmp%14#0
-        assert // note                                                                              (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns Note                                                                       (𝕡) txn#0 | tmp%13#0
+        byte 0x                                                                          (𝕡) txn#0 | tmp%13#0,0x
+        ==                                                                               (𝕡) txn#0 | tmp%14#0
+        assert // note                                                                   (𝕡) txn#0 |
         // transaction/contract.py:24
         // assert txn.group_index == 0, "group_index"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns GroupIndex                                                                            (𝕡) txn#0 | tmp%15#0
-        !                                                                                           (𝕡) txn#0 | tmp%16#0
-        assert // group_index                                                                       (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns GroupIndex                                                                 (𝕡) txn#0 | tmp%15#0
+        !                                                                                (𝕡) txn#0 | tmp%16#0
+        assert // group_index                                                            (𝕡) txn#0 |
         // transaction/contract.py:25
         // assert txn.first_valid, "first_valid"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns FirstValid                                                                            (𝕡) txn#0 | tmp%17#0
-        assert // first_valid                                                                       (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns FirstValid                                                                 (𝕡) txn#0 | tmp%17#0
+        assert // first_valid                                                            (𝕡) txn#0 |
         // transaction/contract.py:27
         // assert txn.last_valid, "last_valid"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns LastValid                                                                             (𝕡) txn#0 | tmp%19#0
-        assert // last_valid                                                                        (𝕡) txn#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns LastValid                                                                  (𝕡) txn#0 | tmp%19#0
+        assert // last_valid                                                             (𝕡) txn#0 |
         // transaction/contract.py:29
         // assert txn.rekey_to == op.Global.zero_address, "rekey_to"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns RekeyTo                                                                               (𝕡) txn#0 | tmp%24#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%24#0,tmp%25#0
-        l-load tmp%24#0 1                                                                           (𝕡) txn#0 | tmp%25#0,tmp%24#0
-        l-load tmp%25#0 1                                                                           (𝕡) txn#0 | tmp%24#0,tmp%25#0
-        ==                                                                                          (𝕡) txn#0 | tmp%26#0
-        assert // rekey_to                                                                          (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
-subroutine pay:
-    pay_block@0:                                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:33
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:35
-        // txn.receiver == op.Global.current_application_address
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Receiver                                                                              (𝕡) txn#0 | tmp%0#0
-        global CurrentApplicationAddress                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
-        l-load tmp%0#0 1                                                                            (𝕡) txn#0 | tmp%1#0,tmp%0#0
-        l-load tmp%1#0 1                                                                            (𝕡) txn#0 | tmp%0#0,tmp%1#0
-        ==                                                                                          (𝕡) txn#0 | tmp%2#0
-        // transaction/contract.py:34-36
-        // assert (
-        //     txn.receiver == op.Global.current_application_address
-        // ), "Payment should be for this app"
-        assert // Payment should be for this app                                                    (𝕡) txn#0 |
-        // transaction/contract.py:37
-        // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Amount                                                                                (𝕡) txn#0 | tmp%3#0
-        int 1000                                                                                    (𝕡) txn#0 | tmp%3#0,1000
-        >                                                                                           (𝕡) txn#0 | tmp%4#0
-        assert // Payment should be for >1000 micro algos                                           (𝕡) txn#0 |
-        // transaction/contract.py:38
-        // assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns CloseRemainderTo                                                                      (𝕡) txn#0 | tmp%5#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%5#0,tmp%6#0
-        l-load tmp%5#0 1                                                                            (𝕡) txn#0 | tmp%6#0,tmp%5#0
-        l-load tmp%6#0 1                                                                            (𝕡) txn#0 | tmp%5#0,tmp%6#0
-        ==                                                                                          (𝕡) txn#0 | tmp%7#0
-        assert // close_remainder_to                                                                (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.key(txn: uint64) -> void:
-subroutine key:
-    key_block@0:                                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:42
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:45
-        // assert txn.vote_key_dilution, "vote_key_dilution"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns VoteKeyDilution                                                                       (𝕡) txn#0 | tmp%6#0
-        assert // vote_key_dilution                                                                 (𝕡) txn#0 |
-        // transaction/contract.py:46
-        // assert txn.vote_first, "vote_first"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns VoteFirst                                                                             (𝕡) txn#0 | tmp%8#0
-        assert // vote_first                                                                        (𝕡) txn#0 |
-        // transaction/contract.py:47
-        // assert txn.vote_last, "vote_last"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns VoteLast                                                                              (𝕡) txn#0 | tmp%10#0
-        assert // vote_last                                                                         (𝕡) txn#0 |
-        // transaction/contract.py:48
-        // assert txn.non_participation, "non_participation"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns Nonparticipation                                                                      (𝕡) txn#0 | tmp%12#0
-        assert // non_participation                                                                 (𝕡) txn#0 |
-        // transaction/contract.py:49
-        // assert txn.state_proof_key, "state_proof_key"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns StateProofPK                                                                          (𝕡) txn#0 | tmp%13#0
-        len                                                                                         (𝕡) txn#0 | tmp%14#0
-        assert // state_proof_key                                                                   (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.asset_config(txn: uint64) -> void:
-subroutine asset_config:
-    asset_config_block@0:                                                                           (𝕡) txn#0 |
-        // transaction/contract.py:53
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:55
-        // assert txn.config_asset, "config_asset"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAsset                                                                           (𝕡) txn#0 | tmp%0#0
-        assert // config_asset                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:56
-        // assert txn.total, "total"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetTotal                                                                      (𝕡) txn#0 | tmp%2#0
-        assert // total                                                                             (𝕡) txn#0 |
-        // transaction/contract.py:57
-        // assert txn.decimals, "decimals"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetDecimals                                                                   (𝕡) txn#0 | tmp%4#0
-        assert // decimals                                                                          (𝕡) txn#0 |
-        // transaction/contract.py:58
-        // assert txn.default_frozen, "default_frozen"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetDefaultFrozen                                                              (𝕡) txn#0 | tmp%6#0
-        assert // default_frozen                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:59
-        // assert txn.unit_name, "unit_name"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetUnitName                                                                   (𝕡) txn#0 | tmp%7#0
-        len                                                                                         (𝕡) txn#0 | tmp%8#0
-        assert // unit_name                                                                         (𝕡) txn#0 |
-        // transaction/contract.py:60
-        // assert txn.asset_name, "asset_name"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetName                                                                       (𝕡) txn#0 | tmp%10#0
-        len                                                                                         (𝕡) txn#0 | tmp%11#0
-        assert // asset_name                                                                        (𝕡) txn#0 |
-        // transaction/contract.py:61
-        // assert txn.url, "url"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetURL                                                                        (𝕡) txn#0 | tmp%13#0
-        len                                                                                         (𝕡) txn#0 | tmp%14#0
-        assert // url                                                                               (𝕡) txn#0 |
-        // transaction/contract.py:63
-        // assert txn.manager, "manager"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetManager                                                                    (𝕡) txn#0 | tmp%19#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%19#0,tmp%20#0
-        l-load tmp%19#0 1                                                                           (𝕡) txn#0 | tmp%20#0,tmp%19#0
-        l-load tmp%20#0 1                                                                           (𝕡) txn#0 | tmp%19#0,tmp%20#0
-        !=                                                                                          (𝕡) txn#0 | tmp%21#0
-        assert // manager                                                                           (𝕡) txn#0 |
-        // transaction/contract.py:64
-        // assert txn.reserve, "reserve"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetReserve                                                                    (𝕡) txn#0 | tmp%22#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%22#0,tmp%23#0
-        l-load tmp%22#0 1                                                                           (𝕡) txn#0 | tmp%23#0,tmp%22#0
-        l-load tmp%23#0 1                                                                           (𝕡) txn#0 | tmp%22#0,tmp%23#0
-        !=                                                                                          (𝕡) txn#0 | tmp%24#0
-        assert // reserve                                                                           (𝕡) txn#0 |
-        // transaction/contract.py:65
-        // assert txn.freeze, "freeze"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetFreeze                                                                     (𝕡) txn#0 | tmp%25#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%25#0,tmp%26#0
-        l-load tmp%25#0 1                                                                           (𝕡) txn#0 | tmp%26#0,tmp%25#0
-        l-load tmp%26#0 1                                                                           (𝕡) txn#0 | tmp%25#0,tmp%26#0
-        !=                                                                                          (𝕡) txn#0 | tmp%27#0
-        assert // freeze                                                                            (𝕡) txn#0 |
-        // transaction/contract.py:66
-        // assert txn.clawback, "clawback"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ConfigAssetClawback                                                                   (𝕡) txn#0 | tmp%28#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%28#0,tmp%29#0
-        l-load tmp%28#0 1                                                                           (𝕡) txn#0 | tmp%29#0,tmp%28#0
-        l-load tmp%29#0 1                                                                           (𝕡) txn#0 | tmp%28#0,tmp%29#0
-        !=                                                                                          (𝕡) txn#0 | tmp%30#0
-        assert // clawback                                                                          (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.asset_transfer(txn: uint64) -> void:
-subroutine asset_transfer:
-    asset_transfer_block@0:                                                                         (𝕡) txn#0 |
-        // transaction/contract.py:70
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:71
-        // assert txn.xfer_asset, "xfer_asset"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns XferAsset                                                                             (𝕡) txn#0 | tmp%0#0
-        assert // xfer_asset                                                                        (𝕡) txn#0 |
-        // transaction/contract.py:72
-        // assert txn.asset_amount, "asset_amount"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns AssetAmount                                                                           (𝕡) txn#0 | tmp%2#0
-        assert // asset_amount                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:73
-        // assert txn.asset_sender, "asset_sender"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns AssetSender                                                                           (𝕡) txn#0 | tmp%4#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                                            (𝕡) txn#0 | tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                                            (𝕡) txn#0 | tmp%4#0,tmp%5#0
-        !=                                                                                          (𝕡) txn#0 | tmp%6#0
-        assert // asset_sender                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:74
-        // assert txn.asset_receiver, "asset_receiver"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns AssetReceiver                                                                         (𝕡) txn#0 | tmp%7#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%7#0,tmp%8#0
-        l-load tmp%7#0 1                                                                            (𝕡) txn#0 | tmp%8#0,tmp%7#0
-        l-load tmp%8#0 1                                                                            (𝕡) txn#0 | tmp%7#0,tmp%8#0
-        !=                                                                                          (𝕡) txn#0 | tmp%9#0
-        assert // asset_receiver                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:75
-        // assert txn.asset_close_to, "asset_close_to"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns AssetCloseTo                                                                          (𝕡) txn#0 | tmp%10#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%10#0,tmp%11#0
-        l-load tmp%10#0 1                                                                           (𝕡) txn#0 | tmp%11#0,tmp%10#0
-        l-load tmp%11#0 1                                                                           (𝕡) txn#0 | tmp%10#0,tmp%11#0
-        !=                                                                                          (𝕡) txn#0 | tmp%12#0
-        assert // asset_close_to                                                                    (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.asset_freeze(txn: uint64) -> void:
-subroutine asset_freeze:
-    asset_freeze_block@0:                                                                           (𝕡) txn#0 |
-        // transaction/contract.py:79
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:81
-        // assert txn.freeze_asset, "freeze_asset"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns FreezeAsset                                                                           (𝕡) txn#0 | tmp%0#0
-        assert // freeze_asset                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:82
-        // assert txn.freeze_account, "freeze_account"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns FreezeAssetAccount                                                                    (𝕡) txn#0 | tmp%2#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%2#0,tmp%3#0
-        l-load tmp%2#0 1                                                                            (𝕡) txn#0 | tmp%3#0,tmp%2#0
-        l-load tmp%3#0 1                                                                            (𝕡) txn#0 | tmp%2#0,tmp%3#0
-        !=                                                                                          (𝕡) txn#0 | tmp%4#0
-        assert // freeze_account                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:83
-        // assert txn.frozen, "frozen"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns FreezeAssetFrozen                                                                     (𝕡) txn#0 | tmp%5#0
-        assert // frozen                                                                            (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.application_call(txn: uint64) -> void:
-subroutine application_call:
-    application_call_block@0:                                                                       (𝕡) txn#0 |
-        // transaction/contract.py:87
-        // self._common_checks(txn)
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        callsub _common_checks                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:88
-        // assert txn.app_id, "app_id"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ApplicationID                                                                         (𝕡) txn#0 | tmp%0#0
-        assert // app_id                                                                            (𝕡) txn#0 |
-        // transaction/contract.py:89
-        // assert txn.on_completion, "on_completion"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns OnCompletion                                                                          (𝕡) txn#0 | tmp%2#0
-        assert // on_completion                                                                     (𝕡) txn#0 |
-        // transaction/contract.py:90
-        // assert txn.num_app_args, "num_app_args"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumAppArgs                                                                            (𝕡) txn#0 | tmp%4#0
-        assert // num_app_args                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:91
-        // assert txn.num_accounts, "num_accounts"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumAccounts                                                                           (𝕡) txn#0 | tmp%6#0
-        assert // num_accounts                                                                      (𝕡) txn#0 |
-        // transaction/contract.py:92
-        // assert txn.approval_program, "approval_program"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ApprovalProgram                                                                       (𝕡) txn#0 | tmp%8#0
-        len                                                                                         (𝕡) txn#0 | tmp%9#0
-        assert // approval_program                                                                  (𝕡) txn#0 |
-        // transaction/contract.py:93
-        // assert txn.clear_state_program, "clear_state_program"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ClearStateProgram                                                                     (𝕡) txn#0 | tmp%11#0
-        len                                                                                         (𝕡) txn#0 | tmp%12#0
-        assert // clear_state_program                                                               (𝕡) txn#0 |
-        // transaction/contract.py:94
-        // assert txn.num_assets, "num_assets"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumAssets                                                                             (𝕡) txn#0 | tmp%14#0
-        assert // num_assets                                                                        (𝕡) txn#0 |
-        // transaction/contract.py:95
-        // assert txn.num_apps, "num_apps"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumApplications                                                                       (𝕡) txn#0 | tmp%16#0
-        assert // num_apps                                                                          (𝕡) txn#0 |
-        // transaction/contract.py:96
-        // assert txn.global_num_uint, "global_num_uint"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns GlobalNumUint                                                                         (𝕡) txn#0 | tmp%18#0
-        assert // global_num_uint                                                                   (𝕡) txn#0 |
-        // transaction/contract.py:97
-        // assert txn.global_num_bytes, "global_num_bytes"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns GlobalNumByteSlice                                                                    (𝕡) txn#0 | tmp%20#0
-        assert // global_num_bytes                                                                  (𝕡) txn#0 |
-        // transaction/contract.py:98
-        // assert txn.local_num_uint, "local_num_uint"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns LocalNumUint                                                                          (𝕡) txn#0 | tmp%22#0
-        assert // local_num_uint                                                                    (𝕡) txn#0 |
-        // transaction/contract.py:99
-        // assert txn.local_num_bytes, "local_num_bytes"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns LocalNumByteSlice                                                                     (𝕡) txn#0 | tmp%24#0
-        assert // local_num_bytes                                                                   (𝕡) txn#0 |
-        // transaction/contract.py:100
-        // assert txn.extra_program_pages, "extra_program_pages"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns ExtraProgramPages                                                                     (𝕡) txn#0 | tmp%26#0
-        assert // extra_program_pages                                                               (𝕡) txn#0 |
-        // transaction/contract.py:101
-        // assert txn.last_log, "last_log"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns LastLog                                                                               (𝕡) txn#0 | tmp%28#0
-        len                                                                                         (𝕡) txn#0 | tmp%29#0
-        assert // last_log                                                                          (𝕡) txn#0 |
-        // transaction/contract.py:102
-        // assert txn.num_approval_program_pages, "num_approval_program_pages"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumApprovalProgramPages                                                               (𝕡) txn#0 | tmp%31#0
-        assert // num_approval_program_pages                                                        (𝕡) txn#0 |
-        // transaction/contract.py:103
-        // assert txn.num_clear_state_program_pages, "num_clear_state_program_pages"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        gtxns NumClearStateProgramPages                                                             (𝕡) txn#0 | tmp%33#0
-        assert // num_clear_state_program_pages                                                     (𝕡) txn#0 |
-        // transaction/contract.py:104
-        // assert txn.app_args(0), "app_args(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas ApplicationArgs                                                                     (𝕡) txn#0 | tmp%35#0
-        len                                                                                         (𝕡) txn#0 | tmp%36#0
-        assert // app_args(0)                                                                       (𝕡) txn#0 |
-        // transaction/contract.py:105
-        // assert txn.accounts(0), "accounts(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas Accounts                                                                            (𝕡) txn#0 | tmp%38#0
-        global ZeroAddress                                                                          (𝕡) txn#0 | tmp%38#0,tmp%39#0
-        l-load tmp%38#0 1                                                                           (𝕡) txn#0 | tmp%39#0,tmp%38#0
-        l-load tmp%39#0 1                                                                           (𝕡) txn#0 | tmp%38#0,tmp%39#0
-        !=                                                                                          (𝕡) txn#0 | tmp%40#0
-        assert // accounts(0)                                                                       (𝕡) txn#0 |
-        // transaction/contract.py:106
-        // assert txn.assets(0), "assets(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas Assets                                                                              (𝕡) txn#0 | tmp%41#0
-        assert // assets(0)                                                                         (𝕡) txn#0 |
-        // transaction/contract.py:107
-        // assert txn.apps(0), "apps(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas Applications                                                                        (𝕡) txn#0 | tmp%43#0
-        assert // apps(0)                                                                           (𝕡) txn#0 |
-        // transaction/contract.py:108
-        // assert txn.approval_program_pages(0), "approval_program_pages(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas ApprovalProgramPages                                                                (𝕡) txn#0 | tmp%45#0
-        len                                                                                         (𝕡) txn#0 | tmp%46#0
-        assert // approval_program_pages(0)                                                         (𝕡) txn#0 |
-        // transaction/contract.py:109
-        // assert txn.clear_state_program_pages(0), "clear_state_program_pages(0)"
-        p-load txn#0                                                                                (𝕡) txn#0 | txn#0 (copy)
-        int 0                                                                                       (𝕡) txn#0 | txn#0 (copy),0
-        gtxnsas ClearStateProgramPages                                                              (𝕡) txn#0 | tmp%48#0
-        len                                                                                         (𝕡) txn#0 | tmp%49#0
-        assert // clear_state_program_pages(0)                                                      (𝕡) txn#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.multiple_txns(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
-subroutine multiple_txns:
-    multiple_txns_block@0:                                                                          (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 0                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:118
-        // for index, app in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn1#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | app#1
-        x-store app#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-        b multiple_txns_for_body@1                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-
-    multiple_txns_for_body@1:                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-        // transaction/contract.py:119
-        // assert app.group_index == index
-        x-load app#1                                                                                (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | app#1
-        gtxns GroupIndex                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | tmp%0#0
-        x-load index#0                                                                              (𝕡) txn1#0,txn2#0,txn3#0 | tmp%0#0,index#0
-        l-store-copy index#0 1                                                                      (𝕡) txn1#0,txn2#0,txn3#0 | index#0,tmp%0#0,index#0 (copy)
-        ==                                                                                          (𝕡) txn1#0,txn2#0,txn3#0 | index#0,tmp%1#0
-        assert                                                                                      (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:118
-        // for index, app in uenumerate((txn1, txn2, txn3)):
-        l-load index#0 0                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        switch multiple_txns_for_header_1@3 multiple_txns_for_header_2@4 ; b multiple_txns_after_for@5 (𝕡) txn1#0,txn2#0,txn3#0 | 
-
-    multiple_txns_for_header_1@3:                                                                   (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 1                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:118
-        // for index, app in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn2#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | app#1
-        x-store app#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-        b multiple_txns_for_body@1                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-
-    multiple_txns_for_header_2@4:                                                                   (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 2                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:118
-        // for index, app in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn3#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | app#1
-        x-store app#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-        b multiple_txns_for_body@1                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) app#1,index#0 |
-
-    multiple_txns_after_for@5:                                                                      (𝕡) txn1#0,txn2#0,txn3#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
-subroutine any_txn:
-    any_txn_block@0:                                                                                (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 0                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:128
-        // for index, txn in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn1#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-        b any_txn_for_body@1                                                                        (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-
-    any_txn_for_body@1:                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-        // transaction/contract.py:129
-        // assert txn.group_index == index
-        x-load txn#1                                                                                (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | txn#1
-        gtxns GroupIndex                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | tmp%0#0
-        x-load index#0                                                                              (𝕡) txn1#0,txn2#0,txn3#0 | tmp%0#0,index#0
-        l-store-copy index#0 1                                                                      (𝕡) txn1#0,txn2#0,txn3#0 | index#0,tmp%0#0,index#0 (copy)
-        ==                                                                                          (𝕡) txn1#0,txn2#0,txn3#0 | index#0,tmp%1#0
-        assert                                                                                      (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:128
-        // for index, txn in uenumerate((txn1, txn2, txn3)):
-        l-load index#0 0                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        switch any_txn_for_header_1@3 any_txn_for_header_2@4 ; b any_txn_after_for@5                (𝕡) txn1#0,txn2#0,txn3#0 |
-
-    any_txn_for_header_1@3:                                                                         (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 1                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:128
-        // for index, txn in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn2#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-        b any_txn_for_body@1                                                                        (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-
-    any_txn_for_header_2@4:                                                                         (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 2                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | index#0
-        // transaction/contract.py:128
-        // for index, txn in uenumerate((txn1, txn2, txn3)):
-        x-store index#0                                                                             (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 |
-        p-load txn3#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) index#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-        b any_txn_for_body@1                                                                        (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,index#0 |
-
-    any_txn_after_for@5:                                                                            (𝕡) txn1#0,txn2#0,txn3#0 |
-        retsub
-
-
-// test_cases.transaction.contract.TransactionContract.group_init(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
-subroutine group_init:
-    group_init_block@0:                                                                             (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 0                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | loop_counter%0#0
-        x-store loop_counter%0#0                                                                    (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 |
-        p-load txn1#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-        b group_init_for_body@1                                                                     (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-
-    group_init_for_body@1:                                                                          (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-        // transaction/contract.py:139
-        // txn_from_index = gtxn.Transaction(txn.group_index)
-        x-load txn#1                                                                                (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1
-        l-store-copy txn#1 0                                                                        (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1,txn#1 (copy)
-        gtxns GroupIndex                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1,txn_from_index#0
-        // transaction/contract.py:140
-        // assert txn.txn_id == txn_from_index.txn_id
-        l-load txn#1 1                                                                              (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn_from_index#0,txn#1
-        gtxns TxID                                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn_from_index#0,tmp%0#0
-        l-load txn_from_index#0 1                                                                   (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | tmp%0#0,txn_from_index#0
-        gtxns TxID                                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | tmp%0#0,tmp%1#0
-        l-load tmp%0#0 1                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | tmp%1#0,tmp%0#0
-        l-load tmp%1#0 1                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | tmp%0#0,tmp%1#0
-        ==                                                                                          (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | tmp%2#0
-        assert                                                                                      (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 |
-        // transaction/contract.py:138
-        // for txn in (txn1, txn2, txn3):
-        x-load loop_counter%0#0                                                                     (𝕡) txn1#0,txn2#0,txn3#0 | loop_counter%0#0
-        switch group_init_for_header_1@3 group_init_for_header_2@4 ; b group_init_after_for@5 (𝕡) txn1#0,txn2#0,txn3#0 | 
-
-    group_init_for_header_1@3:                                                                      (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 1                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | loop_counter%0#0
-        x-store loop_counter%0#0                                                                    (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 |
-        p-load txn2#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-        b group_init_for_body@1                                                                     (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-
-    group_init_for_header_2@4:                                                                      (𝕡) txn1#0,txn2#0,txn3#0 |
-        int 2                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | loop_counter%0#0
-        x-store loop_counter%0#0                                                                    (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 |
-        p-load txn3#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) loop_counter%0#0 | txn#1
-        x-store txn#1                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-        b group_init_for_body@1                                                                     (𝕡) txn1#0,txn2#0,txn3#0 | (𝕏) txn#1,loop_counter%0#0 |
-
-    group_init_after_for@5:                                                                         (𝕡) txn1#0,txn2#0,txn3#0 |
-        // transaction/contract.py:141
-        // assert txn1.txn_id == gtxn.Transaction(0).txn_id
-        p-load txn1#0                                                                               (𝕡) txn1#0,txn2#0,txn3#0 | txn1#0 (copy)
-        gtxns TxID                                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | tmp%3#0
-        int 0                                                                                       (𝕡) txn1#0,txn2#0,txn3#0 | tmp%3#0,0
-        gtxns TxID                                                                                  (𝕡) txn1#0,txn2#0,txn3#0 | tmp%3#0,tmp%4#0
-        l-load tmp%3#0 1                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | tmp%4#0,tmp%3#0
-        l-load tmp%4#0 1                                                                            (𝕡) txn1#0,txn2#0,txn3#0 | tmp%3#0,tmp%4#0
-        ==                                                                                          (𝕡) txn1#0,txn2#0,txn3#0 | tmp%5#0
-        assert                                                                                      (𝕡) txn1#0,txn2#0,txn3#0 |
+        p-load txn#0                                                                     (𝕡) txn#0 | txn#0 (copy)
+        gtxns RekeyTo                                                                    (𝕡) txn#0 | tmp%24#0
+        global ZeroAddress                                                               (𝕡) txn#0 | tmp%24#0,tmp%25#0
+        l-load tmp%24#0 1                                                                (𝕡) txn#0 | tmp%25#0,tmp%24#0
+        l-load tmp%25#0 1                                                                (𝕡) txn#0 | tmp%24#0,tmp%25#0
+        ==                                                                               (𝕡) txn#0 | tmp%26#0
+        assert // rekey_to                                                               (𝕡) txn#0 |
         retsub
 
 

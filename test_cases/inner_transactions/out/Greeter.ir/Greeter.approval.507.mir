@@ -1,106 +1,79 @@
-// Op                                                                                     Stack (out)
+// Op                                                                                    Stack (out)
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        txn ApplicationID                                                                 tmp%0#0
+        txn ApplicationID                                                                tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
     main_call___init__@1:
         // inner_transactions/c2c.py:8
         // self.hello_app = Application()
-        byte "hello_app"                                                                  "hello_app"
-        int 0                                                                             "hello_app",0
+        byte "hello_app"                                                                 "hello_app"
+        int 0                                                                            "hello_app",0
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txn NumAppArgs                                                                    tmp%0#2
-        bz main_bare_routing@7 ; b main_abi_routing@4
+        txn NumAppArgs                                                                   tmp%0#2
+        bz main___algopy_default_create@9 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 0                                                            tmp%2#0
-        method bootstrap()uint64                                                          tmp%2#0,Method(bootstrap()uint64)
-        method log_greetings(string)void                                                  tmp%2#0,Method(bootstrap()uint64),Method(log_greetings(string)void)
-        l-load tmp%2#0 2                                                                  Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%2#0
-        match main_bootstrap_route@5 main_log_greetings_route@6 ; b main_after_if_else@9
+        txn OnCompletion                                                                 tmp%2#0
+        !                                                                                tmp%3#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                tmp%4#0
+        assert
+        txna ApplicationArgs 0                                                           tmp%6#0
+        method bootstrap()uint64                                                         tmp%6#0,Method(bootstrap()uint64)
+        method log_greetings(string)void                                                 tmp%6#0,Method(bootstrap()uint64),Method(log_greetings(string)void)
+        l-load tmp%6#0 2                                                                 Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%6#0
+        match main_bootstrap_route@6 main_log_greetings_route@7 ; b main_after_if_else@8
 
-    main_bootstrap_route@5:
+    main_bootstrap_route@6:
         // inner_transactions/c2c.py:10
         // @arc4.abimethod()
-        txn OnCompletion                                                                  tmp%3#0
-        !                                                                                 tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                 tmp%5#0
-        assert // can only call when not creating
-        callsub bootstrap                                                                 tmp%7#0
-        itob                                                                              aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                   aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                               0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                            tmp%9#0
-        log
-        int 1                                                                             tmp%0#0
-        x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 (𝕏) tmp%0#0 | 
+        callsub bootstrap
+        b main_after_if_else@8
 
-    main_log_greetings_route@6:
-        // inner_transactions/c2c.py:23
-        // @arc4.abimethod()
-        txn OnCompletion                                                                  tmp%10#0
-        !                                                                                 tmp%11#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                 tmp%12#0
-        assert // can only call when not creating
-        // inner_transactions/c2c.py:6
-        // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                            reinterpret_Encoded(len+utf8[])%0#0
+    main_log_greetings_route@7:
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
         callsub log_greetings
-        int 1                                                                             tmp%0#0
-        x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 (𝕏) tmp%0#0 | 
+        b main_after_if_else@8
 
-    main_bare_routing@7:
+    main_after_if_else@8:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txn OnCompletion                                                                  tmp%14#0
-        bz main___algopy_default_create@8 ; b main_after_if_else@9
+        err
 
-    main___algopy_default_create@8:
-        txn ApplicationID                                                                 tmp%15#0
-        !                                                                                 tmp%16#0
-        assert // can only call when creating
-        int 1                                                                             tmp%0#0
-        x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@9:
-        // inner_transactions/c2c.py:6
-        // class Greeter(ARC4Contract):
-        int 0                                                                             tmp%0#0
-        x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__@10: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                    tmp%0#0
+    main___algopy_default_create@9:
+        txn OnCompletion                                                                 tmp%7#0
+        !                                                                                tmp%8#0
+        txn ApplicationID                                                                tmp%8#0,tmp%9#0
+        !                                                                                tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                                 tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                                tmp%8#0,tmp%10#0
+        &&                                                                               tmp%11#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                            1
         return
 
 
-// test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
+// test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> void:
 subroutine bootstrap:
     bootstrap_block@0:
         // inner_transactions/c2c.py:12
         // assert not self.hello_app, "already bootstrapped"
-        int 0                                                                             0
-        byte "hello_app"                                                                  0,"hello_app"
-        app_global_get_ex                                                                 maybe_value%0#0,maybe_exists%0#0
-        assert // check self.hello_app exists                                             maybe_value%0#0
-        l-load maybe_value%0#0 0                                                          maybe_value%0#0
-        !                                                                                 tmp%0#0
+        int 0                                                                            0
+        byte "hello_app"                                                                 0,"hello_app"
+        app_global_get_ex                                                                maybe_value%0#0,maybe_exists%0#0
+        assert // check self.hello_app exists                                            maybe_value%0#0
+        l-load maybe_value%0#0 0                                                         maybe_value%0#0
+        !                                                                                tmp%0#1
         assert // already bootstrapped
         // inner_transactions/c2c.py:14-18
         // itxn.ApplicationCall(
@@ -111,7 +84,7 @@ subroutine bootstrap:
         itxn_begin
         // inner_transactions/c2c.py:16
         // clear_state_program=HELLO_WORLD_CLEAR,
-        byte 0x0a8101                                                                     0x0a8101
+        byte 0x0a8101                                                                    0x0a8101
         itxn_field ClearStateProgramPages
         // inner_transactions/c2c.py:15
         // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
@@ -119,9 +92,9 @@ subroutine bootstrap:
         itxn_field ApprovalProgramPages
         // inner_transactions/c2c.py:14
         // itxn.ApplicationCall(
-        int appl                                                                          appl
+        int appl                                                                         appl
         itxn_field TypeEnum
-        int 0                                                                             0
+        int 0                                                                            0
         itxn_field Fee
         // inner_transactions/c2c.py:14-18
         // itxn.ApplicationCall(
@@ -137,10 +110,10 @@ subroutine bootstrap:
         // )
         // .submit()
         // .created_app
-        itxn CreatedApplicationID                                                         tmp%1#0
+        itxn CreatedApplicationID                                                        tmp%1#1
         // inner_transactions/c2c.py:13
         // self.hello_app = (
-        byte "hello_app"                                                                  tmp%1#0,"hello_app"
+        byte "hello_app"                                                                 tmp%1#1,"hello_app"
         // inner_transactions/c2c.py:13-20
         // self.hello_app = (
         //     itxn.ApplicationCall(
@@ -150,65 +123,77 @@ subroutine bootstrap:
         //     .submit()
         //     .created_app
         // )
-        l-load-copy tmp%1#0 1                                                             tmp%1#0,"hello_app",tmp%1#0 (copy)
-        app_global_put                                                                    tmp%1#0
-        // inner_transactions/c2c.py:21
-        // return self.hello_app.id
-        l-load tmp%1#0 0                                                                  tmp%1#0
-        retsub                                                                            tmp%1#0
+        l-load-copy tmp%1#1 1                                                            tmp%1#1,"hello_app",tmp%1#1 (copy)
+        app_global_put                                                                   tmp%1#1
+        // inner_transactions/c2c.py:10
+        // @arc4.abimethod()
+        l-load tmp%1#1 0                                                                 tmp%1#1
+        itob                                                                             aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                  aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                              0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                           tmp%2#0
+        log
+        int 1                                                                            1
+        return
 
 
-// test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+// test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
 subroutine log_greetings:
-    log_greetings_block@0:                                                                (𝕡) name#0 |
+    log_greetings_block@0:
+        // inner_transactions/c2c.py:23
+        // @arc4.abimethod()
+        txna ApplicationArgs 1                                                           name#0
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
         //     app_id=self.hello_app,
         //     app_args=(arc4.arc4_signature("hello(string)string"), name),
         // ).submit()
-        itxn_begin                                                                        (𝕡) name#0 |
+        itxn_begin                                                                       name#0
         // inner_transactions/c2c.py:26
         // app_id=self.hello_app,
-        int 0                                                                             (𝕡) name#0 | 0
-        byte "hello_app"                                                                  (𝕡) name#0 | 0,"hello_app"
-        app_global_get_ex                                                                 (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.hello_app exists                                             (𝕡) name#0 | maybe_value%0#0
+        int 0                                                                            name#0,0
+        byte "hello_app"                                                                 name#0,0,"hello_app"
+        app_global_get_ex                                                                name#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.hello_app exists                                            name#0,maybe_value%0#0
         // inner_transactions/c2c.py:27
         // app_args=(arc4.arc4_signature("hello(string)string"), name),
-        method hello(string)string                                                        (𝕡) name#0 | maybe_value%0#0,Method(hello(string)string)
-        itxn_field ApplicationArgs                                                        (𝕡) name#0 | maybe_value%0#0
-        p-load name#0                                                                     (𝕡) name#0 | maybe_value%0#0,name#0 (copy)
-        itxn_field ApplicationArgs                                                        (𝕡) name#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                          (𝕡) name#0 | maybe_value%0#0
-        itxn_field ApplicationID                                                          (𝕡) name#0 |
+        method hello(string)string                                                       name#0,maybe_value%0#0,Method(hello(string)string)
+        itxn_field ApplicationArgs                                                       name#0,maybe_value%0#0
+        l-load name#0 1                                                                  maybe_value%0#0,name#0
+        itxn_field ApplicationArgs                                                       maybe_value%0#0
+        l-load maybe_value%0#0 0                                                         maybe_value%0#0
+        itxn_field ApplicationID
         // inner_transactions/c2c.py:25
         // hello_call = itxn.ApplicationCall(
-        int appl                                                                          (𝕡) name#0 | appl
-        itxn_field TypeEnum                                                               (𝕡) name#0 |
-        int 0                                                                             (𝕡) name#0 | 0
-        itxn_field Fee                                                                    (𝕡) name#0 |
+        int appl                                                                         appl
+        itxn_field TypeEnum
+        int 0                                                                            0
+        itxn_field Fee
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
         //     app_id=self.hello_app,
         //     app_args=(arc4.arc4_signature("hello(string)string"), name),
         // ).submit()
-        itxn_submit                                                                       (𝕡) name#0 |
-        itxn LastLog                                                                      (𝕡) name#0 | hello_call.LastLog#0
+        itxn_submit
+        itxn LastLog                                                                     hello_call.LastLog#0
         // inner_transactions/c2c.py:29
         // greeting = arc4.String.from_log(hello_call.last_log)
-        l-load-copy hello_call.LastLog#0 0                                                (𝕡) name#0 | hello_call.LastLog#0,hello_call.LastLog#0 (copy)
-        extract 0 4                                                                       (𝕡) name#0 | hello_call.LastLog#0,tmp%1#0
-        byte 0x151f7c75                                                                   (𝕡) name#0 | hello_call.LastLog#0,tmp%1#0,0x151f7c75
-        ==                                                                                (𝕡) name#0 | hello_call.LastLog#0,tmp%2#0
-        assert // application log value is not the result of an ABI return                (𝕡) name#0 | hello_call.LastLog#0
+        l-load-copy hello_call.LastLog#0 0                                               hello_call.LastLog#0,hello_call.LastLog#0 (copy)
+        extract 0 4                                                                      hello_call.LastLog#0,tmp%1#0
+        byte 0x151f7c75                                                                  hello_call.LastLog#0,tmp%1#0,0x151f7c75
+        ==                                                                               hello_call.LastLog#0,tmp%2#0
+        assert // application log value is not the result of an ABI return               hello_call.LastLog#0
         // inner_transactions/c2c.py:30
         // log("HelloWorld returned: ", greeting.native)
-        l-load hello_call.LastLog#0 0                                                     (𝕡) name#0 | hello_call.LastLog#0
-        extract 6 0                                                                       (𝕡) name#0 | tmp%4#0
-        byte "HelloWorld returned: "                                                      (𝕡) name#0 | tmp%4#0,"HelloWorld returned: "
-        l-load tmp%4#0 1                                                                  (𝕡) name#0 | "HelloWorld returned: ",tmp%4#0
-        concat                                                                            (𝕡) name#0 | tmp%5#0
-        log                                                                               (𝕡) name#0 |
-        retsub
+        l-load hello_call.LastLog#0 0                                                    hello_call.LastLog#0
+        extract 6 0                                                                      tmp%4#0
+        byte "HelloWorld returned: "                                                     tmp%4#0,"HelloWorld returned: "
+        l-load tmp%4#0 1                                                                 "HelloWorld returned: ",tmp%4#0
+        concat                                                                           tmp%5#0
+        log
+        // inner_transactions/c2c.py:23
+        // @arc4.abimethod()
+        int 1                                                                            1
+        return
 
 

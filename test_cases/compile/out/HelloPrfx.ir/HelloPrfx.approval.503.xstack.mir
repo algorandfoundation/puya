@@ -1,132 +1,134 @@
-// Op                                                                                  Stack (out)
+// Op                                                                      Stack (out)
 // test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        txn ApplicationID                                                              tmp%0#0
+        txn ApplicationID                                                  tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
     main_call___init__@1:
         // compile/apps.py:69
         // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
-        byte "greeting"                                                                "greeting"
-        byte PRFX_GREETING                                                             "greeting",PRFX_GREETING
+        byte "greeting"                                                    "greeting"
+        byte PRFX_GREETING                                                 "greeting",PRFX_GREETING
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txn NumAppArgs                                                                 tmp%0#2
-        bz main_bare_routing@8 ; b main_abi_routing@4
+        txn NumAppArgs                                                     tmp%0#2
+        bz main_update@12 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txna ApplicationArgs 0                                                         tmp%2#0
-        method create()void                                                            tmp%2#0,Method(create()void)
-        method delete()void                                                            tmp%2#0,Method(create()void),Method(delete()void)
-        method greet(string)string                                                     tmp%2#0,Method(create()void),Method(delete()void),Method(greet(string)string)
-        l-load tmp%2#0 3                                                               Method(create()void),Method(delete()void),Method(greet(string)string),tmp%2#0
-        match main_create_route@5 main_delete_route@6 main_greet_route@7 ; b main_after_if_else@10 
+        txna ApplicationArgs 0                                             tmp%2#0
+        method delete()void                                                tmp%2#0,Method(delete()void)
+        l-load tmp%2#0 1                                                   Method(delete()void),tmp%2#0
+        match main_delete_route@5 ; b main_switch_case_next@6
 
-    main_create_route@5:
-        // compile/apps.py:71
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                                               tmp%3#0
-        !                                                                              tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                              tmp%5#0
-        !                                                                              tmp%6#0
-        assert // can only call when creating
-        int 1                                                                          test_cases.compile.apps.HelloPrfx.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
-
-    main_delete_route@6:
+    main_delete_route@5:
         // compile/apps.py:24
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                               tmp%7#0
-        int DeleteApplication                                                          tmp%7#0,DeleteApplication
-        ==                                                                             tmp%8#0
-        assert // OnCompletion is not DeleteApplication
-        txn ApplicationID                                                              tmp%9#0
-        assert // can only call when not creating
-        int 1                                                                          test_cases.compile.apps.HelloPrfx.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
+        txn OnCompletion                                                   tmp%3#0
+        int DeleteApplication                                              tmp%3#0,DeleteApplication
+        ==                                                                 tmp%4#0
+        txn ApplicationID                                                  tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                   tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                   tmp%4#0,tmp%5#0
+        &&                                                                 tmp%7#0
+        assert // OnCompletion must be DeleteApplication && can only call when not creating 
+        int 1                                                              1
+        return
 
-    main_greet_route@7:
-        // compile/apps.py:32
-        // @arc4.abimethod()
-        txn OnCompletion                                                               tmp%11#0
-        !                                                                              tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                              tmp%13#0
-        assert // can only call when not creating
+    main_switch_case_next@6:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                    tmp%15#0
-        // compile/apps.py:32
-        // @arc4.abimethod()
-        callsub greet                                                                  tmp%16#0
-        l-load-copy tmp%16#0 0                                                         tmp%16#0,tmp%16#0 (copy)
-        len                                                                            tmp%16#0,aggregate%length%0#0
-        itob                                                                           tmp%16#0,aggregate%as_bytes%0#0
-        extract 6 2                                                                    tmp%16#0,aggregate%length_uint16%0#0
-        l-load tmp%16#0 1                                                              aggregate%length_uint16%0#0,tmp%16#0
-        concat                                                                         aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                                aggregate%encoded_value%0#0,0x151f7c75
-        l-load aggregate%encoded_value%0#0 1                                           0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                         tmp%18#0
-        log
-        int 1                                                                          test_cases.compile.apps.HelloPrfx.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
+        txn OnCompletion                                                   tmp%8#0
+        !                                                                  tmp%9#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                  tmp%10#0
+        bz main_create_NoOp@9 ; b main_call_NoOp@7
 
-    main_bare_routing@8:
+    main_call_NoOp@7:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txn OnCompletion                                                               tmp%19#0
-        int 4                                                                          tmp%19#0,4
-        l-load tmp%19#0 1                                                              4,tmp%19#0
-        match main_update@9 ; b main_after_if_else@10
+        txna ApplicationArgs 0                                             tmp%12#0
+        method greet(string)string                                         tmp%12#0,Method(greet(string)string)
+        l-load tmp%12#0 1                                                  Method(greet(string)string),tmp%12#0
+        match main_greet_route@8 ; b main_after_if_else@11
 
-    main_update@9:
+    main_greet_route@8:
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        callsub greet
+        b main_after_if_else@11
+
+    main_create_NoOp@9:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        txna ApplicationArgs 0                                             tmp%13#0
+        method create()void                                                tmp%13#0,Method(create()void)
+        l-load tmp%13#0 1                                                  Method(create()void),tmp%13#0
+        match main_create_route@10 ; b main_after_if_else@11
+
+    main_create_route@10:
+        // compile/apps.py:71
+        // @arc4.abimethod(create="require")
+        int 1                                                              1
+        return
+
+    main_after_if_else@11:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        err
+
+    main_update@12:
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                                              tmp%20#0
-        assert // can only call when not creating
-        int 1                                                                          test_cases.compile.apps.HelloPrfx.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
-
-    main_after_if_else@10:
-        // compile/apps.py:67
-        // class HelloPrfx(HelloBase):
-        int 0                                                                          test_cases.compile.apps.HelloPrfx.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11 (𝕏) tmp%0#0 |
-
-    main_after_inlined_test_cases.compile.apps.HelloPrfx.__puya_arc4_router__@11:      (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                 tmp%0#0
+        txn OnCompletion                                                   tmp%14#0
+        int UpdateApplication                                              tmp%14#0,UpdateApplication
+        ==                                                                 tmp%15#0
+        txn ApplicationID                                                  tmp%15#0,tmp%16#0
+        l-load tmp%15#0 1                                                  tmp%16#0,tmp%15#0
+        l-load tmp%16#0 1                                                  tmp%15#0,tmp%16#0
+        &&                                                                 tmp%18#0
+        assert // OnCompletion must be UpdateApplication && can only call when not creating 
+        int 1                                                              1
         return
 
 
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+// test_cases.compile.apps.HelloBase.greet[routing]() -> void:
 subroutine greet:
-    greet_block@0:                                                                     (𝕡) name#0 |
+    greet_block@0:
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        txna ApplicationArgs 1                                             reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                        name#0
         // compile/apps.py:34
         // return self.greeting + " " + name
-        int 0                                                                          (𝕡) name#0 | 0
-        byte "greeting"                                                                (𝕡) name#0 | 0,"greeting"
-        app_global_get_ex                                                              (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.greeting exists                                           (𝕡) name#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                       (𝕡) name#0 | maybe_value%0#0
-        byte " "                                                                       (𝕡) name#0 | maybe_value%0#0," "
-        concat                                                                         (𝕡) name#0 | tmp%0#0
-        p-load name#0                                                                  (𝕡) name#0 | tmp%0#0,name#0 (copy)
-        concat                                                                         (𝕡) name#0 | tmp%1#0
-        retsub                                                                         tmp%1#0
+        int 0                                                              name#0,0
+        byte "greeting"                                                    name#0,0,"greeting"
+        app_global_get_ex                                                  name#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.greeting exists                               name#0,maybe_value%0#0
+        l-load maybe_value%0#0 0                                           name#0,maybe_value%0#0
+        byte " "                                                           name#0,maybe_value%0#0," "
+        concat                                                             name#0,tmp%0#1
+        l-load name#0 1                                                    tmp%0#1,name#0
+        concat                                                             tmp%1#1
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        l-load-copy tmp%1#1 0                                              tmp%1#1,tmp%1#1 (copy)
+        len                                                                tmp%1#1,aggregate%length%0#0
+        itob                                                               tmp%1#1,aggregate%as_bytes%0#0
+        extract 6 2                                                        tmp%1#1,aggregate%length_uint16%0#0
+        l-load tmp%1#1 1                                                   aggregate%length_uint16%0#0,tmp%1#1
+        concat                                                             aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                    aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                               0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                             tmp%3#0
+        log
+        int 1                                                              1
+        return
 
 

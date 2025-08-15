@@ -8,76 +8,79 @@ main:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main_bare_routing@9
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
-    match main_append_route@5 main_modify_route@6 main_get_route@7
-
-main_after_if_else@11:
+    match append modify get
     err
 
-main_get_route@7:
-    // state_mutations/contract.py:51
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub get
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
-
-main_modify_route@6:
-    // state_mutations/contract.py:44
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub modify
-    intc_1 // 1
-    return
-
-main_append_route@5:
-    // state_mutations/contract.py:36
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    callsub append
-    intc_1 // 1
-    return
-
-main_bare_routing@8:
+main_bare_routing@9:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@9
-    b main_after_if_else@11
+    switch main___algopy_default_create@10 main_opt_in@11
+    err
 
-main_opt_in@9:
+main_opt_in@11:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
     assert // can only call when not creating
-    callsub opt_in
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    bytec_1 // "glob"
+    bytec_3 // 0x0000
+    app_global_put
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    bytec_3 // 0x0000
+    // state_mutations/contract.py:32
+    // self.box.value = MyArray()
+    box_put
+    // state_mutations/contract.py:33
+    // self.loc[Txn.sender] = MyArray()
+    txn Sender
+    bytec_2 // "loc"
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    bytec_3 // 0x0000
+    // state_mutations/contract.py:33
+    // self.loc[Txn.sender] = MyArray()
+    app_local_put
+    // state_mutations/contract.py:34
+    // self.map[Txn.sender] = MyArray()
+    bytec 4 // "map"
+    txn Sender
+    concat
+    dup
+    box_del
+    pop
+    // state_mutations/contract.py:31
+    // self.glob.value = MyArray()
+    bytec_3 // 0x0000
+    // state_mutations/contract.py:34
+    // self.map[Txn.sender] = MyArray()
+    box_put
+    // state_mutations/contract.py:29
+    // @arc4.baremethod(allow_actions=["OptIn"])
     intc_1 // 1
     return
 
 main___algopy_default_create@10:
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    return // on error: can only call when creating
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
@@ -262,53 +265,7 @@ dynamic_array_replace_dynamic_element_after_for@5:
     retsub
 
 
-// test_cases.state_mutations.contract.Contract.opt_in() -> void:
-opt_in:
-    // state_mutations/contract.py:31
-    // self.glob.value = MyArray()
-    bytec_1 // "glob"
-    bytec_3 // 0x0000
-    app_global_put
-    // state_mutations/contract.py:32
-    // self.box.value = MyArray()
-    bytec_0 // "box"
-    box_del
-    pop
-    bytec_0 // "box"
-    // state_mutations/contract.py:31
-    // self.glob.value = MyArray()
-    bytec_3 // 0x0000
-    // state_mutations/contract.py:32
-    // self.box.value = MyArray()
-    box_put
-    // state_mutations/contract.py:33
-    // self.loc[Txn.sender] = MyArray()
-    txn Sender
-    bytec_2 // "loc"
-    // state_mutations/contract.py:31
-    // self.glob.value = MyArray()
-    bytec_3 // 0x0000
-    // state_mutations/contract.py:33
-    // self.loc[Txn.sender] = MyArray()
-    app_local_put
-    // state_mutations/contract.py:34
-    // self.map[Txn.sender] = MyArray()
-    bytec 4 // "map"
-    txn Sender
-    concat
-    dup
-    box_del
-    pop
-    // state_mutations/contract.py:31
-    // self.glob.value = MyArray()
-    bytec_3 // 0x0000
-    // state_mutations/contract.py:34
-    // self.map[Txn.sender] = MyArray()
-    box_put
-    retsub
-
-
-// test_cases.state_mutations.contract.Contract.append() -> void:
+// test_cases.state_mutations.contract.Contract.append[routing]() -> void:
 append:
     // state_mutations/contract.py:39
     // self.glob.value.append(struct.copy())
@@ -397,10 +354,13 @@ append:
     box_del
     pop
     box_put
-    retsub
+    // state_mutations/contract.py:36
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
-// test_cases.state_mutations.contract.Contract.modify() -> void:
+// test_cases.state_mutations.contract.Contract.modify[routing]() -> void:
 modify:
     // state_mutations/contract.py:46
     // self.glob.value[0].baz = arc4.String("modified")
@@ -589,10 +549,13 @@ modify:
     box_del
     pop
     box_put
-    retsub
+    // state_mutations/contract.py:44
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
-// test_cases.state_mutations.contract.Contract.get() -> bytes:
+// test_cases.state_mutations.contract.Contract.get[routing]() -> void:
 get:
     // state_mutations/contract.py:53
     // a1 = self.glob.value.copy()
@@ -636,6 +599,11 @@ get:
     dig 1
     ==
     assert // expected map == global
-    // state_mutations/contract.py:61
-    // return a1
-    retsub
+    // state_mutations/contract.py:51
+    // @arc4.abimethod
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

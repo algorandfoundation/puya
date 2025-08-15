@@ -5,7 +5,6 @@
 main:
     intcblock 0 6 8 2
     bytecblock 0x151f7c75 "s1" 0x 0x6231 0x9bf81913 0x0000000000000001 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 "log 1" "s" 0x62 0x02 0x01 0xb4b4334e "echo: tuple" 0x0000000000000002 0x00 "echo: s1" "s2" 0x33 "echo: s2" 0x636f6e76657274656431 0x34 0x0000000000000003 0x576f726c6431 0x576f726c6432 0x576f726c6433 0x576f726c6434 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x48142d5e "test1" "echo: test1" "test2" "echo: test2" "test3" "echo: test3" "test4" "echo: test4" "test5" "echo: test5" "typed + ignore" "echo: typed + ignore" "untyped + ignore" "echo: untyped + ignore" "tuple" "untyped" "echo: untyped" 0x000000000000000b 0x6563686f3a206231 0x6563686f3a2033 "s1b" "s2b" 0x3362 "echo: s2b" 0x000000000000002a 0xddd07185 "log 2"
-    bytec_2 // ""
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@24
+    bz main___algopy_default_create@27
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@25
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     txna ApplicationArgs 0
@@ -44,474 +56,149 @@ main_abi_routing@2:
     pushbytes 0xaccd5072 // method "test_arc4_struct(uint64)void"
     pushbytes 0xf7f3d8ac // method "test_resource_encoding(uint64,uint64)void"
     uncover 19
-    match main_test_is_a_b_route@3 main_test_method_selector_kinds_route@4 main_test_method_overload_route@5 main_test_arg_conversion_route@6 main_test_15plus_args_route@7 main_test_void_route@8 main_test_ref_types_route@9 main_test_account_to_address_route@10 main_test_native_string_route@11 main_test_native_bytes_route@12 main_test_native_uint64_route@13 main_test_native_biguint_route@14 main_test_native_tuple_route@15 main_test_native_tuple_method_ref_route@16 main_test_nested_tuples_route@17 main_test_no_args_route@18 main_test_named_tuples_route@19 main_test_arc4_struct_route@20 main_test_resource_encoding_route@21
-    b main_switch_case_default@22
+    match main_test_is_a_b_route@4 main_test_method_selector_kinds_route@5 main_test_method_overload_route@6 main_test_arg_conversion_route@7 main_test_15plus_args_route@8 main_test_void_route@9 main_test_ref_types_route@10 main_test_account_to_address_route@11 main_test_native_string_route@12 main_test_native_bytes_route@13 main_test_native_uint64_route@14 main_test_native_biguint_route@15 main_test_native_tuple_route@16 main_test_native_tuple_method_ref_route@17 main_test_nested_tuples_route@18 main_test_no_args_route@19 main_test_named_tuples_route@20 main_test_arc4_struct_route@21 main_test_resource_encoding_route@22
+    b main_switch_case_default@23
 
-main_switch_case_default@22:
-    b main_switch_case_next@23
+main_switch_case_default@23:
+    b main_switch_case_next@24
 
-main_switch_case_next@23:
+main_switch_case_next@24:
+    b main_after_if_else@26
+
+main_after_if_else@26:
     b main_after_if_else@28
 
 main_after_if_else@28:
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    err
 
-main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29:
-    return
-
-main_test_resource_encoding_route@21:
-    // typed_abi_call/typed_c2c.py:384
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    btoi
+main_test_resource_encoding_route@22:
     // typed_abi_call/typed_c2c.py:384
     // @arc4.abimethod()
     callsub test_resource_encoding
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_arc4_struct_route@20:
-    // typed_abi_call/typed_c2c.py:373
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_arc4_struct_route@21:
     // typed_abi_call/typed_c2c.py:373
     // @arc4.abimethod()
     callsub test_arc4_struct
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_named_tuples_route@19:
-    // typed_abi_call/typed_c2c.py:356
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_named_tuples_route@20:
     // typed_abi_call/typed_c2c.py:356
     // @arc4.abimethod()
     callsub test_named_tuples
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_no_args_route@18:
-    // typed_abi_call/typed_c2c.py:346
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_no_args_route@19:
     // typed_abi_call/typed_c2c.py:346
     // @arc4.abimethod()
     callsub test_no_args
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_nested_tuples_route@17:
-    // typed_abi_call/typed_c2c.py:300
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_nested_tuples_route@18:
     // typed_abi_call/typed_c2c.py:300
     // @arc4.abimethod()
     callsub test_nested_tuples
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_tuple_method_ref_route@16:
-    // typed_abi_call/typed_c2c.py:250
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_tuple_method_ref_route@17:
     // typed_abi_call/typed_c2c.py:250
     // @arc4.abimethod()
     callsub test_native_tuple_method_ref
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_tuple_route@15:
-    // typed_abi_call/typed_c2c.py:191
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_tuple_route@16:
     // typed_abi_call/typed_c2c.py:191
     // @arc4.abimethod()
     callsub test_native_tuple
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_biguint_route@14:
-    // typed_abi_call/typed_c2c.py:180
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_biguint_route@15:
     // typed_abi_call/typed_c2c.py:180
     // @arc4.abimethod()
     callsub test_native_biguint
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_uint64_route@13:
-    // typed_abi_call/typed_c2c.py:169
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_uint64_route@14:
     // typed_abi_call/typed_c2c.py:169
     // @arc4.abimethod()
     callsub test_native_uint64
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_bytes_route@12:
-    // typed_abi_call/typed_c2c.py:156
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_bytes_route@13:
     // typed_abi_call/typed_c2c.py:156
     // @arc4.abimethod()
     callsub test_native_bytes
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_native_string_route@11:
-    // typed_abi_call/typed_c2c.py:145
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_native_string_route@12:
     // typed_abi_call/typed_c2c.py:145
     // @arc4.abimethod()
     callsub test_native_string
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_account_to_address_route@10:
-    // typed_abi_call/typed_c2c.py:136
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_account_to_address_route@11:
     // typed_abi_call/typed_c2c.py:136
     // @arc4.abimethod()
     callsub test_account_to_address
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_ref_types_route@9:
-    // typed_abi_call/typed_c2c.py:122
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    btoi
+main_test_ref_types_route@10:
     // typed_abi_call/typed_c2c.py:122
     // @arc4.abimethod()
     callsub test_ref_types
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_void_route@8:
-    // typed_abi_call/typed_c2c.py:108
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_void_route@9:
     // typed_abi_call/typed_c2c.py:108
     // @arc4.abimethod()
     callsub test_void
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_15plus_args_route@7:
-    // typed_abi_call/typed_c2c.py:80
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_15plus_args_route@8:
     // typed_abi_call/typed_c2c.py:80
     // @arc4.abimethod()
     callsub test_15plus_args
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_arg_conversion_route@6:
-    // typed_abi_call/typed_c2c.py:63
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_arg_conversion_route@7:
     // typed_abi_call/typed_c2c.py:63
     // @arc4.abimethod()
     callsub test_arg_conversion
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_method_overload_route@5:
-    // typed_abi_call/typed_c2c.py:48
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_method_overload_route@6:
     // typed_abi_call/typed_c2c.py:48
     // @arc4.abimethod()
     callsub test_method_overload
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_method_selector_kinds_route@4:
-    // typed_abi_call/typed_c2c.py:34
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+main_test_method_selector_kinds_route@5:
     // typed_abi_call/typed_c2c.py:34
     // @arc4.abimethod()
     callsub test_method_selector_kinds
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    b main_switch_case_next@24
 
-main_test_is_a_b_route@3:
+main_test_is_a_b_route@4:
     // typed_abi_call/typed_c2c.py:25
     // @arc4.abimethod
+    callsub test_is_a_b
+    b main_switch_case_next@24
+
+main_create_NoOp@25:
+    b main_after_if_else@26
+
+main___algopy_default_create@27:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    btoi
-    // typed_abi_call/typed_c2c.py:25
-    // @arc4.abimethod
-    uncover 2
-    uncover 2
-    uncover 2
-    callsub test_is_a_b
-    pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
-
-main_bare_routing@24:
-    // typed_abi_call/typed_c2c.py:24
-    // class Greeter(ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@25
-    b main_switch_case_default@26
-
-main_switch_case_default@26:
-    b main_switch_case_next@27
-
-main_switch_case_next@27:
-    b main_after_if_else@28
-
-main___algopy_default_create@25:
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@30
 
 main_block@30:
@@ -519,19 +206,295 @@ main_block@30:
 
 main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__algopy_default_create@31:
     pushint 1 // 1
-    bury 1
-    b main_after_inlined_test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__@29
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b[routing]() -> void:
+test_is_a_b:
+    b test_is_a_b_block@0
+
+test_is_a_b_block@0:
+    // typed_abi_call/typed_c2c.py:25
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds[routing]() -> void:
+test_method_selector_kinds:
+    b test_method_selector_kinds_block@0
+
+test_method_selector_kinds_block@0:
+    // typed_abi_call/typed_c2c.py:34
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload[routing]() -> void:
+test_method_overload:
+    b test_method_overload_block@0
+
+test_method_overload_block@0:
+    // typed_abi_call/typed_c2c.py:48
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion[routing]() -> void:
+test_arg_conversion:
+    b test_arg_conversion_block@0
+
+test_arg_conversion_block@0:
+    // typed_abi_call/typed_c2c.py:63
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args[routing]() -> void:
+test_15plus_args:
+    b test_15plus_args_block@0
+
+test_15plus_args_block@0:
+    // typed_abi_call/typed_c2c.py:80
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_void[routing]() -> void:
+test_void:
+    b test_void_block@0
+
+test_void_block@0:
+    // typed_abi_call/typed_c2c.py:108
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_void
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types[routing]() -> void:
+test_ref_types:
+    b test_ref_types_block@0
+
+test_ref_types_block@0:
+    // typed_abi_call/typed_c2c.py:122
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address[routing]() -> void:
+test_account_to_address:
+    b test_account_to_address_block@0
+
+test_account_to_address_block@0:
+    // typed_abi_call/typed_c2c.py:136
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string[routing]() -> void:
+test_native_string:
+    b test_native_string_block@0
+
+test_native_string_block@0:
+    // typed_abi_call/typed_c2c.py:145
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes[routing]() -> void:
+test_native_bytes:
+    b test_native_bytes_block@0
+
+test_native_bytes_block@0:
+    // typed_abi_call/typed_c2c.py:156
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64[routing]() -> void:
+test_native_uint64:
+    b test_native_uint64_block@0
+
+test_native_uint64_block@0:
+    // typed_abi_call/typed_c2c.py:169
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint[routing]() -> void:
+test_native_biguint:
+    b test_native_biguint_block@0
+
+test_native_biguint_block@0:
+    // typed_abi_call/typed_c2c.py:180
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple[routing]() -> void:
+test_native_tuple:
+    b test_native_tuple_block@0
+
+test_native_tuple_block@0:
+    // typed_abi_call/typed_c2c.py:191
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref[routing]() -> void:
+test_native_tuple_method_ref:
+    b test_native_tuple_method_ref_block@0
+
+test_native_tuple_method_ref_block@0:
+    // typed_abi_call/typed_c2c.py:250
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routing]() -> void:
+test_nested_tuples:
+    b test_nested_tuples_block@0
+
+test_nested_tuples_block@0:
+    // typed_abi_call/typed_c2c.py:300
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args[routing]() -> void:
+test_no_args:
+    b test_no_args_block@0
+
+test_no_args_block@0:
+    // typed_abi_call/typed_c2c.py:346
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing]() -> void:
+test_named_tuples:
+    b test_named_tuples_block@0
+
+test_named_tuples_block@0:
+    // typed_abi_call/typed_c2c.py:356
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct[routing]() -> void:
+test_arc4_struct:
+    b test_arc4_struct_block@0
+
+test_arc4_struct_block@0:
+    // typed_abi_call/typed_c2c.py:373
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct
+    pushint 1 // 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]() -> void:
+test_resource_encoding:
+    b test_resource_encoding_block@0
+
+test_resource_encoding_block@0:
+    // typed_abi_call/typed_c2c.py:384
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    callsub test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding
+    pushint 1 // 1
+    return
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b(a: bytes, b: bytes, app: uint64) -> void:
-test_is_a_b:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b:
     // typed_abi_call/typed_c2c.py:25-26
     // @arc4.abimethod
     // def test_is_a_b(self, a: Bytes, b: Bytes, app: Application) -> None:
     proto 3 0
-    b test_is_a_b_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b_block@0
 
-test_is_a_b_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b_block@0:
     // typed_abi_call/typed_c2c.py:27-32
     // arc4.abi_call(
     //     "is_a_b(byte[],byte[])void",
@@ -576,9 +539,9 @@ test_is_a_b_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_is_a_b_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b_next_txn@1
 
-test_is_a_b_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b_next_txn@1:
     // typed_abi_call/typed_c2c.py:27-32
     // arc4.abi_call(
     //     "is_a_b(byte[],byte[])void",
@@ -591,14 +554,14 @@ test_is_a_b_next_txn@1:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(app: uint64) -> void:
-test_method_selector_kinds:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds:
     // typed_abi_call/typed_c2c.py:34-35
     // @arc4.abimethod()
     // def test_method_selector_kinds(self, app: Application) -> None:
     proto 1 0
-    b test_method_selector_kinds_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_block@0
 
-test_method_selector_kinds_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_block@0:
     // typed_abi_call/typed_c2c.py:36
     // assert arc4.arc4_signature(Logger.echo) == arc4.arc4_signature("echo(string)string")
     bytec 4 // method "echo(string)string"
@@ -623,9 +586,9 @@ test_method_selector_kinds_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_selector_kinds_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@1
 
-test_method_selector_kinds_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@1:
     // typed_abi_call/typed_c2c.py:37
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
     itxn_submit
@@ -665,9 +628,9 @@ test_method_selector_kinds_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_selector_kinds_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@2
 
-test_method_selector_kinds_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@2:
     // typed_abi_call/typed_c2c.py:39
     // result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)
     itxn_submit
@@ -707,9 +670,9 @@ test_method_selector_kinds_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_selector_kinds_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@3
 
-test_method_selector_kinds_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@3:
     // typed_abi_call/typed_c2c.py:41
     // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
     itxn_submit
@@ -749,9 +712,9 @@ test_method_selector_kinds_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_selector_kinds_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@4
 
-test_method_selector_kinds_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@4:
     // typed_abi_call/typed_c2c.py:43
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)", "test4", app_id=app)
     itxn_submit
@@ -791,9 +754,9 @@ test_method_selector_kinds_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_selector_kinds_next_txn@5
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@5
 
-test_method_selector_kinds_next_txn@5:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@5:
     // typed_abi_call/typed_c2c.py:45
     // result, _txn = arc4.abi_call[arc4.String]("echo(string)string", "test5", app_id=app)
     itxn_submit
@@ -819,14 +782,14 @@ test_method_selector_kinds_next_txn@5:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app: uint64) -> void:
-test_method_overload:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload:
     // typed_abi_call/typed_c2c.py:48-49
     // @arc4.abimethod()
     // def test_method_overload(self, app: Application) -> None:
     proto 1 0
-    b test_method_overload_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_block@0
 
-test_method_overload_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_block@0:
     // typed_abi_call/typed_c2c.py:50
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
     itxn_begin
@@ -845,9 +808,9 @@ test_method_overload_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_overload_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@1
 
-test_method_overload_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@1:
     // typed_abi_call/typed_c2c.py:50
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
     itxn_submit
@@ -892,9 +855,9 @@ test_method_overload_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_overload_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@2
 
-test_method_overload_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@2:
     // typed_abi_call/typed_c2c.py:53
     // arc4.abi_call("echo(string)string", "untyped + ignore", app_id=app)
     itxn_submit
@@ -934,9 +897,9 @@ test_method_overload_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_overload_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@3
 
-test_method_overload_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@3:
     // typed_abi_call/typed_c2c.py:56
     // result = arc4.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app)
     itxn_submit
@@ -995,9 +958,9 @@ test_method_overload_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_method_overload_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@4
 
-test_method_overload_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload_next_txn@4:
     // typed_abi_call/typed_c2c.py:60
     // txn_result = arc4.abi_call("echo(string)string", "untyped", app_id=app)
     itxn_submit
@@ -1023,14 +986,14 @@ test_method_overload_next_txn@4:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: uint64) -> void:
-test_arg_conversion:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion:
     // typed_abi_call/typed_c2c.py:63-64
     // @arc4.abimethod()
     // def test_arg_conversion(self, app: Application) -> None:
     proto 1 0
-    b test_arg_conversion_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_block@0
 
-test_arg_conversion_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_block@0:
     // typed_abi_call/typed_c2c.py:65
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
     itxn_begin
@@ -1049,9 +1012,9 @@ test_arg_conversion_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arg_conversion_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@1
 
-test_arg_conversion_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@1:
     // typed_abi_call/typed_c2c.py:65
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
     itxn_submit
@@ -1074,9 +1037,9 @@ test_arg_conversion_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arg_conversion_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@2
 
-test_arg_conversion_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@2:
     // typed_abi_call/typed_c2c.py:68
     // txn = arc4.abi_call(Logger.log_uint64, 2, app_id=app)
     itxn_submit
@@ -1100,9 +1063,9 @@ test_arg_conversion_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arg_conversion_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@3
 
-test_arg_conversion_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@3:
     // typed_abi_call/typed_c2c.py:71
     // txn = arc4.abi_call(Logger.log_uint512, 3, app_id=app)
     itxn_submit
@@ -1134,9 +1097,9 @@ test_arg_conversion_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arg_conversion_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@4
 
-test_arg_conversion_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@4:
     // typed_abi_call/typed_c2c.py:74
     // txn = arc4.abi_call(Logger.log_bytes, b"4", app_id=app)
     itxn_submit
@@ -1162,9 +1125,9 @@ test_arg_conversion_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arg_conversion_next_txn@5
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@5
 
-test_arg_conversion_next_txn@5:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_next_txn@5:
     // typed_abi_call/typed_c2c.py:77
     // txn = arc4.abi_call(Logger.log_bool, True, app_id=app)
     itxn_submit
@@ -1178,14 +1141,14 @@ test_arg_conversion_next_txn@5:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
-test_15plus_args:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args:
     // typed_abi_call/typed_c2c.py:80-81
     // @arc4.abimethod()
     // def test_15plus_args(self, app: Application) -> None:
     proto 1 0
-    b test_15plus_args_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args_block@0
 
-test_15plus_args_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args_block@0:
     // typed_abi_call/typed_c2c.py:82-105
     // result, txn = arc4.abi_call(
     //     Logger.return_args_after_14th,
@@ -1405,9 +1368,9 @@ test_15plus_args_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_15plus_args_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args_next_txn@1
 
-test_15plus_args_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args_next_txn@1:
     // typed_abi_call/typed_c2c.py:82-105
     // result, txn = arc4.abi_call(
     //     Logger.return_args_after_14th,
@@ -1452,14 +1415,14 @@ test_15plus_args_next_txn@1:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) -> void:
-test_void:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void:
     // typed_abi_call/typed_c2c.py:108-109
     // @arc4.abimethod()
     // def test_void(self, app: Application) -> None:
     proto 1 0
-    b test_void_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_void_block@0
 
-test_void_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void_block@0:
     // typed_abi_call/typed_c2c.py:110
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
     itxn_begin
@@ -1478,9 +1441,9 @@ test_void_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_void_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@1
 
-test_void_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@1:
     // typed_abi_call/typed_c2c.py:110
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
     itxn_submit
@@ -1508,9 +1471,9 @@ test_void_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_void_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@2
 
-test_void_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@2:
     // typed_abi_call/typed_c2c.py:113
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app)
     itxn_submit
@@ -1538,9 +1501,9 @@ test_void_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_void_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@3
 
-test_void_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@3:
     // typed_abi_call/typed_c2c.py:116
     // txn = arc4.abi_call(LOG_METHOD_NAME, arc4.String("World3"), app_id=app)
     itxn_submit
@@ -1568,9 +1531,9 @@ test_void_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_void_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@4
 
-test_void_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@4:
     // typed_abi_call/typed_c2c.py:119
     // txn = arc4.abi_call(Logger.log_string, "World4", app_id=app)
     itxn_submit
@@ -1584,14 +1547,14 @@ test_void_next_txn@4:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(app: uint64, asset: uint64) -> void:
-test_ref_types:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types:
     // typed_abi_call/typed_c2c.py:122-123
     // @arc4.abimethod()
     // def test_ref_types(self, app: Application, asset: Asset) -> None:
     proto 2 0
-    b test_ref_types_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_block@0
 
-test_ref_types_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_block@0:
     // typed_abi_call/typed_c2c.py:124-130
     // txn = arc4.abi_call(
     //     Logger.log_asset_account_app,
@@ -1640,9 +1603,9 @@ test_ref_types_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_ref_types_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_next_txn@1
 
-test_ref_types_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_next_txn@1:
     // typed_abi_call/typed_c2c.py:124-130
     // txn = arc4.abi_call(
     //     Logger.log_asset_account_app,
@@ -1678,14 +1641,14 @@ test_ref_types_next_txn@1:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(app: uint64) -> void:
-test_account_to_address:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address:
     // typed_abi_call/typed_c2c.py:136-137
     // @arc4.abimethod()
     // def test_account_to_address(self, app: Application) -> None:
     proto 1 0
-    b test_account_to_address_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address_block@0
 
-test_account_to_address_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address_block@0:
     // typed_abi_call/typed_c2c.py:138-142
     // txn = arc4.abi_call(
     //     Logger.log_address,
@@ -1713,9 +1676,9 @@ test_account_to_address_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_account_to_address_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address_next_txn@1
 
-test_account_to_address_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address_next_txn@1:
     // typed_abi_call/typed_c2c.py:138-142
     // txn = arc4.abi_call(
     //     Logger.log_address,
@@ -1733,15 +1696,15 @@ test_account_to_address_next_txn@1:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: uint64) -> void:
-test_native_string:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string:
     // typed_abi_call/typed_c2c.py:145-146
     // @arc4.abimethod()
     // def test_native_string(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
-    b test_native_string_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_block@0
 
-test_native_string_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_block@0:
     // typed_abi_call/typed_c2c.py:147
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
     itxn_begin
@@ -1760,9 +1723,9 @@ test_native_string_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_string_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@1
 
-test_native_string_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@1:
     // typed_abi_call/typed_c2c.py:147
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
     itxn_submit
@@ -1800,9 +1763,9 @@ test_native_string_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_string_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@2
 
-test_native_string_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@2:
     // typed_abi_call/typed_c2c.py:150
     // result2, _txn = arc4.abi_call(Logger.echo_native_string, String("s"), app_id=app)
     itxn_submit
@@ -1838,9 +1801,9 @@ test_native_string_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_string_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@3
 
-test_native_string_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string_next_txn@3:
     // typed_abi_call/typed_c2c.py:153
     // result3, _txn = arc4.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app)
     itxn_submit
@@ -1862,15 +1825,15 @@ test_native_string_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: uint64) -> void:
-test_native_bytes:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes:
     // typed_abi_call/typed_c2c.py:156-157
     // @arc4.abimethod()
     // def test_native_bytes(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
-    b test_native_bytes_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_block@0
 
-test_native_bytes_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_block@0:
     // typed_abi_call/typed_c2c.py:158
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     itxn_begin
@@ -1889,9 +1852,9 @@ test_native_bytes_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_bytes_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@1
 
-test_native_bytes_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@1:
     // typed_abi_call/typed_c2c.py:158
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
     itxn_submit
@@ -1929,9 +1892,9 @@ test_native_bytes_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_bytes_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@2
 
-test_native_bytes_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@2:
     // typed_abi_call/typed_c2c.py:161
     // result2, _txn = arc4.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app)
     itxn_submit
@@ -1975,9 +1938,9 @@ test_native_bytes_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_bytes_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@3
 
-test_native_bytes_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@3:
     // typed_abi_call/typed_c2c.py:164-166
     // result3, _txn = arc4.abi_call(
     //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
@@ -2001,15 +1964,15 @@ test_native_bytes_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: uint64) -> void:
-test_native_uint64:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64:
     // typed_abi_call/typed_c2c.py:169-170
     // @arc4.abimethod()
     // def test_native_uint64(self, app: Application) -> None:
     proto 1 0
     bytec_2 // ""
-    b test_native_uint64_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_block@0
 
-test_native_uint64_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_block@0:
     // typed_abi_call/typed_c2c.py:171
     // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
     itxn_begin
@@ -2023,9 +1986,9 @@ test_native_uint64_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_uint64_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@1
 
-test_native_uint64_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@1:
     // typed_abi_call/typed_c2c.py:171
     // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
     itxn_submit
@@ -2059,9 +2022,9 @@ test_native_uint64_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_uint64_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@2
 
-test_native_uint64_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@2:
     // typed_abi_call/typed_c2c.py:174
     // result2, _txn = arc4.abi_call(Logger.echo_native_uint64, UInt64(1), app_id=app)
     itxn_submit
@@ -2092,9 +2055,9 @@ test_native_uint64_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_uint64_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@3
 
-test_native_uint64_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@3:
     // typed_abi_call/typed_c2c.py:177
     // result3, _txn = arc4.abi_call(Logger.echo_native_uint64, arc4.UInt64(1), app_id=app)
     itxn_submit
@@ -2116,15 +2079,15 @@ test_native_uint64_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: uint64) -> void:
-test_native_biguint:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint:
     // typed_abi_call/typed_c2c.py:180-181
     // @arc4.abimethod()
     // def test_native_biguint(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
-    b test_native_biguint_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_block@0
 
-test_native_biguint_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_block@0:
     // typed_abi_call/typed_c2c.py:182
     // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
     itxn_begin
@@ -2138,9 +2101,9 @@ test_native_biguint_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_biguint_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@1
 
-test_native_biguint_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@1:
     // typed_abi_call/typed_c2c.py:182
     // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
     itxn_submit
@@ -2180,9 +2143,9 @@ test_native_biguint_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_biguint_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@2
 
-test_native_biguint_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@2:
     // typed_abi_call/typed_c2c.py:185
     // result2, _txn = arc4.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app)
     itxn_submit
@@ -2212,9 +2175,9 @@ test_native_biguint_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_biguint_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@3
 
-test_native_biguint_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@3:
     // typed_abi_call/typed_c2c.py:188
     // result3, _txn = arc4.abi_call(Logger.echo_native_biguint, arc4.UInt512(2), app_id=app)
     itxn_submit
@@ -2235,15 +2198,15 @@ test_native_biguint_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: uint64) -> void:
-test_native_tuple:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple:
     // typed_abi_call/typed_c2c.py:191-192
     // @arc4.abimethod()
     // def test_native_tuple(self, app: Application) -> None:
     proto 1 0
     intc_0 // 0
-    b test_native_tuple_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_block@0
 
-test_native_tuple_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_block@0:
     // typed_abi_call/typed_c2c.py:193-203
     // # python literals
     // result1, txn = arc4.abi_call[
@@ -2318,9 +2281,9 @@ test_native_tuple_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@1
 
-test_native_tuple_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@1:
     // typed_abi_call/typed_c2c.py:193-203
     // # python literals
     // result1, txn = arc4.abi_call[
@@ -2491,9 +2454,9 @@ test_native_tuple_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@2
 
-test_native_tuple_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@2:
     // typed_abi_call/typed_c2c.py:210-220
     // # test again using native types in arguments
     // result2, txn = arc4.abi_call[
@@ -2594,9 +2557,9 @@ test_native_tuple_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@3
 
-test_native_tuple_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@3:
     // typed_abi_call/typed_c2c.py:223-233
     // # test again using arc4 types in arguments
     // result3, txn = arc4.abi_call[
@@ -2691,9 +2654,9 @@ test_native_tuple_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@4
 
-test_native_tuple_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@4:
     // typed_abi_call/typed_c2c.py:236-244
     // # test again using native result type
     // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -2813,7 +2776,7 @@ test_native_tuple_next_txn@4:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(app: uint64) -> void:
-test_native_tuple_method_ref:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref:
     // typed_abi_call/typed_c2c.py:250-251
     // @arc4.abimethod()
     // def test_native_tuple_method_ref(self, app: Application) -> None:
@@ -2822,9 +2785,9 @@ test_native_tuple_method_ref:
     intc_0 // 0
     intc_0 // 0
     bytec_2 // ""
-    b test_native_tuple_method_ref_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_block@0
 
-test_native_tuple_method_ref_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_block@0:
     // typed_abi_call/typed_c2c.py:252-260
     // # test with literal args
     // result, txn = arc4.abi_call(
@@ -2893,9 +2856,9 @@ test_native_tuple_method_ref_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_method_ref_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@1
 
-test_native_tuple_method_ref_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@1:
     // typed_abi_call/typed_c2c.py:252-260
     // # test with literal args
     // result, txn = arc4.abi_call(
@@ -3070,9 +3033,9 @@ test_native_tuple_method_ref_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_method_ref_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@2
 
-test_native_tuple_method_ref_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@2:
     // typed_abi_call/typed_c2c.py:267-275
     // # test with native args
     // result_2, txn = arc4.abi_call(
@@ -3221,9 +3184,9 @@ test_native_tuple_method_ref_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_method_ref_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@3
 
-test_native_tuple_method_ref_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@3:
     // typed_abi_call/typed_c2c.py:278-286
     // # test with arc4 args
     // result_3, txn = arc4.abi_call(
@@ -3372,9 +3335,9 @@ test_native_tuple_method_ref_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_tuple_method_ref_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@4
 
-test_native_tuple_method_ref_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_txn@4:
     // typed_abi_call/typed_c2c.py:289-297
     // # test again using native result type
     // result_native, txn = arc4.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -3459,14 +3422,14 @@ test_native_tuple_method_ref_next_txn@4:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: uint64) -> void:
-test_nested_tuples:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples:
     // typed_abi_call/typed_c2c.py:300-301
     // @arc4.abimethod()
     // def test_nested_tuples(self, app: Application) -> None:
     proto 1 0
-    b test_nested_tuples_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0
 
-test_nested_tuples_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0:
     // typed_abi_call/typed_c2c.py:302-307
     // # literal args
     // result, txn = arc4.abi_call(
@@ -3564,9 +3527,9 @@ test_nested_tuples_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_tuples_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@1
 
-test_nested_tuples_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@1:
     // typed_abi_call/typed_c2c.py:302-307
     // # literal args
     // result, txn = arc4.abi_call(
@@ -3801,9 +3764,9 @@ test_nested_tuples_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_tuples_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@2
 
-test_nested_tuples_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@2:
     // typed_abi_call/typed_c2c.py:315-320
     // # native args
     // result, txn = arc4.abi_call(
@@ -4047,9 +4010,9 @@ test_nested_tuples_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_tuples_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@3
 
-test_nested_tuples_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@3:
     // typed_abi_call/typed_c2c.py:328-338
     // # arc4 args
     // result, txn = arc4.abi_call(
@@ -4191,14 +4154,14 @@ test_nested_tuples_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64) -> void:
-test_no_args:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args:
     // typed_abi_call/typed_c2c.py:346-347
     // @arc4.abimethod()
     // def test_no_args(self, app: Application) -> None:
     proto 1 0
-    b test_no_args_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_block@0
 
-test_no_args_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_block@0:
     // typed_abi_call/typed_c2c.py:348
     // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
     itxn_begin
@@ -4210,9 +4173,9 @@ test_no_args_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_no_args_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@1
 
-test_no_args_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@1:
     // typed_abi_call/typed_c2c.py:348
     // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
     itxn_submit
@@ -4241,9 +4204,9 @@ test_no_args_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_no_args_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@2
 
-test_no_args_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@2:
     // typed_abi_call/typed_c2c.py:350
     // arc4_result, _txn = arc4.abi_call[arc4.UInt64]("no_args()uint64", app_id=app)
     itxn_submit
@@ -4271,9 +4234,9 @@ test_no_args_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_no_args_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@3
 
-test_no_args_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args_next_txn@3:
     // typed_abi_call/typed_c2c.py:353
     // arc4.abi_call(Logger.no_args, app_id=app)
     itxn_submit
@@ -4299,14 +4262,14 @@ test_no_args_next_txn@3:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: uint64) -> void:
-test_named_tuples:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples:
     // typed_abi_call/typed_c2c.py:356-357
     // @arc4.abimethod()
     // def test_named_tuples(self, app: Application) -> None:
     proto 1 0
-    b test_named_tuples_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0
 
-test_named_tuples_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0:
     // typed_abi_call/typed_c2c.py:358-363
     // result, _txn = arc4.abi_call(
     //     Logger.logs_are_equal,
@@ -4377,9 +4340,9 @@ test_named_tuples_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_named_tuples_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@1
 
-test_named_tuples_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@1:
     // typed_abi_call/typed_c2c.py:358-363
     // result, _txn = arc4.abi_call(
     //     Logger.logs_are_equal,
@@ -4471,9 +4434,9 @@ test_named_tuples_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_named_tuples_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@2
 
-test_named_tuples_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@2:
     // typed_abi_call/typed_c2c.py:365-370
     // result, _txn = arc4.abi_call(
     //     Logger.logs_are_equal,
@@ -4500,14 +4463,14 @@ test_named_tuples_next_txn@2:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(app: uint64) -> void:
-test_arc4_struct:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct:
     // typed_abi_call/typed_c2c.py:373-374
     // @arc4.abimethod()
     // def test_arc4_struct(self, app: Application) -> None:
     proto 1 0
-    b test_arc4_struct_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_block@0
 
-test_arc4_struct_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_block@0:
     // typed_abi_call/typed_c2c.py:375
     // log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
     bytec 8 // "log 1"
@@ -4550,9 +4513,9 @@ test_arc4_struct_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_arc4_struct_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_next_txn@1
 
-test_arc4_struct_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_next_txn@1:
     // typed_abi_call/typed_c2c.py:376-380
     // result, txn = arc4.abi_call(
     //     Logger.echo_log_struct,
@@ -4592,14 +4555,14 @@ test_arc4_struct_next_txn@1:
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding(app_to_call: uint64, asset: uint64) -> void:
-test_resource_encoding:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding:
     // typed_abi_call/typed_c2c.py:384-385
     // @arc4.abimethod()
     // def test_resource_encoding(self, app_to_call: Application, asset: Asset) -> None:
     proto 2 0
-    b test_resource_encoding_block@0
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_block@0
 
-test_resource_encoding_block@0:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_block@0:
     // typed_abi_call/typed_c2c.py:386
     // app = Global.current_application_id
     global CurrentApplicationID
@@ -4645,9 +4608,9 @@ test_resource_encoding_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@1
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@1
 
-test_resource_encoding_next_txn@1:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@1:
     // typed_abi_call/typed_c2c.py:389-391
     // result, txn = arc4.abi_call(
     //     Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
@@ -4729,9 +4692,9 @@ test_resource_encoding_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@2
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@2
 
-test_resource_encoding_next_txn@2:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@2:
     // typed_abi_call/typed_c2c.py:394-396
     // result, txn = arc4.abi_call(
     //     Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call
@@ -4819,9 +4782,9 @@ test_resource_encoding_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@3
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@3
 
-test_resource_encoding_next_txn@3:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@3:
     // typed_abi_call/typed_c2c.py:399-401
     // result, txn = arc4.abi_call(
     //     LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
@@ -4903,9 +4866,9 @@ test_resource_encoding_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@4
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@4
 
-test_resource_encoding_next_txn@4:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@4:
     // typed_abi_call/typed_c2c.py:404-406
     // result, txn = arc4.abi_call(
     //     LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call
@@ -5013,9 +4976,9 @@ test_resource_encoding_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@5
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@5
 
-test_resource_encoding_next_txn@5:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@5:
     // typed_abi_call/typed_c2c.py:409-415
     // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
@@ -5119,9 +5082,9 @@ test_resource_encoding_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_resource_encoding_next_txn@6
+    b test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@6
 
-test_resource_encoding_next_txn@6:
+test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@6:
     // typed_abi_call/typed_c2c.py:418-424
     // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",

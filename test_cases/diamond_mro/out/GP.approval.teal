@@ -13,23 +13,17 @@ main:
 main_after_if_else@2:
     // diamond_mro/gp.py:6
     // class GP(ARC4Contract, abc.ABC):
-    txn NumAppArgs
-    bz main_after_if_else@7
-    pushbytess 0x4c5c61ba 0x4f045d84 // method "create()void", method "method()void"
-    txna ApplicationArgs 0
-    match main_create_route@5 main_method_route@6
-
-main_after_if_else@7:
-    err
-
-main_method_route@6:
-    // diamond_mro/gp.py:15
-    // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@6
+    pushbytes 0x4f045d84 // method "method()void"
+    txna ApplicationArgs 0
+    match main_method_route@5
+    err
+
+main_method_route@5:
     // diamond_mro/gp.py:17
     // log("gp.method")
     pushbytes "gp.method"
@@ -39,14 +33,16 @@ main_method_route@6:
     pushint 1 // 1
     return
 
-main_create_route@5:
+main_create_NoOp@6:
+    // diamond_mro/gp.py:6
+    // class GP(ARC4Contract, abc.ABC):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@7
+    err
+
+main_create_route@7:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
     pushint 1 // 1
     return

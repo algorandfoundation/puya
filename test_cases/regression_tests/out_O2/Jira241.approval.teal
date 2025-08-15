@@ -4,37 +4,25 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
     pushbytess 0x1e3e4374 0xd7a938c9 // method "oh_no(bool)void", method "oh_yes(bool)void"
     txna ApplicationArgs 0
-    match main_oh_no_route@3 main_oh_yes_route@4
-
-main_after_if_else@11:
+    match main_oh_no_route@4 main_oh_no_route@4
     err
 
-main_oh_yes_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_oh_no_route@4:
     pushint 1 // 1
     return
 
-main_oh_no_route@3:
+main___algopy_default_create@10:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushint 1 // 1
-    return
-
-main_bare_routing@7:
-    txn OnCompletion
-    bnz main_after_if_else@11
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

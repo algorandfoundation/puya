@@ -10,20 +10,18 @@ main:
     pushbytes ""
     dupn 6
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     txna ApplicationArgs 0
     match main_test_route@3
-
-main_after_if_else@10:
     err
 
 main_test_route@3:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -50,19 +48,19 @@ main_test_route@3:
     dup
     bury 5
     <
-    bz main_else_body@16
+    bz main_else_body@11
     dig 6
     dig 2
     +
     bury 7
 
-main_after_if_else@25:
+main_after_if_else@20:
     dig 6
     dig 5
     +
     dig 3
     <
-    bz main_else_body@27
+    bz main_else_body@22
     dig 6
     dup
     dig 3
@@ -70,7 +68,7 @@ main_after_if_else@25:
     *
     bury 7
 
-main_after_if_else@28:
+main_after_if_else@23:
     dig 4
     dup
     callsub itoa
@@ -88,13 +86,13 @@ main_after_if_else@28:
     >
     swap
     bury 7
-    bz main_after_if_else@30
+    bz main_after_if_else@25
     dig 6
     dig 3
     +
     bury 6
 
-main_after_if_else@30:
+main_after_if_else@25:
     dig 5
     dup
     bury 8
@@ -103,13 +101,13 @@ main_after_if_else@30:
     <
     swap
     bury 7
-    bz main_after_if_else@32
+    bz main_after_if_else@27
     dig 6
     dig 5
     +
     bury 6
 
-main_after_if_else@32:
+main_after_if_else@27:
     dig 5
     dup
     bury 8
@@ -120,13 +118,13 @@ main_after_if_else@32:
     >
     swap
     bury 7
-    bz main_after_if_else@34
+    bz main_after_if_else@29
     dig 6
     dig 1
     *
     bury 6
 
-main_after_if_else@34:
+main_after_if_else@29:
     dig 5
     dup
     callsub itoa
@@ -147,63 +145,62 @@ main_after_if_else@34:
     intc_0 // 1
     return
 
-main_else_body@27:
+main_else_body@22:
     dig 4
     dup
     dig 2
     callsub some_func
     *
     bury 5
-    b main_after_if_else@28
+    b main_after_if_else@23
 
-main_else_body@16:
+main_else_body@11:
     dig 6
     dig 3
     <
-    bz main_else_body@18
+    bz main_else_body@13
     dig 6
     dig 1
     +
     bury 7
-    b main_after_if_else@25
+    b main_after_if_else@20
 
-main_else_body@18:
+main_else_body@13:
     dig 4
     dig 7
     <
-    bz main_else_body@20
+    bz main_else_body@15
     dig 6
     pushint 3 // 3
     *
     bury 7
-    b main_after_if_else@25
+    b main_after_if_else@20
 
-main_else_body@20:
+main_else_body@15:
     dig 4
     dup
     dig 8
     >
     swap
     bury 5
-    bz main_after_if_else@22
+    bz main_after_if_else@17
     dig 4
     dig 7
     +
     bury 4
 
-main_after_if_else@22:
+main_after_if_else@17:
     dig 3
     bury 5
-    b main_after_if_else@25
+    b main_after_if_else@20
 
-main_bare_routing@6:
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:

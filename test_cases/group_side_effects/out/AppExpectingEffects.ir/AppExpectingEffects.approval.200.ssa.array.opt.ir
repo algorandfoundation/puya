@@ -1,85 +1,73 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@3, method "log_group(appl)void" => block@4, * => block@11}
-    block@3: // create_group_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        let tmp%7#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%7#0 2u)
-        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@4, method "log_group(appl)void" => block@5, * => block@9}
+    block@4: // create_group_route_L5
+        test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]()
+        goto block@9
+    block@5: // log_group_route_L22
+        test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]()
+        goto block@9
+    block@9: // after_if_else_L4
+        fail
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]() -> void:
+    block@0: // L5
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let asset_create#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) asset_create#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
-        let tmp%8#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%8#0 1u)
-        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
+        let tmp%1#0: uint64 = (txn GroupIndex)
+        let app_create#0: uint64 = (- tmp%1#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) app_create#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
         (assert gtxn_type_matches%1#0) // transaction type is appl
-        let (tmp%9#0: uint64, tmp%10#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%9#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%10#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
-        let tmp%12#0: bytes = (concat 0x151f7c75 aggregate%head%1#0)
-        (log tmp%12#0)
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
-        goto block@12
-    block@4: // log_group_route_L22
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (! tmp%13#0)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
-        let tmp%17#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%17#0 1u)
-        let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
-        let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 appl)
-        (assert gtxn_type_matches%2#0) // transaction type is appl
-        test_cases.group_side_effects.contract.AppExpectingEffects.log_group(gtxn_idx%2#0)
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#1: bool = 1u
-        goto block@12
-    block@7: // bare_routing_L4
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        goto tmp%18#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // can only call when creating
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#2: bool = 1u
-        goto block@12
-    block@11: // after_if_else_L4
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#3: bool = 0u
-        goto block@12
-    block@12: // after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0 <- block@3, test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#1 <- block@4, test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#2 <- block@8, test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#3 <- block@11)
-        return tmp%0#0
-
-subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> <uint64, uint64>:
-    block@0: // L5
-        let tmp%0#0: uint64 = ((gtxns CreatedAssetID) asset_create#0)
-        (assert tmp%0#0) // expected asset created
-        let tmp%2#0: uint64 = ((gtxns GroupIndex) asset_create#0)
-        let tmp%3#0: uint64 = (gaids tmp%2#0)
-        let tmp%5#0: bool = (== tmp%3#0 tmp%0#0)
-        (assert tmp%5#0) // expected correct asset id
+        let tmp%0#1: uint64 = ((gtxns CreatedAssetID) asset_create#0)
+        (assert tmp%0#1) // expected asset created
+        let tmp%2#1: uint64 = ((gtxns GroupIndex) asset_create#0)
+        let tmp%3#1: uint64 = (gaids tmp%2#1)
+        let tmp%5#1: bool = (== tmp%3#1 tmp%0#1)
+        (assert tmp%5#1) // expected correct asset id
         let tmp%6#0: uint64 = ((gtxns CreatedApplicationID) app_create#0)
         (assert tmp%6#0) // expected app created
         let tmp%8#0: uint64 = ((gtxns GroupIndex) app_create#0)
         let tmp%9#0: uint64 = (gaids tmp%8#0)
         let tmp%11#0: bool = (== tmp%9#0 tmp%6#0)
         (assert tmp%11#0) // expected correct app id
-        return tmp%0#0 tmp%6#0
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
+        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%6#0)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%head%1#0)
+        (log tmp%5#0)
+        exit 1u
 
-subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group(app_call: uint64) -> void:
+subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]() -> void:
     block@0: // L22
-        let tmp%0#0: bytes = ((gtxnsas ApplicationArgs) app_call#0 0u)
-        let tmp%1#0: bool = (== tmp%0#0 method "some_value()uint64")
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let app_call#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) app_call#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 appl)
+        (assert gtxn_type_matches%0#0) // transaction type is appl
+        let tmp%0#1: bytes = ((gtxnsas ApplicationArgs) app_call#0 0u)
+        let tmp%1#0: bool = (== tmp%0#1 method "some_value()uint64")
         (assert tmp%1#0) // expected correct method called
         let tmp%2#0: uint64 = ((gtxns NumLogs) app_call#0)
         let tmp%3#0: bool = (== tmp%2#0 1u)
@@ -96,4 +84,4 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group(
         let tmp%11#0: biguint = (itob tmp%10#0)
         let tmp%12#0: bool = (b== tmp%4#0 tmp%11#0)
         (assert tmp%12#0)
-        return 
+        exit 1u

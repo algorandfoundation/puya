@@ -6,12 +6,10 @@ main:
     // regression_tests/jira_142.py:8
     // class Jira142(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xebb6cc95 // method "battle()void"
     txna ApplicationArgs 0
     match main_battle_route@3
-
-main_after_if_else@10:
     err
 
 main_battle_route@3:
@@ -19,9 +17,9 @@ main_battle_route@3:
     // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     // regression_tests/jira_142.py:15
     // my_struct = MyStruct(foo=arc4.UInt64(200))
     pushbytes 0x00000000000000c8
@@ -33,13 +31,10 @@ main_battle_route@3:
     pushint 1 // 1
     return
 
-main_bare_routing@6:
-    // regression_tests/jira_142.py:8
-    // class Jira142(ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

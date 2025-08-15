@@ -1,145 +1,76 @@
 main test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init:
     block@0: // L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@17
+        goto tmp%0#2 ? block@4 : block@20
     block@4: // abi_routing_L41
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "delete()void" => block@5, method "fixed_struct_arg((uint64,uint64))void" => block@6, method "fixed_struct_ret()(uint64,uint64)" => block@7, method "nested_struct_arg(((uint64,uint64),uint64))void" => block@8, method "nested_struct_ret()((uint64,uint64),uint64)" => block@9, method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void" => block@10, method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])" => block@11, method "fixed_arr_arg((uint64,uint64)[3])void" => block@12, method "fixed_arr_ret()(uint64,uint64)[3]" => block@13, method "native_arr_arg((uint64,uint64)[])void" => block@14, method "native_arr_ret()(uint64,uint64)[]" => block@15, method "log_it()void" => block@16, * => block@19}
+        switch tmp%2#0 {method "delete()void" => block@5, * => block@6}
     block@5: // delete_route_L49
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
-        (assert tmp%4#0) // OnCompletion is not DeleteApplication
         let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@6: // fixed_struct_arg_route_L53
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
+        (assert tmp%7#0) // OnCompletion must be DeleteApplication && can only call when not creating
+        exit 1u
+    block@6: // switch_case_next_L41
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // OnCompletion must be NoOp
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        (assert tmp%10#0)
+        let tmp%12#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%12#0 {method "fixed_struct_arg((uint64,uint64))void" => block@8, method "fixed_struct_ret()(uint64,uint64)" => block@9, method "nested_struct_arg(((uint64,uint64),uint64))void" => block@10, method "nested_struct_ret()((uint64,uint64),uint64)" => block@11, method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void" => block@12, method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])" => block@13, method "fixed_arr_arg((uint64,uint64)[3])void" => block@14, method "fixed_arr_ret()(uint64,uint64)[3]" => block@15, method "native_arr_arg((uint64,uint64)[])void" => block@16, method "native_arr_ret()(uint64,uint64)[]" => block@17, method "log_it()void" => block@18, * => block@19}
+    block@8: // fixed_struct_arg_route_L53
         let arg#0: bytes = (txna ApplicationArgs 1)
         (app_global_put "fixed_struct" arg#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@7: // fixed_struct_ret_route_L57
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        exit 1u
+    block@9: // fixed_struct_ret_route_L57
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "fixed_struct")
         (assert maybe_exists%0#0) // check self.fixed_struct exists
-        let tmp%16#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
-        (log tmp%16#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@8: // nested_struct_arg_route_L61
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let tmp%18#0: bool = (! tmp%17#0)
-        (assert tmp%18#0) // OnCompletion is not NoOp
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        (assert tmp%19#0) // can only call when not creating
+        let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
+        (log tmp%1#1)
+        exit 1u
+    block@10: // nested_struct_arg_route_L61
         let arg#0: bytes = (txna ApplicationArgs 1)
         (app_global_put "nested_struct" arg#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@9: // nested_struct_ret_route_L65
-        let tmp%21#0: uint64 = (txn OnCompletion)
-        let tmp%22#0: bool = (! tmp%21#0)
-        (assert tmp%22#0) // OnCompletion is not NoOp
-        let tmp%23#0: uint64 = (txn ApplicationID)
-        (assert tmp%23#0) // can only call when not creating
+        exit 1u
+    block@11: // nested_struct_ret_route_L65
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested_struct")
         (assert maybe_exists%0#0) // check self.nested_struct exists
-        let tmp%26#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
-        (log tmp%26#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@10: // dynamic_struct_arg_route_L69
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (! tmp%27#0)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        (assert tmp%29#0) // can only call when not creating
+        let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
+        (log tmp%1#1)
+        exit 1u
+    block@12: // dynamic_struct_arg_route_L69
         let arg#0: bytes = (txna ApplicationArgs 1)
         (app_global_put "dynamic_struct" arg#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@11: // dynamic_struct_ret_route_L73
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
+        exit 1u
+    block@13: // dynamic_struct_ret_route_L73
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "dynamic_struct")
         (assert maybe_exists%0#0) // check self.dynamic_struct exists
-        let tmp%36#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
-        (log tmp%36#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@12: // fixed_arr_arg_route_L77
-        let tmp%37#0: uint64 = (txn OnCompletion)
-        let tmp%38#0: bool = (! tmp%37#0)
-        (assert tmp%38#0) // OnCompletion is not NoOp
-        let tmp%39#0: uint64 = (txn ApplicationID)
-        (assert tmp%39#0) // can only call when not creating
+        let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
+        (log tmp%1#1)
+        exit 1u
+    block@14: // fixed_arr_arg_route_L77
         let arg#0: bytes = (txna ApplicationArgs 1)
         (app_global_put "fixed_arr" arg#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@13: // fixed_arr_ret_route_L81
-        let tmp%41#0: uint64 = (txn OnCompletion)
-        let tmp%42#0: bool = (! tmp%41#0)
-        (assert tmp%42#0) // OnCompletion is not NoOp
-        let tmp%43#0: uint64 = (txn ApplicationID)
-        (assert tmp%43#0) // can only call when not creating
+        exit 1u
+    block@15: // fixed_arr_ret_route_L81
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "fixed_arr")
         (assert maybe_exists%0#0) // check self.fixed_arr exists
-        let tmp%46#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
-        (log tmp%46#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@14: // native_arr_arg_route_L85
-        let tmp%47#0: uint64 = (txn OnCompletion)
-        let tmp%48#0: bool = (! tmp%47#0)
-        (assert tmp%48#0) // OnCompletion is not NoOp
-        let tmp%49#0: uint64 = (txn ApplicationID)
-        (assert tmp%49#0) // can only call when not creating
+        let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
+        (log tmp%1#1)
+        exit 1u
+    block@16: // native_arr_arg_route_L85
         let arg#0: bytes = (txna ApplicationArgs 1)
         (app_global_put "native_arr" arg#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@15: // native_arr_ret_route_L89
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (! tmp%51#0)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        (assert tmp%53#0) // can only call when not creating
+        exit 1u
+    block@17: // native_arr_ret_route_L89
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "native_arr")
         (assert maybe_exists%0#0) // check self.native_arr exists
-        let tmp%56#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
-        (log tmp%56#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@16: // log_it_route_L93
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (! tmp%57#0)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        (assert tmp%59#0) // can only call when not creating
+        let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
+        (log tmp%1#1)
+        exit 1u
+    block@18: // log_it_route_L93
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "fixed_struct")
         (assert maybe_exists%0#0) // check self.fixed_struct exists
         (log maybe_value%0#0)
@@ -155,22 +86,14 @@ main test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_in
         let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (app_global_get_ex 0u "native_arr")
         (assert maybe_exists%4#0) // check self.native_arr exists
         (log maybe_value%4#0)
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@17: // bare_routing_L41
-        let tmp%61#0: uint64 = (txn OnCompletion)
-        goto tmp%61#0 ? block@19 : block@18
-    block@18: // __algopy_default_create_L1
-        let tmp%62#0: uint64 = (txn ApplicationID)
-        let tmp%63#0: bool = (! tmp%62#0)
-        (assert tmp%63#0) // can only call when creating
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
+        exit 1u
     block@19: // after_if_else_L41
-        let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#1: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
-        goto block@20
-    block@20: // after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router___L1
-        return tmp%0#1
+        fail
+    block@20: // __algopy_default_create_L1
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (! tmp%13#0)
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (! tmp%15#0)
+        let tmp%17#0: bool = (&& tmp%14#0 tmp%16#0)
+        (assert tmp%17#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u

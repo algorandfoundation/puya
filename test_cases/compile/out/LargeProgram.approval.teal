@@ -6,46 +6,39 @@ main:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0xf5e4fd4d 0x24378d3c // method "get_big_bytes_length()uint64", method "delete()void"
+    bz main___algopy_default_create@7
+    pushbytess 0x24378d3c 0xf5e4fd4d // method "delete()void", method "get_big_bytes_length()uint64"
     txna ApplicationArgs 0
-    match main_get_big_bytes_length_route@3 main_delete_route@4
-
-main_after_if_else@11:
+    match main_delete_route@3 main_get_big_bytes_length_route@4
     err
 
-main_delete_route@4:
-    // compile/apps.py:42
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    pushint 1 // 1
-    return
-
-main_get_big_bytes_length_route@3:
+main_get_big_bytes_length_route@4:
     // compile/apps.py:38
     // @arc4.abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     pushbytes 0x151f7c750000000000001000
     log
     pushint 1 // 1
     return
 
-main_bare_routing@7:
-    // compile/apps.py:37
-    // class LargeProgram(ARC4Contract):
+main_delete_route@3:
+    // compile/apps.py:42
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
-    bnz main_after_if_else@11
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+
+main___algopy_default_create@7:
+    txn OnCompletion
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

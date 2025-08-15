@@ -1,81 +1,60 @@
-// Op                                                                                                Stack (out)
+// Op                                                                      Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // unassigned_expression/contract.py:4
         // class Unassigned(ARC4Contract):
-        txn NumAppArgs                                                                               tmp%0#1
-        bz main_bare_routing@8 ; b main_abi_routing@2
+        txn NumAppArgs                                                     tmp%0#1
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // unassigned_expression/contract.py:4
         // class Unassigned(ARC4Contract):
-        txna ApplicationArgs 0                                                                       tmp%2#0
-        method discard_op()void                                                                      tmp%2#0,Method(discard_op()void)
-        method discard_subroutine()void                                                              tmp%2#0,Method(discard_op()void),Method(discard_subroutine()void)
-        method discard_constants()void                                                               tmp%2#0,Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void)
-        l-load tmp%2#0 3                                                                             Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void),tmp%2#0
-        match main_discard_op_route@3 main_discard_subroutine_route@4 main_discard_constants_route@5 ; b main_after_if_else@12 
+        txn OnCompletion                                                   tmp%2#0
+        !                                                                  tmp%3#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                  tmp%4#0
+        assert
+        txna ApplicationArgs 0                                             tmp%6#0
+        method discard_op()void                                            tmp%6#0,Method(discard_op()void)
+        method discard_subroutine()void                                    tmp%6#0,Method(discard_op()void),Method(discard_subroutine()void)
+        method discard_constants()void                                     tmp%6#0,Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void)
+        l-load tmp%6#0 3                                                   Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void),tmp%6#0
+        match main_discard_op_route@4 main_discard_subroutine_route@5 main_discard_constants_route@6 ; b main_after_if_else@10 
 
-    main_discard_op_route@3:
+    main_discard_op_route@4:
         // unassigned_expression/contract.py:5
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%3#0
-        !                                                                                            tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%5#0
-        assert // can only call when not creating
-        int 1                                                                                        tmp%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13 (𝕏) tmp%0#0 | 
+        int 1                                                              1
+        return
 
-    main_discard_subroutine_route@4:
+    main_discard_subroutine_route@5:
         // unassigned_expression/contract.py:9
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%7#0
-        !                                                                                            tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%9#0
-        assert // can only call when not creating
-        int 1                                                                                        tmp%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13 (𝕏) tmp%0#0 | 
+        int 1                                                              1
+        return
 
-    main_discard_constants_route@5:
+    main_discard_constants_route@6:
         // unassigned_expression/contract.py:13
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%11#0
-        !                                                                                            tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%13#0
-        assert // can only call when not creating
-        int 1                                                                                        tmp%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13 (𝕏) tmp%0#0 | 
+        int 1                                                              1
+        return
 
-    main_bare_routing@8:
+    main_after_if_else@10:
         // unassigned_expression/contract.py:4
         // class Unassigned(ARC4Contract):
-        txn OnCompletion                                                                             tmp%15#0
-        bz main___algopy_default_create@9 ; b main_after_if_else@12
+        err
 
-    main___algopy_default_create@9:
-        txn ApplicationID                                                                            tmp%16#0
-        !                                                                                            tmp%17#0
-        assert // can only call when creating
-        int 1                                                                                        tmp%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@12:
-        // unassigned_expression/contract.py:4
-        // class Unassigned(ARC4Contract):
-        int 0                                                                                        tmp%0#0
-        x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_router__@13: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                               tmp%0#0
+    main___algopy_default_create@11:
+        txn OnCompletion                                                   tmp%7#0
+        !                                                                  tmp%8#0
+        txn ApplicationID                                                  tmp%8#0,tmp%9#0
+        !                                                                  tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                   tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                  tmp%8#0,tmp%10#0
+        &&                                                                 tmp%11#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                              1
         return
 
 

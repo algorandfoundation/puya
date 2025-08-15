@@ -5,7 +5,6 @@
 main:
     intcblock 0 1
     bytecblock 0x01 0x 0x151f7c75
-    bytec_1 // ""
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@9
+    bz main___algopy_default_create@12
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@10
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -29,37 +41,143 @@ main_abi_routing@2:
     pushbytes 0x8ba7c4c2 // method "get_three()(uint8,uint8)"
     pushbytes 0x46dadea3 // method "compare()bool"
     uncover 4
-    match main_get_one_route@3 main_get_two_route@4 main_get_three_route@5 main_compare_route@6
-    b main_switch_case_default@7
+    match main_get_one_route@4 main_get_two_route@5 main_get_three_route@6 main_compare_route@7
+    b main_switch_case_default@8
 
-main_switch_case_default@7:
-    b main_switch_case_next@8
+main_switch_case_default@8:
+    b main_switch_case_next@9
 
-main_switch_case_next@8:
+main_switch_case_next@9:
+    b main_after_if_else@11
+
+main_after_if_else@11:
     b main_after_if_else@13
 
 main_after_if_else@13:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
+    err
 
-main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14:
-    return
-
-main_compare_route@6:
+main_compare_route@7:
     // struct_by_name/contract.py:46
     // @arc4.abimethod()
+    callsub compare
+    b main_switch_case_next@9
+
+main_get_three_route@6:
+    // struct_by_name/contract.py:39
+    // @arc4.abimethod()
+    callsub get_three
+    b main_switch_case_next@9
+
+main_get_two_route@5:
+    // struct_by_name/contract.py:32
+    // @arc4.abimethod()
+    callsub get_two
+    b main_switch_case_next@9
+
+main_get_one_route@4:
+    // struct_by_name/contract.py:25
+    // @arc4.abimethod()
+    callsub get_one
+    b main_switch_case_next@9
+
+main_create_NoOp@10:
+    b main_after_if_else@11
+
+main___algopy_default_create@12:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub compare
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@15
+
+main_block@15:
+    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16
+
+main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16:
+    intc_1 // 1
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_one[routing]() -> void:
+get_one:
+    b get_one_block@0
+
+get_one_block@0:
+    // struct_by_name/contract.py:25
+    // @arc4.abimethod()
+    callsub test_cases.struct_by_name.contract.DemoContract.get_one
+    cover 1
+    bytec_1 // 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_two[routing]() -> void:
+get_two:
+    b get_two_block@0
+
+get_two_block@0:
+    // struct_by_name/contract.py:32
+    // @arc4.abimethod()
+    callsub test_cases.struct_by_name.contract.DemoContract.get_two
+    cover 1
+    bytec_1 // 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.get_three[routing]() -> void:
+get_three:
+    b get_three_block@0
+
+get_three_block@0:
+    // struct_by_name/contract.py:39
+    // @arc4.abimethod()
+    callsub test_cases.struct_by_name.contract.DemoContract.get_three
+    cover 1
+    bytec_1 // 0x
+    uncover 1
+    concat
+    uncover 1
+    concat
+    bytec_2 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.struct_by_name.contract.DemoContract.compare[routing]() -> void:
+compare:
+    b compare_block@0
+
+compare_block@0:
+    // struct_by_name/contract.py:46
+    // @arc4.abimethod()
+    callsub test_cases.struct_by_name.contract.DemoContract.compare
     pushbytes 0x00
     intc_0 // 0
     uncover 2
@@ -69,123 +187,14 @@ main_compare_route@6:
     concat
     log
     intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
-
-main_get_three_route@5:
-    // struct_by_name/contract.py:39
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_three
-    cover 1
-    bytec_1 // 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    bytec_2 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
-
-main_get_two_route@4:
-    // struct_by_name/contract.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_two
-    cover 1
-    bytec_1 // 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    bytec_2 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
-
-main_get_one_route@3:
-    // struct_by_name/contract.py:25
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub get_one
-    cover 1
-    bytec_1 // 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    bytec_2 // 0x151f7c75
-    uncover 1
-    concat
-    log
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
-
-main_bare_routing@9:
-    // struct_by_name/contract.py:18
-    // class DemoContract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@10
-    b main_switch_case_default@11
-
-main_switch_case_default@11:
-    b main_switch_case_next@12
-
-main_switch_case_next@12:
-    b main_after_if_else@13
-
-main___algopy_default_create@10:
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
-    b main_block@15
-
-main_block@15:
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16
-
-main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16:
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__puya_arc4_router__@14
+    return
 
 
 // test_cases.struct_by_name.contract.DemoContract.get_one() -> bytes, bytes:
-get_one:
-    b get_one_block@0
+test_cases.struct_by_name.contract.DemoContract.get_one:
+    b test_cases.struct_by_name.contract.DemoContract.get_one_block@0
 
-get_one_block@0:
+test_cases.struct_by_name.contract.DemoContract.get_one_block@0:
     // struct_by_name/contract.py:28
     // x=arc4.UInt8(1),
     bytec_0 // 0x01
@@ -201,10 +210,10 @@ get_one_block@0:
 
 
 // test_cases.struct_by_name.contract.DemoContract.get_two() -> bytes, bytes:
-get_two:
-    b get_two_block@0
+test_cases.struct_by_name.contract.DemoContract.get_two:
+    b test_cases.struct_by_name.contract.DemoContract.get_two_block@0
 
-get_two_block@0:
+test_cases.struct_by_name.contract.DemoContract.get_two_block@0:
     // struct_by_name/contract.py:35
     // x=arc4.UInt8(1),
     bytec_0 // 0x01
@@ -220,10 +229,10 @@ get_two_block@0:
 
 
 // test_cases.struct_by_name.contract.DemoContract.get_three() -> bytes, bytes:
-get_three:
-    b get_three_block@0
+test_cases.struct_by_name.contract.DemoContract.get_three:
+    b test_cases.struct_by_name.contract.DemoContract.get_three_block@0
 
-get_three_block@0:
+test_cases.struct_by_name.contract.DemoContract.get_three_block@0:
     // struct_by_name/contract.py:42
     // x=arc4.UInt8(1),
     bytec_0 // 0x01
@@ -239,57 +248,57 @@ get_three_block@0:
 
 
 // test_cases.struct_by_name.contract.DemoContract.compare() -> uint64:
-compare:
+test_cases.struct_by_name.contract.DemoContract.compare:
     // struct_by_name/contract.py:46-47
     // @arc4.abimethod()
     // def compare(self) -> bool:
     proto 0 1
     bytec_1 // ""
-    b compare_block@0
+    b test_cases.struct_by_name.contract.DemoContract.compare_block@0
 
-compare_block@0:
+test_cases.struct_by_name.contract.DemoContract.compare_block@0:
     // struct_by_name/contract.py:48
     // return self.get_one() == self.get_two() and self.get_two() == self.get_three()  # type: ignore[comparison-overlap]
-    callsub get_one
+    callsub test_cases.struct_by_name.contract.DemoContract.get_one
     cover 1
-    callsub get_two
+    callsub test_cases.struct_by_name.contract.DemoContract.get_two
     cover 2
     b==
     uncover 2
     uncover 2
     b==
     &&
-    bz compare_bool_false@3
-    b compare_and_contd@1
+    bz test_cases.struct_by_name.contract.DemoContract.compare_bool_false@3
+    b test_cases.struct_by_name.contract.DemoContract.compare_and_contd@1
 
-compare_and_contd@1:
+test_cases.struct_by_name.contract.DemoContract.compare_and_contd@1:
     // struct_by_name/contract.py:48
     // return self.get_one() == self.get_two() and self.get_two() == self.get_three()  # type: ignore[comparison-overlap]
-    callsub get_two
+    callsub test_cases.struct_by_name.contract.DemoContract.get_two
     cover 1
-    callsub get_three
+    callsub test_cases.struct_by_name.contract.DemoContract.get_three
     cover 2
     b==
     uncover 2
     uncover 2
     b==
     &&
-    bz compare_bool_false@3
-    b compare_bool_true@2
+    bz test_cases.struct_by_name.contract.DemoContract.compare_bool_false@3
+    b test_cases.struct_by_name.contract.DemoContract.compare_bool_true@2
 
-compare_bool_true@2:
+test_cases.struct_by_name.contract.DemoContract.compare_bool_true@2:
     intc_1 // 1
     frame_bury 0
-    b compare_bool_merge@4
+    b test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4
 
-compare_bool_merge@4:
+test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4:
     // struct_by_name/contract.py:48
     // return self.get_one() == self.get_two() and self.get_two() == self.get_three()  # type: ignore[comparison-overlap]
     frame_dig 0
     uncover 1
     retsub
 
-compare_bool_false@3:
+test_cases.struct_by_name.contract.DemoContract.compare_bool_false@3:
     intc_0 // 0
     frame_bury 0
-    b compare_bool_merge@4
+    b test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4

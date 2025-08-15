@@ -3,7 +3,6 @@
 
 // test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1
     bytecblock "greeting"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -17,29 +16,84 @@ main_after_if_else@2:
     // compile/apps.py:52
     // class Hello(HelloBase):
     txn NumAppArgs
-    bz main_bare_routing@8
-    pushbytess 0x20df3a54 0x24378d3c 0xd0a28200 // method "create(string)void", method "delete()void", method "greet(string)string"
+    bz main_update@12
+    pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_create_route@5 main_delete_route@6 main_greet_route@7
-
-main_after_if_else@10:
-    err
-
-main_greet_route@7:
-    // compile/apps.py:32
-    // @arc4.abimethod()
+    match main_delete_route@5
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@9
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    txna ApplicationArgs 0
+    match greet
+    err
+
+main_create_NoOp@9:
     // compile/apps.py:52
     // class Hello(HelloBase):
+    pushbytes 0x20df3a54 // method "create(string)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+main_delete_route@5:
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+
+main_update@12:
+    // compile/apps.py:28
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    return // on error: OnCompletion must be UpdateApplication && can only call when not creating
+
+
+// test_cases.compile.apps.Hello.create[routing]() -> void:
+create:
+    // compile/apps.py:53
+    // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
     extract 2 0
+    // compile/apps.py:55
+    // self.greeting = greeting
+    bytec_0 // "greeting"
+    swap
+    app_global_put
+    // compile/apps.py:53
+    // @arc4.abimethod(create="require")
+    pushint 1 // 1
+    return
+
+
+// test_cases.compile.apps.HelloBase.greet[routing]() -> void:
+greet:
     // compile/apps.py:32
     // @arc4.abimethod()
-    callsub greet
+    txna ApplicationArgs 1
+    extract 2 0
+    // compile/apps.py:34
+    // return self.greeting + " " + name
+    pushint 0 // 0
+    bytec_0 // "greeting"
+    app_global_get_ex
+    assert // check self.greeting exists
+    pushbytes " "
+    concat
+    swap
+    concat
+    // compile/apps.py:32
+    // @arc4.abimethod()
     dup
     len
     itob
@@ -50,75 +104,5 @@ main_greet_route@7:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
-
-main_delete_route@6:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    assert // OnCompletion is not DeleteApplication
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
-
-main_create_route@5:
-    // compile/apps.py:53
-    // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    // compile/apps.py:52
-    // class Hello(HelloBase):
-    txna ApplicationArgs 1
-    extract 2 0
-    // compile/apps.py:55
-    // self.greeting = greeting
-    bytec_0 // "greeting"
-    swap
-    app_global_put
-    // compile/apps.py:53
-    // @arc4.abimethod(create="require")
-    intc_0 // 1
-    return
-
-main_bare_routing@8:
-    // compile/apps.py:52
-    // class Hello(HelloBase):
-    pushint 4 // 4
-    txn OnCompletion
-    match main_update@9
-    b main_after_if_else@10
-
-main_update@9:
-    // compile/apps.py:28
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
-
-
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:
-    // compile/apps.py:32-33
-    // @arc4.abimethod()
-    // def greet(self, name: String) -> String:
-    proto 1 1
-    // compile/apps.py:34
-    // return self.greeting + " " + name
-    pushint 0 // 0
-    bytec_0 // "greeting"
-    app_global_get_ex
-    assert // check self.greeting exists
-    pushbytes " "
-    concat
-    frame_dig -1
-    concat
-    retsub

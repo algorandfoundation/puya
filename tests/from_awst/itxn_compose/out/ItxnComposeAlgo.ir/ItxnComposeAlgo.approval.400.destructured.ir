@@ -1,62 +1,45 @@
 main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L18
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "distribute(address[],pay,uint64)void" => block@3, method "conditionalBegin(uint64)void" => block@4, * => block@11}
-    block@3: // distribute_route_L19
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%7#0 1u)
-        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "distribute(address[],pay,uint64)void" => block@4, method "conditionalBegin(uint64)void" => block@5, * => block@9}
+    block@4: // distribute_route_L19
+        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]()
+        goto block@9
+    block@5: // conditionalBegin_route_L53
+        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]()
+        goto block@9
+    block@9: // after_if_else_L18
+        fail
+    block@10: // __algots__.defaultCreate_L18
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
+    block@0: // L19
+        let addresses#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let funds#0: uint64 = (- tmp%0#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) funds#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%8#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(reinterpret_Encoded(len+uint8[32][])%0#0, gtxn_idx%0#0, tmp%8#0)
-        let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
-        goto block@12
-    block@4: // conditionalBegin_route_L53
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (! tmp%9#0)
-        (assert tmp%10#0) // OnCompletion is not NoOp
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%13#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(tmp%13#0)
-        let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
-        goto block@12
-    block@7: // bare_routing_L18
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        goto tmp%14#0 ? block@11 : block@8
-    block@8: // __algots__.defaultCreate_L18
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // can only call when creating
-        let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
-        goto block@12
-    block@11: // after_if_else_L18
-        let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
-        goto block@12
-    block@12: // after_inlined_tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router___L1
-        return tmp%0#0
-
-subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addresses: Encoded(len+uint8[32][]), funds: uint64, verifier: uint64) -> void:
-    block@0: // L19
-        let tmp%0#0: account = ((gtxns Receiver) funds#0)
-        let tmp%1#0: account = (global CurrentApplicationAddress)
-        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
+        let verifier#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#1: account = ((gtxns Receiver) funds#0)
+        let tmp%1#1: account = (global CurrentApplicationAddress)
+        let tmp%2#0: bool = (== tmp%0#1 tmp%1#1)
         (assert tmp%2#0) // assert target is match for conditions
         let aggregate%array_length%0#0: uint64 = (extract_uint16 addresses#0 0u)
         (assert aggregate%array_length%0#0) // must provide some accounts
@@ -70,11 +53,11 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         ((itxn_field TypeEnum) 1u)
         ((itxn_field Fee) 0u)
         let i#0: uint64 = 1u
-        goto block@1
-    block@1: // for_header_L32
+        goto block@2
+    block@2: // for_header_L32
         let continue_looping%0#0: bool = (< i#0 aggregate%array_length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L32
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L32
         let aggregate%bytes_offset%1#0: uint64 = (* i#0 32u)
         let addr#0: Encoded(uint8[32]) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 32u) // on error: index access is out of bounds
         itxn_next
@@ -83,8 +66,8 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         ((itxn_field Receiver) addr#0)
         ((itxn_field Fee) 0u)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@1
-    block@4: // after_for_L32
+        goto block@2
+    block@5: // after_for_L32
         itxn_next
         ((itxn_field ApplicationArgs) method "verify()void")
         ((itxn_field ApplicationID) verifier#0)
@@ -95,47 +78,49 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         ((itxn_field TypeEnum) 3u)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
-subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(count: uint64) -> void:
+subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
     block@0: // L53
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let count#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         itxn_begin
         ((itxn_field ApplicationArgs) method "helloCreate(string)void")
         ((itxn_field ApplicationArgs) 0x00024869)
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBACOCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAOgAvACQAAQAxGRREMRhENhoBVwIAiAA8SRUWVwYCTFCABBUffHVMULAiQzEZgQQSRDEYRCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDigEBgQAoZUSAASBQi/9QiQ==)
+        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnggIEJDeNPASg6BhyNhoAjgIALgAlMRkURDEYQQAOgATQooIANhoAjgEALQCABACSJa42GgCOAQATADEZgQQSMRgQQzEZgQUSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let appId#0: uint64 = (gitxn 0 CreatedApplicationID)
         let i#0: uint64 = 0u
-        goto block@2
-    block@2: // for_header_L57
+        goto block@3
+    block@3: // for_header_L57
         let continue_looping%0#0: bool = (< i#0 count#0)
-        goto continue_looping%0#0 ? block@3 : block@8
-    block@3: // for_body_L57
-        goto i#0 ? block@5 : block@4
-    block@4: // if_body_L58
+        goto continue_looping%0#0 ? block@4 : block@9
+    block@4: // for_body_L57
+        goto i#0 ? block@6 : block@5
+    block@5: // if_body_L58
         itxn_begin
         ((itxn_field ApplicationArgs) method "greet(string)string")
         ((itxn_field ApplicationArgs) 0x0002686f)
         ((itxn_field ApplicationID) appId#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
-        goto block@6
-    block@5: // else_body_L60
+        goto block@7
+    block@6: // else_body_L60
         itxn_next
         ((itxn_field ApplicationArgs) method "greet(string)string")
         ((itxn_field ApplicationArgs) 0x0002686f)
         ((itxn_field ApplicationID) appId#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
-        goto block@6
-    block@6: // after_if_else_L58
+        goto block@7
+    block@7: // after_if_else_L58
         let i#0: uint64 = (+ i#0 1u)
-        goto block@2
-    block@8: // after_for_L57
+        goto block@3
+    block@9: // after_for_L57
         itxn_submit
-        return 
+        exit 1u

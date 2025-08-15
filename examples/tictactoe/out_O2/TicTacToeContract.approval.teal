@@ -7,21 +7,20 @@ main:
     bytecblock "turns" "game" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
     dup
-    txn NumAppArgs
-    bz main_after_if_else@20
-    pushbytess 0x96a97181 0x17a079b3 0xbb9f1147 0x9eebf58e // method "new_game((uint64,uint64))void", method "join_game((uint64,uint64))void", method "whose_turn()uint8", method "play((uint64,uint64))void"
-    txna ApplicationArgs 0
-    match main_new_game_route@5 main_join_game_route@14 main_whose_turn_route@15 main_play_route@16
-
-main_after_if_else@20:
-    err
-
-main_play_route@16:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
+    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
+    txna ApplicationArgs 0
+    match main_new_game_route@4
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x17a079b3 0xbb9f1147 0x9eebf58e // method "join_game((uint64,uint64))void", method "whose_turn()uint8", method "play((uint64,uint64))void"
+    txna ApplicationArgs 0
+    match main_join_game_route@7 main_whose_turn_route@8 main_play_route@9
+    err
+
+main_play_route@9:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -42,7 +41,7 @@ main_play_route@16:
     assert // check self.turns exists
     pushint 2 // 2
     %
-    bz main_else_body@18
+    bz main_else_body@13
     txn Sender
     intc_0 // 0
     bytec 6 // "host"
@@ -52,14 +51,14 @@ main_play_route@16:
     assert // It is the host's turn
     bytec 4 // 0x01
 
-main_after_if_else@19:
+main_after_if_else@14:
     dig 2
     dig 2
     callsub make_move
     intc_1 // 1
     return
 
-main_else_body@18:
+main_else_body@13:
     txn Sender
     global ZeroAddress
     intc_0 // 0
@@ -69,14 +68,9 @@ main_else_body@18:
     ==
     assert // It is the challenger's turn
     bytec 5 // 0x02
-    b main_after_if_else@19
+    b main_after_if_else@14
 
-main_whose_turn_route@15:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_whose_turn_route@8:
     intc_0 // 0
     bytec_0 // "turns"
     app_global_get_ex
@@ -94,12 +88,7 @@ main_whose_turn_route@15:
     intc_1 // 1
     return
 
-main_join_game_route@14:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_join_game_route@7:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -122,10 +111,7 @@ main_join_game_route@14:
     intc_1 // 1
     return
 
-main_new_game_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+main_new_game_route@4:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -135,25 +121,25 @@ main_new_game_route@5:
     extract_uint64
     bury 1
     txn ApplicationID
-    bz main_after_if_else@9
+    bz main_after_if_else@24
     intc_0 // 0
     bytec_3 // "challenger"
     app_global_get_ex
     bury 1
-    bz main_after_if_else@8
+    bz main_after_if_else@23
     intc_0 // 0
     bytec_2 // "winner"
     app_global_get_ex
     bury 1
     assert // Game isn't over
 
-main_after_if_else@8:
+main_after_if_else@23:
     bytec_3 // "challenger"
     app_global_del
     bytec_2 // "winner"
     app_global_del
 
-main_after_if_else@9:
+main_after_if_else@24:
     bytec 6 // "host"
     txn Sender
     app_global_put
@@ -165,14 +151,14 @@ main_after_if_else@9:
     dig 1
     intc_2 // 3
     <
-    bz main_bool_false@12
+    bz main_bool_false@27
     dup
     intc_2 // 3
     <
-    bz main_bool_false@12
+    bz main_bool_false@27
     intc_1 // 1
 
-main_bool_merge@13:
+main_bool_merge@28:
     assert // Move must be in range
     intc_0 // 0
     bytec_1 // "game"
@@ -197,9 +183,9 @@ main_bool_merge@13:
     intc_1 // 1
     return
 
-main_bool_false@12:
+main_bool_false@27:
     intc_0 // 0
-    b main_bool_merge@13
+    b main_bool_merge@28
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:

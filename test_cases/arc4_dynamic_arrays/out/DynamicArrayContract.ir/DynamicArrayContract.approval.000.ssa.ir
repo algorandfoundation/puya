@@ -322,83 +322,84 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
     block@0: // L38
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@10
+        goto tmp%1#0 ? block@1 : block@13
     block@1: // abi_routing_L38
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_static_elements()void" => block@2, method "test_dynamic_elements()void" => block@3, method "test_mixed_single_dynamic_elements()void" => block@4, method "test_mixed_multiple_dynamic_elements()void" => block@5, method "test_nested_struct_replacement()void" => block@6, method "test_nested_tuple_modification()void" => block@7, * => block@8}
-    block@2: // test_static_elements_route_L39
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements()
-        return 1u
-    block@3: // test_dynamic_elements_route_L55
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@11
+    block@2: // call_NoOp_L38
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_static_elements()void" => block@3, method "test_dynamic_elements()void" => block@4, method "test_mixed_single_dynamic_elements()void" => block@5, method "test_mixed_multiple_dynamic_elements()void" => block@6, method "test_nested_struct_replacement()void" => block@7, method "test_nested_tuple_modification()void" => block@8, * => block@9}
+    block@3: // test_static_elements_route_L39
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]()
+        goto block@10
+    block@4: // test_dynamic_elements_route_L55
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]()
+        goto block@10
+    block@5: // test_mixed_single_dynamic_elements_route_L74
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]()
+        goto block@10
+    block@6: // test_mixed_multiple_dynamic_elements_route_L97
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]()
+        goto block@10
+    block@7: // test_nested_struct_replacement_route_L114
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]()
+        goto block@10
+    block@8: // test_nested_tuple_modification_route_L141
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]()
+        goto block@10
+    block@9: // switch_case_default_L38
+        goto block@10
+    block@10: // switch_case_next_L38
+        goto block@12
+    block@11: // create_NoOp_L38
+        goto block@12
+    block@12: // after_if_else_L38
+        goto block@14
+    block@13: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        (assert tmp%8#0) // OnCompletion is not NoOp
         let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements()
-        return 1u
-    block@4: // test_mixed_single_dynamic_elements_route_L74
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements()
-        return 1u
-    block@5: // test_mixed_multiple_dynamic_elements_route_L97
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (== tmp%15#0 NoOp)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements()
-        return 1u
-    block@6: // test_nested_struct_replacement_route_L114
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement()
-        return 1u
-    block@7: // test_nested_tuple_modification_route_L141
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (== tmp%23#0 NoOp)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        let tmp%26#0: bool = (!= tmp%25#0 0u)
-        (assert tmp%26#0) // can only call when not creating
-        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification()
-        return 1u
-    block@8: // switch_case_default_L38
-        goto block@9
-    block@9: // switch_case_next_L38
-        goto block@14
-    block@10: // bare_routing_L38
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        switch tmp%27#0 {0u => block@11, * => block@12}
-    block@11: // __algopy_default_create_L1
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (== tmp%28#0 0u)
-        (assert tmp%29#0) // can only call when creating
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create()
-        return 1u
-    block@12: // switch_case_default_L38
-        goto block@13
-    block@13: // switch_case_next_L38
-        goto block@14
+        exit 1u
     block@14: // after_if_else_L38
-        return 0u
+        exit 0u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]() -> void:
+    block@0: // L39
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements()
+        exit 1u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]() -> void:
+    block@0: // L55
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements()
+        exit 1u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]() -> void:
+    block@0: // L74
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements()
+        exit 1u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]() -> void:
+    block@0: // L97
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements()
+        exit 1u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]() -> void:
+    block@0: // L114
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement()
+        exit 1u
+
+subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]() -> void:
+    block@0: // L141
+        test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification()
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements() -> void:
     block@0: // L39

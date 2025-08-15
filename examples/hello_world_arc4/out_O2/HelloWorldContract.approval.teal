@@ -4,20 +4,18 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
     match main_hello_route@3
-
-main_after_if_else@10:
     err
 
 main_hello_route@3:
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
     pushbytes "Hello, "
@@ -36,11 +34,10 @@ main_hello_route@3:
     pushint 1 // 1
     return
 
-main_bare_routing@6:
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

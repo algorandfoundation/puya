@@ -7,13 +7,24 @@ subroutine main:
         txn NumAppArgs                                                                               tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                               tmp%0#1
-        bz main_bare_routing@12 ; b main_abi_routing@2
+        bz main___algopy_default_create@15 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // arc4_conversions/contract.py:22
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                                       tmp%2#0
+        txn OnCompletion                                                                             tmp%2#0
         v-store tmp%2#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        !                                                                                            tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                               tmp%3#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                            tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                               tmp%4#0
+        assert
+        txna ApplicationArgs 0                                                                       tmp%6#0
+        v-store tmp%6#0
         method test_literal_encoding()void                                                           Method(test_literal_encoding()void)
         method test_native_encoding()void                                                            Method(test_literal_encoding()void),Method(test_native_encoding()void)
         method test_arc4_encoding()void                                                              Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void)
@@ -21,200 +32,74 @@ subroutine main:
         method test_array_static_encoding()void                                                      Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void)
         method test_array_dynamic_encoding()void                                                     Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void)
         method test_bytes_to_fixed(bool)void                                                         Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void)
-        v-load tmp%2#0                                                                               Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void),tmp%2#0
-        match main_test_literal_encoding_route@3 main_test_native_encoding_route@4 main_test_arc4_encoding_route@5 main_test_array_uint64_encoding_route@6 main_test_array_static_encoding_route@7 main_test_array_dynamic_encoding_route@8 main_test_bytes_to_fixed_route@9 ; b main_after_if_else@16 
+        v-load tmp%6#0                                                                               Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void),tmp%6#0
+        match main_test_literal_encoding_route@4 main_test_native_encoding_route@5 main_test_arc4_encoding_route@6 main_test_array_uint64_encoding_route@7 main_test_array_static_encoding_route@8 main_test_array_dynamic_encoding_route@9 main_test_bytes_to_fixed_route@10 ; b main_after_if_else@14 
 
-    main_test_literal_encoding_route@3:
+    main_test_literal_encoding_route@4:
         // arc4_conversions/contract.py:23
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
-        !                                                                                            tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                               tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                               tmp%5#0
-        assert // can only call when not creating
         callsub test_literal_encoding
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
+        b main_after_if_else@14
 
-    main_test_native_encoding_route@4:
+    main_test_native_encoding_route@5:
         // arc4_conversions/contract.py:46
         // @arc4.abimethod()
+        callsub test_native_encoding
+        b main_after_if_else@14
+
+    main_test_arc4_encoding_route@6:
+        // arc4_conversions/contract.py:74
+        // @arc4.abimethod()
+        callsub test_arc4_encoding
+        b main_after_if_else@14
+
+    main_test_array_uint64_encoding_route@7:
+        // arc4_conversions/contract.py:102
+        // @arc4.abimethod()
+        callsub test_array_uint64_encoding
+        b main_after_if_else@14
+
+    main_test_array_static_encoding_route@8:
+        // arc4_conversions/contract.py:126
+        // @arc4.abimethod()
+        callsub test_array_static_encoding
+        b main_after_if_else@14
+
+    main_test_array_dynamic_encoding_route@9:
+        // arc4_conversions/contract.py:150
+        // @arc4.abimethod()
+        callsub test_array_dynamic_encoding
+        b main_after_if_else@14
+
+    main_test_bytes_to_fixed_route@10:
+        // arc4_conversions/contract.py:178
+        // @arc4.abimethod
+        callsub test_bytes_to_fixed
+        b main_after_if_else@14
+
+    main_after_if_else@14:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        err
+
+    main___algopy_default_create@15:
         txn OnCompletion                                                                             tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                               tmp%7#0
         !                                                                                            tmp%8#0
         v-store tmp%8#0
-        v-load tmp%8#0                                                                               tmp%8#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                                                            tmp%9#0
         v-store tmp%9#0
         v-load tmp%9#0                                                                               tmp%9#0
-        assert // can only call when not creating
-        callsub test_native_encoding
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_test_arc4_encoding_route@5:
-        // arc4_conversions/contract.py:74
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%11#0
+        !                                                                                            tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%8#0                                                                               tmp%8#0
+        v-load tmp%10#0                                                                              tmp%8#0,tmp%10#0
+        &&                                                                                           tmp%11#0
         v-store tmp%11#0
         v-load tmp%11#0                                                                              tmp%11#0
-        !                                                                                            tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                              tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                              tmp%13#0
-        assert // can only call when not creating
-        callsub test_arc4_encoding
+        assert // OnCompletion must be NoOp && can only call when creating
         int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_test_array_uint64_encoding_route@6:
-        // arc4_conversions/contract.py:102
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%15#0
-        v-store tmp%15#0
-        v-load tmp%15#0                                                                              tmp%15#0
-        !                                                                                            tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                              tmp%16#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        assert // can only call when not creating
-        callsub test_array_uint64_encoding
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_test_array_static_encoding_route@7:
-        // arc4_conversions/contract.py:126
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                              tmp%19#0
-        !                                                                                            tmp%20#0
-        v-store tmp%20#0
-        v-load tmp%20#0                                                                              tmp%20#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%21#0
-        v-store tmp%21#0
-        v-load tmp%21#0                                                                              tmp%21#0
-        assert // can only call when not creating
-        callsub test_array_static_encoding
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_test_array_dynamic_encoding_route@8:
-        // arc4_conversions/contract.py:150
-        // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%23#0
-        v-store tmp%23#0
-        v-load tmp%23#0                                                                              tmp%23#0
-        !                                                                                            tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                              tmp%24#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%25#0
-        v-store tmp%25#0
-        v-load tmp%25#0                                                                              tmp%25#0
-        assert // can only call when not creating
-        callsub test_array_dynamic_encoding
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_test_bytes_to_fixed_route@9:
-        // arc4_conversions/contract.py:178
-        // @arc4.abimethod
-        txn OnCompletion                                                                             tmp%27#0
-        v-store tmp%27#0
-        v-load tmp%27#0                                                                              tmp%27#0
-        !                                                                                            tmp%28#0
-        v-store tmp%28#0
-        v-load tmp%28#0                                                                              tmp%28#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%29#0
-        v-store tmp%29#0
-        v-load tmp%29#0                                                                              tmp%29#0
-        assert // can only call when not creating
-        // arc4_conversions/contract.py:22
-        // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(bool8)%0#0
-        v-store reinterpret_Encoded(bool8)%0#0
-        v-load reinterpret_Encoded(bool8)%0#0                                                        reinterpret_Encoded(bool8)%0#0
-        int 0                                                                                        reinterpret_Encoded(bool8)%0#0,0
-        getbit                                                                                       aggregate%get_bit%0#0
-        v-store aggregate%get_bit%0#0
-        // arc4_conversions/contract.py:178
-        // @arc4.abimethod
-        v-load aggregate%get_bit%0#0                                                                 aggregate%get_bit%0#0
-        callsub test_bytes_to_fixed
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_bare_routing@12:
-        // arc4_conversions/contract.py:22
-        // class TestContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                             tmp%32#0
-        v-store tmp%32#0
-        v-load tmp%32#0                                                                              tmp%32#0
-        bz main___algopy_default_create@13 ; b main_after_if_else@16
-
-    main___algopy_default_create@13:
-        txn ApplicationID                                                                            tmp%33#0
-        v-store tmp%33#0
-        v-load tmp%33#0                                                                              tmp%33#0
-        !                                                                                            tmp%34#0
-        v-store tmp%34#0
-        v-load tmp%34#0                                                                              tmp%34#0
-        assert // can only call when creating
-        int 1                                                                                        1
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_after_if_else@16:
-        // arc4_conversions/contract.py:22
-        // class TestContract(arc4.ARC4Contract):
-        int 0                                                                                        0
-        v-store test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 
-        v-load test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0 test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__%0#0
-        v-store tmp%0#0
-        b main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17 
-
-    main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17:
-        v-load tmp%0#0                                                                               tmp%0#0
         return
 
 
@@ -254,7 +139,7 @@ subroutine my_dyn_struct_arc4:
         retsub                                                                                       aggregate%concat%0#0
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]() -> void:
 subroutine test_literal_encoding:
     test_literal_encoding_block@0:
         // arc4_conversions/contract.py:25
@@ -262,7 +147,7 @@ subroutine test_literal_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -377,10 +262,13 @@ subroutine test_literal_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:23
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_native_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]() -> void:
 subroutine test_native_encoding:
     test_native_encoding_block@0:
         // arc4_conversions/contract.py:48
@@ -388,7 +276,7 @@ subroutine test_native_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -569,10 +457,13 @@ subroutine test_native_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:46
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]() -> void:
 subroutine test_arc4_encoding:
     test_arc4_encoding_block@0:
         // arc4_conversions/contract.py:76
@@ -580,7 +471,7 @@ subroutine test_arc4_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -752,10 +643,13 @@ subroutine test_arc4_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:74
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]() -> void:
 subroutine test_array_uint64_encoding:
     test_array_uint64_encoding_block@0:
         // arc4_conversions/contract.py:104
@@ -763,7 +657,7 @@ subroutine test_array_uint64_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -983,10 +877,13 @@ subroutine test_array_uint64_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:102
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]() -> void:
 subroutine test_array_static_encoding:
     test_array_static_encoding_block@0:
         // arc4_conversions/contract.py:128
@@ -994,7 +891,7 @@ subroutine test_array_static_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -1257,10 +1154,13 @@ subroutine test_array_static_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:126
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding() -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]() -> void:
 subroutine test_array_dynamic_encoding:
     test_array_dynamic_encoding_block@0:
         // arc4_conversions/contract.py:152
@@ -1268,7 +1168,7 @@ subroutine test_array_dynamic_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -1740,88 +1640,102 @@ subroutine test_array_dynamic_encoding:
         int 0                                                                                        0
         itxn_field Fee
         itxn_submit
-        retsub
+        // arc4_conversions/contract.py:150
+        // @arc4.abimethod()
+        int 1                                                                                        1
+        return
 
 
-// test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(wrong_size: uint64) -> void:
+// test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]() -> void:
 subroutine test_bytes_to_fixed:
-    test_bytes_to_fixed_block@0:                                                                     (𝕡) wrong_size#0 |
+    test_bytes_to_fixed_block@0:
+        // arc4_conversions/contract.py:178
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                                       reinterpret_Encoded(bool8)%0#0
+        v-store reinterpret_Encoded(bool8)%0#0
+        v-load reinterpret_Encoded(bool8)%0#0                                                        reinterpret_Encoded(bool8)%0#0
+        int 0                                                                                        reinterpret_Encoded(bool8)%0#0,0
+        getbit                                                                                       wrong_size#0
+        v-store wrong_size#0
         // arc4_conversions/contract.py:180
         // app = arc4.arc4_create(CheckApp).created_app
-        itxn_begin                                                                                   (𝕡) wrong_size#0 |
-        byte CoEBQw==                                                                                (𝕡) wrong_size#0 | CoEBQw==
-        itxn_field ClearStateProgramPages                                                            (𝕡) wrong_size#0 |
-        byte CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ== (𝕡) wrong_size#0 | CiABATEbQQFkgg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAPcA4gDNALgAowCOAHkAZABPADoAJQAQAAEAMRkURDEYRDYaAYgBbSJDMRkURDEYRDYaATYaAlcCAIgBTiJDMRkURDEYRDYaATYaAlcCAIgBLyJDMRkURDEYRDYaATYaAlcCAIgBECJDMRkURDEYRDYaATYaAlcCAIgA8SJDMRkURDEYRDYaATYaAlcCAIgA0iJDMRkURDEYRDYaATYaAlcCAIgAsyJDMRkURDEYRDYaATYaAlcCAIgAlCJDMRkURDEYRDYaATYaAlcCAIgAdSJDMRkURDEYRDYaATYaAlcCAIgAViJDMRkURDEYRDYaATYaAlcCAIgANyJDMRkURDEYRDYaATYaAlcCAIgAGCJDMRmBBRJEMRhEIkMxGUD++TEYFEQiQ4oCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigIAi/6L/xJEiYoCAIv+i/8SRImKAgCL/ov/EkSJigEAi/8xABJEiQ==
-        itxn_field ApprovalProgramPages                                                              (𝕡) wrong_size#0 |
-        int appl                                                                                     (𝕡) wrong_size#0 | appl
-        itxn_field TypeEnum                                                                          (𝕡) wrong_size#0 |
-        int 0                                                                                        (𝕡) wrong_size#0 | 0
-        itxn_field Fee                                                                               (𝕡) wrong_size#0 |
-        itxn_submit                                                                                  (𝕡) wrong_size#0 |
-        itxn CreatedApplicationID                                                                    (𝕡) wrong_size#0 | app#0
-        v-store app#0                                                                                (𝕡) wrong_size#0 |
+        itxn_begin
+        byte CoEBQw==                                                                                CoEBQw==
+        itxn_field ClearStateProgramPages
+        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        itxn_field ApprovalProgramPages
+        int appl                                                                                     appl
+        itxn_field TypeEnum
+        int 0                                                                                        0
+        itxn_field Fee
+        itxn_submit
+        itxn CreatedApplicationID                                                                    app#0
+        v-store app#0
         // arc4_conversions/contract.py:181
         // sender = Global.current_application_address.bytes
-        global CurrentApplicationAddress                                                             (𝕡) wrong_size#0 | sender#0
-        v-store sender#0                                                                             (𝕡) wrong_size#0 |
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0
-        v-store sender#5                                                                             (𝕡) wrong_size#0 |
+        global CurrentApplicationAddress                                                             sender#0
+        v-store sender#0
+        v-load sender#0                                                                              sender#0
+        v-store sender#5
         // arc4_conversions/contract.py:183
         // if wrong_size:
-        p-load wrong_size#0                                                                          (𝕡) wrong_size#0 | wrong_size#0 (copy)
-        bz test_bytes_to_fixed_after_if_else@3 ; b test_bytes_to_fixed_if_body@2                     (𝕡) wrong_size#0 |
+        v-load wrong_size#0                                                                          wrong_size#0
+        bz test_bytes_to_fixed_after_if_else@4 ; b test_bytes_to_fixed_if_body@3
 
-    test_bytes_to_fixed_if_body@2:                                                                   (𝕡) wrong_size#0 |
+    test_bytes_to_fixed_if_body@3:
         // arc4_conversions/contract.py:184
         // sender = sender + sender
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0,sender#0
-        concat                                                                                       (𝕡) wrong_size#0 | sender#0
-        v-store sender#0                                                                             (𝕡) wrong_size#0 |
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0
-        v-store sender#5                                                                             (𝕡) wrong_size#0 |
-        b test_bytes_to_fixed_after_if_else@3                                                        (𝕡) wrong_size#0 |
+        v-load sender#0                                                                              sender#0
+        v-load sender#0                                                                              sender#0,sender#0
+        concat                                                                                       sender#0
+        v-store sender#0
+        v-load sender#0                                                                              sender#0
+        v-store sender#5
+        b test_bytes_to_fixed_after_if_else@4
 
-    test_bytes_to_fixed_after_if_else@3:                                                             (𝕡) wrong_size#0 |
-        v-load sender#5                                                                              (𝕡) wrong_size#0 | sender#5
-        v-store sender#0                                                                             (𝕡) wrong_size#0 |
+    test_bytes_to_fixed_after_if_else@4:
+        v-load sender#5                                                                              sender#5
+        v-store sender#0
         // arc4_conversions/contract.py:186
         // arc4.abi_call(CheckApp.check_static_bytes, sender, app_id=app)
-        itxn_begin                                                                                   (𝕡) wrong_size#0 |
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0
-        len                                                                                          (𝕡) wrong_size#0 | aggregate%length%0#0
-        v-store aggregate%length%0#0                                                                 (𝕡) wrong_size#0 |
-        v-load aggregate%length%0#0                                                                  (𝕡) wrong_size#0 | aggregate%length%0#0
-        int 32                                                                                       (𝕡) wrong_size#0 | aggregate%length%0#0,32
-        ==                                                                                           (𝕡) wrong_size#0 | aggregate%lengths_equal%0#0
-        v-store aggregate%lengths_equal%0#0                                                          (𝕡) wrong_size#0 |
-        v-load aggregate%lengths_equal%0#0                                                           (𝕡) wrong_size#0 | aggregate%lengths_equal%0#0
-        assert // invalid size                                                                       (𝕡) wrong_size#0 |
-        v-load app#0                                                                                 (𝕡) wrong_size#0 | app#0
-        itxn_field ApplicationID                                                                     (𝕡) wrong_size#0 |
-        method check_static_bytes(byte[32])void                                                      (𝕡) wrong_size#0 | Method(check_static_bytes(byte[32])void)
-        itxn_field ApplicationArgs                                                                   (𝕡) wrong_size#0 |
-        v-load sender#0                                                                              (𝕡) wrong_size#0 | sender#0
-        itxn_field ApplicationArgs                                                                   (𝕡) wrong_size#0 |
-        int appl                                                                                     (𝕡) wrong_size#0 | appl
-        itxn_field TypeEnum                                                                          (𝕡) wrong_size#0 |
-        int 0                                                                                        (𝕡) wrong_size#0 | 0
-        itxn_field Fee                                                                               (𝕡) wrong_size#0 |
-        itxn_submit                                                                                  (𝕡) wrong_size#0 |
+        itxn_begin
+        v-load sender#0                                                                              sender#0
+        len                                                                                          aggregate%length%0#0
+        v-store aggregate%length%0#0
+        v-load aggregate%length%0#0                                                                  aggregate%length%0#0
+        int 32                                                                                       aggregate%length%0#0,32
+        ==                                                                                           aggregate%lengths_equal%0#0
+        v-store aggregate%lengths_equal%0#0
+        v-load aggregate%lengths_equal%0#0                                                           aggregate%lengths_equal%0#0
+        assert // invalid size
+        v-load app#0                                                                                 app#0
+        itxn_field ApplicationID
+        method check_static_bytes(byte[32])void                                                      Method(check_static_bytes(byte[32])void)
+        itxn_field ApplicationArgs
+        v-load sender#0                                                                              sender#0
+        itxn_field ApplicationArgs
+        int appl                                                                                     appl
+        itxn_field TypeEnum
+        int 0                                                                                        0
+        itxn_field Fee
+        itxn_submit
         // arc4_conversions/contract.py:188
         // arc4.abi_call(CheckApp.delete_application, app_id=app)
-        itxn_begin                                                                                   (𝕡) wrong_size#0 |
-        int DeleteApplication                                                                        (𝕡) wrong_size#0 | DeleteApplication
-        itxn_field OnCompletion                                                                      (𝕡) wrong_size#0 |
-        v-load app#0                                                                                 (𝕡) wrong_size#0 | app#0
-        itxn_field ApplicationID                                                                     (𝕡) wrong_size#0 |
-        method delete_application()void                                                              (𝕡) wrong_size#0 | Method(delete_application()void)
-        itxn_field ApplicationArgs                                                                   (𝕡) wrong_size#0 |
-        int appl                                                                                     (𝕡) wrong_size#0 | appl
-        itxn_field TypeEnum                                                                          (𝕡) wrong_size#0 |
-        int 0                                                                                        (𝕡) wrong_size#0 | 0
-        itxn_field Fee                                                                               (𝕡) wrong_size#0 |
-        itxn_submit                                                                                  (𝕡) wrong_size#0 |
-        retsub
+        itxn_begin
+        int DeleteApplication                                                                        DeleteApplication
+        itxn_field OnCompletion
+        v-load app#0                                                                                 app#0
+        itxn_field ApplicationID
+        method delete_application()void                                                              Method(delete_application()void)
+        itxn_field ApplicationArgs
+        int appl                                                                                     appl
+        itxn_field TypeEnum
+        int 0                                                                                        0
+        itxn_field Fee
+        itxn_submit
+        // arc4_conversions/contract.py:178
+        // @arc4.abimethod
+        int 1                                                                                        1
+        return
 
 

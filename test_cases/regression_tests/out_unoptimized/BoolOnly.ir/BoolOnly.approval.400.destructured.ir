@@ -4,91 +4,86 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // L4
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@8
+        goto tmp%1#0 ? block@2 : block@11
     block@2: // abi_routing_L4
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_0_convert(byte[])byte[]" => block@3, method "set_0_compare(byte[])byte[]" => block@4, method "bool_only_properties()void" => block@5, * => block@6}
-    block@3: // set_0_convert_route_L5
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%8#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%7#0)
-        let aggregate%length%0#0: uint64 = (len tmp%8#0)
-        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
-        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%8#0)
-        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%0#0
-        let tmp%9#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
-        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
-        (log tmp%10#0)
-        let test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0
-        goto block@13
-    block@4: // set_0_compare_route_L9
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (== tmp%11#0 NoOp)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%15#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
-        let tmp%16#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%15#0)
-        let aggregate%length%1#0: uint64 = (len tmp%16#0)
-        let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%length%1#0)
-        let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 tmp%16#0)
-        let aggregate%as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = aggregate%encoded_value%1#0
-        let tmp%17#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%1#0
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
-        let test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0
-        goto block@13
-    block@5: // bool_only_properties_route_L13
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties()
-        let test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0
-        goto block@13
-    block@6: // switch_case_default_L4
-        goto block@7
-    block@7: // switch_case_next_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@3 : block@9
+    block@3: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "set_0_convert(byte[])byte[]" => block@4, method "set_0_compare(byte[])byte[]" => block@5, method "bool_only_properties()void" => block@6, * => block@7}
+    block@4: // set_0_convert_route_L5
+        test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]()
+        goto block@8
+    block@5: // set_0_compare_route_L9
+        test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]()
+        goto block@8
+    block@6: // bool_only_properties_route_L13
+        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]()
+        goto block@8
+    block@7: // switch_case_default_L4
+        goto block@8
+    block@8: // switch_case_next_L4
+        goto block@10
+    block@9: // create_NoOp_L4
+        goto block@10
+    block@10: // after_if_else_L4
         goto block@12
-    block@8: // bare_routing_L4
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        switch tmp%23#0 {0u => block@9, * => block@10}
-    block@9: // __algopy_default_create_L1
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (== tmp%24#0 0u)
-        (assert tmp%25#0) // can only call when creating
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         goto block@14
     block@14: // L1
         goto block@15
     block@15: // after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create_L1
-        let test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0
-        goto block@13
-    block@10: // switch_case_default_L4
-        goto block@11
-    block@11: // switch_case_next_L4
-        goto block@12
+        exit 1u
     block@12: // after_if_else_L4
-        let test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router__%0#0
-        goto block@13
+        exit 0u
     block@13: // after_inlined_test_cases.regression_tests.bool_only.BoolOnly.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
         return tmp%0#0
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
+    block@0: // L5
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%0#0)
+        let aggregate%length%0#0: uint64 = (len tmp%1#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#0)
+        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%0#0
+        let tmp%2#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]() -> void:
+    block@0: // L9
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%0#0)
+        let aggregate%length%0#0: uint64 = (len tmp%1#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#0)
+        let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%0#0
+        let tmp%2#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]() -> void:
+    block@0: // L13
+        test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties()
+        exit 1u
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes) -> bytes:
     block@0: // L5

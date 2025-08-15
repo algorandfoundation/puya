@@ -3,22 +3,19 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1
     txn NumAppArgs
-    bz main_bare_routing@8
-    pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
-    txna ApplicationArgs 0
-    match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
-
-main_after_if_else@12:
-    err
-
-main_get_user_route@5:
+    bz main___algopy_default_create@11
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
+    txna ApplicationArgs 0
+    match main_add_user_route@4 main_attach_asset_to_user_route@5 main_get_user_route@6
+    err
+
+main_get_user_route@6:
     txna ApplicationArgs 1
     box_get
     assert // User with that id does not exist
@@ -26,15 +23,10 @@ main_get_user_route@5:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
 
-main_attach_asset_to_user_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_attach_asset_to_user_route@5:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     box_get
@@ -48,15 +40,10 @@ main_attach_asset_to_user_route@4:
     pop
     swap
     box_put
-    intc_0 // 1
+    pushint 1 // 1
     return
 
-main_add_user_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_add_user_route@4:
     txna ApplicationArgs 1
     dup
     extract 2 8
@@ -70,14 +57,13 @@ main_add_user_route@3:
     pop
     swap
     box_put
-    intc_0 // 1
+    pushint 1 // 1
     return
 
-main_bare_routing@8:
+main___algopy_default_create@11:
     txn OnCompletion
-    bnz main_after_if_else@12
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

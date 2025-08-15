@@ -1,16 +1,34 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@7
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L15
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@3, method "test_tuple((uint64,uint512,string,byte[]))void" => block@4, * => block@11}
-    block@3: // build_tuple_route_L16
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@4, method "test_tuple((uint64,uint512,string,byte[]))void" => block@5, * => block@9}
+    block@4: // build_tuple_route_L16
+        test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]()
+        goto block@9
+    block@5: // test_tuple_route_L31
+        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]()
+        goto block@9
+    block@9: // after_if_else_L15
+        fail
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
+    block@0: // L16
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let b#0: biguint = (txna ApplicationArgs 2)
@@ -41,55 +59,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 aggregate%encoded_value%0#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%encoded_value%1#0)
-        let tmp%16#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
-        (log tmp%16#0)
-        let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
-        goto block@12
-    block@4: // test_tuple_route_L31
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let tmp%18#0: bool = (! tmp%17#0)
-        (assert tmp%18#0) // OnCompletion is not NoOp
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        (assert tmp%19#0) // can only call when not creating
+        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
+        (log tmp%9#0)
+        exit 1u
+
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
+    block@0: // L31
         let reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (txna ApplicationArgs 1)
-        let aggregate%item0%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0u)
-        let aggregate%extract%1#0: bytes = ((extract 8 64) reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
+        let value.a#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0u)
+        let value.b#0: biguint = ((extract 8 64) reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 72u)
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 74u)
         let aggregate%substring3%0#0: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
-        let aggregate%item2%0#0: bytes = ((extract 2 0) aggregate%substring3%0#0)
+        let value.c#0: string = ((extract 2 0) aggregate%substring3%0#0)
         let aggregate%len%0#0: uint64 = (len reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
         let aggregate%substring3%1#0: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%1#0 aggregate%len%0#0)
-        let aggregate%item3%0#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
-        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(aggregate%item0%0#0, aggregate%extract%1#0, aggregate%item2%0#0, aggregate%item3%0#0)
-        let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1: bool = 1u
-        goto block@12
-    block@7: // bare_routing_L15
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        goto tmp%25#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        let tmp%27#0: bool = (! tmp%26#0)
-        (assert tmp%27#0) // can only call when creating
-        let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#2: bool = 1u
-        goto block@12
-    block@11: // after_if_else_L15
-        let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#3: bool = 0u
-        goto block@12
-    block@12: // after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 <- block@3, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1 <- block@4, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#2 <- block@8, test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#3 <- block@11)
-        return tmp%0#0
-
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: string, value.d: bytes) -> void:
-    block@0: // L31
-        let tmp%0#0: bool = (< value.a#0 1000u)
-        (assert tmp%0#0)
-        let tmp%1#0: bool = (b< value.b#0 36893488147419103232b)
-        (assert tmp%1#0)
-        let tmp%2#0: uint64 = (len value.c#0)
-        let tmp%3#0: bool = (> tmp%2#0 1u)
-        (assert tmp%3#0)
+        let value.d#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
+        let tmp%0#1: bool = (< value.a#0 1000u)
+        (assert tmp%0#1)
+        let tmp%1#1: bool = (b< value.b#0 36893488147419103232b)
+        (assert tmp%1#1)
+        let tmp%2#1: uint64 = (len value.c#0)
+        let tmp%3#1: bool = (> tmp%2#1 1u)
+        (assert tmp%3#1)
         let tmp%4#0: account = (txn Sender)
         let tmp%5#0: bool = (== value.d#0 tmp%4#0)
         (assert tmp%5#0)
-        return 
+        exit 1u

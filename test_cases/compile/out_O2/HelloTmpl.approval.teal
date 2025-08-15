@@ -3,7 +3,6 @@
 
 // test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1
     bytecblock "greeting" TMPL_GREETING
     txn ApplicationID
     bnz main_after_if_else@2
@@ -13,20 +12,21 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@8
-    pushbytess 0x4c5c61ba 0x24378d3c 0xd0a28200 // method "create()void", method "delete()void", method "greet(string)string"
+    bz main_update@12
+    pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_create_route@5 main_delete_route@6 main_greet_route@7
-
-main_after_if_else@10:
-    err
-
-main_greet_route@7:
+    match main_delete_route@5
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@9
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    txna ApplicationArgs 0
+    match main_greet_route@8
+    err
+
+main_greet_route@8:
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -47,37 +47,31 @@ main_greet_route@7:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return
 
-main_delete_route@6:
+main_create_NoOp@9:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@10
+    err
+
+main_create_route@10:
+    pushint 1 // 1
+    return
+
+main_delete_route@5:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
-    assert // OnCompletion is not DeleteApplication
     txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_create_route@5:
+main_update@12:
     txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    pushint 4 // UpdateApplication
+    ==
     txn ApplicationID
-    !
-    assert // can only call when creating
-    intc_0 // 1
-    return
-
-main_bare_routing@8:
-    pushint 4 // 4
-    txn OnCompletion
-    match main_update@9
-    b main_after_if_else@10
-
-main_update@9:
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be UpdateApplication && can only call when not creating

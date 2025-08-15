@@ -6,20 +6,18 @@ main:
     intcblock 0 1 2 8
     bytecblock "box" "glob" "loc" "map" 0x00086d6f646966696564 0x00020000000000000001000a000362617a 0x0000
     txn NumAppArgs
-    bz main_bare_routing@8
-    pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
-    txna ApplicationArgs 0
-    match main_append_route@5 main_modify_route@6 main_get_route@7
-
-main_after_if_else@11:
-    err
-
-main_get_route@7:
+    bz main_bare_routing@9
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
+    txna ApplicationArgs 0
+    match main_append_route@6 main_modify_route@7 main_get_route@8
+    err
+
+main_get_route@8:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -55,12 +53,7 @@ main_get_route@7:
     intc_1 // 1
     return
 
-main_modify_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_modify_route@7:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -231,12 +224,7 @@ main_modify_route@6:
     intc_1 // 1
     return
 
-main_append_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_append_route@6:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -307,12 +295,12 @@ main_append_route@5:
     intc_1 // 1
     return
 
-main_bare_routing@8:
+main_bare_routing@9:
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@9
-    b main_after_if_else@11
+    switch main___algopy_default_create@10 main_opt_in@11
+    err
 
-main_opt_in@9:
+main_opt_in@11:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // "glob"
@@ -342,9 +330,7 @@ main_opt_in@9:
 main___algopy_default_create@10:
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    return // on error: can only call when creating
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

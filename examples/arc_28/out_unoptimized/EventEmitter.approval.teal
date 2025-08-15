@@ -5,7 +5,6 @@
 main:
     intcblock 0 1
     bytecblock 0x 0x1ccbd925
-    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,99 +16,70 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@7
+    bz main___algopy_default_create@10
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // arc_28/contract.py:11
+    // class EventEmitter(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@8
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x0a9542cd // method "emit_swapped(uint64,uint64)void"
     pushbytes 0x71a3151f // method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     uncover 2
-    match main_emit_swapped_route@3 main_emit_ufixed_route@4
-    b main_switch_case_default@5
+    match main_emit_swapped_route@4 main_emit_ufixed_route@5
+    b main_switch_case_default@6
 
-main_switch_case_default@5:
-    b main_switch_case_next@6
+main_switch_case_default@6:
+    b main_switch_case_next@7
 
-main_switch_case_next@6:
+main_switch_case_next@7:
+    b main_after_if_else@9
+
+main_after_if_else@9:
     b main_after_if_else@11
 
 main_after_if_else@11:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
+    err
 
-main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12:
-    return
-
-main_emit_ufixed_route@4:
-    // arc_28/contract.py:18
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+main_emit_ufixed_route@5:
     // arc_28/contract.py:18
     // @arc4.abimethod()
     callsub emit_ufixed
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
+    b main_switch_case_next@7
 
-main_emit_swapped_route@3:
-    // arc_28/contract.py:12
-    // @arc4.abimethod
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+main_emit_swapped_route@4:
     // arc_28/contract.py:12
     // @arc4.abimethod
     callsub emit_swapped
-    intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
+    b main_switch_case_next@7
 
-main_bare_routing@7:
-    // arc_28/contract.py:11
-    // class EventEmitter(ARC4Contract):
+main_create_NoOp@8:
+    b main_after_if_else@9
+
+main___algopy_default_create@10:
     txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@8
-    b main_switch_case_default@9
-
-main_switch_case_default@9:
-    b main_switch_case_next@10
-
-main_switch_case_next@10:
-    b main_after_if_else@11
-
-main___algopy_default_create@8:
+    intc_0 // NoOp
+    ==
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@13
 
 main_block@13:
@@ -117,19 +87,46 @@ main_block@13:
 
 main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@14:
     intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.arc_28.contract.EventEmitter.__puya_arc4_router__@12
+    return
+
+
+// examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
+emit_swapped:
+    b emit_swapped_block@0
+
+emit_swapped_block@0:
+    // arc_28/contract.py:12
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub examples.arc_28.contract.EventEmitter.emit_swapped
+    intc_1 // 1
+    return
+
+
+// examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
+emit_ufixed:
+    b emit_ufixed_block@0
+
+emit_ufixed_block@0:
+    // arc_28/contract.py:18
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub examples.arc_28.contract.EventEmitter.emit_ufixed
+    intc_1 // 1
+    return
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
-emit_swapped:
+examples.arc_28.contract.EventEmitter.emit_swapped:
     // arc_28/contract.py:12-13
     // @arc4.abimethod
     // def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
     proto 2 0
-    b emit_swapped_block@0
+    b examples.arc_28.contract.EventEmitter.emit_swapped_block@0
 
-emit_swapped_block@0:
+examples.arc_28.contract.EventEmitter.emit_swapped_block@0:
     // arc_28/contract.py:14
     // arc4.emit(Swapped(b, a))
     bytec_0 // 0x
@@ -167,7 +164,7 @@ emit_swapped_block@0:
 
 
 // examples.arc_28.contract.EventEmitter.emit_ufixed(a: bytes, b: bytes) -> void:
-emit_ufixed:
+examples.arc_28.contract.EventEmitter.emit_ufixed:
     // arc_28/contract.py:18-23
     // @arc4.abimethod()
     // def emit_ufixed(
@@ -176,9 +173,9 @@ emit_ufixed:
     //     b: arc4.UFixedNxM[typing.Literal[64], typing.Literal[2]],
     // ) -> None:
     proto 2 0
-    b emit_ufixed_block@0
+    b examples.arc_28.contract.EventEmitter.emit_ufixed_block@0
 
-emit_ufixed_block@0:
+examples.arc_28.contract.EventEmitter.emit_ufixed_block@0:
     // arc_28/contract.py:24
     // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
     bytec_0 // 0x

@@ -6,20 +6,18 @@ main:
     intcblock 1 6
     bytecblock 0x151f7c75
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
-    txna ApplicationArgs 0
-    match main_create_group_route@3 main_log_group_route@4
-
-main_after_if_else@11:
-    err
-
-main_log_group_route@4:
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
+    txna ApplicationArgs 0
+    match main_create_group_route@4 main_log_group_route@5
+    err
+
+main_log_group_route@5:
     txn GroupIndex
     intc_0 // 1
     -
@@ -56,16 +54,9 @@ main_log_group_route@4:
     *
     itob
     b==
-    assert
-    intc_0 // 1
     return
 
-main_create_group_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_create_group_route@4:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -114,11 +105,10 @@ main_create_group_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@7:
+main___algopy_default_create@10:
     txn OnCompletion
-    bnz main_after_if_else@11
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

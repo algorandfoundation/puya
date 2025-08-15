@@ -4,8 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 6 1 2
-    bytecblock 0x 0x151f7c75 base64(CkIAAIEBQw==) base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==) 0x24378d3c "Hello" 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x9b4d0926 0x59664ab6 0x818e4a62
-    bytec_0 // ""
+    bytecblock 0x 0x151f7c75 base64(CkIAAIEBQw==) base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==) 0x24378d3c "Hello" 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x9b4d0926 0x59664ab6 0x818e4a62
     b main_block@0
 
 main_block@0:
@@ -17,10 +16,23 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@11
+    bz main___algopy_default_create@14
     b main_abi_routing@2
 
 main_abi_routing@2:
+    // mutable_native_types/abi_call.py:102
+    // class TestAbiCall(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@12
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
     // mutable_native_types/abi_call.py:102
     // class TestAbiCall(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -31,141 +43,71 @@ main_abi_routing@2:
     pushbytes 0x38357d5e // method "test_native_array()void"
     pushbytes 0xe473c70a // method "test_log()void"
     uncover 6
-    match main_test_fixed_struct_route@3 main_test_nested_struct_route@4 main_test_dynamic_struct_route@5 main_test_fixed_array_route@6 main_test_native_array_route@7 main_test_log_route@8
-    b main_switch_case_default@9
+    match main_test_fixed_struct_route@4 main_test_nested_struct_route@5 main_test_dynamic_struct_route@6 main_test_fixed_array_route@7 main_test_native_array_route@8 main_test_log_route@9
+    b main_switch_case_default@10
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
+main_switch_case_default@10:
+    b main_switch_case_next@11
 
-main_switch_case_next@10:
+main_switch_case_next@11:
+    b main_after_if_else@13
+
+main_after_if_else@13:
     b main_after_if_else@15
 
 main_after_if_else@15:
     // mutable_native_types/abi_call.py:102
     // class TestAbiCall(arc4.ARC4Contract):
-    intc_0 // 0
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    err
 
-main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16:
-    return
-
-main_test_log_route@8:
+main_test_log_route@9:
     // mutable_native_types/abi_call.py:242
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_log
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_native_array_route@7:
+main_test_native_array_route@8:
     // mutable_native_types/abi_call.py:214
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_native_array
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_fixed_array_route@6:
+main_test_fixed_array_route@7:
     // mutable_native_types/abi_call.py:188
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_fixed_array
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_dynamic_struct_route@5:
+main_test_dynamic_struct_route@6:
     // mutable_native_types/abi_call.py:149
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_dynamic_struct
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_nested_struct_route@4:
+main_test_nested_struct_route@5:
     // mutable_native_types/abi_call.py:122
     // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub test_nested_struct
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    b main_switch_case_next@11
 
-main_test_fixed_struct_route@3:
+main_test_fixed_struct_route@4:
     // mutable_native_types/abi_call.py:103
     // @arc4.abimethod()
+    callsub test_fixed_struct
+    b main_switch_case_next@11
+
+main_create_NoOp@12:
+    b main_after_if_else@13
+
+main___algopy_default_create@14:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub test_fixed_struct
-    intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
-
-main_bare_routing@11:
-    // mutable_native_types/abi_call.py:102
-    // class TestAbiCall(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match main___algopy_default_create@12
-    b main_switch_case_default@13
-
-main_switch_case_default@13:
-    b main_switch_case_next@14
-
-main_switch_case_next@14:
-    b main_after_if_else@15
-
-main___algopy_default_create@12:
     txn ApplicationID
     intc_0 // 0
     ==
-    assert // can only call when creating
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     b main_block@17
 
 main_block@17:
@@ -173,21 +115,92 @@ main_block@17:
 
 main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create@18:
     intc_2 // 1
-    bury 1
-    b main_after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router__@16
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]() -> void:
+test_fixed_struct:
+    b test_fixed_struct_block@0
+
+test_fixed_struct_block@0:
+    // mutable_native_types/abi_call.py:103
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct
+    intc_2 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct[routing]() -> void:
+test_nested_struct:
+    b test_nested_struct_block@0
+
+test_nested_struct_block@0:
+    // mutable_native_types/abi_call.py:122
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct
+    intc_2 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct[routing]() -> void:
+test_dynamic_struct:
+    b test_dynamic_struct_block@0
+
+test_dynamic_struct_block@0:
+    // mutable_native_types/abi_call.py:149
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct
+    intc_2 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array[routing]() -> void:
+test_fixed_array:
+    b test_fixed_array_block@0
+
+test_fixed_array_block@0:
+    // mutable_native_types/abi_call.py:188
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
+    intc_2 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array[routing]() -> void:
+test_native_array:
+    b test_native_array_block@0
+
+test_native_array_block@0:
+    // mutable_native_types/abi_call.py:214
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array
+    intc_2 // 1
+    return
+
+
+// test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing]() -> void:
+test_log:
+    b test_log_block@0
+
+test_log_block@0:
+    // mutable_native_types/abi_call.py:242
+    // @arc4.abimethod()
+    callsub test_cases.mutable_native_types.abi_call.TestAbiCall.test_log
+    intc_2 // 1
+    return
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct() -> void:
-test_fixed_struct:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct:
     // mutable_native_types/abi_call.py:103-104
     // @arc4.abimethod()
     // def test_fixed_struct(self) -> None:
     proto 0 0
     intc_0 // 0
     bytec_0 // ""
-    b test_fixed_struct_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_block@0
 
-test_fixed_struct_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_block@0:
     // mutable_native_types/abi_call.py:105
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -205,7 +218,7 @@ test_fixed_struct_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -213,9 +226,9 @@ test_fixed_struct_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@1
 
-test_fixed_struct_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@1:
     // mutable_native_types/abi_call.py:105
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -255,9 +268,9 @@ test_fixed_struct_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@2
 
-test_fixed_struct_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@2:
     // mutable_native_types/abi_call.py:110
     // arc4.abi_call(CallMe.fixed_struct_arg, fixed_struct, app_id=app)
     itxn_submit
@@ -272,9 +285,9 @@ test_fixed_struct_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@3
 
-test_fixed_struct_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@3:
     // mutable_native_types/abi_call.py:111
     // res, _txn = arc4.abi_call(CallMe.fixed_struct_ret, app_id=app)
     itxn_submit
@@ -322,9 +335,9 @@ test_fixed_struct_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@4
 
-test_fixed_struct_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@4:
     // mutable_native_types/abi_call.py:116
     // arc4.abi_call("fixed_struct_arg((uint64,uint64))void", fixed_struct, app_id=app)
     itxn_submit
@@ -339,9 +352,9 @@ test_fixed_struct_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@5
 
-test_fixed_struct_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@5:
     // mutable_native_types/abi_call.py:117
     // res, _txn = arc4.abi_call[FixedStruct]("fixed_struct_ret()(uint64,uint64)", app_id=app)
     itxn_submit
@@ -371,9 +384,9 @@ test_fixed_struct_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_struct_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@6
 
-test_fixed_struct_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct_next_txn@6:
     // mutable_native_types/abi_call.py:120
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
@@ -381,16 +394,16 @@ test_fixed_struct_next_txn@6:
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct() -> void:
-test_nested_struct:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct:
     // mutable_native_types/abi_call.py:122-123
     // @arc4.abimethod()
     // def test_nested_struct(self) -> None:
     proto 0 0
     intc_0 // 0
     bytec_0 // ""
-    b test_nested_struct_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_block@0
 
-test_nested_struct_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_block@0:
     // mutable_native_types/abi_call.py:124
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -408,7 +421,7 @@ test_nested_struct_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -416,9 +429,9 @@ test_nested_struct_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@1
 
-test_nested_struct_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@1:
     // mutable_native_types/abi_call.py:124
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -474,9 +487,9 @@ test_nested_struct_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@2
 
-test_nested_struct_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@2:
     // mutable_native_types/abi_call.py:132
     // arc4.abi_call(CallMe.nested_struct_arg, nested_struct, app_id=app)
     itxn_submit
@@ -491,9 +504,9 @@ test_nested_struct_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@3
 
-test_nested_struct_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@3:
     // mutable_native_types/abi_call.py:133
     // res, _txn = arc4.abi_call(CallMe.nested_struct_ret, app_id=app)
     itxn_submit
@@ -557,9 +570,9 @@ test_nested_struct_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@4
 
-test_nested_struct_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@4:
     // mutable_native_types/abi_call.py:141
     // arc4.abi_call("nested_struct_arg(((uint64,uint64),uint64))void", nested_struct, app_id=app)
     itxn_submit
@@ -582,9 +595,9 @@ test_nested_struct_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@5
 
-test_nested_struct_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@5:
     // mutable_native_types/abi_call.py:142-144
     // res, _txn = arc4.abi_call[NestedStruct](
     //     "nested_struct_ret()((uint64,uint64),uint64)", app_id=app
@@ -616,9 +629,9 @@ test_nested_struct_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_nested_struct_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@6
 
-test_nested_struct_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct_next_txn@6:
     // mutable_native_types/abi_call.py:147
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
@@ -626,7 +639,7 @@ test_nested_struct_next_txn@6:
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct() -> void:
-test_dynamic_struct:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct:
     // mutable_native_types/abi_call.py:149-150
     // @arc4.abimethod()
     // def test_dynamic_struct(self) -> None:
@@ -634,9 +647,9 @@ test_dynamic_struct:
     intc_0 // 0
     intc_0 // 0
     bytec_0 // ""
-    b test_dynamic_struct_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_block@0
 
-test_dynamic_struct_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_block@0:
     // mutable_native_types/abi_call.py:151
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -654,7 +667,7 @@ test_dynamic_struct_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -662,9 +675,9 @@ test_dynamic_struct_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@1
 
-test_dynamic_struct_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@1:
     // mutable_native_types/abi_call.py:151
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -815,9 +828,9 @@ test_dynamic_struct_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@2
 
-test_dynamic_struct_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@2:
     // mutable_native_types/abi_call.py:164
     // arc4.abi_call(CallMe.dynamic_struct_arg, dynamic_struct, app_id=app)
     itxn_submit
@@ -832,9 +845,9 @@ test_dynamic_struct_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@3
 
-test_dynamic_struct_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@3:
     // mutable_native_types/abi_call.py:165
     // res, _txn = arc4.abi_call(CallMe.dynamic_struct_ret, app_id=app)
     itxn_submit
@@ -986,9 +999,9 @@ test_dynamic_struct_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@4
 
-test_dynamic_struct_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@4:
     // mutable_native_types/abi_call.py:176-180
     // arc4.abi_call(
     //     "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void",
@@ -1015,9 +1028,9 @@ test_dynamic_struct_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@5
 
-test_dynamic_struct_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@5:
     // mutable_native_types/abi_call.py:181-183
     // res, _txn = arc4.abi_call[DynamicStruct](
     //     "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", app_id=app
@@ -1049,9 +1062,9 @@ test_dynamic_struct_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_dynamic_struct_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@6
 
-test_dynamic_struct_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct_next_txn@6:
     // mutable_native_types/abi_call.py:186
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
@@ -1059,16 +1072,16 @@ test_dynamic_struct_next_txn@6:
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array() -> void:
-test_fixed_array:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array:
     // mutable_native_types/abi_call.py:188-189
     // @arc4.abimethod()
     // def test_fixed_array(self) -> None:
     proto 0 0
     intc_0 // 0
     bytec_0 // ""
-    b test_fixed_array_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_block@0
 
-test_fixed_array_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_block@0:
     // mutable_native_types/abi_call.py:190
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -1086,7 +1099,7 @@ test_fixed_array_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -1094,9 +1107,9 @@ test_fixed_array_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@1
 
-test_fixed_array_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@1:
     // mutable_native_types/abi_call.py:190
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -1145,9 +1158,9 @@ test_fixed_array_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@2
 
-test_fixed_array_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@2:
     // mutable_native_types/abi_call.py:196-197
     // # fixed array - typed
     // arc4.abi_call(CallMe.fixed_arr_arg, fixed_arr, app_id=app)
@@ -1163,9 +1176,9 @@ test_fixed_array_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@3
 
-test_fixed_array_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@3:
     // mutable_native_types/abi_call.py:198
     // res, _txn = arc4.abi_call(CallMe.fixed_arr_ret, app_id=app)
     itxn_submit
@@ -1234,9 +1247,9 @@ test_fixed_array_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@4
 
-test_fixed_array_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@4:
     // mutable_native_types/abi_call.py:204-208
     // arc4.abi_call(
     //     "fixed_arr_arg((uint64,uint64)[3])void",
@@ -1255,9 +1268,9 @@ test_fixed_array_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@5
 
-test_fixed_array_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@5:
     // mutable_native_types/abi_call.py:209
     // res, _txn = arc4.abi_call[FixedStruct3]("fixed_arr_ret()(uint64,uint64)[3]", app_id=app)
     itxn_submit
@@ -1287,9 +1300,9 @@ test_fixed_array_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_fixed_array_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@6
 
-test_fixed_array_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array_next_txn@6:
     // mutable_native_types/abi_call.py:212
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
@@ -1297,16 +1310,16 @@ test_fixed_array_next_txn@6:
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array() -> void:
-test_native_array:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array:
     // mutable_native_types/abi_call.py:214-215
     // @arc4.abimethod()
     // def test_native_array(self) -> None:
     proto 0 0
     intc_0 // 0
     bytec_0 // ""
-    b test_native_array_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_block@0
 
-test_native_array_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_block@0:
     // mutable_native_types/abi_call.py:216
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -1324,7 +1337,7 @@ test_native_array_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -1332,9 +1345,9 @@ test_native_array_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@1
 
-test_native_array_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@1:
     // mutable_native_types/abi_call.py:216
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -1385,9 +1398,9 @@ test_native_array_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@2
 
-test_native_array_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@2:
     // mutable_native_types/abi_call.py:222-223
     // # native array - typed
     // arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
@@ -1403,9 +1416,9 @@ test_native_array_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@3
 
-test_native_array_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@3:
     // mutable_native_types/abi_call.py:224
     // res, _txn = arc4.abi_call(CallMe.native_arr_ret, app_id=app)
     itxn_submit
@@ -1476,9 +1489,9 @@ test_native_array_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@4
 
-test_native_array_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@4:
     // mutable_native_types/abi_call.py:230-234
     // arc4.abi_call(
     //     "native_arr_arg((uint64,uint64)[])void",
@@ -1505,9 +1518,9 @@ test_native_array_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@5
 
-test_native_array_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@5:
     // mutable_native_types/abi_call.py:235-237
     // res, _txn = arc4.abi_call[NativeArray[FixedStruct]](
     //     "native_arr_ret()(uint64,uint64)[]", app_id=app
@@ -1539,9 +1552,9 @@ test_native_array_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_native_array_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@6
 
-test_native_array_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array_next_txn@6:
     // mutable_native_types/abi_call.py:240
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
@@ -1549,15 +1562,15 @@ test_native_array_next_txn@6:
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_log() -> void:
-test_log:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log:
     // mutable_native_types/abi_call.py:242-243
     // @arc4.abimethod()
     // def test_log(self) -> None:
     proto 0 0
     bytec_0 // ""
-    b test_log_block@0
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_block@0
 
-test_log_block@0:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_block@0:
     // mutable_native_types/abi_call.py:244
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
@@ -1575,7 +1588,7 @@ test_log_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAAdCAACIAItDQgAAiUIAAImKAQBCAAApi/9niUIAACIpZUSJigEAQgAAKov/Z4lCAAAiKmVEiYoBAEIAACuL/2eJQgAAIitlRImKAQBCAAAnBIv/Z4lCAAAiJwRlRImKAQBCAAAnBYv/Z4lCAAAiJwVlRIlCAAAiKWVEsCIqZUSwIitlRLAiJwRlRLAiJwVlRLCJigABgABCAABCAAAxGyITQQGLQgAANhoAgAQkN408gAQRsZuVgATSi5ZKgATqGGVfgAS7O/23gARG7BSggASbTQkmgARPDetQgARZZkq2gAQSXRN2gASBjkpigASbvhAyTwyODAENAPcA3wDJALEAmwCDAG0AVQA/ACcAFEIAAEIAAEIAACKMAEIAAIsATwGJMRkiEkQxGCITRIj/RCOMAEL/6DEZIhJEMRgiE0SI/ygoTwFQsCOMAEL/0DEZIhJEMRgiE0Q2GgGI/wEjjABC/7oxGSISRDEYIhNEiP7lKE8BULAjjABC/6IxGSISRDEYIhNENhoBiP6+I4wAQv+MMRkiEkQxGCITRIj+oyhPAVCwI4wAQv90MRkiEkQxGCITRDYaAYj+fSOMAEL/XjEZIhJEMRgiE0SI/mIoTwFQsCOMAEL/RjEZIhJEMRgiE0Q2GgGI/jwjjABC/zAxGSISRDEYIhNEiP4hKE8BULAjjABC/xgxGSISRDEYIhNENhoBiP37I4wAQv8CMRmBBRJEMRgiE0SI/eMjjABC/u4xGSJPAY4BAAlCAABCAABC/tYxGCISREIAAEIAACOMAEL+yw==)
+    bytec_3 // base64(CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages
@@ -1583,9 +1596,9 @@ test_log_block@0:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@1
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@1
 
-test_log_next_txn@1:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@1:
     // mutable_native_types/abi_call.py:244
     // create_txn = arc4.arc4_create(CallMe)
     itxn_submit
@@ -1611,9 +1624,9 @@ test_log_next_txn@1:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@2
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@2
 
-test_log_next_txn@2:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@2:
     // mutable_native_types/abi_call.py:249
     // arc4.abi_call(CallMe.fixed_struct_arg, fixed_struct, app_id=app)
     itxn_submit
@@ -1634,9 +1647,9 @@ test_log_next_txn@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@3
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@3
 
-test_log_next_txn@3:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@3:
     // mutable_native_types/abi_call.py:253
     // arc4.abi_call(CallMe.nested_struct_arg, nested_struct, app_id=app)
     itxn_submit
@@ -1750,9 +1763,9 @@ test_log_next_txn@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@4
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@4
 
-test_log_next_txn@4:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@4:
     // mutable_native_types/abi_call.py:259
     // arc4.abi_call(CallMe.dynamic_struct_arg, dynamic_struct, app_id=app)
     itxn_submit
@@ -1773,9 +1786,9 @@ test_log_next_txn@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@5
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@5
 
-test_log_next_txn@5:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@5:
     // mutable_native_types/abi_call.py:263
     // arc4.abi_call(CallMe.fixed_arr_arg, fixed_arr, app_id=app)
     itxn_submit
@@ -1797,9 +1810,9 @@ test_log_next_txn@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@6
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@6
 
-test_log_next_txn@6:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@6:
     // mutable_native_types/abi_call.py:267
     // arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
     itxn_submit
@@ -1814,9 +1827,9 @@ test_log_next_txn@6:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@7
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@7
 
-test_log_next_txn@7:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@7:
     // mutable_native_types/abi_call.py:269
     // txn = arc4.abi_call(CallMe.log_it, app_id=app)
     itxn_submit
@@ -1891,9 +1904,9 @@ test_log_next_txn@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    b test_log_next_txn@8
+    b test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@8
 
-test_log_next_txn@8:
+test_cases.mutable_native_types.abi_call.TestAbiCall.test_log_next_txn@8:
     // mutable_native_types/abi_call.py:280
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_submit
