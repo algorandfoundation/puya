@@ -25,13 +25,11 @@ main_after_if_else@2:
 
 main_after_if_else@6:
     txn NumAppArgs
-    bz main_bare_routing@12
-    pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
+    bz main_bare_routing@11
     txna ApplicationArgs 0
-    match main_add_one_route@11
-    err
-
-main_add_one_route@11:
+    pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
+    ==
+    assert
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -48,7 +46,7 @@ main_add_one_route@11:
     log
     return
 
-main_bare_routing@12:
+main_bare_routing@11:
     txn OnCompletion
     !
     assert

@@ -12,18 +12,24 @@ main:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     bz main_create_NoOp@8
-    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0
-    match verify
-    err
+    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
+    ==
+    assert
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    b verify
 
 main_create_NoOp@8:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    pushbytes 0x8424203b // method "create(byte[32])void"
     txna ApplicationArgs 0
-    match create
-    err
+    pushbytes 0x8424203b // method "create(byte[32])void"
+    ==
+    assert
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    b create
 
 
 // examples.merkle.contract.MerkleTree.create[routing]() -> void:

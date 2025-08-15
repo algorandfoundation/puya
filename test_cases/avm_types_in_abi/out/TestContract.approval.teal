@@ -12,18 +12,24 @@ main:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     bz main_create_NoOp@8
-    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match tuple_of_arc4
-    err
+    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
+    ==
+    assert
+    // avm_types_in_abi/contract.py:19
+    // @arc4.abimethod
+    b tuple_of_arc4
 
 main_create_NoOp@8:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     txna ApplicationArgs 0
-    match create
-    err
+    pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
+    ==
+    assert
+    // avm_types_in_abi/contract.py:5
+    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+    b create
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:

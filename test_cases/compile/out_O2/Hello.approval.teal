@@ -22,12 +22,10 @@ main_after_if_else@2:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     bz main_create_NoOp@9
-    pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
-    match main_greet_route@8
-    err
-
-main_greet_route@8:
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    ==
+    assert
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -51,12 +49,10 @@ main_greet_route@8:
     return
 
 main_create_NoOp@9:
-    pushbytes 0x20df3a54 // method "create(string)void"
     txna ApplicationArgs 0
-    match main_create_route@10
-    err
-
-main_create_route@10:
+    pushbytes 0x20df3a54 // method "create(string)void"
+    ==
+    assert
     txna ApplicationArgs 1
     extract 2 0
     bytec_0 // "greeting"
@@ -73,11 +69,9 @@ main_delete_route@5:
     return // on error: can only call when not creating
 
 main_bare_routing@11:
-    pushint 4 // 4
     txn OnCompletion
-    match main_update@12
-    err
-
-main_update@12:
+    pushint 4 // 4
+    ==
+    assert
     txn ApplicationID
     return // on error: can only call when not creating

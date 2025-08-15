@@ -14,11 +14,12 @@ subroutine main:
         // class VRFVerifier(ARC4Contract):
         txna ApplicationArgs 0                                                tmp%2#0
         v-store tmp%2#0
-        method verify(byte[],byte[],byte[])(byte[],bool)                      Method(verify(byte[],byte[],byte[])(byte[],bool))
-        v-load tmp%2#0                                                        Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
-        match main_verify_route@3 ; b main_after_if_else@10
-
-    main_verify_route@3:
+        v-load tmp%2#0                                                        tmp%2#0
+        method verify(byte[],byte[],byte[])(byte[],bool)                      tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
+        ==                                                                    eq%tmp%2#0
+        v-store eq%tmp%2#0
+        v-load eq%tmp%2#0                                                     eq%tmp%2#0
+        assert
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
         txn OnCompletion                                                      tmp%3#0
@@ -33,7 +34,9 @@ subroutine main:
         v-load tmp%5#0                                                        tmp%5#0
         assert // can only call when not creating
         callsub verify
-        b main_after_if_else@10
+        // regression_tests/branch_to_proto.py:4
+        // class VRFVerifier(ARC4Contract):
+        err
 
     main_bare_routing@6:
         // regression_tests/branch_to_proto.py:4
@@ -54,11 +57,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                 1
         return
-
-    main_after_if_else@10:
-        // regression_tests/branch_to_proto.py:4
-        // class VRFVerifier(ARC4Contract):
-        err
 
 
 // test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:

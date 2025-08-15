@@ -7,14 +7,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%4#0 ? block@4 : block@8
     block@4: // call_NoOp_L9
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "verify(byte[32][],byte[32])bool" => block@5, * => block@12}
-    block@5: // verify_route_L14
+        let eq%tmp%5#0: bool = (== tmp%5#0 method "verify(byte[32][],byte[32])bool")
+        (assert eq%tmp%5#0)
         examples.merkle.contract.MerkleTree.verify[routing]()
         goto block@12
     block@8: // create_NoOp_L9
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create(byte[32])void" => block@9, * => block@12}
-    block@9: // create_route_L10
+        let eq%tmp%6#0: bool = (== tmp%6#0 method "create(byte[32])void")
+        (assert eq%tmp%6#0)
         examples.merkle.contract.MerkleTree.create[routing]()
         goto block@12
     block@12: // after_if_else_L9

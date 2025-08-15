@@ -28,20 +28,20 @@ main_after_if_else@2:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     bz main_create_NoOp@9
-    pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
-    match greet
-    err
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    ==
+    assert
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    b greet
 
 main_create_NoOp@9:
     // compile/apps.py:67
     // class HelloPrfx(HelloBase):
-    pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@10
-    err
-
-main_create_route@10:
+    pushbytes 0x4c5c61ba // method "create()void"
+    ==
     // compile/apps.py:71
     // @arc4.abimethod(create="require")
     return
@@ -59,12 +59,10 @@ main_delete_route@5:
 main_bare_routing@11:
     // compile/apps.py:67
     // class HelloPrfx(HelloBase):
-    pushint 4 // 4
     txn OnCompletion
-    match main_update@12
-    err
-
-main_update@12:
+    pushint 4 // 4
+    ==
+    assert
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID

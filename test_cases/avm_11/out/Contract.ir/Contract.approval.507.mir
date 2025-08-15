@@ -12,10 +12,8 @@ subroutine main:
         // class Contract(ARC4Contract, avm_version=11):
         txna ApplicationArgs 0                                             tmp%2#0
         method test_new_ops()void                                          tmp%2#0,Method(test_new_ops()void)
-        l-load tmp%2#0 1                                                   Method(test_new_ops()void),tmp%2#0
-        match main_test_new_ops_route@3 ; b main_after_if_else@10
-
-    main_test_new_ops_route@3:
+        ==                                                                 eq%tmp%2#0
+        assert
         // avm_11/contract.py:5
         // @arc4.abimethod
         txn OnCompletion                                                   tmp%3#0
@@ -24,7 +22,9 @@ subroutine main:
         txn ApplicationID                                                  tmp%5#0
         assert // can only call when not creating
         callsub test_new_ops
-        b main_after_if_else@10
+        // avm_11/contract.py:4
+        // class Contract(ARC4Contract, avm_version=11):
+        err
 
     main_bare_routing@6:
         // avm_11/contract.py:4
@@ -37,11 +37,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                              1
         return
-
-    main_after_if_else@10:
-        // avm_11/contract.py:4
-        // class Contract(ARC4Contract, avm_version=11):
-        err
 
 
 // test_cases.avm_11.contract.Contract.test_new_ops[routing]() -> void:

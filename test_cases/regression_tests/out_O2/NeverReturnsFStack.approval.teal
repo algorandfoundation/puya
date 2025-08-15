@@ -8,12 +8,10 @@ main:
     dupn 4
     txn NumAppArgs
     bz main_bare_routing@6
-    pushbytes 0x3f27f4a4 // method "method()uint64"
     txna ApplicationArgs 0
-    match main_method_route@3
-    err
-
-main_method_route@3:
+    pushbytes 0x3f27f4a4 // method "method()uint64"
+    ==
+    assert
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -22,11 +20,11 @@ main_method_route@3:
     intc_0 // 1
     bury 1
     txn NumAppArgs
-    bz main_after_if_else@13
+    bz main_after_if_else@9
     pushint 2 // 2
     bury 1
 
-main_after_if_else@13:
+main_after_if_else@9:
     intc_1 // 0
     bury 4
     txn NumAppArgs
@@ -34,11 +32,11 @@ main_after_if_else@13:
     intc_1 // 0
     bury 5
 
-main_for_header@14:
+main_for_header@10:
     dig 4
     dig 2
     <
-    bz main_after_for@18
+    bz main_after_for@14
     dup
     dig 5
     dup
@@ -47,22 +45,22 @@ main_for_header@14:
     bury 2
     dig 4
     bury 4
-    bnz main_after_if_else@17
+    bnz main_after_if_else@13
     dig 3
     intc_0 // 1
     +
     bury 3
 
-main_after_if_else@17:
+main_after_if_else@13:
     dig 2
     bury 4
     dig 4
     intc_0 // 1
     +
     bury 5
-    b main_for_header@14
+    b main_for_header@10
 
-main_after_for@18:
+main_after_for@14:
     dig 3
     itob
     pushbytes "you won't see this"

@@ -12,11 +12,11 @@ subroutine main:
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
         txna ApplicationArgs 0                                                           tmp%2#0
+        l-load tmp%2#0 0                                                                 tmp%2#0
         method test_branching_array_call(bool)void                                       tmp%2#0,Method(test_branching_array_call(bool)void)
-        l-load tmp%2#0 1                                                                 Method(test_branching_array_call(bool)void),tmp%2#0
-        match main_test_branching_array_call_route@3 ; b main_after_if_else@10
-
-    main_test_branching_array_call_route@3:
+        ==                                                                               eq%tmp%2#0
+        l-load eq%tmp%2#0 0                                                              eq%tmp%2#0
+        assert
         // inner_transactions/array_access.py:21
         // @arc4.abimethod
         txn OnCompletion                                                                 tmp%3#0
@@ -28,7 +28,9 @@ subroutine main:
         l-load tmp%5#0 0                                                                 tmp%5#0
         assert // can only call when not creating
         callsub test_branching_array_call
-        b main_after_if_else@10
+        // inner_transactions/array_access.py:20
+        // class ArrayAccessContract(ARC4Contract):
+        err
 
     main_bare_routing@6:
         // inner_transactions/array_access.py:20
@@ -45,11 +47,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                            1
         return
-
-    main_after_if_else@10:
-        // inner_transactions/array_access.py:20
-        // class ArrayAccessContract(ARC4Contract):
-        err
 
 
 // test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call[routing]() -> void:

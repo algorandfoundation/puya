@@ -27,8 +27,8 @@ main test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init:
         goto tmp%10#0 ? block@7 : block@9
     block@7: // call_NoOp_L67
         let tmp%11#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%11#0 {method "greet(string)string" => block@8, * => block@13}
-    block@8: // greet_route_L32
+        let eq%tmp%11#0: bool = (== tmp%11#0 method "greet(string)string")
+        (assert eq%tmp%11#0)
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
@@ -44,15 +44,13 @@ main test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init:
         exit lifted%return#0
     block@9: // create_NoOp_L67
         let tmp%12#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%12#0 {method "create()void" => block@10, * => block@13}
-    block@10: // create_route_L71
+        let eq%tmp%12#0: bool = (== tmp%12#0 method "create()void")
+        (assert eq%tmp%12#0)
         exit lifted%return#0
     block@11: // bare_routing_L67
         let tmp%13#0: uint64 = (txn OnCompletion)
-        switch tmp%13#0 {4u => block@12, * => block@13}
-    block@12: // update_L28
+        let eq%tmp%13#0: bool = (== tmp%13#0 4u)
+        (assert eq%tmp%13#0)
         let tmp%14#0: uint64 = (txn ApplicationID)
         (assert tmp%14#0) // can only call when not creating
         exit lifted%return#0
-    block@13: // after_if_else_L67
-        fail

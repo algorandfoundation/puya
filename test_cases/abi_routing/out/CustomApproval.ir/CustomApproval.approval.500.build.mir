@@ -59,18 +59,19 @@ subroutine main:
         txn NumAppArgs                                                                       tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                       tmp%0#1
-        bz main_bare_routing@12 ; b main_abi_routing@10
+        bz main_bare_routing@11 ; b main_abi_routing@10
 
     main_abi_routing@10:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         txna ApplicationArgs 0                                                               tmp%2#0
         v-store tmp%2#0
-        method add_one(uint64)uint64                                                         Method(add_one(uint64)uint64)
-        v-load tmp%2#0                                                                       Method(add_one(uint64)uint64),tmp%2#0
-        match main_add_one_route@11 ; b main_after_if_else@13
-
-    main_add_one_route@11:
+        v-load tmp%2#0                                                                       tmp%2#0
+        method add_one(uint64)uint64                                                         tmp%2#0,Method(add_one(uint64)uint64)
+        ==                                                                                   eq%tmp%2#0
+        v-store eq%tmp%2#0
+        v-load eq%tmp%2#0                                                                    eq%tmp%2#0
+        assert
         // abi_routing/custom_approval.py:23
         // @arc4.abimethod
         txn OnCompletion                                                                     tmp%3#1
@@ -85,9 +86,11 @@ subroutine main:
         v-load tmp%5#0                                                                       tmp%5#0
         assert // can only call when not creating
         callsub add_one
-        b main_after_if_else@13
+        // abi_routing/custom_approval.py:6
+        // class CustomApproval(ARC4Contract):
+        err
 
-    main_bare_routing@12:
+    main_bare_routing@11:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         txn OnCompletion                                                                     tmp%7#0
@@ -106,11 +109,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                                1
         return
-
-    main_after_if_else@13:
-        // abi_routing/custom_approval.py:6
-        // class CustomApproval(ARC4Contract):
-        err
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.add_one[routing]() -> void:

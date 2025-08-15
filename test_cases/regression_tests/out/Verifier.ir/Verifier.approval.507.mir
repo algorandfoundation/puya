@@ -12,10 +12,8 @@ subroutine main:
         // class Verifier(algopy.ARC4Contract):
         txna ApplicationArgs 0                                                                        tmp%2#0
         method verify(byte[32][])byte[]                                                               tmp%2#0,Method(verify(byte[32][])byte[])
-        l-load tmp%2#0 1                                                                              Method(verify(byte[32][])byte[]),tmp%2#0
-        match main_verify_route@3 ; b main_after_if_else@10
-
-    main_verify_route@3:
+        ==                                                                                            eq%tmp%2#0
+        assert
         // regression_tests/jira_ak_752.py:13
         // @abimethod
         txn OnCompletion                                                                              tmp%3#0
@@ -24,7 +22,9 @@ subroutine main:
         txn ApplicationID                                                                             tmp%5#0
         assert // can only call when not creating
         callsub verify
-        b main_after_if_else@10
+        // regression_tests/jira_ak_752.py:12
+        // class Verifier(algopy.ARC4Contract):
+        err
 
     main_bare_routing@6:
         // regression_tests/jira_ak_752.py:12
@@ -37,11 +37,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                                         1
         return
-
-    main_after_if_else@10:
-        // regression_tests/jira_ak_752.py:12
-        // class Verifier(algopy.ARC4Contract):
-        err
 
 
 // test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:

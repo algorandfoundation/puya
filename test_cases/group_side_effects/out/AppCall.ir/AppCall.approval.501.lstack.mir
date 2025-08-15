@@ -1,55 +1,52 @@
-// Op                                                           Stack (out)
+// Op                                                       Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // group_side_effects/other.py:4
         // class AppCall(ARC4Contract):
-        txn NumAppArgs                                          tmp%0#1
-        l-load tmp%0#1 0                                        tmp%0#1
+        txn NumAppArgs                                      tmp%0#1
+        l-load tmp%0#1 0                                    tmp%0#1
         bz main_bare_routing@6 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // group_side_effects/other.py:4
         // class AppCall(ARC4Contract):
-        txna ApplicationArgs 0                                  tmp%2#0
-        method some_value()uint64                               tmp%2#0,Method(some_value()uint64)
-        l-load tmp%2#0 1                                        Method(some_value()uint64),tmp%2#0
-        match main_some_value_route@3 ; b main_after_if_else@10
-
-    main_some_value_route@3:
+        txna ApplicationArgs 0                              tmp%2#0
+        l-load tmp%2#0 0                                    tmp%2#0
+        method some_value()uint64                           tmp%2#0,Method(some_value()uint64)
+        ==                                                  eq%tmp%2#0
+        l-load eq%tmp%2#0 0                                 eq%tmp%2#0
+        assert
         // group_side_effects/other.py:5
         // @arc4.abimethod()
-        txn OnCompletion                                        tmp%3#0
-        l-load tmp%3#0 0                                        tmp%3#0
-        !                                                       tmp%4#0
-        l-load tmp%4#0 0                                        tmp%4#0
+        txn OnCompletion                                    tmp%3#0
+        l-load tmp%3#0 0                                    tmp%3#0
+        !                                                   tmp%4#0
+        l-load tmp%4#0 0                                    tmp%4#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                       tmp%5#0
-        l-load tmp%5#0 0                                        tmp%5#0
+        txn ApplicationID                                   tmp%5#0
+        l-load tmp%5#0 0                                    tmp%5#0
         assert // can only call when not creating
         callsub some_value
-        b main_after_if_else@10
+        // group_side_effects/other.py:4
+        // class AppCall(ARC4Contract):
+        err
 
     main_bare_routing@6:
         // group_side_effects/other.py:4
         // class AppCall(ARC4Contract):
-        txn OnCompletion                                        tmp%7#0
-        l-load tmp%7#0 0                                        tmp%7#0
-        !                                                       not%tmp%7#0
-        l-load not%tmp%7#0 0                                    not%tmp%7#0
+        txn OnCompletion                                    tmp%7#0
+        l-load tmp%7#0 0                                    tmp%7#0
+        !                                                   not%tmp%7#0
+        l-load not%tmp%7#0 0                                not%tmp%7#0
         assert
-        txn ApplicationID                                       tmp%8#0
-        l-load tmp%8#0 0                                        tmp%8#0
-        !                                                       tmp%9#0
-        l-load tmp%9#0 0                                        tmp%9#0
+        txn ApplicationID                                   tmp%8#0
+        l-load tmp%8#0 0                                    tmp%8#0
+        !                                                   tmp%9#0
+        l-load tmp%9#0 0                                    tmp%9#0
         assert // can only call when creating
-        int 1                                                   1
+        int 1                                               1
         return
-
-    main_after_if_else@10:
-        // group_side_effects/other.py:4
-        // class AppCall(ARC4Contract):
-        err
 
 
 // test_cases.group_side_effects.other.AppCall.some_value[routing]() -> void:
@@ -57,24 +54,24 @@ subroutine some_value:
     some_value_block@0:
         // group_side_effects/other.py:7
         // return Global.group_size * (Txn.group_index + 1)
-        global GroupSize                                        tmp%0#1
-        txn GroupIndex                                          tmp%0#1,tmp%1#1
-        l-load tmp%1#1 0                                        tmp%0#1,tmp%1#1
-        int 1                                                   tmp%0#1,tmp%1#1,1
-        +                                                       tmp%0#1,tmp%2#1
-        l-load tmp%0#1 1                                        tmp%2#1,tmp%0#1
-        l-load tmp%2#1 1                                        tmp%0#1,tmp%2#1
-        *                                                       tmp%3#0
+        global GroupSize                                    tmp%0#1
+        txn GroupIndex                                      tmp%0#1,tmp%1#1
+        l-load tmp%1#1 0                                    tmp%0#1,tmp%1#1
+        int 1                                               tmp%0#1,tmp%1#1,1
+        +                                                   tmp%0#1,tmp%2#1
+        l-load tmp%0#1 1                                    tmp%2#1,tmp%0#1
+        l-load tmp%2#1 1                                    tmp%0#1,tmp%2#1
+        *                                                   tmp%3#0
         // group_side_effects/other.py:5
         // @arc4.abimethod()
-        l-load tmp%3#0 0                                        tmp%3#0
-        itob                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                  tmp%2#0
-        l-load tmp%2#0 0                                        tmp%2#0
+        l-load tmp%3#0 0                                    tmp%3#0
+        itob                                                aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                     aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                              tmp%2#0
+        l-load tmp%2#0 0                                    tmp%2#0
         log
-        int 1                                                   1
+        int 1                                               1
         return
 
 

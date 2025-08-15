@@ -14,11 +14,12 @@ subroutine main:
         // class AbiCallContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                                    tmp%2#0
         v-store tmp%2#0
-        method test_implicit_conversion_abi_call(uint64[],uint64)void                             Method(test_implicit_conversion_abi_call(uint64[],uint64)void)
-        v-load tmp%2#0                                                                            Method(test_implicit_conversion_abi_call(uint64[],uint64)void),tmp%2#0
-        match main_test_implicit_conversion_abi_call_route@3 ; b main_after_if_else@10
-
-    main_test_implicit_conversion_abi_call_route@3:
+        v-load tmp%2#0                                                                            tmp%2#0
+        method test_implicit_conversion_abi_call(uint64[],uint64)void                             tmp%2#0,Method(test_implicit_conversion_abi_call(uint64[],uint64)void)
+        ==                                                                                        eq%tmp%2#0
+        v-store eq%tmp%2#0
+        v-load eq%tmp%2#0                                                                         eq%tmp%2#0
+        assert
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
         txn OnCompletion                                                                          tmp%3#0
@@ -33,7 +34,9 @@ subroutine main:
         v-load tmp%5#0                                                                            tmp%5#0
         assert // can only call when not creating
         callsub test_implicit_conversion_abi_call
-        b main_after_if_else@10
+        // array/unused_opt_allowed.py:12
+        // class AbiCallContract(arc4.ARC4Contract):
+        err
 
     main_bare_routing@6:
         // array/unused_opt_allowed.py:12
@@ -54,11 +57,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                                     1
         return
-
-    main_after_if_else@10:
-        // array/unused_opt_allowed.py:12
-        // class AbiCallContract(arc4.ARC4Contract):
-        err
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

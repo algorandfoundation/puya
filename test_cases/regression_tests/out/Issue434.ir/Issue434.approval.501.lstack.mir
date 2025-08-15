@@ -12,11 +12,11 @@ subroutine main:
         // regression_tests/issue_434.py:4
         // class Issue434(ARC4Contract):
         txna ApplicationArgs 0                                      tmp%2#0
+        l-load tmp%2#0 0                                            tmp%2#0
         method method(uint64)void                                   tmp%2#0,Method(method(uint64)void)
-        l-load tmp%2#0 1                                            Method(method(uint64)void),tmp%2#0
-        match main_method_route@3 ; b main_after_if_else@10
-
-    main_method_route@3:
+        ==                                                          eq%tmp%2#0
+        l-load eq%tmp%2#0 0                                         eq%tmp%2#0
+        assert
         // regression_tests/issue_434.py:6
         // @arc4.abimethod
         txn OnCompletion                                            tmp%3#0
@@ -28,7 +28,9 @@ subroutine main:
         l-load tmp%5#0 0                                            tmp%5#0
         assert // can only call when not creating
         callsub method
-        b main_after_if_else@10
+        // regression_tests/issue_434.py:4
+        // class Issue434(ARC4Contract):
+        err
 
     main_bare_routing@6:
         // regression_tests/issue_434.py:4
@@ -45,11 +47,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                       1
         return
-
-    main_after_if_else@10:
-        // regression_tests/issue_434.py:4
-        // class Issue434(ARC4Contract):
-        err
 
 
 // test_cases.regression_tests.issue_434.Issue434.method[routing]() -> void:

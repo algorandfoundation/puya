@@ -14,11 +14,12 @@ subroutine main:
         // class MutableParams2(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                   tmp%2#0
         v-store tmp%2#0
-        method test_array_rebinding()void                                        Method(test_array_rebinding()void)
-        v-load tmp%2#0                                                           Method(test_array_rebinding()void),tmp%2#0
-        match main_test_array_rebinding_route@3 ; b main_after_if_else@10
-
-    main_test_array_rebinding_route@3:
+        v-load tmp%2#0                                                           tmp%2#0
+        method test_array_rebinding()void                                        tmp%2#0,Method(test_array_rebinding()void)
+        ==                                                                       eq%tmp%2#0
+        v-store eq%tmp%2#0
+        v-load eq%tmp%2#0                                                        eq%tmp%2#0
+        assert
         // arc4_types/mutable_params2.py:5
         // @arc4.abimethod()
         txn OnCompletion                                                         tmp%3#0
@@ -33,7 +34,9 @@ subroutine main:
         v-load tmp%5#0                                                           tmp%5#0
         assert // can only call when not creating
         callsub test_array_rebinding
-        b main_after_if_else@10
+        // arc4_types/mutable_params2.py:4
+        // class MutableParams2(arc4.ARC4Contract):
+        err
 
     main_bare_routing@6:
         // arc4_types/mutable_params2.py:4
@@ -54,11 +57,6 @@ subroutine main:
         assert // can only call when creating
         int 1                                                                    1
         return
-
-    main_after_if_else@10:
-        // arc4_types/mutable_params2.py:4
-        // class MutableParams2(arc4.ARC4Contract):
-        err
 
 
 // test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
