@@ -30,8 +30,18 @@ def optimize_teal_program(
     maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
 
     if context.options.optimization_level > 0:
+        branchable_subroutines = set[str]()
         for teal_sub in teal_program.all_subroutines:
-            _optimize_subroutine_blocks(context, teal_sub)
+            first_block = teal_sub.blocks[0]
+            if first_block.ops[0].op_code != "proto":
+                for block in teal_sub.blocks:
+                    if block.ops[-1].op_code == "retsub":
+                        break
+                else:
+                    branchable_subroutines.add(first_block.label)
+
+        for teal_sub in teal_program.all_subroutines:
+            _optimize_subroutine_blocks(context, teal_sub, branchable_subroutines)
         maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
     gather_program_constants(teal_program)
@@ -48,7 +58,9 @@ def _optimize_subroutine_ops(context: CompileContext, teal_sub: models.TealSubro
         teal_block.validate_stack_height()
 
 
-def _optimize_subroutine_blocks(context: CompileContext, teal_sub: models.TealSubroutine) -> None:
+def _optimize_subroutine_blocks(
+    context: CompileContext, teal_sub: models.TealSubroutine, branchable_subroutines: set[str]
+) -> None:
     logger.debug(
         f"optimizing TEAL subroutine blocks {teal_sub.signature}",
         location=teal_sub.source_location,
@@ -67,7 +79,26 @@ def _optimize_subroutine_blocks(context: CompileContext, teal_sub: models.TealSu
         # thus this still maintains the "almost basic" structure as outlined above.
         _inline_single_op_blocks(teal_sub)
         _inline_singly_referenced_blocks(teal_sub, level=context.options.optimization_level)
+        if branchable_subroutines:
+            _replace_callsubs_with_branch(teal_sub, branchable_subroutines)
+        _inline_jump_chains(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
+
+
+def _replace_callsubs_with_branch(
+    teal_sub: models.TealSubroutine, branchable_subroutines: set[str]
+) -> None:
+    for block in teal_sub.blocks:
+        for op_idx, op in enumerate(block.ops):
+            match op:
+                case models.CallSub(target=sub_id) as callsub if sub_id in branchable_subroutines:
+                    # branchable subroutines are terminal, so discard any remaining ops
+                    block.ops[op_idx:] = [
+                        models.Branch(
+                            target=callsub.target, source_location=callsub.source_location
+                        )
+                    ]
+                    break
 
 
 def _optimize_block(block: models.TealBlock, *, level: int) -> None:
