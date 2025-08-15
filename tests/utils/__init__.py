@@ -56,7 +56,7 @@ class _CompileCache(typing.NamedTuple):
     parse_result: ParseResult
     module_awst: awst_nodes.AWST
     compilation_set: Sequence[ContractReference | LogicSigReference]
-    logs: list[Log]
+    logs: Sequence[Log]
 
 
 @functools.cache
@@ -137,7 +137,7 @@ def narrowed_compile_context(
     return narrowed_sources_by_path, compilation_set
 
 
-def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
+def _filter_logs(logs: Sequence[Log], root_dir: Path, src_path: Path) -> list[Log]:
     root_dir = root_dir.resolve()
     relative_src_root = src_path.relative_to(root_dir)
     result = []
@@ -213,7 +213,7 @@ def compile_src_from_options(options: PuyaPyOptions) -> CompilationResult:
 
         return CompilationResult(
             module_awst=narrowed_awst,
-            logs=awst_logs + log_ctx.logs,
+            logs=[*awst_logs, *log_ctx.logs],
             teal=filtered_teal,
             root_dir=root_dir,
             src_path=src_path,

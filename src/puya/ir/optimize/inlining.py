@@ -1,4 +1,3 @@
-import copy
 import itertools
 import typing
 from collections import defaultdict
@@ -9,11 +8,12 @@ import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
 from puya.ir import models
+from puya.ir._utils import deep_copy
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
-from puya.ir.visitor import IRTraverser
+from puya.ir.visitor import IRTraverser, NoOpIRVisitor
 from puya.ir.visitor_mutator import IRMutator
 from puya.utils import lazy_setdefault, not_none
 
@@ -337,13 +337,29 @@ def _inlined_blocks(
     assert (
         sub not in ref_collector.subroutines
     ), "auto recursive blocks should already be filtered out"
-    memo = {id(s): s for s in ref_collector.subroutines}
-    assert sub not in ref_collector.subroutines
-    # cloning entire sub even though only the blocks are needed,
-    # because Subroutine has special logic to prevent hitting recursion limits on deep copy
-    sub_copy = copy.deepcopy(sub, memo=memo)
-    _OffsetRegisterVersions.apply(sub_copy.body, register_offsets=register_offsets)
-    return sub_copy.body
+    body_copy = deep_copy(sub.body)
+    _OffsetRegisterVersions.apply(body_copy, register_offsets=register_offsets)
+    # copy also copied any subroutine references, restore the originals
+    sub_restorer = _SubroutineReplacer(subs={s.id: s for s in ref_collector.subroutines})
+    for block in body_copy:
+        for op in block.ops:
+            op.accept(sub_restorer)
+    return body_copy
+
+
+@attrs.frozen
+class _SubroutineReplacer(NoOpIRVisitor[None]):
+    subs: Mapping[str, models.Subroutine]
+
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        # need to visit source incase it is an invoke
+        ass.source.accept(self)
+
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
+        try:
+            callsub.target = self.subs[callsub.target.id]
+        except KeyError:
+            return
 
 
 @attrs.define

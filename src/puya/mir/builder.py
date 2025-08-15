@@ -1,5 +1,5 @@
+import contextlib
 import typing
-from collections.abc import Sequence
 
 import attrs
 
@@ -26,6 +26,8 @@ class MemoryIRBuilder(IRVisitor[None]):
     context: ProgramMIRContext = attrs.field(on_setattr=attrs.setters.frozen)
     current_subroutine: ir.Subroutine
     is_main: bool
+    _block_names: dict[ir.BasicBlock, str] = attrs.field(factory=dict)
+    _param_idxs: dict[ir.Register, int | None] = attrs.field(factory=dict)
     current_ops: list[models.Op] = attrs.field(factory=list)
     terminator: models.ControlOp | None = None
     active_op: ir.Op | ir.ControlOp | None = None
@@ -38,18 +40,35 @@ class MemoryIRBuilder(IRVisitor[None]):
         self.terminator = op
 
     def _get_block_name(self, block: ir.BasicBlock) -> str:
+        try:
+            return self._block_names[block]
+        except KeyError:
+            pass
         assert block in self.current_subroutine.body
         comment = (block.comment or "block").replace(" ", "_")
         subroutine_name = self.context.subroutine_names[self.current_subroutine]
-        return f"{subroutine_name}_{comment}@{block.id}"
+        block_name = self._block_names[block] = f"{subroutine_name}_{comment}@{block.id}"
+        return block_name
+
+    def _get_param_idx(self, target: ir.Register) -> int | None:
+        with contextlib.suppress(KeyError):
+            return self._param_idxs[target]
+        param_idx = None
+        try:
+            param_idx = self.current_subroutine.parameters.index(target)
+        except ValueError:
+            pass
+        else:
+            param_idx -= len(self.current_subroutine.parameters)
+        self._param_idxs[target] = param_idx
+        return param_idx
 
     def visit_assignment(self, ass: ir.Assignment) -> None:
         ass.source.accept(self)
         # right most target is top of stack
         for target in reversed(ass.targets):
-            try:
-                param_idx = self.current_subroutine.parameters.index(target)
-            except ValueError:
+            param_idx = self._get_param_idx(target)
+            if param_idx is None:
                 self._add_op(
                     models.AbstractStore(
                         local_id=target.local_id,
@@ -58,20 +77,18 @@ class MemoryIRBuilder(IRVisitor[None]):
                     )
                 )
             else:
-                index = param_idx - len(self.current_subroutine.parameters)
                 self._add_op(
                     models.StoreParam(
                         local_id=target.local_id,
-                        index=index,
+                        index=param_idx,
                         source_location=ass.source_location,
                         atype=target.atype,
                     )
                 )
 
     def visit_register(self, reg: ir.Register) -> None:
-        try:
-            param_idx = self.current_subroutine.parameters.index(reg)
-        except ValueError:
+        param_idx = self._get_param_idx(reg)
+        if param_idx is None:
             self._add_op(
                 models.AbstractLoad(
                     local_id=reg.local_id,
@@ -80,11 +97,10 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
         else:
-            index = param_idx - len(self.current_subroutine.parameters)
             self._add_op(
                 models.LoadParam(
                     local_id=reg.local_id,
-                    index=index,
+                    index=param_idx,
                     source_location=(self.active_op or reg).source_location,
                     atype=reg.atype,
                 )
@@ -121,12 +137,12 @@ class MemoryIRBuilder(IRVisitor[None]):
             if isinstance(read.slot, ir.UInt64Constant):
                 op = "load"
                 consumes = 0
-                immediates = [read.slot.value]
+                immediates: tuple[int, ...] = (read.slot.value,)
             else:
                 read.slot.accept(self)
                 op = "loads"
                 consumes = 1
-                immediates = []
+                immediates = ()
             self._add_op(
                 models.IntrinsicOp(
                     op_code=op,
@@ -150,12 +166,12 @@ class MemoryIRBuilder(IRVisitor[None]):
             if isinstance(write.slot, ir.UInt64Constant):
                 op = "store"
                 consumes = 1
-                immediates = [write.slot.value]
+                immediates: tuple[int, ...] = (write.slot.value,)
             else:
                 write.slot.accept(self)
                 op = "stores"
                 consumes = 2
-                immediates = []
+                immediates = ()
             write.value.accept(self)
             self._add_op(
                 models.IntrinsicOp(
@@ -305,7 +321,7 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_goto_nth(self, goto_nth: ir.GotoNth) -> None:
-        block_labels = [self._get_block_name(block) for block in goto_nth.blocks]
+        block_labels = tuple(self._get_block_name(block) for block in goto_nth.blocks)
         goto_nth.value.accept(self)
         self._terminate(
             models.Switch(
@@ -500,8 +516,8 @@ def build_new_slot_sub(allocation_slot: int) -> models.MemorySubroutine:
 
 def _produces_from_op(
     prefix: str, size: int, maybe_assignment: ir.IRVisitable | None
-) -> Sequence[str]:
-    produces = models.produces_from_desc(prefix, size)
+) -> tuple[str, ...]:
     if isinstance(maybe_assignment, ir.Assignment):
-        produces = [r.local_id for r in maybe_assignment.targets]
-    return produces
+        return tuple(r.local_id for r in maybe_assignment.targets)
+    else:
+        return models.produces_from_desc(prefix, size)

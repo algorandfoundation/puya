@@ -10,7 +10,7 @@ from puya.mir import models as mir
 from puya.mir.context import ProgramMIRContext
 from puya.mir.models import FStackPreAllocation
 from puya.mir.stack import Stack
-from puya.mir.vla import VariableLifetimeAnalysis
+from puya.mir.visitor import DefaultMIRVisitor
 from puya.utils import attrs_extend
 
 logger = log.get_logger(__name__)
@@ -70,8 +70,7 @@ def _get_pre_alloc(
 
 
 def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine) -> None:
-    vla = VariableLifetimeAnalysis(subroutine)
-    all_variables = vla.all_variables
+    all_variables = _VariableCollector.collect(subroutine)
     if not all_variables:
         subroutine.pre_alloc = FStackPreAllocation.empty()
         return
@@ -124,3 +123,25 @@ def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine
                 block.terminator = attrs.evolve(
                     retsub, fx_height=len(stack.f_stack) + len(stack.x_stack)
                 )
+
+
+@attrs.frozen
+class _VariableCollector(DefaultMIRVisitor[None]):
+    variables: set[str] = attrs.field(factory=set)
+
+    @classmethod
+    def collect(cls, sub: mir.MemorySubroutine) -> Sequence[str]:
+        visitor = cls()
+        for block in sub.body:
+            for op in block.mem_ops:
+                op.accept(visitor)
+        return sorted(visitor.variables)
+
+    def visit_default(self, op: mir.BaseOp) -> None:
+        pass
+
+    def visit_abstract_load(self, load: mir.AbstractLoad) -> None:
+        self.variables.add(load.local_id)
+
+    def visit_abstract_store(self, store: mir.AbstractStore) -> None:
+        self.variables.add(store.local_id)

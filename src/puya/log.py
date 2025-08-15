@@ -8,7 +8,6 @@ import platform
 import sys
 import types
 import typing
-from collections import Counter
 from collections.abc import Iterator, Mapping, Sequence
 from contextvars import ContextVar
 from enum import IntEnum, StrEnum, auto
@@ -55,22 +54,30 @@ class Log:
 
 @attrs.define
 class LoggingContext:
-    logs: list[Log] = attrs.field(factory=list)
+    _logs: list[Log] = attrs.field(factory=list)
     sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
+    _errors: int = 0
+    _criticals: int = 0
 
-    def _log_level_counts(self) -> Mapping[LogLevel, int]:
-        return Counter(log.level for log in self.logs)
+    @property
+    def logs(self) -> Sequence[Log]:
+        return self._logs
 
     @property
     def num_errors(self) -> int:
-        level_counts = self._log_level_counts()
-        return sum(count for level, count in level_counts.items() if level >= LogLevel.error)
+        return self._errors + self._criticals
+
+    def append_log(self, log: Log) -> None:
+        if log.level == LogLevel.error:
+            self._errors += 1
+        if log.level == LogLevel.critical:
+            self._criticals += 1
+        self._logs.append(log)
 
     def exit_if_errors(self) -> None:
-        level_counts = self._log_level_counts()
-        if level_counts[LogLevel.critical]:
+        if self._criticals:
             sys.exit(2)
-        elif level_counts[LogLevel.error]:
+        if self._errors:
             sys.exit(1)
 
 
@@ -422,7 +429,7 @@ class _Logger:
                 message = event % args
             else:
                 message = str(event)
-            log_ctx.logs.append(Log(level, message, location))
+            log_ctx.append_log(Log(level, message, location))
 
 
 def _get_pretty_source(
