@@ -4,33 +4,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%0#1 ? block@2 : block@6
     block@2: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_array_rebinding()void" => block@3, * => block@10}
+        switch tmp%2#0 {method "test_array_rebinding()void" => block@3, * => block@5}
     block@3: // test_array_rebinding_route_L5
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
-        test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding()
-        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#0: bool = 1u
-        goto block@11
-    block@6: // bare_routing_L4
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        goto tmp%7#0 ? block@10 : block@7
-    block@7: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
+        (assert tmp%7#0) // OnCompletion must be NoOp && can only call when not creating
+        test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]()
+        goto block@5
+    block@5: // switch_case_next_L4
+        fail
+    block@6: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // can only call when creating
-        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#1: bool = 1u
-        goto block@11
-    block@10: // after_if_else_L4
-        let test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#2: bool = 0u
-        goto block@11
-    block@11: // after_inlined_test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#1 <- block@7, test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_router__%0#2 <- block@10)
-        return tmp%0#0
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (! tmp%10#0)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+        (assert tmp%12#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
 
-subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
     block@0: // L5
         let a#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x00)
         let a#1: Encoded(len+uint8[]) = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a#0, 1u)
@@ -42,7 +36,7 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebin
         let encoded_array%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x2a, 0x04)
         let tmp%1#0: bool = (== a#3 encoded_array%3#0)
         (assert tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: Encoded(len+uint8[]), assign_local: bool) -> Encoded(len+uint8[]):
     block@0: // L15

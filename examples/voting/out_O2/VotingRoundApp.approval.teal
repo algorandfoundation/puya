@@ -9,6 +9,7 @@ main:
     dupn 6
     pushbytes ""
     dupn 10
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "is_bootstrapped"
@@ -19,21 +20,17 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    txn NumAppArgs
-    bz main_after_if_else@25
-    pushbytess 0xae897f6b 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void", method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0
-    match main_create_route@5 main_bootstrap_route@6 main_close_route@7 main_get_preconditions_route@20 main_vote_route@21
-
-main_after_if_else@25:
-    err
-
-main_vote_route@21:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    bz main_create_NoOp@9
+    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+    err
+
+main_vote_route@8:
     txn GroupIndex
     intc_1 // 1
     -
@@ -47,7 +44,7 @@ main_vote_route@21:
     txna ApplicationArgs 2
     dup
     cover 2
-    bury 20
+    bury 21
     pushint 7700 // 7700
     intc_0 // 0
     callsub ensure_budget
@@ -67,7 +64,7 @@ main_vote_route@21:
     intc_0 // 0
     extract_uint16
     dup
-    bury 6
+    bury 7
     swap
     intc_0 // 0
     extract_uint16
@@ -94,19 +91,19 @@ main_vote_route@21:
     ==
     assert // Payment must be the exact min balance
     intc_0 // 0
-    bury 9
+    bury 10
     intc_0 // 0
-    bury 4
+    bury 5
 
-main_for_header@22:
-    dig 3
-    dig 3
+main_for_header@18:
+    dig 4
+    dig 4
     <
-    bz main_after_for@24
-    dig 16
+    bz main_after_for@20
+    dig 17
     dup
     extract 2 0
-    dig 5
+    dig 6
     dup
     cover 2
     getbyte
@@ -120,7 +117,7 @@ main_for_header@22:
     dup2
     <
     assert // Answer option index invalid
-    dig 12
+    dig 13
     dup
     cover 2
     uncover 3
@@ -137,7 +134,7 @@ main_for_header@22:
     cover 2
     box_replace
     +
-    bury 11
+    bury 12
     txn Sender
     dup
     box_del
@@ -155,19 +152,13 @@ main_for_header@22:
     app_global_put
     intc_1 // 1
     +
-    bury 4
-    b main_for_header@22
+    bury 5
+    b main_for_header@18
 
-main_after_for@24:
-    intc_1 // 1
+main_after_for@20:
     return
 
-main_get_preconditions_route@20:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_get_preconditions_route@7:
     txna ApplicationArgs 1
     extract 2 0
     callsub voting_open
@@ -192,15 +183,9 @@ main_get_preconditions_route@20:
     swap
     concat
     log
-    intc_1 // 1
     return
 
-main_close_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_close_route@6:
     pushint 20000 // 20000
     intc_0 // 0
     callsub ensure_budget
@@ -249,87 +234,87 @@ main_close_route@7:
     concat
     pushbytes ",\"tallies\":["
     concat
-    bury 15
+    bury 16
     intc_0 // 0
-    bury 8
+    bury 9
     intc_0 // 0
     bytec_2 // "option_counts"
     app_global_get_ex
     swap
     dup
     cover 2
-    bury 18
+    bury 19
     assert // check self.option_counts exists
     intc_0 // 0
     extract_uint16
-    bury 10
+    bury 12
     intc_0 // 0
-    bury 4
+    bury 5
 
-main_for_header@8:
-    dig 3
-    dig 10
+main_for_header@25:
+    dig 4
+    dig 12
     <
-    bz main_after_for@19
-    dig 15
+    bz main_after_for@36
+    dig 16
     extract 2 0
     dup
-    bury 19
-    dig 4
+    bury 20
+    dig 5
     dup
     cover 2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bury 13
+    bury 14
+    dig 16
+    bury 16
+    bz main_after_if_else@28
     dig 15
-    bury 15
-    bz main_after_if_else@11
-    dig 14
     pushbytes ","
     concat
-    bury 14
+    bury 15
 
-main_after_if_else@11:
-    dig 13
+main_after_if_else@28:
+    dig 14
     dup
-    bury 16
-    dig 12
+    bury 17
+    dig 13
     pushbytes 0x00
     b>
-    dig 9
-    bury 9
+    dig 10
+    bury 10
     swap
-    bury 15
-    bz main_after_if_else@18
-    dig 14
+    bury 16
+    bz main_after_if_else@35
+    dig 15
     pushbytes "["
     concat
-    bury 15
-    dig 17
-    dig 4
+    bury 16
+    dig 18
+    dig 5
     getbyte
-    bury 2
+    bury 3
     intc_0 // 0
-    bury 5
+    bury 6
 
-main_for_header@13:
-    dig 4
-    dig 2
+main_for_header@30:
+    dig 5
+    dig 3
     <
-    bz main_after_for@17
-    dig 14
-    bury 14
-    dig 4
-    bz main_after_if_else@16
-    dig 14
+    bz main_after_for@34
+    dig 15
+    bury 15
+    dig 5
+    bz main_after_if_else@33
+    dig 15
     pushbytes ","
     concat
-    bury 14
+    bury 15
 
-main_after_if_else@16:
-    dig 13
+main_after_if_else@33:
+    dig 14
     bytec_3 // "V"
-    dig 9
+    dig 10
     dup
     cover 3
     intc_3 // 8
@@ -337,37 +322,37 @@ main_after_if_else@16:
     btoi
     callsub itoa
     concat
-    bury 16
+    bury 17
     intc_1 // 1
     +
-    bury 8
+    bury 9
+    dig 5
+    intc_1 // 1
+    +
+    bury 6
+    b main_for_header@30
+
+main_after_for@34:
+    dig 15
+    pushbytes "]"
+    concat
+    dig 9
+    bury 9
+    bury 15
+
+main_after_if_else@35:
+    dig 7
+    bury 9
+    dig 14
+    bury 16
     dig 4
     intc_1 // 1
     +
     bury 5
-    b main_for_header@13
+    b main_for_header@25
 
-main_after_for@17:
-    dig 14
-    pushbytes "]"
-    concat
-    dig 8
-    bury 8
-    bury 14
-
-main_after_if_else@18:
-    dig 6
-    bury 8
-    dig 13
-    bury 15
-    dig 3
-    intc_1 // 1
-    +
-    bury 4
-    b main_for_header@8
-
-main_after_for@19:
-    dig 14
+main_after_for@36:
+    dig 15
     pushbytes "]}}"
     concat
     itxn_begin
@@ -402,15 +387,9 @@ main_after_for@19:
     pushbytes "nft_asset_id"
     itxn CreatedAssetID
     app_global_put
-    intc_1 // 1
     return
 
-main_bootstrap_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_bootstrap_route@5:
     txn GroupIndex
     intc_1 // 1
     -
@@ -454,17 +433,15 @@ main_bootstrap_route@6:
     bytec_3 // "V"
     swap
     box_create
-    assert
-    intc_1 // 1
     return
 
-main_create_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    !
-    assert // can only call when creating
+main_create_NoOp@9:
+    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+    txna ApplicationArgs 0
+    match main_create_route@10
+    err
+
+main_create_route@10:
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -478,7 +455,7 @@ main_create_route@5:
     txna ApplicationArgs 6
     dup
     cover 5
-    bury 19
+    bury 20
     txna ApplicationArgs 7
     btoi
     txna ApplicationArgs 8
@@ -522,41 +499,41 @@ main_create_route@5:
     <=
     assert // Can't have more than 112 questions
     intc_0 // 0
-    bury 1
+    bury 2
     intc_0 // 0
-    bury 6
+    bury 7
 
-main_for_header@30:
-    dig 5
+main_for_header@13:
+    dig 6
     dig 11
     <
-    bz main_after_for@32
-    dig 12
+    bz main_after_for@15
+    dig 13
     extract 2 0
-    dig 6
+    dig 7
     dup
     cover 2
     getbyte
-    dig 2
+    dig 3
     +
-    bury 2
+    bury 3
     intc_1 // 1
     +
-    bury 6
-    b main_for_header@30
+    bury 7
+    b main_for_header@13
 
-main_after_for@32:
-    dupn 2
+main_after_for@15:
+    dig 1
+    dup
     pushint 128 // 128
     <=
     assert // Can't have more than 128 vote options
     bytec_2 // "option_counts"
-    dig 14
+    dig 15
     app_global_put
     bytec 9 // "total_options"
     swap
     app_global_put
-    intc_1 // 1
     return
 
 

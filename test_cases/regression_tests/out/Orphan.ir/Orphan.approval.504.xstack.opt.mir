@@ -1,35 +1,21 @@
-// Op                                                                                       Stack (out)
+// Op                                                                      Stack (out)
 // test_cases.regression_tests.issue_491.Orphan.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
         // regression_tests/issue_491.py:10
         // class Orphan(ARC4Contract):
-        txn NumAppArgs                                                                      tmp%0#2
-        bz main_bare_routing@4 ; b main_after_if_else@6
-
-    main_bare_routing@4:
-        // regression_tests/issue_491.py:10
-        // class Orphan(ARC4Contract):
-        txn OnCompletion                                                                    tmp%2#0
-        bz main___algopy_default_create@5 ; b main_after_if_else@6
-
-    main___algopy_default_create@5:
-        txn ApplicationID                                                                   tmp%3#0
-        !                                                                                   tmp%4#0
-        assert // can only call when creating
-        int 1                                                                               tmp%0#1
-        x-store tmp%0#1                                                                     (𝕏) tmp%0#1 |
-        b main_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@7 (𝕏) tmp%0#1 | 
-
-    main_after_if_else@6:
-        // regression_tests/issue_491.py:10
-        // class Orphan(ARC4Contract):
-        int 0                                                                               tmp%0#1
-        x-store tmp%0#1                                                                     (𝕏) tmp%0#1 |
-        b main_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@7 (𝕏) tmp%0#1 | 
-
-    main_after_inlined_test_cases.regression_tests.issue_491.Orphan.__puya_arc4_router__@7: (𝕏) tmp%0#1 |
-        x-load tmp%0#1                                                                      tmp%0#1
+        txn NumAppArgs                                                     tmp%0#2
+        !                                                                  not%tmp%0#2
+        assert
+        txn OnCompletion                                                   tmp%2#0
+        !                                                                  tmp%3#0
+        txn ApplicationID                                                  tmp%3#0,tmp%4#0
+        !                                                                  tmp%3#0,tmp%5#0
+        l-load tmp%3#0 1                                                   tmp%5#0,tmp%3#0
+        l-load tmp%5#0 1                                                   tmp%3#0,tmp%5#0
+        &&                                                                 tmp%6#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                              1
         return
 
 

@@ -3,7 +3,6 @@
 
 // test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0
     b main_block@0
 
 main_block@0:
@@ -38,8 +37,6 @@ create_block@0:
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 approval_program:
-    proto 0 1
-    pushbytes ""
     b approval_program_block@0
 
 approval_program_block@0:
@@ -52,55 +49,33 @@ approval_program_block@1:
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
     txn NumAppArgs
-    intc_0 // 0
+    pushint 0 // 0
     !=
-    bz approval_program_bare_routing@3
+    bz approval_program_create@3
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
-    b approval_program_after_if_else@7
+    b approval_program_after_if_else@4
 
-approval_program_after_if_else@7:
+approval_program_after_if_else@4:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    intc_0 // 0
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8
+    err
 
-approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8:
-    frame_dig 0
-    uncover 1
-    retsub
-
-approval_program_bare_routing@3:
-    // state_totals/contract.py:6-9
-    // class Contract(
-    //     arc4.ARC4Contract,
-    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
-    // ):
-    txn OnCompletion
-    intc_0 // 0
-    uncover 1
-    match approval_program_create@4
-    b approval_program_switch_case_default@5
-
-approval_program_switch_case_default@5:
-    b approval_program_switch_case_next@6
-
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@7
-
-approval_program_create@4:
+approval_program_create@3:
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
-    txn ApplicationID
-    intc_0 // 0
+    txn OnCompletion
+    pushint 0 // NoOp
     ==
-    assert // can only call when creating
+    txn ApplicationID
+    pushint 0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
     callsub create
     pushint 1 // 1
-    frame_bury 0
-    b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8
+    return

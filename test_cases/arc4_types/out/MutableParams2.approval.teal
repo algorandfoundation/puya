@@ -3,16 +3,14 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 0 1
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     txna ApplicationArgs 0
     match main_test_array_rebinding_route@3
-
-main_after_if_else@10:
     err
 
 main_test_array_rebinding_route@3:
@@ -20,33 +18,28 @@ main_test_array_rebinding_route@3:
     // @arc4.abimethod()
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub test_array_rebinding
-    intc_0 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b test_array_rebinding
 
-main_bare_routing@6:
-    // arc4_types/mutable_params2.py:4
-    // class MutableParams2(arc4.ARC4Contract):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_0 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
+// test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding[routing]() -> void:
 test_array_rebinding:
     // arc4_types/mutable_params2.py:7
     // a = arc4.DynamicBytes(0)
     pushbytes 0x000100
     // arc4_types/mutable_params2.py:8
     // self.maybe_modify_array(a, assign_local=True)
-    intc_0 // 1
+    intc_1 // 1
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:9
     // assert a == arc4.DynamicBytes(0, 1)
@@ -58,14 +51,15 @@ test_array_rebinding:
     pushbytes 0x000101
     // arc4_types/mutable_params2.py:12
     // self.maybe_modify_array(a, assign_local=False)
-    intc_1 // 0
+    intc_0 // 0
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:13
     // assert a == arc4.DynamicBytes(1, 42, 4)
     pushbytes 0x0003012a04
     ==
-    assert
-    retsub
+    // arc4_types/mutable_params2.py:5
+    // @arc4.abimethod()
+    return
 
 
 // test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a: bytes, assign_local: uint64) -> bytes:
@@ -74,8 +68,8 @@ maybe_modify_array:
     // @subroutine
     // def maybe_modify_array(self, a: arc4.DynamicBytes, *, assign_local: bool) -> None:  # v0
     proto 2 1
-    intc_1 // 0
-    intc_0 // 1
+    intc_0 // 0
+    intc_1 // 1
     // arc4_types/mutable_params2.py:17
     // if assign_local:
     frame_dig -1
@@ -86,9 +80,9 @@ maybe_modify_array:
     pushbytes 0x01
     concat // on error: max array length exceeded
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 2
@@ -97,7 +91,7 @@ maybe_modify_array:
     // arc4_types/mutable_params2.py:21
     // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
     pushbytes 0x0003010204
-    intc_1 // 0
+    intc_0 // 0
     frame_bury 1
     frame_dig -2
     frame_bury 0
@@ -110,9 +104,9 @@ maybe_modify_array_after_if_else@13:
     pushbytes 0x04
     concat // on error: max array length exceeded
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 2
@@ -133,9 +127,9 @@ maybe_modify_array_else_body@10:
     pushbytes 0x2a
     concat // on error: max array length exceeded
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 2

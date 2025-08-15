@@ -7,6 +7,7 @@ main:
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     pushbytes ""
     dupn 9
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "asset_a"
@@ -27,20 +28,18 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@14
-    pushbytess 0xddc4cb4a 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(address)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
-    txna ApplicationArgs 0
-    match main_set_governor_route@5 main_bootstrap_route@6 main_mint_route@7 main_burn_route@8 main_swap_route@9
-
-main_after_if_else@16:
-    err
-
-main_swap_route@9:
+    bz main___algopy_default_create@12
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
+    assert
+    pushbytess 0xddc4cb4a 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(address)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
+    txna ApplicationArgs 0
+    match main_set_governor_route@6 main_bootstrap_route@7 main_mint_route@8 main_burn_route@9 main_swap_route@10
+    err
+
+main_swap_route@10:
     txn GroupIndex
     intc_1 // 1
     -
@@ -79,7 +78,7 @@ main_swap_route@9:
     dig 2
     gtxns AssetAmount
     dup
-    bury 8
+    bury 9
     assert // amount minimum not met
     dig 2
     gtxns Sender
@@ -88,23 +87,23 @@ main_swap_route@9:
     assert // sender invalid
     uncover 2
     gtxns XferAsset
-    match main_switch_case_0@10 main_switch_case_1@11
+    match main_switch_case_0@14 main_switch_case_1@15
     err // asset id incorrect
 
-main_switch_case_1@11:
+main_switch_case_1@15:
     callsub _current_a_balance
-    bury 3
+    bury 4
     callsub _current_b_balance
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     swap
-    bury 4
+    bury 5
     assert // check self.asset_b exists
 
-main_switch_case_next@13:
-    dig 3
-    dig 5
+main_switch_case_next@17:
+    dig 4
+    dig 6
     dup
     cover 2
     -
@@ -124,31 +123,25 @@ main_switch_case_next@13:
     dup
     assert // send amount too low
     txn Sender
-    dig 3
+    dig 4
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
     return
 
-main_switch_case_0@10:
+main_switch_case_0@14:
     callsub _current_b_balance
-    bury 3
+    bury 4
     callsub _current_a_balance
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
     swap
-    bury 4
+    bury 5
     assert // check self.asset_a exists
-    b main_switch_case_next@13
+    b main_switch_case_next@17
 
-main_burn_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_burn_route@9:
     txn GroupIndex
     intc_1 // 1
     -
@@ -241,15 +234,9 @@ main_burn_route@8:
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
     return
 
-main_mint_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_mint_route@8:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -323,7 +310,7 @@ main_mint_route@7:
     uncover 2
     gtxns AssetAmount
     dup
-    bury 13
+    bury 14
     dup
     assert // amount minimum not met
     dig 2
@@ -339,33 +326,33 @@ main_mint_route@7:
     swap
     gtxns AssetAmount
     dup
-    bury 9
+    bury 10
     assert // amount minimum not met
     callsub _current_pool_balance
-    bury 2
+    bury 3
     callsub _current_a_balance
     dup
-    bury 11
+    bury 12
     callsub _current_b_balance
-    bury 8
+    bury 9
     ==
-    bz main_bool_false@23
-    dig 5
-    dig 7
+    bz main_bool_false@24
+    dig 6
+    dig 8
     ==
-    bz main_bool_false@23
+    bz main_bool_false@24
     intc_1 // 1
 
-main_bool_merge@24:
-    bz main_after_if_else@26
-    dig 9
-    dig 7
+main_bool_merge@25:
+    bz main_after_if_else@27
+    dig 10
+    dig 8
     *
     sqrt
     intc_2 // 1000
     -
 
-main_after_inlined_examples.amm.contract.tokens_to_mint@29:
+main_after_inlined_examples.amm.contract.tokens_to_mint@30:
     dup
     assert // send amount too low
     txn Sender
@@ -376,60 +363,54 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@29:
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
     return
 
-main_after_if_else@26:
+main_after_if_else@27:
     intc 4 // 10000000000
-    dig 1
+    dig 2
     -
     intc_2 // 1000
-    dig 11
+    dig 12
     dup
     cover 2
     *
-    dig 11
+    dig 12
     uncover 2
     -
     /
     dup
-    bury 10
+    bury 11
     intc_2 // 1000
-    dig 9
+    dig 10
     dup
     cover 2
     *
-    dig 9
+    dig 10
     uncover 2
     -
     /
     dup
-    bury 8
+    bury 9
     <
-    bz main_else_body@28
-    dig 8
+    bz main_else_body@29
+    dig 9
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@29
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
 
-main_else_body@28:
-    dig 5
+main_else_body@29:
+    dig 6
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@29
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
 
-main_bool_false@23:
+main_bool_false@24:
     intc_0 // 0
-    b main_bool_merge@24
+    b main_bool_merge@25
 
-main_bootstrap_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_bootstrap_route@7:
     txn GroupIndex
     intc_1 // 1
     -
@@ -534,31 +515,23 @@ main_bootstrap_route@6:
     swap
     concat
     log
-    intc_1 // 1
     return
 
-main_set_governor_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_set_governor_route@6:
     txna ApplicationArgs 1
     callsub _check_is_governor
     bytec_3 // "governor"
     swap
     app_global_put
-    intc_1 // 1
     return
 
-main_bare_routing@14:
+main___algopy_default_create@12:
     txn OnCompletion
-    bnz main_after_if_else@16
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:

@@ -6,12 +6,10 @@ main:
     // avm_12/contract.py:9
     // class Contract(ARC4Contract, avm_version=12):
     txn NumAppArgs
-    bz main_bare_routing@6
+    bz main___algopy_default_create@6
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     txna ApplicationArgs 0
     match main_test_new_ops_route@3
-
-main_after_if_else@10:
     err
 
 main_test_new_ops_route@3:
@@ -19,26 +17,21 @@ main_test_new_ops_route@3:
     // @arc4.abimethod
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    callsub test_new_ops
-    pushint 1 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b test_new_ops
 
-main_bare_routing@6:
-    // avm_12/contract.py:9
-    // class Contract(ARC4Contract, avm_version=12):
+main___algopy_default_create@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    pushint 1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.avm_12.contract.Contract.test_new_ops() -> void:
+// test_cases.avm_12.contract.Contract.test_new_ops[routing]() -> void:
 test_new_ops:
     // avm_12/contract.py:12-13
     // # op functions
@@ -50,5 +43,6 @@ test_new_ops:
     uncover 2
     falcon_verify
     !
-    assert
-    retsub
+    // avm_12/contract.py:10
+    // @arc4.abimethod
+    return

@@ -1,72 +1,67 @@
-// Op                                                                                                          Stack (out)
+// Op                                                                          Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // logic_signature/compiled_logic_sig.py:15
         // class CheckCompiledSig(arc4.ARC4Contract):
-        txn NumAppArgs                                                                                         tmp%0#1
-        bz main_bare_routing@6 ; b main_abi_routing@2
+        txn NumAppArgs                                                         tmp%0#1
+        bz main___algopy_default_create@6 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // logic_signature/compiled_logic_sig.py:15
         // class CheckCompiledSig(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                                                 tmp%2#0
-        method check_sig_with_logic_sig_only_op_compiles()void                                                 tmp%2#0,Method(check_sig_with_logic_sig_only_op_compiles()void)
-        l-load tmp%2#0 1                                                                                       Method(check_sig_with_logic_sig_only_op_compiles()void),tmp%2#0
-        match main_check_sig_with_logic_sig_only_op_compiles_route@3 ; b main_after_if_else@10 
+        txna ApplicationArgs 0                                                 tmp%2#0
+        method check_sig_with_logic_sig_only_op_compiles()void                 tmp%2#0,Method(check_sig_with_logic_sig_only_op_compiles()void)
+        l-load tmp%2#0 1                                                       Method(check_sig_with_logic_sig_only_op_compiles()void),tmp%2#0
+        match main_check_sig_with_logic_sig_only_op_compiles_route@3 ; b main_switch_case_next@5 
 
     main_check_sig_with_logic_sig_only_op_compiles_route@3:
         // logic_signature/compiled_logic_sig.py:16
         // @arc4.abimethod()
-        txn OnCompletion                                                                                       tmp%3#0
-        !                                                                                                      tmp%4#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                      tmp%5#0
-        assert // can only call when not creating
+        txn OnCompletion                                                       tmp%3#0
+        !                                                                      tmp%4#0
+        txn ApplicationID                                                      tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                       tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                       tmp%4#0,tmp%5#0
+        &&                                                                     tmp%7#0
+        assert // OnCompletion must be NoOp && can only call when not creating
         callsub check_sig_with_logic_sig_only_op_compiles
-        int 1                                                                                                  test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
+        b main_switch_case_next@5
 
-    main_bare_routing@6:
+    main_switch_case_next@5:
         // logic_signature/compiled_logic_sig.py:15
         // class CheckCompiledSig(arc4.ARC4Contract):
-        txn OnCompletion                                                                                       tmp%7#0
-        bz main___algopy_default_create@7 ; b main_after_if_else@10
+        err
 
-    main___algopy_default_create@7:
-        txn ApplicationID                                                                                      tmp%8#0
-        !                                                                                                      tmp%9#0
-        assert // can only call when creating
-        int 1                                                                                                  test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_after_if_else@10:
-        // logic_signature/compiled_logic_sig.py:15
-        // class CheckCompiledSig(arc4.ARC4Contract):
-        int 0                                                                                                  test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__%0#0
-        x-store tmp%0#0                                                                                        (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
-
-    main_after_inlined_test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__puya_arc4_router__@11: (𝕏) tmp%0#0 |
-        x-load tmp%0#0                                                                                         tmp%0#0
+    main___algopy_default_create@6:
+        txn OnCompletion                                                       tmp%8#0
+        !                                                                      tmp%9#0
+        txn ApplicationID                                                      tmp%9#0,tmp%10#0
+        !                                                                      tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                       tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                      tmp%9#0,tmp%11#0
+        &&                                                                     tmp%12#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                  1
         return
 
 
-// test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles() -> void:
+// test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles[routing]() -> void:
 subroutine check_sig_with_logic_sig_only_op_compiles:
     check_sig_with_logic_sig_only_op_compiles_block@0:
         // logic_signature/compiled_logic_sig.py:19
         // Txn.sender == compile_logicsig(dont_use_this).account
-        txn Sender                                                                                             tmp%0#0
-        addr "L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBCSLJBGI"                                      tmp%0#0,Address(L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBCSLJBGI)
-        ==                                                                                                     tmp%1#0
+        txn Sender                                                             tmp%0#0
+        addr "XFVQVIX76GWVJE3FEPZ5QKF2QWHX2RLJVSREIIXYAJYQWXP6RQKM4RLYNY"      tmp%0#0,Address(XFVQVIX76GWVJE3FEPZ5QKF2QWHX2RLJVSREIIXYAJYQWXP6RQKM4RLYNY)
+        ==                                                                     tmp%1#0
         // logic_signature/compiled_logic_sig.py:18-20
         // assert (
         //     Txn.sender == compile_logicsig(dont_use_this).account
         // ), "expected to be signed by logic sig"
         assert // expected to be signed by logic sig
-        retsub
+        // logic_signature/compiled_logic_sig.py:16
+        // @arc4.abimethod()
+        int 1                                                                  1
+        return
 
 
