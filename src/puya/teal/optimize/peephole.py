@@ -232,6 +232,17 @@ def _optimize_triplet(
                 a,
                 models.Uncover(n=2, source_location=b.source_location or c.source_location),
             ], True
+        case (
+            models.TealOp(op_code="assert"),
+            models.Int(value=int(const_return)),
+            models.Return(),
+        ) if const_return:
+            return [
+                models.Return(
+                    source_location=c.source_location or b.source_location or a.source_location,
+                    error_message=c.error_message or a.error_message,
+                )
+            ], True
 
     # `uncover n; dup; cover n+1` can be replaced with `dig n`
     # this occurs when the x-stack becomes the l-stack
