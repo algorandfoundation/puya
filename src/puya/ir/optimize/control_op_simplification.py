@@ -76,7 +76,9 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
                 ) as err_block,
                 source_location=source_location,
-            ) if len(cases) == 1:
+            ) if len(cases) == 1 and (
+                (len(list(cases.values())[0].successors) == 0) or err_block.predecessors == [block]
+            ):
                 case_value, case_block = cases.popitem()
                 logger.debug(
                     "inlining switch of single case with err block fallthrough into an assert true"
@@ -212,6 +214,18 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     non_zero=non_zero,
                     source_location=terminator.source_location,
                 )
+            case models.ControlOp(
+                unique_targets=[
+                    models.BasicBlock(
+                        phis=[], ops=[], terminator=models.Fail() as fail
+                    ) as fail_block
+                ]
+            ):
+                logger.debug("inlining unconditional branch to fail")
+                block.terminator = models.Fail(
+                    error_message=fail.error_message, source_location=terminator.source_location
+                )
+                remove_target(block, fail_block)
             case models.ControlOp(unique_targets=[single_target]) if type(
                 terminator
             ) is not models.Goto:
