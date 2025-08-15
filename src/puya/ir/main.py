@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Callable, Collection, Iterator, Set
 from pathlib import Path
 
+import attrs
 from immutabledict import immutabledict
 
 from puya import artifact_metadata, log
@@ -236,18 +237,11 @@ def _optimize_program_ir(
     artifact_ir: ModuleArtifact,
     qualifier: str,
 ) -> None:
-    if isinstance(artifact_ir, LogicSignature):
-        routable_method_ids = None
-    else:
-        routable_method_ids = {a4m.id for a4m in artifact_ir.metadata.arc4_methods}
-    ref = artifact_ir.metadata.ref
     logger.debug(
-        f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
+        f"optimizing {program.kind} program of {artifact_ir.metadata.ref}"
+        f" at level {context.options.optimization_level}"
     )
-
-    optimize_program_ir(
-        context, program, routable_method_ids=routable_method_ids, qualifier=qualifier
-    )
+    optimize_program_ir(context, program, qualifier=qualifier)
 
 
 def _lower_aggregate_ir(
@@ -272,10 +266,13 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         )
         for cm, md in arc4_methods.items()
     }
-    arc4_router_awst = arc4_router.create_abi_router(contract, routing_data)
+    arc4_router_awst, wrapper_funcs = arc4_router.create_abi_router(contract, routing_data)
+    ctx = attrs.evolve(ctx, awst=[*ctx.awst, *wrapper_funcs])
     ctx.routers[contract.id] = ctx.subroutines[arc4_router_awst] = make_subroutine(
         arc4_router_awst, allow_implicits=False
     )
+    for wf in wrapper_funcs:
+        ctx.subroutines[wf] = make_subroutine(wf, allow_implicits=False)
 
     # Build callees list, excluding calls from router.
     # Used to if a function should implicitly return mutable reference parameters.
