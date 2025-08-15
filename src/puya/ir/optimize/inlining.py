@@ -2,7 +2,7 @@ import copy
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
@@ -21,9 +21,7 @@ logger = log.get_logger(__name__)
 
 
 def analyse_subroutines_for_inlining(
-    context: IROptimizationContext,
-    program: models.Program,
-    routable_method_ids: Collection[str] | None,
+    context: IROptimizationContext, program: models.Program
 ) -> None:
     context.inlineable_calls.clear()
     context.constant_with_constant_args.clear()
@@ -68,7 +66,9 @@ def analyse_subroutines_for_inlining(
     # also, it impacts the debugging experience
     skip_routable_ids = frozenset[str]()
     if context.options.optimization_level < 2:
-        skip_routable_ids = frozenset(routable_method_ids or ())
+        skip_routable_ids = frozenset(
+            sub.id for sub in program.subroutines if sub.id.endswith("[routing]")
+        )
 
     for sub in program.subroutines:
         if sub.inline is None:

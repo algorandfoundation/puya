@@ -1,4 +1,4 @@
-from collections.abc import Callable, Collection, Iterable
+from collections.abc import Callable, Iterable
 
 import attrs
 
@@ -128,7 +128,6 @@ def optimize_program_ir(
     context: ArtifactCompileContext,
     program: models.Program,
     *,
-    routable_method_ids: Collection[str] | None,
     qualifier: str,
 ) -> None:
     pipeline = [o for o in get_subroutine_optimizations() if o.can_optimize(context.options)]
@@ -141,7 +140,7 @@ def optimize_program_ir(
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(opt_context, program, routable_method_ids)
+        analyse_subroutines_for_inlining(opt_context, program)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
