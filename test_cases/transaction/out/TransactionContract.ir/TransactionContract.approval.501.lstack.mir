@@ -1,7 +1,7 @@
 // Op                                                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
         txn OnCompletion                                                                 tmp%0#1
@@ -11,9 +11,9 @@ subroutine main:
         assert // OnCompletion must be NoOp
         txn ApplicationID                                                                tmp%2#0
         l-load tmp%2#0 0                                                                 tmp%2#0
-        bz main_create_NoOp@14 ; b main_call_NoOp@2
+        bz create_NoOp@14 ; b call_NoOp@2
 
-    main_call_NoOp@2:
+    call_NoOp@2:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                           tmp%4#0
@@ -27,77 +27,77 @@ subroutine main:
         method any_txn(txn,txn,txn)void                                                  tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void)
         method group_init(txn,txn,txn)void                                               tmp%4#0,Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void)
         l-load tmp%4#0 9                                                                 Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void),tmp%4#0
-        match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11 ; b main_after_if_else@18 
+        match pay_route@3 key_route@4 asset_config_route@5 asset_transfer_route@6 asset_freeze_route@7 application_call_route@8 multiple_txns_route@9 any_txn_route@10 group_init_route@11 ; b after_if_else@18 
 
-    main_pay_route@3:
+    pay_route@3:
         // transaction/contract.py:31
         // @arc4.abimethod
         callsub pay
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_key_route@4:
+    key_route@4:
         // transaction/contract.py:40
         // @arc4.abimethod
         callsub key
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_asset_config_route@5:
+    asset_config_route@5:
         // transaction/contract.py:51
         // @arc4.abimethod
         callsub asset_config
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_asset_transfer_route@6:
+    asset_transfer_route@6:
         // transaction/contract.py:68
         // @arc4.abimethod
         callsub asset_transfer
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_asset_freeze_route@7:
+    asset_freeze_route@7:
         // transaction/contract.py:77
         // @arc4.abimethod
         callsub asset_freeze
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_application_call_route@8:
+    application_call_route@8:
         // transaction/contract.py:85
         // @arc4.abimethod
         callsub application_call
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_multiple_txns_route@9:
+    multiple_txns_route@9:
         // transaction/contract.py:111
         // @arc4.abimethod
         callsub multiple_txns
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_any_txn_route@10:
+    any_txn_route@10:
         // transaction/contract.py:121
         // @arc4.abimethod
         callsub any_txn
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_group_init_route@11:
+    group_init_route@11:
         // transaction/contract.py:131
         // @arc4.abimethod
         callsub group_init
-        b main_after_if_else@18
+        b after_if_else@18
 
-    main_create_NoOp@14:
+    create_NoOp@14:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                           tmp%5#0
         method create()void                                                              tmp%5#0,Method(create()void)
         l-load tmp%5#0 1                                                                 Method(create()void),tmp%5#0
-        match main_create_route@15 ; b main_after_if_else@18
+        match create_route@15 ; b after_if_else@18
 
-    main_create_route@15:
+    create_route@15:
         // transaction/contract.py:12
         // @arc4.abimethod(create="require")
         int 1                                                                            1
         return
 
-    main_after_if_else@18:
+    after_if_else@18:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
         err

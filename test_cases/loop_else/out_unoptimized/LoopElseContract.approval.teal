@@ -8,9 +8,9 @@ main:
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // loop_else/loop_else.py:7
     // test_empty_loop(UInt64(0))
     intc_1 // 0
@@ -18,34 +18,34 @@ main_block@0:
     // loop_else/loop_else.py:9
     // arg_idx = UInt64(0)
     intc_1 // 0
-    b main_while_top@1
+    b while_top@1
 
-main_while_top@1:
+while_top@1:
     // loop_else/loop_else.py:10
     // while arg_idx < Txn.num_app_args:
     txn NumAppArgs
     dig 1
     >
-    bz main_after_while@17
-    b main_while_body@2
+    bz after_while@17
+    b while_body@2
 
-main_while_body@2:
+while_body@2:
     // loop_else/loop_else.py:11
     // for i in urange(10):
     intc_0 // 1
     assert // Step cannot be zero
-    b main_for_header@3
+    b for_header@3
 
-main_for_header@3:
+for_header@3:
     // loop_else/loop_else.py:11
     // for i in urange(10):
     intc_1 // 0
     pushint 10 // 10
     <
-    bz main_after_for@7
-    b main_for_body@4
+    bz after_for@7
+    b for_body@4
 
-main_for_body@4:
+for_body@4:
     // loop_else/loop_else.py:11
     // for i in urange(10):
     intc_1 // 0
@@ -53,25 +53,25 @@ main_for_body@4:
     // if i == 0:
     intc_1 // 0
     ==
-    bz main_after_if_else@6
-    b main_if_body@5
+    bz after_if_else@6
+    b if_body@5
 
-main_if_body@5:
+if_body@5:
     // loop_else/loop_else.py:13
     // break
-    b main_after_for@7
+    b after_for@7
 
-main_after_for@7:
+after_for@7:
     // loop_else/loop_else.py:15
     // if Txn.application_args(arg_idx) == b"while_secret":
     dup
     txnas ApplicationArgs
     pushbytes 0x7768696c655f736563726574
     ==
-    bz main_after_if_else@16
-    b main_if_body@8
+    bz after_if_else@16
+    b if_body@8
 
-main_if_body@8:
+if_body@8:
     // loop_else/loop_else.py:16
     // secret_index = arg_idx
     dup
@@ -84,18 +84,18 @@ main_if_body@8:
     assert // Step cannot be zero
     intc_1 // 0
     bury 4
-    b main_for_header@9
+    b for_header@9
 
-main_for_header@9:
+for_header@9:
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 3
     dig 2
     <
-    bz main_after_for@14
-    b main_for_body@10
+    bz after_for@14
+    b for_body@10
 
-main_for_body@10:
+for_body@10:
     // loop_else/loop_else.py:18
     // account = Txn.accounts(account_index)
     dig 3
@@ -104,20 +104,20 @@ main_for_body@10:
     // if account == Global.zero_address:
     global ZeroAddress
     ==
-    bz main_after_if_else@12
-    b main_if_body@11
+    bz after_if_else@12
+    b if_body@11
 
-main_if_body@11:
+if_body@11:
     // loop_else/loop_else.py:20
     // break
-    b main_block@15
+    b after_loop_L17
 
-main_block@15:
+after_loop_L17:
     // loop_else/loop_else.py:23
     // break
-    b main_block@18
+    b after_loop_L10
 
-main_block@18:
+after_loop_L10:
     // loop_else/loop_else.py:28
     // "found secret argument at idx=",
     pushbytes "found secret argument at idx="
@@ -191,38 +191,38 @@ main_block@18:
     intc_0 // 1
     return
 
-main_after_if_else@12:
-    b main_for_footer@13
+after_if_else@12:
+    b for_footer@13
 
-main_for_footer@13:
+for_footer@13:
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 3
     intc_0 // 1
     +
     bury 4
-    b main_for_header@9
+    b for_header@9
 
-main_after_for@14:
+after_for@14:
     // loop_else/loop_else.py:22
     // assert False, "access denied, missing secret account"
     err // access denied, missing secret account
 
-main_after_if_else@16:
+after_if_else@16:
     // loop_else/loop_else.py:24
     // arg_idx += 1
     dup
     intc_0 // 1
     +
     bury 1
-    b main_while_top@1
+    b while_top@1
 
-main_after_if_else@6:
+after_if_else@6:
     // loop_else/loop_else.py:14
     // assert False, "unreachable"
     err // unreachable
 
-main_after_while@17:
+after_while@17:
     // loop_else/loop_else.py:26
     // assert False, "access denied, missing secret argument"
     err // access denied, missing secret argument
@@ -286,9 +286,9 @@ test_empty_loop_for_body@2:
 test_empty_loop_if_body@3:
     // loop_else/loop_else.py:45
     // break
-    b test_empty_loop_block@8
+    b test_empty_loop_after_loop_L43
 
-test_empty_loop_block@8:
+test_empty_loop_after_loop_L43:
     // loop_else/loop_else.py:48
     // assert result == 1
     frame_dig 1
@@ -327,4 +327,4 @@ test_empty_loop_after_for@7:
     intc_0 // 1
     +
     frame_bury 1
-    b test_empty_loop_block@8
+    b test_empty_loop_after_loop_L43

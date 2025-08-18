@@ -12,7 +12,7 @@ main:
     bytec_0 // ""
     dupn 14
     txn NumAppArgs
-    bz main___algopy_default_create@20
+    bz __algopy_default_create@20
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -20,10 +20,10 @@ main:
     assert
     pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0x45dcc836 0xf17f6f0a 0x845e1b4e 0x7621cfd1 0x5661a67c // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_array_assignment_maximum_cursage()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void", method "test_unobserved_write()void"
     txna ApplicationArgs 0
-    match main_test_array_route@4 main_test_array_extend_route@5 main_test_array_multiple_append_route@6 main_overhead_route@7 main_test_array_too_long_route@8 main_test_array_copy_and_extend_route@9 main_test_array_evaluation_order_route@10 main_test_array_assignment_maximum_cursage_route@11 main_test_allocations_route@12 main_test_iteration_route@13 main_test_quicksort_route@14 main_test_unobserved_write_route@15
+    match test_array_route@4 test_array_extend_route@5 test_array_multiple_append_route@6 overhead_route@7 test_array_too_long_route@8 test_array_copy_and_extend_route@9 test_array_evaluation_order_route@10 test_array_assignment_maximum_cursage_route@11 test_allocations_route@12 test_iteration_route@13 test_quicksort_route@14 test_unobserved_write_route@15
     err
 
-main_test_unobserved_write_route@15:
+test_unobserved_write_route@15:
     callsub create_array
     dup
     loads
@@ -63,7 +63,7 @@ main_test_unobserved_write_route@15:
     ==
     return
 
-main_test_quicksort_route@14:
+test_quicksort_route@14:
     callsub _puya_lib.mem.new_slot
     dup
     bury 3
@@ -74,11 +74,11 @@ main_test_quicksort_route@14:
     intc_2 // 0
     bury 7
 
-main_for_header@26:
+for_header@26:
     dig 6
     pushint 32 // 32
     <
-    bz main_after_for@28
+    bz after_for@28
     dig 15
     dig 7
     dup
@@ -95,9 +95,9 @@ main_for_header@26:
     intc_1 // 1
     +
     bury 7
-    b main_for_header@26
+    b for_header@26
 
-main_after_for@28:
+after_for@28:
     dig 1
     dup
     loads
@@ -124,11 +124,11 @@ main_after_for@28:
     intc_2 // 0
     bury 6
 
-main_for_header@29:
+for_header@29:
     dig 5
     dig 12
     <
-    bz main_overhead_route@7
+    bz overhead_route@7
     dig 1
     loads
     dig 6
@@ -146,23 +146,23 @@ main_for_header@29:
     +
     bury 7
     bury 5
-    b main_for_header@29
+    b for_header@29
 
-main_overhead_route@7:
+overhead_route@7:
     intc_1 // 1
     return
 
-main_test_iteration_route@13:
+test_iteration_route@13:
     bytec_0 // 0x
     bury 18
     intc_2 // 0
     bury 1
 
-main_for_header@34:
+for_header@34:
     dup
     intc_3 // 5
     <
-    bz main_after_for@36
+    bz after_for@36
     dig 17
     dig 1
     dup
@@ -173,9 +173,9 @@ main_for_header@34:
     intc_1 // 1
     +
     bury 1
-    b main_for_header@34
+    b for_header@34
 
-main_after_for@36:
+after_for@36:
     dig 17
     len
     intc_0 // 8
@@ -190,11 +190,11 @@ main_after_for@36:
     intc_2 // 0
     bury 7
 
-main_for_header@37:
+for_header@37:
     dig 6
     dig 14
     <
-    bz main_after_for@39
+    bz after_for@39
     dig 17
     dig 7
     dup
@@ -211,9 +211,9 @@ main_for_header@37:
     +
     bury 8
     bury 5
-    b main_for_header@37
+    b for_header@37
 
-main_after_for@39:
+after_for@39:
     dig 17
     len
     intc_0 // 8
@@ -222,11 +222,11 @@ main_after_for@39:
     intc_2 // 0
     bury 8
 
-main_for_header@40:
+for_header@40:
     dig 7
     dig 13
     <
-    bz main_after_for@42
+    bz after_for@42
     dig 17
     dig 8
     dup
@@ -240,18 +240,18 @@ main_for_header@40:
     intc_1 // 1
     +
     bury 8
-    b main_for_header@40
+    b for_header@40
 
-main_after_for@42:
+after_for@42:
     dig 17
     len
     intc_0 // 8
     /
     bury 3
 
-main_for_header@43:
+for_header@43:
     dig 2
-    bz main_after_for@45
+    bz after_for@45
     dig 2
     intc_1 // 1
     -
@@ -267,9 +267,9 @@ main_for_header@43:
     <=
     assert // array is not sorted
     bury 5
-    b main_for_header@43
+    b for_header@43
 
-main_after_for@45:
+after_for@45:
     pushbytes 0x0000
     bury 21
     bytec_0 // 0x
@@ -277,11 +277,11 @@ main_after_for@45:
     intc_2 // 0
     bury 9
 
-main_for_header@46:
+for_header@46:
     dig 8
     intc_3 // 5
     <
-    bz main_after_for@48
+    bz after_for@48
     dig 8
     dup
     itob
@@ -306,9 +306,9 @@ main_for_header@46:
     intc_1 // 1
     +
     bury 9
-    b main_for_header@46
+    b for_header@46
 
-main_after_for@48:
+after_for@48:
     dig 20
     dig 17
     concat // on error: max array length exceeded
@@ -346,18 +346,18 @@ main_after_for@48:
     b==
     return
 
-main_test_allocations_route@12:
+test_allocations_route@12:
     txna ApplicationArgs 1
     btoi
     bury 4
     intc_2 // 0
     bury 15
 
-main_for_header@51:
+for_header@51:
     dig 14
     dig 4
     <
-    bz main_overhead_route@7
+    bz overhead_route@7
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -368,9 +368,9 @@ main_for_header@51:
     intc_1 // 1
     +
     bury 15
-    b main_for_header@51
+    b for_header@51
 
-main_test_array_assignment_maximum_cursage_route@11:
+test_array_assignment_maximum_cursage_route@11:
     callsub _puya_lib.mem.new_slot
     pushint 3 // 3
     itob
@@ -406,7 +406,7 @@ main_test_array_assignment_maximum_cursage_route@11:
     ==
     return
 
-main_test_array_evaluation_order_route@10:
+test_array_evaluation_order_route@10:
     callsub _puya_lib.mem.new_slot
     pushint 3 // 3
     itob
@@ -520,17 +520,17 @@ main_test_array_evaluation_order_route@10:
     ==
     return
 
-main_test_array_copy_and_extend_route@9:
+test_array_copy_and_extend_route@9:
     bytec_0 // 0x
     bury 19
     intc_2 // 0
     bury 9
 
-main_for_header@60:
+for_header@60:
     dig 8
     intc_3 // 5
     <
-    bz main_after_for@62
+    bz after_for@62
     dig 18
     dig 9
     dup
@@ -541,9 +541,9 @@ main_for_header@60:
     intc_1 // 1
     +
     bury 9
-    b main_for_header@60
+    b for_header@60
 
-main_after_for@62:
+after_for@62:
     dig 18
     dup
     intc_3 // 5
@@ -629,17 +629,17 @@ main_after_for@62:
     !
     return // on error: expected 4
 
-main_test_array_too_long_route@8:
+test_array_too_long_route@8:
     bytec_0 // 0x
     bury 20
     intc_2 // 0
     bury 9
 
-main_for_header@65:
+for_header@65:
     dig 8
     intc 4 // 512
     <
-    bz main_after_for@67
+    bz after_for@67
     dig 19
     dig 9
     dup
@@ -650,9 +650,9 @@ main_for_header@65:
     intc_1 // 1
     +
     bury 9
-    b main_for_header@65
+    b for_header@65
 
-main_after_for@67:
+after_for@67:
     dig 19
     dup
     len
@@ -668,7 +668,7 @@ main_after_for@67:
     intc_1 // 1
     return
 
-main_test_array_multiple_append_route@6:
+test_array_multiple_append_route@6:
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -697,7 +697,7 @@ main_test_array_multiple_append_route@6:
     ==
     return
 
-main_test_array_extend_route@5:
+test_array_extend_route@5:
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -721,7 +721,7 @@ main_test_array_extend_route@5:
     ==
     return
 
-main_test_array_route@4:
+test_array_route@4:
     callsub _puya_lib.mem.new_slot
     dup
     bury 12
@@ -755,11 +755,11 @@ main_test_array_route@4:
     intc_2 // 0
     bury 15
 
-main_for_header@69:
+for_header@69:
     dig 14
     pushint 3 // 3
     <
-    bz main_after_for@71
+    bz after_for@71
     dig 10
     dup
     loads
@@ -790,9 +790,9 @@ main_for_header@69:
     intc_1 // 1
     +
     bury 15
-    b main_for_header@69
+    b for_header@69
 
-main_after_for@71:
+after_for@71:
     dig 10
     dup
     loads
@@ -936,7 +936,7 @@ main_after_for@71:
     ==
     return
 
-main___algopy_default_create@20:
+__algopy_default_create@20:
     txn OnCompletion
     !
     txn ApplicationID

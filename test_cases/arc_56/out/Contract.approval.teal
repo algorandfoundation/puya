@@ -8,10 +8,10 @@ main:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
+    bz bare_routing@15
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@5
+    match create_route@5
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -21,12 +21,12 @@ main:
     txna ApplicationArgs 0
     match struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
 
-main_after_if_else@18:
+after_if_else@18:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     err
 
-main_create_route@5:
+create_route@5:
     // arc_56/contract.py:81
     // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1
@@ -36,21 +36,21 @@ main_create_route@5:
     &
     return // on error: OnCompletion must be one of NoOp, OptIn
 
-main_bare_routing@15:
+bare_routing@15:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main_bare_create@16 main_bare_create@16 main_after_if_else@18 main_after_if_else@18 main_after_if_else@18 main_transient@17
+    switch bare_create@16 bare_create@16 after_if_else@18 after_if_else@18 after_if_else@18 transient@17
     err
 
-main_transient@17:
+transient@17:
     // arc_56/contract.py:85
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
     !
     return // on error: can only call when creating
 
-main_bare_create@16:
+bare_create@16:
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1

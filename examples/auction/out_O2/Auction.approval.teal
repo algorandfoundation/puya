@@ -8,7 +8,7 @@ main:
     pushbytes ""
     dup
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "auction_end"
     intc_0 // 0
     app_global_put
@@ -25,9 +25,9 @@ main:
     global ZeroAddress
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@13
+    bz __algopy_default_create@13
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -35,10 +35,10 @@ main_after_if_else@2:
     assert
     pushbytess 0xd8f62d9a 0xf0aa7023 0x30c6d58a 0xdb7fe843 0xe654625b 0x59b2ab26 // method "opt_into_asset(uint64)void", method "start_auction(uint64,uint64,axfer)void", method "opt_in()void", method "bid(pay)void", method "claim_bids()void", method "claim_asset(uint64)void"
     txna ApplicationArgs 0
-    match main_opt_into_asset_route@6 main_start_auction_route@7 main_opt_in_route@8 main_bid_route@9 main_claim_bids_route@10 main_claim_asset_route@11
+    match opt_into_asset_route@6 start_auction_route@7 opt_in_route@8 bid_route@9 claim_bids_route@10 claim_asset_route@11
     err
 
-main_claim_asset_route@11:
+claim_asset_route@11:
     txna ApplicationArgs 1
     btoi
     global LatestTimestamp
@@ -70,7 +70,7 @@ main_claim_asset_route@11:
     intc_1 // 1
     return
 
-main_claim_bids_route@10:
+claim_bids_route@10:
     txn Sender
     intc_0 // 0
     bytec 5 // "claim"
@@ -88,7 +88,7 @@ main_claim_bids_route@10:
     ==
     swap
     bury 3
-    bz main_after_if_else@18
+    bz after_if_else@18
     intc_0 // 0
     bytec_1 // "previous_bid"
     app_global_get_ex
@@ -98,7 +98,7 @@ main_claim_bids_route@10:
     -
     bury 2
 
-main_after_if_else@18:
+after_if_else@18:
     itxn_begin
     txn Sender
     itxn_field Receiver
@@ -120,7 +120,7 @@ main_after_if_else@18:
     intc_1 // 1
     return
 
-main_bid_route@9:
+bid_route@9:
     txn GroupIndex
     intc_1 // 1
     -
@@ -164,11 +164,11 @@ main_bid_route@9:
     intc_1 // 1
     return
 
-main_opt_in_route@8:
+opt_in_route@8:
     intc_1 // 1
     return
 
-main_start_auction_route@7:
+start_auction_route@7:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -211,7 +211,7 @@ main_start_auction_route@7:
     intc_1 // 1
     return
 
-main_opt_into_asset_route@6:
+opt_into_asset_route@6:
     txna ApplicationArgs 1
     btoi
     txn Sender
@@ -239,7 +239,7 @@ main_opt_into_asset_route@6:
     intc_1 // 1
     return
 
-main___algopy_default_create@13:
+__algopy_default_create@13:
     txn OnCompletion
     !
     txn ApplicationID

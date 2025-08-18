@@ -1,92 +1,92 @@
-// Op                                             Stack (out)
+// Op                                           Stack (out)
 // test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // too_many_permutations/contract.py:6
         // a = op.Txn.application_args(0)
-        txna ApplicationArgs 0                    a#0
-        l-store-copy a#0 0                        a#0,a#0 (copy)
-        v-store a#0                               a#0
+        txna ApplicationArgs 0                  a#0
+        l-store-copy a#0 0                      a#0,a#0 (copy)
+        v-store a#0                             a#0
         // too_many_permutations/contract.py:7
         // b = op.Txn.application_args(1)
-        txna ApplicationArgs 1                    a#0,b#0
-        v-store b#0                               a#0
+        txna ApplicationArgs 1                  a#0,b#0
+        v-store b#0                             a#0
         // too_many_permutations/contract.py:8
         // c = op.Txn.application_args(2)
-        txna ApplicationArgs 2                    a#0,c#0
-        l-store-copy c#0 0                        a#0,c#0,c#0 (copy)
-        v-store c#0                               a#0,c#0
+        txna ApplicationArgs 2                  a#0,c#0
+        l-store-copy c#0 0                      a#0,c#0,c#0 (copy)
+        v-store c#0                             a#0,c#0
         // too_many_permutations/contract.py:9
         // d = op.Txn.application_args(3)
-        txna ApplicationArgs 3                    a#0,c#0,d#0
-        v-store d#0                               a#0,c#0
+        txna ApplicationArgs 3                  a#0,c#0,d#0
+        v-store d#0                             a#0,c#0
         // too_many_permutations/contract.py:11
         // assert (a != c) or (b != d)
-        l-load a#0 1                              c#0,a#0
-        l-load c#0 1                              a#0,c#0
-        !=                                        tmp%4#0
-        l-load tmp%4#0 0                          tmp%4#0
-        bz main_or_contd@1 ; b main_bool_true@2
+        l-load a#0 1                            c#0,a#0
+        l-load c#0 1                            a#0,c#0
+        !=                                      tmp%4#0
+        l-load tmp%4#0 0                        tmp%4#0
+        bz or_contd@1 ; b bool_true@2
 
-    main_or_contd@1:
+    or_contd@1:
         // too_many_permutations/contract.py:11
         // assert (a != c) or (b != d)
-        v-load b#0                                b#0
-        v-load d#0                                b#0,d#0
-        !=                                        tmp%5#0
-        l-load tmp%5#0 0                          tmp%5#0
-        bz main_bool_false@3 ; b main_bool_true@2
+        v-load b#0                              b#0
+        v-load d#0                              b#0,d#0
+        !=                                      tmp%5#0
+        l-load tmp%5#0 0                        tmp%5#0
+        bz bool_false@3 ; b bool_true@2
 
-    main_bool_true@2:
-        int 1                                     1
+    bool_true@2:
+        int 1                                   1
         v-store or_result%0#0
-        b main_bool_merge@4
+        b bool_merge@4
 
-    main_bool_false@3:
-        int 0                                     0
+    bool_false@3:
+        int 0                                   0
         v-store or_result%0#0
-        b main_bool_merge@4
+        b bool_merge@4
 
-    main_bool_merge@4:
+    bool_merge@4:
         // too_many_permutations/contract.py:11
         // assert (a != c) or (b != d)
-        v-load or_result%0#0                      or_result%0#0
+        v-load or_result%0#0                    or_result%0#0
         assert
         // too_many_permutations/contract.py:24
         // return (a + b + c + d).length > 0
-        v-load a#0                                a#0
-        v-load b#0                                a#0,b#0
-        concat                                    tmp%0#1
-        l-load-copy tmp%0#1 0                     tmp%0#1,tmp%0#1 (copy)
-        v-load c#0                                tmp%0#1,tmp%0#1 (copy),c#0
-        l-store-copy c#0 2                        c#0,tmp%0#1,tmp%0#1 (copy),c#0 (copy)
-        concat                                    c#0,tmp%0#1,tmp%1#1
-        l-load tmp%1#1 0                          c#0,tmp%0#1,tmp%1#1
-        v-load d#0                                c#0,tmp%0#1,tmp%1#1,d#0
-        l-store-copy d#0 2                        c#0,d#0,tmp%0#1,tmp%1#1,d#0 (copy)
-        concat                                    c#0,d#0,tmp%0#1,tmp%2#1
-        l-load tmp%2#1 0                          c#0,d#0,tmp%0#1,tmp%2#1
-        len                                       c#0,d#0,tmp%0#1,tmp%3#1
+        v-load a#0                              a#0
+        v-load b#0                              a#0,b#0
+        concat                                  tmp%0#1
+        l-load-copy tmp%0#1 0                   tmp%0#1,tmp%0#1 (copy)
+        v-load c#0                              tmp%0#1,tmp%0#1 (copy),c#0
+        l-store-copy c#0 2                      c#0,tmp%0#1,tmp%0#1 (copy),c#0 (copy)
+        concat                                  c#0,tmp%0#1,tmp%1#1
+        l-load tmp%1#1 0                        c#0,tmp%0#1,tmp%1#1
+        v-load d#0                              c#0,tmp%0#1,tmp%1#1,d#0
+        l-store-copy d#0 2                      c#0,d#0,tmp%0#1,tmp%1#1,d#0 (copy)
+        concat                                  c#0,d#0,tmp%0#1,tmp%2#1
+        l-load tmp%2#1 0                        c#0,d#0,tmp%0#1,tmp%2#1
+        len                                     c#0,d#0,tmp%0#1,tmp%3#1
         // too_many_permutations/contract.py:12
         // assert four_args(a, b, c, d)
-        l-load tmp%3#1 0                          c#0,d#0,tmp%0#1,tmp%3#1
-        assert                                    c#0,d#0,tmp%0#1
+        l-load tmp%3#1 0                        c#0,d#0,tmp%0#1,tmp%3#1
+        assert                                  c#0,d#0,tmp%0#1
         // too_many_permutations/contract.py:29
         // assert a + b
-        l-load tmp%0#1 0                          c#0,d#0,tmp%0#1
-        len                                       c#0,d#0,tmp%1#2
-        l-load tmp%1#2 0                          c#0,d#0,tmp%1#2
-        assert                                    c#0,d#0
-        l-load c#0 1                              d#0,c#0
-        l-load d#0 1                              c#0,d#0
-        concat                                    tmp%0#1
-        l-load tmp%0#1 0                          tmp%0#1
-        len                                       tmp%1#2
-        l-load tmp%1#2 0                          tmp%1#2
+        l-load tmp%0#1 0                        c#0,d#0,tmp%0#1
+        len                                     c#0,d#0,tmp%1#2
+        l-load tmp%1#2 0                        c#0,d#0,tmp%1#2
+        assert                                  c#0,d#0
+        l-load c#0 1                            d#0,c#0
+        l-load d#0 1                            c#0,d#0
+        concat                                  tmp%0#1
+        l-load tmp%0#1 0                        tmp%0#1
+        len                                     tmp%1#2
+        l-load tmp%1#2 0                        tmp%1#2
         assert
         // too_many_permutations/contract.py:16
         // return True
-        int 1                                     1
+        int 1                                   1
         return
 
 

@@ -9,31 +9,31 @@ main:
     pushbytes ""
     dup
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz after_if_else@5
 
-main_if_body@4:
+if_body@4:
     intc_1 // 1
     return
 
-main_after_if_else@5:
+after_if_else@5:
     txn OnCompletion
     dup
     bury 3
-    bz main_after_if_else@8
+    bz after_if_else@8
     dig 1
     intc_1 // OptIn
     ==
-    bnz main_after_if_else@8
+    bnz after_if_else@8
 
-main_if_body@7:
+if_body@7:
     intc_0 // 0
     return
 
-main_after_if_else@8:
+after_if_else@8:
     txn NumAppArgs
     intc_1 // 1
     <
-    bnz main_if_body@7
+    bnz if_body@7
     txna ApplicationArgs 0
     btoi
     bury 1
@@ -42,65 +42,65 @@ main_after_if_else@8:
     txn NumAppArgs
     pushint 2 // 2
     ==
-    bz main_else_body@21
+    bz else_body@21
     dig 2
     pushbytes 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@13
+    bz else_body@13
     dup
     intc_0 // 0
     bytec_0 // "local"
     app_local_get_ex
     assert // check self.local exists for account
     log
-    b main_if_body@4
+    b if_body@4
 
-main_else_body@13:
+else_body@13:
     dig 2
     pushbytes 0x6765745f646174615f6f725f617373657274
     ==
-    bz main_else_body@15
+    bz else_body@15
     dup
     intc_0 // 0
     bytec_0 // "local"
     app_local_get_ex
     assert // no data for account
     log
-    b main_if_body@4
+    b if_body@4
 
-main_else_body@15:
+else_body@15:
     dig 2
     pushbytes 0x64656c6574655f64617461
     ==
-    bz main_if_body@7
+    bz if_body@7
     dup
     bytec_0 // "local"
     app_local_del
     pushbytes "Deleted"
     log
-    b main_if_body@4
+    b if_body@4
 
-main_else_body@21:
+else_body@21:
     txn NumAppArgs
     pushint 3 // 3
     ==
-    bz main_if_body@7
+    bz if_body@7
     dig 2
     pushbytes 0x7365745f64617461
     ==
-    bz main_else_body@24
+    bz else_body@24
     txna ApplicationArgs 2
     dig 1
     bytec_0 // "local"
     uncover 2
     app_local_put
-    b main_if_body@4
+    b if_body@4
 
-main_else_body@24:
+else_body@24:
     dig 2
     pushbytes 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_if_body@7
+    bz if_body@7
     txna ApplicationArgs 2
     dig 1
     intc_0 // 0
@@ -108,4 +108,4 @@ main_else_body@24:
     app_local_get_ex
     select
     log
-    b main_if_body@4
+    b if_body@4

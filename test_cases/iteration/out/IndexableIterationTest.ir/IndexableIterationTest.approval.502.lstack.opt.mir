@@ -1,24 +1,24 @@
 // Op                                                                   Stack (out)
 // test_cases.iteration.base.IterationTestBase.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // iteration/base.py:8
         // log("test_forwards")
         byte "test_forwards"                                            "test_forwards"
         log
         int 0                                                           0
         v-store item_index_internal%0#0
-        b main_for_header@2
+        b for_header@2
 
-    main_for_header@2:
+    for_header@2:
         // iteration/iterate_indexable.py:12
         // for i in Bytes(b"abc"):
         v-load item_index_internal%0#0                                  item_index_internal%0#0
         int 3                                                           item_index_internal%0#0,3
         <                                                               continue_looping%0#0
-        bz main_after_for@5 ; b main_for_body@3
+        bz after_for@5 ; b for_body@3
 
-    main_for_body@3:
+    for_body@3:
         // iteration/iterate_indexable.py:12
         // for i in Bytes(b"abc"):
         byte 0x616263                                                   0x616263
@@ -33,9 +33,9 @@ subroutine main:
         int 1                                                           item_index_internal%0#0,1
         +                                                               item_index_internal%0#0
         v-store item_index_internal%0#0
-        b main_for_header@2
+        b for_header@2
 
-    main_after_for@5:
+    after_for@5:
         // iteration/base.py:10
         // log("test_reversed")
         byte "test_reversed"                                            "test_reversed"
@@ -44,15 +44,15 @@ subroutine main:
         // for i in reversed(Bytes(b"abc")):
         int 3                                                           bytes_length%0#1
         v-store reverse_index_internal%0#2
-        b main_for_header@8
+        b for_header@8
 
-    main_for_header@8:
+    for_header@8:
         // iteration/iterate_indexable.py:18
         // for i in reversed(Bytes(b"abc")):
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
-        bz main_after_for@11 ; b main_for_body@9
+        bz after_for@11 ; b for_body@9
 
-    main_for_body@9:
+    for_body@9:
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
         int 1                                                           reverse_index_internal%0#2,1
         -                                                               reverse_index_internal%0#2
@@ -67,26 +67,26 @@ subroutine main:
         // iteration/iterate_indexable.py:19
         // log(i)
         log
-        b main_for_header@8
+        b for_header@8
 
-    main_after_for@11:
+    after_for@11:
         // iteration/base.py:12
         // log("test_forwards_with_forwards_index")
         byte "test_forwards_with_forwards_index"                        "test_forwards_with_forwards_index"
         log
         int 0                                                           item_index_internal%0#0
         v-store idx#0
-        b main_for_header@14
+        b for_header@14
 
-    main_for_header@14:
+    for_header@14:
         // iteration/iterate_indexable.py:24
         // for idx, i in uenumerate(Bytes(b"abc")):
         v-load idx#0                                                    idx#0
         int 3                                                           idx#0,3
         <                                                               continue_looping%0#0
-        bz main_after_for@17 ; b main_for_body@15
+        bz after_for@17 ; b for_body@15
 
-    main_for_body@15:
+    for_body@15:
         // iteration/iterate_indexable.py:24
         // for idx, i in uenumerate(Bytes(b"abc")):
         byte 0x616263                                                   0x616263
@@ -103,9 +103,9 @@ subroutine main:
         int 1                                                           idx#0,1
         +                                                               item_index_internal%0#0
         v-store idx#0
-        b main_for_header@14
+        b for_header@14
 
-    main_after_for@17:
+    after_for@17:
         // iteration/base.py:14
         // log("test_forwards_with_reverse_index")
         byte "test_forwards_with_reverse_index"                         "test_forwards_with_reverse_index"
@@ -117,15 +117,15 @@ subroutine main:
         v-store item_index_internal%0#0                                 bytes_length%0#1
         l-load bytes_length%0#1 0                                       bytes_length%0#1
         v-store reverse_index_internal%0#2
-        b main_for_header@20
+        b for_header@20
 
-    main_for_header@20:
+    for_header@20:
         // iteration/iterate_indexable.py:31
         // for idx, i in reversed(uenumerate(reversed(Bytes(b"abc")))):
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
-        bz main_after_for@23 ; b main_for_body@21
+        bz after_for@23 ; b for_body@21
 
-    main_for_body@21:
+    for_body@21:
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
         int 1                                                           reverse_index_internal%0#2,1
         -                                                               idx#0
@@ -147,9 +147,9 @@ subroutine main:
         v-store item_index_internal%0#0                                 idx#0
         l-load idx#0 0                                                  idx#0
         v-store reverse_index_internal%0#2
-        b main_for_header@20
+        b for_header@20
 
-    main_after_for@23:
+    after_for@23:
         // iteration/base.py:16
         // log("test_reverse_with_forwards_index")
         byte "test_reverse_with_forwards_index"                         "test_reverse_with_forwards_index"
@@ -163,15 +163,15 @@ subroutine main:
         v-store reverse_index_internal%0#2                              item_index_internal%0#0
         l-load item_index_internal%0#0 0                                item_index_internal%0#0
         v-store idx#0
-        b main_for_header@26
+        b for_header@26
 
-    main_for_header@26:
+    for_header@26:
         // iteration/iterate_indexable.py:38
         // for idx, i in uenumerate(reversed(Bytes(b"abc"))):
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
-        bz main_after_for@29 ; b main_for_body@27
+        bz after_for@29 ; b for_body@27
 
-    main_for_body@27:
+    for_body@27:
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
         int 1                                                           reverse_index_internal%0#2,1
         -                                                               reverse_index_internal%0#2
@@ -193,9 +193,9 @@ subroutine main:
         int 1                                                           idx#0,1
         +                                                               item_index_internal%0#0
         v-store idx#0
-        b main_for_header@26
+        b for_header@26
 
-    main_after_for@29:
+    after_for@29:
         // iteration/base.py:18
         // log("test_reverse_with_reverse_index")
         byte "test_reverse_with_reverse_index"                          "test_reverse_with_reverse_index"
@@ -204,15 +204,15 @@ subroutine main:
         // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
         int 3                                                           bytes_length%0#1
         v-store reverse_index_internal%0#2
-        b main_for_header@32
+        b for_header@32
 
-    main_for_header@32:
+    for_header@32:
         // iteration/iterate_indexable.py:45
         // for idx, i in reversed(uenumerate(Bytes(b"abc"))):
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
-        bz main_after_for@35 ; b main_for_body@33
+        bz after_for@35 ; b for_body@33
 
-    main_for_body@33:
+    for_body@33:
         v-load reverse_index_internal%0#2                               reverse_index_internal%0#2
         int 1                                                           reverse_index_internal%0#2,1
         -                                                               idx#0
@@ -229,26 +229,26 @@ subroutine main:
         callsub _log_with_index                                         idx#0
         l-load idx#0 0                                                  idx#0
         v-store reverse_index_internal%0#2
-        b main_for_header@32
+        b for_header@32
 
-    main_after_for@35:
+    after_for@35:
         // iteration/base.py:20
         // log("test_empty")
         byte "test_empty"                                               "test_empty"
         log
         int 0                                                           0
         v-store item_index_internal%0#0
-        b main_for_header@38
+        b for_header@38
 
-    main_for_header@38:
+    for_header@38:
         // iteration/iterate_indexable.py:52
         // for i in Bytes():
         v-load item_index_internal%0#0                                  item_index_internal%0#0
         int 0                                                           item_index_internal%0#0,0
         <                                                               continue_looping%0#0
-        bz main_after_for@41 ; b main_for_body@39
+        bz after_for@41 ; b for_body@39
 
-    main_for_body@39:
+    for_body@39:
         // iteration/iterate_indexable.py:52
         // for i in Bytes():
         byte 0x                                                         0x
@@ -263,22 +263,22 @@ subroutine main:
         int 1                                                           item_index_internal%0#0,1
         +                                                               item_index_internal%0#0
         v-store item_index_internal%0#0
-        b main_for_header@38
+        b for_header@38
 
-    main_after_for@41:
+    after_for@41:
         // iteration/iterate_indexable.py:54
         // for i in reversed(Bytes()):
         int 0                                                           bytes_length%1#0
         v-store reverse_index_internal%1#1
-        b main_for_header@42
+        b for_header@42
 
-    main_for_header@42:
+    for_header@42:
         // iteration/iterate_indexable.py:54
         // for i in reversed(Bytes()):
         v-load reverse_index_internal%1#1                               reverse_index_internal%1#1
-        bz main_after_for@45 ; b main_for_body@43
+        bz after_for@45 ; b for_body@43
 
-    main_for_body@43:
+    for_body@43:
         v-load reverse_index_internal%1#1                               reverse_index_internal%1#1
         int 1                                                           reverse_index_internal%1#1,1
         -                                                               reverse_index_internal%1#1
@@ -293,22 +293,22 @@ subroutine main:
         // iteration/iterate_indexable.py:55
         // log(i)
         log
-        b main_for_header@42
+        b for_header@42
 
-    main_after_for@45:
+    after_for@45:
         int 0                                                           item_index_internal%2#0
         v-store idx#0
-        b main_for_header@46
+        b for_header@46
 
-    main_for_header@46:
+    for_header@46:
         // iteration/iterate_indexable.py:56
         // for idx, i in uenumerate(Bytes()):
         v-load idx#0                                                    idx#0
         int 0                                                           idx#0,0
         <                                                               continue_looping%2#0
-        bz main_after_for@49 ; b main_for_body@47
+        bz after_for@49 ; b for_body@47
 
-    main_for_body@47:
+    for_body@47:
         // iteration/iterate_indexable.py:56
         // for idx, i in uenumerate(Bytes()):
         byte 0x                                                         0x
@@ -325,9 +325,9 @@ subroutine main:
         int 1                                                           idx#0,1
         +                                                               item_index_internal%2#0
         v-store idx#0
-        b main_for_header@46
+        b for_header@46
 
-    main_after_for@49:
+    after_for@49:
         // iteration/iterate_indexable.py:58
         // for idx, i in reversed(uenumerate(reversed(Bytes()))):
         int 0                                                           bytes_length%3#0
@@ -335,15 +335,15 @@ subroutine main:
         v-store item_index_internal%3#0                                 bytes_length%3#0
         l-load bytes_length%3#0 0                                       bytes_length%3#0
         v-store reverse_index_internal%3#1
-        b main_for_header@50
+        b for_header@50
 
-    main_for_header@50:
+    for_header@50:
         // iteration/iterate_indexable.py:58
         // for idx, i in reversed(uenumerate(reversed(Bytes()))):
         v-load reverse_index_internal%3#1                               reverse_index_internal%3#1
-        bz main_after_for@53 ; b main_for_body@51
+        bz after_for@53 ; b for_body@51
 
-    main_for_body@51:
+    for_body@51:
         v-load reverse_index_internal%3#1                               reverse_index_internal%3#1
         int 1                                                           reverse_index_internal%3#1,1
         -                                                               idx#0
@@ -365,9 +365,9 @@ subroutine main:
         v-store item_index_internal%3#0                                 idx#0
         l-load idx#0 0                                                  idx#0
         v-store reverse_index_internal%3#1
-        b main_for_header@50
+        b for_header@50
 
-    main_after_for@53:
+    after_for@53:
         // iteration/iterate_indexable.py:60
         // for idx, i in uenumerate(reversed(Bytes())):
         int 0                                                           bytes_length%4#0
@@ -377,15 +377,15 @@ subroutine main:
         v-store reverse_index_internal%4#1                              item_index_internal%4#0
         l-load item_index_internal%4#0 0                                item_index_internal%4#0
         v-store idx#0
-        b main_for_header@54
+        b for_header@54
 
-    main_for_header@54:
+    for_header@54:
         // iteration/iterate_indexable.py:60
         // for idx, i in uenumerate(reversed(Bytes())):
         v-load reverse_index_internal%4#1                               reverse_index_internal%4#1
-        bz main_after_for@57 ; b main_for_body@55
+        bz after_for@57 ; b for_body@55
 
-    main_for_body@55:
+    for_body@55:
         v-load reverse_index_internal%4#1                               reverse_index_internal%4#1
         int 1                                                           reverse_index_internal%4#1,1
         -                                                               reverse_index_internal%4#1
@@ -407,22 +407,22 @@ subroutine main:
         int 1                                                           idx#0,1
         +                                                               item_index_internal%4#0
         v-store idx#0
-        b main_for_header@54
+        b for_header@54
 
-    main_after_for@57:
+    after_for@57:
         // iteration/iterate_indexable.py:62
         // for idx, i in reversed(uenumerate(Bytes())):
         int 0                                                           bytes_length%5#0
         v-store reverse_index_internal%5#1
-        b main_for_header@58
+        b for_header@58
 
-    main_for_header@58:
+    for_header@58:
         // iteration/iterate_indexable.py:62
         // for idx, i in reversed(uenumerate(Bytes())):
         v-load reverse_index_internal%5#1                               reverse_index_internal%5#1
-        bz main_after_for@61 ; b main_for_body@59
+        bz after_for@61 ; b for_body@59
 
-    main_for_body@59:
+    for_body@59:
         v-load reverse_index_internal%5#1                               reverse_index_internal%5#1
         int 1                                                           reverse_index_internal%5#1,1
         -                                                               idx#0
@@ -439,9 +439,9 @@ subroutine main:
         callsub _log_with_index                                         idx#0
         l-load idx#0 0                                                  idx#0
         v-store reverse_index_internal%5#1
-        b main_for_header@58
+        b for_header@58
 
-    main_after_for@61:
+    after_for@61:
         // iteration/base.py:22
         // log("test_break")
         byte "test_break"                                               "test_break"
@@ -458,17 +458,17 @@ subroutine main:
         log
         int 0                                                           item_index_internal%0#0
         v-store tup.0#0
-        b main_for_header@69
+        b for_header@69
 
-    main_for_header@69:
+    for_header@69:
         // iteration/iterate_indexable.py:75
         // for tup in uenumerate(Bytes(b"t")):
         v-load tup.0#0                                                  tup.0#0
         int 1                                                           tup.0#0,1
         <                                                               continue_looping%0#0
-        bz main_after_for@72 ; b main_for_body@70
+        bz after_for@72 ; b for_body@70
 
-    main_for_body@70:
+    for_body@70:
         // iteration/iterate_indexable.py:75
         // for tup in uenumerate(Bytes(b"t")):
         byte 0x74                                                       0x74
@@ -485,9 +485,9 @@ subroutine main:
         int 1                                                           tup.0#0,1
         +                                                               item_index_internal%0#0
         v-store tup.0#0
-        b main_for_header@69
+        b for_header@69
 
-    main_after_for@72:
+    after_for@72:
         // iteration/base.py:26
         // return True
         int 1                                                           1

@@ -1,107 +1,107 @@
-// Op                                                   Stack (out)
+// Op                                            Stack (out)
 // test_cases.less_simple.contract.MyContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // less_simple/contract.py:9
         // a = UInt64(1)
-        int 1                                           1
+        int 1                                    1
         v-store a#0
         // less_simple/contract.py:10
         // sum_of_evens = UInt64(0)
-        int 0                                           0
+        int 0                                    0
         v-store sum_of_evens#0
         // less_simple/contract.py:11
         // product_of_odds = UInt64(0)
-        int 0                                           0
+        int 0                                    0
         v-store product_of_odds#0
-        b main_while_top@1
+        b while_top@1
 
-    main_while_top@1:
+    while_top@1:
         // less_simple/contract.py:12
         // while a < 100:
-        v-load a#0                                      a#0
-        int 100                                         a#0,100
-        <                                               tmp%0#0
+        v-load a#0                               a#0
+        int 100                                  a#0,100
+        <                                        tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                                  tmp%0#0
-        bz main_after_while@13 ; b main_while_body@2
+        v-load tmp%0#0                           tmp%0#0
+        bz after_while@13 ; b while_body@2
 
-    main_while_body@2:
+    while_body@2:
         // less_simple/contract.py:13
         // if a % 5 == 0:
-        v-load a#0                                      a#0
-        int 5                                           a#0,5
-        %                                               tmp%1#0
+        v-load a#0                               a#0
+        int 5                                    a#0,5
+        %                                        tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                  tmp%1#0
-        bz main_while_top@1 ; b main_after_if_else@4
+        v-load tmp%1#0                           tmp%1#0
+        bz while_top@1 ; b after_if_else@4
 
-    main_after_if_else@4:
+    after_if_else@4:
         // less_simple/contract.py:15
         // if not a % 21:
-        v-load a#0                                      a#0
-        int 21                                          a#0,21
-        %                                               tmp%3#0
+        v-load a#0                               a#0
+        int 21                                   a#0,21
+        %                                        tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                  tmp%3#0
-        bz main_after_while@13 ; b main_after_if_else@6
+        v-load tmp%3#0                           tmp%3#0
+        bz after_while@13 ; b after_if_else@6
 
-    main_after_if_else@6:
+    after_if_else@6:
         // less_simple/contract.py:17
         // if a % 2 == 0:
-        v-load a#0                                      a#0
-        int 2                                           a#0,2
-        %                                               tmp%5#0
+        v-load a#0                               a#0
+        int 2                                    a#0,2
+        %                                        tmp%5#0
         v-store tmp%5#0
-        v-load tmp%5#0                                  tmp%5#0
-        bz main_if_body@7 ; b main_else_body@8
+        v-load tmp%5#0                           tmp%5#0
+        bz if_body@7 ; b else_body@8
 
-    main_if_body@7:
+    if_body@7:
         // less_simple/contract.py:18
         // sum_of_evens += a
-        v-load sum_of_evens#0                           sum_of_evens#0
-        v-load a#0                                      sum_of_evens#0,a#0
-        +                                               sum_of_evens#0
+        v-load sum_of_evens#0                    sum_of_evens#0
+        v-load a#0                               sum_of_evens#0,a#0
+        +                                        sum_of_evens#0
         v-store sum_of_evens#0
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_else_body@8:
+    else_body@8:
         // less_simple/contract.py:20
         // if product_of_odds == 0:
-        v-load product_of_odds#0                        product_of_odds#0
-        bz main_if_body@9 ; b main_else_body@10
+        v-load product_of_odds#0                 product_of_odds#0
+        bz if_body@9 ; b else_body@10
 
-    main_if_body@9:
-        v-load a#0                                      a#0
+    if_body@9:
+        v-load a#0                               a#0
         v-store product_of_odds#0
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_else_body@10:
+    else_body@10:
         // less_simple/contract.py:23
         // product_of_odds *= a
-        v-load product_of_odds#0                        product_of_odds#0
-        v-load a#0                                      product_of_odds#0,a#0
-        *                                               product_of_odds#0
+        v-load product_of_odds#0                 product_of_odds#0
+        v-load a#0                               product_of_odds#0,a#0
+        *                                        product_of_odds#0
         v-store product_of_odds#0
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_after_if_else@12:
+    after_if_else@12:
         // less_simple/contract.py:24
         // a += 1
-        v-load a#0                                      a#0
-        int 1                                           a#0,1
-        +                                               a#0
+        v-load a#0                               a#0
+        int 1                                    a#0,1
+        +                                        a#0
         v-store a#0
-        b main_while_top@1
+        b while_top@1
 
-    main_after_while@13:
+    after_while@13:
         // less_simple/contract.py:25
         // return product_of_odds - sum_of_evens
-        v-load product_of_odds#0                        product_of_odds#0
-        v-load sum_of_evens#0                           product_of_odds#0,sum_of_evens#0
-        -                                               tmp%11#0
+        v-load product_of_odds#0                 product_of_odds#0
+        v-load sum_of_evens#0                    product_of_odds#0,sum_of_evens#0
+        -                                        tmp%11#0
         v-store tmp%11#0
-        v-load tmp%11#0                                 tmp%11#0
+        v-load tmp%11#0                          tmp%11#0
         return
 
 

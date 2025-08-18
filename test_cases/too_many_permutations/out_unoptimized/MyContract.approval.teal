@@ -5,9 +5,9 @@
 main:
     intcblock 0 1
     pushbytes ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // too_many_permutations/contract.py:6
     // a = op.Txn.application_args(0)
     txna ApplicationArgs 0
@@ -28,24 +28,24 @@ main_block@0:
     // too_many_permutations/contract.py:11
     // assert (a != c) or (b != d)
     !=
-    bnz main_bool_true@2
-    b main_or_contd@1
+    bnz bool_true@2
+    b or_contd@1
 
-main_or_contd@1:
+or_contd@1:
     // too_many_permutations/contract.py:11
     // assert (a != c) or (b != d)
     dig 2
     dig 1
     !=
-    bz main_bool_false@3
-    b main_bool_true@2
+    bz bool_false@3
+    b bool_true@2
 
-main_bool_true@2:
+bool_true@2:
     intc_1 // 1
     bury 5
-    b main_bool_merge@4
+    b bool_merge@4
 
-main_bool_merge@4:
+bool_merge@4:
     // too_many_permutations/contract.py:11
     // assert (a != c) or (b != d)
     dig 4
@@ -78,10 +78,10 @@ main_bool_merge@4:
     intc_1 // 1
     return
 
-main_bool_false@3:
+bool_false@3:
     intc_0 // 0
     bury 5
-    b main_bool_merge@4
+    b bool_merge@4
 
 
 // test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:

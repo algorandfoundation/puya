@@ -7,13 +7,13 @@ main:
     pushint 0 // 0
     dupn 2
     txn NumAppArgs
-    bz main___algopy_default_create@6
+    bz __algopy_default_create@6
     pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
     txna ApplicationArgs 0
-    match main_verify_route@3
+    match verify_route@3
     err
 
-main_verify_route@3:
+verify_route@3:
     txn OnCompletion
     !
     txn ApplicationID
@@ -29,11 +29,11 @@ main_verify_route@3:
     extract 2 0
     bury 2
 
-main_while_top@8:
+while_top@8:
     pushint 10010 // 10010
     global OpcodeBudget
     >
-    bz main_after_while@13
+    bz after_while@13
     itxn_begin
     pushint 6 // appl
     itxn_field TypeEnum
@@ -46,9 +46,9 @@ main_while_top@8:
     global MinTxnFee
     itxn_field Fee
     itxn_submit
-    b main_while_top@8
+    b while_top@8
 
-main_after_while@13:
+after_while@13:
     dig 2
     dig 1
     dig 3
@@ -75,7 +75,7 @@ main_after_while@13:
     pushint 1 // 1
     return
 
-main___algopy_default_create@6:
+__algopy_default_create@6:
     txn OnCompletion
     !
     txn ApplicationID

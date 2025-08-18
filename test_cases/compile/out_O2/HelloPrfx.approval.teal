@@ -5,28 +5,28 @@
 main:
     bytecblock "greeting" PRFX_GREETING
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "greeting"
     bytec_1 // PRFX_GREETING
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main_update@12
+    bz update@12
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@5
+    match delete_route@5
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@9
+    bz create_NoOp@9
     pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
-    match main_greet_route@8
+    match greet_route@8
     err
 
-main_greet_route@8:
+greet_route@8:
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -50,17 +50,17 @@ main_greet_route@8:
     pushint 1 // 1
     return
 
-main_create_NoOp@9:
+create_NoOp@9:
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@10
+    match create_route@10
     err
 
-main_create_route@10:
+create_route@10:
     pushint 1 // 1
     return
 
-main_delete_route@5:
+delete_route@5:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
@@ -68,7 +68,7 @@ main_delete_route@5:
     &&
     return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_update@12:
+update@12:
     txn OnCompletion
     pushint 4 // UpdateApplication
     ==

@@ -5,21 +5,21 @@
 main:
     intcblock 0 1
     bytecblock 0x01 0x 0x151f7c75
-    b main_block@0
+    b block@0
 
-main_block@0:
-    b main_block@1
+block@0:
+    b block@1
 
-main_block@1:
+block@1:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@12
-    b main_abi_routing@2
+    bz __algopy_default_create@12
+    b abi_routing@2
 
-main_abi_routing@2:
+abi_routing@2:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txn OnCompletion
@@ -29,10 +29,10 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@10
-    b main_call_NoOp@3
+    bz create_NoOp@10
+    b call_NoOp@3
 
-main_call_NoOp@3:
+call_NoOp@3:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -41,51 +41,51 @@ main_call_NoOp@3:
     pushbytes 0x8ba7c4c2 // method "get_three()(uint8,uint8)"
     pushbytes 0x46dadea3 // method "compare()bool"
     uncover 4
-    match main_get_one_route@4 main_get_two_route@5 main_get_three_route@6 main_compare_route@7
-    b main_switch_case_default@8
+    match get_one_route@4 get_two_route@5 get_three_route@6 compare_route@7
+    b switch_case_default@8
 
-main_switch_case_default@8:
-    b main_switch_case_next@9
+switch_case_default@8:
+    b switch_case_next@9
 
-main_switch_case_next@9:
-    b main_after_if_else@11
+switch_case_next@9:
+    b after_if_else@11
 
-main_after_if_else@11:
-    b main_after_if_else@13
+after_if_else@11:
+    b after_if_else@13
 
-main_after_if_else@13:
+after_if_else@13:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     err
 
-main_compare_route@7:
+compare_route@7:
     // struct_by_name/contract.py:46
     // @arc4.abimethod()
     callsub compare
-    b main_switch_case_next@9
+    b switch_case_next@9
 
-main_get_three_route@6:
+get_three_route@6:
     // struct_by_name/contract.py:39
     // @arc4.abimethod()
     callsub get_three
-    b main_switch_case_next@9
+    b switch_case_next@9
 
-main_get_two_route@5:
+get_two_route@5:
     // struct_by_name/contract.py:32
     // @arc4.abimethod()
     callsub get_two
-    b main_switch_case_next@9
+    b switch_case_next@9
 
-main_get_one_route@4:
+get_one_route@4:
     // struct_by_name/contract.py:25
     // @arc4.abimethod()
     callsub get_one
-    b main_switch_case_next@9
+    b switch_case_next@9
 
-main_create_NoOp@10:
-    b main_after_if_else@11
+create_NoOp@10:
+    b after_if_else@11
 
-main___algopy_default_create@12:
+__algopy_default_create@12:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -94,12 +94,12 @@ main___algopy_default_create@12:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@15
+    b block@15
 
-main_block@15:
-    b main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16
+block@15:
+    b after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16
 
-main_after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16:
+after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16:
     intc_1 // 1
     return
 

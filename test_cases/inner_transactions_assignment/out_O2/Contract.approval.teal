@@ -6,7 +6,7 @@ main:
     intcblock 0 1 3
     bytecblock 0x61636667 0x70617932 "pay1" "TEST" "TST" "pay3" 0x6163666732 0x70617935
     txn NumAppArgs
-    bz main___algopy_default_create@10
+    bz __algopy_default_create@10
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -14,10 +14,10 @@ main:
     assert
     pushbytess 0xe46d9019 0xf883853e // method "test_itxn_slice()void", method "test_itxn_nested()void"
     txna ApplicationArgs 0
-    match main_test_itxn_slice_route@4 main_test_itxn_nested_route@5
+    match test_itxn_slice_route@4 test_itxn_nested_route@5
     err
 
-main_test_itxn_nested_route@5:
+test_itxn_nested_route@5:
     txn Sender
     itxn_begin
     bytec_2 // "pay1"
@@ -118,7 +118,7 @@ main_test_itxn_nested_route@5:
     ==
     return
 
-main_test_itxn_slice_route@4:
+test_itxn_slice_route@4:
     txn Sender
     itxn_begin
     bytec_2 // "pay1"
@@ -175,7 +175,7 @@ main_test_itxn_slice_route@4:
     ==
     return
 
-main___algopy_default_create@10:
+__algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID

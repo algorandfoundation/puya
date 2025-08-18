@@ -1,44 +1,44 @@
 // Op                                                                Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         txn OnCompletion                                             tmp%0#1
         !                                                            tmp%1#0
         assert // OnCompletion must be NoOp
         txn ApplicationID                                            tmp%2#0
-        bz main_create_NoOp@6 ; b main_call_NoOp@2
+        bz create_NoOp@6 ; b call_NoOp@2
 
-    main_call_NoOp@2:
+    call_NoOp@2:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                       tmp%4#0
         method tuple_of_arc4((uint8,address))(uint8,address)         tmp%4#0,Method(tuple_of_arc4((uint8,address))(uint8,address))
         l-load tmp%4#0 1                                             Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
-        match main_tuple_of_arc4_route@3 ; b main_after_if_else@10
+        match tuple_of_arc4_route@3 ; b after_if_else@10
 
-    main_tuple_of_arc4_route@3:
+    tuple_of_arc4_route@3:
         // avm_types_in_abi/contract.py:19
         // @arc4.abimethod
         callsub tuple_of_arc4
-        b main_after_if_else@10
+        b after_if_else@10
 
-    main_create_NoOp@6:
+    create_NoOp@6:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                       tmp%5#0
         method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) tmp%5#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
         l-load tmp%5#0 1                                             Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
-        match main_create_route@7 ; b main_after_if_else@10
+        match create_route@7 ; b after_if_else@10
 
-    main_create_route@7:
+    create_route@7:
         // avm_types_in_abi/contract.py:5
         // @arc4.abimethod(allow_actions=["NoOp"], create="require")
         callsub create
-        b main_after_if_else@10
+        b after_if_else@10
 
-    main_after_if_else@10:
+    after_if_else@10:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         err

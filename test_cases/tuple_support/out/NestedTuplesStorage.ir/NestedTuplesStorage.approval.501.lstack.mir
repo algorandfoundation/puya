@@ -1,12 +1,12 @@
 // Op                                                                                      Stack (out)
 // test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                                                  tmp%0#0
         l-load tmp%0#0 0                                                                   tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // tuple_support/tuple_storage.py:16
         // self.tup = TupleWithMutable(
         byte "tup"                                                                         "tup"
@@ -44,24 +44,24 @@ subroutine main:
         byte "tup"                                                                         aggregate%concat%2#0,"tup"
         l-load aggregate%concat%2#0 1                                                      "tup",aggregate%concat%2#0
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
         txn NumAppArgs                                                                     tmp%0#2
         l-load tmp%0#2 0                                                                   tmp%0#2
-        bz main___algopy_default_create@13 ; b main_abi_routing@4
+        bz __algopy_default_create@13 ; b abi_routing@4
 
-    main_abi_routing@4:
+    abi_routing@4:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                             tmp%2#0
         method bootstrap()void                                                             tmp%2#0,Method(bootstrap()void)
         l-load tmp%2#0 1                                                                   Method(bootstrap()void),tmp%2#0
-        match main_bootstrap_route@5 ; b main_switch_case_next@6
+        match bootstrap_route@5 ; b switch_case_next@6
 
-    main_bootstrap_route@5:
+    bootstrap_route@5:
         // tuple_support/tuple_storage.py:23
         // @arc4.abimethod(allow_actions=["OptIn"])
         txn OnCompletion                                                                   tmp%3#0
@@ -75,9 +75,9 @@ subroutine main:
         l-load tmp%7#0 0                                                                   tmp%7#0
         assert // OnCompletion must be OptIn && can only call when not creating
         callsub bootstrap
-        b main_switch_case_next@6
+        b switch_case_next@6
 
-    main_switch_case_next@6:
+    switch_case_next@6:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
         txn OnCompletion                                                                   tmp%8#0
@@ -94,38 +94,38 @@ subroutine main:
         method mutate_global(uint64)void                                                   tmp%12#0,Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void)
         method mutate_local(uint64)void                                                    tmp%12#0,Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void)
         l-load tmp%12#0 4                                                                  Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void),tmp%12#0
-        match main_mutate_tuple_route@8 main_mutate_box_route@9 main_mutate_global_route@10 main_mutate_local_route@11 ; b main_after_if_else@12 
+        match mutate_tuple_route@8 mutate_box_route@9 mutate_global_route@10 mutate_local_route@11 ; b after_if_else@12 
 
-    main_mutate_tuple_route@8:
+    mutate_tuple_route@8:
         // tuple_support/tuple_storage.py:28
         // @arc4.abimethod()
         callsub mutate_tuple
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_mutate_box_route@9:
+    mutate_box_route@9:
         // tuple_support/tuple_storage.py:32
         // @arc4.abimethod()
         callsub mutate_box
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_mutate_global_route@10:
+    mutate_global_route@10:
         // tuple_support/tuple_storage.py:36
         // @arc4.abimethod()
         callsub mutate_global
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_mutate_local_route@11:
+    mutate_local_route@11:
         // tuple_support/tuple_storage.py:40
         // @arc4.abimethod()
         callsub mutate_local
-        b main_after_if_else@12
+        b after_if_else@12
 
-    main_after_if_else@12:
+    after_if_else@12:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
         err
 
-    main___algopy_default_create@13:
+    __algopy_default_create@13:
         txn OnCompletion                                                                   tmp%13#0
         l-load tmp%13#0 0                                                                  tmp%13#0
         !                                                                                  tmp%14#0

@@ -12,13 +12,13 @@ main:
     intc_0 // 0
     dup
 
-main_for_header@1:
+for_header@1:
     // arc4_types/dynamic_bytes.py:16
     // for uint8_item in dynamic_bytes:
     dup
     pushint 3 // 3
     <
-    bz main_after_for@4
+    bz after_for@4
     pushbytes 0x020301
     // arc4_types/dynamic_bytes.py:17
     // total += uint8_item.native
@@ -32,9 +32,9 @@ main_for_header@1:
     intc_1 // 1
     +
     bury 1
-    b main_for_header@1
+    b for_header@1
 
-main_after_for@4:
+after_for@4:
     // arc4_types/dynamic_bytes.py:19
     // assert total == 6, "Total should be of dynamic_bytes items"
     dig 1
@@ -44,13 +44,13 @@ main_after_for@4:
     intc_0 // 0
     bury 4
 
-main_for_header@5:
+for_header@5:
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
     dig 3
     intc_2 // 2
     <
-    bz main_after_for@8
+    bz after_for@8
     bytec_0 // 0x0304
     // arc4_types/dynamic_bytes.py:26
     // total += uint8_item.native
@@ -64,19 +64,19 @@ main_for_header@5:
     intc_1 // 1
     +
     bury 4
-    b main_for_header@5
+    b for_header@5
 
-main_after_for@8:
+after_for@8:
     intc_0 // 0
     bury 3
 
-main_for_header@9:
+for_header@9:
     // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes3:
     dig 2
     intc_2 // 2
     <
-    bz main_after_for@12
+    bz after_for@12
     bytec_0 // 0x0304
     // arc4_types/dynamic_bytes.py:33
     // total += uint8_item.native
@@ -90,9 +90,9 @@ main_for_header@9:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@9
+    b for_header@9
 
-main_after_for@12:
+after_for@12:
     // arc4_types/dynamic_bytes.py:35
     // assert total == 20, "Total should now include sum of dynamic_bytes3 items"
     dig 1
@@ -118,10 +118,10 @@ main_after_for@12:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     txn NumAppArgs
-    bz main_ternary_false@14
+    bz ternary_false@14
     pushbytes 0x000132
 
-main_ternary_merge@15:
+ternary_merge@15:
     // arc4_types/dynamic_bytes.py:45
     // assert dynamic_bytes.native == b"3"
     extract 2 0
@@ -131,8 +131,8 @@ main_ternary_merge@15:
     // return True
     return
 
-main_ternary_false@14:
+ternary_false@14:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
     pushbytes 0x000133
-    b main_ternary_merge@15
+    b ternary_merge@15

@@ -5,9 +5,9 @@
 main:
     intcblock 1 5 0 2
     bytecblock 0x48656c6c6f20576f726c64 0x6c617374
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // scratch_slots/contract.py:9
     // op.Scratch.store(UInt64(1), 5 if Txn.application_id == 0 else 0)
     txn ApplicationID
@@ -34,34 +34,34 @@ main_block@0:
     intc_0 // 1
     assert // Step cannot be zero
     pushint 3 // 3
-    b main_for_header@1
+    b for_header@1
 
-main_for_header@1:
+for_header@1:
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
     dup
     pushint 20 // 20
     <
-    bz main_after_for@4
-    b main_for_body@2
+    bz after_for@4
+    b for_body@2
 
-main_for_body@2:
+for_body@2:
     // scratch_slots/contract.py:15
     // op.Scratch.store(i, i)
     dupn 2
     stores
-    b main_for_footer@3
+    b for_footer@3
 
-main_for_footer@3:
+for_footer@3:
     // scratch_slots/contract.py:14
     // for i in urange(3, 20):
     dup
     intc_0 // 1
     +
     bury 1
-    b main_for_header@1
+    b for_header@1
 
-main_after_for@4:
+after_for@4:
     // scratch_slots/contract.py:17
     // assert op.Scratch.load_uint64(1) == UInt64(5)
     intc_0 // 1

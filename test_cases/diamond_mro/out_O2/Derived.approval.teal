@@ -4,7 +4,7 @@
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 main:
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     pushbytes "derived.__init__"
     log
     pushbytes "base1.__init__"
@@ -14,18 +14,18 @@ main:
     pushbytes "gp.__init__"
     log
 
-main_after_if_else@2:
+after_if_else@2:
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@6
+    bz create_NoOp@6
     pushbytes 0x4f045d84 // method "method()void"
     txna ApplicationArgs 0
-    match main_method_route@5
+    match method_route@5
     err
 
-main_method_route@5:
+method_route@5:
     pushbytes "derived.method"
     log
     pushbytes "base1.method"
@@ -37,12 +37,12 @@ main_method_route@5:
     pushint 1 // 1
     return
 
-main_create_NoOp@6:
+create_NoOp@6:
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@7
+    match create_route@7
     err
 
-main_create_route@7:
+create_route@7:
     pushint 1 // 1
     return

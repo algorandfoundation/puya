@@ -17,9 +17,9 @@ main:
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // conditional_expressions/contract.py:8
     // a = UInt64(1)
     intc_1 // 1
@@ -61,17 +61,17 @@ main_block@0:
     dup
     intc_0 // 0
     !=
-    bz main_ternary_false@2
-    b main_ternary_true@1
+    bz ternary_false@2
+    b ternary_true@1
 
-main_ternary_true@1:
+ternary_true@1:
     // conditional_expressions/contract.py:14
     // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
     dup
     bury 8
-    b main_ternary_merge@3
+    b ternary_merge@3
 
-main_ternary_merge@3:
+ternary_merge@3:
     // conditional_expressions/contract.py:14
     // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
     dig 7
@@ -84,17 +84,17 @@ main_ternary_merge@3:
     bury 16
     intc_0 // 0
     !=
-    bz main_ternary_false@5
-    b main_ternary_true@4
+    bz ternary_false@5
+    b ternary_true@4
 
-main_ternary_true@4:
+ternary_true@4:
     // conditional_expressions/contract.py:15
     // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
     dig 14
     bury 7
-    b main_ternary_merge@6
+    b ternary_merge@6
 
-main_ternary_merge@6:
+ternary_merge@6:
     // conditional_expressions/contract.py:15
     // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
     dig 6
@@ -107,17 +107,17 @@ main_ternary_merge@6:
     bury 15
     intc_0 // 0
     ==
-    bz main_ternary_false@8
-    b main_ternary_true@7
+    bz ternary_false@8
+    b ternary_true@7
 
-main_ternary_true@7:
+ternary_true@7:
     // conditional_expressions/contract.py:17
     // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
     dig 13
     bury 6
-    b main_ternary_merge@9
+    b ternary_merge@9
 
-main_ternary_merge@9:
+ternary_merge@9:
     // conditional_expressions/contract.py:17
     // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
     dig 5
@@ -130,17 +130,17 @@ main_ternary_merge@9:
     bury 14
     intc_0 // 0
     ==
-    bz main_ternary_false@11
-    b main_ternary_true@10
+    bz ternary_false@11
+    b ternary_true@10
 
-main_ternary_true@10:
+ternary_true@10:
     // conditional_expressions/contract.py:18
     // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
     dig 12
     bury 5
-    b main_ternary_merge@12
+    b ternary_merge@12
 
-main_ternary_merge@12:
+ternary_merge@12:
     // conditional_expressions/contract.py:18
     // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
     dig 4
@@ -152,19 +152,19 @@ main_ternary_merge@12:
     // i = a if b < c else d + e
     dig 3
     <
-    bz main_ternary_false@14
-    b main_ternary_true@13
+    bz ternary_false@14
+    b ternary_true@13
 
-main_ternary_true@13:
+ternary_true@13:
     // conditional_expressions/contract.py:8
     // a = UInt64(1)
     intc_1 // 1
     // conditional_expressions/contract.py:20
     // i = a if b < c else d + e
     bury 4
-    b main_ternary_merge@15
+    b ternary_merge@15
 
-main_ternary_merge@15:
+ternary_merge@15:
     // conditional_expressions/contract.py:20
     // i = a if b < c else d + e
     dig 3
@@ -199,46 +199,46 @@ main_ternary_merge@15:
     // return result
     return
 
-main_ternary_false@14:
+ternary_false@14:
     // conditional_expressions/contract.py:20
     // i = a if b < c else d + e
     dig 1
     dig 12
     +
     bury 4
-    b main_ternary_merge@15
+    b ternary_merge@15
 
-main_ternary_false@11:
+ternary_false@11:
     // conditional_expressions/contract.py:18
     // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
     pushint 3 // 3
     callsub expensive_op
     bury 5
-    b main_ternary_merge@12
+    b ternary_merge@12
 
-main_ternary_false@8:
+ternary_false@8:
     // conditional_expressions/contract.py:17
     // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
     intc_3 // 42
     callsub expensive_op
     bury 6
-    b main_ternary_merge@9
+    b ternary_merge@9
 
-main_ternary_false@5:
+ternary_false@5:
     // conditional_expressions/contract.py:15
     // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
     intc_3 // 42
     callsub side_effecting_op
     bury 7
-    b main_ternary_merge@6
+    b ternary_merge@6
 
-main_ternary_false@2:
+ternary_false@2:
     // conditional_expressions/contract.py:14
     // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
     intc_1 // 1
     callsub side_effecting_op
     bury 8
-    b main_ternary_merge@3
+    b ternary_merge@3
 
 
 // test_cases.conditional_expressions.contract.MyContract.expensive_op(val: uint64) -> uint64:

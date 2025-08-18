@@ -1,16 +1,16 @@
 // Op                                                                                         Stack (out)
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // arc4_types/array.py:26
         // total = UInt64(0)
         int 0                                                                                 0
         v-store total#0
         int 0                                                                                 0
         v-store item_index_internal%0#0
-        b main_for_header@1
+        b for_header@1
 
-    main_for_header@1:
+    for_header@1:
         // arc4_types/array.py:27
         // for uint8_item in dynamic_uint8_array:
         v-load item_index_internal%0#0                                                        item_index_internal%0#0
@@ -18,9 +18,9 @@ subroutine main:
         <                                                                                     continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                           continue_looping%0#0
-        bz main_after_for@4 ; b main_for_body@2
+        bz after_for@4 ; b for_body@2
 
-    main_for_body@2:
+    for_body@2:
         // arc4_types/array.py:27
         // for uint8_item in dynamic_uint8_array:
         byte 0x0102                                                                           0x0102
@@ -37,9 +37,9 @@ subroutine main:
         int 1                                                                                 item_index_internal%0#0,1
         +                                                                                     item_index_internal%0#0
         v-store item_index_internal%0#0
-        b main_for_header@1
+        b for_header@1
 
-    main_after_for@4:
+    after_for@4:
         // arc4_types/array.py:30
         // assert total == 3, "Total should be sum of dynamic_uint8_array items"
         v-load total#0                                                                        total#0
@@ -50,9 +50,9 @@ subroutine main:
         assert // Total should be sum of dynamic_uint8_array items
         int 0                                                                                 0
         v-store item_index_internal%1#0
-        b main_for_header@5
+        b for_header@5
 
-    main_for_header@5:
+    for_header@5:
         // arc4_types/array.py:32
         // for uint16_item in aliased_dynamic:
         v-load item_index_internal%1#0                                                        item_index_internal%1#0
@@ -60,9 +60,9 @@ subroutine main:
         <                                                                                     continue_looping%1#0
         v-store continue_looping%1#0
         v-load continue_looping%1#0                                                           continue_looping%1#0
-        bz main_after_for@8 ; b main_for_body@6
+        bz after_for@8 ; b for_body@6
 
-    main_for_body@6:
+    for_body@6:
         // arc4_types/array.py:32
         // for uint16_item in aliased_dynamic:
         v-load item_index_internal%1#0                                                        item_index_internal%1#0
@@ -83,9 +83,9 @@ subroutine main:
         int 1                                                                                 item_index_internal%1#0,1
         +                                                                                     item_index_internal%1#0
         v-store item_index_internal%1#0
-        b main_for_header@5
+        b for_header@5
 
-    main_after_for@8:
+    after_for@8:
         // arc4_types/array.py:34
         // assert total == 4, "Total should now include sum of aliased_dynamic items"
         v-load total#0                                                                        total#0
@@ -102,9 +102,9 @@ subroutine main:
         v-store item_index_internal%2#0
         v-load item_index_internal%2#0                                                        item_index_internal%2#0
         v-store index#0
-        b main_for_header@9
+        b for_header@9
 
-    main_for_header@9:
+    for_header@9:
         // arc4_types/array.py:39
         // for index, string_item in uenumerate(dynamic_string_array):
         v-load index#0                                                                        index#0
@@ -112,9 +112,9 @@ subroutine main:
         <                                                                                     continue_looping%2#0
         v-store continue_looping%2#0
         v-load continue_looping%2#0                                                           continue_looping%2#0
-        bz main_after_for@15 ; b main_for_body@10
+        bz after_for@15 ; b for_body@10
 
-    main_for_body@10:
+    for_body@10:
         // arc4_types/array.py:39
         // for index, string_item in uenumerate(dynamic_string_array):
         v-load index#0                                                                        index#0
@@ -141,17 +141,17 @@ subroutine main:
         // arc4_types/array.py:40
         // if index == 0:
         v-load index#0                                                                        index#0
-        bz main_if_body@11 ; b main_else_body@12
+        bz if_body@11 ; b else_body@12
 
-    main_if_body@11:
+    if_body@11:
         // arc4_types/array.py:41
         // result = string_item.native
         v-load string_item#0                                                                  string_item#0
         extract 2 0                                                                           result#0
         v-store result#0
-        b main_after_if_else@13
+        b after_if_else@13
 
-    main_else_body@12:
+    else_body@12:
         // arc4_types/array.py:43
         // result += " " + string_item.native
         v-load string_item#0                                                                  string_item#0
@@ -165,18 +165,18 @@ subroutine main:
         v-load tmp%15#0                                                                       result#0,tmp%15#0
         concat                                                                                result#0
         v-store result#0
-        b main_after_if_else@13
+        b after_if_else@13
 
-    main_after_if_else@13:
+    after_if_else@13:
         v-load index#0                                                                        index#0
         int 1                                                                                 index#0,1
         +                                                                                     item_index_internal%2#0
         v-store item_index_internal%2#0
         v-load item_index_internal%2#0                                                        item_index_internal%2#0
         v-store index#0
-        b main_for_header@9
+        b for_header@9
 
-    main_after_for@15:
+    after_for@15:
         // arc4_types/array.py:45
         // assert result == "Hello World"
         v-load result#0                                                                       result#0
@@ -187,9 +187,9 @@ subroutine main:
         assert
         int 0                                                                                 0
         v-store item_index_internal%3#0
-        b main_for_header@16
+        b for_header@16
 
-    main_for_header@16:
+    for_header@16:
         // arc4_types/array.py:49
         // for uint32_item in static_uint32_array:
         v-load item_index_internal%3#0                                                        item_index_internal%3#0
@@ -197,9 +197,9 @@ subroutine main:
         <                                                                                     continue_looping%3#0
         v-store continue_looping%3#0
         v-load continue_looping%3#0                                                           continue_looping%3#0
-        bz main_after_for@19 ; b main_for_body@17
+        bz after_for@19 ; b for_body@17
 
-    main_for_body@17:
+    for_body@17:
         // arc4_types/array.py:49
         // for uint32_item in static_uint32_array:
         v-load item_index_internal%3#0                                                        item_index_internal%3#0
@@ -222,9 +222,9 @@ subroutine main:
         int 1                                                                                 item_index_internal%3#0,1
         +                                                                                     item_index_internal%3#0
         v-store item_index_internal%3#0
-        b main_for_header@16
+        b for_header@16
 
-    main_after_for@19:
+    after_for@19:
         // arc4_types/array.py:52
         // assert total == 4 + 1 + 10 + 255 + 128
         v-load total#0                                                                        total#0
@@ -241,9 +241,9 @@ subroutine main:
         v-store item_index_internal%4#0
         v-load item_index_internal%4#0                                                        item_index_internal%4#0
         v-store index#0
-        b main_for_header@20
+        b for_header@20
 
-    main_for_header@20:
+    for_header@20:
         // arc4_types/array.py:63
         // for index, string_item in uenumerate(static_string_array):
         v-load index#0                                                                        index#0
@@ -251,9 +251,9 @@ subroutine main:
         <                                                                                     continue_looping%4#0
         v-store continue_looping%4#0
         v-load continue_looping%4#0                                                           continue_looping%4#0
-        bz main_after_for@26 ; b main_for_body@21
+        bz after_for@26 ; b for_body@21
 
-    main_for_body@21:
+    for_body@21:
         // arc4_types/array.py:63
         // for index, string_item in uenumerate(static_string_array):
         v-load index#0                                                                        index#0
@@ -292,17 +292,17 @@ subroutine main:
         // arc4_types/array.py:64
         // if index == 0:
         v-load index#0                                                                        index#0
-        bz main_if_body@22 ; b main_else_body@23
+        bz if_body@22 ; b else_body@23
 
-    main_if_body@22:
+    if_body@22:
         // arc4_types/array.py:65
         // result = string_item.native
         v-load string_item#0                                                                  string_item#0
         extract 2 0                                                                           result#0
         v-store result#0
-        b main_after_if_else@24
+        b after_if_else@24
 
-    main_else_body@23:
+    else_body@23:
         // arc4_types/array.py:67
         // result += " " + string_item.native
         v-load string_item#0                                                                  string_item#0
@@ -316,18 +316,18 @@ subroutine main:
         v-load tmp%30#0                                                                       result#0,tmp%30#0
         concat                                                                                result#0
         v-store result#0
-        b main_after_if_else@24
+        b after_if_else@24
 
-    main_after_if_else@24:
+    after_if_else@24:
         v-load index#0                                                                        index#0
         int 1                                                                                 index#0,1
         +                                                                                     item_index_internal%4#0
         v-store item_index_internal%4#0
         v-load item_index_internal%4#0                                                        item_index_internal%4#0
         v-store index#0
-        b main_for_header@20
+        b for_header@20
 
-    main_after_for@26:
+    after_for@26:
         // arc4_types/array.py:69
         // assert result == "Ping Pong"
         v-load result#0                                                                       result#0
@@ -342,17 +342,17 @@ subroutine main:
         v-store array_head_and_tail#1
         int 10                                                                                10
         v-store tail_offset#0
-        b main_for_header@32
+        b for_header@32
 
-    main_for_header@32:
+    for_header@32:
         v-load head_offset#0                                                                  head_offset#0
         int 4                                                                                 head_offset#0,4
         <                                                                                     continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                           continue_looping%0#0
-        bz main_after_for@34 ; b main_for_body@33
+        bz after_for@34 ; b for_body@33
 
-    main_for_body@33:
+    for_body@33:
         v-load tail_offset#0                                                                  tail_offset#0
         itob                                                                                  tmp%6#2
         v-store tmp%6#2
@@ -380,18 +380,18 @@ subroutine main:
         int 2                                                                                 head_offset#0,2
         +                                                                                     head_offset#0
         v-store head_offset#0
-        b main_for_header@32
+        b for_header@32
 
-    main_after_for@34:
+    after_for@34:
         // arc4_types/array.py:72
         // result = String()
         byte ""                                                                               ""
         v-store result#0
         int 0                                                                                 0
         v-store item_index_internal%5#0
-        b main_for_header@27
+        b for_header@27
 
-    main_for_header@27:
+    for_header@27:
         // arc4_types/array.py:73
         // for string_item in static_string_array:
         v-load item_index_internal%5#0                                                        item_index_internal%5#0
@@ -399,9 +399,9 @@ subroutine main:
         <                                                                                     continue_looping%5#0
         v-store continue_looping%5#0
         v-load continue_looping%5#0                                                           continue_looping%5#0
-        bz main_after_for@30 ; b main_for_body@28
+        bz after_for@30 ; b for_body@28
 
-    main_for_body@28:
+    for_body@28:
         // arc4_types/array.py:73
         // for string_item in static_string_array:
         v-load item_index_internal%5#0                                                        item_index_internal%5#0
@@ -442,9 +442,9 @@ subroutine main:
         int 1                                                                                 item_index_internal%5#0,1
         +                                                                                     item_index_internal%5#0
         v-store item_index_internal%5#0
-        b main_for_header@27
+        b for_header@27
 
-    main_after_for@30:
+    after_for@30:
         // arc4_types/array.py:75
         // assert result == "Ping Ping "
         v-load result#0                                                                       result#0

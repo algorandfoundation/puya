@@ -6,7 +6,7 @@ main:
     intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" "local_uint" "local_bytes"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_1 // "asa"
     intc_2 // 123
     app_global_put
@@ -22,12 +22,12 @@ main:
     intc_2 // 123
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main_bare_abi_config@23
+    bz bare_abi_config@23
     pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
     txna ApplicationArgs 0
-    match main_opt_in_route@5 main_all_the_things_route@6 main_mixed_oca_route@7
+    match opt_in_route@5 all_the_things_route@6 mixed_oca_route@7
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -35,10 +35,10 @@ main_after_if_else@2:
     assert
     pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
-    match main_noop_with_uint64_route@10 main_opt_into_asset_route@11 main_with_transactions_route@12 main_compare_assets_route@13 main_get_address_route@14 main_get_asset_route@15 main_get_asset_route@15 main_get_an_int_route@17 main_method_with_default_args_route@18 main_method_with_15_args_route@19 main_method_with_more_than_15_args_route@20 main_hello_with_algopy_string_route@21
+    match noop_with_uint64_route@10 opt_into_asset_route@11 with_transactions_route@12 compare_assets_route@13 get_address_route@14 get_asset_route@15 get_asset_route@15 get_an_int_route@17 method_with_default_args_route@18 method_with_15_args_route@19 method_with_more_than_15_args_route@20 hello_with_algopy_string_route@21
     err
 
-main_hello_with_algopy_string_route@21:
+hello_with_algopy_string_route@21:
     txna ApplicationArgs 1
     extract 2 0
     pushbytes "Hello "
@@ -59,7 +59,7 @@ main_hello_with_algopy_string_route@21:
     intc_0 // 1
     return
 
-main_method_with_more_than_15_args_route@20:
+method_with_more_than_15_args_route@20:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -211,7 +211,7 @@ main_method_with_more_than_15_args_route@20:
     intc_0 // 1
     return
 
-main_method_with_15_args_route@19:
+method_with_15_args_route@19:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -276,7 +276,7 @@ main_method_with_15_args_route@19:
     intc_0 // 1
     return
 
-main_method_with_default_args_route@18:
+method_with_default_args_route@18:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -369,25 +369,25 @@ main_method_with_default_args_route@18:
     ==
     return
 
-main_get_an_int_route@17:
+get_an_int_route@17:
     pushbytes 0x151f7c750000000000000003
     log
     intc_0 // 1
     return
 
-main_get_asset_route@15:
+get_asset_route@15:
     pushbytes 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
 
-main_get_address_route@14:
+get_address_route@14:
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
     intc_0 // 1
     return
 
-main_compare_assets_route@13:
+compare_assets_route@13:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -395,7 +395,7 @@ main_compare_assets_route@13:
     ==
     return // on error: asset a == b
 
-main_with_transactions_route@12:
+with_transactions_route@12:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -430,7 +430,7 @@ main_with_transactions_route@12:
     ==
     return // on error: is correct int
 
-main_opt_into_asset_route@11:
+opt_into_asset_route@11:
     txna ApplicationArgs 1
     btoi
     txn Sender
@@ -458,7 +458,7 @@ main_opt_into_asset_route@11:
     intc_0 // 1
     return
 
-main_noop_with_uint64_route@10:
+noop_with_uint64_route@10:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -477,7 +477,7 @@ main_noop_with_uint64_route@10:
     intc_0 // 1
     return
 
-main_mixed_oca_route@7:
+mixed_oca_route@7:
     intc_0 // 1
     txn OnCompletion
     shl
@@ -504,7 +504,7 @@ main_mixed_oca_route@7:
     intc_0 // 1
     return
 
-main_all_the_things_route@6:
+all_the_things_route@6:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -523,7 +523,7 @@ main_all_the_things_route@6:
     intc_0 // 1
     return
 
-main_opt_in_route@5:
+opt_in_route@5:
     txn OnCompletion
     intc_0 // OptIn
     ==
@@ -545,7 +545,7 @@ main_opt_in_route@5:
     intc_0 // 1
     return
 
-main_bare_abi_config@23:
+bare_abi_config@23:
     txn ApplicationID
     !
     assert // can only call when creating

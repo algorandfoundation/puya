@@ -5,13 +5,13 @@
 main:
     pushbytes ""
     txn NumAppArgs
-    bz main___algopy_default_create@6
+    bz __algopy_default_create@6
     pushbytes 0xd3ad7a55 // method "method(uint64)void"
     txna ApplicationArgs 0
-    match main_method_route@3
+    match method_route@3
     err
 
-main_method_route@3:
+method_route@3:
     txn OnCompletion
     !
     txn ApplicationID
@@ -21,19 +21,19 @@ main_method_route@3:
     btoi
     bury 1
 
-main_while_top@10:
+while_top@10:
     global OpcodeBudget
     pushint 350 // 350
     >
-    bz main_if_body@13
+    bz if_body@13
     txn Sender
     sha3_256
     txn Sender
     !=
     assert
-    b main_while_top@10
+    b while_top@10
 
-main_if_body@13:
+if_body@13:
     dup
     pushint 2 // 2
     +
@@ -43,7 +43,7 @@ main_if_body@13:
     ==
     return
 
-main___algopy_default_create@6:
+__algopy_default_create@6:
     txn OnCompletion
     !
     txn ApplicationID

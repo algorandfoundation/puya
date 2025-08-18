@@ -10,20 +10,20 @@ main:
     pushbytes ""
     dupn 4
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "counter"
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz after_if_else@5
 
-main_if_body@4:
+if_body@4:
     intc_1 // 1
     return
 
-main_after_if_else@5:
+after_if_else@5:
     txn OnCompletion
     dup
     bury 4
@@ -31,17 +31,17 @@ main_after_if_else@5:
     bury 7
     pushint 4 // UpdateApplication
     ==
-    bnz main_if_body@7
+    bnz if_body@7
     dig 2
     pushint 5 // DeleteApplication
     ==
-    bz main_after_if_else@10
+    bz after_if_else@10
 
-main_if_body@7:
+if_body@7:
     dig 2
     pushint 5 // DeleteApplication
     ==
-    bz main_after_if_else@9
+    bz after_if_else@9
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
@@ -54,35 +54,35 @@ main_if_body@7:
     concat
     log
 
-main_after_if_else@9:
+after_if_else@9:
     global CreatorAddress
     dig 6
     ==
     return
 
-main_after_if_else@10:
+after_if_else@10:
     dig 2
     intc_1 // OptIn
     ==
-    bz main_after_if_else@14
+    bz after_if_else@14
     txn NumAppArgs
-    bz main_if_body@4
+    bz if_body@4
     intc_0 // 0
     pushbytes "name"
     txna ApplicationArgs 0
     app_local_put
-    b main_if_body@4
+    b if_body@4
 
-main_after_if_else@14:
+after_if_else@14:
     dig 2
-    bz main_after_if_else@16
+    bz after_if_else@16
     err
 
-main_after_if_else@16:
+after_if_else@16:
     txn NumAppArgs
     dup
     bury 5
-    bz main_else_body@18
+    bz else_body@18
     txna ApplicationArgs 0
     dup
     bury 9
@@ -97,7 +97,7 @@ main_after_if_else@16:
     bury 2
     pushbytes 0x636972636c655f61726561
     ==
-    bz main_else_body@31
+    bz else_body@31
     dig 1
     intc_3 // 2
     exp
@@ -107,12 +107,12 @@ main_after_if_else@16:
     /
     callsub itoa
 
-main_after_if_else@38:
+after_if_else@38:
     dig 1
     swap
     bury 8
 
-main_after_if_else@25:
+after_if_else@25:
     dig 7
     log
     pushbytes "Incrementing counter!"
@@ -128,24 +128,24 @@ main_after_if_else@25:
     app_global_put
     return
 
-main_else_body@31:
+else_body@31:
     dig 7
     pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
-    bz main_else_body@33
+    bz else_body@33
     dig 1
     intc 5 // 628318
     *
     intc_2 // 100000
     /
     callsub itoa
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@33:
+else_body@33:
     dig 7
     pushbytes 0x636972636c655f7265706f7274
     ==
-    bz main_else_body@35
+    bz else_body@35
     dig 1
     dup
     intc_3 // 2
@@ -174,46 +174,46 @@ main_else_body@33:
     swap
     callsub itoa
     concat
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@35:
+else_body@35:
     intc_0 // 0
     bury 1
     pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@18:
+else_body@18:
     txn NumAssets
     intc_1 // 1
     ==
-    bz main_else_body@23
+    bz else_body@23
     dig 5
     intc_0 // 0
     asset_holding_get AssetBalance
     swap
     bury 6
-    bnz main_else_body@21
+    bnz else_body@21
     pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
     bury 7
 
-main_after_if_else@22:
+after_if_else@22:
     intc_1 // 1
-    b main_after_if_else@25
+    b after_if_else@25
 
-main_else_body@21:
+else_body@21:
     dig 4
     callsub itoa
     pushbytes 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
     bury 7
-    b main_after_if_else@22
+    b after_if_else@22
 
-main_else_body@23:
+else_body@23:
     pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
     bury 7
     intc_0 // 0
-    b main_after_if_else@25
+    b after_if_else@25
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:

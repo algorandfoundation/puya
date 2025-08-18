@@ -1,7 +1,7 @@
 // Op                                                                                             Stack (out)
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // arc4_types/bool.py:15
         // False if Txn.num_app_args else True  # noqa: SIM211
         txn NumAppArgs                                                                            tmp%2#0
@@ -54,9 +54,9 @@ subroutine main:
         l-load result#0 1                                                                         tmp%9#2,result#0
         v-store result#7                                                                          tmp%9#2
         l-load tmp%9#2 0                                                                          tmp%9#2
-        bz main_after_if_else@5 ; b main_if_body@4
+        bz after_if_else@5 ; b if_body@4
 
-    main_if_body@4:
+    if_body@4:
         v-load required_bytes#0                                                                   required_bytes#0
         v-load current_bytes#0                                                                    required_bytes#0,current_bytes#0
         -                                                                                         tmp%10#1
@@ -65,9 +65,9 @@ subroutine main:
         l-load tmp%11#1 1                                                                         result#0,tmp%11#1
         concat                                                                                    result#0
         v-store result#7
-        b main_after_if_else@5
+        b after_if_else@5
 
-    main_after_if_else@5:
+    after_if_else@5:
         v-load result#7                                                                           result#7
         v-store result#0
         int 0                                                                                     0
@@ -85,15 +85,15 @@ subroutine main:
         int 5                                                                                     write_offset#0,5
         +                                                                                         write_end#0
         v-store write_end#0
-        b main_while_top@6
+        b while_top@6
 
-    main_while_top@6:
+    while_top@6:
         v-load write_offset#0                                                                     write_offset#0
         v-load write_end#0                                                                        write_offset#0,write_end#0
         <                                                                                         tmp%15#1
-        bz main_after_while@8 ; b main_while_body@7
+        bz after_while@8 ; b while_body@7
 
-    main_while_body@7:
+    while_body@7:
         // arc4_types/bool.py:45-47
         // dynamic_boolean_array.extend(
         //     (ARC4Bool(True), ARC4Bool(False), ARC4Bool(True), ARC4Bool(False), ARC4Bool(True))
@@ -120,9 +120,9 @@ subroutine main:
         int 8                                                                                     read_offset#0,8
         +                                                                                         read_offset#0
         v-store read_offset#0
-        b main_while_top@6
+        b while_top@6
 
-    main_after_while@8:
+    after_while@8:
         // arc4_types/bool.py:48
         // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
         v-load result#0                                                                           result#0

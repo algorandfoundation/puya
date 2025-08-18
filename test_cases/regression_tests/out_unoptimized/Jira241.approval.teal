@@ -4,21 +4,21 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    b main_block@0
+    b block@0
 
-main_block@0:
-    b main_block@1
+block@0:
+    b block@1
 
-main_block@1:
+block@1:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@10
-    b main_abi_routing@2
+    bz __algopy_default_create@10
+    b abi_routing@2
 
-main_abi_routing@2:
+abi_routing@2:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     txn OnCompletion
@@ -28,49 +28,49 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@8
-    b main_call_NoOp@3
+    bz create_NoOp@8
+    b call_NoOp@3
 
-main_call_NoOp@3:
+call_NoOp@3:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x1e3e4374 // method "oh_no(bool)void"
     pushbytes 0xd7a938c9 // method "oh_yes(bool)void"
     uncover 2
-    match main_oh_no_route@4 main_oh_yes_route@5
-    b main_switch_case_default@6
+    match oh_no_route@4 oh_yes_route@5
+    b switch_case_default@6
 
-main_switch_case_default@6:
-    b main_switch_case_next@7
+switch_case_default@6:
+    b switch_case_next@7
 
-main_switch_case_next@7:
-    b main_after_if_else@9
+switch_case_next@7:
+    b after_if_else@9
 
-main_after_if_else@9:
-    b main_after_if_else@11
+after_if_else@9:
+    b after_if_else@11
 
-main_after_if_else@11:
+after_if_else@11:
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     err
 
-main_oh_yes_route@5:
+oh_yes_route@5:
     // regression_tests/jira_241.py:9
     // @arc4.abimethod(default_args={"wrong_size": True})
     callsub oh_yes
-    b main_switch_case_next@7
+    b switch_case_next@7
 
-main_oh_no_route@4:
+oh_no_route@4:
     // regression_tests/jira_241.py:5
     // @arc4.abimethod(default_args={"wrong_size": False})
     callsub oh_no
-    b main_switch_case_next@7
+    b switch_case_next@7
 
-main_create_NoOp@8:
-    b main_after_if_else@9
+create_NoOp@8:
+    b after_if_else@9
 
-main___algopy_default_create@10:
+__algopy_default_create@10:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -79,12 +79,12 @@ main___algopy_default_create@10:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@13
+    b block@13
 
-main_block@13:
-    b main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14
+block@13:
+    b after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14
 
-main_after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14:
+after_inlined_test_cases.regression_tests.jira_241.Jira241.__algopy_default_create@14:
     intc_1 // 1
     return
 

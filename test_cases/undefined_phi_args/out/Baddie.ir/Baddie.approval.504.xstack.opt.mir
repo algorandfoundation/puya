@@ -1,7 +1,7 @@
 // Op                                                                              Stack (out)
 // test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // undefined_phi_args/baddie.py:6
         // test_case = op.Txn.application_args(0)
         txna ApplicationArgs 0                                                     test_case#0
@@ -11,40 +11,40 @@ subroutine main:
         txn NumAppArgs                                                             tmp%1#0
         int 1                                                                      tmp%1#0,1
         >                                                                          tmp%2#0
-        bz main_bool_false@3 ; b main_and_contd@1
+        bz bool_false@3 ; b and_contd@1
 
-    main_and_contd@1:
+    and_contd@1:
         // undefined_phi_args/baddie.py:8
         // op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0
         txna ApplicationArgs 1                                                     tmp%3#0
         btoi                                                                       tmp%4#0
-        bz main_bool_false@3 ; b main_bool_true@2
+        bz bool_false@3 ; b bool_true@2
 
-    main_bool_true@2:
+    bool_true@2:
         int 1                                                                      invert_second_condition#0
         x-store invert_second_condition#0                                          (𝕏) invert_second_condition#0 |
-        b main_bool_merge@4                                                        (𝕏) invert_second_condition#0 |
+        b bool_merge@4                                                             (𝕏) invert_second_condition#0 |
 
-    main_bool_false@3:
+    bool_false@3:
         int 0                                                                      invert_second_condition#0
         x-store invert_second_condition#0                                          (𝕏) invert_second_condition#0 |
-        b main_bool_merge@4                                                        (𝕏) invert_second_condition#0 |
+        b bool_merge@4                                                             (𝕏) invert_second_condition#0 |
 
-    main_bool_merge@4:                                                             (𝕏) invert_second_condition#0 |
+    bool_merge@4:                                                                  (𝕏) invert_second_condition#0 |
         // undefined_phi_args/baddie.py:11
         // if invert_second_condition:
         x-load invert_second_condition#0                                           invert_second_condition#0
-        bz main_else_body@12 ; b main_if_body@5
+        bz else_body@12 ; b if_body@5
 
-    main_if_body@5:
+    if_body@5:
         // undefined_phi_args/baddie.py:12
         // if test_case == b"uint":
         v-load test_case#0                                                         test_case#0
         byte 0x75696e74                                                            test_case#0,0x75696e74
         ==                                                                         tmp%6#0
-        bz main_else_body@7 ; b main_if_body@6
+        bz else_body@7 ; b if_body@6
 
-    main_if_body@6:
+    if_body@6:
         // undefined_phi_args/baddie.py:13
         // assert test_uint_undefined(True, False) == 10
         int 1                                                                      1
@@ -61,17 +61,17 @@ subroutine main:
         int 8                                                                      tmp%9#0,8
         ==                                                                         tmp%10#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@7:
+    else_body@7:
         // undefined_phi_args/baddie.py:15
         // elif test_case == b"bytes":
         v-load test_case#0                                                         test_case#0
         byte 0x6279746573                                                          test_case#0,0x6279746573
         ==                                                                         tmp%11#0
-        bz main_else_body@9 ; b main_if_body@8
+        bz else_body@9 ; b if_body@8
 
-    main_if_body@8:
+    if_body@8:
         // undefined_phi_args/baddie.py:16
         // assert test_bytes_undefined(True, False) == 10
         int 1                                                                      1
@@ -88,9 +88,9 @@ subroutine main:
         byte 0x08                                                                  tmp%14#0,0x08
         b==                                                                        tmp%15#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@9:
+    else_body@9:
         // undefined_phi_args/baddie.py:19
         // assert test_mixed_undefined(True, False) == 10
         int 1                                                                      1
@@ -107,17 +107,17 @@ subroutine main:
         byte 0x08                                                                  tmp%18#0,0x08
         b==                                                                        tmp%19#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@12:
+    else_body@12:
         // undefined_phi_args/baddie.py:22
         // if test_case == b"uint":
         v-load test_case#0                                                         test_case#0
         byte 0x75696e74                                                            test_case#0,0x75696e74
         ==                                                                         tmp%20#0
-        bz main_else_body@14 ; b main_if_body@13
+        bz else_body@14 ; b if_body@13
 
-    main_if_body@13:
+    if_body@13:
         // undefined_phi_args/baddie.py:23
         // assert test_uint_undefined(True, True) == 8
         int 1                                                                      1
@@ -134,17 +134,17 @@ subroutine main:
         int 10                                                                     tmp%23#0,10
         ==                                                                         tmp%24#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@14:
+    else_body@14:
         // undefined_phi_args/baddie.py:25
         // elif test_case == b"bytes":
         v-load test_case#0                                                         test_case#0
         byte 0x6279746573                                                          test_case#0,0x6279746573
         ==                                                                         tmp%25#0
-        bz main_else_body@16 ; b main_if_body@15
+        bz else_body@16 ; b if_body@15
 
-    main_if_body@15:
+    if_body@15:
         // undefined_phi_args/baddie.py:26
         // assert test_bytes_undefined(True, True) == 8
         int 1                                                                      1
@@ -161,9 +161,9 @@ subroutine main:
         byte 0x0a                                                                  tmp%28#0,0x0a
         b==                                                                        tmp%29#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@16:
+    else_body@16:
         // undefined_phi_args/baddie.py:29
         // assert test_mixed_undefined(True, True) == 8
         int 1                                                                      1
@@ -180,9 +180,9 @@ subroutine main:
         byte 0x0a                                                                  tmp%32#0,0x0a
         b==                                                                        tmp%33#0
         assert
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_after_if_else@19:
+    after_if_else@19:
         // undefined_phi_args/baddie.py:31
         // return True
         int 1                                                                      1

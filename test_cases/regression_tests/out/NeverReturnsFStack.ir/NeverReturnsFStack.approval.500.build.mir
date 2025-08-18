@@ -1,24 +1,24 @@
 // Op                                                                          Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // regression_tests/never_returns.py:16
         // class NeverReturnsFStack(ARC4Contract):
         txn NumAppArgs                                                         tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                         tmp%0#1
-        bz main___algopy_default_create@6 ; b main_abi_routing@2
+        bz __algopy_default_create@6 ; b abi_routing@2
 
-    main_abi_routing@2:
+    abi_routing@2:
         // regression_tests/never_returns.py:16
         // class NeverReturnsFStack(ARC4Contract):
         txna ApplicationArgs 0                                                 tmp%2#0
         v-store tmp%2#0
         method method()uint64                                                  Method(method()uint64)
         v-load tmp%2#0                                                         Method(method()uint64),tmp%2#0
-        match main_method_route@3 ; b main_switch_case_next@5
+        match method_route@3 ; b switch_case_next@5
 
-    main_method_route@3:
+    method_route@3:
         // regression_tests/never_returns.py:17
         // @arc4.abimethod
         txn OnCompletion                                                       tmp%3#0
@@ -35,14 +35,14 @@ subroutine main:
         v-load tmp%7#0                                                         tmp%7#0
         assert // OnCompletion must be NoOp && can only call when not creating
         callsub method
-        b main_switch_case_next@5
+        b switch_case_next@5
 
-    main_switch_case_next@5:
+    switch_case_next@5:
         // regression_tests/never_returns.py:16
         // class NeverReturnsFStack(ARC4Contract):
         err
 
-    main___algopy_default_create@6:
+    __algopy_default_create@6:
         txn OnCompletion                                                       tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                         tmp%8#0

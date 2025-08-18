@@ -10,14 +10,14 @@ main:
     bytec_3 // ""
     dupn 15
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_1 // "count"
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@14
+    bz __algopy_default_create@14
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -25,10 +25,10 @@ main_after_if_else@2:
     assert
     pushbytess 0x28d7c1b8 0xfa9cb973 0x6039a240 0xf8fd68a7 0x1f028db1 0x096b3a59 0x8d6e3a25 // method "test_array(uint64,uint64,uint64,uint64)uint64", method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_bool_array(uint64)uint64", method "test_arc4_conversion(uint64)uint64[]", method "sum_array(uint64[])uint64", method "test_arc4_bool()bool[]"
     txna ApplicationArgs 0
-    match main_test_array_route@6 main_test_extend_from_tuple_route@7 main_test_extend_from_arc4_tuple_route@8 main_test_bool_array_route@9 main_test_arc4_conversion_route@10 main_sum_array_route@11 main_test_arc4_bool_route@12
+    match test_array_route@6 test_extend_from_tuple_route@7 test_extend_from_arc4_tuple_route@8 test_bool_array_route@9 test_arc4_conversion_route@10 sum_array_route@11 test_arc4_bool_route@12
     err
 
-main_test_arc4_bool_route@12:
+test_arc4_bool_route@12:
     txn Sender
     txn Receiver
     ==
@@ -105,11 +105,11 @@ main_test_arc4_bool_route@12:
     intc_0 // 0
     bury 7
 
-main_for_header@16:
+for_header@16:
     dig 6
     dig 13
     <
-    bz main_after_for@18
+    bz after_for@18
     dig 6
     dup
     intc_3 // 16
@@ -128,9 +128,9 @@ main_for_header@16:
     intc_1 // 1
     +
     bury 7
-    b main_for_header@16
+    b for_header@16
 
-main_after_for@18:
+after_for@18:
     dig 16
     dup
     len
@@ -186,7 +186,7 @@ main_after_for@18:
     intc_1 // 1
     return
 
-main_sum_array_route@11:
+sum_array_route@11:
     txna ApplicationArgs 1
     extract 2 0
     dup
@@ -200,11 +200,11 @@ main_sum_array_route@11:
     intc_0 // 0
     bury 7
 
-main_for_header@21:
+for_header@21:
     dig 6
     dig 14
     <
-    bz main_after_for@23
+    bz after_for@23
     dig 18
     dig 7
     dup
@@ -218,9 +218,9 @@ main_for_header@21:
     intc_1 // 1
     +
     bury 7
-    b main_for_header@21
+    b for_header@21
 
-main_after_for@23:
+after_for@23:
     dup
     itob
     bytec_0 // 0x151f7c75
@@ -230,7 +230,7 @@ main_after_for@23:
     intc_1 // 1
     return
 
-main_test_arc4_conversion_route@10:
+test_arc4_conversion_route@10:
     txna ApplicationArgs 1
     btoi
     dup
@@ -243,11 +243,11 @@ main_test_arc4_conversion_route@10:
     intc_1 // 1
     bury 8
 
-main_for_header@26:
+for_header@26:
     dig 7
     dig 2
     <
-    bz main_after_for@28
+    bz after_for@28
     dig 7
     dup
     itob
@@ -258,9 +258,9 @@ main_for_header@26:
     intc_1 // 1
     +
     bury 8
-    b main_for_header@26
+    b for_header@26
 
-main_after_for@28:
+after_for@28:
     dig 19
     len
     intc_2 // 8
@@ -275,11 +275,11 @@ main_after_for@28:
     intc_0 // 0
     bury 7
 
-main_for_header@29:
+for_header@29:
     dig 6
     dig 15
     <
-    bz main_after_for@33
+    bz after_for@33
     dig 19
     dig 7
     intc_2 // 8
@@ -290,22 +290,22 @@ main_for_header@29:
     b!=
     dig 11
     bury 11
-    bz main_after_if_else@32
+    bz after_if_else@32
     dig 10
     intc_1 // 1
     +
     bury 10
 
-main_after_if_else@32:
+after_if_else@32:
     dig 9
     bury 11
     dig 6
     intc_1 // 1
     +
     bury 7
-    b main_for_header@29
+    b for_header@29
 
-main_after_for@33:
+after_for@33:
     bytec 4 // 0x0000
     dig 20
     concat // on error: max array length exceeded
@@ -324,7 +324,7 @@ main_after_for@33:
     intc_1 // 1
     return
 
-main_test_bool_array_route@9:
+test_bool_array_route@9:
     txna ApplicationArgs 1
     btoi
     dup
@@ -337,11 +337,11 @@ main_test_bool_array_route@9:
     intc_1 // 1
     bury 8
 
-main_for_header@36:
+for_header@36:
     dig 7
     dig 2
     <
-    bz main_after_for@38
+    bz after_for@38
     dig 7
     dup
     pushint 2 // 2
@@ -358,9 +358,9 @@ main_for_header@36:
     intc_1 // 1
     +
     bury 8
-    b main_for_header@36
+    b for_header@36
 
-main_after_for@38:
+after_for@38:
     dig 20
     dupn 2
     len
@@ -384,11 +384,11 @@ main_after_for@38:
     intc_0 // 0
     bury 7
 
-main_for_header@39:
+for_header@39:
     dig 6
     dig 12
     <
-    bz main_after_for@43
+    bz after_for@43
     dig 20
     dig 7
     intc_1 // 1
@@ -397,22 +397,22 @@ main_for_header@39:
     getbit
     dig 11
     bury 11
-    bz main_after_if_else@42
+    bz after_if_else@42
     dig 10
     intc_1 // 1
     +
     bury 10
 
-main_after_if_else@42:
+after_if_else@42:
     dig 9
     bury 11
     dig 6
     intc_1 // 1
     +
     bury 7
-    b main_for_header@39
+    b for_header@39
 
-main_after_for@43:
+after_for@43:
     dig 10
     itob
     bytec_0 // 0x151f7c75
@@ -422,7 +422,7 @@ main_after_for@43:
     intc_1 // 1
     return
 
-main_test_extend_from_arc4_tuple_route@8:
+test_extend_from_arc4_tuple_route@8:
     txna ApplicationArgs 1
     dup
     pop
@@ -441,7 +441,7 @@ main_test_extend_from_arc4_tuple_route@8:
     intc_1 // 1
     return
 
-main_test_extend_from_tuple_route@7:
+test_extend_from_tuple_route@7:
     txna ApplicationArgs 1
     dup
     extract 0 16
@@ -494,7 +494,7 @@ main_test_extend_from_tuple_route@7:
     intc_1 // 1
     return
 
-main_test_array_route@6:
+test_array_route@6:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -586,11 +586,11 @@ main_test_array_route@6:
     intc_0 // 0
     bury 8
 
-main_for_header@50:
+for_header@50:
     dig 7
     pushint 3 // 3
     <
-    bz main_after_for@52
+    bz after_for@52
     dig 21
     dig 8
     dup
@@ -628,9 +628,9 @@ main_for_header@50:
     b==
     assert
     bury 8
-    b main_for_header@50
+    b for_header@50
 
-main_after_for@52:
+after_for@52:
     dig 21
     dup
     len
@@ -662,11 +662,11 @@ main_after_for@52:
     intc_1 // 1
     bury 3
 
-main_for_header@53:
+for_header@53:
     dig 2
     dig 16
     <
-    bz main_after_for@61
+    bz after_for@61
     dig 21
     dig 3
     intc 4 // 144
@@ -681,7 +681,7 @@ main_for_header@53:
     bury 6
     dig 24
     b<
-    bz main_else_body@56
+    bz else_body@56
     dig 25
     intc_0 // 0
     extract_uint64
@@ -691,16 +691,16 @@ main_for_header@53:
     -
     bury 9
 
-main_after_if_else@57:
+after_if_else@57:
     dig 3
     dig 6
     <
-    bz main_else_body@59
+    bz else_body@59
     dig 5
     dig 4
     -
 
-main_after_if_else@60:
+after_if_else@60:
     dig 9
     dup
     *
@@ -716,15 +716,15 @@ main_after_if_else@60:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@53
+    b for_header@53
 
-main_else_body@59:
+else_body@59:
     dig 3
     dig 6
     -
-    b main_after_if_else@60
+    b after_if_else@60
 
-main_else_body@56:
+else_body@56:
     intc_0 // 0
     extract_uint64
     dig 25
@@ -732,9 +732,9 @@ main_else_body@56:
     extract_uint64
     -
     bury 9
-    b main_after_if_else@57
+    b after_if_else@57
 
-main_after_for@61:
+after_for@61:
     dig 4
     itob
     bytec_0 // 0x151f7c75
@@ -744,7 +744,7 @@ main_after_for@61:
     intc_1 // 1
     return
 
-main___algopy_default_create@14:
+__algopy_default_create@14:
     txn OnCompletion
     !
     txn ApplicationID

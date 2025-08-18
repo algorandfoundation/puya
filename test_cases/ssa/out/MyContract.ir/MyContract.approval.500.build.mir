@@ -1,231 +1,231 @@
-// Op                                                Stack (out)
+// Op                                      Stack (out)
 // test_cases.ssa.contract.MyContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // ssa/contract.py:11
         // a = a * b
-        int 60                                       60
+        int 60                             60
         v-store a#1
         // ssa/contract.py:12
         // b = a + b
-        int 80                                       80
+        int 80                             80
         v-store b#1
-        b main_while_top@1
+        b while_top@1
 
-    main_while_top@1:
+    while_top@1:
         // ssa/contract.py:14
         // while a < UInt64(5):
-        v-load a#1                                   a#1
-        int 5                                        a#1,5
-        <                                            tmp%4#0
+        v-load a#1                         a#1
+        int 5                              a#1,5
+        <                                  tmp%4#0
         v-store tmp%4#0
-        v-load tmp%4#0                               tmp%4#0
-        bz main_after_while@3 ; b main_while_body@2
+        v-load tmp%4#0                     tmp%4#0
+        bz after_while@3 ; b while_body@2
 
-    main_while_body@2:
+    while_body@2:
         // ssa/contract.py:15
         // b = b + a
-        v-load b#1                                   b#1
-        v-load a#1                                   b#1,a#1
-        +                                            b#1
+        v-load b#1                         b#1
+        v-load a#1                         b#1,a#1
+        +                                  b#1
         v-store b#1
         // ssa/contract.py:16
         // a = a + 1
-        v-load a#1                                   a#1
-        int 1                                        a#1,1
-        +                                            a#1
+        v-load a#1                         a#1
+        int 1                              a#1,1
+        +                                  a#1
         v-store a#1
-        b main_while_top@1
+        b while_top@1
 
-    main_after_while@3:
+    after_while@3:
         // ssa/contract.py:18
         // for i in urange(5):
-        int 0                                        0
+        int 0                              0
         v-store i#0
-        b main_for_header@4
+        b for_header@4
 
-    main_for_header@4:
+    for_header@4:
         // ssa/contract.py:18
         // for i in urange(5):
-        v-load i#0                                   i#0
-        int 5                                        i#0,5
-        <                                            continue_looping%0#0
+        v-load i#0                         i#0
+        int 5                              i#0,5
+        <                                  continue_looping%0#0
         v-store continue_looping%0#0
-        v-load continue_looping%0#0                  continue_looping%0#0
-        bz main_after_for@7 ; b main_for_body@5
+        v-load continue_looping%0#0        continue_looping%0#0
+        bz after_for@7 ; b for_body@5
 
-    main_for_body@5:
+    for_body@5:
         // ssa/contract.py:19
         // b = b + a
-        v-load b#1                                   b#1
-        v-load a#1                                   b#1,a#1
-        +                                            b#1
+        v-load b#1                         b#1
+        v-load a#1                         b#1,a#1
+        +                                  b#1
         v-store b#1
         // ssa/contract.py:20
         // a = a + i
-        v-load a#1                                   a#1
-        v-load i#0                                   a#1,i#0
-        +                                            a#1
+        v-load a#1                         a#1
+        v-load i#0                         a#1,i#0
+        +                                  a#1
         v-store a#1
         // ssa/contract.py:18
         // for i in urange(5):
-        v-load i#0                                   i#0
-        int 1                                        i#0,1
-        +                                            i#0
+        v-load i#0                         i#0
+        int 1                              i#0,1
+        +                                  i#0
         v-store i#0
-        b main_for_header@4
+        b for_header@4
 
-    main_after_for@7:
+    after_for@7:
         // ssa/contract.py:22
         // if a < b:
-        v-load a#1                                   a#1
-        v-load b#1                                   a#1,b#1
-        <                                            tmp%9#0
+        v-load a#1                         a#1
+        v-load b#1                         a#1,b#1
+        <                                  tmp%9#0
         v-store tmp%9#0
-        v-load tmp%9#0                               tmp%9#0
-        bz main_else_body@15 ; b main_if_body@8
+        v-load tmp%9#0                     tmp%9#0
+        bz else_body@15 ; b if_body@8
 
-    main_if_body@8:
+    if_body@8:
         // ssa/contract.py:23
         // if b < 2:
-        v-load b#1                                   b#1
-        int 2                                        b#1,2
-        <                                            tmp%10#0
+        v-load b#1                         b#1
+        int 2                              b#1,2
+        <                                  tmp%10#0
         v-store tmp%10#0
-        v-load tmp%10#0                              tmp%10#0
-        bz main_else_body@10 ; b main_if_body@9
+        v-load tmp%10#0                    tmp%10#0
+        bz else_body@10 ; b if_body@9
 
-    main_if_body@9:
+    if_body@9:
         // ssa/contract.py:25
         // c = a + b
-        v-load a#1                                   a#1
+        v-load a#1                         a#1
         // ssa/contract.py:24
         // b = 3 + UInt64(2)
-        int 5                                        a#1,5
+        int 5                              a#1,5
         // ssa/contract.py:25
         // c = a + b
-        +                                            c#0
+        +                                  c#0
         v-store c#0
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@10:
+    else_body@10:
         // ssa/contract.py:28
         // if ((3 * 4) + 2) * b:
-        v-load a#1                                   a#1
+        v-load a#1                         a#1
         // ssa/contract.py:27-28
         // b = 2 * a
         // if ((3 * 4) + 2) * b:
-        int 28                                       a#1,28
-        *                                            tmp%14#0
+        int 28                             a#1,28
+        *                                  tmp%14#0
         // ssa/contract.py:28
         // if ((3 * 4) + 2) * b:
         v-store tmp%14#0
-        v-load tmp%14#0                              tmp%14#0
-        bz main_else_body@12 ; b main_if_body@11
+        v-load tmp%14#0                    tmp%14#0
+        bz else_body@12 ; b if_body@11
 
-    main_if_body@11:
+    if_body@11:
         // ssa/contract.py:29
         // c = UInt64(2)
-        int 2                                        2
+        int 2                              2
         v-store c#0
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@12:
+    else_body@12:
         // ssa/contract.py:31
         // return UInt64(3)
-        int 3                                        3
+        int 3                              3
         return
 
-    main_else_body@15:
+    else_body@15:
         // ssa/contract.py:32
         // elif b == a:
-        v-load b#1                                   b#1
-        v-load a#1                                   b#1,a#1
-        ==                                           tmp%16#0
+        v-load b#1                         b#1
+        v-load a#1                         b#1,a#1
+        ==                                 tmp%16#0
         v-store tmp%16#0
-        v-load tmp%16#0                              tmp%16#0
-        bz main_else_body@17 ; b main_if_body@16
+        v-load tmp%16#0                    tmp%16#0
+        bz else_body@17 ; b if_body@16
 
-    main_if_body@16:
+    if_body@16:
         // ssa/contract.py:33
         // c = a * b
-        v-load a#1                                   a#1
-        v-load b#1                                   a#1,b#1
-        *                                            c#0
+        v-load a#1                         a#1
+        v-load b#1                         a#1,b#1
+        *                                  c#0
         v-store c#0
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_else_body@17:
+    else_body@17:
         // ssa/contract.py:35
         // c = a - b
-        v-load a#1                                   a#1
-        v-load b#1                                   a#1,b#1
-        -                                            c#0
+        v-load a#1                         a#1
+        v-load b#1                         a#1,b#1
+        -                                  c#0
         v-store c#0
-        b main_after_if_else@19
+        b after_if_else@19
 
-    main_after_if_else@19:
+    after_if_else@19:
         // ssa/contract.py:49
         // a = UInt64(25)
-        int 25                                       25
+        int 25                             25
         v-store a#1
         // ssa/contract.py:50
         // b = UInt64(2)
-        int 2                                        2
+        int 2                              2
         v-store b#1
         // ssa/contract.py:49
         // a = UInt64(25)
-        int 25                                       25
+        int 25                             25
         // ssa/contract.py:51
         // if a < c:
-        v-load c#0                                   25,c#0
-        <                                            tmp%0#1
+        v-load c#0                         25,c#0
+        <                                  tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                               tmp%0#1
-        bz main_after_if_else@22 ; b main_if_body@21
+        v-load tmp%0#1                     tmp%0#1
+        bz after_if_else@22 ; b if_body@21
 
-    main_if_body@21:
+    if_body@21:
         // ssa/contract.py:52
         // b = UInt64(1)
-        int 1                                        1
+        int 1                              1
         v-store b#1
         // ssa/contract.py:53
         // a = UInt64(100)
-        int 100                                      100
+        int 100                            100
         v-store a#1
-        b main_after_if_else@22
+        b after_if_else@22
 
-    main_after_if_else@22:
+    after_if_else@22:
         // ssa/contract.py:55
         // b *= b
-        v-load b#1                                   b#1
-        v-load b#1                                   b#1,b#1
-        *                                            b#1
+        v-load b#1                         b#1
+        v-load b#1                         b#1,b#1
+        *                                  b#1
         v-store b#1
         // ssa/contract.py:56
         // return a * b
-        v-load a#1                                   a#1
-        v-load b#1                                   a#1,b#1
-        *                                            tmp%2#1
+        v-load a#1                         a#1
+        v-load b#1                         a#1,b#1
+        *                                  tmp%2#1
         v-store tmp%2#1
         // ssa/contract.py:36
         // c = c + one_hundred(c)
-        v-load c#0                                   c#0
-        v-load tmp%2#1                               c#0,tmp%2#1
-        +                                            c#0
+        v-load c#0                         c#0
+        v-load tmp%2#1                     c#0,tmp%2#1
+        +                                  c#0
         v-store c#0
         // ssa/contract.py:37
         // c_bytes = op.itob(c)
-        v-load c#0                                   c#0
-        itob                                         c_bytes#0
+        v-load c#0                         c#0
+        itob                               c_bytes#0
         v-store c_bytes#0
         // ssa/contract.py:38
         // log(c_bytes)
-        v-load c_bytes#0                             c_bytes#0
+        v-load c_bytes#0                   c_bytes#0
         log
         // ssa/contract.py:41
         // return c
-        v-load c#0                                   c#0
+        v-load c#0                         c#0
         return
 
 

@@ -2,14 +2,14 @@
 // test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> uint64:
 subroutine main:
     declare uint64 account_index#0, tmp%5#0
-    main_block@0:                                               (𝕗) account_index#0,tmp%5#0 |
+    block@0:                                                    (𝕗) account_index#0,tmp%5#0 |
         // loop_else/loop_else.py:9
         // arg_idx = UInt64(0)
         int 0                                                   (𝕗) account_index#0,tmp%5#0 | arg_idx#0
         f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-        b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b while_top@1                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_while_top@1:                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    while_top@1:                                                (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:10
         // while arg_idx < Txn.num_app_args:
         txn NumAppArgs                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%0#0
@@ -24,18 +24,18 @@ subroutine main:
         txnas ApplicationArgs                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0
         byte 0x7768696c655f736563726574                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%3#0,0x7768696c655f736563726574
         ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%4#0
-        bz main_after_if_else@16 ; b main_if_body@8             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        bz after_if_else@16 ; b if_body@8                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_if_body@8:                                             (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    if_body@8:                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         txn NumAccounts                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%5#0
         f-store tmp%5#0                                         (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         int 0                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
         f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-        b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b for_header@9                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_for_header@9:                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    for_header@9:                                               (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
@@ -53,9 +53,9 @@ subroutine main:
         l-load account#0 1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%7#0,account#0
         l-load tmp%7#0 1                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account#0,tmp%7#0
         ==                                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 | tmp%8#0
-        bz main_after_if_else@12 ; b main_if_body@11            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        bz after_if_else@12 ; b if_body@11                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_if_body@11:                                            (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    if_body@11:                                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:29
         // op.itob(secret_index + 48)[-1],
         f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
@@ -93,22 +93,22 @@ subroutine main:
         int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | 1
         return                                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_after_if_else@12:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    after_if_else@12:                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         f-load account_index#0                                  (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
         int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0,1
         +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | account_index#0
         f-store account_index#0                                 (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-        b main_for_header@9                                     (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b for_header@9                                          (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
-    main_after_if_else@16:                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+    after_if_else@16:                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
         // loop_else/loop_else.py:24
         // arg_idx += 1
         f-load arg_idx#0                                        (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
         int 1                                                   (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0,1
         +                                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 | arg_idx#0
         f-store arg_idx#0                                       (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
-        b main_while_top@1                                      (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
+        b while_top@1                                           (𝕗) account_index#0,tmp%5#0,arg_idx#0 |
 
 

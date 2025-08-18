@@ -11,13 +11,13 @@ main:
     // b = a + b
     pushints 60 80 // 60, 80
 
-main_while_top@1:
+while_top@1:
     // ssa/contract.py:14
     // while a < UInt64(5):
     dig 1
     intc_0 // 5
     <
-    bz main_after_while@3
+    bz after_while@3
     // ssa/contract.py:15
     // b = b + a
     dup
@@ -31,21 +31,21 @@ main_while_top@1:
     intc_1 // 1
     +
     bury 2
-    b main_while_top@1
+    b while_top@1
 
-main_after_while@3:
+after_while@3:
     // ssa/contract.py:18
     // for i in urange(5):
     pushint 0 // 0
     bury 3
 
-main_for_header@4:
+for_header@4:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
     intc_0 // 5
     <
-    bz main_after_for@7
+    bz after_for@7
     // ssa/contract.py:19
     // b = b + a
     dup
@@ -66,20 +66,20 @@ main_for_header@4:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@4
+    b for_header@4
 
-main_after_for@7:
+after_for@7:
     // ssa/contract.py:22
     // if a < b:
     dup2
     <
-    bz main_else_body@15
+    bz else_body@15
     // ssa/contract.py:23
     // if b < 2:
     dup
     intc_2 // 2
     <
-    bz main_else_body@10
+    bz else_body@10
     // ssa/contract.py:25
     // c = a + b
     dig 1
@@ -91,7 +91,7 @@ main_after_for@7:
     +
     bury 4
 
-main_after_if_else@19:
+after_if_else@19:
     // ssa/contract.py:49
     // a = UInt64(25)
     intc_3 // 25
@@ -107,7 +107,7 @@ main_after_if_else@19:
     // if a < c:
     dig 4
     <
-    bz main_after_if_else@22
+    bz after_if_else@22
     // ssa/contract.py:52
     // b = UInt64(1)
     intc_1 // 1
@@ -117,7 +117,7 @@ main_after_if_else@19:
     pushint 100 // 100
     bury 2
 
-main_after_if_else@22:
+after_if_else@22:
     // ssa/contract.py:55
     // b *= b
     dupn 2
@@ -141,7 +141,7 @@ main_after_if_else@22:
     // return c
     return
 
-main_else_body@10:
+else_body@10:
     // ssa/contract.py:28
     // if ((3 * 4) + 2) * b:
     dig 1
@@ -152,37 +152,37 @@ main_else_body@10:
     *
     // ssa/contract.py:28
     // if ((3 * 4) + 2) * b:
-    bz main_else_body@12
+    bz else_body@12
     // ssa/contract.py:29
     // c = UInt64(2)
     intc_2 // 2
     bury 4
-    b main_after_if_else@19
+    b after_if_else@19
 
-main_else_body@12:
+else_body@12:
     // ssa/contract.py:31
     // return UInt64(3)
     pushint 3 // 3
     return
 
-main_else_body@15:
+else_body@15:
     // ssa/contract.py:32
     // elif b == a:
     dup
     dig 2
     ==
-    bz main_else_body@17
+    bz else_body@17
     // ssa/contract.py:33
     // c = a * b
     dup2
     *
     bury 4
-    b main_after_if_else@19
+    b after_if_else@19
 
-main_else_body@17:
+else_body@17:
     // ssa/contract.py:35
     // c = a - b
     dup2
     -
     bury 4
-    b main_after_if_else@19
+    b after_if_else@19

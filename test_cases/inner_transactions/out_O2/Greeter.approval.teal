@@ -6,14 +6,14 @@ main:
     intcblock 0 6 1
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "hello_app"
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@9
+    bz __algopy_default_create@9
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -21,10 +21,10 @@ main_after_if_else@2:
     assert
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@6 main_log_greetings_route@7
+    match bootstrap_route@6 log_greetings_route@7
     err
 
-main_log_greetings_route@7:
+log_greetings_route@7:
     txna ApplicationArgs 1
     itxn_begin
     intc_0 // 0
@@ -54,7 +54,7 @@ main_log_greetings_route@7:
     intc_2 // 1
     return
 
-main_bootstrap_route@6:
+bootstrap_route@6:
     intc_0 // 0
     bytec_0 // "hello_app"
     app_global_get_ex
@@ -83,7 +83,7 @@ main_bootstrap_route@6:
     intc_2 // 1
     return
 
-main___algopy_default_create@9:
+__algopy_default_create@9:
     txn OnCompletion
     !
     txn ApplicationID

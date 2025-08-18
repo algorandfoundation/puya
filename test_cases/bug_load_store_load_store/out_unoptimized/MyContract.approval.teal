@@ -5,9 +5,9 @@
 main:
     intcblock 1 0
     pushbytes ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // bug_load_store_load_store/contract.py:11
     // val = UInt64(0)
     intc_1 // 0
@@ -16,77 +16,77 @@ main_block@0:
     intc_0 // 1
     assert // Step cannot be zero
     intc_1 // 0
-    b main_for_header@1
+    b for_header@1
 
-main_for_header@1:
+for_header@1:
     // bug_load_store_load_store/contract.py:12
     // for _idx in urange(2):
     dup
     pushint 2 // 2
     <
-    bz main_after_for@11
-    b main_for_body@2
+    bz after_for@11
+    b for_body@2
 
-main_for_body@2:
+for_body@2:
     // bug_load_store_load_store/contract.py:13
     // if get_bool():
     callsub get_bool
-    bz main_else_body@4
-    b main_if_body@3
+    bz else_body@4
+    b if_body@3
 
-main_if_body@3:
-    b main_after_if_else@9
+if_body@3:
+    b after_if_else@9
 
-main_after_if_else@9:
-    b main_for_footer@10
+after_if_else@9:
+    b for_footer@10
 
-main_for_footer@10:
+for_footer@10:
     // bug_load_store_load_store/contract.py:12
     // for _idx in urange(2):
     dup
     intc_0 // 1
     +
     bury 1
-    b main_for_header@1
+    b for_header@1
 
-main_else_body@4:
+else_body@4:
     // bug_load_store_load_store/contract.py:15
     // elif get_bool():  # noqa: SIM102
     callsub get_bool
     dig 2
     bury 4
-    bz main_after_if_else@8
-    b main_if_body@5
+    bz after_if_else@8
+    b if_body@5
 
-main_if_body@5:
+if_body@5:
     // bug_load_store_load_store/contract.py:16
     // if not get_bool():
     callsub get_bool
     dig 2
     bury 4
-    bnz main_after_if_else@7
-    b main_if_body@6
+    bnz after_if_else@7
+    b if_body@6
 
-main_if_body@6:
+if_body@6:
     // bug_load_store_load_store/contract.py:17
     // val += UInt64(123)
     dig 1
     pushint 123 // 123
     +
     bury 3
-    b main_after_if_else@7
+    b after_if_else@7
 
-main_after_if_else@7:
+after_if_else@7:
     dig 2
     bury 3
-    b main_after_if_else@8
+    b after_if_else@8
 
-main_after_if_else@8:
+after_if_else@8:
     dig 2
     bury 2
-    b main_after_if_else@9
+    b after_if_else@9
 
-main_after_for@11:
+after_for@11:
     // bug_load_store_load_store/contract.py:18
     // return val
     dig 1

@@ -5,20 +5,20 @@
 main:
     bytecblock "greeting"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "greeting"
     pushbytes ""
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz bare_routing@7
     pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
-    match main_delete_route@5 main_greet_route@6
+    match delete_route@5 greet_route@6
     err
 
-main_greet_route@6:
+greet_route@6:
     txn OnCompletion
     !
     txn ApplicationID
@@ -47,7 +47,7 @@ main_greet_route@6:
     pushint 1 // 1
     return
 
-main_delete_route@5:
+delete_route@5:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
@@ -55,17 +55,17 @@ main_delete_route@5:
     &&
     return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_bare_routing@7:
+bare_routing@7:
     pushints 0 4 // NoOp, UpdateApplication
     txn OnCompletion
-    match main___algopy_default_create@8 main_update@9
+    match __algopy_default_create@8 update@9
     err
 
-main_update@9:
+update@9:
     txn ApplicationID
     return // on error: can only call when not creating
 
-main___algopy_default_create@8:
+__algopy_default_create@8:
     txn ApplicationID
     !
     return // on error: can only call when creating

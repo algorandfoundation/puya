@@ -4,10 +4,10 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     txn NumAppArgs
-    bz main___algopy_default_create@23
+    bz __algopy_default_create@23
     pushbytes 0x33b3499e // method "delete_application()void"
     txna ApplicationArgs 0
-    match main_delete_application_route@3
+    match delete_application_route@3
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -15,30 +15,30 @@ main:
     assert
     pushbytess 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
     txna ApplicationArgs 0
-    match main_check_uint64_route@7 main_check_dynamic_bytes_route@8 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_uint64_route@7 main_check_static_bytes_route@18
+    match check_uint64_route@7 check_dynamic_bytes_route@8 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_uint64_route@7 check_static_bytes_route@18
     err
 
-main_check_static_bytes_route@18:
+check_static_bytes_route@18:
     txna ApplicationArgs 1
     txn Sender
     ==
     return // on error: expected to encode correctly
 
-main_check_uint64_route@7:
+check_uint64_route@7:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     extract 2 0
     ==
     return // on error: expected to encode correctly
 
-main_check_dynamic_bytes_route@8:
+check_dynamic_bytes_route@8:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     extract 2 0
     ==
     return // on error: expected to encode correctly
 
-main_delete_application_route@3:
+delete_application_route@3:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
@@ -46,7 +46,7 @@ main_delete_application_route@3:
     &&
     return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main___algopy_default_create@23:
+__algopy_default_create@23:
     txn OnCompletion
     !
     txn ApplicationID

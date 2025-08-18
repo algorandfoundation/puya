@@ -6,26 +6,26 @@ main:
     intcblock 0 1
     bytecblock "asa"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // asset/contract.py:18
     // self.asa = Asset()
     bytec_0 // "asa"
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // asset/contract.py:22
     // if Txn.num_app_args == 1:
     txn NumAppArgs
     intc_1 // 1
     ==
-    bz main_after_if_else@11
+    bz after_if_else@11
     // asset/contract.py:23
     // if Txn.application_args(0) == b"opt_in":
     txna ApplicationArgs 0
     pushbytes 0x6f70745f696e
     ==
-    bz main_else_body@6
+    bz else_body@6
     // asset/contract.py:24
     // asset = Txn.assets(0)
     txna Assets 0
@@ -74,13 +74,13 @@ main_after_if_else@2:
     // ITxnCreate.submit()
     itxn_submit
 
-main_after_if_else@11:
+after_if_else@11:
     // asset/contract.py:31
     // return True
     intc_1 // 1
     return
 
-main_else_body@6:
+else_body@6:
     // asset/contract.py:26
     // elif Txn.application_args(0) == b"is_opted_in":
     txna ApplicationArgs 0
@@ -201,4 +201,4 @@ main_else_body@6:
     asset_holding_get AssetBalance
     bury 1
     assert // asset opted in
-    b main_after_if_else@11
+    b after_if_else@11

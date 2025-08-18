@@ -6,7 +6,7 @@ main:
     intcblock 0 1 2 8
     bytecblock "box" "glob" "loc" "map" 0x00086d6f646966696564 0x00020000000000000001000a000362617a 0x0000
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz bare_routing@9
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -14,10 +14,10 @@ main:
     assert
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
-    match main_append_route@6 main_modify_route@7 main_get_route@8
+    match append_route@6 modify_route@7 get_route@8
     err
 
-main_get_route@8:
+get_route@8:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -53,7 +53,7 @@ main_get_route@8:
     intc_1 // 1
     return
 
-main_modify_route@7:
+modify_route@7:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -224,7 +224,7 @@ main_modify_route@7:
     intc_1 // 1
     return
 
-main_append_route@6:
+append_route@6:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -295,12 +295,12 @@ main_append_route@6:
     intc_1 // 1
     return
 
-main_bare_routing@9:
+bare_routing@9:
     txn OnCompletion
-    switch main___algopy_default_create@10 main_opt_in@11
+    switch __algopy_default_create@10 opt_in@11
     err
 
-main_opt_in@11:
+opt_in@11:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // "glob"
@@ -327,7 +327,7 @@ main_opt_in@11:
     intc_1 // 1
     return
 
-main___algopy_default_create@10:
+__algopy_default_create@10:
     txn ApplicationID
     !
     return // on error: can only call when creating

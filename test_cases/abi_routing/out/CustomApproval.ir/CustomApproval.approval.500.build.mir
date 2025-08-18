@@ -1,13 +1,13 @@
 // Op                                                                                        Stack (out)
 // test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                                                    tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                       tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // abi_routing/custom_approval.py:9
         // assert Txn.application_id == 0, "nonsense assert just to generate an init method"
         txn ApplicationID                                                                    tmp%0#1
@@ -17,9 +17,9 @@ subroutine main:
         v-store tmp%1#1
         v-load tmp%1#1                                                                       tmp%1#1
         assert // nonsense assert just to generate an init method
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // abi_routing/custom_approval.py:13
         // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
         txn NumAppArgs                                                                       tmp%0#1
@@ -29,9 +29,9 @@ subroutine main:
         ==                                                                                   tmp%1#1
         v-store tmp%1#1
         v-load tmp%1#1                                                                       tmp%1#1
-        bz main_after_if_else@6 ; b main_and_contd@4
+        bz after_if_else@6 ; b and_contd@4
 
-    main_and_contd@4:
+    and_contd@4:
         // abi_routing/custom_approval.py:13
         // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
         txna ApplicationArgs 1                                                               tmp%2#0
@@ -44,33 +44,33 @@ subroutine main:
         ==                                                                                   tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                       tmp%4#0
-        bz main_after_if_else@6 ; b main_if_body@5
+        bz after_if_else@6 ; b if_body@5
 
-    main_if_body@5:
+    if_body@5:
         // abi_routing/custom_approval.py:14
         // log("🎉🎉🎉")
         byte "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"                              "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
         log
-        b main_after_if_else@6
+        b after_if_else@6
 
-    main_after_if_else@6:
+    after_if_else@6:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         txn NumAppArgs                                                                       tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                       tmp%0#1
-        bz main___algopy_default_create@13 ; b main_abi_routing@10
+        bz __algopy_default_create@13 ; b abi_routing@10
 
-    main_abi_routing@10:
+    abi_routing@10:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         txna ApplicationArgs 0                                                               tmp%2#0
         v-store tmp%2#0
         method add_one(uint64)uint64                                                         Method(add_one(uint64)uint64)
         v-load tmp%2#0                                                                       Method(add_one(uint64)uint64),tmp%2#0
-        match main_add_one_route@11 ; b main_switch_case_next@12
+        match add_one_route@11 ; b switch_case_next@12
 
-    main_add_one_route@11:
+    add_one_route@11:
         // abi_routing/custom_approval.py:23
         // @arc4.abimethod
         txn OnCompletion                                                                     tmp%3#1
@@ -87,14 +87,14 @@ subroutine main:
         v-load tmp%7#0                                                                       tmp%7#0
         assert // OnCompletion must be NoOp && can only call when not creating
         callsub add_one
-        b main_switch_case_next@12
+        b switch_case_next@12
 
-    main_switch_case_next@12:
+    switch_case_next@12:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         err
 
-    main___algopy_default_create@13:
+    __algopy_default_create@13:
         txn OnCompletion                                                                     tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                                       tmp%8#0

@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     txn NumAppArgs
-    bz main___algopy_default_create@11
+    bz __algopy_default_create@11
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -12,10 +12,10 @@ main:
     assert
     pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
-    match main_add_user_route@4 main_attach_asset_to_user_route@5 main_get_user_route@6
+    match add_user_route@4 attach_asset_to_user_route@5 get_user_route@6
     err
 
-main_get_user_route@6:
+get_user_route@6:
     txna ApplicationArgs 1
     box_get
     assert // User with that id does not exist
@@ -26,7 +26,7 @@ main_get_user_route@6:
     pushint 1 // 1
     return
 
-main_attach_asset_to_user_route@5:
+attach_asset_to_user_route@5:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     box_get
@@ -43,7 +43,7 @@ main_attach_asset_to_user_route@5:
     pushint 1 // 1
     return
 
-main_add_user_route@4:
+add_user_route@4:
     txna ApplicationArgs 1
     dup
     extract 2 8
@@ -60,7 +60,7 @@ main_add_user_route@4:
     pushint 1 // 1
     return
 
-main___algopy_default_create@11:
+__algopy_default_create@11:
     txn OnCompletion
     !
     txn ApplicationID

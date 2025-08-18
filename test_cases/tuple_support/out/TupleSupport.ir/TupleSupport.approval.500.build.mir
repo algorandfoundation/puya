@@ -1,21 +1,21 @@
 // Op                                                                                 Stack (out)
 // test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                                             tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // tuple_support/tuple_support.py:6
         // self.state = UInt64(0)
         byte "state"                                                                  "state"
         int 0                                                                         "state",0
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // tuple_support/tuple_support.py:9
         // total = add_three_values((UInt64(101), UInt64(102), UInt64(103)))
         int 101                                                                       101
@@ -128,9 +128,9 @@ subroutine main:
         // for _i in urange(count):
         int 0                                                                         0
         v-store _i#0
-        b main_for_header@15
+        b for_header@15
 
-    main_for_header@15:
+    for_header@15:
         // tuple_support/tuple_support.py:133
         // for _i in urange(count):
         v-load _i#0                                                                   _i#0
@@ -142,9 +142,9 @@ subroutine main:
         <                                                                             continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                   continue_looping%0#0
-        bz main_after_for@17 ; b main_for_body@16
+        bz after_for@17 ; b for_body@16
 
-    main_for_body@16:
+    for_body@16:
         // tuple_support/tuple_support.py:134
         // result += b
         v-load result#1                                                               result#1
@@ -161,9 +161,9 @@ subroutine main:
         int 1                                                                         _i#0,1
         +                                                                             _i#0
         v-store _i#0
-        b main_for_header@15
+        b for_header@15
 
-    main_after_for@17:
+    after_for@17:
         // tuple_support/tuple_support.py:40
         // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
         v-load result#1                                                               result#1

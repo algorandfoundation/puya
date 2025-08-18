@@ -6,7 +6,7 @@ main:
     intcblock 42 1 0
     bytecblock "l1" "g1" "box_map" 0x6c32
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     pushbytes 0x6732
     intc_2 // 0
     app_global_put
@@ -16,10 +16,10 @@ main:
     pushint 123 // 123
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@4
+    match create_route@4
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -27,10 +27,10 @@ main_after_if_else@2:
     assert
     pushbytess 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
     txna ApplicationArgs 0
-    match main_clear_route@7 main_order_of_eval_global_route@8 main_order_of_eval_local_route@9 main_order_of_eval_box_route@10
+    match clear_route@7 order_of_eval_global_route@8 order_of_eval_local_route@9 order_of_eval_box_route@10
     err
 
-main_order_of_eval_box_route@10:
+order_of_eval_box_route@10:
     callsub get_key
     bytec_2 // "box_map"
     swap
@@ -46,7 +46,7 @@ main_order_of_eval_box_route@10:
     ==
     return
 
-main_order_of_eval_local_route@9:
+order_of_eval_local_route@9:
     callsub get_account
     callsub default_value
     swap
@@ -58,7 +58,7 @@ main_order_of_eval_local_route@9:
     ==
     return
 
-main_order_of_eval_global_route@8:
+order_of_eval_global_route@8:
     callsub default_value
     intc_2 // 0
     bytec_1 // "g1"
@@ -68,7 +68,7 @@ main_order_of_eval_global_route@8:
     ==
     return
 
-main_clear_route@7:
+clear_route@7:
     bytec_1 // "g1"
     app_global_del
     txn Sender
@@ -86,7 +86,7 @@ main_clear_route@7:
     intc_1 // 1
     return
 
-main_create_route@4:
+create_route@4:
     txn OnCompletion
     intc_1 // OptIn
     ==

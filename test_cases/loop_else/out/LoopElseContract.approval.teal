@@ -10,7 +10,7 @@ main:
     // arg_idx = UInt64(0)
     intc_1 // 0
 
-main_while_top@1:
+while_top@1:
     // loop_else/loop_else.py:10
     // while arg_idx < Txn.num_app_args:
     txn NumAppArgs
@@ -24,7 +24,7 @@ main_while_top@1:
     txnas ApplicationArgs
     pushbytes 0x7768696c655f736563726574
     ==
-    bz main_after_if_else@16
+    bz after_if_else@16
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     txn NumAccounts
@@ -32,7 +32,7 @@ main_while_top@1:
     intc_1 // 0
     bury 3
 
-main_for_header@9:
+for_header@9:
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 2
@@ -47,7 +47,7 @@ main_for_header@9:
     // if account == Global.zero_address:
     global ZeroAddress
     ==
-    bz main_after_if_else@12
+    bz after_if_else@12
     // loop_else/loop_else.py:29
     // op.itob(secret_index + 48)[-1],
     dup
@@ -83,20 +83,20 @@ main_for_header@9:
     intc_0 // 1
     return
 
-main_after_if_else@12:
+after_if_else@12:
     // loop_else/loop_else.py:17
     // for account_index in urange(Txn.num_accounts):
     dig 2
     intc_0 // 1
     +
     bury 3
-    b main_for_header@9
+    b for_header@9
 
-main_after_if_else@16:
+after_if_else@16:
     // loop_else/loop_else.py:24
     // arg_idx += 1
     dup
     intc_0 // 1
     +
     bury 1
-    b main_while_top@1
+    b while_top@1

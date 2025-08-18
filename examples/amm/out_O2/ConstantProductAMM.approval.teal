@@ -8,7 +8,7 @@ main:
     pushbytes ""
     dupn 9
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "asset_a"
     intc_0 // 0
     app_global_put
@@ -25,9 +25,9 @@ main:
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@12
+    bz __algopy_default_create@12
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -35,10 +35,10 @@ main_after_if_else@2:
     assert
     pushbytess 0xddc4cb4a 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(address)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
     txna ApplicationArgs 0
-    match main_set_governor_route@6 main_bootstrap_route@7 main_mint_route@8 main_burn_route@9 main_swap_route@10
+    match set_governor_route@6 bootstrap_route@7 mint_route@8 burn_route@9 swap_route@10
     err
 
-main_swap_route@10:
+swap_route@10:
     txn GroupIndex
     intc_1 // 1
     -
@@ -86,10 +86,10 @@ main_swap_route@10:
     assert // sender invalid
     uncover 2
     gtxns XferAsset
-    match main_switch_case_0@14 main_switch_case_1@15
+    match switch_case_0@14 switch_case_1@15
     err // asset id incorrect
 
-main_switch_case_1@15:
+switch_case_1@15:
     callsub _current_a_balance
     bury 3
     callsub _current_b_balance
@@ -100,7 +100,7 @@ main_switch_case_1@15:
     bury 4
     assert // check self.asset_b exists
 
-main_switch_case_next@17:
+switch_case_next@17:
     dig 3
     dig 5
     dup
@@ -129,7 +129,7 @@ main_switch_case_next@17:
     intc_1 // 1
     return
 
-main_switch_case_0@14:
+switch_case_0@14:
     callsub _current_b_balance
     bury 3
     callsub _current_a_balance
@@ -139,9 +139,9 @@ main_switch_case_0@14:
     swap
     bury 4
     assert // check self.asset_a exists
-    b main_switch_case_next@17
+    b switch_case_next@17
 
-main_burn_route@9:
+burn_route@9:
     txn GroupIndex
     intc_1 // 1
     -
@@ -237,7 +237,7 @@ main_burn_route@9:
     intc_1 // 1
     return
 
-main_mint_route@8:
+mint_route@8:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -337,15 +337,15 @@ main_mint_route@8:
     callsub _current_b_balance
     bury 8
     ==
-    bz main_bool_false@24
+    bz bool_false@24
     dig 5
     dig 7
     ==
-    bz main_bool_false@24
+    bz bool_false@24
     intc_1 // 1
 
-main_bool_merge@25:
-    bz main_after_if_else@27
+bool_merge@25:
+    bz after_if_else@27
     dig 9
     dig 7
     *
@@ -353,7 +353,7 @@ main_bool_merge@25:
     intc_2 // 1000
     -
 
-main_after_inlined_examples.amm.contract.tokens_to_mint@30:
+after_inlined_examples.amm.contract.tokens_to_mint@30:
     dup
     assert // send amount too low
     txn Sender
@@ -367,7 +367,7 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@30:
     intc_1 // 1
     return
 
-main_after_if_else@27:
+after_if_else@27:
     intc 4 // 10000000000
     dig 1
     -
@@ -394,25 +394,25 @@ main_after_if_else@27:
     dup
     bury 8
     <
-    bz main_else_body@29
+    bz else_body@29
     dig 8
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
+    b after_inlined_examples.amm.contract.tokens_to_mint@30
 
-main_else_body@29:
+else_body@29:
     dig 5
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
+    b after_inlined_examples.amm.contract.tokens_to_mint@30
 
-main_bool_false@24:
+bool_false@24:
     intc_0 // 0
-    b main_bool_merge@25
+    b bool_merge@25
 
-main_bootstrap_route@7:
+bootstrap_route@7:
     txn GroupIndex
     intc_1 // 1
     -
@@ -520,7 +520,7 @@ main_bootstrap_route@7:
     intc_1 // 1
     return
 
-main_set_governor_route@6:
+set_governor_route@6:
     txna ApplicationArgs 1
     callsub _check_is_governor
     bytec_3 // "governor"
@@ -529,7 +529,7 @@ main_set_governor_route@6:
     intc_1 // 1
     return
 
-main___algopy_default_create@12:
+__algopy_default_create@12:
     txn OnCompletion
     !
     txn ApplicationID

@@ -1,14 +1,14 @@
 // Op                                                           Stack (out)
 // test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // loop_else/loop_else.py:9
         // arg_idx = UInt64(0)
         int 0                                                   0
         v-store arg_idx#0
-        b main_while_top@1
+        b while_top@1
 
-    main_while_top@1:
+    while_top@1:
         // loop_else/loop_else.py:10
         // while arg_idx < Txn.num_app_args:
         txn NumAppArgs                                          tmp%0#0
@@ -26,18 +26,18 @@ subroutine main:
         byte 0x7768696c655f736563726574                         tmp%3#0,0x7768696c655f736563726574
         ==                                                      tmp%4#0
         l-load tmp%4#0 0                                        tmp%4#0
-        bz main_after_if_else@16 ; b main_if_body@8
+        bz after_if_else@16 ; b if_body@8
 
-    main_if_body@8:
+    if_body@8:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         txn NumAccounts                                         tmp%5#0
         v-store tmp%5#0
         int 0                                                   0
         v-store account_index#0
-        b main_for_header@9
+        b for_header@9
 
-    main_for_header@9:
+    for_header@9:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         v-load account_index#0                                  account_index#0
@@ -57,9 +57,9 @@ subroutine main:
         l-load tmp%7#0 1                                        account#0,tmp%7#0
         ==                                                      tmp%8#0
         l-load tmp%8#0 0                                        tmp%8#0
-        bz main_after_if_else@12 ; b main_if_body@11
+        bz after_if_else@12 ; b if_body@11
 
-    main_if_body@11:
+    if_body@11:
         // loop_else/loop_else.py:29
         // op.itob(secret_index + 48)[-1],
         v-load arg_idx#0                                        arg_idx#0
@@ -103,22 +103,22 @@ subroutine main:
         int 1                                                   1
         return
 
-    main_after_if_else@12:
+    after_if_else@12:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
         v-load account_index#0                                  account_index#0
         int 1                                                   account_index#0,1
         +                                                       account_index#0
         v-store account_index#0
-        b main_for_header@9
+        b for_header@9
 
-    main_after_if_else@16:
+    after_if_else@16:
         // loop_else/loop_else.py:24
         // arg_idx += 1
         v-load arg_idx#0                                        arg_idx#0
         int 1                                                   arg_idx#0,1
         +                                                       arg_idx#0
         v-store arg_idx#0
-        b main_while_top@1
+        b while_top@1
 
 

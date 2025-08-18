@@ -5,46 +5,46 @@
 main:
     bytecblock "greeting" TMPL_GREETING
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // compile/apps.py:60
     // self.greeting = TemplateVar[String]("GREETING")
     bytec_0 // "greeting"
     bytec_1 // TMPL_GREETING
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // compile/apps.py:58
     // class HelloTmpl(HelloBase):
     txn NumAppArgs
-    bz main_update@12
+    bz update@12
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@5
+    match delete_route@5
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@9
+    bz create_NoOp@9
     pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
     match greet
     err
 
-main_create_NoOp@9:
+create_NoOp@9:
     // compile/apps.py:58
     // class HelloTmpl(HelloBase):
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@10
+    match create_route@10
     err
 
-main_create_route@10:
+create_route@10:
     // compile/apps.py:62
     // @arc4.abimethod(create="require")
     pushint 1 // 1
     return
 
-main_delete_route@5:
+delete_route@5:
     // compile/apps.py:24
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -54,7 +54,7 @@ main_delete_route@5:
     &&
     return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_update@12:
+update@12:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn OnCompletion

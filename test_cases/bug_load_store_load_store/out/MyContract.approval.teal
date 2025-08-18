@@ -11,29 +11,29 @@ main:
     // for _idx in urange(2):
     dup
 
-main_for_header@1:
+for_header@1:
     // bug_load_store_load_store/contract.py:12
     // for _idx in urange(2):
     dup
     pushint 2 // 2
     <
-    bz main_after_for@11
+    bz after_for@11
     // bug_load_store_load_store/contract.py:13
     // if get_bool():
     callsub get_bool
-    bnz main_after_if_else@9
+    bnz after_if_else@9
     // bug_load_store_load_store/contract.py:15
     // elif get_bool():  # noqa: SIM102
     callsub get_bool
     dig 2
     bury 4
-    bz main_after_if_else@8
+    bz after_if_else@8
     // bug_load_store_load_store/contract.py:16
     // if not get_bool():
     callsub get_bool
     dig 2
     bury 4
-    bnz main_after_if_else@8
+    bnz after_if_else@8
     // bug_load_store_load_store/contract.py:17
     // val += UInt64(123)
     dig 1
@@ -41,20 +41,20 @@ main_for_header@1:
     +
     bury 3
 
-main_after_if_else@8:
+after_if_else@8:
     dig 2
     bury 2
 
-main_after_if_else@9:
+after_if_else@9:
     // bug_load_store_load_store/contract.py:12
     // for _idx in urange(2):
     dup
     pushint 1 // 1
     +
     bury 1
-    b main_for_header@1
+    b for_header@1
 
-main_after_for@11:
+after_for@11:
     // bug_load_store_load_store/contract.py:18
     // return val
     dig 1

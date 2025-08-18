@@ -6,7 +6,7 @@ main:
     intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // abi_routing/contract.py:26
     // self.asa = Asset(123)
     bytec_1 // "asa"
@@ -32,16 +32,16 @@ main:
     intc_2 // 123
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_abi_config@23
+    bz bare_abi_config@23
     pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
     txna ApplicationArgs 0
-    match main_opt_in_route@5 full_abi_config main_mixed_oca_route@7
+    match opt_in_route@5 full_abi_config mixed_oca_route@7
 
-main_switch_case_next@8:
+switch_case_next@8:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn OnCompletion
@@ -51,10 +51,10 @@ main_switch_case_next@8:
     assert
     pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
-    match noop_with_uint64 opt_into_asset with_transactions compare_assets main_get_address_route@14 main_get_asset_route@15 main_get_application_route@16 main_get_an_int_route@17 method_with_default_args method_with_15_args method_with_more_than_15_args hello_with_algopy_string
+    match noop_with_uint64 opt_into_asset with_transactions compare_assets get_address_route@14 get_asset_route@15 get_application_route@16 get_an_int_route@17 method_with_default_args method_with_15_args method_with_more_than_15_args hello_with_algopy_string
     err
 
-main_get_an_int_route@17:
+get_an_int_route@17:
     // abi_routing/contract.py:138
     // @arc4.abimethod(readonly=True, name="get_an_int")
     pushbytes 0x151f7c750000000000000003
@@ -62,7 +62,7 @@ main_get_an_int_route@17:
     intc_0 // 1
     return
 
-main_get_application_route@16:
+get_application_route@16:
     // abi_routing/contract.py:134
     // @arc4.abimethod(readonly=True, name="get_application")
     bytec_2 // 0x151f7c7500000000000001c8
@@ -70,7 +70,7 @@ main_get_application_route@16:
     intc_0 // 1
     return
 
-main_get_asset_route@15:
+get_asset_route@15:
     // abi_routing/contract.py:130
     // @arc4.abimethod(readonly=True)
     bytec_2 // 0x151f7c7500000000000001c8
@@ -78,7 +78,7 @@ main_get_asset_route@15:
     intc_0 // 1
     return
 
-main_get_address_route@14:
+get_address_route@14:
     // abi_routing/contract.py:126
     // @arc4.abimethod(readonly=True)
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
@@ -86,7 +86,7 @@ main_get_address_route@14:
     intc_0 // 1
     return
 
-main_mixed_oca_route@7:
+mixed_oca_route@7:
     // abi_routing/contract.py:66-74
     // @arc4.abimethod(
     //     allow_actions=[
@@ -107,7 +107,7 @@ main_mixed_oca_route@7:
     assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
     b mixed_oca
 
-main_opt_in_route@5:
+opt_in_route@5:
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
@@ -118,7 +118,7 @@ main_opt_in_route@5:
     assert // OnCompletion must be OptIn && can only call when not creating
     b opt_in
 
-main_bare_abi_config@23:
+bare_abi_config@23:
     // abi_routing/contract.py:79-88
     // @arc4.baremethod(
     //     allow_actions=[

@@ -1,33 +1,33 @@
 // Op                                                            Stack (out)
 // test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                        tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // compile/apps.py:22
         // self.greeting = String()
         byte "greeting"                                          "greeting"
         byte ""                                                  "greeting",""
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txn NumAppArgs                                           tmp%0#2
-        bz main_update@12 ; b main_abi_routing@4
+        bz update@12 ; b abi_routing@4
 
-    main_abi_routing@4:
+    abi_routing@4:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txna ApplicationArgs 0                                   tmp%2#0
         method delete()void                                      tmp%2#0,Method(delete()void)
         l-load tmp%2#0 1                                         Method(delete()void),tmp%2#0
-        match main_delete_route@5 ; b main_switch_case_next@6
+        match delete_route@5 ; b switch_case_next@6
 
-    main_delete_route@5:
+    delete_route@5:
         // compile/apps.py:24
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
         txn OnCompletion                                         tmp%3#0
@@ -41,49 +41,49 @@ subroutine main:
         int 1                                                    1
         return
 
-    main_switch_case_next@6:
+    switch_case_next@6:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txn OnCompletion                                         tmp%8#0
         !                                                        tmp%9#0
         assert // OnCompletion must be NoOp
         txn ApplicationID                                        tmp%10#0
-        bz main_create_NoOp@9 ; b main_call_NoOp@7
+        bz create_NoOp@9 ; b call_NoOp@7
 
-    main_call_NoOp@7:
+    call_NoOp@7:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txna ApplicationArgs 0                                   tmp%12#0
         method greet(string)string                               tmp%12#0,Method(greet(string)string)
         l-load tmp%12#0 1                                        Method(greet(string)string),tmp%12#0
-        match main_greet_route@8 ; b main_after_if_else@11
+        match greet_route@8 ; b after_if_else@11
 
-    main_greet_route@8:
+    greet_route@8:
         // compile/apps.py:32
         // @arc4.abimethod()
         callsub greet
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_create_NoOp@9:
+    create_NoOp@9:
         // compile/apps.py:52
         // class Hello(HelloBase):
         txna ApplicationArgs 0                                   tmp%13#0
         method create(string)void                                tmp%13#0,Method(create(string)void)
         l-load tmp%13#0 1                                        Method(create(string)void),tmp%13#0
-        match main_create_route@10 ; b main_after_if_else@11
+        match create_route@10 ; b after_if_else@11
 
-    main_create_route@10:
+    create_route@10:
         // compile/apps.py:53
         // @arc4.abimethod(create="require")
         callsub create
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_after_if_else@11:
+    after_if_else@11:
         // compile/apps.py:52
         // class Hello(HelloBase):
         err
 
-    main_update@12:
+    update@12:
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
         txn OnCompletion                                         tmp%14#0

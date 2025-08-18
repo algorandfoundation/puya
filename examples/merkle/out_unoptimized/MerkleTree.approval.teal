@@ -5,12 +5,12 @@
 main:
     intcblock 0 1 32
     bytecblock "root"
-    b main_block@0
+    b block@0
 
-main_block@0:
-    b main_block@1
+block@0:
+    b block@1
 
-main_block@1:
+block@1:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txn OnCompletion
@@ -20,55 +20,55 @@ main_block@1:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@6
-    b main_call_NoOp@2
+    bz create_NoOp@6
+    b call_NoOp@2
 
-main_call_NoOp@2:
+call_NoOp@2:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     uncover 1
-    match main_verify_route@3
-    b main_switch_case_default@4
+    match verify_route@3
+    b switch_case_default@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
+switch_case_default@4:
+    b switch_case_next@5
 
-main_switch_case_next@5:
-    b main_after_if_else@10
+switch_case_next@5:
+    b after_if_else@10
 
-main_after_if_else@10:
+after_if_else@10:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     err
 
-main_verify_route@3:
+verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
     callsub verify
-    b main_switch_case_next@5
+    b switch_case_next@5
 
-main_create_NoOp@6:
+create_NoOp@6:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x8424203b // method "create(byte[32])void"
     uncover 1
-    match main_create_route@7
-    b main_switch_case_default@8
+    match create_route@7
+    b switch_case_default@8
 
-main_switch_case_default@8:
-    b main_switch_case_next@9
+switch_case_default@8:
+    b switch_case_next@9
 
-main_switch_case_next@9:
-    b main_after_if_else@10
+switch_case_next@9:
+    b after_if_else@10
 
-main_create_route@7:
+create_route@7:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     callsub create
-    b main_switch_case_next@9
+    b switch_case_next@9
 
 
 // examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:

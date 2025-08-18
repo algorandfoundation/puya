@@ -1,12 +1,12 @@
 // Op                                                                                             Stack (out)
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                                                         tmp%0#0
         l-load tmp%0#0 0                                                                          tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // state_proxies/contract.py:22
         // self.global2 = GlobalState[UInt64](UInt64(0), key=b"g2", description="g2 description")
         byte 0x6732                                                                               0x6732
@@ -32,17 +32,17 @@ subroutine main:
         l-load funky_town#0 0                                                                     funky_town#0
         int 123                                                                                   funky_town#0,123
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         txna ApplicationArgs 0                                                                    tmp%0#3
         method create()void                                                                       tmp%0#3,Method(create()void)
         l-load tmp%0#3 1                                                                          Method(create()void),tmp%0#3
-        match main_create_route@4 ; b main_switch_case_next@5
+        match create_route@4 ; b switch_case_next@5
 
-    main_create_route@4:
+    create_route@4:
         // state_proxies/contract.py:31
         // @arc4.abimethod(allow_actions=["OptIn"], create="require")
         txn OnCompletion                                                                          tmp%1#2
@@ -58,9 +58,9 @@ subroutine main:
         l-load tmp%5#0 0                                                                          tmp%5#0
         assert // OnCompletion must be OptIn && can only call when creating
         callsub create
-        b main_switch_case_next@5
+        b switch_case_next@5
 
-    main_switch_case_next@5:
+    switch_case_next@5:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         txn OnCompletion                                                                          tmp%6#0
@@ -77,33 +77,33 @@ subroutine main:
         method order_of_eval_local()void                                                          tmp%10#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
         method order_of_eval_box()void                                                            tmp%10#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
         l-load tmp%10#0 4                                                                         Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%10#0
-        match main_clear_route@7 main_order_of_eval_global_route@8 main_order_of_eval_local_route@9 main_order_of_eval_box_route@10 ; b main_after_if_else@11 
+        match clear_route@7 order_of_eval_global_route@8 order_of_eval_local_route@9 order_of_eval_box_route@10 ; b after_if_else@11 
 
-    main_clear_route@7:
+    clear_route@7:
         // state_proxies/contract.py:37
         // @arc4.abimethod()
         callsub clear
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_order_of_eval_global_route@8:
+    order_of_eval_global_route@8:
         // state_proxies/contract.py:44
         // @arc4.abimethod()
         callsub order_of_eval_global
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_order_of_eval_local_route@9:
+    order_of_eval_local_route@9:
         // state_proxies/contract.py:49
         // @arc4.abimethod()
         callsub order_of_eval_local
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_order_of_eval_box_route@10:
+    order_of_eval_box_route@10:
         // state_proxies/contract.py:54
         // @arc4.abimethod()
         callsub order_of_eval_box
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_after_if_else@11:
+    after_if_else@11:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         err

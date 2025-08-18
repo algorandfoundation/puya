@@ -6,7 +6,7 @@ main:
     intcblock 0 1
     bytecblock "tup" 0x000a "box" "glob" "loc" 0x000a000000000000000000010000000000000000 0x00010000000000000000
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // tuple_support/tuple_storage.py:16
     // self.tup = TupleWithMutable(
     bytec_0 // "tup"
@@ -42,16 +42,16 @@ main:
     swap
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@13
+    bz __algopy_default_create@13
     pushbytes 0xbec76d87 // method "bootstrap()void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5
+    match bootstrap_route@5
 
-main_switch_case_next@6:
+switch_case_next@6:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn OnCompletion
@@ -64,7 +64,7 @@ main_switch_case_next@6:
     match mutate_tuple mutate_box mutate_global mutate_local
     err
 
-main_bootstrap_route@5:
+bootstrap_route@5:
     // tuple_support/tuple_storage.py:23
     // @arc4.abimethod(allow_actions=["OptIn"])
     txn OnCompletion
@@ -75,7 +75,7 @@ main_bootstrap_route@5:
     assert // OnCompletion must be OptIn && can only call when not creating
     b bootstrap
 
-main___algopy_default_create@13:
+__algopy_default_create@13:
     txn OnCompletion
     !
     txn ApplicationID

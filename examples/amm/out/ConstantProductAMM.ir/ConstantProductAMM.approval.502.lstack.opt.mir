@@ -1,11 +1,11 @@
 // Op                                                                                             Stack (out)
 // examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                                                         tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // amm/contract.py:33
         // self.asset_a = Asset()
         byte "asset_a"                                                                            "asset_a"
@@ -32,15 +32,15 @@ subroutine main:
         byte "ratio"                                                                              "ratio"
         int 0                                                                                     "ratio",0
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
         txn NumAppArgs                                                                            tmp%0#3
-        bz main___algopy_default_create@12 ; b main_abi_routing@4
+        bz __algopy_default_create@12 ; b abi_routing@4
 
-    main_abi_routing@4:
+    abi_routing@4:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
         txn OnCompletion                                                                          tmp%2#0
@@ -55,21 +55,21 @@ subroutine main:
         method burn(axfer,asset,asset,asset)void                                                  tmp%6#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void)
         method swap(axfer,asset,asset)void                                                        tmp%6#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void)
         l-load tmp%6#0 5                                                                          Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void),tmp%6#0
-        match main_set_governor_route@6 main_bootstrap_route@7 main_mint_route@8 main_burn_route@9 main_swap_route@10 ; b main_after_if_else@11 
+        match set_governor_route@6 bootstrap_route@7 mint_route@8 burn_route@9 swap_route@10 ; b after_if_else@11 
 
-    main_set_governor_route@6:
+    set_governor_route@6:
         // amm/contract.py:43
         // @arc4.abimethod()
         callsub set_governor
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_bootstrap_route@7:
+    bootstrap_route@7:
         // amm/contract.py:49
         // @arc4.abimethod(resource_encoding="index")
         callsub bootstrap
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_mint_route@8:
+    mint_route@8:
         // amm/contract.py:81-88
         // @arc4.abimethod(
         //     default_args={
@@ -80,9 +80,9 @@ subroutine main:
         //     resource_encoding="index",
         // )
         callsub mint
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_burn_route@9:
+    burn_route@9:
         // amm/contract.py:148-155
         // @arc4.abimethod(
         //     default_args={
@@ -93,9 +93,9 @@ subroutine main:
         //     resource_encoding="index",
         // )
         callsub burn
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_swap_route@10:
+    swap_route@10:
         // amm/contract.py:206-212
         // @arc4.abimethod(
         //     default_args={
@@ -105,14 +105,14 @@ subroutine main:
         //     resource_encoding="index",
         // )
         callsub swap
-        b main_after_if_else@11
+        b after_if_else@11
 
-    main_after_if_else@11:
+    after_if_else@11:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
         err
 
-    main___algopy_default_create@12:
+    __algopy_default_create@12:
         txn OnCompletion                                                                          tmp%7#0
         !                                                                                         tmp%8#0
         txn ApplicationID                                                                         tmp%8#0,tmp%9#0

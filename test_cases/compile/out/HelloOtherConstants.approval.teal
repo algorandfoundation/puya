@@ -6,7 +6,7 @@ main:
     intcblock 1 0
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // compile/apps.py:78
     // self.greeting = TemplateVar[String]("GREETING")
     bytec_0 // "greeting"
@@ -28,31 +28,31 @@ main:
     bytec 7 // TMPL_METHOD
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match main_delete_route@4
+    match delete_route@4
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@8
+    bz create_NoOp@8
     pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     txna ApplicationArgs 0
     match greet
     err
 
-main_create_NoOp@8:
+create_NoOp@8:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     pushbytes 0xd9285a74 // method "create()uint64"
     txna ApplicationArgs 0
-    match main_create_route@9
+    match create_route@9
     err
 
-main_create_route@9:
+create_route@9:
     // compile/apps.py:83
     // @arc4.abimethod(create="require")
     pushbytes 0x151f7c750000000000000001
@@ -60,7 +60,7 @@ main_create_route@9:
     intc_0 // 1
     return
 
-main_delete_route@4:
+delete_route@4:
     // compile/apps.py:87
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion

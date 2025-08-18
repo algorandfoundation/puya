@@ -1,7 +1,7 @@
 // Op                                                                 Stack (out)
 // test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program() -> uint64:
 subroutine main:
-    main_while_top@2:
+    while_top@2:
         global OpcodeBudget                                           tmp%1#0
         v-store tmp%1#0
         int 810                                                       810
@@ -9,9 +9,9 @@ subroutine main:
         >                                                             tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                tmp%2#0
-        bz main_after_while@8 ; b main_while_body@3
+        bz after_while@8 ; b while_body@3
 
-    main_while_body@3:
+    while_body@3:
         itxn_begin
         int appl                                                      appl
         itxn_field TypeEnum
@@ -24,9 +24,9 @@ subroutine main:
         int 0                                                         0
         itxn_field Fee
         itxn_submit
-        b main_while_top@2
+        b while_top@2
 
-    main_after_while@8:
+    after_while@8:
         // regression_tests/slot_allocation_inlining.py:25
         // arr = ReferenceArray[UInt64]()
         callsub _puya_lib.mem.new_slot                                arr#0

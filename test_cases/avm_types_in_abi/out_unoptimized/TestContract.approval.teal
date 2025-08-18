@@ -5,12 +5,12 @@
 main:
     intcblock 0 1 64 75
     bytecblock 0x 0x151f7c75
-    b main_block@0
+    b block@0
 
-main_block@0:
-    b main_block@1
+block@0:
+    b block@1
 
-main_block@1:
+block@1:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -20,55 +20,55 @@ main_block@1:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@6
-    b main_call_NoOp@2
+    bz create_NoOp@6
+    b call_NoOp@2
 
-main_call_NoOp@2:
+call_NoOp@2:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
     uncover 1
-    match main_tuple_of_arc4_route@3
-    b main_switch_case_default@4
+    match tuple_of_arc4_route@3
+    b switch_case_default@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
+switch_case_default@4:
+    b switch_case_next@5
 
-main_switch_case_next@5:
-    b main_after_if_else@10
+switch_case_next@5:
+    b after_if_else@10
 
-main_after_if_else@10:
+after_if_else@10:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     err
 
-main_tuple_of_arc4_route@3:
+tuple_of_arc4_route@3:
     // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
     callsub tuple_of_arc4
-    b main_switch_case_next@5
+    b switch_case_next@5
 
-main_create_NoOp@6:
+create_NoOp@6:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     uncover 1
-    match main_create_route@7
-    b main_switch_case_default@8
+    match create_route@7
+    b switch_case_default@8
 
-main_switch_case_default@8:
-    b main_switch_case_next@9
+switch_case_default@8:
+    b switch_case_next@9
 
-main_switch_case_next@9:
-    b main_after_if_else@10
+switch_case_next@9:
+    b after_if_else@10
 
-main_create_route@7:
+create_route@7:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     callsub create
-    b main_switch_case_next@9
+    b switch_case_next@9
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:

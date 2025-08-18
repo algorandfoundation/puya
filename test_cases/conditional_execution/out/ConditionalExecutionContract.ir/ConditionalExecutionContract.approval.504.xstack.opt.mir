@@ -1,11 +1,11 @@
 // Op                                                     Stack (out)
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         txn ApplicationID                                 tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // conditional_execution/contract.py:6
         // self.did_execute_a = False
         byte "did_execute_a"                              "did_execute_a"
@@ -16,9 +16,9 @@ subroutine main:
         byte "did_execute_b"                              "did_execute_b"
         int 0                                             "did_execute_b",0
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // conditional_execution/contract.py:65
         // self.did_execute_a = True
         byte "did_execute_a"                              "did_execute_a"
@@ -31,19 +31,19 @@ subroutine main:
         app_global_get_ex                                 maybe_value%1#0,maybe_exists%1#0
         assert // check self.did_execute_b exists         maybe_value%1#0
         l-load maybe_value%1#0 0                          maybe_value%1#0
-        bz main_bool_true@9 ; b main_bool_false@10
+        bz bool_true@9 ; b bool_false@10
 
-    main_bool_true@9:
+    bool_true@9:
         int 1                                             condition#0
         x-store condition#0                               (𝕏) condition#0 |
-        b main_bool_merge@11                              (𝕏) condition#0 |
+        b bool_merge@11                                   (𝕏) condition#0 |
 
-    main_bool_false@10:
+    bool_false@10:
         int 0                                             condition#0
         x-store condition#0                               (𝕏) condition#0 |
-        b main_bool_merge@11                              (𝕏) condition#0 |
+        b bool_merge@11                                   (𝕏) condition#0 |
 
-    main_bool_merge@11:                                   (𝕏) condition#0 |
+    bool_merge@11:                                        (𝕏) condition#0 |
         // conditional_execution/contract.py:59
         // assert condition
         x-load condition#0                                condition#0
@@ -110,9 +110,9 @@ subroutine main:
         app_global_get_ex                                 maybe_value%12#0,maybe_exists%12#0
         assert // check self.did_execute_a exists         maybe_value%12#0
         l-load maybe_value%12#0 0                         maybe_value%12#0
-        bz main_and_contd@50 ; b main_bool_false@52
+        bz and_contd@50 ; b bool_false@52
 
-    main_and_contd@50:
+    and_contd@50:
         // conditional_execution/contract.py:49
         // not self.did_execute_a and self.did_execute_b,
         int 0                                             0
@@ -120,19 +120,19 @@ subroutine main:
         app_global_get_ex                                 maybe_value%13#0,maybe_exists%13#0
         assert // check self.did_execute_b exists         maybe_value%13#0
         l-load maybe_value%13#0 0                         maybe_value%13#0
-        bz main_bool_false@52 ; b main_bool_true@51
+        bz bool_false@52 ; b bool_true@51
 
-    main_bool_true@51:
+    bool_true@51:
         int 1                                             condition#0
         x-store condition#0                               (𝕏) condition#0 |
-        b main_bool_merge@53                              (𝕏) condition#0 |
+        b bool_merge@53                                   (𝕏) condition#0 |
 
-    main_bool_false@52:
+    bool_false@52:
         int 0                                             condition#0
         x-store condition#0                               (𝕏) condition#0 |
-        b main_bool_merge@53                              (𝕏) condition#0 |
+        b bool_merge@53                                   (𝕏) condition#0 |
 
-    main_bool_merge@53:                                   (𝕏) condition#0 |
+    bool_merge@53:                                        (𝕏) condition#0 |
         // conditional_execution/contract.py:59
         // assert condition
         x-load condition#0                                condition#0

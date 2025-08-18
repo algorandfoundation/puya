@@ -4,9 +4,9 @@
 // test_cases.control_op_simplification.contract.MyContract.approval_program() -> uint64:
 main:
     intcblock 1
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // control_op_simplification/contract.py:6
     // do_log = False
     pushint 0 // 0
@@ -26,43 +26,43 @@ main_block@0:
     //     case UInt64(3):
     //         do_log = True
     uncover 2
-    match main_switch_case_0@1 main_switch_case_1@2
-    b main_switch_case_default@3
+    match switch_case_0@1 switch_case_1@2
+    b switch_case_default@3
 
-main_switch_case_default@3:
-    b main_switch_case_next@4
+switch_case_default@3:
+    b switch_case_next@4
 
-main_switch_case_next@4:
+switch_case_next@4:
     // control_op_simplification/contract.py:12
     // if do_log:
     dup
-    bz main_after_if_else@6
-    b main_if_body@5
+    bz after_if_else@6
+    b if_body@5
 
-main_if_body@5:
+if_body@5:
     // control_op_simplification/contract.py:13
     // log(op.itob(op.Txn.num_app_args))
     txn NumAppArgs
     itob
     log
-    b main_after_if_else@6
+    b after_if_else@6
 
-main_after_if_else@6:
+after_if_else@6:
     // control_op_simplification/contract.py:14
     // return True
     intc_0 // 1
     return
 
-main_switch_case_1@2:
+switch_case_1@2:
     // control_op_simplification/contract.py:11
     // do_log = True
     intc_0 // 1
     bury 1
-    b main_switch_case_next@4
+    b switch_case_next@4
 
-main_switch_case_0@1:
+switch_case_0@1:
     // control_op_simplification/contract.py:9
     // do_log = True
     intc_0 // 1
     bury 1
-    b main_switch_case_next@4
+    b switch_case_next@4

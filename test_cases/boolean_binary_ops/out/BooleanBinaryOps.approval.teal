@@ -14,7 +14,7 @@ main:
     // for lhs in (True, False):
     intc_1 // 1
 
-main_for_body@4:
+for_body@4:
     intc_0 // 0
     bury 6
     // boolean_binary_ops/contract.py:41
@@ -22,7 +22,7 @@ main_for_body@4:
     intc_1 // 1
     bury 5
 
-main_for_body@5:
+for_body@5:
     // boolean_binary_ops/contract.py:35
     // return Bytes(b"true" if x else b"false")
     bytec_0 // 0x66616c7365
@@ -65,7 +65,7 @@ main_for_body@5:
     // and_result = log_and_return(lhs, b"lhs" + and_msg) and log_and_return(
     //     rhs, b"rhs" + and_msg
     // )
-    bz main_bool_false@8
+    bz bool_false@8
     // boolean_binary_ops/contract.py:44
     // rhs, b"rhs" + and_msg
     bytec_3 // 0x726873
@@ -79,10 +79,10 @@ main_for_body@5:
     //     rhs, b"rhs" + and_msg
     // )
     dig 4
-    bz main_bool_false@8
+    bz bool_false@8
     intc_1 // 1
 
-main_bool_merge@9:
+bool_merge@9:
     // boolean_binary_ops/contract.py:46
     // assert and_result == (lhs and rhs)
     dig 1
@@ -113,7 +113,7 @@ main_bool_merge@9:
     // or_result = log_and_return(lhs, b"lhs" + or_msg) or log_and_return(
     //     rhs, b"rhs" + or_msg
     // )
-    bnz main_bool_true@11
+    bnz bool_true@11
     // boolean_binary_ops/contract.py:49
     // rhs, b"rhs" + or_msg
     bytec_3 // 0x726873
@@ -127,12 +127,12 @@ main_bool_merge@9:
     //     rhs, b"rhs" + or_msg
     // )
     dig 4
-    bz main_bool_false@12
+    bz bool_false@12
 
-main_bool_true@11:
+bool_true@11:
     intc_1 // 1
 
-main_bool_merge@13:
+bool_merge@13:
     // boolean_binary_ops/contract.py:51
     // assert or_result == (lhs or rhs)
     dig 1
@@ -143,46 +143,46 @@ main_bool_merge@13:
     // boolean_binary_ops/contract.py:41
     // for rhs in (True, False):
     dig 5
-    bnz main_after_for@16
+    bnz after_for@16
     intc_1 // 1
     bury 6
     intc_0 // 0
     bury 5
-    b main_for_body@5
+    b for_body@5
 
-main_after_for@16:
+after_for@16:
     // boolean_binary_ops/contract.py:40
     // for lhs in (True, False):
     dig 1
-    bnz main_after_for@19
+    bnz after_for@19
     intc_1 // 1
     bury 2
     intc_0 // 0
     bury 1
-    b main_for_body@4
+    b for_body@4
 
-main_after_for@19:
+after_for@19:
     intc_0 // 0
     bury 7
 
-main_for_header@68:
+for_header@68:
     // boolean_binary_ops/contract.py:85
     // for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
     dig 6
     pushint 3 // 3
     <
-    bz main_after_for@71
+    bz after_for@71
     dig 6
     intc_1 // 1
     +
     bury 7
-    b main_for_header@68
+    b for_header@68
 
-main_after_for@71:
+after_for@71:
     intc_0 // 0
     bury 4
 
-main_while_top@118:
+while_top@118:
     dig 3
     pushint 4 // 4
     +
@@ -190,7 +190,7 @@ main_while_top@118:
     bury 4
     pushint 5 // 5
     <=
-    bz main_after_while@122
+    bz after_while@122
     // boolean_binary_ops/contract.py:89
     // assert "ight" in (String("left") and String("right"))
     pushbytes "right"
@@ -201,29 +201,29 @@ main_while_top@118:
     // assert "ight" in (String("left") and String("right"))
     pushbytes "ight"
     ==
-    bz main_after_if_else@121
+    bz after_if_else@121
     intc_1 // 1
     // boolean_binary_ops/contract.py:13
     // return True
     return
 
-main_after_if_else@121:
+after_if_else@121:
     dig 3
     intc_1 // 1
     +
     bury 4
-    b main_while_top@118
+    b while_top@118
 
-main_after_while@122:
+after_while@122:
     intc_0 // 0
     // boolean_binary_ops/contract.py:13
     // return True
     return
 
-main_bool_false@12:
+bool_false@12:
     intc_0 // 0
-    b main_bool_merge@13
+    b bool_merge@13
 
-main_bool_false@8:
+bool_false@8:
     intc_0 // 0
-    b main_bool_merge@9
+    b bool_merge@9

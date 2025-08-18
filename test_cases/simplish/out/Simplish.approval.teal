@@ -10,24 +10,24 @@ main:
     pushbytes ""
     dupn 4
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // simplish/base_class.py:8
     // self.counter = UInt64(0)
     bytec_0 // "counter"
     intc_1 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // simplish/contract.py:31
     // if Txn.application_id == 0:
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz after_if_else@5
     // simplish/contract.py:32
     // return True
     intc_0 // 1
     return
 
-main_after_if_else@5:
+after_if_else@5:
     // simplish/contract.py:33
     // oca = Txn.on_completion
     txn OnCompletion
@@ -46,7 +46,7 @@ main_after_if_else@5:
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
-    bnz main_if_body@7
+    bnz if_body@7
     dig 2
     // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
@@ -57,15 +57,15 @@ main_after_if_else@5:
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
-    bz main_after_if_else@10
+    bz after_if_else@10
 
-main_if_body@7:
+if_body@7:
     // simplish/contract.py:39
     // if oca == OnCompleteAction.DeleteApplication:
     dig 2
     pushint 5 // DeleteApplication
     ==
-    bz main_after_if_else@9
+    bz after_if_else@9
     // simplish/contract.py:40
     // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
     intc_1 // 0
@@ -80,7 +80,7 @@ main_if_body@7:
     concat
     log
 
-main_after_if_else@9:
+after_if_else@9:
     // simplish/contract.py:41
     // return Global.creator_address == sender
     global CreatorAddress
@@ -88,17 +88,17 @@ main_after_if_else@9:
     ==
     return
 
-main_after_if_else@10:
+after_if_else@10:
     // simplish/contract.py:43
     // if oca == OnCompleteAction.OptIn:
     dig 2
     intc_0 // OptIn
     ==
-    bz main_after_if_else@14
+    bz after_if_else@14
     // simplish/contract.py:44
     // if Txn.num_app_args > 0:
     txn NumAppArgs
-    bz main_after_if_else@13
+    bz after_if_else@13
     // simplish/base_class.py:17
     // self.name[0] = nickname
     intc_1 // 0
@@ -110,26 +110,26 @@ main_after_if_else@10:
     // self.name[0] = nickname
     app_local_put
 
-main_after_if_else@13:
+after_if_else@13:
     // simplish/contract.py:46
     // return True
     intc_0 // 1
     return
 
-main_after_if_else@14:
+after_if_else@14:
     // simplish/contract.py:47
     // if oca != OnCompleteAction.NoOp:
     dig 2
-    bz main_after_if_else@16
+    bz after_if_else@16
     err
 
-main_after_if_else@16:
+after_if_else@16:
     // simplish/contract.py:50
     // if (num_app_args := Txn.num_app_args) > 0:
     txn NumAppArgs
     dup
     bury 5
-    bz main_else_body@18
+    bz else_body@18
     // simplish/contract.py:51
     // method_name = Txn.application_args(0)
     txna ApplicationArgs 0
@@ -154,7 +154,7 @@ main_after_if_else@16:
     // if method_name == b"circle_area":
     pushbytes 0x636972636c655f61726561
     ==
-    bz main_else_body@31
+    bz else_body@31
     // simplish/contract.py:112-113
     // # PI * r ^ 2
     // result = radius**2 * SCALED_PI // SCALE
@@ -169,12 +169,12 @@ main_after_if_else@16:
     // result = itoa(area)
     callsub itoa
 
-main_after_if_else@38:
+after_if_else@38:
     dig 1
     swap
     bury 8
 
-main_after_if_else@25:
+after_if_else@25:
     // simplish/contract.py:63
     // log(msg)
     dig 7
@@ -196,13 +196,13 @@ main_after_if_else@25:
     app_global_put
     return
 
-main_else_body@31:
+else_body@31:
     // simplish/contract.py:79
     // elif method_name == b"circle_circumference":
     dig 7
     pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
-    bz main_else_body@33
+    bz else_body@33
     // simplish/contract.py:107
     // return radius * two_pi // SCALE
     dig 1
@@ -218,15 +218,15 @@ main_else_body@31:
     // simplish/contract.py:81
     // result = itoa(circumference)
     callsub itoa
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@33:
+else_body@33:
     // simplish/contract.py:82
     // elif method_name == b"circle_report":
     dig 7
     pushbytes 0x636972636c655f7265706f7274
     ==
-    bz main_else_body@35
+    bz else_body@35
     // simplish/contract.py:112-113
     // # PI * r ^ 2
     // result = radius**2 * SCALED_PI // SCALE
@@ -302,9 +302,9 @@ main_else_body@33:
     // + b", "
     // + itoa(circumference)
     concat
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@35:
+else_body@35:
     // simplish/contract.py:93
     // status = False
     intc_1 // 0
@@ -312,15 +312,15 @@ main_else_body@35:
     // simplish/contract.py:94
     // result = Bytes(b"unknown method name")
     pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
-    b main_after_if_else@38
+    b after_if_else@38
 
-main_else_body@18:
+else_body@18:
     // simplish/contract.py:53
     // elif Txn.num_assets == 1:
     txn NumAssets
     intc_0 // 1
     ==
-    bz main_else_body@23
+    bz else_body@23
     // simplish/contract.py:54
     // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
     dig 5
@@ -330,19 +330,19 @@ main_else_body@18:
     bury 6
     // simplish/contract.py:55
     // if not asset_exists:
-    bnz main_else_body@21
+    bnz else_body@21
     // simplish/contract.py:56
     // msg = Bytes(b"You do not have any of the asset")
     pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
     bury 7
 
-main_after_if_else@22:
+after_if_else@22:
     // simplish/contract.py:59
     // result = True
     intc_0 // 1
-    b main_after_if_else@25
+    b after_if_else@25
 
-main_else_body@21:
+else_body@21:
     // simplish/contract.py:58
     // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
     dig 4
@@ -351,9 +351,9 @@ main_else_body@21:
     swap
     concat
     bury 7
-    b main_after_if_else@22
+    b after_if_else@22
 
-main_else_body@23:
+else_body@23:
     // simplish/contract.py:61
     // msg = Bytes(b"not enough app args or foreign assets")
     pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
@@ -361,7 +361,7 @@ main_else_body@23:
     // simplish/contract.py:62
     // result = False
     intc_1 // 0
-    b main_after_if_else@25
+    b after_if_else@25
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:

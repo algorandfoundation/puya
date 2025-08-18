@@ -6,7 +6,7 @@ main:
     intcblock 0 1
     bytecblock "did_execute_b" "did_execute_a"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // conditional_execution/contract.py:6
     // self.did_execute_a = False
     bytec_1 // "did_execute_a"
@@ -18,7 +18,7 @@ main:
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // conditional_execution/contract.py:65
     // self.did_execute_a = True
     bytec_1 // "did_execute_a"
@@ -30,10 +30,10 @@ main_after_if_else@2:
     bytec_0 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bnz main_bool_false@10
+    bnz bool_false@10
     intc_1 // 1
 
-main_bool_merge@11:
+bool_merge@11:
     // conditional_execution/contract.py:59
     // assert condition
     assert
@@ -98,15 +98,15 @@ main_bool_merge@11:
     bytec_1 // "did_execute_a"
     app_global_get_ex
     assert // check self.did_execute_a exists
-    bnz main_bool_false@52
+    bnz bool_false@52
     intc_0 // 0
     bytec_0 // "did_execute_b"
     app_global_get_ex
     assert // check self.did_execute_b exists
-    bz main_bool_false@52
+    bz bool_false@52
     intc_1 // 1
 
-main_bool_merge@53:
+bool_merge@53:
     // conditional_execution/contract.py:59
     // assert condition
     assert
@@ -125,10 +125,10 @@ main_bool_merge@53:
     intc_1 // 1
     return
 
-main_bool_false@52:
+bool_false@52:
     intc_0 // 0
-    b main_bool_merge@53
+    b bool_merge@53
 
-main_bool_false@10:
+bool_false@10:
     intc_0 // 0
-    b main_bool_merge@11
+    b bool_merge@11

@@ -10,21 +10,21 @@ main:
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@14
+    bz create_NoOp@14
     pushbytess 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0
     match pay key asset_config asset_transfer asset_freeze application_call multiple_txns any_txn group_init
     err
 
-main_create_NoOp@14:
+create_NoOp@14:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@15
+    match create_route@15
     err
 
-main_create_route@15:
+create_route@15:
     // transaction/contract.py:12
     // @arc4.abimethod(create="require")
     intc_0 // 1

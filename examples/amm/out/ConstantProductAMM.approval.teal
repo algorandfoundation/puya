@@ -6,7 +6,7 @@ main:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     // amm/contract.py:32-33
     // # The asset id of asset A
     // self.asset_a = Asset()
@@ -38,11 +38,11 @@ main:
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@12
+    bz __algopy_default_create@12
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -53,7 +53,7 @@ main_after_if_else@2:
     match set_governor bootstrap mint burn swap
     err
 
-main___algopy_default_create@12:
+__algopy_default_create@12:
     txn OnCompletion
     !
     txn ApplicationID

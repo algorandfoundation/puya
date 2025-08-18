@@ -9,22 +9,22 @@ main:
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     pushbytess 0xbd6099e5 0x1658aa2f // method "register(string)void", method "close_out()void"
     txna ApplicationArgs 0
-    match main_register_route@4 main_close_out_route@5
+    match register_route@4 close_out_route@5
 
-main_switch_case_next@6:
+switch_case_next@6:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@10
+    bz create_NoOp@10
     pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
     txna ApplicationArgs 0
     match say_hello calculate
     err
 
-main_create_NoOp@10:
+create_NoOp@10:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     pushbytes 0x4c5c61ba // method "create()void"
@@ -32,7 +32,7 @@ main_create_NoOp@10:
     match create
     err
 
-main_close_out_route@5:
+close_out_route@5:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
@@ -43,7 +43,7 @@ main_close_out_route@5:
     assert // OnCompletion must be CloseOut && can only call when not creating
     b close_out
 
-main_register_route@4:
+register_route@4:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     intc_0 // 1

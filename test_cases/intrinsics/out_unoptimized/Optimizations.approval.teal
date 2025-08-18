@@ -5,21 +5,21 @@
 main:
     intcblock 1 0 8
     bytecblock 0x151f7c75 0x48656c6c6f20576f726c64
-    b main_block@0
+    b block@0
 
-main_block@0:
-    b main_block@1
+block@0:
+    b block@1
 
-main_block@1:
+block@1:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main___algopy_default_create@13
-    b main_abi_routing@2
+    bz __algopy_default_create@13
+    b abi_routing@2
 
-main_abi_routing@2:
+abi_routing@2:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
@@ -29,10 +29,10 @@ main_abi_routing@2:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz main_create_NoOp@11
-    b main_call_NoOp@3
+    bz create_NoOp@11
+    b call_NoOp@3
 
-main_call_NoOp@3:
+call_NoOp@3:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -42,57 +42,57 @@ main_call_NoOp@3:
     pushbytes 0xe6b8cd41 // method "keccak256()byte[]"
     pushbytes 0xb15dc12a // method "all(byte[])(byte[],byte[],byte[],byte[])"
     uncover 5
-    match main_sha256_route@4 main_sha3_256_route@5 main_sha512_256_route@6 main_keccak256_route@7 main_all_route@8
-    b main_switch_case_default@9
+    match sha256_route@4 sha3_256_route@5 sha512_256_route@6 keccak256_route@7 all_route@8
+    b switch_case_default@9
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
+switch_case_default@9:
+    b switch_case_next@10
 
-main_switch_case_next@10:
-    b main_after_if_else@12
+switch_case_next@10:
+    b after_if_else@12
 
-main_after_if_else@12:
-    b main_after_if_else@14
+after_if_else@12:
+    b after_if_else@14
 
-main_after_if_else@14:
+after_if_else@14:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     err
 
-main_all_route@8:
+all_route@8:
     // intrinsics/optimizations.py:21
     // @arc4.abimethod()
     callsub all
-    b main_switch_case_next@10
+    b switch_case_next@10
 
-main_keccak256_route@7:
+keccak256_route@7:
     // intrinsics/optimizations.py:17
     // @arc4.abimethod()
     callsub keccak256
-    b main_switch_case_next@10
+    b switch_case_next@10
 
-main_sha512_256_route@6:
+sha512_256_route@6:
     // intrinsics/optimizations.py:13
     // @arc4.abimethod()
     callsub sha512_256
-    b main_switch_case_next@10
+    b switch_case_next@10
 
-main_sha3_256_route@5:
+sha3_256_route@5:
     // intrinsics/optimizations.py:9
     // @arc4.abimethod()
     callsub sha3_256
-    b main_switch_case_next@10
+    b switch_case_next@10
 
-main_sha256_route@4:
+sha256_route@4:
     // intrinsics/optimizations.py:5
     // @arc4.abimethod()
     callsub sha256
-    b main_switch_case_next@10
+    b switch_case_next@10
 
-main_create_NoOp@11:
-    b main_after_if_else@12
+create_NoOp@11:
+    b after_if_else@12
 
-main___algopy_default_create@13:
+__algopy_default_create@13:
     txn OnCompletion
     intc_1 // NoOp
     ==
@@ -101,12 +101,12 @@ main___algopy_default_create@13:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@16
+    b block@16
 
-main_block@16:
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17
+block@16:
+    b after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17
 
-main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
+after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
     intc_0 // 1
     return
 

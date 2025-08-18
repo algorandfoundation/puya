@@ -1,25 +1,25 @@
 // Op                                                                             Stack (out)
 // test_cases.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         int 0                                                                     0
         v-store loop_counter%0#0
         // boolean_binary_ops/contract.py:40
         // for lhs in (True, False):
         int 1                                                                     1
         v-store lhs#0
-        b main_for_body@4
+        b for_body@4
 
-    main_for_body@4:
+    for_body@4:
         int 0                                                                     0
         v-store loop_counter%1#0
         // boolean_binary_ops/contract.py:41
         // for rhs in (True, False):
         int 1                                                                     1
         v-store rhs#0
-        b main_for_body@5
+        b for_body@5
 
-    main_for_body@5:
+    for_body@5:
         // boolean_binary_ops/contract.py:35
         // return Bytes(b"true" if x else b"false")
         byte 0x66616c7365                                                         0x66616c7365
@@ -66,9 +66,9 @@ subroutine main:
         //     rhs, b"rhs" + and_msg
         // )
         l-load lhs#0 0                                                            lhs#0
-        bz main_bool_false@8 ; b main_and_contd@6
+        bz bool_false@8 ; b and_contd@6
 
-    main_and_contd@6:
+    and_contd@6:
         // boolean_binary_ops/contract.py:44
         // rhs, b"rhs" + and_msg
         byte 0x726873                                                             0x726873
@@ -83,23 +83,23 @@ subroutine main:
         //     rhs, b"rhs" + and_msg
         // )
         v-load rhs#0                                                              rhs#0
-        bz main_bool_false@8 ; b main_bool_true@7
+        bz bool_false@8 ; b bool_true@7
 
-    main_bool_true@7:
+    bool_true@7:
         int 1                                                                     1
         l-store and_result%0#0 0                                                  and_result%0#0
         l-load and_result%0#0 0                                                   and_result%0#0
         v-store and_result#0
-        b main_bool_merge@9
+        b bool_merge@9
 
-    main_bool_false@8:
+    bool_false@8:
         int 0                                                                     0
         l-store and_result%0#0 0                                                  and_result%0#0
         l-load and_result%0#0 0                                                   and_result%0#0
         v-store and_result#0
-        b main_bool_merge@9
+        b bool_merge@9
 
-    main_bool_merge@9:
+    bool_merge@9:
         // boolean_binary_ops/contract.py:46
         // assert and_result == (lhs and rhs)
         v-load lhs#0                                                              lhs#0
@@ -135,9 +135,9 @@ subroutine main:
         //     rhs, b"rhs" + or_msg
         // )
         l-load lhs#0 0                                                            lhs#0
-        bz main_or_contd@10 ; b main_bool_true@11
+        bz or_contd@10 ; b bool_true@11
 
-    main_or_contd@10:
+    or_contd@10:
         // boolean_binary_ops/contract.py:49
         // rhs, b"rhs" + or_msg
         byte 0x726873                                                             0x726873
@@ -152,23 +152,23 @@ subroutine main:
         //     rhs, b"rhs" + or_msg
         // )
         v-load rhs#0                                                              rhs#0
-        bz main_bool_false@12 ; b main_bool_true@11
+        bz bool_false@12 ; b bool_true@11
 
-    main_bool_true@11:
+    bool_true@11:
         int 1                                                                     1
         l-store or_result%0#0 0                                                   or_result%0#0
         l-load or_result%0#0 0                                                    or_result%0#0
         v-store or_result#0
-        b main_bool_merge@13
+        b bool_merge@13
 
-    main_bool_false@12:
+    bool_false@12:
         int 0                                                                     0
         l-store or_result%0#0 0                                                   or_result%0#0
         l-load or_result%0#0 0                                                    or_result%0#0
         v-store or_result#0
-        b main_bool_merge@13
+        b bool_merge@13
 
-    main_bool_merge@13:
+    bool_merge@13:
         // boolean_binary_ops/contract.py:51
         // assert or_result == (lhs or rhs)
         v-load lhs#0                                                              lhs#0
@@ -182,62 +182,62 @@ subroutine main:
         // boolean_binary_ops/contract.py:41
         // for rhs in (True, False):
         v-load loop_counter%1#0                                                   loop_counter%1#0
-        bz main_for_header_1@15 ; b main_after_for@16
+        bz for_header_1@15 ; b after_for@16
 
-    main_for_header_1@15:
+    for_header_1@15:
         int 1                                                                     1
         v-store loop_counter%1#0
         // boolean_binary_ops/contract.py:41
         // for rhs in (True, False):
         int 0                                                                     0
         v-store rhs#0
-        b main_for_body@5
+        b for_body@5
 
-    main_after_for@16:
+    after_for@16:
         // boolean_binary_ops/contract.py:40
         // for lhs in (True, False):
         v-load loop_counter%0#0                                                   loop_counter%0#0
-        bz main_for_header_1@18 ; b main_after_for@19
+        bz for_header_1@18 ; b after_for@19
 
-    main_for_header_1@18:
+    for_header_1@18:
         int 1                                                                     1
         v-store loop_counter%0#0
         // boolean_binary_ops/contract.py:40
         // for lhs in (True, False):
         int 0                                                                     0
         v-store lhs#0
-        b main_for_body@4
+        b for_body@4
 
-    main_after_for@19:
+    after_for@19:
         int 0                                                                     0
         l-store item_index_internal%0#0 0                                         item_index_internal%0#0
         l-load item_index_internal%0#0 0                                          item_index_internal%0#0
         v-store idx#0
-        b main_for_header@68
+        b for_header@68
 
-    main_for_header@68:
+    for_header@68:
         // boolean_binary_ops/contract.py:85
         // for idx, b in uenumerate(Bytes(b"never seen") and bytes_to_iterate):
         v-load idx#0                                                              idx#0
         int 3                                                                     idx#0,3
         <                                                                         continue_looping%0#0
         l-load continue_looping%0#0 0                                             continue_looping%0#0
-        bz main_after_for@71 ; b main_for_body@69
+        bz after_for@71 ; b for_body@69
 
-    main_for_body@69:
+    for_body@69:
         v-load idx#0                                                              idx#0
         int 1                                                                     idx#0,1
         +                                                                         item_index_internal%0#0
         l-load item_index_internal%0#0 0                                          item_index_internal%0#0
         v-store idx#0
-        b main_for_header@68
+        b for_header@68
 
-    main_after_for@71:
+    after_for@71:
         int 0                                                                     0
         v-store start#0
-        b main_while_top@118
+        b while_top@118
 
-    main_while_top@118:
+    while_top@118:
         v-load start#0                                                            start#0
         int 4                                                                     start#0,4
         +                                                                         tmp%1#6
@@ -247,9 +247,9 @@ subroutine main:
         int 5                                                                     tmp%1#6,5
         <=                                                                        tmp%3#6
         l-load tmp%3#6 0                                                          tmp%3#6
-        bz main_after_while@122 ; b main_while_body@119
+        bz after_while@122 ; b while_body@119
 
-    main_while_body@119:
+    while_body@119:
         // boolean_binary_ops/contract.py:89
         // assert "ight" in (String("left") and String("right"))
         byte "right"                                                              "right"
@@ -262,34 +262,34 @@ subroutine main:
         l-load tmp%6#4 1                                                          "ight",tmp%6#4
         ==                                                                        tmp%7#4
         l-load tmp%7#4 0                                                          tmp%7#4
-        bz main_after_if_else@121 ; b main_if_body@120
+        bz after_if_else@121 ; b if_body@120
 
-    main_if_body@120:
+    if_body@120:
         int 1                                                                     1
         l-store _puya_lib.bytes_.is_substring%0#0 0                               _puya_lib.bytes_.is_substring%0#0
         l-load _puya_lib.bytes_.is_substring%0#0 0                                _puya_lib.bytes_.is_substring%0#0
         v-store tmp%52#0
         // boolean_binary_ops/contract.py:89
         // assert "ight" in (String("left") and String("right"))
-        b main_after_inlined__puya_lib.bytes_.is_substring@123
+        b after_inlined__puya_lib.bytes_.is_substring@123
 
-    main_after_if_else@121:
+    after_if_else@121:
         v-load start#0                                                            start#0
         int 1                                                                     start#0,1
         +                                                                         start#0
         v-store start#0
-        b main_while_top@118
+        b while_top@118
 
-    main_after_while@122:
+    after_while@122:
         int 0                                                                     0
         l-store _puya_lib.bytes_.is_substring%0#0 0                               _puya_lib.bytes_.is_substring%0#0
         l-load _puya_lib.bytes_.is_substring%0#0 0                                _puya_lib.bytes_.is_substring%0#0
         v-store tmp%52#0
         // boolean_binary_ops/contract.py:89
         // assert "ight" in (String("left") and String("right"))
-        b main_after_inlined__puya_lib.bytes_.is_substring@123
+        b after_inlined__puya_lib.bytes_.is_substring@123
 
-    main_after_inlined__puya_lib.bytes_.is_substring@123:
+    after_inlined__puya_lib.bytes_.is_substring@123:
         // boolean_binary_ops/contract.py:89
         // assert "ight" in (String("left") and String("right"))
         v-load tmp%52#0                                                           tmp%52#0

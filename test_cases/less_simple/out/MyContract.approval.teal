@@ -11,31 +11,31 @@ main:
     // product_of_odds = UInt64(0)
     dup
 
-main_while_top@1:
+while_top@1:
     // less_simple/contract.py:12
     // while a < 100:
     dig 2
     pushint 100 // 100
     <
-    bz main_after_while@13
+    bz after_while@13
     // less_simple/contract.py:13
     // if a % 5 == 0:
     dig 2
     pushint 5 // 5
     %
-    bz main_while_top@1
+    bz while_top@1
     // less_simple/contract.py:15
     // if not a % 21:
     dig 2
     pushint 21 // 21
     %
-    bz main_after_while@13
+    bz after_while@13
     // less_simple/contract.py:17
     // if a % 2 == 0:
     dig 2
     pushint 2 // 2
     %
-    bnz main_else_body@8
+    bnz else_body@8
     // less_simple/contract.py:18
     // sum_of_evens += a
     dig 1
@@ -43,34 +43,34 @@ main_while_top@1:
     +
     bury 2
 
-main_after_if_else@12:
+after_if_else@12:
     // less_simple/contract.py:24
     // a += 1
     dig 2
     pushint 1 // 1
     +
     bury 3
-    b main_while_top@1
+    b while_top@1
 
-main_else_body@8:
+else_body@8:
     // less_simple/contract.py:20
     // if product_of_odds == 0:
     dup
-    bnz main_else_body@10
+    bnz else_body@10
     dig 2
     bury 1
-    b main_after_if_else@12
+    b after_if_else@12
 
-main_else_body@10:
+else_body@10:
     // less_simple/contract.py:23
     // product_of_odds *= a
     dup
     dig 3
     *
     bury 1
-    b main_after_if_else@12
+    b after_if_else@12
 
-main_after_while@13:
+after_while@13:
     // less_simple/contract.py:25
     // return product_of_odds - sum_of_evens
     dup

@@ -1,7 +1,7 @@
 // Op                                                                             Stack (out)
 // examples.calculator.contract.MyContract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    block@0:
         // calculator/contract.py:20
         // num_args = Txn.num_app_args
         txn NumAppArgs                                                            num_args#0
@@ -9,9 +9,9 @@ subroutine main:
         // calculator/contract.py:21
         // if num_args == 0:
         v-load num_args#0                                                         num_args#0
-        bz main_if_body@1 ; b main_else_body@2
+        bz if_body@1 ; b else_body@2
 
-    main_if_body@1:
+    if_body@1:
         // calculator/contract.py:22
         // a = UInt64(0)
         int 0                                                                     0
@@ -37,9 +37,9 @@ subroutine main:
         // log(b)
         v-load tmp%2#0                                                            tmp%2#0
         log
-        b main_after_if_else@3
+        b after_if_else@3
 
-    main_else_body@2:
+    else_body@2:
         // calculator/contract.py:28
         // assert num_args == 3, "Expected 3 args"
         v-load num_args#0                                                         num_args#0
@@ -83,9 +83,9 @@ subroutine main:
         v-load b_bytes#0                                                          b_bytes#0
         btoi                                                                      b#0
         v-store b#0
-        b main_after_if_else@3
+        b after_if_else@3
 
-    main_after_if_else@3:
+    after_if_else@3:
         // calculator/contract.py:58
         // if maybe_action == ADD:
         v-load action#0                                                           action#0
@@ -93,9 +93,9 @@ subroutine main:
         ==                                                                        tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                            tmp%0#1
-        bz main_else_body@6 ; b main_if_body@5
+        bz else_body@6 ; b if_body@5
 
-    main_if_body@5:
+    if_body@5:
         // calculator/contract.py:71
         // return a + b
         v-load a#0                                                                a#0
@@ -106,9 +106,9 @@ subroutine main:
         v-store result#0
         // calculator/contract.py:38
         // result = self.do_calc(action, a, b)
-        b main_after_inlined_examples.calculator.contract.MyContract.do_calc@13
+        b after_inlined_examples.calculator.contract.MyContract.do_calc@13
 
-    main_else_body@6:
+    else_body@6:
         // calculator/contract.py:60
         // elif maybe_action == SUB:
         v-load action#0                                                           action#0
@@ -116,9 +116,9 @@ subroutine main:
         ==                                                                        tmp%2#1
         v-store tmp%2#1
         v-load tmp%2#1                                                            tmp%2#1
-        bz main_else_body@8 ; b main_if_body@7
+        bz else_body@8 ; b if_body@7
 
-    main_if_body@7:
+    if_body@7:
         // calculator/contract.py:75
         // return a - b
         v-load a#0                                                                a#0
@@ -129,9 +129,9 @@ subroutine main:
         v-store result#0
         // calculator/contract.py:38
         // result = self.do_calc(action, a, b)
-        b main_after_inlined_examples.calculator.contract.MyContract.do_calc@13
+        b after_inlined_examples.calculator.contract.MyContract.do_calc@13
 
-    main_else_body@8:
+    else_body@8:
         // calculator/contract.py:62
         // elif maybe_action == MUL:
         v-load action#0                                                           action#0
@@ -139,9 +139,9 @@ subroutine main:
         ==                                                                        tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                            tmp%4#0
-        bz main_else_body@10 ; b main_if_body@9
+        bz else_body@10 ; b if_body@9
 
-    main_if_body@9:
+    if_body@9:
         // calculator/contract.py:79
         // return a * b
         v-load a#0                                                                a#0
@@ -152,9 +152,9 @@ subroutine main:
         v-store result#0
         // calculator/contract.py:38
         // result = self.do_calc(action, a, b)
-        b main_after_inlined_examples.calculator.contract.MyContract.do_calc@13
+        b after_inlined_examples.calculator.contract.MyContract.do_calc@13
 
-    main_else_body@10:
+    else_body@10:
         // calculator/contract.py:64
         // elif maybe_action == DIV:
         v-load action#0                                                           action#0
@@ -173,9 +173,9 @@ subroutine main:
         v-store result#0
         // calculator/contract.py:38
         // result = self.do_calc(action, a, b)
-        b main_after_inlined_examples.calculator.contract.MyContract.do_calc@13
+        b after_inlined_examples.calculator.contract.MyContract.do_calc@13
 
-    main_after_inlined_examples.calculator.contract.MyContract.do_calc@13:
+    after_inlined_examples.calculator.contract.MyContract.do_calc@13:
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
         v-load a#0                                                                a#0
@@ -184,9 +184,9 @@ subroutine main:
         // calculator/contract.py:45
         // if action == ADD:
         v-load tmp%0#1                                                            tmp%0#1
-        bz main_else_body@16 ; b main_if_body@15
+        bz else_body@16 ; b if_body@15
 
-    main_if_body@15:
+    if_body@15:
         // calculator/contract.py:46
         // return Bytes(b" + ")
         byte 0x202b20                                                             0x202b20
@@ -195,9 +195,9 @@ subroutine main:
         v-store tmp%13#0
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-        b main_after_inlined_examples.calculator.contract.MyContract.op@23
+        b after_inlined_examples.calculator.contract.MyContract.op@23
 
-    main_else_body@16:
+    else_body@16:
         // calculator/contract.py:47
         // elif action == SUB:
         v-load action#0                                                           action#0
@@ -205,9 +205,9 @@ subroutine main:
         ==                                                                        tmp%1#2
         v-store tmp%1#2
         v-load tmp%1#2                                                            tmp%1#2
-        bz main_else_body@18 ; b main_if_body@17
+        bz else_body@18 ; b if_body@17
 
-    main_if_body@17:
+    if_body@17:
         // calculator/contract.py:48
         // return Bytes(b" - ")
         byte 0x202d20                                                             0x202d20
@@ -216,9 +216,9 @@ subroutine main:
         v-store tmp%13#0
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-        b main_after_inlined_examples.calculator.contract.MyContract.op@23
+        b after_inlined_examples.calculator.contract.MyContract.op@23
 
-    main_else_body@18:
+    else_body@18:
         // calculator/contract.py:49
         // elif action == MUL:
         v-load action#0                                                           action#0
@@ -226,9 +226,9 @@ subroutine main:
         ==                                                                        tmp%2#1
         v-store tmp%2#1
         v-load tmp%2#1                                                            tmp%2#1
-        bz main_else_body@20 ; b main_if_body@19
+        bz else_body@20 ; b if_body@19
 
-    main_if_body@19:
+    if_body@19:
         // calculator/contract.py:50
         // return Bytes(b" * ")
         byte 0x202a20                                                             0x202a20
@@ -237,9 +237,9 @@ subroutine main:
         v-store tmp%13#0
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-        b main_after_inlined_examples.calculator.contract.MyContract.op@23
+        b after_inlined_examples.calculator.contract.MyContract.op@23
 
-    main_else_body@20:
+    else_body@20:
         // calculator/contract.py:51
         // elif action == DIV:
         v-load action#0                                                           action#0
@@ -247,9 +247,9 @@ subroutine main:
         ==                                                                        tmp%3#2
         v-store tmp%3#2
         v-load tmp%3#2                                                            tmp%3#2
-        bz main_else_body@22 ; b main_if_body@21
+        bz else_body@22 ; b if_body@21
 
-    main_if_body@21:
+    if_body@21:
         // calculator/contract.py:52
         // return Bytes(b" // ")
         byte 0x202f2f20                                                           0x202f2f20
@@ -258,9 +258,9 @@ subroutine main:
         v-store tmp%13#0
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-        b main_after_inlined_examples.calculator.contract.MyContract.op@23
+        b after_inlined_examples.calculator.contract.MyContract.op@23
 
-    main_else_body@22:
+    else_body@22:
         // calculator/contract.py:54
         // return Bytes(b" - ")
         byte 0x202d20                                                             0x202d20
@@ -269,9 +269,9 @@ subroutine main:
         v-store tmp%13#0
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
-        b main_after_inlined_examples.calculator.contract.MyContract.op@23
+        b after_inlined_examples.calculator.contract.MyContract.op@23
 
-    main_after_inlined_examples.calculator.contract.MyContract.op@23:
+    after_inlined_examples.calculator.contract.MyContract.op@23:
         // calculator/contract.py:39
         // result_b = itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)
         v-load tmp%12#0                                                           tmp%12#0

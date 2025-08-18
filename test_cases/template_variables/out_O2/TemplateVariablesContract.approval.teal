@@ -6,7 +6,7 @@ main:
     intcblock 64 1 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
     txn NumAppArgs
-    bz main_bare_routing@10
+    bz bare_routing@10
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -14,12 +14,12 @@ main:
     assert
     pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
     txna ApplicationArgs 0
-    match main_get_bytes_route@4 main_get_big_uint_route@5
+    match get_bytes_route@4 get_big_uint_route@5
 
-main_after_if_else@16:
+after_if_else@16:
     err
 
-main_get_big_uint_route@5:
+get_big_uint_route@5:
     bytec_1 // TMPL_SOME_BIG_UINT
     dup
     len
@@ -36,7 +36,7 @@ main_get_big_uint_route@5:
     intc_1 // 1
     return
 
-main_get_bytes_route@4:
+get_bytes_route@4:
     bytec_2 // TMPL_SOME_BYTES
     dup
     len
@@ -51,24 +51,24 @@ main_get_bytes_route@4:
     intc_1 // 1
     return
 
-main_bare_routing@10:
+bare_routing@10:
     txn OnCompletion
-    switch main___algopy_default_create@11 main_after_if_else@16 main_after_if_else@16 main_after_if_else@16 main_on_update@12 main_on_delete@13
+    switch __algopy_default_create@11 after_if_else@16 after_if_else@16 after_if_else@16 on_update@12 on_delete@13
     err
 
-main_on_delete@13:
+on_delete@13:
     txn ApplicationID
     assert // can only call when not creating
     intc_2 // TMPL_DELETABLE
     return
 
-main_on_update@12:
+on_update@12:
     txn ApplicationID
     assert // can only call when not creating
     intc_3 // TMPL_UPDATABLE
     return
 
-main___algopy_default_create@11:
+__algopy_default_create@11:
     txn ApplicationID
     !
     return // on error: can only call when creating

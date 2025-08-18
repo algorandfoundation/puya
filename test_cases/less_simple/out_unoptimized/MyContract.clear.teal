@@ -4,9 +4,9 @@
 // test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
 main:
     pushbytes ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // less_simple/contract.py:28
     // sum_of_squares = UInt64(0)
     pushint 0 // 0
@@ -15,9 +15,9 @@ main_block@0:
     pushint 1 // 1
     assert // Step cannot be zero
     pushint 1 // 1
-    b main_for_header@1
+    b for_header@1
 
-main_for_header@1:
+for_header@1:
     // less_simple/contract.py:29
     // for i in urange(1, 100):
     dup
@@ -25,10 +25,10 @@ main_for_header@1:
     <
     dig 2
     bury 4
-    bz main_after_for@8
-    b main_for_body@2
+    bz after_for@8
+    b for_body@2
 
-main_for_body@2:
+for_body@2:
     // less_simple/contract.py:30
     // square_root = op.sqrt(i)
     dupn 2
@@ -40,18 +40,18 @@ main_for_body@2:
     ==
     dig 2
     bury 4
-    bz main_after_if_else@4
-    b main_if_body@3
+    bz after_if_else@4
+    b if_body@3
 
-main_if_body@3:
+if_body@3:
     // less_simple/contract.py:32
     // sum_of_squares += i
     dup2
     +
     bury 3
-    b main_after_if_else@4
+    b after_if_else@4
 
-main_after_if_else@4:
+after_if_else@4:
     dig 2
     dup
     bury 3
@@ -59,30 +59,30 @@ main_after_if_else@4:
     // if sum_of_squares > 200:
     pushint 200 // 200
     >
-    bz main_after_if_else@6
-    b main_if_body@5
+    bz after_if_else@6
+    b if_body@5
 
-main_if_body@5:
+if_body@5:
     dig 1
     bury 3
     // less_simple/contract.py:34
     // break
-    b main_after_for@8
+    b after_for@8
 
-main_after_for@8:
+after_for@8:
     dig 2
     // less_simple/contract.py:35
     // return sum_of_squares
     return
 
-main_after_if_else@6:
-    b main_for_footer@7
+after_if_else@6:
+    b for_footer@7
 
-main_for_footer@7:
+for_footer@7:
     // less_simple/contract.py:29
     // for i in urange(1, 100):
     dup
     pushint 1 // 1
     +
     bury 1
-    b main_for_header@1
+    b for_header@1

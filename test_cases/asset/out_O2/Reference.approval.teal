@@ -6,20 +6,20 @@ main:
     intcblock 0 1
     bytecblock "asa"
     txn ApplicationID
-    bnz main_after_if_else@2
+    bnz after_if_else@2
     bytec_0 // "asa"
     intc_0 // 0
     app_global_put
 
-main_after_if_else@2:
+after_if_else@2:
     txn NumAppArgs
     intc_1 // 1
     ==
-    bz main_after_if_else@11
+    bz after_if_else@11
     txna ApplicationArgs 0
     pushbytes 0x6f70745f696e
     ==
-    bz main_else_body@6
+    bz else_body@6
     txna Assets 0
     txn Sender
     global CreatorAddress
@@ -44,11 +44,11 @@ main_after_if_else@2:
     itxn_field XferAsset
     itxn_submit
 
-main_after_if_else@11:
+after_if_else@11:
     intc_1 // 1
     return
 
-main_else_body@6:
+else_body@6:
     txna ApplicationArgs 0
     pushbytes 0x69735f6f707465645f696e
     ==
@@ -137,4 +137,4 @@ main_else_body@6:
     asset_holding_get AssetBalance
     bury 1
     assert // asset opted in
-    b main_after_if_else@11
+    b after_if_else@11

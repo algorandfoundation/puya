@@ -6,9 +6,9 @@ main:
     intcblock 1 2 3 4
     pushbytes ""
     pushbytes ""
-    b main_block@0
+    b block@0
 
-main_block@0:
+block@0:
     // ssa/contract.py:8
     // a = UInt64(1) + 2
     intc_0 // 1
@@ -29,18 +29,18 @@ main_block@0:
     // ssa/contract.py:12
     // b = a + b
     +
-    b main_while_top@1
+    b while_top@1
 
-main_while_top@1:
+while_top@1:
     // ssa/contract.py:14
     // while a < UInt64(5):
     dig 1
     pushint 5 // 5
     <
-    bz main_after_while@3
-    b main_while_body@2
+    bz after_while@3
+    b while_body@2
 
-main_while_body@2:
+while_body@2:
     // ssa/contract.py:15
     // b = b + a
     dup
@@ -54,27 +54,27 @@ main_while_body@2:
     intc_0 // 1
     +
     bury 2
-    b main_while_top@1
+    b while_top@1
 
-main_after_while@3:
+after_while@3:
     // ssa/contract.py:18
     // for i in urange(5):
     intc_0 // 1
     assert // Step cannot be zero
     pushint 0 // 0
     bury 3
-    b main_for_header@4
+    b for_header@4
 
-main_for_header@4:
+for_header@4:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
     pushint 5 // 5
     <
-    bz main_after_for@7
-    b main_for_body@5
+    bz after_for@7
+    b for_body@5
 
-main_for_body@5:
+for_body@5:
     // ssa/contract.py:19
     // b = b + a
     dup
@@ -88,35 +88,35 @@ main_for_body@5:
     dig 3
     +
     bury 2
-    b main_for_footer@6
+    b for_footer@6
 
-main_for_footer@6:
+for_footer@6:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
     intc_0 // 1
     +
     bury 3
-    b main_for_header@4
+    b for_header@4
 
-main_after_for@7:
+after_for@7:
     // ssa/contract.py:22
     // if a < b:
     dup2
     <
-    bz main_else_body@15
-    b main_if_body@8
+    bz else_body@15
+    b if_body@8
 
-main_if_body@8:
+if_body@8:
     // ssa/contract.py:23
     // if b < 2:
     dup
     intc_1 // 2
     <
-    bz main_else_body@10
-    b main_if_body@9
+    bz else_body@10
+    b if_body@9
 
-main_if_body@9:
+if_body@9:
     // ssa/contract.py:24
     // b = 3 + UInt64(2)
     intc_2 // 3
@@ -127,12 +127,12 @@ main_if_body@9:
     dig 2
     +
     bury 4
-    b main_after_if_else@14
+    b after_if_else@14
 
-main_after_if_else@14:
-    b main_after_if_else@19
+after_if_else@14:
+    b after_if_else@19
 
-main_after_if_else@19:
+after_if_else@19:
     // ssa/contract.py:36
     // c = c + one_hundred(c)
     dig 3
@@ -165,7 +165,7 @@ main_after_if_else@19:
     // return c
     return
 
-main_else_body@10:
+else_body@10:
     // ssa/contract.py:27
     // b = 2 * a
     intc_1 // 2
@@ -177,52 +177,52 @@ main_else_body@10:
     *
     pushint 0 // 0
     !=
-    bz main_else_body@12
-    b main_if_body@11
+    bz else_body@12
+    b if_body@11
 
-main_if_body@11:
+if_body@11:
     // ssa/contract.py:29
     // c = UInt64(2)
     intc_1 // 2
     bury 4
-    b main_after_if_else@13
+    b after_if_else@13
 
-main_after_if_else@13:
-    b main_after_if_else@14
+after_if_else@13:
+    b after_if_else@14
 
-main_else_body@12:
+else_body@12:
     // ssa/contract.py:31
     // return UInt64(3)
     intc_2 // 3
     return
 
-main_else_body@15:
+else_body@15:
     // ssa/contract.py:32
     // elif b == a:
     dup
     dig 2
     ==
-    bz main_else_body@17
-    b main_if_body@16
+    bz else_body@17
+    b if_body@16
 
-main_if_body@16:
+if_body@16:
     // ssa/contract.py:33
     // c = a * b
     dup2
     *
     bury 4
-    b main_after_if_else@18
+    b after_if_else@18
 
-main_after_if_else@18:
-    b main_after_if_else@19
+after_if_else@18:
+    b after_if_else@19
 
-main_else_body@17:
+else_body@17:
     // ssa/contract.py:35
     // c = a - b
     dup2
     -
     bury 4
-    b main_after_if_else@18
+    b after_if_else@18
 
 
 // test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:

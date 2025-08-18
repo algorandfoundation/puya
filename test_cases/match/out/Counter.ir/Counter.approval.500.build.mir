@@ -1,24 +1,24 @@
-// Op                                                                            Stack (out)
+// Op                                                                       Stack (out)
 // test_cases.match.counter.Counter.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
-        txn ApplicationID                                                        tmp%0#0
+    block@0:
+        txn ApplicationID                                                   tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                                                           tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+        v-load tmp%0#0                                                      tmp%0#0
+        bz call___init__@1 ; b after_if_else@2
 
-    main_call___init__@1:
+    call___init__@1:
         // match/counter.py:6
         // self.counter = algopy.UInt64(0)
-        byte "counter"                                                           "counter"
-        int 0                                                                    "counter",0
+        byte "counter"                                                      "counter"
+        int 0                                                               "counter",0
         app_global_put
-        b main_after_if_else@2
+        b after_if_else@2
 
-    main_after_if_else@2:
+    after_if_else@2:
         // match/counter.py:9
         // match algopy.Txn.on_completion:
-        txn OnCompletion                                                         tmp%0#1
+        txn OnCompletion                                                    tmp%0#1
         v-store tmp%0#1
         // match/counter.py:9-15
         // match algopy.Txn.on_completion:
@@ -28,45 +28,45 @@ subroutine main:
         //     case _:
         //         # reject all OnCompletionAction's other than NoOp
         //         return False
-        v-load tmp%0#1                                                           tmp%0#1
-        bz main_switch_case_0@4 ; b main_switch_case_default@5
+        v-load tmp%0#1                                                      tmp%0#1
+        bz switch_case_0@4 ; b switch_case_default@5
 
-    main_switch_case_0@4:
+    switch_case_0@4:
         // match/counter.py:22
         // self.counter += 1
-        int 0                                                                    0
-        byte "counter"                                                           0,"counter"
-        app_global_get_ex                                                        maybe_value%0#0,maybe_exists%0#0
-        v-store maybe_exists%0#0                                                 maybe_value%0#0
+        int 0                                                               0
+        byte "counter"                                                      0,"counter"
+        app_global_get_ex                                                   maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                            maybe_value%0#0
         v-store maybe_value%0#0
-        v-load maybe_exists%0#0                                                  maybe_exists%0#0
+        v-load maybe_exists%0#0                                             maybe_exists%0#0
         assert // check self.counter exists
-        v-load maybe_value%0#0                                                   maybe_value%0#0
-        int 1                                                                    maybe_value%0#0,1
-        +                                                                        tmp%0#1
+        v-load maybe_value%0#0                                              maybe_value%0#0
+        int 1                                                               maybe_value%0#0,1
+        +                                                                   tmp%0#1
         v-store tmp%0#1
-        byte "counter"                                                           "counter"
-        v-load tmp%0#1                                                           "counter",tmp%0#1
+        byte "counter"                                                      "counter"
+        v-load tmp%0#1                                                      "counter",tmp%0#1
         app_global_put
         // match/counter.py:12
         // return True
-        int 1                                                                    1
+        int 1                                                               1
         v-store test_cases.match.counter.Counter.approval_program%0#0
-        v-load test_cases.match.counter.Counter.approval_program%0#0             test_cases.match.counter.Counter.approval_program%0#0
+        v-load test_cases.match.counter.Counter.approval_program%0#0        test_cases.match.counter.Counter.approval_program%0#0
         v-store tmp%1#0
-        b main_after_inlined_test_cases.match.counter.Counter.approval_program@6
+        b after_inlined_test_cases.match.counter.Counter.approval_program@6
 
-    main_switch_case_default@5:
+    switch_case_default@5:
         // match/counter.py:15
         // return False
-        int 0                                                                    0
+        int 0                                                               0
         v-store test_cases.match.counter.Counter.approval_program%0#0
-        v-load test_cases.match.counter.Counter.approval_program%0#0             test_cases.match.counter.Counter.approval_program%0#0
+        v-load test_cases.match.counter.Counter.approval_program%0#0        test_cases.match.counter.Counter.approval_program%0#0
         v-store tmp%1#0
-        b main_after_inlined_test_cases.match.counter.Counter.approval_program@6
+        b after_inlined_test_cases.match.counter.Counter.approval_program@6
 
-    main_after_inlined_test_cases.match.counter.Counter.approval_program@6:
-        v-load tmp%1#0                                                           tmp%1#0
+    after_inlined_test_cases.match.counter.Counter.approval_program@6:
+        v-load tmp%1#0                                                      tmp%1#0
         return
 
 
