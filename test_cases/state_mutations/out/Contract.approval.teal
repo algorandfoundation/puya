@@ -7,30 +7,25 @@ main:
     bytecblock "box" "glob" "loc" 0x0000 "map" 0x00020000000000000001000a000362617a 0x00086d6f646966696564
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
-    txn NumAppArgs
-    bz bare_routing@9
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
-    pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
-    txna ApplicationArgs 0
-    match append modify get
-    err
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-bare_routing@9:
+*NOT_IMPLEMENTED:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
-    txn OnCompletion
-    switch __algopy_default_create@10 opt_in@11
-    err
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-opt_in@11:
-    // state_mutations/contract.py:29
-    // @arc4.baremethod(allow_actions=["OptIn"])
-    txn ApplicationID
-    assert // can only call when not creating
+call_OptIn:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call OptIn
     // state_mutations/contract.py:31
     // self.glob.value = MyArray()
     bytec_1 // "glob"
@@ -77,10 +72,20 @@ opt_in@11:
     intc_1 // 1
     return
 
-__algopy_default_create@10:
-    txn ApplicationID
+create_NoOp:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
     !
-    return // on error: can only call when creating
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
+    pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
+    txna ApplicationArgs 0
+    match append modify get
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

@@ -6,53 +6,51 @@ main test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketpl
         (log "init")
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@16
-    block@4: // abi_routing_L37
+        let tmp%0#2: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#2)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "getListingsMbr()uint64" => block@6, method "allowAsset(pay,uint64)void" => block@7, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@8, method "deposit(axfer,uint64)void" => block@9, method "setPrice(uint64,uint64,uint64)void" => block@10, method "buy(address,uint64,uint64,pay,uint64)void" => block@11, method "withdraw(uint64,uint64)void" => block@12, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@13, method "acceptBid(uint64,uint64)void" => block@14, * => block@15}
-    block@6: // getListingsMbr_route_L78
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@15, block@16, block@16, block@16, block@16, block@16, block@16, block@16, block@16, block@16, block@16][tmp%4#0] else goto block@16
+    block@4: // switch_case_0_L37
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "getListingsMbr()uint64" => block@5, method "allowAsset(pay,uint64)void" => block@6, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@7, method "deposit(axfer,uint64)void" => block@8, method "setPrice(uint64,uint64,uint64)void" => block@9, method "buy(address,uint64,uint64,pay,uint64)void" => block@10, method "withdraw(uint64,uint64)void" => block@11, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@12, method "acceptBid(uint64,uint64)void" => block@13, * => block@14}
+    block@5: // getListingsMbr_route_L78
         (log 0x151f7c75000000000000c544)
         exit 1u
-    block@7: // allowAsset_route_L82
+    block@6: // allowAsset_route_L82
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
-        goto block@15
-    block@8: // firstDeposit_route_L93
+        goto block@14
+    block@7: // firstDeposit_route_L93
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]()
-        goto block@15
-    block@9: // deposit_route_L120
+        goto block@14
+    block@8: // deposit_route_L120
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]()
-        goto block@15
-    block@10: // setPrice_route_L137
+        goto block@14
+    block@9: // setPrice_route_L137
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]()
-        goto block@15
-    block@11: // buy_route_L150
+        goto block@14
+    block@10: // buy_route_L150
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]()
-        goto block@15
-    block@12: // withdraw_route_L181
+        goto block@14
+    block@11: // withdraw_route_L181
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]()
-        goto block@15
-    block@13: // bid_route_L200
+        goto block@14
+    block@12: // bid_route_L200
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]()
-        goto block@15
-    block@14: // acceptBid_route_L236
+        goto block@14
+    block@13: // acceptBid_route_L236
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]()
-        goto block@15
-    block@15: // after_if_else_L37
-        fail
-    block@16: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@14
+    block@14: // switch_case_next_L37
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@15: // switch_case_1_L37
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@16: // switch_case_default_L37
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]() -> void:
     block@0: // L82

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 1 0 2 8
     bytecblock ""
     b block@0
 
@@ -13,26 +13,108 @@ block@0:
 block@1:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@11
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    intc_2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    intc_3 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@9
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@10
+    b __algopy_default_create@9
+
+__algopy_default_create@9:
+    b block@23
+
+block@23:
+    b after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@24
+
+after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@24:
+    intc_0 // 1
+    return
+
+else_body@10:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     txna ApplicationArgs 0
@@ -40,61 +122,34 @@ call_NoOp@3:
     pushbytes 0xbd4b223f // method "umm2()void"
     pushbytes 0x847f775f // method "calculate(uint64[][],uint64)void"
     uncover 3
-    match umm_route@4 umm2_route@5 calculate_route@6
-    b switch_case_default@7
+    match umm_route@3 umm2_route@4 calculate_route@5
+    b switch_case_default@6
 
-switch_case_default@7:
-    b switch_case_next@8
+switch_case_default@6:
+    b switch_case_next@7
 
-switch_case_next@8:
-    b after_if_else@10
-
-after_if_else@10:
-    b after_if_else@12
-
-after_if_else@12:
+switch_case_next@7:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-calculate_route@6:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
+calculate_route@5:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
     callsub calculate
-    b switch_case_next@8
+    b switch_case_next@7
 
-umm2_route@5:
-    // regression_tests/leftover_branch.py:18
-    // @arc4.abimethod
+umm2_route@4:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
     callsub umm2
-    b switch_case_next@8
+    b switch_case_next@7
 
-umm_route@4:
-    // regression_tests/leftover_branch.py:5
-    // @arc4.abimethod
+umm_route@3:
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
     callsub umm
-    b switch_case_next@8
-
-create_NoOp@9:
-    b after_if_else@10
-
-__algopy_default_create@11:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@14
-
-block@14:
-    b after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@15
-
-after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create@15:
-    intc_1 // 1
-    return
+    b switch_case_next@7
 
 
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:
@@ -104,7 +159,7 @@ hmm:
 hmm_block@0:
     // regression_tests/leftover_branch.py:55
     // return False
-    intc_0 // 0
+    intc_1 // 0
     retsub
 
 
@@ -115,7 +170,7 @@ hmm_uint64:
 hmm_uint64_block@0:
     // regression_tests/leftover_branch.py:60
     // return UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     retsub
 
 
@@ -132,7 +187,7 @@ umm_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -144,7 +199,7 @@ umm2_block@0:
     // regression_tests/leftover_branch.py:18
     // @arc4.abimethod
     callsub test_cases.regression_tests.leftover_branch.BranchElimination.umm2
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -158,7 +213,7 @@ calculate_block@0:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     callsub test_cases.regression_tests.leftover_branch.BranchElimination.calculate
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -176,7 +231,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.umm:
 test_cases.regression_tests.leftover_branch.BranchElimination.umm_block@0:
     // regression_tests/leftover_branch.py:7
     // ahuh = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1
 
 test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1:
@@ -184,7 +239,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_top@1:
     frame_bury 1
     // regression_tests/leftover_branch.py:8
     // while True:
-    intc_1 // 1
+    intc_0 // 1
     bz test_cases.regression_tests.leftover_branch.BranchElimination.umm_after_while@15
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_body@2
 
@@ -193,9 +248,9 @@ test_cases.regression_tests.leftover_branch.BranchElimination.umm_while_body@2:
     // for _i in urange(hmm_uint64()):
     callsub hmm_uint64
     frame_bury 2
-    intc_1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     frame_bury 0
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3
 
@@ -259,7 +314,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_footer@11:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     frame_dig 0
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 0
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3
@@ -301,13 +356,13 @@ test_cases.regression_tests.leftover_branch.BranchElimination.umm2:
 test_cases.regression_tests.leftover_branch.BranchElimination.umm2_block@0:
     // regression_tests/leftover_branch.py:20
     // ahuh = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_top@1
 
 test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_top@1:
     // regression_tests/leftover_branch.py:21
     // while True:
-    intc_1 // 1
+    intc_0 // 1
     bz test_cases.regression_tests.leftover_branch.BranchElimination.umm2_after_while@11
     b test_cases.regression_tests.leftover_branch.BranchElimination.umm2_while_body@2
 
@@ -384,8 +439,8 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate:
     //     threshold: arc4.UInt64,
     // ) -> None:
     proto 2 0
-    intc_0 // 0
-    intc_0 // 0
+    intc_1 // 0
+    intc_1 // 0
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
@@ -396,18 +451,18 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate:
 test_cases.regression_tests.leftover_branch.BranchElimination.calculate_block@0:
     // regression_tests/leftover_branch.py:35
     // total = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     // regression_tests/leftover_branch.py:36
     // num_boosts = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig -2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1
 
 test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1:
@@ -429,7 +484,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body
     uncover 2
     substring3
     frame_dig -2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     frame_dig 10
     dup
@@ -456,19 +511,19 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body
     // regression_tests/leftover_branch.py:40
     // last_inner_list_index = inner_list.length - 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 1
+    intc_0 // 1
     -
     frame_bury 3
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     frame_bury 5
-    intc_1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     frame_bury 2
     b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@3
 
@@ -528,14 +583,14 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@
     // regression_tests/leftover_branch.py:46
     // total += 1
     frame_dig 7
-    intc_1 // 1
+    intc_0 // 1
     +
     dup
     frame_bury 7
     // regression_tests/leftover_branch.py:47
     // next_value = inner_list[j + 1]
     frame_dig 2
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_dig 0
     dup
@@ -569,7 +624,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@
     // regression_tests/leftover_branch.py:50
     // num_boosts += 1
     frame_dig 8
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 4
     frame_bury 6
@@ -602,7 +657,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_foot
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     frame_dig 2
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 2
     b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@3
@@ -614,7 +669,7 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_foot
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig 10
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 10
     b test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_header@1

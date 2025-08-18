@@ -6,25 +6,33 @@ main:
     bytecblock 0x010000000000000000 0x151f7c75
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
     txna ApplicationArgs 0
     match get_abs_bound1 get_abs_bound2
-    err
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:

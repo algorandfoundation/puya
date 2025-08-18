@@ -1,85 +1,85 @@
-// Op                                                                         Stack (out)
+// Op                                                                                   Stack (out)
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     block@0:
-        txn ApplicationID                                                     tmp%0#0
+        txn ApplicationID                                                               tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                                                        tmp%0#0
+        v-load tmp%0#0                                                                  tmp%0#0
         bz call___init__@1 ; b after_if_else@2
 
     call___init__@1:
         // inner_transactions/c2c.py:8
         // self.hello_app = Application()
-        byte "hello_app"                                                      "hello_app"
-        int 0                                                                 "hello_app",0
+        byte "hello_app"                                                                "hello_app"
+        int 0                                                                           "hello_app",0
         app_global_put
         b after_if_else@2
 
     after_if_else@2:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txn NumAppArgs                                                        tmp%0#2
-        v-store tmp%0#2
-        v-load tmp%0#2                                                        tmp%0#2
-        bz __algopy_default_create@9 ; b abi_routing@4
-
-    abi_routing@4:
-        // inner_transactions/c2c.py:6
-        // class Greeter(ARC4Contract):
-        txn OnCompletion                                                      tmp%2#0
+        txn ApplicationID                                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                  tmp%0#0
+        !                                                                               tmp%1#0
+        v-store tmp%1#0
+        txn OnCompletion                                                                tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                        tmp%2#0
-        !                                                                     tmp%3#0
+        v-load tmp%2#0                                                                  tmp%2#0
+        int 1                                                                           tmp%2#0,1
+        shl                                                                             tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                        tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                     tmp%4#0
+        v-load tmp%1#0                                                                  tmp%1#0
+        v-load tmp%3#0                                                                  tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
         v-store tmp%4#0
-        v-load tmp%4#0                                                        tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                tmp%6#0
-        v-store tmp%6#0
-        method bootstrap()uint64                                              Method(bootstrap()uint64)
-        method log_greetings(string)void                                      Method(bootstrap()uint64),Method(log_greetings(string)void)
-        v-load tmp%6#0                                                        Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%6#0
-        match bootstrap_route@6 log_greetings_route@7 ; b after_if_else@8
+        v-load tmp%4#0                                                                  tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    bootstrap_route@6:
-        // inner_transactions/c2c.py:10
-        // @arc4.abimethod()
-        callsub bootstrap
-        b after_if_else@8
-
-    log_greetings_route@7:
-        // inner_transactions/c2c.py:23
-        // @arc4.abimethod()
-        callsub log_greetings
-        b after_if_else@8
-
-    after_if_else@8:
+    call_NoOp:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        err
+        txna ApplicationArgs 0                                                          tmp%5#0
+        v-store tmp%5#0
+        method bootstrap()uint64                                                        Method(bootstrap()uint64)
+        method log_greetings(string)void                                                Method(bootstrap()uint64),Method(log_greetings(string)void)
+        v-load tmp%5#0                                                                  Method(bootstrap()uint64),Method(log_greetings(string)void),tmp%5#0
+        match bootstrap_route@5 log_greetings_route@6 ; b switch_case_next@7
 
-    __algopy_default_create@9:
-        txn OnCompletion                                                      tmp%7#0
+    bootstrap_route@5:
+        // inner_transactions/c2c.py:6
+        // class Greeter(ARC4Contract):
+        callsub bootstrap
+        b switch_case_next@7
+
+    log_greetings_route@6:
+        // inner_transactions/c2c.py:6
+        // class Greeter(ARC4Contract):
+        callsub log_greetings
+        b switch_case_next@7
+
+    switch_case_next@7:
+        // inner_transactions/c2c.py:6
+        // class Greeter(ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // inner_transactions/c2c.py:6
+        // class Greeter(ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                  tmp%6#0
+        !                                                                               tmp%7#0
         v-store tmp%7#0
-        v-load tmp%7#0                                                        tmp%7#0
-        !                                                                     tmp%8#0
-        v-store tmp%8#0
-        txn ApplicationID                                                     tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                        tmp%9#0
-        !                                                                     tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%8#0                                                        tmp%8#0
-        v-load tmp%10#0                                                       tmp%8#0,tmp%10#0
-        &&                                                                    tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                       tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                 1
+        v-load tmp%7#0                                                                  tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // inner_transactions/c2c.py:6
+        // class Greeter(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> void:
@@ -87,17 +87,17 @@ subroutine bootstrap:
     bootstrap_block@0:
         // inner_transactions/c2c.py:12
         // assert not self.hello_app, "already bootstrapped"
-        int 0                                                                 0
-        byte "hello_app"                                                      0,"hello_app"
-        app_global_get_ex                                                     maybe_value%0#0,maybe_exists%0#0
-        v-store maybe_exists%0#0                                              maybe_value%0#0
+        int 0                                                                           0
+        byte "hello_app"                                                                0,"hello_app"
+        app_global_get_ex                                                               maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                                        maybe_value%0#0
         v-store maybe_value%0#0
-        v-load maybe_exists%0#0                                               maybe_exists%0#0
+        v-load maybe_exists%0#0                                                         maybe_exists%0#0
         assert // check self.hello_app exists
-        v-load maybe_value%0#0                                                maybe_value%0#0
-        !                                                                     tmp%0#1
+        v-load maybe_value%0#0                                                          maybe_value%0#0
+        !                                                                               tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                                                        tmp%0#1
+        v-load tmp%0#1                                                                  tmp%0#1
         assert // already bootstrapped
         // inner_transactions/c2c.py:14-18
         // itxn.ApplicationCall(
@@ -108,7 +108,7 @@ subroutine bootstrap:
         itxn_begin
         // inner_transactions/c2c.py:16
         // clear_state_program=HELLO_WORLD_CLEAR,
-        byte 0x0a8101                                                         0x0a8101
+        byte 0x0a8101                                                                   0x0a8101
         itxn_field ClearStateProgramPages
         // inner_transactions/c2c.py:15
         // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
@@ -116,9 +116,9 @@ subroutine bootstrap:
         itxn_field ApprovalProgramPages
         // inner_transactions/c2c.py:14
         // itxn.ApplicationCall(
-        int appl                                                              appl
+        int appl                                                                        appl
         itxn_field TypeEnum
-        int 0                                                                 0
+        int 0                                                                           0
         itxn_field Fee
         // inner_transactions/c2c.py:14-18
         // itxn.ApplicationCall(
@@ -134,11 +134,11 @@ subroutine bootstrap:
         // )
         // .submit()
         // .created_app
-        itxn CreatedApplicationID                                             tmp%1#1
+        itxn CreatedApplicationID                                                       tmp%1#1
         v-store tmp%1#1
         // inner_transactions/c2c.py:13
         // self.hello_app = (
-        byte "hello_app"                                                      "hello_app"
+        byte "hello_app"                                                                "hello_app"
         // inner_transactions/c2c.py:13-20
         // self.hello_app = (
         //     itxn.ApplicationCall(
@@ -148,20 +148,20 @@ subroutine bootstrap:
         //     .submit()
         //     .created_app
         // )
-        v-load tmp%1#1                                                        "hello_app",tmp%1#1
+        v-load tmp%1#1                                                                  "hello_app",tmp%1#1
         app_global_put
         // inner_transactions/c2c.py:10
         // @arc4.abimethod()
-        v-load tmp%1#1                                                        tmp%1#1
-        itob                                                                  aggregate%val_as_bytes%0#0
+        v-load tmp%1#1                                                                  tmp%1#1
+        itob                                                                            aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                       0x151f7c75
-        v-load aggregate%val_as_bytes%0#0                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                tmp%2#0
+        byte 0x151f7c75                                                                 0x151f7c75
+        v-load aggregate%val_as_bytes%0#0                                               0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                          tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                        tmp%2#0
+        v-load tmp%2#0                                                                  tmp%2#0
         log
-        int 1                                                                 1
+        int 1                                                                           1
         return
 
 
@@ -170,7 +170,7 @@ subroutine log_greetings:
     log_greetings_block@0:
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                name#0
+        txna ApplicationArgs 1                                                          name#0
         v-store name#0
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
@@ -180,26 +180,26 @@ subroutine log_greetings:
         itxn_begin
         // inner_transactions/c2c.py:26
         // app_id=self.hello_app,
-        int 0                                                                 0
-        byte "hello_app"                                                      0,"hello_app"
-        app_global_get_ex                                                     maybe_value%0#0,maybe_exists%0#0
-        v-store maybe_exists%0#0                                              maybe_value%0#0
+        int 0                                                                           0
+        byte "hello_app"                                                                0,"hello_app"
+        app_global_get_ex                                                               maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                                        maybe_value%0#0
         v-store maybe_value%0#0
-        v-load maybe_exists%0#0                                               maybe_exists%0#0
+        v-load maybe_exists%0#0                                                         maybe_exists%0#0
         assert // check self.hello_app exists
         // inner_transactions/c2c.py:27
         // app_args=(arc4.arc4_signature("hello(string)string"), name),
-        method hello(string)string                                            Method(hello(string)string)
+        method hello(string)string                                                      Method(hello(string)string)
         itxn_field ApplicationArgs
-        v-load name#0                                                         name#0
+        v-load name#0                                                                   name#0
         itxn_field ApplicationArgs
-        v-load maybe_value%0#0                                                maybe_value%0#0
+        v-load maybe_value%0#0                                                          maybe_value%0#0
         itxn_field ApplicationID
         // inner_transactions/c2c.py:25
         // hello_call = itxn.ApplicationCall(
-        int appl                                                              appl
+        int appl                                                                        appl
         itxn_field TypeEnum
-        int 0                                                                 0
+        int 0                                                                           0
         itxn_field Fee
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
@@ -207,33 +207,33 @@ subroutine log_greetings:
         //     app_args=(arc4.arc4_signature("hello(string)string"), name),
         // ).submit()
         itxn_submit
-        itxn LastLog                                                          hello_call.LastLog#0
+        itxn LastLog                                                                    hello_call.LastLog#0
         v-store hello_call.LastLog#0
         // inner_transactions/c2c.py:29
         // greeting = arc4.String.from_log(hello_call.last_log)
-        v-load hello_call.LastLog#0                                           hello_call.LastLog#0
-        extract 0 4                                                           tmp%1#0
+        v-load hello_call.LastLog#0                                                     hello_call.LastLog#0
+        extract 0 4                                                                     tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                                        tmp%1#0
-        byte 0x151f7c75                                                       tmp%1#0,0x151f7c75
-        ==                                                                    tmp%2#0
+        v-load tmp%1#0                                                                  tmp%1#0
+        byte 0x151f7c75                                                                 tmp%1#0,0x151f7c75
+        ==                                                                              tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                        tmp%2#0
+        v-load tmp%2#0                                                                  tmp%2#0
         assert // application log value is not the result of an ABI return
         // inner_transactions/c2c.py:30
         // log("HelloWorld returned: ", greeting.native)
-        v-load hello_call.LastLog#0                                           hello_call.LastLog#0
-        extract 6 0                                                           tmp%4#0
+        v-load hello_call.LastLog#0                                                     hello_call.LastLog#0
+        extract 6 0                                                                     tmp%4#0
         v-store tmp%4#0
-        byte "HelloWorld returned: "                                          "HelloWorld returned: "
-        v-load tmp%4#0                                                        "HelloWorld returned: ",tmp%4#0
-        concat                                                                tmp%5#0
+        byte "HelloWorld returned: "                                                    "HelloWorld returned: "
+        v-load tmp%4#0                                                                  "HelloWorld returned: ",tmp%4#0
+        concat                                                                          tmp%5#0
         v-store tmp%5#0
-        v-load tmp%5#0                                                        tmp%5#0
+        v-load tmp%5#0                                                                  tmp%5#0
         log
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
-        int 1                                                                 1
+        int 1                                                                           1
         return
 
 

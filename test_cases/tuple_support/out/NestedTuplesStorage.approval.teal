@@ -45,43 +45,41 @@ main:
 after_if_else@2:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@13
-    pushbytes 0xbec76d87 // method "bootstrap()void"
-    txna ApplicationArgs 0
-    match bootstrap_route@5
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-switch_case_next@6:
+*NOT_IMPLEMENTED:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
-    txn OnCompletion
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_OptIn:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    pushbytes 0xbec76d87 // method "bootstrap()void"
+    txna ApplicationArgs 0
+    match bootstrap
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_NoOp:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn NumAppArgs
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
     pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
     txna ApplicationArgs 0
     match mutate_tuple mutate_box mutate_global mutate_local
-    err
-
-bootstrap_route@5:
-    // tuple_support/tuple_storage.py:23
-    // @arc4.abimethod(allow_actions=["OptIn"])
-    txn OnCompletion
-    intc_1 // OptIn
-    ==
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be OptIn && can only call when not creating
-    b bootstrap
-
-__algopy_default_create@13:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]() -> void:

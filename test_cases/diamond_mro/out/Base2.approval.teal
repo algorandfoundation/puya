@@ -17,29 +17,40 @@ main:
 after_if_else@2:
     // diamond_mro/base2.py:6
     // class Base2(GP):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@6
-    pushbytes 0x4f045d84 // method "method()void"
-    txna ApplicationArgs 0
-    match method
-    err
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-create_NoOp@6:
+*NOT_IMPLEMENTED:
+    // diamond_mro/base2.py:6
+    // class Base2(GP):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // diamond_mro/base2.py:6
     // class Base2(GP):
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match create_route@7
-    err
+    match create_route@8
+    err // this contract does not implement the given ABI method for create NoOp
 
-create_route@7:
+create_route@8:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     pushint 1 // 1
     return
+
+call_NoOp:
+    // diamond_mro/base2.py:6
+    // class Base2(GP):
+    pushbytes 0x4f045d84 // method "method()void"
+    txna ApplicationArgs 0
+    match method
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.diamond_mro.base2.Base2.method[routing]() -> void:

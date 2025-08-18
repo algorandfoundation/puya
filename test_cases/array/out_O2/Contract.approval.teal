@@ -11,19 +11,29 @@ main:
     dupn 5
     bytec_0 // ""
     dupn 14
-    txn NumAppArgs
-    bz __algopy_default_create@20
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0x45dcc836 0xf17f6f0a 0x845e1b4e 0x7621cfd1 0x5661a67c // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_array_assignment_maximum_cursage()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void", method "test_unobserved_write()void"
     txna ApplicationArgs 0
-    match test_array_route@4 test_array_extend_route@5 test_array_multiple_append_route@6 overhead_route@7 test_array_too_long_route@8 test_array_copy_and_extend_route@9 test_array_evaluation_order_route@10 test_array_assignment_maximum_cursage_route@11 test_allocations_route@12 test_iteration_route@13 test_quicksort_route@14 test_unobserved_write_route@15
-    err
+    match test_array_route@3 test_array_extend_route@4 test_array_multiple_append_route@5 overhead_route@6 test_array_too_long_route@7 test_array_copy_and_extend_route@8 test_array_evaluation_order_route@9 test_array_assignment_maximum_cursage_route@10 test_allocations_route@11 test_iteration_route@12 test_quicksort_route@13 test_unobserved_write_route@14
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_unobserved_write_route@15:
+test_unobserved_write_route@14:
     callsub create_array
     dup
     loads
@@ -63,7 +73,7 @@ test_unobserved_write_route@15:
     ==
     return
 
-test_quicksort_route@14:
+test_quicksort_route@13:
     callsub _puya_lib.mem.new_slot
     dup
     bury 3
@@ -74,11 +84,11 @@ test_quicksort_route@14:
     intc_2 // 0
     bury 7
 
-for_header@26:
+for_header@36:
     dig 6
     pushint 32 // 32
     <
-    bz after_for@28
+    bz after_for@38
     dig 15
     dig 7
     dup
@@ -95,9 +105,9 @@ for_header@26:
     intc_1 // 1
     +
     bury 7
-    b for_header@26
+    b for_header@36
 
-after_for@28:
+after_for@38:
     dig 1
     dup
     loads
@@ -124,11 +134,11 @@ after_for@28:
     intc_2 // 0
     bury 6
 
-for_header@29:
+for_header@39:
     dig 5
     dig 12
     <
-    bz overhead_route@7
+    bz overhead_route@6
     dig 1
     loads
     dig 6
@@ -146,23 +156,23 @@ for_header@29:
     +
     bury 7
     bury 5
-    b for_header@29
+    b for_header@39
 
-overhead_route@7:
+overhead_route@6:
     intc_1 // 1
     return
 
-test_iteration_route@13:
+test_iteration_route@12:
     bytec_0 // 0x
     bury 18
     intc_2 // 0
     bury 1
 
-for_header@34:
+for_header@44:
     dup
     intc_3 // 5
     <
-    bz after_for@36
+    bz after_for@46
     dig 17
     dig 1
     dup
@@ -173,9 +183,9 @@ for_header@34:
     intc_1 // 1
     +
     bury 1
-    b for_header@34
+    b for_header@44
 
-after_for@36:
+after_for@46:
     dig 17
     len
     intc_0 // 8
@@ -190,11 +200,11 @@ after_for@36:
     intc_2 // 0
     bury 7
 
-for_header@37:
+for_header@47:
     dig 6
     dig 14
     <
-    bz after_for@39
+    bz after_for@49
     dig 17
     dig 7
     dup
@@ -211,9 +221,9 @@ for_header@37:
     +
     bury 8
     bury 5
-    b for_header@37
+    b for_header@47
 
-after_for@39:
+after_for@49:
     dig 17
     len
     intc_0 // 8
@@ -222,11 +232,11 @@ after_for@39:
     intc_2 // 0
     bury 8
 
-for_header@40:
+for_header@50:
     dig 7
     dig 13
     <
-    bz after_for@42
+    bz after_for@52
     dig 17
     dig 8
     dup
@@ -240,18 +250,18 @@ for_header@40:
     intc_1 // 1
     +
     bury 8
-    b for_header@40
+    b for_header@50
 
-after_for@42:
+after_for@52:
     dig 17
     len
     intc_0 // 8
     /
     bury 3
 
-for_header@43:
+for_header@53:
     dig 2
-    bz after_for@45
+    bz after_for@55
     dig 2
     intc_1 // 1
     -
@@ -267,9 +277,9 @@ for_header@43:
     <=
     assert // array is not sorted
     bury 5
-    b for_header@43
+    b for_header@53
 
-after_for@45:
+after_for@55:
     pushbytes 0x0000
     bury 21
     bytec_0 // 0x
@@ -277,11 +287,11 @@ after_for@45:
     intc_2 // 0
     bury 9
 
-for_header@46:
+for_header@56:
     dig 8
     intc_3 // 5
     <
-    bz after_for@48
+    bz after_for@58
     dig 8
     dup
     itob
@@ -306,9 +316,9 @@ for_header@46:
     intc_1 // 1
     +
     bury 9
-    b for_header@46
+    b for_header@56
 
-after_for@48:
+after_for@58:
     dig 20
     dig 17
     concat // on error: max array length exceeded
@@ -346,18 +356,18 @@ after_for@48:
     b==
     return
 
-test_allocations_route@12:
+test_allocations_route@11:
     txna ApplicationArgs 1
     btoi
     bury 4
     intc_2 // 0
     bury 15
 
-for_header@51:
+for_header@61:
     dig 14
     dig 4
     <
-    bz overhead_route@7
+    bz overhead_route@6
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -368,9 +378,9 @@ for_header@51:
     intc_1 // 1
     +
     bury 15
-    b for_header@51
+    b for_header@61
 
-test_array_assignment_maximum_cursage_route@11:
+test_array_assignment_maximum_cursage_route@10:
     callsub _puya_lib.mem.new_slot
     pushint 3 // 3
     itob
@@ -406,7 +416,7 @@ test_array_assignment_maximum_cursage_route@11:
     ==
     return
 
-test_array_evaluation_order_route@10:
+test_array_evaluation_order_route@9:
     callsub _puya_lib.mem.new_slot
     pushint 3 // 3
     itob
@@ -520,17 +530,17 @@ test_array_evaluation_order_route@10:
     ==
     return
 
-test_array_copy_and_extend_route@9:
+test_array_copy_and_extend_route@8:
     bytec_0 // 0x
     bury 19
     intc_2 // 0
     bury 9
 
-for_header@60:
+for_header@70:
     dig 8
     intc_3 // 5
     <
-    bz after_for@62
+    bz after_for@72
     dig 18
     dig 9
     dup
@@ -541,9 +551,9 @@ for_header@60:
     intc_1 // 1
     +
     bury 9
-    b for_header@60
+    b for_header@70
 
-after_for@62:
+after_for@72:
     dig 18
     dup
     intc_3 // 5
@@ -629,17 +639,17 @@ after_for@62:
     !
     return // on error: expected 4
 
-test_array_too_long_route@8:
+test_array_too_long_route@7:
     bytec_0 // 0x
     bury 20
     intc_2 // 0
     bury 9
 
-for_header@65:
+for_header@75:
     dig 8
     intc 4 // 512
     <
-    bz after_for@67
+    bz after_for@77
     dig 19
     dig 9
     dup
@@ -650,9 +660,9 @@ for_header@65:
     intc_1 // 1
     +
     bury 9
-    b for_header@65
+    b for_header@75
 
-after_for@67:
+after_for@77:
     dig 19
     dup
     len
@@ -668,7 +678,7 @@ after_for@67:
     intc_1 // 1
     return
 
-test_array_multiple_append_route@6:
+test_array_multiple_append_route@5:
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -697,7 +707,7 @@ test_array_multiple_append_route@6:
     ==
     return
 
-test_array_extend_route@5:
+test_array_extend_route@4:
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
@@ -721,7 +731,7 @@ test_array_extend_route@5:
     ==
     return
 
-test_array_route@4:
+test_array_route@3:
     callsub _puya_lib.mem.new_slot
     dup
     bury 12
@@ -755,11 +765,11 @@ test_array_route@4:
     intc_2 // 0
     bury 15
 
-for_header@69:
+for_header@79:
     dig 14
     pushint 3 // 3
     <
-    bz after_for@71
+    bz after_for@81
     dig 10
     dup
     loads
@@ -790,9 +800,9 @@ for_header@69:
     intc_1 // 1
     +
     bury 15
-    b for_header@69
+    b for_header@79
 
-after_for@71:
+after_for@81:
     dig 10
     dup
     loads
@@ -935,14 +945,6 @@ after_for@71:
     pushint 100 // 100
     ==
     return
-
-__algopy_default_create@20:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:

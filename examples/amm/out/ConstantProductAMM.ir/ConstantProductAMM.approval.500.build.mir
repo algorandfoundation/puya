@@ -40,109 +40,89 @@ subroutine main:
     after_if_else@2:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn NumAppArgs                                                                            tmp%0#3
-        v-store tmp%0#3
-        v-load tmp%0#3                                                                            tmp%0#3
-        bz __algopy_default_create@12 ; b abi_routing@4
-
-    abi_routing@4:
-        // amm/contract.py:27
-        // class ConstantProductAMM(ARC4Contract):
+        txn ApplicationID                                                                         tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                            tmp%0#0
+        !                                                                                         tmp%1#0
+        v-store tmp%1#0
         txn OnCompletion                                                                          tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                            tmp%2#0
-        !                                                                                         tmp%3#0
+        int 1                                                                                     tmp%2#0,1
+        shl                                                                                       tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                                            tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                         tmp%4#0
+        v-load tmp%1#0                                                                            tmp%1#0
+        v-load tmp%3#0                                                                            tmp%1#0,tmp%3#0
+        +                                                                                         tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                            tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                                    tmp%6#0
-        v-store tmp%6#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
+
+    call_NoOp:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        txna ApplicationArgs 0                                                                    tmp%5#0
+        v-store tmp%5#0
         method set_governor(address)void                                                          Method(set_governor(address)void)
         method bootstrap(pay,asset,asset)uint64                                                   Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64)
         method mint(axfer,axfer,asset,asset,asset)void                                            Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void)
         method burn(axfer,asset,asset,asset)void                                                  Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void)
         method swap(axfer,asset,asset)void                                                        Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void)
-        v-load tmp%6#0                                                                            Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void),tmp%6#0
-        match set_governor_route@6 bootstrap_route@7 mint_route@8 burn_route@9 swap_route@10 ; b after_if_else@11 
+        v-load tmp%5#0                                                                            Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void),tmp%5#0
+        match set_governor_route@5 bootstrap_route@6 mint_route@7 burn_route@8 swap_route@9 ; b switch_case_next@10 
 
-    set_governor_route@6:
-        // amm/contract.py:43
-        // @arc4.abimethod()
-        callsub set_governor
-        b after_if_else@11
-
-    bootstrap_route@7:
-        // amm/contract.py:49
-        // @arc4.abimethod(resource_encoding="index")
-        callsub bootstrap
-        b after_if_else@11
-
-    mint_route@8:
-        // amm/contract.py:81-88
-        // @arc4.abimethod(
-        //     default_args={
-        //         "pool_asset": "pool_token",
-        //         "a_asset": "asset_a",
-        //         "b_asset": "asset_b",
-        //     },
-        //     resource_encoding="index",
-        // )
-        callsub mint
-        b after_if_else@11
-
-    burn_route@9:
-        // amm/contract.py:148-155
-        // @arc4.abimethod(
-        //     default_args={
-        //         "pool_asset": "pool_token",
-        //         "a_asset": "asset_a",
-        //         "b_asset": "asset_b",
-        //     },
-        //     resource_encoding="index",
-        // )
-        callsub burn
-        b after_if_else@11
-
-    swap_route@10:
-        // amm/contract.py:206-212
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a_asset": "asset_a",
-        //         "b_asset": "asset_b",
-        //     },
-        //     resource_encoding="index",
-        // )
-        callsub swap
-        b after_if_else@11
-
-    after_if_else@11:
+    set_governor_route@5:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        err
+        callsub set_governor
+        b switch_case_next@10
 
-    __algopy_default_create@12:
-        txn OnCompletion                                                                          tmp%7#0
+    bootstrap_route@6:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        callsub bootstrap
+        b switch_case_next@10
+
+    mint_route@7:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        callsub mint
+        b switch_case_next@10
+
+    burn_route@8:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        callsub burn
+        b switch_case_next@10
+
+    swap_route@9:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        callsub swap
+        b switch_case_next@10
+
+    switch_case_next@10:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        txn NumAppArgs                                                                            tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                            tmp%6#0
+        !                                                                                         tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                            tmp%7#0
-        !                                                                                         tmp%8#0
-        v-store tmp%8#0
-        txn ApplicationID                                                                         tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                            tmp%9#0
-        !                                                                                         tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%8#0                                                                            tmp%8#0
-        v-load tmp%10#0                                                                           tmp%8#0,tmp%10#0
-        &&                                                                                        tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                           tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                                     1
         return
+
+    *NOT_IMPLEMENTED:
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:

@@ -1,64 +1,28 @@
 main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
     block@0: // L1
-        let tmp%0#2: bytes = (txna ApplicationArgs 0)
-        switch tmp%0#2 {method "register(string)void" => block@4, method "close_out()void" => block@5, * => block@6}
-    block@4: // register_route_L47
-        let tmp%1#0: uint64 = (txn OnCompletion)
-        let tmp%2#0: uint64 = (shl 1u tmp%1#0)
-        let tmp%3#0: uint64 = (& tmp%2#0 3u)
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (&& tmp%3#0 tmp%4#0)
-        (assert tmp%6#0) // OnCompletion must be one of NoOp, OptIn && can only call when not creating
-        let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%0#5: account = (txn Sender)
-        let tmp%2#4: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
-        (assert tmp%2#4) // You are banned, goodbye
-        let tmp%0#7: uint64 = (txn OnCompletion)
-        let tmp%1#7: bool = (== tmp%0#7 OptIn)
-        goto tmp%1#7 ? block@24 : block@26
-    block@24: // if_body_L51
-        let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
-        goto sender_name_existed#0 ? block@26 : block@25
-    block@25: // if_body_L53
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
-        (assert maybe_exists%1#0) // check self.counter exists
-        let tmp%3#0: uint64 = (+ maybe_value%1#0 1u)
-        (app_global_put "counter" tmp%3#0)
-        goto block@26
-    block@26: // after_if_else_L50
-        (app_local_put 0u "name" name#0)
-        exit 1u
-    block@5: // close_out_route_L69
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 CloseOut)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%9#0)
-        (assert tmp%11#0) // OnCompletion must be CloseOut && can only call when not creating
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
-        (assert maybe_exists%0#0) // check self.counter exists
-        let tmp%1#0: uint64 = (- maybe_value%0#0 1u)
-        (app_global_put "counter" tmp%1#0)
-        exit 1u
-    block@6: // switch_case_next_L37
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // OnCompletion must be NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        goto tmp%14#0 ? block@7 : block@10
-    block@7: // call_NoOp_L37
-        let tmp%16#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%16#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@12}
-    block@8: // say_hello_route_L56
+        let tmp%0#2: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#2)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@9, block@12, block@18, block@15, block@18, block@18, block@18, block@18, block@18, block@18, block@18][tmp%4#0] else goto block@18
+    block@4: // switch_case_0_L37
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "register(string)void" => block@5, method "say_hello()string" => block@6, method "calculate(uint64,uint64)uint64" => block@7, * => block@8}
+    block@5: // register_route_L47
+        test_cases.everything.contract.Everything.register[routing]()
+        goto block@8
+    block@6: // say_hello_route_L56
         let tmp%0#5: account = (txn Sender)
         let tmp%2#4: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         (assert tmp%2#4) // You are banned, goodbye
         let (name#0: Encoded(len+utf8[]), exists#0: bool) = (app_local_get_ex 0u 0u "name")
-        goto exists#0 ? block@19 : block@18
-    block@18: // if_body_L61
+        goto exists#0 ? block@27 : block@26
+    block@26: // if_body_L61
         let aggregate%encoded_value%0#0: bytes = 0x000f486f77647920737472616e67657221
-        let tmp%0#2: bytes = aggregate%encoded_value%0#0
-        goto block@20
-    block@19: // after_if_else_L60
+        let tmp%0#4: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
+        goto block@28
+    block@27: // after_if_else_L60
         let extract_to_end%0#0: bytes = ((extract 2 0) name#0)
         let concat%0#0: Encoded(len+utf8[]) = (concat 0x000748656c6c6f2c20 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
@@ -72,27 +36,29 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let as_bytes%1#0: bytes[8] = (itob len%1#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
-        let tmp%0#2: bytes = replace%1#0
-        goto block@20
-    block@20: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
-        let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#2)
+        let tmp%0#4: Encoded(len+utf8[]) = replace%1#0
+        goto block@28
+    block@28: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
+        let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#4)
         (log tmp%1#1)
         exit 1u
-    block@9: // calculate_route_L64
+    block@7: // calculate_route_L64
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let tmp%0#7: uint64 = (btoi a#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let tmp%2#0: uint64 = (+ tmp%0#7 tmp%1#0)
-        let tmp%3#0: uint64 = (* tmp%2#0 tmp%1#0)
+        let tmp%1#3: uint64 = (btoi b#0)
+        let tmp%2#0: uint64 = (+ tmp%0#7 tmp%1#3)
+        let tmp%3#0: uint64 = (* tmp%2#0 tmp%1#3)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%1#1)
         exit 1u
-    block@10: // create_NoOp_L37
-        let tmp%17#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%17#0 {method "create()void" => block@11, * => block@12}
-    block@11: // create_route_L41
+    block@8: // switch_case_next_L37
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@9: // switch_case_1_L37
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create()void" => block@10, * => block@11}
+    block@10: // create_route_L41
         let tmp%0#5: account = (txn Sender)
         let tmp%2#4: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         (assert tmp%2#4) // You are banned, goodbye
@@ -100,5 +66,48 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (app_global_put "creator" tmp%0#5)
         (app_global_put "counter" 0u)
         exit 1u
-    block@12: // after_if_else_L37
-        fail
+    block@11: // switch_case_next_L37
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@12: // switch_case_2_L37
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "register(string)void" => block@13, * => block@14}
+    block@13: // register_route_L47
+        test_cases.everything.contract.Everything.register[routing]()
+        goto block@14
+    block@14: // switch_case_next_L37
+        fail // this contract does not implement the given ABI method for call OptIn
+    block@15: // switch_case_4_L37
+        let tmp%8#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%8#0 {method "close_out()void" => block@16, * => block@17}
+    block@16: // close_out_route_L69
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
+        (assert maybe_exists%0#0) // check self.counter exists
+        let tmp%1#3: uint64 = (- maybe_value%0#0 1u)
+        (app_global_put "counter" tmp%1#3)
+        exit 1u
+    block@17: // switch_case_next_L37
+        fail // this contract does not implement the given ABI method for call CloseOut
+    block@18: // switch_case_default_L37
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+subroutine test_cases.everything.contract.Everything.register[routing]() -> void:
+    block@0: // L47
+        let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let tmp%0#1: account = (txn Sender)
+        let tmp%2#0: bool = (!= tmp%0#1 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        (assert tmp%2#0) // You are banned, goodbye
+        let tmp%0#0: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (== tmp%0#0 OptIn)
+        goto tmp%1#0 ? block@2 : block@5
+    block@2: // if_body_L51
+        let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
+        goto sender_name_existed#0 ? block@5 : block@3
+    block@3: // if_body_L53
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
+        (assert maybe_exists%1#0) // check self.counter exists
+        let tmp%3#0: uint64 = (+ maybe_value%1#0 1u)
+        (app_global_put "counter" tmp%3#0)
+        goto block@5
+    block@5: // after_if_else_L50
+        (app_local_put 0u "name" name#0)
+        exit 1u

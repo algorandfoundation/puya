@@ -1,49 +1,51 @@
-// Op                                                                          Stack (out)
+// Op                                                                                   Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     block@0:
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        txn NumAppArgs                                                         tmp%0#1
-        bz __algopy_default_create@6 ; b abi_routing@2
+        txn ApplicationID                                                               tmp%0#1
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@2:
+    call_NoOp:
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        txna ApplicationArgs 0                                                 tmp%2#0
-        method create_and_transfer()void                                       tmp%2#0,Method(create_and_transfer()void)
-        l-load tmp%2#0 1                                                       Method(create_and_transfer()void),tmp%2#0
+        txna ApplicationArgs 0                                                          tmp%5#0
+        method create_and_transfer()void                                                tmp%5#0,Method(create_and_transfer()void)
+        l-load tmp%5#0 1                                                                Method(create_and_transfer()void),tmp%5#0
         match create_and_transfer_route@3 ; b switch_case_next@5
 
     create_and_transfer_route@3:
-        // inner_transactions/asset_transfer.py:11
-        // @arc4.abimethod()
-        txn OnCompletion                                                       tmp%3#0
-        !                                                                      tmp%4#0
-        txn ApplicationID                                                      tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                       tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                       tmp%4#0,tmp%5#0
-        &&                                                                     tmp%7#0
-        assert // OnCompletion must be NoOp && can only call when not creating
+        // inner_transactions/asset_transfer.py:10
+        // class CreateAndTransferContract(ARC4Contract):
         callsub create_and_transfer
         b switch_case_next@5
 
     switch_case_next@5:
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        err
+        err // this contract does not implement the given ABI method for call NoOp
 
-    __algopy_default_create@6:
-        txn OnCompletion                                                       tmp%8#0
-        !                                                                      tmp%9#0
-        txn ApplicationID                                                      tmp%9#0,tmp%10#0
-        !                                                                      tmp%9#0,tmp%11#0
-        l-load tmp%9#0 1                                                       tmp%11#0,tmp%9#0
-        l-load tmp%11#0 1                                                      tmp%9#0,tmp%11#0
-        &&                                                                     tmp%12#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                  1
+    create_NoOp:
+        // inner_transactions/asset_transfer.py:10
+        // class CreateAndTransferContract(ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        !                                                                               tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // inner_transactions/asset_transfer.py:10
+        // class CreateAndTransferContract(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:
@@ -62,34 +64,34 @@ subroutine create_and_transfer:
         itxn_begin
         // inner_transactions/asset_transfer.py:20
         // manager=op.Global.current_application_address,
-        global CurrentApplicationAddress                                       inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+        global CurrentApplicationAddress                                                inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
         // inner_transactions/asset_transfer.py:21
         // clawback=op.Global.current_application_address,
-        global CurrentApplicationAddress                                       inner_txn_params%0%%param_ConfigAssetManager_idx_0#0,inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0
-        itxn_field ConfigAssetClawback                                         inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
-        l-load inner_txn_params%0%%param_ConfigAssetManager_idx_0#0 0          inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+        global CurrentApplicationAddress                                                inner_txn_params%0%%param_ConfigAssetManager_idx_0#0,inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0
+        itxn_field ConfigAssetClawback                                                  inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
+        l-load inner_txn_params%0%%param_ConfigAssetManager_idx_0#0 0                   inner_txn_params%0%%param_ConfigAssetManager_idx_0#0
         itxn_field ConfigAssetManager
         // inner_transactions/asset_transfer.py:19
         // decimals=0,
-        int 0                                                                  0
+        int 0                                                                           0
         itxn_field ConfigAssetDecimals
         // inner_transactions/asset_transfer.py:18
         // unit_name="TST",
-        byte "TST"                                                             "TST"
+        byte "TST"                                                                      "TST"
         itxn_field ConfigAssetUnitName
         // inner_transactions/asset_transfer.py:17
         // asset_name="test",
-        byte "test"                                                            "test"
+        byte "test"                                                                     "test"
         itxn_field ConfigAssetName
         // inner_transactions/asset_transfer.py:16
         // total=1000,
-        int 1000                                                               1000
+        int 1000                                                                        1000
         itxn_field ConfigAssetTotal
         // inner_transactions/asset_transfer.py:15
         // itxn.AssetConfig(
-        int acfg                                                               acfg
+        int acfg                                                                        acfg
         itxn_field TypeEnum
-        int 0                                                                  0
+        int 0                                                                           0
         itxn_field Fee
         // inner_transactions/asset_transfer.py:15-23
         // itxn.AssetConfig(
@@ -113,7 +115,7 @@ subroutine create_and_transfer:
         // )
         // .submit()
         // .created_asset
-        itxn CreatedAssetID                                                    new_asset#0
+        itxn CreatedAssetID                                                             new_asset#0
         // inner_transactions/asset_transfer.py:28-33
         // itxn.AssetTransfer(
         //     asset_sender=new_asset.creator,
@@ -121,30 +123,30 @@ subroutine create_and_transfer:
         //     asset_amount=1000,
         //     xfer_asset=new_asset,
         // ).submit()
-        itxn_begin                                                             new_asset#0
+        itxn_begin                                                                      new_asset#0
         // inner_transactions/asset_transfer.py:29
         // asset_sender=new_asset.creator,
-        l-load-copy new_asset#0 0                                              new_asset#0,new_asset#0 (copy)
-        asset_params_get AssetCreator                                          new_asset#0,value%0#0,check%0#0
-        assert // asset exists                                                 new_asset#0,value%0#0
+        l-load-copy new_asset#0 0                                                       new_asset#0,new_asset#0 (copy)
+        asset_params_get AssetCreator                                                   new_asset#0,value%0#0,check%0#0
+        assert // asset exists                                                          new_asset#0,value%0#0
         // inner_transactions/asset_transfer.py:30
         // asset_receiver=Global.current_application_address,
-        global CurrentApplicationAddress                                       new_asset#0,value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
-        l-load new_asset#0 2                                                   value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,new_asset#0
-        itxn_field XferAsset                                                   value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+        global CurrentApplicationAddress                                                new_asset#0,value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+        l-load new_asset#0 2                                                            value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,new_asset#0
+        itxn_field XferAsset                                                            value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
         // inner_transactions/asset_transfer.py:31
         // asset_amount=1000,
-        int 1000                                                               value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,1000
-        itxn_field AssetAmount                                                 value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
-        l-load inner_txn_params%1%%param_AssetReceiver_idx_0#0 0               value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
-        itxn_field AssetReceiver                                               value%0#0
-        l-load value%0#0 0                                                     value%0#0
+        int 1000                                                                        value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0,1000
+        itxn_field AssetAmount                                                          value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+        l-load inner_txn_params%1%%param_AssetReceiver_idx_0#0 0                        value%0#0,inner_txn_params%1%%param_AssetReceiver_idx_0#0
+        itxn_field AssetReceiver                                                        value%0#0
+        l-load value%0#0 0                                                              value%0#0
         itxn_field AssetSender
         // inner_transactions/asset_transfer.py:28
         // itxn.AssetTransfer(
-        int axfer                                                              axfer
+        int axfer                                                                       axfer
         itxn_field TypeEnum
-        int 0                                                                  0
+        int 0                                                                           0
         itxn_field Fee
         // inner_transactions/asset_transfer.py:28-33
         // itxn.AssetTransfer(
@@ -156,7 +158,7 @@ subroutine create_and_transfer:
         itxn_submit
         // inner_transactions/asset_transfer.py:11
         // @arc4.abimethod()
-        int 1                                                                  1
+        int 1                                                                           1
         return
 
 

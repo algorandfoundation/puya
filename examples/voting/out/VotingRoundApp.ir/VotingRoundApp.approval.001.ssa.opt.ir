@@ -56,35 +56,39 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
 
 subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
     block@0: // L49
-        let tmp%0#0: uint64 = (txn OnCompletion)
+        let tmp%0#0: bool = (txn ApplicationID)
         let tmp%1#0: bool = (! tmp%0#0)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        let tmp%3#0: bool = (!= tmp%2#0 0u)
-        goto tmp%2#0 ? block@1 : block@8
-    block@1: // call_NoOp_L49
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "bootstrap(pay)void" => block@2, method "close()void" => block@3, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@4, method "vote(pay,byte[],uint8[])void" => block@5, * => block@12}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@1, block@8, block@22, block@22, block@22, block@22, block@22, block@22, block@22, block@22, block@22, block@22][tmp%4#0] else goto block@22
+    block@1: // switch_case_0_L49
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "bootstrap(pay)void" => block@2, method "close()void" => block@3, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@4, method "vote(pay,byte[],uint8[])void" => block@5, * => block@7}
     block@2: // bootstrap_route_L82
         examples.voting.voting.VotingRoundApp.bootstrap[routing]()
-        goto block@12
+        goto block@7
     block@3: // close_route_L110
         examples.voting.voting.VotingRoundApp.close[routing]()
-        goto block@12
+        goto block@7
     block@4: // get_preconditions_route_L160
         examples.voting.voting.VotingRoundApp.get_preconditions[routing]()
-        goto block@12
+        goto block@7
     block@5: // vote_route_L169
         examples.voting.voting.VotingRoundApp.vote[routing]()
-        goto block@12
-    block@8: // create_NoOp_L49
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@9, * => block@12}
+        goto block@7
+    block@7: // switch_case_next_L49
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@8: // switch_case_1_L49
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@9, * => block@11}
     block@9: // create_route_L58
         examples.voting.voting.VotingRoundApp.create[routing]()
-        goto block@12
-    block@12: // after_if_else_L49
-        fail
+        goto block@11
+    block@11: // switch_case_next_L49
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@22: // switch_case_default_L49
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@0: // L58

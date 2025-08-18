@@ -11,19 +11,44 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz bare_routing@7
-    pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
-    txna ApplicationArgs 0
-    match delete_route@5 greet_route@6
-    err
-
-greet_route@6:
-    txn OnCompletion
-    !
     txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match delete_route@10
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+delete_route@10:
+    pushint 1 // 1
+    return
+
+call_UpdateApplication:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for call UpdateApplication
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    txna ApplicationArgs 0
+    match greet_route@5
+    err // this contract does not implement the given ABI method for call NoOp
+
+greet_route@5:
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -46,26 +71,3 @@ greet_route@6:
     log
     pushint 1 // 1
     return
-
-delete_route@5:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
-
-bare_routing@7:
-    pushints 0 4 // NoOp, UpdateApplication
-    txn OnCompletion
-    match __algopy_default_create@8 update@9
-    err
-
-update@9:
-    txn ApplicationID
-    return // on error: can only call when not creating
-
-__algopy_default_create@8:
-    txn ApplicationID
-    !
-    return // on error: can only call when creating

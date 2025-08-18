@@ -5,22 +5,39 @@
 main:
     intcblock 1 0
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
-    txn NumAppArgs
-    bz __algopy_default_create@20
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match delete_route@5
-    txn OnCompletion
+    match delete_route@19
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+delete_route@19:
+    intc_0 // 1
+    return
+
+create_NoOp:
+    txn NumAppArgs
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
     txna ApplicationArgs 0
-    match fixed_struct_arg_route@8 fixed_struct_ret_route@9 nested_struct_arg_route@10 nested_struct_ret_route@11 dynamic_struct_arg_route@12 dynamic_struct_ret_route@13 fixed_arr_arg_route@14 fixed_arr_ret_route@15 native_arr_arg_route@16 native_arr_ret_route@17 log_it_route@18
-    err
+    match fixed_struct_arg_route@5 fixed_struct_ret_route@6 nested_struct_arg_route@7 nested_struct_ret_route@8 dynamic_struct_arg_route@9 dynamic_struct_ret_route@10 fixed_arr_arg_route@11 fixed_arr_ret_route@12 native_arr_arg_route@13 native_arr_ret_route@14 log_it_route@15
+    err // this contract does not implement the given ABI method for call NoOp
 
-log_it_route@18:
+log_it_route@15:
     intc_1 // 0
     bytec_1 // "fixed_struct"
     app_global_get_ex
@@ -49,7 +66,7 @@ log_it_route@18:
     intc_0 // 1
     return
 
-native_arr_ret_route@17:
+native_arr_ret_route@14:
     intc_1 // 0
     bytec 5 // "native_arr"
     app_global_get_ex
@@ -61,14 +78,14 @@ native_arr_ret_route@17:
     intc_0 // 1
     return
 
-native_arr_arg_route@16:
+native_arr_arg_route@13:
     bytec 5 // "native_arr"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-fixed_arr_ret_route@15:
+fixed_arr_ret_route@12:
     intc_1 // 0
     bytec 4 // "fixed_arr"
     app_global_get_ex
@@ -80,14 +97,14 @@ fixed_arr_ret_route@15:
     intc_0 // 1
     return
 
-fixed_arr_arg_route@14:
+fixed_arr_arg_route@11:
     bytec 4 // "fixed_arr"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-dynamic_struct_ret_route@13:
+dynamic_struct_ret_route@10:
     intc_1 // 0
     bytec_3 // "dynamic_struct"
     app_global_get_ex
@@ -99,14 +116,14 @@ dynamic_struct_ret_route@13:
     intc_0 // 1
     return
 
-dynamic_struct_arg_route@12:
+dynamic_struct_arg_route@9:
     bytec_3 // "dynamic_struct"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-nested_struct_ret_route@11:
+nested_struct_ret_route@8:
     intc_1 // 0
     bytec_2 // "nested_struct"
     app_global_get_ex
@@ -118,14 +135,14 @@ nested_struct_ret_route@11:
     intc_0 // 1
     return
 
-nested_struct_arg_route@10:
+nested_struct_arg_route@7:
     bytec_2 // "nested_struct"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
 
-fixed_struct_ret_route@9:
+fixed_struct_ret_route@6:
     intc_1 // 0
     bytec_1 // "fixed_struct"
     app_global_get_ex
@@ -137,25 +154,9 @@ fixed_struct_ret_route@9:
     intc_0 // 1
     return
 
-fixed_struct_arg_route@8:
+fixed_struct_arg_route@5:
     bytec_1 // "fixed_struct"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
-
-delete_route@5:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
-
-__algopy_default_create@20:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

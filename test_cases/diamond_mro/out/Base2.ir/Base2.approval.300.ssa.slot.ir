@@ -7,24 +7,29 @@ main test_cases.diamond_mro.base2.Base2.__algopy_entrypoint_with_init:
         (log "gp.__init__")
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn OnCompletion)
+        let tmp%0#2: bool = (txn ApplicationID)
         let tmp%1#0: bool = (! tmp%0#2)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        goto tmp%2#0 ? block@4 : block@6
-    block@4: // call_NoOp_L6
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "method()void" => block@5, * => block@8}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@7, block@10, block@10, block@10, block@10, block@10, block@10, block@10, block@10, block@10, block@10][tmp%4#0] else goto block@10
+    block@4: // switch_case_0_L6
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "method()void" => block@5, * => block@6}
     block@5: // method_route_L11
         test_cases.diamond_mro.base2.Base2.method[routing]()
-        goto block@8
-    block@6: // create_NoOp_L6
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create()void" => block@7, * => block@8}
-    block@7: // create_route_L11
+        goto block@6
+    block@6: // switch_case_next_L6
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@7: // switch_case_1_L6
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create()void" => block@8, * => block@9}
+    block@8: // create_route_L11
         exit 1u
-    block@8: // after_if_else_L6
-        fail
+    block@9: // switch_case_next_L6
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@10: // switch_case_default_L6
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.diamond_mro.base2.Base2.method[routing]() -> void:
     block@0: // L11

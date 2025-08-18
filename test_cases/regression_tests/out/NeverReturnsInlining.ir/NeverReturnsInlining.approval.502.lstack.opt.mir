@@ -1,30 +1,28 @@
-// Op                                                                          Stack (out)
+// Op                                                                                   Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     block@0:
         // regression_tests/never_returns.py:4
         // class NeverReturnsInlining(ARC4Contract):
-        txn NumAppArgs                                                         tmp%0#1
-        bz __algopy_default_create@6 ; b abi_routing@2
+        txn ApplicationID                                                               tmp%0#1
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@2:
+    call_NoOp:
         // regression_tests/never_returns.py:4
         // class NeverReturnsInlining(ARC4Contract):
-        txna ApplicationArgs 0                                                 tmp%2#0
-        method method()uint64                                                  tmp%2#0,Method(method()uint64)
-        l-load tmp%2#0 1                                                       Method(method()uint64),tmp%2#0
+        txna ApplicationArgs 0                                                          tmp%5#0
+        method method()uint64                                                           tmp%5#0,Method(method()uint64)
+        l-load tmp%5#0 1                                                                Method(method()uint64),tmp%5#0
         match method_route@3 ; b switch_case_next@5
 
     method_route@3:
-        // regression_tests/never_returns.py:5
-        // @arc4.abimethod
-        txn OnCompletion                                                       tmp%3#0
-        !                                                                      tmp%4#0
-        txn ApplicationID                                                      tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                       tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                       tmp%4#0,tmp%5#0
-        &&                                                                     tmp%7#0
-        assert // OnCompletion must be NoOp && can only call when not creating
         // regression_tests/never_returns.py:13
         // op.err()
         err
@@ -32,18 +30,20 @@ subroutine main:
     switch_case_next@5:
         // regression_tests/never_returns.py:4
         // class NeverReturnsInlining(ARC4Contract):
-        err
+        err // this contract does not implement the given ABI method for call NoOp
 
-    __algopy_default_create@6:
-        txn OnCompletion                                                       tmp%8#0
-        !                                                                      tmp%9#0
-        txn ApplicationID                                                      tmp%9#0,tmp%10#0
-        !                                                                      tmp%9#0,tmp%11#0
-        l-load tmp%9#0 1                                                       tmp%11#0,tmp%9#0
-        l-load tmp%11#0 1                                                      tmp%9#0,tmp%11#0
-        &&                                                                     tmp%12#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                  1
+    create_NoOp:
+        // regression_tests/never_returns.py:4
+        // class NeverReturnsInlining(ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        !                                                                               tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // regression_tests/never_returns.py:4
+        // class NeverReturnsInlining(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 

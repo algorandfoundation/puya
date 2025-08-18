@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     bytecblock 0x151f7c75 0x010000000000000000
     b block@0
 
@@ -13,81 +13,136 @@ block@0:
 block@1:
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@10
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@8
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@9
+    b __algopy_default_create@8
+
+__algopy_default_create@8:
+    b block@22
+
+block@22:
+    b after_inlined_test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create@23
+
+after_inlined_test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create@23:
+    intc_0 // 1
+    return
+
+else_body@9:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x58db7ce9 // method "get_abs_bound1(uint64)uint64"
     pushbytes 0xc95c01ca // method "get_abs_bound2()uint64"
     uncover 2
-    match get_abs_bound1_route@4 get_abs_bound2_route@5
-    b switch_case_default@6
+    match get_abs_bound1_route@3 get_abs_bound2_route@4
+    b switch_case_default@5
 
-switch_case_default@6:
-    b switch_case_next@7
+switch_case_default@5:
+    b switch_case_next@6
 
-switch_case_next@7:
-    b after_if_else@9
-
-after_if_else@9:
-    b after_if_else@11
-
-after_if_else@11:
+switch_case_next@6:
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-get_abs_bound2_route@5:
-    // regression_tests/biguint_opt.py:17
-    // @arc4.abimethod()
+get_abs_bound2_route@4:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     callsub get_abs_bound2
-    b switch_case_next@7
+    b switch_case_next@6
 
-get_abs_bound1_route@4:
-    // regression_tests/biguint_opt.py:5
-    // @arc4.abimethod()
+get_abs_bound1_route@3:
+    // regression_tests/biguint_opt.py:4
+    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     callsub get_abs_bound1
-    b switch_case_next@7
-
-create_NoOp@8:
-    b after_if_else@9
-
-__algopy_default_create@10:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@13
-
-block@13:
-    b after_inlined_test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create@14
-
-after_inlined_test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create@14:
-    intc_1 // 1
-    return
+    b switch_case_next@6
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:
@@ -105,7 +160,7 @@ get_abs_bound1_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -122,7 +177,7 @@ get_abs_bound2_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -137,11 +192,11 @@ test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1:
 test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1_block@0:
     // regression_tests/biguint_opt.py:7
     // abs_bound = lower_bound = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     // regression_tests/biguint_opt.py:8
     // if upper_bound:
     frame_dig -1
-    intc_0 // 0
+    intc_1 // 0
     !=
     bz test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1_after_if_else@2
     b test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1_if_body@1
@@ -149,7 +204,7 @@ test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1_
 test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1_if_body@1:
     // regression_tests/biguint_opt.py:7
     // abs_bound = lower_bound = UInt64(0)
-    intc_0 // 0
+    intc_1 // 0
     // regression_tests/biguint_opt.py:9-13
     // # if upper bound is truthy, then this will error at run time
     // # but optimizer should not replace this op in this case since it is guarded

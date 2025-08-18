@@ -4,23 +4,29 @@ subroutine main:
     block@0:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                 tmp%0#1
+        txn ApplicationID                                                                tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                   tmp%0#1
         !                                                                                tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                                                   tmp%1#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                tmp%2#0
+        txn OnCompletion                                                                 tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                   tmp%2#0
-        bz create_NoOp@14 ; b call_NoOp@2
+        int 1                                                                            tmp%2#0,1
+        shl                                                                              tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%1#0                                                                   tmp%1#0
+        v-load tmp%3#0                                                                   tmp%1#0,tmp%3#0
+        +                                                                                tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                   tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    call_NoOp@2:
+    call_NoOp:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                           tmp%4#0
-        v-store tmp%4#0
+        txna ApplicationArgs 0                                                           tmp%5#0
+        v-store tmp%5#0
         method pay(pay)void                                                              Method(pay(pay)void)
         method key(keyreg)void                                                           Method(pay(pay)void),Method(key(keyreg)void)
         method asset_config(acfg)void                                                    Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void)
@@ -30,71 +36,76 @@ subroutine main:
         method multiple_txns(appl,appl,appl)void                                         Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void)
         method any_txn(txn,txn,txn)void                                                  Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void)
         method group_init(txn,txn,txn)void                                               Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void)
-        v-load tmp%4#0                                                                   Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void),tmp%4#0
-        match pay_route@3 key_route@4 asset_config_route@5 asset_transfer_route@6 asset_freeze_route@7 application_call_route@8 multiple_txns_route@9 any_txn_route@10 group_init_route@11 ; b after_if_else@18 
+        v-load tmp%5#0                                                                   Method(pay(pay)void),Method(key(keyreg)void),Method(asset_config(acfg)void),Method(asset_transfer(axfer)void),Method(asset_freeze(afrz)void),Method(application_call(appl)void),Method(multiple_txns(appl,appl,appl)void),Method(any_txn(txn,txn,txn)void),Method(group_init(txn,txn,txn)void),tmp%5#0
+        match pay_route@3 key_route@4 asset_config_route@5 asset_transfer_route@6 asset_freeze_route@7 application_call_route@8 multiple_txns_route@9 any_txn_route@10 group_init_route@11 ; b switch_case_next@13 
 
     pay_route@3:
-        // transaction/contract.py:31
-        // @arc4.abimethod
-        callsub pay
-        b after_if_else@18
-
-    key_route@4:
-        // transaction/contract.py:40
-        // @arc4.abimethod
-        callsub key
-        b after_if_else@18
-
-    asset_config_route@5:
-        // transaction/contract.py:51
-        // @arc4.abimethod
-        callsub asset_config
-        b after_if_else@18
-
-    asset_transfer_route@6:
-        // transaction/contract.py:68
-        // @arc4.abimethod
-        callsub asset_transfer
-        b after_if_else@18
-
-    asset_freeze_route@7:
-        // transaction/contract.py:77
-        // @arc4.abimethod
-        callsub asset_freeze
-        b after_if_else@18
-
-    application_call_route@8:
-        // transaction/contract.py:85
-        // @arc4.abimethod
-        callsub application_call
-        b after_if_else@18
-
-    multiple_txns_route@9:
-        // transaction/contract.py:111
-        // @arc4.abimethod
-        callsub multiple_txns
-        b after_if_else@18
-
-    any_txn_route@10:
-        // transaction/contract.py:121
-        // @arc4.abimethod
-        callsub any_txn
-        b after_if_else@18
-
-    group_init_route@11:
-        // transaction/contract.py:131
-        // @arc4.abimethod
-        callsub group_init
-        b after_if_else@18
-
-    create_NoOp@14:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                           tmp%5#0
-        v-store tmp%5#0
+        callsub pay
+        b switch_case_next@13
+
+    key_route@4:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub key
+        b switch_case_next@13
+
+    asset_config_route@5:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub asset_config
+        b switch_case_next@13
+
+    asset_transfer_route@6:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub asset_transfer
+        b switch_case_next@13
+
+    asset_freeze_route@7:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub asset_freeze
+        b switch_case_next@13
+
+    application_call_route@8:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub application_call
+        b switch_case_next@13
+
+    multiple_txns_route@9:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub multiple_txns
+        b switch_case_next@13
+
+    any_txn_route@10:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub any_txn
+        b switch_case_next@13
+
+    group_init_route@11:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        callsub group_init
+        b switch_case_next@13
+
+    switch_case_next@13:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                           tmp%6#0
+        v-store tmp%6#0
         method create()void                                                              Method(create()void)
-        v-load tmp%5#0                                                                   Method(create()void),tmp%5#0
-        match create_route@15 ; b after_if_else@18
+        v-load tmp%6#0                                                                   Method(create()void),tmp%6#0
+        match create_route@15 ; b switch_case_next@17
 
     create_route@15:
         // transaction/contract.py:12
@@ -102,10 +113,15 @@ subroutine main:
         int 1                                                                            1
         return
 
-    after_if_else@18:
+    switch_case_next@17:
         // transaction/contract.py:11
         // class TransactionContract(arc4.ARC4Contract):
-        err
+        err // this contract does not implement the given ABI method for create NoOp
+
+    *NOT_IMPLEMENTED:
+        // transaction/contract.py:11
+        // class TransactionContract(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.transaction.contract.TransactionContract.pay[routing]() -> void:

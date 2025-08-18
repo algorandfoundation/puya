@@ -22,23 +22,34 @@ main:
 after_if_else@2:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@9
-    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0
-    match bootstrap close get_preconditions vote
-    err
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-create_NoOp@9:
+*NOT_IMPLEMENTED:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     txna ApplicationArgs 0
     match create
-    err
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
+    txna ApplicationArgs 0
+    match bootstrap close get_preconditions vote
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:

@@ -145,71 +145,83 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__() -> bool:
     block@0: // L41
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@18
-    block@1: // abi_routing_L41
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@16
-    block@2: // call_NoOp_L41
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create_box()void" => block@3, method "num_tups()uint64" => block@4, method "add_tup((uint64,uint64))void" => block@5, method "get_tup(uint64)(uint64,uint64)" => block@6, method "sum()uint64" => block@7, method "add_many_tups((uint64,uint64)[])void" => block@8, method "add_fixed_tups((uint64,uint64)[3])void" => block@9, method "set_a(uint64)void" => block@10, method "set_b(uint64)void" => block@11, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@12, method "get_all_tups()(uint64,uint64)[]" => block@13, * => block@14}
-    block@3: // create_box_route_L45
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@1, 1u => block@15, 2u => block@18, 3u => block@19, 4u => block@20, 5u => block@21, 6u => block@22, 7u => block@23, 8u => block@24, 9u => block@25, 10u => block@26, 11u => block@27, * => block@28}
+    block@1: // switch_case_0_L41
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "create_box()void" => block@2, method "num_tups()uint64" => block@3, method "add_tup((uint64,uint64))void" => block@4, method "get_tup(uint64)(uint64,uint64)" => block@5, method "sum()uint64" => block@6, method "add_many_tups((uint64,uint64)[])void" => block@7, method "add_fixed_tups((uint64,uint64)[3])void" => block@8, method "set_a(uint64)void" => block@9, method "set_b(uint64)void" => block@10, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@11, method "get_all_tups()(uint64,uint64)[]" => block@12, * => block@13}
+    block@2: // create_box_route_L45
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box[routing]()
-        goto block@15
-    block@4: // num_tups_route_L52
+        goto block@14
+    block@3: // num_tups_route_L52
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups[routing]()
-        goto block@15
-    block@5: // add_tup_route_L56
+        goto block@14
+    block@4: // add_tup_route_L56
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup[routing]()
-        goto block@15
-    block@6: // get_tup_route_L63
+        goto block@14
+    block@5: // get_tup_route_L63
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup[routing]()
-        goto block@15
-    block@7: // sum_route_L68
+        goto block@14
+    block@6: // sum_route_L68
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[routing]()
-        goto block@15
-    block@8: // add_many_tups_route_L77
+        goto block@14
+    block@7: // add_many_tups_route_L77
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups[routing]()
-        goto block@15
-    block@9: // add_fixed_tups_route_L82
+        goto block@14
+    block@8: // add_fixed_tups_route_L82
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups[routing]()
-        goto block@15
-    block@10: // set_a_route_L87
+        goto block@14
+    block@9: // set_a_route_L87
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[routing]()
-        goto block@15
-    block@11: // set_b_route_L94
+        goto block@14
+    block@10: // set_b_route_L94
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[routing]()
-        goto block@15
-    block@12: // get_3_tups_route_L101
+        goto block@14
+    block@11: // get_3_tups_route_L101
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups[routing]()
-        goto block@15
-    block@13: // get_all_tups_route_L114
+        goto block@14
+    block@12: // get_all_tups_route_L114
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups[routing]()
-        goto block@15
-    block@14: // switch_case_default_L41
-        goto block@15
-    block@15: // switch_case_next_L41
-        goto block@17
-    block@16: // create_NoOp_L41
-        goto block@17
-    block@17: // after_if_else_L41
-        goto block@19
-    block@18: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@14
+    block@13: // switch_case_default_L41
+        goto block@14
+    block@14: // switch_case_next_L41
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@15: // switch_case_1_L41
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (== tmp%6#0 0u)
+        goto tmp%7#0 ? block@16 : block@17
+    block@16: // __algopy_default_create_L1
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create()
         exit 1u
-    block@19: // after_if_else_L41
-        exit 0u
+    block@17: // else_body_L41
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@18: // switch_case_2_L41
+        goto block@28
+    block@19: // switch_case_3_L41
+        goto block@28
+    block@20: // switch_case_4_L41
+        goto block@28
+    block@21: // switch_case_5_L41
+        goto block@28
+    block@22: // switch_case_6_L41
+        goto block@28
+    block@23: // switch_case_7_L41
+        goto block@28
+    block@24: // switch_case_8_L41
+        goto block@28
+    block@25: // switch_case_9_L41
+        goto block@28
+    block@26: // switch_case_10_L41
+        goto block@28
+    block@27: // switch_case_11_L41
+        goto block@28
+    block@28: // switch_case_default_L41
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box[routing]() -> void:
     block@0: // L45

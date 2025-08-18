@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     b block@0
 
 block@0:
@@ -12,26 +12,108 @@ block@0:
 block@1:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@11
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@9
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@10
+    b __algopy_default_create@9
+
+__algopy_default_create@9:
+    b block@23
+
+block@23:
+    b after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@24
+
+after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@24:
+    intc_0 // 1
+    return
+
+else_body@10:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -39,61 +121,34 @@ call_NoOp@3:
     pushbytes 0x20694f7b // method "named_tuple_itxn2(uint64)void"
     pushbytes 0xd6ca0578 // method "named_tuple_itxn3(uint64)void"
     uncover 3
-    match named_tuple_itxn_route@4 named_tuple_itxn2_route@5 named_tuple_itxn3_route@6
-    b switch_case_default@7
+    match named_tuple_itxn_route@3 named_tuple_itxn2_route@4 named_tuple_itxn3_route@5
+    b switch_case_default@6
 
-switch_case_default@7:
-    b switch_case_next@8
+switch_case_default@6:
+    b switch_case_next@7
 
-switch_case_next@8:
-    b after_if_else@10
-
-after_if_else@10:
-    b after_if_else@12
-
-after_if_else@12:
+switch_case_next@7:
     // inner_transactions/itxn_tuple.py:11
     // class ItxnNamedTuple(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-named_tuple_itxn3_route@6:
-    // inner_transactions/itxn_tuple.py:22
-    // @arc4.abimethod()
+named_tuple_itxn3_route@5:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn3
-    b switch_case_next@8
+    b switch_case_next@7
 
-named_tuple_itxn2_route@5:
-    // inner_transactions/itxn_tuple.py:17
-    // @arc4.abimethod()
+named_tuple_itxn2_route@4:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn2
-    b switch_case_next@8
+    b switch_case_next@7
 
-named_tuple_itxn_route@4:
-    // inner_transactions/itxn_tuple.py:12
-    // @arc4.abimethod()
+named_tuple_itxn_route@3:
+    // inner_transactions/itxn_tuple.py:11
+    // class ItxnNamedTuple(arc4.ARC4Contract):
     callsub named_tuple_itxn
-    b switch_case_next@8
-
-create_NoOp@9:
-    b after_if_else@10
-
-__algopy_default_create@11:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@14
-
-block@14:
-    b after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@15
-
-after_inlined_test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__algopy_default_create@15:
-    intc_1 // 1
-    return
+    b switch_case_next@7
 
 
 // test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn[routing]() -> void:
@@ -106,7 +161,7 @@ named_tuple_itxn_block@0:
     txna ApplicationArgs 1
     btoi
     callsub test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -120,7 +175,7 @@ named_tuple_itxn2_block@0:
     txna ApplicationArgs 1
     btoi
     callsub test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -134,7 +189,7 @@ named_tuple_itxn3_block@0:
     txna ApplicationArgs 1
     btoi
     callsub test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -154,9 +209,9 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn_block@0
     frame_dig -1
     itxn_field Amount
     itxn_field Receiver
-    intc_1 // pay
+    intc_0 // pay
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn_next_txn@1
 
@@ -167,7 +222,7 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn_next_tx
     itxn Amount
     // inner_transactions/itxn_tuple.py:15
     // assert hmm.bar.amount == 0
-    intc_0 // 0
+    intc_1 // 0
     ==
     assert
     retsub
@@ -189,9 +244,9 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2_block@
     frame_dig -1
     itxn_field Amount
     itxn_field Receiver
-    intc_1 // pay
+    intc_0 // pay
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2_next_txn@1
 
@@ -202,7 +257,7 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2_next_t
     itxn Amount
     // inner_transactions/itxn_tuple.py:20
     // assert txn.amount == 0
-    intc_0 // 0
+    intc_1 // 0
     ==
     assert
     retsub
@@ -224,9 +279,9 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3_block@
     frame_dig -1
     itxn_field Amount
     itxn_field Receiver
-    intc_1 // pay
+    intc_0 // pay
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3_next_txn@1
 
@@ -237,7 +292,7 @@ test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3_next_t
     itxn Amount
     // inner_transactions/itxn_tuple.py:26
     // assert txn.amount == 0
-    intc_0 // 0
+    intc_1 // 0
     ==
     assert
     retsub

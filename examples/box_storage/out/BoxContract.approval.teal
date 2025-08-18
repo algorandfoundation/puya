@@ -7,19 +7,35 @@ main:
     bytecblock "dynamic_arr_struct" "box" "dynamic_box" 0x424f585f43 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "many_ints" "0" 0x00023432 0x68656c6c6f 0x068101 0x0014 "box_ref" "default"
     // box_storage/contract.py:80
     // class BoxContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@42
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
     pushbytess 0x7d37296e 0x33325d3d 0x0199408d 0x772059ca 0x01263df6 0xd566c632 0xfabcb885 0xa6174812 0xf13dd937 0x5ab60f2e 0xf07a0064 0x78f9af3f 0x5cbb9dcc 0x996497ae 0x6cec72ff 0x6f9d1075 0x0d22b441 0x59ef3760 0xaa666b96 0xdfbdd636 0x41427cd1 0x2a141f6c 0x7e843744 0x25600b57 0x29ea595d 0x11453152 0xced1221e 0x04ef4971 0x23ecb32c 0xeef75816 0xb532913a 0xc29f1669 0x9c888c09 0xe6f68506 0x8ee2c364 // method "set_boxes(uint64,byte[],string)void", method "check_keys()void", method "create_many_ints()void", method "set_many_ints(uint64,uint64)void", method "sum_many_ints()uint64", method "delete_boxes()void", method "indirect_extract_and_replace()void", method "read_boxes()(uint64,byte[],string,uint64)", method "boxes_exist()(bool,bool,bool,bool)", method "create_dynamic_arr_struct()void", method "delete_dynamic_arr_struct()void", method "append_dynamic_arr_struct(uint64)uint64", method "pop_dynamic_arr_struct(uint64)uint64", method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void", method "nested_write(uint64,uint64)void", method "nested_read(uint64,uint64,uint64)uint64", method "sum_dynamic_arr_struct()uint64", method "create_bools()void", method "set_bool(uint64,bool)void", method "sum_bools(uint64)uint64", method "create_dynamic_box()void", method "delete_dynamic_box()void", method "append_dynamic_box(uint64)uint64", method "pop_dynamic_box(uint64)uint64", method "sum_dynamic_box()uint64", method "write_dynamic_box(uint64,uint64)void", method "write_dynamic_arr_struct(uint64,uint64)void", method "slice_box()void", method "arc4_box()void", method "test_box_ref()void", method "box_map_test()void", method "box_map_set(uint64,string)void", method "box_map_get(uint64)string", method "box_map_del(uint64)void", method "box_map_exists(uint64)bool"
     txna ApplicationArgs 0
-    match set_boxes check_keys_route@7 create_many_ints_route@8 set_many_ints sum_many_ints delete_boxes indirect_extract_and_replace read_boxes boxes_exist create_dynamic_arr_struct delete_dynamic_arr_struct_route@16 append_dynamic_arr_struct pop_dynamic_arr_struct set_nested_struct nested_write nested_read sum_dynamic_arr_struct create_bools_route@23 set_bool sum_bools create_dynamic_box delete_dynamic_box_route@27 append_dynamic_box pop_dynamic_box sum_dynamic_box write_dynamic_box write_dynamic_arr_struct slice_box arc4_box_route@34 test_box_ref box_map_test box_map_set box_map_get box_map_del box_map_exists
-    err
+    match set_boxes check_keys_route@6 create_many_ints_route@7 set_many_ints sum_many_ints delete_boxes indirect_extract_and_replace read_boxes boxes_exist create_dynamic_arr_struct delete_dynamic_arr_struct_route@15 append_dynamic_arr_struct pop_dynamic_arr_struct set_nested_struct nested_write nested_read sum_dynamic_arr_struct create_bools_route@22 set_bool sum_bools create_dynamic_box delete_dynamic_box_route@26 append_dynamic_box pop_dynamic_box sum_dynamic_box write_dynamic_box write_dynamic_arr_struct slice_box arc4_box_route@33 test_box_ref box_map_test box_map_set box_map_get box_map_del box_map_exists
+    err // this contract does not implement the given ABI method for call NoOp
 
-arc4_box_route@34:
+arc4_box_route@33:
     // box_storage/contract.py:378-379
     // box_d = Box(StaticInts, key=Bytes(b"d"))
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
@@ -32,7 +48,7 @@ arc4_box_route@34:
     intc_1 // 1
     return
 
-delete_dynamic_box_route@27:
+delete_dynamic_box_route@26:
     // box_storage/contract.py:324
     // del self.dynamic_box.value
     bytec_2 // "dynamic_box"
@@ -43,7 +59,7 @@ delete_dynamic_box_route@27:
     intc_1 // 1
     return
 
-create_bools_route@23:
+create_bools_route@22:
     // box_storage/contract.py:302
     // self.too_many_bools.create()
     bytec 10 // "too_many_bools"
@@ -55,7 +71,7 @@ create_bools_route@23:
     intc_1 // 1
     return
 
-delete_dynamic_arr_struct_route@16:
+delete_dynamic_arr_struct_route@15:
     // box_storage/contract.py:197
     // del self.dynamic_arr_struct.value
     bytec_0 // "dynamic_arr_struct"
@@ -66,7 +82,7 @@ delete_dynamic_arr_struct_route@16:
     intc_1 // 1
     return
 
-create_many_ints_route@8:
+create_many_ints_route@7:
     // box_storage/contract.py:140
     // self.many_ints.create()
     bytec 11 // "many_ints"
@@ -78,19 +94,11 @@ create_many_ints_route@8:
     intc_1 // 1
     return
 
-check_keys_route@7:
+check_keys_route@6:
     // box_storage/contract.py:131
     // @arc4.abimethod
     intc_1 // 1
     return
-
-__algopy_default_create@42:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // examples.box_storage.contract.BoxContract.set_boxes[routing]() -> void:

@@ -3,29 +3,37 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0 5 1
-    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0x59664ab6 0x0003 0x818e4a62
+    intcblock 6 0 1 5
+    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0xd28b964a 0xbb3bfdb7 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0x59664ab6 0x0003 0x818e4a62
+    // mutable_native_types/abi_call.py:102
+    // class TestAbiCall(arc4.ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_2 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // mutable_native_types/abi_call.py:102
+    // class TestAbiCall(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // mutable_native_types/abi_call.py:102
     // class TestAbiCall(arc4.ARC4Contract):
     txn NumAppArgs
-    bz __algopy_default_create@14
-    txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // mutable_native_types/abi_call.py:102
+    // class TestAbiCall(arc4.ARC4Contract):
     pushbytess 0x5df19773 0xba041cd5 0x8441664a 0xcaa62e2c 0x38357d5e 0xe473c70a // method "test_fixed_struct()void", method "test_nested_struct()void", method "test_dynamic_struct()void", method "test_fixed_array()void", method "test_native_array()void", method "test_log()void"
     txna ApplicationArgs 0
     match test_fixed_struct test_nested_struct test_dynamic_struct test_fixed_array test_native_array test_log
-    err
-
-__algopy_default_create@14:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]() -> void:
@@ -33,11 +41,11 @@ test_fixed_struct:
     // mutable_native_types/abi_call.py:105
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -49,7 +57,7 @@ test_fixed_struct:
     // # fixed struct - typed
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
     pushint 2 // 2
@@ -152,7 +160,7 @@ test_fixed_struct:
     // mutable_native_types/abi_call.py:120
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -164,7 +172,7 @@ test_fixed_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:103
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return
 
 
@@ -173,11 +181,11 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:124
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -188,7 +196,7 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:129
     // fixed=FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2),
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
     pushint 2 // 2
@@ -318,7 +326,7 @@ test_nested_struct:
     // mutable_native_types/abi_call.py:147
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -330,7 +338,7 @@ test_nested_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:122
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return
 
 
@@ -339,11 +347,11 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:151
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -354,7 +362,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:154
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
     pushint 2 // 2
@@ -367,7 +375,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:158
     // a=Txn.num_app_args + 1,
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     // mutable_native_types/abi_call.py:159
     // b=Txn.num_app_args + 2,
@@ -570,7 +578,7 @@ test_dynamic_struct:
     // mutable_native_types/abi_call.py:186
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -582,7 +590,7 @@ test_dynamic_struct:
     itxn_submit
     // mutable_native_types/abi_call.py:149
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return
 
 
@@ -591,11 +599,11 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:190
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -606,7 +614,7 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:193
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
     pushint 2 // 2
@@ -728,7 +736,7 @@ test_fixed_array:
     // mutable_native_types/abi_call.py:212
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -740,7 +748,7 @@ test_fixed_array:
     itxn_submit
     // mutable_native_types/abi_call.py:188
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return
 
 
@@ -749,11 +757,11 @@ test_native_array:
     // mutable_native_types/abi_call.py:216
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -764,7 +772,7 @@ test_native_array:
     // mutable_native_types/abi_call.py:219
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
-    intc_3 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
     pushint 2 // 2
@@ -892,7 +900,7 @@ test_native_array:
     // mutable_native_types/abi_call.py:240
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -904,7 +912,7 @@ test_native_array:
     itxn_submit
     // mutable_native_types/abi_call.py:214
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return
 
 
@@ -913,11 +921,11 @@ test_log:
     // mutable_native_types/abi_call.py:244
     // create_txn = arc4.arc4_create(CallMe)
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAAEACAASABkAIwAqADQAPABHAE8AWgApNhoBZyJDIyllRChMULAiQyo2GgFnIkMjKmVEKExQsCJDKzYaAWciQyMrZUQoTFCwIkMnBDYaAWciQyMnBGVEKExQsCJDJwU2GgFnIkMjJwVlRChMULAiQyMpZUSwIyplRLAjK2VEsCMnBGVEsCMnBWVEsCJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -1036,7 +1044,7 @@ test_log:
     itxn NumLogs
     // mutable_native_types/abi_call.py:270
     // assert txn.num_logs == 5, "expected 5 logs"
-    intc_2 // 5
+    intc_3 // 5
     ==
     assert // expected 5 logs
     // mutable_native_types/abi_call.py:271
@@ -1077,7 +1085,7 @@ test_log:
     // mutable_native_types/abi_call.py:280
     // arc4.abi_call(CallMe.delete, app_id=app)
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -1089,5 +1097,5 @@ test_log:
     itxn_submit
     // mutable_native_types/abi_call.py:242
     // @arc4.abimethod()
-    intc_3 // 1
+    intc_2 // 1
     return

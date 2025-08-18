@@ -2,15 +2,15 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         goto block@1
     block@1: // L11
-        let tmp%0#1: uint64 = (txn OnCompletion)
-        let tmp%1#0: bool = (== tmp%0#1 NoOp)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        let tmp%3#0: bool = (!= tmp%2#0 0u)
-        goto tmp%3#0 ? block@2 : block@14
-    block@2: // call_NoOp_L11
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@2, 1u => block@14, 2u => block@18, 3u => block@19, 4u => block@20, 5u => block@21, 6u => block@22, 7u => block@23, 8u => block@24, 9u => block@25, 10u => block@26, 11u => block@27, * => block@28}
+    block@2: // switch_case_0_L11
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
     block@3: // pay_route_L31
         test_cases.transaction.contract.TransactionContract.pay[routing]()
         goto block@13
@@ -41,20 +41,40 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@12: // switch_case_default_L11
         goto block@13
     block@13: // switch_case_next_L11
-        goto block@18
-    block@14: // create_NoOp_L11
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create()void" => block@15, * => block@16}
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@14: // switch_case_1_L11
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create()void" => block@15, * => block@16}
     block@15: // create_route_L12
         test_cases.transaction.contract.TransactionContract.create[routing]()
         goto block@17
     block@16: // switch_case_default_L11
         goto block@17
     block@17: // switch_case_next_L11
-        goto block@18
-    block@18: // after_if_else_L11
-        exit 0u
-    block@19: // after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router___L1
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@18: // switch_case_2_L11
+        goto block@28
+    block@19: // switch_case_3_L11
+        goto block@28
+    block@20: // switch_case_4_L11
+        goto block@28
+    block@21: // switch_case_5_L11
+        goto block@28
+    block@22: // switch_case_6_L11
+        goto block@28
+    block@23: // switch_case_7_L11
+        goto block@28
+    block@24: // switch_case_8_L11
+        goto block@28
+    block@25: // switch_case_9_L11
+        goto block@28
+    block@26: // switch_case_10_L11
+        goto block@28
+    block@27: // switch_case_11_L11
+        goto block@28
+    block@28: // switch_case_default_L11
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+    block@29: // after_inlined_test_cases.transaction.contract.TransactionContract.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 

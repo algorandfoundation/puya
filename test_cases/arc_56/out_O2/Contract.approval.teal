@@ -4,27 +4,66 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 2 10 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
+    bytecblock 0x 0x4c5c61ba 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     intc_1 // 0
     dupn 3
     bytec_0 // ""
     dupn 2
-    txn NumAppArgs
-    bz bare_routing@15
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match create_route@5
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn create_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED create_DeleteApplication
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_DeleteApplication:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create DeleteApplication
+
+create_OptIn:
+    txn NumAppArgs
+    bz bare_create@5
+    bytec_1 // method "create()void"
+    txna ApplicationArgs 0
+    match bare_create@5
+    err // this contract does not implement the given ABI method for create OptIn
+
+bare_create@5:
+    intc_0 // 1
+    return
+
+call_OptIn:
+    txn NumAppArgs
+    bz bare_create@5
+    bytec_1 // method "create()void"
+    txna ApplicationArgs 0
+    match bare_create@5
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_NoOp:
+    txn NumAppArgs
+    bz bare_create@5
+    bytec_1 // method "create()void"
+    txna ApplicationArgs 0
+    match bare_create@5
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    txn NumAppArgs
+    bnz else_body@6
+    b bare_create@5
+
+else_body@6:
+    bytec_1 // method "create()void"
     pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
     txna ApplicationArgs 0
-    match struct_arg_route@8 struct_return_route@9 emits_error_route@10 emitter_route@11 conditional_emit_route@12 template_value_route@13 with_constant_defaults_route@14
-
-after_if_else@18:
-    err
+    match bare_create@5 struct_arg_route@8 struct_return_route@9 emits_error_route@10 emitter_route@11 conditional_emit_route@12 template_value_route@13 with_constant_defaults_route@14
+    err // this contract does not implement the given ABI method for call NoOp
 
 with_constant_defaults_route@14:
     txna ApplicationArgs 1
@@ -70,28 +109,28 @@ with_constant_defaults_route@14:
     extract 0 8
     bytec_0 // 0x
     b!=
-    bnz bool_true@21
+    bnz bool_true@41
     dig 6
     extract 8 8
     bytec_0 // 0x
     b!=
-    bz bool_false@22
+    bz bool_false@42
 
-bool_true@21:
+bool_true@41:
     intc_0 // 1
 
-bool_merge@23:
+bool_merge@43:
     assert
     dig 2
-    bnz bool_true@25
+    bnz bool_true@45
     dig 5
     len
-    bz bool_false@26
+    bz bool_false@46
 
-bool_true@25:
+bool_true@45:
     intc_0 // 1
 
-bool_merge@27:
+bool_merge@47:
     assert
     dig 4
     dup
@@ -120,19 +159,19 @@ bool_merge@27:
     ==
     return
 
-bool_false@26:
+bool_false@46:
     intc_1 // 0
-    b bool_merge@27
+    b bool_merge@47
 
-bool_false@22:
+bool_false@42:
     intc_1 // 0
-    b bool_merge@23
+    b bool_merge@43
 
 template_value_route@13:
-    bytec_2 // TMPL_ARC4_UINT8
-    bytec_3 // TMPL_AVM_STRING
+    bytec_3 // TMPL_ARC4_UINT8
+    bytec 4 // TMPL_AVM_STRING
     intc 4 // TMPL_AVM_UINT64
-    bytec 4 // TMPL_STRUCT
+    bytec 5 // TMPL_STRUCT
     dup
     len
     pushint 13 // 13
@@ -160,7 +199,7 @@ template_value_route@13:
     concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -171,13 +210,10 @@ conditional_emit_route@12:
     txna ApplicationArgs 1
     intc_1 // 0
     getbit
-    bz after_if_else@33
+    bz bare_create@5
     pushbytes 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
     log
-
-after_if_else@33:
-    intc_0 // 1
-    return
+    b bare_create@5
 
 emitter_route@11:
     pushbytes 0xd93f374e00032a000668656c6c6f31
@@ -202,7 +238,7 @@ struct_return_route@9:
     dig 1
     len
     substring3
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -226,21 +262,3 @@ struct_arg_route@8:
     log
     intc_0 // 1
     return
-
-create_route@5:
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 3 // 3
-    &
-    return // on error: OnCompletion must be one of NoOp, OptIn
-
-bare_routing@15:
-    txn OnCompletion
-    switch after_if_else@33 after_if_else@33 after_if_else@18 after_if_else@18 after_if_else@18 transient@17
-    err
-
-transient@17:
-    txn ApplicationID
-    !
-    return // on error: can only call when creating

@@ -424,60 +424,69 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
     block@1: // L22
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@11
-    block@2: // abi_routing_L22
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@9
-    block@3: // call_NoOp_L22
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "append()void" => block@4, method "modify()void" => block@5, method "get()(uint64,string)[]" => block@6, * => block@7}
-    block@4: // append_route_L36
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@2, 1u => block@8, 2u => block@13, 3u => block@16, 4u => block@17, 5u => block@18, 6u => block@19, 7u => block@20, 8u => block@21, 9u => block@22, 10u => block@23, 11u => block@24, * => block@25}
+    block@2: // switch_case_0_L22
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "append()void" => block@3, method "modify()void" => block@4, method "get()(uint64,string)[]" => block@5, * => block@6}
+    block@3: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        goto block@8
-    block@5: // modify_route_L44
+        goto block@7
+    block@4: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        goto block@8
-    block@6: // get_route_L51
+        goto block@7
+    block@5: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        goto block@8
-    block@7: // switch_case_default_L22
-        goto block@8
-    block@8: // switch_case_next_L22
+        goto block@7
+    block@6: // switch_case_default_L22
+        goto block@7
+    block@7: // switch_case_next_L22
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@8: // switch_case_1_L22
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (== tmp%6#0 0u)
+        goto tmp%7#0 ? block@9 : block@12
+    block@9: // __algopy_default_create_L1
         goto block@10
-    block@9: // create_NoOp_L22
-        goto block@10
-    block@10: // after_if_else_L22
-        goto block@18
-    block@11: // bare_routing_L22
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        switch tmp%7#0 {NoOp => block@12, OptIn => block@15, * => block@16}
-    block@12: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (== tmp%8#0 0u)
-        (assert tmp%9#0) // can only call when creating
-        goto block@13
-    block@13: // L1
-        goto block@14
-    block@14: // after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create_L1
+    block@10: // L1
+        goto block@11
+    block@11: // after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create_L1
         exit 1u
-    block@15: // opt_in_L29
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
+    block@12: // else_body_L22
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@13: // switch_case_2_L22
+        let tmp%8#0: uint64 = (txn NumAppArgs)
+        let tmp%9#0: bool = (== tmp%8#0 0u)
+        goto tmp%9#0 ? block@14 : block@15
+    block@14: // opt_in_L29
         test_cases.state_mutations.contract.Contract.opt_in()
         exit 1u
-    block@16: // switch_case_default_L22
-        goto block@17
-    block@17: // switch_case_next_L22
-        goto block@18
-    block@18: // after_if_else_L22
-        exit 0u
-    block@19: // after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router___L1
+    block@15: // else_body_L22
+        fail // this contract does not implement the given ABI method for call OptIn
+    block@16: // switch_case_3_L22
+        goto block@25
+    block@17: // switch_case_4_L22
+        goto block@25
+    block@18: // switch_case_5_L22
+        goto block@25
+    block@19: // switch_case_6_L22
+        goto block@25
+    block@20: // switch_case_7_L22
+        goto block@25
+    block@21: // switch_case_8_L22
+        goto block@25
+    block@22: // switch_case_9_L22
+        goto block@25
+    block@23: // switch_case_10_L22
+        goto block@25
+    block@24: // switch_case_11_L22
+        goto block@25
+    block@25: // switch_case_default_L22
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+    block@26: // after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

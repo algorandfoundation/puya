@@ -5,29 +5,35 @@
 main:
     // inlining/contract.py:34
     // class NeverReturns(arc4.ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
     txn NumAppArgs
-    bz __algopy_default_create@6
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // inlining/contract.py:34
+    // class NeverReturns(arc4.ARC4Contract):
     pushbytes 0xa79bc532 // method "err()void"
     txna ApplicationArgs 0
     match err_route@3
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 err_route@3:
-    // inlining/contract.py:35
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
     // inlining/contract.py:37
     // op.err()
     err
-
-__algopy_default_create@6:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

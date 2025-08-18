@@ -1,54 +1,58 @@
-// Op                                                                           Stack (out)
+// Op                                                                                   Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     block@0:
         // regression_tests/biguint_opt.py:4
         // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-        txn NumAppArgs                                                          tmp%0#1
-        bz __algopy_default_create@10 ; b abi_routing@2
+        txn ApplicationID                                                               tmp%0#1
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@2:
+    call_NoOp:
         // regression_tests/biguint_opt.py:4
         // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-        txn OnCompletion                                                        tmp%2#0
-        !                                                                       tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                       tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                  tmp%6#0
-        method get_abs_bound1(uint64)uint64                                     tmp%6#0,Method(get_abs_bound1(uint64)uint64)
-        method get_abs_bound2()uint64                                           tmp%6#0,Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64)
-        l-load tmp%6#0 2                                                        Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64),tmp%6#0
-        match get_abs_bound1_route@4 get_abs_bound2_route@5 ; b after_if_else@9
+        txna ApplicationArgs 0                                                          tmp%5#0
+        method get_abs_bound1(uint64)uint64                                             tmp%5#0,Method(get_abs_bound1(uint64)uint64)
+        method get_abs_bound2()uint64                                                   tmp%5#0,Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64)
+        l-load tmp%5#0 2                                                                Method(get_abs_bound1(uint64)uint64),Method(get_abs_bound2()uint64),tmp%5#0
+        match get_abs_bound1_route@3 get_abs_bound2_route@4 ; b switch_case_next@6
 
-    get_abs_bound1_route@4:
-        // regression_tests/biguint_opt.py:5
-        // @arc4.abimethod()
+    get_abs_bound1_route@3:
+        // regression_tests/biguint_opt.py:4
+        // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
         callsub get_abs_bound1
-        b after_if_else@9
+        b switch_case_next@6
 
-    get_abs_bound2_route@5:
-        // regression_tests/biguint_opt.py:17
-        // @arc4.abimethod()
-        callsub get_abs_bound2
-        b after_if_else@9
-
-    after_if_else@9:
+    get_abs_bound2_route@4:
         // regression_tests/biguint_opt.py:4
         // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-        err
+        callsub get_abs_bound2
+        b switch_case_next@6
 
-    __algopy_default_create@10:
-        txn OnCompletion                                                        tmp%7#0
-        !                                                                       tmp%8#0
-        txn ApplicationID                                                       tmp%8#0,tmp%9#0
-        !                                                                       tmp%8#0,tmp%10#0
-        l-load tmp%8#0 1                                                        tmp%10#0,tmp%8#0
-        l-load tmp%10#0 1                                                       tmp%8#0,tmp%10#0
-        &&                                                                      tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                   1
+    switch_case_next@6:
+        // regression_tests/biguint_opt.py:4
+        // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // regression_tests/biguint_opt.py:4
+        // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        !                                                                               tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // regression_tests/biguint_opt.py:4
+        // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]() -> void:
@@ -56,36 +60,36 @@ subroutine get_abs_bound1:
     get_abs_bound1_block@0:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                  reinterpret_Encoded(uint64)%0#0
-        btoi                                                                    upper_bound#0
+        txna ApplicationArgs 1                                                          reinterpret_Encoded(uint64)%0#0
+        btoi                                                                            upper_bound#0
         // regression_tests/biguint_opt.py:7
         // abs_bound = lower_bound = UInt64(0)
-        int 0                                                                   upper_bound#0,0
-        f-store abs_bound#0                                                     (𝕗) abs_bound#0 | upper_bound#0
+        int 0                                                                           upper_bound#0,0
+        f-store abs_bound#0                                                             (𝕗) abs_bound#0 | upper_bound#0
         // regression_tests/biguint_opt.py:8
         // if upper_bound:
-        l-load upper_bound#0 0                                                  (𝕗) abs_bound#0 | upper_bound#0
-        bz get_abs_bound1_after_if_else@3 ; b get_abs_bound1_if_body@2          (𝕗) abs_bound#0 |
+        l-load upper_bound#0 0                                                          (𝕗) abs_bound#0 | upper_bound#0
+        bz get_abs_bound1_after_if_else@3 ; b get_abs_bound1_if_body@2                  (𝕗) abs_bound#0 |
 
-    get_abs_bound1_if_body@2:                                                   (𝕗) abs_bound#0 |
+    get_abs_bound1_if_body@2:                                                           (𝕗) abs_bound#0 |
         // regression_tests/biguint_opt.py:13
         // abs_bound = op.btoi((BigUInt(1 << 64) - lower_bound).bytes)
-        byte 0x010000000000000000                                               (𝕗) abs_bound#0 | 0x010000000000000000
-        btoi                                                                    (𝕗) abs_bound#0 | abs_bound#0
-        f-store abs_bound#0                                                     (𝕗) abs_bound#0 |
-        b get_abs_bound1_after_if_else@3                                        (𝕗) abs_bound#0 |
+        byte 0x010000000000000000                                                       (𝕗) abs_bound#0 | 0x010000000000000000
+        btoi                                                                            (𝕗) abs_bound#0 | abs_bound#0
+        f-store abs_bound#0                                                             (𝕗) abs_bound#0 |
+        b get_abs_bound1_after_if_else@3                                                (𝕗) abs_bound#0 |
 
-    get_abs_bound1_after_if_else@3:                                             (𝕗) abs_bound#0 |
+    get_abs_bound1_after_if_else@3:                                                     (𝕗) abs_bound#0 |
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
-        f-load abs_bound#0                                                      (𝕗) abs_bound#0 | abs_bound#0
-        itob                                                                    (𝕗) abs_bound#0 | aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                         (𝕗) abs_bound#0 | aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                     (𝕗) abs_bound#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                  (𝕗) abs_bound#0 | tmp%3#0
-        log                                                                     (𝕗) abs_bound#0 |
-        int 1                                                                   (𝕗) abs_bound#0 | 1
-        return                                                                  (𝕗) abs_bound#0 |
+        f-load abs_bound#0                                                              (𝕗) abs_bound#0 | abs_bound#0
+        itob                                                                            (𝕗) abs_bound#0 | aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                 (𝕗) abs_bound#0 | aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                             (𝕗) abs_bound#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                          (𝕗) abs_bound#0 | tmp%3#0
+        log                                                                             (𝕗) abs_bound#0 |
+        int 1                                                                           (𝕗) abs_bound#0 | 1
+        return                                                                          (𝕗) abs_bound#0 |
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]() -> void:
@@ -93,16 +97,16 @@ subroutine get_abs_bound2:
     get_abs_bound2_block@0:
         // regression_tests/biguint_opt.py:21
         // abs_bound = op.btoi((BigUInt(1 << 64) - 0).bytes)
-        byte 0x010000000000000000                                               0x010000000000000000
-        btoi                                                                    abs_bound#0
+        byte 0x010000000000000000                                                       0x010000000000000000
+        btoi                                                                            abs_bound#0
         // regression_tests/biguint_opt.py:17
         // @arc4.abimethod()
-        itob                                                                    aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                         aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                     0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                  tmp%2#0
+        itob                                                                            aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                 aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                             0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                          tmp%2#0
         log
-        int 1                                                                   1
+        int 1                                                                           1
         return
 
 

@@ -4,55 +4,125 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 10 2 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
+    bytecblock 0x4c5c61ba 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn create_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED create_DeleteApplication
+
+*NOT_IMPLEMENTED:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_DeleteApplication:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz bare_routing@15
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match create_route@5
-    txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
-    pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
-    txna ApplicationArgs 0
-    match struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
+    // arc_56/contract.py:85
+    // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
+    return // on error: this contract does not implement the given ABI method for create DeleteApplication
 
-after_if_else@18:
+create_OptIn:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    err
+    txn NumAppArgs
+    bnz else_body@28
+    // arc_56/contract.py:77
+    // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
 
-create_route@5:
+else_body@28:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_0 // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@29
+    err // this contract does not implement the given ABI method for create OptIn
+
+create_route@29:
     // arc_56/contract.py:81
     // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 3 // 3
-    &
-    return // on error: OnCompletion must be one of NoOp, OptIn
+    return
 
-bare_routing@15:
+call_OptIn:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txn OnCompletion
-    switch bare_create@16 bare_create@16 after_if_else@18 after_if_else@18 after_if_else@18 transient@17
-    err
-
-transient@17:
-    // arc_56/contract.py:85
-    // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
-    txn ApplicationID
-    !
-    return // on error: can only call when creating
-
-bare_create@16:
+    txn NumAppArgs
+    bnz else_body@23
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
+
+else_body@23:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_0 // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@24
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_route@24:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
+
+create_NoOp:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@18
+    // arc_56/contract.py:77
+    // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
+
+else_body@18:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_0 // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@19
+    err // this contract does not implement the given ABI method for create NoOp
+
+create_route@19:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
+
+call_NoOp:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@6
+    // arc_56/contract.py:77
+    // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    intc_0 // 1
+    return
+
+else_body@6:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    bytec_0 // method "create()void"
+    pushbytess 0x97e8e4a7 0x76c4de11 0xc1ca7709 0x6de762c2 0x59fc5282 0x9d9eecb0 0x5e8eef9a // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64", method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)", method "emits_error((uint64,string,(byte[],uint8)))void", method "emitter()void", method "conditional_emit(bool)void", method "template_value()((byte[],uint8),uint64,string,uint8)", method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
+    txna ApplicationArgs 0
+    match create_route@7 struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
+    err // this contract does not implement the given ABI method for call NoOp
+
+create_route@7:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1
     return
 
@@ -98,7 +168,7 @@ struct_return:
     substring3
     // arc_56/contract.py:95
     // @arc4.abimethod(readonly=True)
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -171,16 +241,16 @@ conditional_emit_after_if_else@3:
 template_value:
     // arc_56/contract.py:129
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
-    bytec_2 // TMPL_ARC4_UINT8
+    bytec_3 // TMPL_ARC4_UINT8
     // arc_56/contract.py:128
     // TemplateVar[String]("AVM_STRING"),
-    bytec_3 // TMPL_AVM_STRING
+    bytec 4 // TMPL_AVM_STRING
     // arc_56/contract.py:127
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
     // arc_56/contract.py:126
     // TemplateVar[SharedStruct]("STRUCT"),
-    bytec 4 // TMPL_STRUCT
+    bytec 5 // TMPL_STRUCT
     // arc_56/contract.py:123
     // @arc4.abimethod()
     dup
@@ -210,7 +280,7 @@ template_value:
     concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -269,7 +339,7 @@ with_constant_defaults:
     // arc_56/contract.py:157
     // assert a
     uncover 2
-    bytec_0 // 0x
+    bytec_1 // 0x
     b!=
     assert
     // arc_56/contract.py:158
@@ -283,12 +353,12 @@ with_constant_defaults:
     // arc_56/contract.py:160
     // assert d.x or d.y
     extract 0 8
-    bytec_0 // 0x
+    bytec_1 // 0x
     b!=
     bnz with_constant_defaults_bool_true@3
     dig 6
     extract 8 8
-    bytec_0 // 0x
+    bytec_1 // 0x
     b!=
     bz with_constant_defaults_bool_false@4
 

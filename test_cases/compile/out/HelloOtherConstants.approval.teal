@@ -31,28 +31,42 @@ main:
 after_if_else@2:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match delete_route@4
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    bz create_NoOp@8
-    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
-    txna ApplicationArgs 0
-    match greet
-    err
+    match delete_route@11
+    err // this contract does not implement the given ABI method for call DeleteApplication
 
-create_NoOp@8:
+delete_route@11:
+    // compile/apps.py:87
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    intc_0 // 1
+    return
+
+create_NoOp:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     pushbytes 0xd9285a74 // method "create()uint64"
     txna ApplicationArgs 0
-    match create_route@9
-    err
+    match create_route@8
+    err // this contract does not implement the given ABI method for create NoOp
 
-create_route@9:
+create_route@8:
     // compile/apps.py:83
     // @arc4.abimethod(create="require")
     pushbytes 0x151f7c750000000000000001
@@ -60,15 +74,13 @@ create_route@9:
     intc_0 // 1
     return
 
-delete_route@4:
-    // compile/apps.py:87
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+call_NoOp:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
+    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
+    txna ApplicationArgs 0
+    match greet
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.compile.apps.HelloOtherConstants.greet[routing]() -> void:

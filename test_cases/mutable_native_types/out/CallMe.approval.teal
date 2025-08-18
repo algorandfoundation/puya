@@ -7,38 +7,47 @@ main:
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
     // mutable_native_types/abi_call.py:41
     // class CallMe(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@20
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match delete_route@5
-    txn OnCompletion
+    match delete_route@19
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+delete_route@19:
+    // mutable_native_types/abi_call.py:49
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    intc_0 // 1
+    return
+
+create_NoOp:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    txn NumAppArgs
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
     pushbytess 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
     txna ApplicationArgs 0
     match fixed_struct_arg fixed_struct_ret nested_struct_arg nested_struct_ret dynamic_struct_arg dynamic_struct_ret fixed_arr_arg fixed_arr_ret native_arr_arg native_arr_ret log_it
-    err
-
-delete_route@5:
-    // mutable_native_types/abi_call.py:49
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
-
-__algopy_default_create@20:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:

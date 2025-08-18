@@ -21,65 +21,79 @@ subroutine main:
     after_if_else@2:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txn OnCompletion                                                                          tmp%0#2
+        txn ApplicationID                                                                         tmp%0#0
         !                                                                                         tmp%1#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                         tmp%2#0
-        bz create_NoOp@9 ; b call_NoOp@4
+        txn OnCompletion                                                                          tmp%1#0,tmp%2#0
+        int 1                                                                                     tmp%1#0,tmp%2#0,1
+        shl                                                                                       tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                          tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                          tmp%1#0,tmp%3#0
+        +                                                                                         tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    call_NoOp@4:
-        // voting/voting.py:49
-        // class VotingRoundApp(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%4#0
-        method bootstrap(pay)void                                                                 tmp%4#0,Method(bootstrap(pay)void)
-        method close()void                                                                        tmp%4#0,Method(bootstrap(pay)void),Method(close()void)
-        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
-        method vote(pay,byte[],uint8[])void                                                       tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
-        l-load tmp%4#0 4                                                                          Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%4#0
-        match bootstrap_route@5 close_route@6 get_preconditions_route@7 vote_route@8 ; b after_if_else@11 
-
-    bootstrap_route@5:
-        // voting/voting.py:82
-        // @arc4.abimethod
-        callsub bootstrap
-        b after_if_else@11
-
-    close_route@6:
-        // voting/voting.py:110
-        // @arc4.abimethod
-        callsub close
-        b after_if_else@11
-
-    get_preconditions_route@7:
-        // voting/voting.py:160
-        // @arc4.abimethod(readonly=True)
-        callsub get_preconditions
-        b after_if_else@11
-
-    vote_route@8:
-        // voting/voting.py:169
-        // @arc4.abimethod
-        callsub vote
-        b after_if_else@11
-
-    create_NoOp@9:
+    call_NoOp:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
         txna ApplicationArgs 0                                                                    tmp%5#0
-        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               tmp%5#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
-        l-load tmp%5#0 1                                                                          Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),tmp%5#0
-        match create_route@10 ; b after_if_else@11
+        method bootstrap(pay)void                                                                 tmp%5#0,Method(bootstrap(pay)void)
+        method close()void                                                                        tmp%5#0,Method(bootstrap(pay)void),Method(close()void)
+        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%5#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
+        method vote(pay,byte[],uint8[])void                                                       tmp%5#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
+        l-load tmp%5#0 4                                                                          Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%5#0
+        match bootstrap_route@5 close_route@6 get_preconditions_route@7 vote_route@8 ; b switch_case_next@9 
 
-    create_route@10:
-        // voting/voting.py:58
-        // @arc4.abimethod(create="require")
-        callsub create
-        b after_if_else@11
-
-    after_if_else@11:
+    bootstrap_route@5:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        err
+        callsub bootstrap
+        b switch_case_next@9
+
+    close_route@6:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        callsub close
+        b switch_case_next@9
+
+    get_preconditions_route@7:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        callsub get_preconditions
+        b switch_case_next@9
+
+    vote_route@8:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        callsub vote
+        b switch_case_next@9
+
+    switch_case_next@9:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        txna ApplicationArgs 0                                                                    tmp%6#0
+        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               tmp%6#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
+        l-load tmp%6#0 1                                                                          Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),tmp%6#0
+        match create_route@11 ; b switch_case_next@12
+
+    create_route@11:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        callsub create
+        b switch_case_next@12
+
+    switch_case_next@12:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        err // this contract does not implement the given ABI method for create NoOp
+
+    *NOT_IMPLEMENTED:
+        // voting/voting.py:49
+        // class VotingRoundApp(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:

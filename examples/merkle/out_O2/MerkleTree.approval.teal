@@ -9,15 +9,35 @@ main:
     dupn 2
     pushbytes ""
     dup
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@6
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    pushbytes 0x8424203b // method "create(byte[32])void"
+    txna ApplicationArgs 0
+    match create_route@7
+    err // this contract does not implement the given ABI method for create NoOp
+
+create_route@7:
+    bytec_0 // "root"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_1 // 1
+    return
+
+call_NoOp:
     pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0
     match verify_route@3
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 verify_route@3:
     txna ApplicationArgs 1
@@ -38,11 +58,11 @@ verify_route@3:
     bury 2
     bury 5
 
-for_header@12:
+for_header@22:
     dup
     dig 2
     <
-    bz after_for@17
+    bz after_for@27
     dig 2
     extract 2 0
     dig 1
@@ -53,26 +73,26 @@ for_header@12:
     dup
     dig 6
     b>
-    bz ternary_false@15
+    bz ternary_false@25
     dig 5
     swap
     concat
 
-ternary_merge@16:
+ternary_merge@26:
     sha256
     bury 5
     dup
     intc_1 // 1
     +
     bury 1
-    b for_header@12
+    b for_header@22
 
-ternary_false@15:
+ternary_false@25:
     dig 5
     concat
-    b ternary_merge@16
+    b ternary_merge@26
 
-after_for@17:
+after_for@27:
     dig 3
     dig 5
     ==
@@ -84,18 +104,5 @@ after_for@17:
     swap
     concat
     log
-    intc_1 // 1
-    return
-
-create_NoOp@6:
-    pushbytes 0x8424203b // method "create(byte[32])void"
-    txna ApplicationArgs 0
-    match create_route@7
-    err
-
-create_route@7:
-    bytec_0 // "root"
-    txna ApplicationArgs 1
-    app_global_put
     intc_1 // 1
     return

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 6 3
+    intcblock 1 6 3 0
     bytecblock 0x58 0x59 0x5a 0x151f7c75
     b block@0
 
@@ -13,81 +13,136 @@ block@0:
 block@1:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
-    txn NumAppArgs
-    intc_1 // 0
-    !=
-    bz __algopy_default_create@10
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_3 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    intc_2 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    intc_1 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    bz create_NoOp@8
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    txn NumAppArgs
+    intc_3 // 0
+    ==
+    bz else_body@9
+    b __algopy_default_create@8
+
+__algopy_default_create@8:
+    b block@22
+
+block@22:
+    b after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create@23
+
+after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create@23:
+    intc_0 // 1
+    return
+
+else_body@9:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x6b10e527 // method "xyz()string[]"
     pushbytes 0x94ddb1c2 // method "xyz_raw()string[]"
     uncover 2
-    match xyz_route@4 xyz_raw_route@5
-    b switch_case_default@6
+    match xyz_route@3 xyz_raw_route@4
+    b switch_case_default@5
 
-switch_case_default@6:
-    b switch_case_next@7
+switch_case_default@5:
+    b switch_case_next@6
 
-switch_case_next@7:
-    b after_if_else@9
-
-after_if_else@9:
-    b after_if_else@11
-
-after_if_else@11:
+switch_case_next@6:
     // arc4_types/dynamic_string_array.py:4
     // class Arc4DynamicStringArrayContract(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-xyz_raw_route@5:
-    // arc4_types/dynamic_string_array.py:13
-    // @arc4.abimethod
+xyz_raw_route@4:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
     callsub xyz_raw
-    b switch_case_next@7
+    b switch_case_next@6
 
-xyz_route@4:
-    // arc4_types/dynamic_string_array.py:5
-    // @arc4.abimethod
+xyz_route@3:
+    // arc4_types/dynamic_string_array.py:4
+    // class Arc4DynamicStringArrayContract(ARC4Contract):
     callsub xyz
-    b switch_case_next@7
-
-create_NoOp@8:
-    b after_if_else@9
-
-__algopy_default_create@10:
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    txn ApplicationID
-    intc_1 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@13
-
-block@13:
-    b after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create@14
-
-after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create@14:
-    intc_0 // 1
-    return
+    b switch_case_next@6
 
 
 // test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]() -> void:
@@ -159,16 +214,16 @@ test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_bl
     //     arc4.String("Y"),
     //     arc4.String("Z"),
     // )
-    intc_3 // 3
+    intc_2 // 3
     itob
     extract 6 2
-    intc_2 // 6
+    intc_1 // 6
     itob
     extract 6 2
     concat
     dig 1
     len
-    intc_2 // 6
+    intc_1 // 6
     +
     dup
     itob
@@ -226,16 +281,16 @@ test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_ra
     //     arc4.DynamicArray(arc4.Byte(89)),
     //     arc4.DynamicArray(arc4.Byte(90)),
     // )
-    intc_3 // 3
+    intc_2 // 3
     itob
     extract 6 2
-    intc_2 // 6
+    intc_1 // 6
     itob
     extract 6 2
     concat
     dig 1
     len
-    intc_2 // 6
+    intc_1 // 6
     +
     dup
     itob

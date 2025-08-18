@@ -1,58 +1,56 @@
 main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_entrypoint_with_init:
     block@0: // L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@18
-    block@4: // abi_routing_L34
+        let tmp%0#2: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#2)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@17}
-    block@6: // create_box_route_L38
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@17, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18][tmp%4#0] else goto block@18
+    block@4: // switch_case_0_L34
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "create_box()void" => block@5, method "num_tups()uint64" => block@6, method "add_tup((uint64,uint64))void" => block@7, method "get_tup(uint64)(uint64,uint64)" => block@8, method "sum()uint64" => block@9, method "add_many_tups((uint64,uint64)[])void" => block@10, method "add_fixed_tups((uint64,uint64)[3])void" => block@11, method "set_a(uint64)void" => block@12, method "set_b(uint64)void" => block@13, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@14, method "get_all_tups()(uint64,uint64)[]" => block@15, * => block@16}
+    block@5: // create_box_route_L38
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box[routing]()
-        goto block@17
-    block@7: // num_tups_route_L45
+        goto block@16
+    block@6: // num_tups_route_L45
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups[routing]()
-        goto block@17
-    block@8: // add_tup_route_L49
+        goto block@16
+    block@7: // add_tup_route_L49
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup[routing]()
-        goto block@17
-    block@9: // get_tup_route_L56
+        goto block@16
+    block@8: // get_tup_route_L56
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup[routing]()
-        goto block@17
-    block@10: // sum_route_L61
+        goto block@16
+    block@9: // sum_route_L61
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum[routing]()
-        goto block@17
-    block@11: // add_many_tups_route_L70
+        goto block@16
+    block@10: // add_many_tups_route_L70
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups[routing]()
-        goto block@17
-    block@12: // add_fixed_tups_route_L75
+        goto block@16
+    block@11: // add_fixed_tups_route_L75
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups[routing]()
-        goto block@17
-    block@13: // set_a_route_L80
+        goto block@16
+    block@12: // set_a_route_L80
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a[routing]()
-        goto block@17
-    block@14: // set_b_route_L87
+        goto block@16
+    block@13: // set_b_route_L87
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b[routing]()
-        goto block@17
-    block@15: // get_3_tups_route_L94
+        goto block@16
+    block@14: // get_3_tups_route_L94
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups[routing]()
-        goto block@17
-    block@16: // get_all_tups_route_L107
+        goto block@16
+    block@15: // get_all_tups_route_L107
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups[routing]()
-        goto block@17
-    block@17: // after_if_else_L34
-        fail
-    block@18: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@16
+    block@16: // switch_case_next_L34
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@17: // switch_case_1_L34
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@18: // switch_case_default_L34
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box[routing]() -> void:
     block@0: // L38

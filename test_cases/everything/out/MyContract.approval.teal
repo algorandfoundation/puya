@@ -4,57 +4,54 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
-    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
+    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0xbd6099e5 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    pushbytess 0xbd6099e5 0x1658aa2f // method "register(string)void", method "close_out()void"
-    txna ApplicationArgs 0
-    match register_route@4 close_out_route@5
-
-switch_case_next@6:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@10
-    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
-    txna ApplicationArgs 0
-    match say_hello calculate
-    err
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED call_CloseOut *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-create_NoOp@10:
+*NOT_IMPLEMENTED:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_CloseOut:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    pushbytes 0x1658aa2f // method "close_out()void"
+    txna ApplicationArgs 0
+    match close_out
+    err // this contract does not implement the given ABI method for call CloseOut
+
+call_OptIn:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    bytec_3 // method "register(string)void"
+    txna ApplicationArgs 0
+    match register
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_NoOp:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match create
-    err
+    err // this contract does not implement the given ABI method for create NoOp
 
-close_out_route@5:
-    // everything/contract.py:69
-    // @abimethod(allow_actions=["CloseOut"])
-    txn OnCompletion
-    pushint 2 // CloseOut
-    ==
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be CloseOut && can only call when not creating
-    b close_out
-
-register_route@4:
-    // everything/contract.py:47
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 3 // 3
-    &
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
-    b register
+call_NoOp:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    bytec_3 // method "register(string)void"
+    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match register say_hello calculate
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.everything.contract.Everything.create[routing]() -> void:
@@ -173,7 +170,7 @@ say_hello:
 say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
     // everything/contract.py:56
     // @abimethod
-    bytec_3 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -227,7 +224,7 @@ calculate:
     itob
     // everything/contract.py:64
     // @abimethod
-    bytec_3 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log

@@ -1,110 +1,109 @@
-// Op                                                                      Stack (out)
+// Op                                                                                Stack (out)
 // test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     block@0:
-        txn ApplicationID                                                  tmp%0#0
-        l-load tmp%0#0 0                                                   tmp%0#0
+        txn ApplicationID                                                            tmp%0#0
+        l-load tmp%0#0 0                                                             tmp%0#0
         bz call___init__@1 ; b after_if_else@2
 
     call___init__@1:
         // compile/apps.py:69
         // self.greeting = TemplateVar[String]("GREETING", prefix="PRFX_")
-        byte "greeting"                                                    "greeting"
-        byte PRFX_GREETING                                                 "greeting",PRFX_GREETING
+        byte "greeting"                                                              "greeting"
+        byte PRFX_GREETING                                                           "greeting",PRFX_GREETING
         app_global_put
         b after_if_else@2
 
     after_if_else@2:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txn NumAppArgs                                                     tmp%0#2
-        l-load tmp%0#2 0                                                   tmp%0#2
-        bz update@12 ; b abi_routing@4
+        txn ApplicationID                                                            tmp%0#0
+        l-load tmp%0#0 0                                                             tmp%0#0
+        !                                                                            tmp%1#0
+        txn OnCompletion                                                             tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                             tmp%1#0,tmp%2#0
+        int 1                                                                        tmp%1#0,tmp%2#0,1
+        shl                                                                          tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                             tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                             tmp%1#0,tmp%3#0
+        +                                                                            tmp%4#0
+        l-load tmp%4#0 0                                                             tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@4:
+    call_NoOp:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txna ApplicationArgs 0                                             tmp%2#0
-        method delete()void                                                tmp%2#0,Method(delete()void)
-        l-load tmp%2#0 1                                                   Method(delete()void),tmp%2#0
-        match delete_route@5 ; b switch_case_next@6
+        txna ApplicationArgs 0                                                       tmp%5#0
+        method greet(string)string                                                   tmp%5#0,Method(greet(string)string)
+        l-load tmp%5#0 1                                                             Method(greet(string)string),tmp%5#0
+        match greet_route@5 ; b switch_case_next@6
 
-    delete_route@5:
-        // compile/apps.py:24
-        // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                   tmp%3#0
-        l-load tmp%3#0 0                                                   tmp%3#0
-        int DeleteApplication                                              tmp%3#0,DeleteApplication
-        ==                                                                 tmp%4#0
-        txn ApplicationID                                                  tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                   tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                   tmp%4#0,tmp%5#0
-        &&                                                                 tmp%7#0
-        l-load tmp%7#0 0                                                   tmp%7#0
-        assert // OnCompletion must be DeleteApplication && can only call when not creating 
-        int 1                                                              1
-        return
+    greet_route@5:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        callsub greet
+        b switch_case_next@6
 
     switch_case_next@6:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txn OnCompletion                                                   tmp%8#0
-        l-load tmp%8#0 0                                                   tmp%8#0
-        !                                                                  tmp%9#0
-        l-load tmp%9#0 0                                                   tmp%9#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                  tmp%10#0
-        l-load tmp%10#0 0                                                  tmp%10#0
-        bz create_NoOp@9 ; b call_NoOp@7
+        err // this contract does not implement the given ABI method for call NoOp
 
-    call_NoOp@7:
+    create_NoOp:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        txna ApplicationArgs 0                                             tmp%12#0
-        method greet(string)string                                         tmp%12#0,Method(greet(string)string)
-        l-load tmp%12#0 1                                                  Method(greet(string)string),tmp%12#0
-        match greet_route@8 ; b after_if_else@11
+        txna ApplicationArgs 0                                                       tmp%6#0
+        method create()void                                                          tmp%6#0,Method(create()void)
+        l-load tmp%6#0 1                                                             Method(create()void),tmp%6#0
+        match create_route@8 ; b switch_case_next@9
 
-    greet_route@8:
-        // compile/apps.py:32
-        // @arc4.abimethod()
-        callsub greet
-        b after_if_else@11
-
-    create_NoOp@9:
-        // compile/apps.py:67
-        // class HelloPrfx(HelloBase):
-        txna ApplicationArgs 0                                             tmp%13#0
-        method create()void                                                tmp%13#0,Method(create()void)
-        l-load tmp%13#0 1                                                  Method(create()void),tmp%13#0
-        match create_route@10 ; b after_if_else@11
-
-    create_route@10:
+    create_route@8:
         // compile/apps.py:71
         // @arc4.abimethod(create="require")
-        int 1                                                              1
+        int 1                                                                        1
         return
 
-    after_if_else@11:
+    switch_case_next@9:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
-        err
+        err // this contract does not implement the given ABI method for create NoOp
 
-    update@12:
+    call_UpdateApplication:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        txn NumAppArgs                                                               tmp%7#0
+        l-load tmp%7#0 0                                                             tmp%7#0
+        !                                                                            tmp%8#0
+        l-load tmp%8#0 0                                                             tmp%8#0
+        assert // this contract does not implement the given ABI method for call UpdateApplication 
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn OnCompletion                                                   tmp%14#0
-        l-load tmp%14#0 0                                                  tmp%14#0
-        int UpdateApplication                                              tmp%14#0,UpdateApplication
-        ==                                                                 tmp%15#0
-        txn ApplicationID                                                  tmp%15#0,tmp%16#0
-        l-load tmp%15#0 1                                                  tmp%16#0,tmp%15#0
-        l-load tmp%16#0 1                                                  tmp%15#0,tmp%16#0
-        &&                                                                 tmp%18#0
-        l-load tmp%18#0 0                                                  tmp%18#0
-        assert // OnCompletion must be UpdateApplication && can only call when not creating 
-        int 1                                                              1
+        int 1                                                                        1
         return
+
+    call_DeleteApplication:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        txna ApplicationArgs 0                                                       tmp%9#0
+        method delete()void                                                          tmp%9#0,Method(delete()void)
+        l-load tmp%9#0 1                                                             Method(delete()void),tmp%9#0
+        match delete_route@12 ; b switch_case_next@13
+
+    delete_route@12:
+        // compile/apps.py:24
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
+        int 1                                                                        1
+        return
+
+    switch_case_next@13:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        err // this contract does not implement the given ABI method for call DeleteApplication 
+
+    *NOT_IMPLEMENTED:
+        // compile/apps.py:67
+        // class HelloPrfx(HelloBase):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.compile.apps.HelloBase.greet[routing]() -> void:
@@ -112,39 +111,39 @@ subroutine greet:
     greet_block@0:
         // compile/apps.py:32
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                             reinterpret_Encoded(len+utf8[])%0#0
-        l-load reinterpret_Encoded(len+utf8[])%0#0 0                       reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                        name#0
+        txna ApplicationArgs 1                                                       reinterpret_Encoded(len+utf8[])%0#0
+        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                 reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                  name#0
         // compile/apps.py:34
         // return self.greeting + " " + name
-        int 0                                                              name#0,0
-        byte "greeting"                                                    name#0,0,"greeting"
-        app_global_get_ex                                                  name#0,maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                          name#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check self.greeting exists                               name#0,maybe_value%0#0
-        l-load maybe_value%0#0 0                                           name#0,maybe_value%0#0
-        byte " "                                                           name#0,maybe_value%0#0," "
-        concat                                                             name#0,tmp%0#1
-        l-load tmp%0#1 0                                                   name#0,tmp%0#1
-        l-load name#0 1                                                    tmp%0#1,name#0
-        concat                                                             tmp%1#1
+        int 0                                                                        name#0,0
+        byte "greeting"                                                              name#0,0,"greeting"
+        app_global_get_ex                                                            name#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                    name#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.greeting exists                                         name#0,maybe_value%0#0
+        l-load maybe_value%0#0 0                                                     name#0,maybe_value%0#0
+        byte " "                                                                     name#0,maybe_value%0#0," "
+        concat                                                                       name#0,tmp%0#1
+        l-load tmp%0#1 0                                                             name#0,tmp%0#1
+        l-load name#0 1                                                              tmp%0#1,name#0
+        concat                                                                       tmp%1#1
         // compile/apps.py:32
         // @arc4.abimethod()
-        l-load-copy tmp%1#1 0                                              tmp%1#1,tmp%1#1 (copy)
-        len                                                                tmp%1#1,aggregate%length%0#0
-        l-load aggregate%length%0#0 0                                      tmp%1#1,aggregate%length%0#0
-        itob                                                               tmp%1#1,aggregate%as_bytes%0#0
-        l-load aggregate%as_bytes%0#0 0                                    tmp%1#1,aggregate%as_bytes%0#0
-        extract 6 2                                                        tmp%1#1,aggregate%length_uint16%0#0
-        l-load aggregate%length_uint16%0#0 0                               tmp%1#1,aggregate%length_uint16%0#0
-        l-load tmp%1#1 1                                                   aggregate%length_uint16%0#0,tmp%1#1
-        concat                                                             aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                    aggregate%encoded_value%0#0,0x151f7c75
-        l-load aggregate%encoded_value%0#0 1                               0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                             tmp%3#0
-        l-load tmp%3#0 0                                                   tmp%3#0
+        l-load-copy tmp%1#1 0                                                        tmp%1#1,tmp%1#1 (copy)
+        len                                                                          tmp%1#1,aggregate%length%0#0
+        l-load aggregate%length%0#0 0                                                tmp%1#1,aggregate%length%0#0
+        itob                                                                         tmp%1#1,aggregate%as_bytes%0#0
+        l-load aggregate%as_bytes%0#0 0                                              tmp%1#1,aggregate%as_bytes%0#0
+        extract 6 2                                                                  tmp%1#1,aggregate%length_uint16%0#0
+        l-load aggregate%length_uint16%0#0 0                                         tmp%1#1,aggregate%length_uint16%0#0
+        l-load tmp%1#1 1                                                             aggregate%length_uint16%0#0,tmp%1#1
+        concat                                                                       aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                              aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                                         0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                       tmp%3#0
+        l-load tmp%3#0 0                                                             tmp%3#0
         log
-        int 1                                                              1
+        int 1                                                                        1
         return
 
 

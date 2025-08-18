@@ -4,27 +4,29 @@ subroutine main:
     block@0:
         // arc4_conversions/contract.py:22
         // class TestContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                                               tmp%0#1
+        txn ApplicationID                                                                            tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                               tmp%0#1
-        bz __algopy_default_create@15 ; b abi_routing@2
-
-    abi_routing@2:
-        // arc4_conversions/contract.py:22
-        // class TestContract(arc4.ARC4Contract):
+        !                                                                                            tmp%1#0
+        v-store tmp%1#0
         txn OnCompletion                                                                             tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                               tmp%2#0
-        !                                                                                            tmp%3#0
+        int 1                                                                                        tmp%2#0,1
+        shl                                                                                          tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                            tmp%4#0
+        v-load tmp%1#0                                                                               tmp%1#0
+        v-load tmp%3#0                                                                               tmp%1#0,tmp%3#0
+        +                                                                                            tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                               tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                                       tmp%6#0
-        v-store tmp%6#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
+
+    call_NoOp:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                       tmp%5#0
+        v-store tmp%5#0
         method test_literal_encoding()void                                                           Method(test_literal_encoding()void)
         method test_native_encoding()void                                                            Method(test_literal_encoding()void),Method(test_native_encoding()void)
         method test_arc4_encoding()void                                                              Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void)
@@ -32,75 +34,73 @@ subroutine main:
         method test_array_static_encoding()void                                                      Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void)
         method test_array_dynamic_encoding()void                                                     Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void)
         method test_bytes_to_fixed(bool)void                                                         Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void)
-        v-load tmp%6#0                                                                               Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void),tmp%6#0
-        match test_literal_encoding_route@4 test_native_encoding_route@5 test_arc4_encoding_route@6 test_array_uint64_encoding_route@7 test_array_static_encoding_route@8 test_array_dynamic_encoding_route@9 test_bytes_to_fixed_route@10 ; b after_if_else@14 
+        v-load tmp%5#0                                                                               Method(test_literal_encoding()void),Method(test_native_encoding()void),Method(test_arc4_encoding()void),Method(test_array_uint64_encoding()void),Method(test_array_static_encoding()void),Method(test_array_dynamic_encoding()void),Method(test_bytes_to_fixed(bool)void),tmp%5#0
+        match test_literal_encoding_route@3 test_native_encoding_route@4 test_arc4_encoding_route@5 test_array_uint64_encoding_route@6 test_array_static_encoding_route@7 test_array_dynamic_encoding_route@8 test_bytes_to_fixed_route@9 ; b switch_case_next@11 
 
-    test_literal_encoding_route@4:
-        // arc4_conversions/contract.py:23
-        // @arc4.abimethod()
-        callsub test_literal_encoding
-        b after_if_else@14
-
-    test_native_encoding_route@5:
-        // arc4_conversions/contract.py:46
-        // @arc4.abimethod()
-        callsub test_native_encoding
-        b after_if_else@14
-
-    test_arc4_encoding_route@6:
-        // arc4_conversions/contract.py:74
-        // @arc4.abimethod()
-        callsub test_arc4_encoding
-        b after_if_else@14
-
-    test_array_uint64_encoding_route@7:
-        // arc4_conversions/contract.py:102
-        // @arc4.abimethod()
-        callsub test_array_uint64_encoding
-        b after_if_else@14
-
-    test_array_static_encoding_route@8:
-        // arc4_conversions/contract.py:126
-        // @arc4.abimethod()
-        callsub test_array_static_encoding
-        b after_if_else@14
-
-    test_array_dynamic_encoding_route@9:
-        // arc4_conversions/contract.py:150
-        // @arc4.abimethod()
-        callsub test_array_dynamic_encoding
-        b after_if_else@14
-
-    test_bytes_to_fixed_route@10:
-        // arc4_conversions/contract.py:178
-        // @arc4.abimethod
-        callsub test_bytes_to_fixed
-        b after_if_else@14
-
-    after_if_else@14:
+    test_literal_encoding_route@3:
         // arc4_conversions/contract.py:22
         // class TestContract(arc4.ARC4Contract):
-        err
+        callsub test_literal_encoding
+        b switch_case_next@11
 
-    __algopy_default_create@15:
-        txn OnCompletion                                                                             tmp%7#0
+    test_native_encoding_route@4:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_native_encoding
+        b switch_case_next@11
+
+    test_arc4_encoding_route@5:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_arc4_encoding
+        b switch_case_next@11
+
+    test_array_uint64_encoding_route@6:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_array_uint64_encoding
+        b switch_case_next@11
+
+    test_array_static_encoding_route@7:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_array_static_encoding
+        b switch_case_next@11
+
+    test_array_dynamic_encoding_route@8:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_array_dynamic_encoding
+        b switch_case_next@11
+
+    test_bytes_to_fixed_route@9:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        callsub test_bytes_to_fixed
+        b switch_case_next@11
+
+    switch_case_next@11:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                               tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                               tmp%6#0
+        !                                                                                            tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                               tmp%7#0
-        !                                                                                            tmp%8#0
-        v-store tmp%8#0
-        txn ApplicationID                                                                            tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                               tmp%9#0
-        !                                                                                            tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%8#0                                                                               tmp%8#0
-        v-load tmp%10#0                                                                              tmp%8#0,tmp%10#0
-        &&                                                                                           tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                              tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                                        1
         return
+
+    *NOT_IMPLEMENTED:
+        // arc4_conversions/contract.py:22
+        // class TestContract(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> bytes:
@@ -147,7 +147,7 @@ subroutine test_literal_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -276,7 +276,7 @@ subroutine test_native_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -471,7 +471,7 @@ subroutine test_arc4_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -657,7 +657,7 @@ subroutine test_array_uint64_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -891,7 +891,7 @@ subroutine test_array_static_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -1168,7 +1168,7 @@ subroutine test_array_dynamic_encoding:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -1662,7 +1662,7 @@ subroutine test_bytes_to_fixed:
         itxn_begin
         byte CoEBQw==                                                                                CoEBQw==
         itxn_field ClearStateProgramPages
-        byte CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
+        byte CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM= CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=
         itxn_field ApprovalProgramPages
         int appl                                                                                     appl
         itxn_field TypeEnum

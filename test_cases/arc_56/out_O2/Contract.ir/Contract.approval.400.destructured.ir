@@ -1,32 +1,27 @@
 main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
     block@0: // L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@15
-    block@4: // abi_routing_L54
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@5, * => block@6}
-    block@5: // create_route_L81
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: uint64 = (shl 1u tmp%3#0)
-        let tmp%5#0: uint64 = (& tmp%4#0 3u)
-        (assert tmp%5#0) // OnCompletion must be one of NoOp, OptIn
+        let tmp%0#2: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#2)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@16, block@21, block@26, block@32, block@32, block@32, block@32, block@32, block@32, block@32, block@31][tmp%4#0] else goto block@32
+    block@4: // switch_case_0_L54
+        let tmp%5#0: uint64 = (txn NumAppArgs)
+        goto tmp%5#0 ? block@6 : block@5
+    block@5: // bare_create_L77
         exit 1u
-    block@6: // switch_case_next_L54
-        let tmp%6#0: uint64 = (txn OnCompletion)
-        let tmp%7#0: bool = (! tmp%6#0)
-        (assert tmp%7#0) // OnCompletion must be NoOp
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        (assert tmp%8#0)
-        let tmp%10#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%10#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@8, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@9, method "emits_error((uint64,string,(byte[],uint8)))void" => block@10, method "emitter()void" => block@11, method "conditional_emit(bool)void" => block@12, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@13, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@14, * => block@18}
+    block@6: // else_body_L54
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "create()void" => block@5, method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@8, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@9, method "emits_error((uint64,string,(byte[],uint8)))void" => block@10, method "emitter()void" => block@11, method "conditional_emit(bool)void" => block@12, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@13, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@14, * => block@15}
     block@8: // struct_arg_route_L89
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
         let shared#0: Encoded((len+uint8[]),uint8) = (txna ApplicationArgs 2)
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 arg#0 10u)
         let aggregate%len%0#0: uint64 = (len arg#0)
         let aggregate%substring3%0#0: bytes = (substring3 arg#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
-        let tmp%0#8: bool = (== aggregate%substring3%0#0 shared#0)
-        (assert tmp%0#8) // this might error
+        let tmp%0#2: bool = (== aggregate%substring3%0#0 shared#0)
+        (assert tmp%0#2) // this might error
         (log 0x151f7c75000000000000002a)
         exit 1u
     block@9: // struct_return_route_L95
@@ -40,8 +35,8 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
     block@10: // emits_error_route_L100
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
         let aggregate%extract%0#0: bytes = ((extract 0 8) arg#0)
-        let tmp%0#8: bool = (== aggregate%extract%0#0 0x00)
-        (assert tmp%0#8) // this will error
+        let tmp%0#2: bool = (== aggregate%extract%0#0 0x00)
+        (assert tmp%0#2) // this will error
         exit 1u
     block@11: // emitter_route_L104
         (log 0xd93f374e00032a000668656c6c6f31)
@@ -50,12 +45,10 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
     block@12: // conditional_emit_route_L114
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let should_emit#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
-        goto should_emit#0 ? block@32 : block@33
-    block@32: // if_body_L117
+        goto should_emit#0 ? block@52 : block@5
+    block@52: // if_body_L117
         (log 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33)
-        goto block@33
-    block@33: // after_if_else_L116
-        exit 1u
+        goto block@5
     block@13: // template_value_route_L123
         let tmp%0#4: Encoded((len+uint8[]),uint8) = TemplateVar[Encoded((len+uint8[]),uint8)](TMPL_STRUCT)
         let tmp%1#2: uint64 = TemplateVar[uint64](TMPL_AVM_UINT64)
@@ -97,37 +90,37 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
         let h#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
         let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 9)
         let i#0: uint64 = (btoi reinterpret_Encoded(uint64)%3#0)
-        let tmp%0#8: bool = (b!= a#0 0b)
-        (assert tmp%0#8)
+        let tmp%0#2: bool = (b!= a#0 0b)
+        (assert tmp%0#2)
         (assert b#0)
-        let tmp%2#4: uint64 = (len c#0)
-        (assert tmp%2#4)
+        let tmp%2#0: uint64 = (len c#0)
+        (assert tmp%2#0)
         let aggregate%extract%2#0: bytes = ((extract 0 8) d#0)
         let tmp%4#3: bool = (b!= aggregate%extract%2#0 0b)
-        goto tmp%4#3 ? block@21 : block@20
-    block@20: // or_contd_L160
+        goto tmp%4#3 ? block@41 : block@40
+    block@40: // or_contd_L160
         let aggregate%extract%3#0: bytes = ((extract 8 8) d#0)
         let tmp%5#3: bool = (b!= aggregate%extract%3#0 0b)
-        goto tmp%5#3 ? block@21 : block@22
-    block@21: // bool_true_L160
+        goto tmp%5#3 ? block@41 : block@42
+    block@41: // bool_true_L160
         let or_result%0#0: bool = 1u
-        goto block@23
-    block@22: // bool_false_L160
+        goto block@43
+    block@42: // bool_false_L160
         let or_result%0#0: bool = 0u
-        goto block@23
-    block@23: // bool_merge_L160
+        goto block@43
+    block@43: // bool_merge_L160
         (assert or_result%0#0)
-        goto e.0#0 ? block@25 : block@24
-    block@24: // or_contd_L161
+        goto e.0#0 ? block@45 : block@44
+    block@44: // or_contd_L161
         let tmp%7#1: uint64 = (len e.1#0)
-        goto tmp%7#1 ? block@25 : block@26
-    block@25: // bool_true_L161
+        goto tmp%7#1 ? block@45 : block@46
+    block@45: // bool_true_L161
         let or_result%1#0: bool = 1u
-        goto block@27
-    block@26: // bool_false_L161
+        goto block@47
+    block@46: // bool_false_L161
         let or_result%1#0: bool = 0u
-        goto block@27
-    block@27: // bool_merge_L161
+        goto block@47
+    block@47: // bool_merge_L161
         (assert or_result%1#0)
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 f#0 0u)
         let aggregate%item_length%0#0: uint64 = (extract_uint16 f#0 aggregate%item_offset%0#0)
@@ -136,20 +129,43 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
         let tmp%10#1: bool = (== aggregate%item%0#0 0x00026869)
         (assert tmp%10#1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 g#0 0u)
-        let tmp%12#1: bool = (== aggregate%array_length%0#0 2u)
-        (assert tmp%12#1)
-        let tmp%13#0: bool = (== h#0 42u)
-        (assert tmp%13#0)
-        let tmp%14#0: bool = (== i#0 1234u)
-        (assert tmp%14#0)
+        let tmp%12#0: bool = (== aggregate%array_length%0#0 2u)
+        (assert tmp%12#0)
+        let tmp%13#1: bool = (== h#0 42u)
+        (assert tmp%13#1)
+        let tmp%14#1: bool = (== i#0 1234u)
+        (assert tmp%14#1)
         exit 1u
-    block@15: // bare_routing_L54
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        goto_nth [block@33, block@33, block@18, block@18, block@18, block@17][tmp%11#0] else goto block@18
-    block@17: // transient_L85
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // can only call when creating
+    block@15: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@16: // switch_case_1_L54
+        let tmp%8#0: uint64 = (txn NumAppArgs)
+        goto tmp%8#0 ? block@18 : block@5
+    block@18: // else_body_L54
+        let tmp%10#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%10#0 {method "create()void" => block@5, * => block@20}
+    block@20: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@21: // switch_case_2_L54
+        let tmp%11#0: uint64 = (txn NumAppArgs)
+        goto tmp%11#0 ? block@23 : block@5
+    block@23: // else_body_L54
+        let tmp%13#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%13#0 {method "create()void" => block@5, * => block@25}
+    block@25: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for call OptIn
+    block@26: // switch_case_3_L54
+        let tmp%14#0: uint64 = (txn NumAppArgs)
+        goto tmp%14#0 ? block@28 : block@5
+    block@28: // else_body_L54
+        let tmp%16#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%16#0 {method "create()void" => block@5, * => block@30}
+    block@30: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for create OptIn
+    block@31: // switch_case_11_L54
+        let tmp%17#0: uint64 = (txn NumAppArgs)
+        let tmp%18#0: bool = (! tmp%17#0)
+        (assert tmp%18#0) // this contract does not implement the given ABI method for create DeleteApplication
         exit 1u
-    block@18: // after_if_else_L54
-        fail
+    block@32: // switch_case_default_L54
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?

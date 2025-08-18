@@ -9,19 +9,29 @@ main:
     dup
     pushbytes ""
     dupn 6
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     txn NumAppArgs
-    bz __algopy_default_create@6
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     txna ApplicationArgs 0
     match test_route@3
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 test_route@3:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -48,19 +58,19 @@ test_route@3:
     dup
     bury 5
     <
-    bz else_body@11
+    bz else_body@24
     dig 6
     dig 2
     +
     bury 7
 
-after_if_else@20:
+after_if_else@33:
     dig 6
     dig 5
     +
     dig 3
     <
-    bz else_body@22
+    bz else_body@35
     dig 6
     dup
     dig 3
@@ -68,7 +78,7 @@ after_if_else@20:
     *
     bury 7
 
-after_if_else@23:
+after_if_else@36:
     dig 4
     dup
     callsub itoa
@@ -86,13 +96,13 @@ after_if_else@23:
     >
     swap
     bury 7
-    bz after_if_else@25
+    bz after_if_else@38
     dig 6
     dig 3
     +
     bury 6
 
-after_if_else@25:
+after_if_else@38:
     dig 5
     dup
     bury 8
@@ -101,13 +111,13 @@ after_if_else@25:
     <
     swap
     bury 7
-    bz after_if_else@27
+    bz after_if_else@40
     dig 6
     dig 5
     +
     bury 6
 
-after_if_else@27:
+after_if_else@40:
     dig 5
     dup
     bury 8
@@ -118,13 +128,13 @@ after_if_else@27:
     >
     swap
     bury 7
-    bz after_if_else@29
+    bz after_if_else@42
     dig 6
     dig 1
     *
     bury 6
 
-after_if_else@29:
+after_if_else@42:
     dig 5
     dup
     callsub itoa
@@ -145,62 +155,54 @@ after_if_else@29:
     intc_0 // 1
     return
 
-else_body@22:
+else_body@35:
     dig 4
     dup
     dig 2
     callsub some_func
     *
     bury 5
-    b after_if_else@23
+    b after_if_else@36
 
-else_body@11:
+else_body@24:
     dig 6
     dig 3
     <
-    bz else_body@13
+    bz else_body@26
     dig 6
     dig 1
     +
     bury 7
-    b after_if_else@20
+    b after_if_else@33
 
-else_body@13:
+else_body@26:
     dig 4
     dig 7
     <
-    bz else_body@15
+    bz else_body@28
     dig 6
     pushint 3 // 3
     *
     bury 7
-    b after_if_else@20
+    b after_if_else@33
 
-else_body@15:
+else_body@28:
     dig 4
     dup
     dig 8
     >
     swap
     bury 5
-    bz after_if_else@17
+    bz after_if_else@30
     dig 4
     dig 7
     +
     bury 4
 
-after_if_else@17:
+after_if_else@30:
     dig 3
     bury 5
-    b after_if_else@20
-
-__algopy_default_create@6:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    b after_if_else@33
 
 
 // test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:

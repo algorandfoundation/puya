@@ -1,31 +1,29 @@
 main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@10
-    block@2: // abi_routing_L5
+        let tmp%0#1: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#1)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "buildArray()uint64[]" => block@4, method "doThings()void" => block@5, * => block@9}
-    block@4: // buildArray_route_L29
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@7, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20][tmp%4#0] else goto block@20
+    block@2: // switch_case_0_L5
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "buildArray()uint64[]" => block@3, method "doThings()void" => block@4, * => block@6}
+    block@3: // buildArray_route_L29
         (log 0x151f7c7500040000000000000001000000000000000200000000000000030000000000000004)
         exit 1u
-    block@5: // doThings_route_L41
+    block@4: // doThings_route_L41
         tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[routing]()
-        goto block@9
-    block@9: // after_if_else_L5
-        fail
-    block@10: // __algots__.defaultCreate_L5
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@6
+    block@6: // switch_case_next_L5
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@7: // switch_case_1_L5
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@20: // switch_case_default_L5
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
     block@0: // L44

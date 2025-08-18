@@ -8,19 +8,29 @@ main:
     dupn 4
     pushbytes ""
     dupn 13
-    txn NumAppArgs
-    bz __algopy_default_create@11
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xaec250ef 0xbd4b223f 0x847f775f // method "umm()uint64", method "umm2()void", method "calculate(uint64[][],uint64)void"
     txna ApplicationArgs 0
-    match umm_route@4 umm2_route@5 calculate_route@6
-    err
+    match umm_route@3 umm2_route@4 calculate_route@5
+    err // this contract does not implement the given ABI method for call NoOp
 
-calculate_route@6:
+calculate_route@5:
     txna ApplicationArgs 1
     dup
     bury 18
@@ -36,13 +46,13 @@ calculate_route@6:
     intc_0 // 0
     bury 8
 
-for_header@15:
+for_header@25:
     dig 7
     dig 13
     <
     dup
     bury 10
-    bz if_body@36
+    bz if_body@46
     dig 16
     extract 2 0
     dig 9
@@ -72,11 +82,11 @@ for_header@15:
     intc_0 // 0
     bury 7
 
-for_header@17:
+for_header@27:
     dig 6
     dig 12
     <
-    bz after_for@25
+    bz after_for@35
     dig 17
     extract 2 0
     dup
@@ -94,7 +104,7 @@ for_header@17:
     bury 5
     dig 2
     bury 2
-    bz after_if_else@24
+    bz after_if_else@34
     dig 6
     dig 6
     <
@@ -102,7 +112,7 @@ for_header@17:
     bury 5
     dig 2
     bury 2
-    bz after_if_else@23
+    bz after_if_else@33
     dig 1
     intc_1 // 1
     +
@@ -123,7 +133,7 @@ for_header@17:
     bury 6
     swap
     bury 2
-    bz after_if_else@22
+    bz after_if_else@32
     dig 1
     intc_3 // 2
     *
@@ -133,19 +143,19 @@ for_header@17:
     bury 5
     bury 1
 
-after_if_else@22:
+after_if_else@32:
     dup
     dig 4
     bury 5
     bury 1
 
-after_if_else@23:
+after_if_else@33:
     dup
     dig 4
     bury 5
     bury 1
 
-after_if_else@24:
+after_if_else@34:
     dig 3
     bury 5
     dup
@@ -154,92 +164,92 @@ after_if_else@24:
     intc_1 // 1
     +
     bury 7
-    b for_header@17
+    b for_header@27
 
-after_for@25:
+after_for@35:
     dig 7
     intc_1 // 1
     +
     bury 8
-    b for_header@15
+    b for_header@25
 
-if_body@36:
+if_body@46:
     intc_1 // 1
     return
 
-umm2_route@5:
+umm2_route@4:
     intc_0 // 0
     bury 11
 
-while_top@29:
+while_top@39:
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@35
+    bz after_if_else@45
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@35
+    bz after_if_else@45
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@35
+    bz after_if_else@45
     callsub hmm
     dig 11
     +
     bury 10
 
-after_if_else@35:
+after_if_else@45:
     dig 9
     bury 11
     callsub hmm
-    bz while_top@29
-    b if_body@36
+    bz while_top@39
+    b if_body@46
 
-umm_route@4:
+umm_route@3:
     intc_0 // 0
     bury 11
 
-while_top@40:
+while_top@50:
     callsub hmm_uint64
     bury 3
     intc_0 // 0
     bury 14
 
-for_header@41:
+for_header@51:
     dig 13
     dig 3
     <
-    bz after_for@49
+    bz after_for@59
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@48
+    bz after_if_else@58
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@48
+    bz after_if_else@58
     callsub hmm
     dig 11
     bury 11
-    bz after_if_else@48
+    bz after_if_else@58
     callsub hmm
     dig 11
     +
     bury 10
 
-after_if_else@48:
+after_if_else@58:
     dig 9
     bury 11
     dig 13
     intc_1 // 1
     +
     bury 14
-    b for_header@41
+    b for_header@51
 
-after_for@49:
+after_for@59:
     callsub hmm
-    bz while_top@40
+    bz while_top@50
     dig 10
     itob
     pushbytes 0x151f7c75
@@ -248,14 +258,6 @@ after_for@49:
     log
     intc_1 // 1
     return
-
-__algopy_default_create@11:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:

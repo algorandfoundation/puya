@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8
+    intcblock 1 8 0
     bytecblock 0x151f7c75 0x48656c6c6f20576f726c64
     b block@0
 
@@ -13,26 +13,108 @@ block@0:
 block@1:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_1 // 0
-    !=
-    bz __algopy_default_create@13
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_2 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    intc_1 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    bz create_NoOp@11
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_2 // 0
+    ==
+    bz else_body@12
+    b __algopy_default_create@11
+
+__algopy_default_create@11:
+    b block@25
+
+block@25:
+    b after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@26
+
+after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@26:
+    intc_0 // 1
+    return
+
+else_body@12:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -42,73 +124,46 @@ call_NoOp@3:
     pushbytes 0xe6b8cd41 // method "keccak256()byte[]"
     pushbytes 0xb15dc12a // method "all(byte[])(byte[],byte[],byte[],byte[])"
     uncover 5
-    match sha256_route@4 sha3_256_route@5 sha512_256_route@6 keccak256_route@7 all_route@8
-    b switch_case_default@9
+    match sha256_route@3 sha3_256_route@4 sha512_256_route@5 keccak256_route@6 all_route@7
+    b switch_case_default@8
 
-switch_case_default@9:
-    b switch_case_next@10
+switch_case_default@8:
+    b switch_case_next@9
 
-switch_case_next@10:
-    b after_if_else@12
-
-after_if_else@12:
-    b after_if_else@14
-
-after_if_else@14:
+switch_case_next@9:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-all_route@8:
-    // intrinsics/optimizations.py:21
-    // @arc4.abimethod()
+all_route@7:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     callsub all
-    b switch_case_next@10
+    b switch_case_next@9
 
-keccak256_route@7:
-    // intrinsics/optimizations.py:17
-    // @arc4.abimethod()
+keccak256_route@6:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     callsub keccak256
-    b switch_case_next@10
+    b switch_case_next@9
 
-sha512_256_route@6:
-    // intrinsics/optimizations.py:13
-    // @arc4.abimethod()
+sha512_256_route@5:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     callsub sha512_256
-    b switch_case_next@10
+    b switch_case_next@9
 
-sha3_256_route@5:
-    // intrinsics/optimizations.py:9
-    // @arc4.abimethod()
+sha3_256_route@4:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     callsub sha3_256
-    b switch_case_next@10
+    b switch_case_next@9
 
-sha256_route@4:
-    // intrinsics/optimizations.py:5
-    // @arc4.abimethod()
+sha256_route@3:
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     callsub sha256
-    b switch_case_next@10
-
-create_NoOp@11:
-    b after_if_else@12
-
-__algopy_default_create@13:
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    txn ApplicationID
-    intc_1 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@16
-
-block@16:
-    b after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17
-
-after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
-    intc_0 // 1
-    return
+    b switch_case_next@9
 
 
 // test_cases.intrinsics.optimizations.Optimizations.sha256[routing]() -> void:
@@ -218,7 +273,7 @@ all_block@0:
     extract 6 2
     uncover 1
     concat
-    intc_2 // 8
+    intc_1 // 8
     itob
     extract 6 2
     pushbytes 0x
@@ -227,7 +282,7 @@ all_block@0:
     cover 1
     dup
     len
-    intc_2 // 8
+    intc_1 // 8
     +
     dig 3
     len

@@ -7,34 +7,25 @@ main:
     bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz bare_routing@10
-    txn OnCompletion
+    txn ApplicationID
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
-    pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
-    txna ApplicationArgs 0
-    match get_bytes get_big_uint
-
-after_if_else@16:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
-    err
-
-bare_routing@10:
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
-    switch __algopy_default_create@11 after_if_else@16 after_if_else@16 after_if_else@16 on_update@12 on_delete@13
-    err
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
 
-on_delete@13:
-    // template_variables/contract.py:19
-    // @arc4.baremethod(allow_actions=["DeleteApplication"])
-    txn ApplicationID
-    assert // can only call when not creating
+*NOT_IMPLEMENTED:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call DeleteApplication
     // template_variables/contract.py:21
     // assert TemplateVar[UInt64]("DELETABLE")
     intc_2 // TMPL_DELETABLE
@@ -42,11 +33,12 @@ on_delete@13:
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     return
 
-on_update@12:
-    // template_variables/contract.py:15
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID
-    assert // can only call when not creating
+call_UpdateApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call UpdateApplication
     // template_variables/contract.py:17
     // assert TemplateVar[bool]("UPDATABLE")
     intc_3 // TMPL_UPDATABLE
@@ -54,10 +46,20 @@ on_update@12:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     return
 
-__algopy_default_create@11:
-    txn ApplicationID
+create_NoOp:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
     !
-    return // on error: can only call when creating
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
+    txna ApplicationArgs 0
+    match get_bytes get_big_uint
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:

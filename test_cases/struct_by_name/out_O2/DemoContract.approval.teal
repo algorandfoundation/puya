@@ -3,34 +3,36 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    txn NumAppArgs
-    bz __algopy_default_create@12
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x3d694b70 0x7fb34e8a 0x8ba7c4c2 0x46dadea3 // method "get_one()(uint8,uint8)", method "get_two()(uint8,uint8)", method "get_three()(uint8,uint8)", method "compare()bool"
     txna ApplicationArgs 0
-    match get_one_route@4 get_one_route@4 get_one_route@4 compare_route@7
-    err
+    match get_one_route@3 get_one_route@3 get_one_route@3 compare_route@6
+    err // this contract does not implement the given ABI method for call NoOp
 
-compare_route@7:
+compare_route@6:
     pushbytes 0x151f7c7580
     log
     pushint 1 // 1
     return
 
-get_one_route@4:
+get_one_route@3:
     pushbytes 0x151f7c750101
     log
     pushint 1 // 1
     return
-
-__algopy_default_create@12:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

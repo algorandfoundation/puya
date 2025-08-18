@@ -67,19 +67,29 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@19
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x67a5a02d 0xd1276f81 0x0d2ab4c0 0xe8b5d56c 0x875901e5 0x4abb70f1 0xaf05f48f 0xe8d71c8c 0x01aaa39c 0x8313dee7 0x2ca849c1 0x3d8e707d // method "test_imm_fixed_array()void", method "fixed_initialize()void", method "add_payment((address,uint64,uint64))void", method "increment_payment(uint64,uint64)void", method "create_storage(uint64)void", method "local_struct()(address,uint64,uint64)", method "delete_storage(uint64)void", method "struct_arg(uint64,(uint64,uint64))void", method "struct_return()(uint64,uint64)", method "tup_return()(uint64,uint64)", method "calculate_sum()uint64", method "test_arr((uint64,uint64)[])(uint64,uint64)[]"
     txna ApplicationArgs 0
-    match test_imm_fixed_array_route@6 test_imm_fixed_array_route@6 add_payment_route@8 increment_payment_route@9 create_storage_route@10 local_struct_route@11 delete_storage_route@12 struct_arg_route@13 struct_return_route@14 tup_return_route@15 calculate_sum_route@16 test_arr_route@17
-    err
+    match test_imm_fixed_array_route@5 test_imm_fixed_array_route@5 add_payment_route@7 increment_payment_route@8 create_storage_route@9 local_struct_route@10 delete_storage_route@11 struct_arg_route@12 struct_return_route@13 tup_return_route@14 calculate_sum_route@15 test_arr_route@16
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_arr_route@17:
+test_arr_route@16:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -264,7 +274,7 @@ after_for@24:
     intc_1 // 1
     return
 
-calculate_sum_route@16:
+calculate_sum_route@15:
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
@@ -323,7 +333,7 @@ after_if_else@28:
     intc_1 // 1
     return
 
-tup_return_route@15:
+tup_return_route@14:
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
@@ -336,7 +346,7 @@ tup_return_route@15:
     intc_1 // 1
     return
 
-struct_return_route@14:
+struct_return_route@13:
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
@@ -349,7 +359,7 @@ struct_return_route@14:
     intc_1 // 1
     return
 
-struct_arg_route@13:
+struct_arg_route@12:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -397,7 +407,7 @@ struct_arg_route@13:
     intc_1 // 1
     return
 
-delete_storage_route@12:
+delete_storage_route@11:
     txna ApplicationArgs 1
     btoi
     bytec 4 // 0x70
@@ -417,7 +427,7 @@ delete_storage_route@12:
     intc_1 // 1
     return
 
-local_struct_route@11:
+local_struct_route@10:
     txn Sender
     pushint 1234 // 1234
     itob
@@ -448,7 +458,7 @@ local_struct_route@11:
     intc_1 // 1
     return
 
-create_storage_route@10:
+create_storage_route@9:
     txna ApplicationArgs 1
     btoi
     intc_0 // 0
@@ -482,7 +492,7 @@ create_storage_route@10:
     intc_1 // 1
     return
 
-increment_payment_route@9:
+increment_payment_route@8:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -518,7 +528,7 @@ increment_payment_route@9:
     intc_1 // 1
     return
 
-add_payment_route@8:
+add_payment_route@7:
     txna ApplicationArgs 1
     intc_0 // 0
     bytec_1 // "num_payments"
@@ -552,17 +562,9 @@ add_payment_route@8:
     intc_1 // 1
     return
 
-test_imm_fixed_array_route@6:
+test_imm_fixed_array_route@5:
     intc_1 // 1
     return
-
-__algopy_default_create@19:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.mutable_native_types.contract.sum_frozen_arr(arr: bytes) -> uint64:

@@ -6,13 +6,16 @@ main test_cases.regression_tests.issue_491.Child.__algopy_entrypoint_with_init:
         (app_global_put "is_initialised" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        let not%tmp%0#2: bool = (! tmp%0#2)
-        (assert not%tmp%0#2)
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (! tmp%4#0)
-        let tmp%6#0: bool = (&& tmp%3#0 tmp%5#0)
-        (assert tmp%6#0) // OnCompletion must be NoOp && can only call when creating
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@5, block@4, block@5, block@5, block@5, block@5, block@5, block@5, block@5, block@5, block@5, block@5][tmp%4#0] else goto block@5
+    block@4: // switch_case_1_L15
+        let tmp%5#0: uint64 = (txn NumAppArgs)
+        let tmp%6#0: bool = (! tmp%5#0)
+        (assert tmp%6#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@5: // switch_case_default_L15
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?

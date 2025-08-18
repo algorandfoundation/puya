@@ -15,51 +15,56 @@ main:
 after_if_else@2:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txn NumAppArgs
-    bz bare_routing@7
-    pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
-    txna ApplicationArgs 0
-    match delete_route@5 greet_route@6
-    err
-
-greet_route@6:
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
+    txn ApplicationID
     !
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    b greet
-
-delete_route@5:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
 
-bare_routing@7:
+*NOT_IMPLEMENTED:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    pushints 0 4 // NoOp, UpdateApplication
-    txn OnCompletion
-    match __algopy_default_create@8 update@9
-    err
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-update@9:
+call_DeleteApplication:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match delete_route@10
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+delete_route@10:
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    pushint 1 // 1
+    return
+
+call_UpdateApplication:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txn NumAppArgs
+    !
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID
-    return // on error: can only call when not creating
+    return // on error: this contract does not implement the given ABI method for call UpdateApplication
 
-__algopy_default_create@8:
-    txn ApplicationID
+create_NoOp:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txn NumAppArgs
     !
-    return // on error: can only call when creating
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    txna ApplicationArgs 0
+    match greet
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.compile.apps.HelloBase.greet[routing]() -> void:

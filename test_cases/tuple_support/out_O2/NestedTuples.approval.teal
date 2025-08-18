@@ -18,19 +18,29 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@21
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x383e1e8b 0x68cbedd7 0x2263fcf1 0xbfc37339 0xc660beaa 0xb6c215ff 0x907c9042 0xd51c7174 0xf8cc2b50 0x3d486db0 0x9e5a3ba7 0xcea0521b 0x373f5b24 0xec593096 // method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void", method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])", method "store_tuple_in_box((uint64,uint64))void", method "is_tuple_in_box((uint64,uint64))bool", method "load_tuple_from_box((uint64,uint64))(uint64,uint64)", method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)", method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)", method "load_tuple_from_local_state_or_default(string)(uint64,uint64)", method "mutate_local_tuple()(uint64[],(uint64,byte[],string))", method "mutate_tuple_in_storage_currently_supported_method()void", method "run_tests()bool", method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))", method "named_tuple((uint64,byte[],string))(uint64,byte[],string)", method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
     txna ApplicationArgs 0
-    match store_tuple_route@6 load_tuple_route@7 store_tuple_in_box_route@8 is_tuple_in_box_route@9 load_tuple_from_box_route@10 maybe_load_tuple_from_box_route@11 load_tuple_from_box_or_default_route@12 load_tuple_from_local_state_or_default_route@13 mutate_local_tuple_route@14 mutate_tuple_in_storage_currently_supported_method_route@15 run_tests_route@16 nested_tuple_params_route@17 named_tuple_route@18 nested_named_tuple_params_route@19
-    err
+    match store_tuple_route@5 load_tuple_route@6 store_tuple_in_box_route@7 is_tuple_in_box_route@8 load_tuple_from_box_route@9 maybe_load_tuple_from_box_route@10 load_tuple_from_box_or_default_route@11 load_tuple_from_local_state_or_default_route@12 mutate_local_tuple_route@13 mutate_tuple_in_storage_currently_supported_method_route@14 run_tests_route@15 nested_tuple_params_route@16 named_tuple_route@17 nested_named_tuple_params_route@18
+    err // this contract does not implement the given ABI method for call NoOp
 
-nested_named_tuple_params_route@19:
+nested_named_tuple_params_route@18:
     bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
     concat
@@ -38,7 +48,7 @@ nested_named_tuple_params_route@19:
     intc_0 // 1
     return
 
-named_tuple_route@18:
+named_tuple_route@17:
     bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
     concat
@@ -46,7 +56,7 @@ named_tuple_route@18:
     intc_0 // 1
     return
 
-nested_tuple_params_route@17:
+nested_tuple_params_route@16:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
@@ -114,7 +124,7 @@ nested_tuple_params_route@17:
     intc_0 // 1
     return
 
-run_tests_route@16:
+run_tests_route@15:
     intc_0 // 1
     intc_2 // 2
     addw
@@ -221,7 +231,7 @@ for_header_1@30:
     swap
     b for_body@29
 
-mutate_tuple_in_storage_currently_supported_method_route@15:
+mutate_tuple_in_storage_currently_supported_method_route@14:
     intc_1 // 0
     bytec_2 // "twm"
     app_global_get_ex
@@ -321,7 +331,7 @@ mutate_tuple_in_storage_currently_supported_method_route@15:
     intc_0 // 1
     return
 
-mutate_local_tuple_route@14:
+mutate_local_tuple_route@13:
     intc_1 // 0
     bury 7
 
@@ -353,7 +363,7 @@ after_for@45:
     intc_0 // 1
     return
 
-load_tuple_from_local_state_or_default_route@13:
+load_tuple_from_local_state_or_default_route@12:
     txna ApplicationArgs 1
     extract 2 0
     callsub echo
@@ -395,7 +405,7 @@ ternary_false@49:
     dig 2
     b ternary_merge@50
 
-load_tuple_from_box_or_default_route@12:
+load_tuple_from_box_or_default_route@11:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -434,7 +444,7 @@ ternary_false@54:
     dig 4
     b ternary_merge@55
 
-maybe_load_tuple_from_box_route@11:
+maybe_load_tuple_from_box_route@10:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -475,7 +485,7 @@ ternary_false@59:
     dup
     b ternary_merge@60
 
-load_tuple_from_box_route@10:
+load_tuple_from_box_route@9:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -488,7 +498,7 @@ load_tuple_from_box_route@10:
     intc_0 // 1
     return
 
-is_tuple_in_box_route@9:
+is_tuple_in_box_route@8:
     bytec_1 // "box"
     txna ApplicationArgs 1
     concat
@@ -505,7 +515,7 @@ is_tuple_in_box_route@9:
     intc_0 // 1
     return
 
-store_tuple_in_box_route@8:
+store_tuple_in_box_route@7:
     txna ApplicationArgs 1
     dup
     extract 0 8
@@ -526,7 +536,7 @@ store_tuple_in_box_route@8:
     intc_0 // 1
     return
 
-load_tuple_route@7:
+load_tuple_route@6:
     intc_1 // 0
     bytec 6 // "pwl"
     app_global_get_ex
@@ -538,20 +548,12 @@ load_tuple_route@7:
     intc_0 // 1
     return
 
-store_tuple_route@6:
+store_tuple_route@5:
     bytec 6 // "pwl"
     txna ApplicationArgs 1
     app_global_put
     intc_0 // 1
     return
-
-__algopy_default_create@21:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.tuple_support.nested_tuples.get_sender_inefficiently() -> bytes:

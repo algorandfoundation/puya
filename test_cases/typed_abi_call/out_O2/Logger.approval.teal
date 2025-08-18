@@ -5,19 +5,29 @@
 main:
     intcblock 1 0 64 8
     bytecblock 0x151f7c75 0x6563686f3a20 0x00066563686f3a20 0x0004
-    txn NumAppArgs
-    bz __algopy_default_create@29
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xc77212bc 0x9bf81913 0xb862ee19 0x3c1058d9 0x6af45930 0xb4b4334e 0x6eed7ec3 0xb500e111 0x46b50faf 0x0437b17e 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0xd6c2ac7f 0x48142d5e 0x16e03919 0xab271ce4 0xba0b4381 0xddd07185 0xdc4f1992 // method "is_a_b(byte[],byte[])void", method "echo(string)string", method "no_args()uint64", method "log(uint64)void", method "log(uint512)void", method "log(string)void", method "log(bool)void", method "log(byte[])void", method "log(uint64,address,uint64)void", method "log(address)void", method "echo_native_string(string)string", method "echo_native_bytes(byte[])byte[]", method "echo_native_uint64(uint64)uint64", method "echo_native_biguint(uint512)uint512", method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)", method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)", method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)", method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))", method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]", method "logs_are_equal((uint64,string),(uint64,string))bool", method "echo_log_struct((uint64,string))(uint64,string)"
     txna ApplicationArgs 0
-    match is_a_b_route@4 echo_route@5 no_args_route@6 log_route@7 log_route@7 log_route@9 log_route@10 log_route@11 log_route@12 log_route@13 echo_native_string_route@14 echo_native_bytes_route@15 echo_native_uint64_route@16 echo_native_biguint_route@17 echo_resource_by_index_route@18 echo_resource_by_value_route@19 echo_native_tuple_route@20 echo_nested_tuple_route@21 return_args_after_14th_route@22 logs_are_equal_route@23 echo_log_struct_route@24
-    err
+    match is_a_b_route@3 echo_route@4 no_args_route@5 log_route@6 log_route@6 log_route@8 log_route@9 log_route@10 log_route@11 log_route@12 echo_native_string_route@13 echo_native_bytes_route@14 echo_native_uint64_route@15 echo_native_biguint_route@16 echo_resource_by_index_route@17 echo_resource_by_value_route@18 echo_native_tuple_route@19 echo_nested_tuple_route@20 return_args_after_14th_route@21 logs_are_equal_route@22 echo_log_struct_route@23
+    err // this contract does not implement the given ABI method for call NoOp
 
-echo_log_struct_route@24:
+echo_log_struct_route@23:
     bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
     concat
@@ -25,7 +35,7 @@ echo_log_struct_route@24:
     intc_0 // 1
     return
 
-logs_are_equal_route@23:
+logs_are_equal_route@22:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
@@ -69,7 +79,7 @@ logs_are_equal_route@23:
     intc_0 // 1
     return
 
-return_args_after_14th_route@22:
+return_args_after_14th_route@21:
     txna ApplicationArgs 15
     extract 0 1
     txna ApplicationArgs 15
@@ -110,7 +120,7 @@ return_args_after_14th_route@22:
     intc_0 // 1
     return
 
-echo_nested_tuple_route@21:
+echo_nested_tuple_route@20:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
@@ -237,7 +247,7 @@ echo_nested_tuple_route@21:
     intc_0 // 1
     return
 
-echo_native_tuple_route@20:
+echo_native_tuple_route@19:
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -303,7 +313,7 @@ echo_native_tuple_route@20:
     intc_0 // 1
     return
 
-echo_resource_by_value_route@19:
+echo_resource_by_value_route@18:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -337,7 +347,7 @@ echo_resource_by_value_route@19:
     intc_0 // 1
     return
 
-echo_resource_by_index_route@18:
+echo_resource_by_index_route@17:
     txna ApplicationArgs 1
     btoi
     txnas Assets
@@ -379,7 +389,7 @@ echo_resource_by_index_route@18:
     intc_0 // 1
     return
 
-echo_native_biguint_route@17:
+echo_native_biguint_route@16:
     txna ApplicationArgs 1
     pushbytes 0x01
     b+
@@ -398,7 +408,7 @@ echo_native_biguint_route@17:
     intc_0 // 1
     return
 
-echo_native_uint64_route@16:
+echo_native_uint64_route@15:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -411,7 +421,7 @@ echo_native_uint64_route@16:
     intc_0 // 1
     return
 
-echo_native_bytes_route@15:
+echo_native_bytes_route@14:
     txna ApplicationArgs 1
     extract 2 0
     bytec_1 // 0x6563686f3a20
@@ -430,7 +440,7 @@ echo_native_bytes_route@15:
     intc_0 // 1
     return
 
-echo_native_string_route@14:
+echo_native_string_route@13:
     txna ApplicationArgs 1
     extract 2 0
     bytec_1 // "echo: "
@@ -449,13 +459,13 @@ echo_native_string_route@14:
     intc_0 // 1
     return
 
-log_route@13:
+log_route@12:
     txna ApplicationArgs 1
     log
     intc_0 // 1
     return
 
-log_route@12:
+log_route@11:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -474,14 +484,14 @@ log_route@12:
     intc_0 // 1
     return
 
-log_route@11:
+log_route@10:
     txna ApplicationArgs 1
     extract 2 0
     log
     intc_0 // 1
     return
 
-log_route@10:
+log_route@9:
     txna ApplicationArgs 1
     intc_1 // 0
     getbit
@@ -492,26 +502,26 @@ log_route@10:
     intc_0 // 1
     return
 
-log_route@9:
+log_route@8:
     txna ApplicationArgs 1
     extract 2 0
     log
     intc_0 // 1
     return
 
-log_route@7:
+log_route@6:
     txna ApplicationArgs 1
     log
     intc_0 // 1
     return
 
-no_args_route@6:
+no_args_route@5:
     pushbytes 0x151f7c75000000000000002a
     log
     intc_0 // 1
     return
 
-echo_route@5:
+echo_route@4:
     txna ApplicationArgs 1
     extract 2 0
     bytec_2 // 0x00066563686f3a20
@@ -530,7 +540,7 @@ echo_route@5:
     intc_0 // 1
     return
 
-is_a_b_route@4:
+is_a_b_route@3:
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -542,11 +552,3 @@ is_a_b_route@4:
     pushbytes 0x62
     ==
     return // on error: b is not b
-
-__algopy_default_create@29:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

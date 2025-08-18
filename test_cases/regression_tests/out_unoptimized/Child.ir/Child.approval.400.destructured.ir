@@ -29,26 +29,49 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
     block@1: // L15
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@3
-    block@2: // abi_routing_L15
-        goto block@6
-    block@3: // __algopy_default_create_L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (== tmp%4#0 0u)
-        let tmp%6#0: bool = (&& tmp%3#0 tmp%5#0)
-        (assert tmp%6#0) // OnCompletion must be NoOp && can only call when creating
-        goto block@4
-    block@4: // L1
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@2, 1u => block@3, 2u => block@8, 3u => block@9, 4u => block@10, 5u => block@11, 6u => block@12, 7u => block@13, 8u => block@14, 9u => block@15, 10u => block@16, 11u => block@17, * => block@18}
+    block@2: // switch_case_0_L15
+        goto block@18
+    block@3: // switch_case_1_L15
+        let tmp%5#0: uint64 = (txn NumAppArgs)
+        let tmp%6#0: bool = (== tmp%5#0 0u)
+        goto tmp%6#0 ? block@4 : block@7
+    block@4: // __algopy_default_create_L1
         goto block@5
-    block@5: // after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create_L1
+    block@5: // L1
+        goto block@6
+    block@6: // after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create_L1
         exit 1u
-    block@6: // after_if_else_L15
-        exit 0u
-    block@7: // after_inlined_test_cases.regression_tests.issue_491.Child.__puya_arc4_router___L1
+    block@7: // else_body_L15
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@8: // switch_case_2_L15
+        goto block@18
+    block@9: // switch_case_3_L15
+        goto block@18
+    block@10: // switch_case_4_L15
+        goto block@18
+    block@11: // switch_case_5_L15
+        goto block@18
+    block@12: // switch_case_6_L15
+        goto block@18
+    block@13: // switch_case_7_L15
+        goto block@18
+    block@14: // switch_case_8_L15
+        goto block@18
+    block@15: // switch_case_9_L15
+        goto block@18
+    block@16: // switch_case_10_L15
+        goto block@18
+    block@17: // switch_case_11_L15
+        goto block@18
+    block@18: // switch_case_default_L15
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+    block@19: // after_inlined_test_cases.regression_tests.issue_491.Child.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 

@@ -3,19 +3,29 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
-    match emit_swapped_route@4 emit_ufixed_route@5
-    err
+    match emit_swapped_route@3 emit_ufixed_route@4
+    err // this contract does not implement the given ABI method for call NoOp
 
-emit_ufixed_route@5:
+emit_ufixed_route@4:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     concat
@@ -26,7 +36,7 @@ emit_ufixed_route@5:
     pushint 1 // 1
     return
 
-emit_swapped_route@4:
+emit_swapped_route@3:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     concat
@@ -40,11 +50,3 @@ emit_swapped_route@4:
     log
     pushint 1 // 1
     return
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

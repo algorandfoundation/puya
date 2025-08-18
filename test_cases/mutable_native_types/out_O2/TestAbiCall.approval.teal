@@ -3,27 +3,37 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0 5 2
-    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0x0003 0x818e4a62 0x59664ab6 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0xbb3bfdb7 0xd28b964a
-    txn NumAppArgs
-    bz __algopy_default_create@14
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
+    intcblock 6 0 1 5
+    bytecblock 0x151f7c75 base64(CoEBQw==) base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD) 0x24378d3c 0x11b19b95 0xea18655f 0x46ec14a0 0x4f0deb50 0x125d1376 0x0003 0x818e4a62 0x59664ab6 0x0008 0x0016 0x000548656c6c6f 0x9b4d0926 0xbb3bfdb7 0xd28b964a
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_2 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x5df19773 0xba041cd5 0x8441664a 0xcaa62e2c 0x38357d5e 0xe473c70a // method "test_fixed_struct()void", method "test_nested_struct()void", method "test_dynamic_struct()void", method "test_fixed_array()void", method "test_native_array()void", method "test_log()void"
     txna ApplicationArgs 0
-    match test_fixed_struct_route@4 test_nested_struct_route@5 test_dynamic_struct_route@6 test_fixed_array_route@7 test_native_array_route@8 test_log_route@9
-    err
+    match test_fixed_struct_route@3 test_nested_struct_route@4 test_dynamic_struct_route@5 test_fixed_array_route@6 test_native_array_route@7 test_log_route@8
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_log_route@9:
+test_log_route@8:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -108,7 +118,7 @@ test_log_route@9:
     itxn_field Fee
     itxn_submit
     itxn NumLogs
-    intc_2 // 5
+    intc_3 // 5
     ==
     assert // expected 5 logs
     itxna Logs 0
@@ -128,12 +138,12 @@ test_log_route@9:
     ==
     assert // expected fixed array
     itxna Logs 4
-    intc_3 // 2
+    pushint 2 // 2
     bzero
     ==
     assert // expected fixed array
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -143,16 +153,16 @@ test_log_route@9:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
 
-test_native_array_route@8:
+test_native_array_route@7:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -161,10 +171,10 @@ test_native_array_route@8:
     itxn_submit
     itxn CreatedApplicationID
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     swap
     itob
@@ -211,7 +221,7 @@ test_native_array_route@8:
     ==
     assert // should be the same
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -261,7 +271,7 @@ test_native_array_route@8:
     ==
     assert // should be the same
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -271,16 +281,16 @@ test_native_array_route@8:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
 
-test_fixed_array_route@7:
+test_fixed_array_route@6:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -289,10 +299,10 @@ test_fixed_array_route@7:
     itxn_submit
     itxn CreatedApplicationID
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     swap
     itob
@@ -337,7 +347,7 @@ test_fixed_array_route@7:
     ==
     assert // should be the same
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -385,7 +395,7 @@ test_fixed_array_route@7:
     ==
     assert // should be the same
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -395,16 +405,16 @@ test_fixed_array_route@7:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
 
-test_dynamic_struct_route@6:
+test_dynamic_struct_route@5:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -413,10 +423,10 @@ test_dynamic_struct_route@6:
     itxn_submit
     itxn CreatedApplicationID
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     swap
     itob
@@ -424,10 +434,10 @@ test_dynamic_struct_route@6:
     itob
     concat
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -502,7 +512,7 @@ test_dynamic_struct_route@6:
     ==
     assert // should be the same
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -577,7 +587,7 @@ test_dynamic_struct_route@6:
     ==
     assert // should be the same
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -587,16 +597,16 @@ test_dynamic_struct_route@6:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
 
-test_nested_struct_route@5:
+test_nested_struct_route@4:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -605,10 +615,10 @@ test_nested_struct_route@5:
     itxn_submit
     itxn CreatedApplicationID
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     swap
     itob
@@ -653,7 +663,7 @@ test_nested_struct_route@5:
     ==
     assert // should be the same
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -701,7 +711,7 @@ test_nested_struct_route@5:
     ==
     assert // should be the same
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -711,16 +721,16 @@ test_nested_struct_route@5:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
 
-test_fixed_struct_route@4:
+test_fixed_struct_route@3:
     itxn_begin
-    intc_2 // 5
+    intc_3 // 5
     itxn_field GlobalNumByteSlice
     bytec_1 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOiABCQ3jTw2GgCOAQDSMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_2 // base64(CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRgUMRkikAiNDAAVABEAAAAAAAAAAAAAAAAAAAAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4ILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LAHAAZgBfAFUATgBEADwAMQApAB4AAQAjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQyMnBWVEKExQsCJDJwU2GgFnIkMjJwRlRChMULAiQycENhoBZyJDIytlRChMULAiQys2GgFnIkMjKmVEKExQsCJDKjYaAWciQyMpZUQoTFCwIkMpNhoBZyJD)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -729,10 +739,10 @@ test_fixed_struct_route@4:
     itxn_submit
     itxn CreatedApplicationID
     txn NumAppArgs
-    pushint 1 // 1
+    intc_2 // 1
     +
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     swap
     itob
@@ -772,7 +782,7 @@ test_fixed_struct_route@4:
     ==
     assert // should be the same
     txn NumAppArgs
-    intc_3 // 2
+    pushint 2 // 2
     +
     txn NumAppArgs
     pushint 3 // 3
@@ -815,7 +825,7 @@ test_fixed_struct_route@4:
     ==
     assert // should be the same
     itxn_begin
-    intc_2 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_3 // method "delete()void"
@@ -825,13 +835,5 @@ test_fixed_struct_route@4:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_2 // 1
     return
-
-__algopy_default_create@14:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

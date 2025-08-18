@@ -8,14 +8,30 @@ main:
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    txn NumAppArgs
-    !
-    assert
-    // state_totals/contract.py:14
-    // @arc4.baremethod(create="require")
-    txn OnCompletion
-    !
     txn ApplicationID
     !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch *NOT_IMPLEMENTED create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    txn NumAppArgs
+    !
+    // state_totals/contract.py:14
+    // @arc4.baremethod(create="require")
+    return // on error: this contract does not implement the given ABI method for create NoOp

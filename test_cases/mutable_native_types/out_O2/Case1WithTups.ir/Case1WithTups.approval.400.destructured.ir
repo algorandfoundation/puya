@@ -1,18 +1,17 @@
 main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init:
     block@0: // L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@18
-    block@4: // abi_routing_L41
+        let tmp%0#2: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#2)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@17}
-    block@6: // create_box_route_L45
-        let tmp%0#13: bool = (box_create "tup_bag" 4273u)
-        (assert tmp%0#13) // box already exists
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@17, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18, block@18][tmp%4#0] else goto block@18
+    block@4: // switch_case_0_L41
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "create_box()void" => block@5, method "num_tups()uint64" => block@6, method "add_tup((uint64,uint64))void" => block@7, method "get_tup(uint64)(uint64,uint64)" => block@8, method "sum()uint64" => block@9, method "add_many_tups((uint64,uint64)[])void" => block@10, method "add_fixed_tups((uint64,uint64)[3])void" => block@11, method "set_a(uint64)void" => block@12, method "set_b(uint64)void" => block@13, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@14, method "get_all_tups()(uint64,uint64)[]" => block@15, * => block@16}
+    block@5: // create_box_route_L45
+        let tmp%0#2: bool = (box_create "tup_bag" 4273u)
+        (assert tmp%0#2) // box already exists
         let tmp%1#8: account = (txn Sender)
         (box_replace "tup_bag" 136u tmp%1#8)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
@@ -22,31 +21,31 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%updated_target%0#0: Encoded(bool1[8]) = (setbit box%box_extract%0#0 0u 1u)
         (box_replace "tup_bag" 4272u aggregate%updated_target%0#0)
         exit 1u
-    block@7: // num_tups_route_L52
+    block@6: // num_tups_route_L52
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let tmp%2#1: bytes = (concat 0x151f7c75 box%box_extract%0#0)
         (log tmp%2#1)
         exit 1u
-    block@8: // add_tup_route_L56
+    block@7: // add_tup_route_L56
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let aggregate%item0%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
         let aggregate%item1%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(aggregate%item0%0#0, aggregate%item1%0#0)
         exit 1u
-    block@9: // get_tup_route_L63
+    block@8: // get_tup_route_L63
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%0#13: bool = (< index#0 values%0#0)
-        (assert tmp%0#13) // index out of bounds
+        let tmp%0#2: bool = (< index#0 values%0#0)
+        (assert tmp%0#2) // index out of bounds
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%encoded_element%0#0)
         (log tmp%4#1)
         exit 1u
-    block@10: // sum_route_L68
+    block@9: // sum_route_L68
         let total#0: uint64 = 0u
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -70,7 +69,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
         (log tmp%2#1)
         exit 1u
-    block@11: // add_many_tups_route_L77
+    block@10: // add_many_tups_route_L77
         let tups#0: bytes = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
         let item_index_internal%0#0: uint64 = 0u
@@ -89,7 +88,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         goto block@42
     block@44: // after_for_L79
         exit 1u
-    block@12: // add_fixed_tups_route_L82
+    block@11: // add_fixed_tups_route_L82
         let tups#0: bytes = (txna ApplicationArgs 1)
         let item_index_internal%0#0: uint64 = 0u
         goto block@37
@@ -104,7 +103,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#2, tup.b#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@37
-    block@13: // set_a_route_L87
+    block@12: // set_a_route_L87
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
@@ -128,7 +127,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (box_replace "tup_bag" box%offset%4#1 aggregate%head%1#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@32
-    block@14: // set_b_route_L94
+    block@13: // set_b_route_L94
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let b#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
@@ -152,14 +151,14 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (box_replace "tup_bag" box%offset%4#1 aggregate%head%3#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@27
-    block@15: // get_3_tups_route_L101
+    block@14: // get_3_tups_route_L101
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let start#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%0#2: uint64 = (+ start#0 3u)
-        let tmp%1#7: bool = (>= values%0#0 tmp%0#2)
-        (assert tmp%1#7) // not enough items
+        let tmp%0#12: uint64 = (+ start#0 3u)
+        let tmp%1#0: bool = (>= values%0#0 tmp%0#12)
+        (assert tmp%1#0) // not enough items
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%6#0: uint64 = (* start#0 16u)
         let aggregate%encoded_element%6#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%6#0 16u) // on error: index access is out of bounds
@@ -170,8 +169,8 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%encoded_element%7#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%7#0 16u) // on error: index access is out of bounds
         let aggregate%extract%14#0: bytes = ((extract 0 8) aggregate%encoded_element%7#0)
         let aggregate%extract%15#0: bytes = ((extract 8 8) aggregate%encoded_element%7#0)
-        let tmp%3#2: uint64 = (+ start#0 2u)
-        let aggregate%bytes_offset%8#0: uint64 = (* tmp%3#2 16u)
+        let tmp%3#0: uint64 = (+ start#0 2u)
+        let aggregate%bytes_offset%8#0: uint64 = (* tmp%3#0 16u)
         let aggregate%encoded_element%8#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%8#0 16u) // on error: index access is out of bounds
         let aggregate%extract%16#0: bytes = ((extract 0 8) aggregate%encoded_element%8#0)
         let aggregate%extract%17#0: bytes = ((extract 8 8) aggregate%encoded_element%8#0)
@@ -183,7 +182,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%head%12#0)
         (log tmp%2#1)
         exit 1u
-    block@16: // get_all_tups_route_L114
+    block@15: // get_all_tups_route_L114
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%1#0)
@@ -211,16 +210,15 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%1#1: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#1)
         exit 1u
-    block@17: // after_if_else_L41
-        fail
-    block@18: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+    block@16: // switch_case_next_L41
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@17: // switch_case_1_L41
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@18: // switch_case_default_L41
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
     block@0: // L56

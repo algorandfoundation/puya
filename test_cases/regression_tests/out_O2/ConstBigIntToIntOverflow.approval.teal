@@ -5,19 +5,29 @@
 main:
     bytecblock 0x010000000000000000 0x151f7c75
     pushbytes ""
-    txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
     txna ApplicationArgs 0
-    match get_abs_bound1_route@4 get_abs_bound2_route@5
-    err
+    match get_abs_bound1_route@3 get_abs_bound2_route@4
+    err // this contract does not implement the given ABI method for call NoOp
 
-get_abs_bound2_route@5:
+get_abs_bound2_route@4:
     bytec_0 // 0x010000000000000000
     btoi
     itob
@@ -28,17 +38,17 @@ get_abs_bound2_route@5:
     pushint 1 // 1
     return
 
-get_abs_bound1_route@4:
+get_abs_bound1_route@3:
     txna ApplicationArgs 1
     btoi
     pushint 0 // 0
     bury 2
-    bz after_if_else@17
+    bz after_if_else@27
     bytec_0 // 0x010000000000000000
     btoi
     bury 1
 
-after_if_else@17:
+after_if_else@27:
     dup
     itob
     bytec_1 // 0x151f7c75
@@ -47,11 +57,3 @@ after_if_else@17:
     log
     pushint 1 // 1
     return
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

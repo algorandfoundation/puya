@@ -13,15 +13,40 @@ main:
 after_if_else@2:
     // diamond_mro/gp.py:6
     // class GP(ARC4Contract, abc.ABC):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@6
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // diamond_mro/gp.py:6
+    // class GP(ARC4Contract, abc.ABC):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // diamond_mro/gp.py:6
+    // class GP(ARC4Contract, abc.ABC):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@8
+    err // this contract does not implement the given ABI method for create NoOp
+
+create_route@8:
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
+    pushint 1 // 1
+    return
+
+call_NoOp:
+    // diamond_mro/gp.py:6
+    // class GP(ARC4Contract, abc.ABC):
     pushbytes 0x4f045d84 // method "method()void"
     txna ApplicationArgs 0
     match method_route@5
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 method_route@5:
     // diamond_mro/gp.py:17
@@ -30,19 +55,5 @@ method_route@5:
     log
     // diamond_mro/gp.py:15
     // @arc4.abimethod
-    pushint 1 // 1
-    return
-
-create_NoOp@6:
-    // diamond_mro/gp.py:6
-    // class GP(ARC4Contract, abc.ABC):
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match create_route@7
-    err
-
-create_route@7:
-    // diamond_mro/gp.py:11
-    // @arc4.abimethod(create="require")
     pushint 1 // 1
     return

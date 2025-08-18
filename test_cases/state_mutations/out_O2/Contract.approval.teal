@@ -4,20 +4,58 @@
 // test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "box" "glob" "loc" "map" 0x00086d6f646966696564 0x00020000000000000001000a000362617a 0x0000
-    txn NumAppArgs
-    bz bare_routing@9
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
+    bytecblock "box" "glob" "loc" 0x0000 "map" 0x00086d6f646966696564 0x00020000000000000001000a000362617a
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_OptIn:
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call OptIn
+    bytec_1 // "glob"
+    bytec_3 // 0x0000
+    app_global_put
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    bytec_3 // 0x0000
+    box_put
+    txn Sender
+    bytec_2 // "loc"
+    bytec_3 // 0x0000
+    app_local_put
+    bytec 4 // "map"
+    txn Sender
+    concat
+    dup
+    box_del
+    pop
+    bytec_3 // 0x0000
+    box_put
+    intc_1 // 1
+    return
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
-    match append_route@6 modify_route@7 get_route@8
-    err
+    match append_route@5 modify_route@6 get_route@7
+    err // this contract does not implement the given ABI method for call NoOp
 
-get_route@8:
+get_route@7:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -30,7 +68,7 @@ get_route@8:
     bytec_0 // "box"
     box_get
     assert // check self.box exists
-    bytec_3 // "map"
+    bytec 4 // "map"
     txn Sender
     concat
     box_get
@@ -53,7 +91,7 @@ get_route@8:
     intc_1 // 1
     return
 
-modify_route@7:
+modify_route@6:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -85,7 +123,7 @@ modify_route@7:
     intc_0 // 0
     swap
     extract3
-    bytec 4 // 0x00086d6f646966696564
+    bytec 5 // 0x00086d6f646966696564
     concat
     swap
     assert // index access is out of bounds
@@ -127,7 +165,7 @@ modify_route@7:
     intc_0 // 0
     swap
     extract3
-    bytec 4 // 0x00086d6f646966696564
+    bytec 5 // 0x00086d6f646966696564
     concat
     swap
     assert // index access is out of bounds
@@ -166,7 +204,7 @@ modify_route@7:
     intc_0 // 0
     swap
     extract3
-    bytec 4 // 0x00086d6f646966696564
+    bytec 5 // 0x00086d6f646966696564
     concat
     swap
     assert // index access is out of bounds
@@ -178,7 +216,7 @@ modify_route@7:
     bytec_0 // "box"
     swap
     box_put
-    bytec_3 // "map"
+    bytec 4 // "map"
     txn Sender
     concat
     dup
@@ -211,7 +249,7 @@ modify_route@7:
     intc_0 // 0
     swap
     extract3
-    bytec 4 // 0x00086d6f646966696564
+    bytec 5 // 0x00086d6f646966696564
     concat
     swap
     assert // index access is out of bounds
@@ -224,7 +262,7 @@ modify_route@7:
     intc_1 // 1
     return
 
-append_route@6:
+append_route@5:
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -235,7 +273,7 @@ append_route@6:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 5 // 0x00020000000000000001000a000362617a
+    bytec 6 // 0x00020000000000000001000a000362617a
     callsub dynamic_array_concat_dynamic_element
     bytec_1 // "glob"
     swap
@@ -252,7 +290,7 @@ append_route@6:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 5 // 0x00020000000000000001000a000362617a
+    bytec 6 // 0x00020000000000000001000a000362617a
     callsub dynamic_array_concat_dynamic_element
     bytec_2 // "loc"
     swap
@@ -266,7 +304,7 @@ append_route@6:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 5 // 0x00020000000000000001000a000362617a
+    bytec 6 // 0x00020000000000000001000a000362617a
     callsub dynamic_array_concat_dynamic_element
     bytec_0 // "box"
     box_del
@@ -274,7 +312,7 @@ append_route@6:
     bytec_0 // "box"
     swap
     box_put
-    bytec_3 // "map"
+    bytec 4 // "map"
     txn Sender
     concat
     dup
@@ -286,7 +324,7 @@ append_route@6:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 5 // 0x00020000000000000001000a000362617a
+    bytec 6 // 0x00020000000000000001000a000362617a
     callsub dynamic_array_concat_dynamic_element
     dig 1
     box_del
@@ -294,43 +332,6 @@ append_route@6:
     box_put
     intc_1 // 1
     return
-
-bare_routing@9:
-    txn OnCompletion
-    switch __algopy_default_create@10 opt_in@11
-    err
-
-opt_in@11:
-    txn ApplicationID
-    assert // can only call when not creating
-    bytec_1 // "glob"
-    bytec 6 // 0x0000
-    app_global_put
-    bytec_0 // "box"
-    box_del
-    pop
-    bytec_0 // "box"
-    bytec 6 // 0x0000
-    box_put
-    txn Sender
-    bytec_2 // "loc"
-    bytec 6 // 0x0000
-    app_local_put
-    bytec_3 // "map"
-    txn Sender
-    concat
-    dup
-    box_del
-    pop
-    bytec 6 // 0x0000
-    box_put
-    intc_1 // 1
-    return
-
-__algopy_default_create@10:
-    txn ApplicationID
-    !
-    return // on error: can only call when creating
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

@@ -7,25 +7,33 @@ main:
     bytecblock 0x151f7c75
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
     pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
     txna ApplicationArgs 0
     match create_group log_group
-    err
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]() -> void:

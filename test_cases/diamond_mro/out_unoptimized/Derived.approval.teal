@@ -3,7 +3,7 @@
 
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1
     b block@0
 
 block@0:
@@ -179,43 +179,84 @@ approval_program_block@0:
 approval_program_block@1:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    intc_1 // 0
-    !=
-    bz approval_program_create_NoOp@6
-    b approval_program_call_NoOp@2
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    pushint 0 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match approval_program_call_NoOp approval_program_create_NoOp approval_program_call_OptIn approval_program_create_OptIn approval_program_call_CloseOut approval_program_create_CloseOut approval_program_call_ClearState approval_program_create_ClearState approval_program_call_UpdateApplication approval_program_create_UpdateApplication approval_program_call_DeleteApplication approval_program_create_DeleteApplication
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_call_NoOp@2:
+approval_program_*NOT_IMPLEMENTED:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    txna ApplicationArgs 0
-    pushbytes 0x4f045d84 // method "method()void"
-    uncover 1
-    match approval_program_method_route@3
-    b approval_program_switch_case_default@4
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-approval_program_switch_case_default@4:
-    b approval_program_switch_case_next@5
-
-approval_program_switch_case_next@5:
-    b approval_program_after_if_else@10
-
-approval_program_after_if_else@10:
+approval_program_create_DeleteApplication:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    err
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_method_route@3:
-    // diamond_mro/derived.py:12
-    // @arc4.abimethod
-    callsub method
-    b approval_program_switch_case_next@5
+approval_program_call_DeleteApplication:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_create_NoOp@6:
+approval_program_create_UpdateApplication:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_UpdateApplication:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_ClearState:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_ClearState:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_CloseOut:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_CloseOut:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_OptIn:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_OptIn:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_NoOp:
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
     txna ApplicationArgs 0
@@ -228,13 +269,38 @@ approval_program_switch_case_default@8:
     b approval_program_switch_case_next@9
 
 approval_program_switch_case_next@9:
-    b approval_program_after_if_else@10
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    err // this contract does not implement the given ABI method for create NoOp
 
 approval_program_create_route@7:
-    // diamond_mro/gp.py:11
-    // @arc4.abimethod(create="require")
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
     callsub create
     b approval_program_switch_case_next@9
+
+approval_program_call_NoOp:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    txna ApplicationArgs 0
+    pushbytes 0x4f045d84 // method "method()void"
+    uncover 1
+    match approval_program_method_route@3
+    b approval_program_switch_case_default@4
+
+approval_program_switch_case_default@4:
+    b approval_program_switch_case_next@5
+
+approval_program_switch_case_next@5:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    err // this contract does not implement the given ABI method for call NoOp
+
+approval_program_method_route@3:
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
+    callsub method
+    b approval_program_switch_case_next@5
 
 
 // algopy._contract.Contract.__init__() -> void:

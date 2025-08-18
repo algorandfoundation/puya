@@ -7,23 +7,34 @@ main:
     bytecblock 0x151f7c75
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@6
-    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
-    txna ApplicationArgs 0
-    match tuple_of_arc4
-    err
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-create_NoOp@6:
+*NOT_IMPLEMENTED:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     txna ApplicationArgs 0
     match create
-    err
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
+    txna ApplicationArgs 0
+    match tuple_of_arc4
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:

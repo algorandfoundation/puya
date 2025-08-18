@@ -3,7 +3,7 @@
 
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     bytecblock "greeting"
     b block@0
 
@@ -29,7 +29,7 @@ delete_block@0:
     // compile/apps.py:24
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     callsub test_cases.compile.apps.HelloBase.delete
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -53,7 +53,7 @@ greet_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -97,7 +97,7 @@ test_cases.compile.apps.HelloBase.greet:
 test_cases.compile.apps.HelloBase.greet_block@0:
     // compile/apps.py:34
     // return self.greeting + " " + name
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
@@ -118,98 +118,160 @@ approval_program_block@0:
 approval_program_block@1:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program_bare_routing@7
-    b approval_program_abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match approval_program_call_NoOp approval_program_create_NoOp approval_program_call_OptIn approval_program_create_OptIn approval_program_call_CloseOut approval_program_create_CloseOut approval_program_call_ClearState approval_program_create_ClearState approval_program_call_UpdateApplication approval_program_create_UpdateApplication approval_program_call_DeleteApplication approval_program_create_DeleteApplication
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_abi_routing@2:
+approval_program_*NOT_IMPLEMENTED:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+approval_program_create_DeleteApplication:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_DeleteApplication:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x24378d3c // method "delete()void"
-    pushbytes 0xd0a28200 // method "greet(string)string"
-    uncover 2
-    match approval_program_delete_route@3 approval_program_greet_route@4
-    b approval_program_switch_case_default@5
+    uncover 1
+    match approval_program_delete_route@22
+    b approval_program_switch_case_default@23
 
-approval_program_switch_case_default@5:
-    b approval_program_switch_case_next@6
+approval_program_switch_case_default@23:
+    b approval_program_switch_case_next@24
 
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@14
-
-approval_program_after_if_else@14:
+approval_program_switch_case_next@24:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call DeleteApplication
 
-approval_program_greet_route@4:
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    callsub greet
-    b approval_program_switch_case_next@6
-
-approval_program_delete_route@3:
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be DeleteApplication && can only call when not creating
+approval_program_delete_route@22:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
     callsub delete
-    b approval_program_switch_case_next@6
+    b approval_program_switch_case_next@24
 
-approval_program_bare_routing@7:
+approval_program_create_UpdateApplication:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    pushint 4 // UpdateApplication
-    uncover 2
-    match approval_program___algopy_default_create@8 approval_program_update@11
-    b approval_program_switch_case_default@12
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_switch_case_default@12:
-    b approval_program_switch_case_next@13
+approval_program_call_UpdateApplication:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz approval_program_else_body@19
+    b approval_program_update@18
 
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@14
-
-approval_program_update@11:
+approval_program_update@18:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     callsub update
-    intc_1 // 1
+    intc_0 // 1
     return
 
-approval_program___algopy_default_create@8:
-    txn ApplicationID
-    intc_0 // 0
+approval_program_else_body@19:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    err // this contract does not implement the given ABI method for call UpdateApplication
+
+approval_program_create_ClearState:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_ClearState:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_CloseOut:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_CloseOut:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_OptIn:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_OptIn:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_NoOp:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
     ==
-    assert // can only call when creating
-    b approval_program_block@9
+    bz approval_program_else_body@10
+    b approval_program___algopy_default_create@7
 
-approval_program_block@9:
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@10
+approval_program___algopy_default_create@7:
+    b approval_program_block@8
 
-approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@10:
-    intc_1 // 1
+approval_program_block@8:
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@9
+
+approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@9:
+    intc_0 // 1
     return
+
+approval_program_else_body@10:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+approval_program_call_NoOp:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd0a28200 // method "greet(string)string"
+    uncover 1
+    match approval_program_greet_route@3
+    b approval_program_switch_case_default@4
+
+approval_program_switch_case_default@4:
+    b approval_program_switch_case_next@5
+
+approval_program_switch_case_next@5:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    err // this contract does not implement the given ABI method for call NoOp
+
+approval_program_greet_route@3:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    callsub greet
+    b approval_program_switch_case_next@5

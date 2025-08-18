@@ -4,75 +4,75 @@ subroutine main:
     block@0:
         // arc4_types/uint_overflow.py:4
         // class UIntOverflow(arc4.ARC4Contract):
-        txn NumAppArgs                                                                       tmp%0#1
+        txn ApplicationID                                                                    tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                       tmp%0#1
-        bz __algopy_default_create@11 ; b abi_routing@2
-
-    abi_routing@2:
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
+        !                                                                                    tmp%1#0
+        v-store tmp%1#0
         txn OnCompletion                                                                     tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                       tmp%2#0
-        !                                                                                    tmp%3#0
+        int 1                                                                                tmp%2#0,1
+        shl                                                                                  tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                                       tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                    tmp%4#0
+        v-load tmp%1#0                                                                       tmp%1#0
+        v-load tmp%3#0                                                                       tmp%1#0,tmp%3#0
+        +                                                                                    tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                       tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                               tmp%6#0
-        v-store tmp%6#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
+
+    call_NoOp:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                               tmp%5#0
+        v-store tmp%5#0
         method test_uint8()void                                                              Method(test_uint8()void)
         method test_uint16()void                                                             Method(test_uint8()void),Method(test_uint16()void)
         method test_uint32()void                                                             Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void)
-        v-load tmp%6#0                                                                       Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%6#0
-        match test_uint8_route@4 test_uint16_route@5 test_uint32_route@6 ; b after_if_else@10 
+        v-load tmp%5#0                                                                       Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%5#0
+        match test_uint8_route@3 test_uint16_route@4 test_uint32_route@5 ; b switch_case_next@7 
 
-    test_uint8_route@4:
-        // arc4_types/uint_overflow.py:5
-        // @arc4.abimethod()
-        callsub test_uint8
-        b after_if_else@10
-
-    test_uint16_route@5:
-        // arc4_types/uint_overflow.py:10
-        // @arc4.abimethod()
-        callsub test_uint16
-        b after_if_else@10
-
-    test_uint32_route@6:
-        // arc4_types/uint_overflow.py:15
-        // @arc4.abimethod()
-        callsub test_uint32
-        b after_if_else@10
-
-    after_if_else@10:
+    test_uint8_route@3:
         // arc4_types/uint_overflow.py:4
         // class UIntOverflow(arc4.ARC4Contract):
-        err
+        callsub test_uint8
+        b switch_case_next@7
 
-    __algopy_default_create@11:
-        txn OnCompletion                                                                     tmp%7#0
+    test_uint16_route@4:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        callsub test_uint16
+        b switch_case_next@7
+
+    test_uint32_route@5:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        callsub test_uint32
+        b switch_case_next@7
+
+    switch_case_next@7:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        txn NumAppArgs                                                                       tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                       tmp%6#0
+        !                                                                                    tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                       tmp%7#0
-        !                                                                                    tmp%8#0
-        v-store tmp%8#0
-        txn ApplicationID                                                                    tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                       tmp%9#0
-        !                                                                                    tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%8#0                                                                       tmp%8#0
-        v-load tmp%10#0                                                                      tmp%8#0,tmp%10#0
-        &&                                                                                   tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                      tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                                1
         return
+
+    *NOT_IMPLEMENTED:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]() -> void:

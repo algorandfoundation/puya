@@ -1,25 +1,29 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn OnCompletion)
+        let tmp%0#1: bool = (txn ApplicationID)
         let tmp%1#0: bool = (! tmp%0#1)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        let tmp%3#0: bool = (!= tmp%2#0 0u)
-        goto tmp%2#0 ? block@2 : block@6
-    block@2: // call_NoOp_L4
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@10}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@6, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20, block@20][tmp%4#0] else goto block@20
+    block@2: // switch_case_0_L4
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@5}
     block@3: // tuple_of_arc4_route_L19
         test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]()
-        goto block@10
-    block@6: // create_NoOp_L4
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@7, * => block@10}
+        goto block@5
+    block@5: // switch_case_next_L4
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@6: // switch_case_1_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@7, * => block@9}
     block@7: // create_route_L5
         test_cases.avm_types_in_abi.contract.TestContract.create[routing]()
-        goto block@10
-    block@10: // after_if_else_L4
-        fail
+        goto block@9
+    block@9: // switch_case_next_L4
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@20: // switch_case_default_L4
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
     block@0: // L5

@@ -3,7 +3,7 @@
 
 // test_cases.regression_tests.issue_491.Child.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0
+    intcblock 0 1
     b block@0
 
 block@0:
@@ -68,37 +68,111 @@ approval_program_block@0:
 approval_program_block@1:
     // regression_tests/issue_491.py:15
     // class Child(Orphan, Parent):
-    txn NumAppArgs
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
     intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@3
-    b approval_program_abi_routing@2
+    intc_1 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match approval_program_call_NoOp approval_program_create_NoOp approval_program_call_OptIn approval_program_create_OptIn approval_program_call_CloseOut approval_program_create_CloseOut approval_program_call_ClearState approval_program_create_ClearState approval_program_call_UpdateApplication approval_program_create_UpdateApplication approval_program_call_DeleteApplication approval_program_create_DeleteApplication
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_abi_routing@2:
-    b approval_program_after_if_else@6
-
-approval_program_after_if_else@6:
+approval_program_*NOT_IMPLEMENTED:
     // regression_tests/issue_491.py:15
     // class Child(Orphan, Parent):
-    err
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-approval_program___algopy_default_create@3:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
+approval_program_create_DeleteApplication:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_DeleteApplication:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_UpdateApplication:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_UpdateApplication:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_ClearState:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_ClearState:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_CloseOut:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_CloseOut:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_OptIn:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_OptIn:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_NoOp:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    txn NumAppArgs
     intc_0 // 0
     ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@4
+    bz approval_program_else_body@7
+    b approval_program___algopy_default_create@4
 
-approval_program_block@4:
-    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create@5
+approval_program___algopy_default_create@4:
+    b approval_program_block@5
 
-approval_program_after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create@5:
-    pushint 1 // 1
+approval_program_block@5:
+    b approval_program_after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create@6
+
+approval_program_after_inlined_test_cases.regression_tests.issue_491.Child.__algopy_default_create@6:
+    intc_1 // 1
     return
+
+approval_program_else_body@7:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    err // this contract does not implement the given ABI method for create NoOp
+
+approval_program_call_NoOp:
+    // regression_tests/issue_491.py:15
+    // class Child(Orphan, Parent):
+    b approval_program_*NOT_IMPLEMENTED
 
 
 // algopy._contract.Contract.__init__() -> void:

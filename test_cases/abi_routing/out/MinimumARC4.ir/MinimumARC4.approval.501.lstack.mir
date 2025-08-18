@@ -1,39 +1,49 @@
-// Op                                                                      Stack (out)
+// Op                                                                                   Stack (out)
 // test_cases.abi_routing.minimal.MinimumARC4.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     block@0:
-        txn ApplicationID                                                  tmp%0#0
-        l-load tmp%0#0 0                                                   tmp%0#0
+        txn ApplicationID                                                               tmp%0#0
+        l-load tmp%0#0 0                                                                tmp%0#0
         bz call___init__@1 ; b after_if_else@2
 
     call___init__@1:
         // abi_routing/minimal.py:6
         // self.gvalue = UInt64(4)
-        byte "gvalue"                                                      "gvalue"
-        int 4                                                              "gvalue",4
+        byte "gvalue"                                                                   "gvalue"
+        int 4                                                                           "gvalue",4
         app_global_put
         b after_if_else@2
 
     after_if_else@2:
         // abi_routing/minimal.py:4
         // class MinimumARC4(ARC4Contract):
-        txn NumAppArgs                                                     tmp%0#2
-        l-load tmp%0#2 0                                                   tmp%0#2
-        !                                                                  not%tmp%0#2
-        l-load not%tmp%0#2 0                                               not%tmp%0#2
-        assert
-        txn OnCompletion                                                   tmp%2#0
-        l-load tmp%2#0 0                                                   tmp%2#0
-        !                                                                  tmp%3#0
-        txn ApplicationID                                                  tmp%3#0,tmp%4#0
-        l-load tmp%4#0 0                                                   tmp%3#0,tmp%4#0
-        !                                                                  tmp%3#0,tmp%5#0
-        l-load tmp%3#0 1                                                   tmp%5#0,tmp%3#0
-        l-load tmp%5#0 1                                                   tmp%3#0,tmp%5#0
-        &&                                                                 tmp%6#0
-        l-load tmp%6#0 0                                                   tmp%6#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                              1
+        txn ApplicationID                                                               tmp%0#0
+        l-load tmp%0#0 0                                                                tmp%0#0
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        l-load tmp%4#0 0                                                                tmp%4#0
+        switch *NOT_IMPLEMENTED create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
+
+    create_NoOp:
+        // abi_routing/minimal.py:4
+        // class MinimumARC4(ARC4Contract):
+        txn NumAppArgs                                                                  tmp%5#0
+        l-load tmp%5#0 0                                                                tmp%5#0
+        !                                                                               tmp%6#0
+        l-load tmp%6#0 0                                                                tmp%6#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // abi_routing/minimal.py:4
+        // class MinimumARC4(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 

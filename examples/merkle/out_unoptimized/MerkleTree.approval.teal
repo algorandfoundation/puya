@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 32
+    intcblock 1 0 2 32
     bytecblock "root"
     b block@0
 
@@ -13,43 +13,84 @@ block@0:
 block@1:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@6
-    b call_NoOp@2
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    intc_2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-call_NoOp@2:
+*NOT_IMPLEMENTED:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
-    uncover 1
-    match verify_route@3
-    b switch_case_default@4
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-switch_case_default@4:
-    b switch_case_next@5
-
-switch_case_next@5:
-    b after_if_else@10
-
-after_if_else@10:
+create_DeleteApplication:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    err
+    b *NOT_IMPLEMENTED
 
-verify_route@3:
-    // merkle/contract.py:14
-    // @arc4.abimethod
-    callsub verify
-    b switch_case_next@5
+call_DeleteApplication:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
 
-create_NoOp@6:
+create_UpdateApplication:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -62,13 +103,38 @@ switch_case_default@8:
     b switch_case_next@9
 
 switch_case_next@9:
-    b after_if_else@10
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
 
 create_route@7:
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
     callsub create
     b switch_case_next@9
+
+call_NoOp:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
+    uncover 1
+    match verify_route@3
+    b switch_case_default@4
+
+switch_case_default@4:
+    b switch_case_next@5
+
+switch_case_next@5:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for call NoOp
+
+verify_route@3:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    callsub verify
+    b switch_case_next@5
 
 
 // examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:
@@ -86,11 +152,11 @@ compute_root_hash_block@0:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig -2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 1
+    intc_0 // 1
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     b compute_root_hash_for_header@1
 
 compute_root_hash_for_header@1:
@@ -108,13 +174,13 @@ compute_root_hash_for_body@2:
     frame_dig -2
     len
     frame_dig -2
-    pushint 2 // 2
+    intc_2 // 2
     uncover 2
     substring3
     frame_dig 2
-    intc_2 // 32
+    intc_3 // 32
     *
-    intc_2 // 32
+    intc_3 // 32
     extract3 // on error: index access is out of bounds
     frame_dig 0
     uncover 1
@@ -126,7 +192,7 @@ compute_root_hash_for_footer@3:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig 2
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 2
     b compute_root_hash_for_header@1
@@ -147,7 +213,7 @@ hash_pair:
     // @subroutine
     // def hash_pair(a: Bytes, b: Bytes) -> Bytes:
     proto 2 1
-    intc_0 // 0
+    intc_1 // 0
     b hash_pair_block@0
 
 hash_pair_block@0:
@@ -195,7 +261,7 @@ create_block@0:
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
     callsub examples.merkle.contract.MerkleTree.create
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -210,14 +276,14 @@ verify_block@0:
     txna ApplicationArgs 2
     callsub examples.merkle.contract.MerkleTree.verify
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -249,7 +315,7 @@ examples.merkle.contract.MerkleTree.verify:
 examples.merkle.contract.MerkleTree.verify_block@0:
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "root"
     app_global_get_ex
     assert // check self.root exists

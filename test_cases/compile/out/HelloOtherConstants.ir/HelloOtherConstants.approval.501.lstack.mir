@@ -32,62 +32,47 @@ subroutine main:
     after_if_else@2:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%0#2
-        method delete()void                                                                       tmp%0#2,Method(delete()void)
-        l-load tmp%0#2 1                                                                          Method(delete()void),tmp%0#2
-        match delete_route@4 ; b switch_case_next@5
+        txn ApplicationID                                                                         tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
+        !                                                                                         tmp%1#0
+        txn OnCompletion                                                                          tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                                          tmp%1#0,tmp%2#0
+        int 1                                                                                     tmp%1#0,tmp%2#0,1
+        shl                                                                                       tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                          tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                          tmp%1#0,tmp%3#0
+        +                                                                                         tmp%4#0
+        l-load tmp%4#0 0                                                                          tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    delete_route@4:
-        // compile/apps.py:87
-        // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                                          tmp%1#0
-        l-load tmp%1#0 0                                                                          tmp%1#0
-        int DeleteApplication                                                                     tmp%1#0,DeleteApplication
-        ==                                                                                        tmp%2#0
-        txn ApplicationID                                                                         tmp%2#0,tmp%3#0
-        l-load tmp%2#0 1                                                                          tmp%3#0,tmp%2#0
-        l-load tmp%3#0 1                                                                          tmp%2#0,tmp%3#0
-        &&                                                                                        tmp%5#0
-        l-load tmp%5#0 0                                                                          tmp%5#0
-        assert // OnCompletion must be DeleteApplication && can only call when not creating 
-        int 1                                                                                     1
-        return
-
-    switch_case_next@5:
+    call_NoOp:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txn OnCompletion                                                                          tmp%6#0
-        l-load tmp%6#0 0                                                                          tmp%6#0
-        !                                                                                         tmp%7#0
-        l-load tmp%7#0 0                                                                          tmp%7#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                         tmp%8#0
-        l-load tmp%8#0 0                                                                          tmp%8#0
-        bz create_NoOp@8 ; b call_NoOp@6
+        txna ApplicationArgs 0                                                                    tmp%5#0
+        method greet(string)byte[]                                                                tmp%5#0,Method(greet(string)byte[])
+        l-load tmp%5#0 1                                                                          Method(greet(string)byte[]),tmp%5#0
+        match greet_route@5 ; b switch_case_next@6
 
-    call_NoOp@6:
+    greet_route@5:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%10#0
-        method greet(string)byte[]                                                                tmp%10#0,Method(greet(string)byte[])
-        l-load tmp%10#0 1                                                                         Method(greet(string)byte[]),tmp%10#0
-        match greet_route@7 ; b after_if_else@10
-
-    greet_route@7:
-        // compile/apps.py:91
-        // @arc4.abimethod()
         callsub greet
-        b after_if_else@10
+        b switch_case_next@6
 
-    create_NoOp@8:
+    switch_case_next@6:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%11#0
-        method create()uint64                                                                     tmp%11#0,Method(create()uint64)
-        l-load tmp%11#0 1                                                                         Method(create()uint64),tmp%11#0
-        match create_route@9 ; b after_if_else@10
+        err // this contract does not implement the given ABI method for call NoOp
 
-    create_route@9:
+    create_NoOp:
+        // compile/apps.py:76
+        // class HelloOtherConstants(ARC4Contract):
+        txna ApplicationArgs 0                                                                    tmp%6#0
+        method create()uint64                                                                     tmp%6#0,Method(create()uint64)
+        l-load tmp%6#0 1                                                                          Method(create()uint64),tmp%6#0
+        match create_route@8 ; b switch_case_next@9
+
+    create_route@8:
         // compile/apps.py:83
         // @arc4.abimethod(create="require")
         byte 0x151f7c750000000000000001                                                           0x151f7c750000000000000001
@@ -95,10 +80,34 @@ subroutine main:
         int 1                                                                                     1
         return
 
-    after_if_else@10:
+    switch_case_next@9:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        err
+        err // this contract does not implement the given ABI method for create NoOp
+
+    call_DeleteApplication:
+        // compile/apps.py:76
+        // class HelloOtherConstants(ARC4Contract):
+        txna ApplicationArgs 0                                                                    tmp%7#0
+        method delete()void                                                                       tmp%7#0,Method(delete()void)
+        l-load tmp%7#0 1                                                                          Method(delete()void),tmp%7#0
+        match delete_route@11 ; b switch_case_next@12
+
+    delete_route@11:
+        // compile/apps.py:87
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
+        int 1                                                                                     1
+        return
+
+    switch_case_next@12:
+        // compile/apps.py:76
+        // class HelloOtherConstants(ARC4Contract):
+        err // this contract does not implement the given ABI method for call DeleteApplication 
+
+    *NOT_IMPLEMENTED:
+        // compile/apps.py:76
+        // class HelloOtherConstants(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.compile.apps.HelloOtherConstants.greet[routing]() -> void:

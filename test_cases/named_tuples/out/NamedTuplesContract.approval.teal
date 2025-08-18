@@ -3,28 +3,36 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 64 1
+    intcblock 1 64
+    // named_tuples/contract.py:15
+    // class NamedTuplesContract(arc4.ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // named_tuples/contract.py:15
+    // class NamedTuplesContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // named_tuples/contract.py:15
+    // class NamedTuplesContract(arc4.ARC4Contract):
     pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
     txna ApplicationArgs 0
     match build_tuple test_tuple
-    err
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
@@ -42,10 +50,10 @@ build_tuple:
     itob
     dig 3
     len
-    intc_0 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_0 // 64
+    intc_1 // 64
     bzero
     uncover 4
     b|
@@ -83,7 +91,7 @@ build_tuple:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -131,7 +139,7 @@ test_tuple:
     // assert value.c.bytes.length > 1
     swap
     len
-    intc_1 // 1
+    intc_0 // 1
     >
     assert
     // named_tuples/contract.py:36

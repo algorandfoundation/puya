@@ -1,83 +1,88 @@
-// Op                                                                     Stack (out)
+// Op                                                                                   Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     block@0:
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                    tmp%0#1
-        bz bare_routing@10 ; b abi_routing@2
+        txn ApplicationID                                                               tmp%0#1
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@2:
+    call_NoOp:
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                  tmp%2#0
-        !                                                                 tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                 tmp%4#0
-        assert
-        txna ApplicationArgs 0                                            tmp%6#0
-        method get_bytes()byte[]                                          tmp%6#0,Method(get_bytes()byte[])
-        method get_big_uint()uint512                                      tmp%6#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
-        l-load tmp%6#0 2                                                  Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%6#0
-        match get_bytes_route@4 get_big_uint_route@5 ; b after_if_else@16
+        txna ApplicationArgs 0                                                          tmp%5#0
+        method get_bytes()byte[]                                                        tmp%5#0,Method(get_bytes()byte[])
+        method get_big_uint()uint512                                                    tmp%5#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
+        l-load tmp%5#0 2                                                                Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%5#0
+        match get_bytes_route@3 get_big_uint_route@4 ; b switch_case_next@6
 
-    get_bytes_route@4:
-        // template_variables/contract.py:6
-        // @arc4.abimethod()
+    get_bytes_route@3:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
         callsub get_bytes
-        b after_if_else@16
+        b switch_case_next@6
 
-    get_big_uint_route@5:
-        // template_variables/contract.py:10
-        // @arc4.abimethod()
-        callsub get_big_uint
-        b after_if_else@16
-
-    bare_routing@10:
+    get_big_uint_route@4:
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                  tmp%7#0
-        switch __algopy_default_create@11 after_if_else@16 after_if_else@16 after_if_else@16 on_update@12 on_delete@13 ; b after_if_else@16 
+        callsub get_big_uint
+        b switch_case_next@6
 
-    __algopy_default_create@11:
-        txn ApplicationID                                                 tmp%8#0
-        !                                                                 tmp%9#0
-        assert // can only call when creating
-        int 1                                                             1
+    switch_case_next@6:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        !                                                                               tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
 
-    on_update@12:
-        // template_variables/contract.py:15
-        // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                                 tmp%10#0
-        assert // can only call when not creating
+    call_UpdateApplication:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                  tmp%8#0
+        !                                                                               tmp%9#0
+        assert // this contract does not implement the given ABI method for call UpdateApplication 
         // template_variables/contract.py:17
         // assert TemplateVar[bool]("UPDATABLE")
-        int TMPL_UPDATABLE                                                TMPL_UPDATABLE
+        int TMPL_UPDATABLE                                                              TMPL_UPDATABLE
         assert
         // template_variables/contract.py:15
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        int 1                                                             1
+        int 1                                                                           1
         return
 
-    on_delete@13:
-        // template_variables/contract.py:19
-        // @arc4.baremethod(allow_actions=["DeleteApplication"])
-        txn ApplicationID                                                 tmp%12#0
-        assert // can only call when not creating
+    call_DeleteApplication:
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                  tmp%10#0
+        !                                                                               tmp%11#0
+        assert // this contract does not implement the given ABI method for call DeleteApplication 
         // template_variables/contract.py:21
         // assert TemplateVar[UInt64]("DELETABLE")
-        int TMPL_DELETABLE                                                TMPL_DELETABLE
+        int TMPL_DELETABLE                                                              TMPL_DELETABLE
         assert
         // template_variables/contract.py:19
         // @arc4.baremethod(allow_actions=["DeleteApplication"])
-        int 1                                                             1
+        int 1                                                                           1
         return
 
-    after_if_else@16:
+    *NOT_IMPLEMENTED:
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        err
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:
@@ -85,20 +90,20 @@ subroutine get_bytes:
     get_bytes_block@0:
         // template_variables/contract.py:8
         // return self.receive_value(TemplateVar[Bytes]("SOME_BYTES"))
-        byte TMPL_SOME_BYTES                                              value#0
+        byte TMPL_SOME_BYTES                                                            value#0
         // template_variables/contract.py:6
         // @arc4.abimethod()
-        l-load-copy value#0 0                                             value#0,value#0 (copy)
-        len                                                               value#0,aggregate%length%0#0
-        itob                                                              value#0,aggregate%as_bytes%0#0
-        extract 6 2                                                       value#0,aggregate%length_uint16%0#0
-        l-load value#0 1                                                  aggregate%length_uint16%0#0,value#0
-        concat                                                            aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                   aggregate%encoded_value%0#0,0x151f7c75
-        l-load aggregate%encoded_value%0#0 1                              0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                            tmp%2#0
+        l-load-copy value#0 0                                                           value#0,value#0 (copy)
+        len                                                                             value#0,aggregate%length%0#0
+        itob                                                                            value#0,aggregate%as_bytes%0#0
+        extract 6 2                                                                     value#0,aggregate%length_uint16%0#0
+        l-load value#0 1                                                                aggregate%length_uint16%0#0,value#0
+        concat                                                                          aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                                 aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                                            0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                          tmp%2#0
         log
-        int 1                                                             1
+        int 1                                                                           1
         return
 
 
@@ -107,26 +112,26 @@ subroutine get_big_uint:
     get_big_uint_block@0:
         // template_variables/contract.py:12
         // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
-        byte TMPL_SOME_BIG_UINT                                           x#0
+        byte TMPL_SOME_BIG_UINT                                                         x#0
         // template_variables/contract.py:13
         // return UInt512(x)
-        l-load-copy x#0 0                                                 x#0,x#0 (copy)
-        len                                                               x#0,aggregate%value_len%0#0
-        int 64                                                            x#0,aggregate%value_len%0#0,64
-        <=                                                                x#0,aggregate%len_ok%0#0
-        assert // overflow                                                x#0
-        int 64                                                            x#0,64
-        bzero                                                             x#0,aggregate%bzero%0#0
-        l-load x#0 1                                                      aggregate%bzero%0#0,x#0
-        l-load aggregate%bzero%0#0 1                                      x#0,aggregate%bzero%0#0
-        b|                                                                aggregate%arc4_encoded%0#0
+        l-load-copy x#0 0                                                               x#0,x#0 (copy)
+        len                                                                             x#0,aggregate%value_len%0#0
+        int 64                                                                          x#0,aggregate%value_len%0#0,64
+        <=                                                                              x#0,aggregate%len_ok%0#0
+        assert // overflow                                                              x#0
+        int 64                                                                          x#0,64
+        bzero                                                                           x#0,aggregate%bzero%0#0
+        l-load x#0 1                                                                    aggregate%bzero%0#0,x#0
+        l-load aggregate%bzero%0#0 1                                                    x#0,aggregate%bzero%0#0
+        b|                                                                              aggregate%arc4_encoded%0#0
         // template_variables/contract.py:10
         // @arc4.abimethod()
-        byte 0x151f7c75                                                   aggregate%arc4_encoded%0#0,0x151f7c75
-        l-load aggregate%arc4_encoded%0#0 1                               0x151f7c75,aggregate%arc4_encoded%0#0
-        concat                                                            tmp%1#0
+        byte 0x151f7c75                                                                 aggregate%arc4_encoded%0#0,0x151f7c75
+        l-load aggregate%arc4_encoded%0#0 1                                             0x151f7c75,aggregate%arc4_encoded%0#0
+        concat                                                                          tmp%1#0
         log
-        int 1                                                             1
+        int 1                                                                           1
         return
 
 

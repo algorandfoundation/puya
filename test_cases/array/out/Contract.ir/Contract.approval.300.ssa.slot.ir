@@ -1,61 +1,59 @@
 slot_allocation(dynamic, reserved=[])
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@20
-    block@2: // abi_routing_L13
+        let tmp%0#1: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#1)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_array()void" => block@4, method "test_array_extend()void" => block@5, method "test_array_multiple_append()void" => block@6, method "overhead()void" => block@7, method "test_array_too_long()void" => block@8, method "test_array_copy_and_extend()void" => block@9, method "test_array_evaluation_order()void" => block@10, method "test_array_assignment_maximum_cursage()void" => block@11, method "test_allocations(uint64)void" => block@12, method "test_iteration()void" => block@13, method "test_quicksort()void" => block@14, method "test_unobserved_write()void" => block@15, * => block@19}
-    block@4: // test_array_route_L14
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@17, block@30, block@30, block@30, block@30, block@30, block@30, block@30, block@30, block@30, block@30][tmp%4#0] else goto block@30
+    block@2: // switch_case_0_L13
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "test_array()void" => block@3, method "test_array_extend()void" => block@4, method "test_array_multiple_append()void" => block@5, method "overhead()void" => block@6, method "test_array_too_long()void" => block@7, method "test_array_copy_and_extend()void" => block@8, method "test_array_evaluation_order()void" => block@9, method "test_array_assignment_maximum_cursage()void" => block@10, method "test_allocations(uint64)void" => block@11, method "test_iteration()void" => block@12, method "test_quicksort()void" => block@13, method "test_unobserved_write()void" => block@14, * => block@16}
+    block@3: // test_array_route_L14
         test_cases.array.uint64.Contract.test_array[routing]()
-        goto block@19
-    block@5: // test_array_extend_route_L50
+        goto block@16
+    block@4: // test_array_extend_route_L50
         test_cases.array.uint64.Contract.test_array_extend[routing]()
-        goto block@19
-    block@6: // test_array_multiple_append_route_L62
+        goto block@16
+    block@5: // test_array_multiple_append_route_L62
         test_cases.array.uint64.Contract.test_array_multiple_append[routing]()
-        goto block@19
-    block@7: // overhead_route_L71
+        goto block@16
+    block@6: // overhead_route_L71
         exit 1u
-    block@8: // test_array_too_long_route_L75
+    block@7: // test_array_too_long_route_L75
         test_cases.array.uint64.Contract.test_array_too_long[routing]()
-        goto block@19
-    block@9: // test_array_copy_and_extend_route_L84
+        goto block@16
+    block@8: // test_array_copy_and_extend_route_L84
         test_cases.array.uint64.Contract.test_array_copy_and_extend[routing]()
-        goto block@19
-    block@10: // test_array_evaluation_order_route_L106
+        goto block@16
+    block@9: // test_array_evaluation_order_route_L106
         test_cases.array.uint64.Contract.test_array_evaluation_order[routing]()
-        goto block@19
-    block@11: // test_array_assignment_maximum_cursage_route_L125
+        goto block@16
+    block@10: // test_array_assignment_maximum_cursage_route_L125
         test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage[routing]()
-        goto block@19
-    block@12: // test_allocations_route_L134
+        goto block@16
+    block@11: // test_allocations_route_L134
         test_cases.array.uint64.Contract.test_allocations[routing]()
-        goto block@19
-    block@13: // test_iteration_route_L140
+        goto block@16
+    block@12: // test_iteration_route_L140
         test_cases.array.uint64.Contract.test_iteration[routing]()
-        goto block@19
-    block@14: // test_quicksort_route_L174
+        goto block@16
+    block@13: // test_quicksort_route_L174
         test_cases.array.uint64.Contract.test_quicksort[routing]()
-        goto block@19
-    block@15: // test_unobserved_write_route_L191
+        goto block@16
+    block@14: // test_unobserved_write_route_L191
         test_cases.array.uint64.Contract.test_unobserved_write[routing]()
-        goto block@19
-    block@19: // after_if_else_L13
-        fail
-    block@20: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@16
+    block@16: // switch_case_next_L13
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@17: // switch_case_1_L13
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@30: // switch_case_default_L13
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, window_left: uint64, window_right: uint64) -> void:
     block@0: // L201

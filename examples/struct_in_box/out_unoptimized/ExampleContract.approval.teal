@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 1 2 8 0
     b block@0
 
 block@0:
@@ -12,26 +12,108 @@ block@0:
 block@1:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@11
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_3 // 0
+    intc_0 // 1
+    intc_1 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    intc_2 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@9
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txn NumAppArgs
+    intc_3 // 0
+    ==
+    bz else_body@10
+    b __algopy_default_create@9
+
+__algopy_default_create@9:
+    b block@23
+
+block@23:
+    b after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@24
+
+after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@24:
+    intc_0 // 1
+    return
+
+else_body@10:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -39,61 +121,34 @@ call_NoOp@3:
     pushbytes 0xb4633ddd // method "attach_asset_to_user(uint64,uint64)void"
     pushbytes 0x16545880 // method "get_user(uint64)(string,uint64,uint64)"
     uncover 3
-    match add_user_route@4 attach_asset_to_user_route@5 get_user_route@6
-    b switch_case_default@7
+    match add_user_route@3 attach_asset_to_user_route@4 get_user_route@5
+    b switch_case_default@6
 
-switch_case_default@7:
-    b switch_case_next@8
+switch_case_default@6:
+    b switch_case_next@7
 
-switch_case_next@8:
-    b after_if_else@10
-
-after_if_else@10:
-    b after_if_else@12
-
-after_if_else@12:
+switch_case_next@7:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-get_user_route@6:
-    // struct_in_box/contract.py:41
-    // @arc4.abimethod()
+get_user_route@5:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
     callsub get_user
-    b switch_case_next@8
+    b switch_case_next@7
 
-attach_asset_to_user_route@5:
-    // struct_in_box/contract.py:35
-    // @arc4.abimethod()
+attach_asset_to_user_route@4:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
     callsub attach_asset_to_user
-    b switch_case_next@8
+    b switch_case_next@7
 
-add_user_route@4:
-    // struct_in_box/contract.py:30
-    // @arc4.abimethod()
+add_user_route@3:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
     callsub add_user
-    b switch_case_next@8
-
-create_NoOp@9:
-    b after_if_else@10
-
-__algopy_default_create@11:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@14
-
-block@14:
-    b after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@15
-
-after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@15:
-    intc_1 // 1
-    return
+    b switch_case_next@7
 
 
 // examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
@@ -105,7 +160,7 @@ add_user_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     callsub examples.struct_in_box.contract.ExampleContract.add_user
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -120,7 +175,7 @@ attach_asset_to_user_block@0:
     txna ApplicationArgs 2
     btoi
     callsub examples.struct_in_box.contract.ExampleContract.attach_asset_to_user
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -137,7 +192,7 @@ get_user_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -175,8 +230,8 @@ write_to_box_block@0:
     // struct_in_box/contract.py:19
     // box_key = user.id.bytes
     frame_dig -1
-    intc_2 // 2
-    intc_3 // 8
+    intc_1 // 2
+    intc_2 // 8
     extract3
     // struct_in_box/contract.py:20-21
     // # Delete existing data, so we don't have to worry about resizing the box
@@ -222,8 +277,8 @@ examples.struct_in_box.contract.ExampleContract.add_user_block@0:
     // struct_in_box/contract.py:32
     // assert not self.box_exists(user.id), "User with id must not exist"
     frame_dig -1
-    intc_2 // 2
-    intc_3 // 8
+    intc_1 // 2
+    intc_2 // 8
     extract3
     callsub box_exists
     !

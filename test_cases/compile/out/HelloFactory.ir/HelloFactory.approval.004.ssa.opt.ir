@@ -1,64 +1,62 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@21
-    block@2: // abi_routing_L25
+        let tmp%0#1: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#1)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_logicsig()address" => block@4, method "test_compile_contract()void" => block@5, method "test_compile_contract_tmpl()void" => block@6, method "test_compile_contract_prfx()void" => block@7, method "test_compile_contract_large()void" => block@8, method "test_arc4_create()void" => block@9, method "test_arc4_create_tmpl()void" => block@10, method "test_arc4_create_prfx()void" => block@11, method "test_arc4_create_large()void" => block@12, method "test_arc4_create_modified_compiled()void" => block@13, method "test_arc4_update()void" => block@14, method "test_other_constants()void" => block@15, method "test_abi_call_create_params()void" => block@16, * => block@20}
-    block@4: // test_logicsig_route_L26
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@18, block@31, block@31, block@31, block@31, block@31, block@31, block@31, block@31, block@31, block@31][tmp%4#0] else goto block@31
+    block@2: // switch_case_0_L25
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "test_logicsig()address" => block@3, method "test_compile_contract()void" => block@4, method "test_compile_contract_tmpl()void" => block@5, method "test_compile_contract_prfx()void" => block@6, method "test_compile_contract_large()void" => block@7, method "test_arc4_create()void" => block@8, method "test_arc4_create_tmpl()void" => block@9, method "test_arc4_create_prfx()void" => block@10, method "test_arc4_create_large()void" => block@11, method "test_arc4_create_modified_compiled()void" => block@12, method "test_arc4_update()void" => block@13, method "test_other_constants()void" => block@14, method "test_abi_call_create_params()void" => block@15, * => block@17}
+    block@3: // test_logicsig_route_L26
         (log CUPXY5NG6NZFDJMMVA333JIXVH3QODXEXAFDRD7EIYKGW26UHM562XK44U)
         exit 1u
-    block@5: // test_compile_contract_route_L30
+    block@4: // test_compile_contract_route_L30
         test_cases.compile.factory.HelloFactory.test_compile_contract[routing]()
-        goto block@20
-    block@6: // test_compile_contract_tmpl_route_L61
+        goto block@17
+    block@5: // test_compile_contract_tmpl_route_L61
         test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[routing]()
-        goto block@20
-    block@7: // test_compile_contract_prfx_route_L96
+        goto block@17
+    block@6: // test_compile_contract_prfx_route_L96
         test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[routing]()
-        goto block@20
-    block@8: // test_compile_contract_large_route_L129
+        goto block@17
+    block@7: // test_compile_contract_large_route_L129
         test_cases.compile.factory.HelloFactory.test_compile_contract_large[routing]()
-        goto block@20
-    block@9: // test_arc4_create_route_L160
+        goto block@17
+    block@8: // test_arc4_create_route_L160
         test_cases.compile.factory.HelloFactory.test_arc4_create[routing]()
-        goto block@20
-    block@10: // test_arc4_create_tmpl_route_L177
+        goto block@17
+    block@9: // test_arc4_create_tmpl_route_L177
         test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing]()
-        goto block@20
-    block@11: // test_arc4_create_prfx_route_L198
+        goto block@17
+    block@10: // test_arc4_create_prfx_route_L198
         test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing]()
-        goto block@20
-    block@12: // test_arc4_create_large_route_L221
+        goto block@17
+    block@11: // test_arc4_create_large_route_L221
         test_cases.compile.factory.HelloFactory.test_arc4_create_large[routing]()
-        goto block@20
-    block@13: // test_arc4_create_modified_compiled_route_L236
+        goto block@17
+    block@12: // test_arc4_create_modified_compiled_route_L236
         test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled[routing]()
-        goto block@20
-    block@14: // test_arc4_update_route_L263
+        goto block@17
+    block@13: // test_arc4_update_route_L263
         test_cases.compile.factory.HelloFactory.test_arc4_update[routing]()
-        goto block@20
-    block@15: // test_other_constants_route_L297
+        goto block@17
+    block@14: // test_other_constants_route_L297
         test_cases.compile.factory.HelloFactory.test_other_constants[routing]()
-        goto block@20
-    block@16: // test_abi_call_create_params_route_L323
+        goto block@17
+    block@15: // test_abi_call_create_params_route_L323
         test_cases.compile.factory.HelloFactory.test_abi_call_create_params[routing]()
-        goto block@20
-    block@20: // after_if_else_L25
-        fail
-    block@21: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@17
+    block@17: // switch_case_next_L25
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@18: // switch_case_1_L25
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@31: // switch_case_default_L25
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing]() -> void:
     block@0: // L30
@@ -66,7 +64,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRgUMRkikAiNDAAjABUAAAAAAAAAAAAAAAAAEQAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4AEIN86VDYaAI4BAA8AgATQooIANhoAjgEADAA2GgFXAgAoTGciQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -103,7 +101,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+        ((itxn_field ApprovalProgramPages) CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEYFDEZIpAIjQwAJQAVAAAAAAAAAAAAAAAAABEAAAABAAAAgAQkN408NhoAjgEAAQAiQzEbFEOABExcYbo2GgCOAQABACJDgATQooIANhoAjgEAAQA2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkM=)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -139,7 +137,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==)
+        ((itxn_field ApprovalProgramPages) CiABASYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxGBQxGSKQCI0MACUAFQAAAAAAAAAAAAAAAAARAAAAAQAAAIAEJDeNPDYaAI4BAAEAIkMxGxRDgARMXGG6NhoAjgEAAQAiQ4AE0KKCADYaAI4BAAEANhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -174,7 +172,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
     block@0: // L129
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQA4ggIEJDeNPAT15P1NNhoAjgIAGgABADEZFDEYEESADBUffHUAAAAAAAAQALCBAUMxGYEFEjEYEEMxGRQxGBQQQw==)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEJDeNPDYaAI4BAAEAgQFDMRsUQ4AE9eT9TTYaAI4BAAEAgAwVH3x1AAAAAAAAEACwgQFD)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -207,7 +205,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRgUMRkikAiNDAAjABUAAAAAAAAAAAAAAAAAEQAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4AEIN86VDYaAI4BAA8AgATQooIANhoAjgEADAA2GgFXAgAoTGciQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -244,7 +242,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+        ((itxn_field ApprovalProgramPages) CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEYFDEZIpAIjQwAJQAVAAAAAAAAAAAAAAAAABEAAAABAAAAgAQkN408NhoAjgEAAQAiQzEbFEOABExcYbo2GgCOAQABACJDgATQooIANhoAjgEAAQA2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkM=)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -280,7 +278,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==)
+        ((itxn_field ApprovalProgramPages) CiABASYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxGBQxGSKQCI0MACUAFQAAAAAAAAAAAAAAAAARAAAAAQAAAIAEJDeNPDYaAI4BAAEAIkMxGxRDgARMXGG6NhoAjgEAAQAiQ4AE0KKCADYaAI4BAAEANhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -315,7 +313,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
     block@0: // L221
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQA4ggIEJDeNPAT15P1NNhoAjgIAGgABADEZFDEYEESADBUffHUAAAAAAAAQALCBAUMxGYEFEjEYEEMxGRQxGBQQQw==)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEJDeNPDYaAI4BAAEAgQFDMRsUQ4AE9eT9TTYaAI4BAAEAgAwVH3x1AAAAAAAAEACwgQFD)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -352,7 +350,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field GlobalNumUint) 4u)
         ((itxn_field GlobalNumByteSlice) 6u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRgUMRkikAiNDAAjABUAAAAAAAAAAAAAAAAAEQAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4AEIN86VDYaAI4BAA8AgATQooIANhoAjgEADAA2GgFXAgAoTGciQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
@@ -409,7 +407,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         ((itxn_field GlobalNumByteSlice) 2u)
         ((itxn_field ExtraProgramPages) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD)
+        ((itxn_field ApprovalProgramPages) CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEYFDEZIpAIjQwAJQAVAAAAAAAAAAAAAAAAABEAAAABAAAAgAQkN408NhoAjgEAAQAiQzEbFEOABExcYbo2GgCOAQABACJDgATQooIANhoAjgEAAQA2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkM=)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -433,7 +431,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         (assert tmp%6#0)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRgUMRkikAiNDAAjABUAAAAAAAAAAAAAAAAAEQAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4AEIN86VDYaAI4BAA8AgATQooIANhoAjgEADAA2GgFXAgAoTGciQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field OnCompletion) UpdateApplication)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field TypeEnum) appl)
@@ -468,7 +466,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 4u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCJDMRmBBRIxGBBDNhoBVwIAIyllRIABMKBJFSIJIlgjKGVEgAEgUE8CUExQIyplRFAjK2VEUEkVFlcGAkxQgAQVH3x1TFCwIkM=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxGBQxGSKQCI0MADAAEQAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEJDeNPDYaAI4BAAEAIkOABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCJDgARbDCN1NhoAjgEAAQA2GgFXAgAjKWVEgAEwoEkVIgkiWCMoZUSAASBQTwJQTFAjKmVEUCMrZURQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field ApplicationArgs) method "create()uint64")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -505,7 +503,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hey")
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+        ((itxn_field ApprovalProgramPages) CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRgUMRkikAiNDAAjABUAAAAAAAAAAAAAAAAAEQAAAAEAAACABCQ3jTw2GgCOAQABACJDMRsUQ4AEIN86VDYaAI4BAA8AgATQooIANhoAjgEADAA2GgFXAgAoTGciQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)

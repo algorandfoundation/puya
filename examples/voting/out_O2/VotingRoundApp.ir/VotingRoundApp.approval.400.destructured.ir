@@ -7,17 +7,18 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (app_global_put "voter_count" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn OnCompletion)
-        let tmp%1#0: bool = (! tmp%0#2)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        goto tmp%2#0 ? block@4 : block@9
-    block@4: // call_NoOp_L49
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "bootstrap(pay)void" => block@5, method "close()void" => block@6, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@7, method "vote(pay,byte[],uint8[])void" => block@8, * => block@11}
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@4, block@10, block@13, block@13, block@13, block@13, block@13, block@13, block@13, block@13, block@13, block@13][tmp%4#0] else goto block@13
+    block@4: // switch_case_0_L49
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "bootstrap(pay)void" => block@5, method "close()void" => block@6, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@7, method "vote(pay,byte[],uint8[])void" => block@8, * => block@9}
     block@5: // bootstrap_route_L82
-        let tmp%0#2: uint64 = (txn GroupIndex)
-        let fund_min_bal_req#0: uint64 = (- tmp%0#2 1u)
+        let tmp%0#4: uint64 = (txn GroupIndex)
+        let fund_min_bal_req#0: uint64 = (- tmp%0#4 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) fund_min_bal_req#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
@@ -56,10 +57,10 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%3#5: bytes = (concat tmp%2#2 ".\",\"properties\":{\"metadata\":\"ipfs://")
         let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "metadata_ipfs_cid")
         (assert maybe_exists%2#0) // check self.metadata_ipfs_cid exists
-        let tmp%4#0: bytes = (concat tmp%3#5 maybe_value%1#0)
-        let tmp%5#0: bytes = (concat tmp%4#0 "\",\"id\":\"")
-        let tmp%6#4: bytes = (concat tmp%5#0 maybe_value%0#0)
-        let tmp%7#2: bytes = (concat tmp%6#4 "\",\"quorum\":")
+        let tmp%4#4: bytes = (concat tmp%3#5 maybe_value%1#0)
+        let tmp%5#0: bytes = (concat tmp%4#4 "\",\"id\":\"")
+        let tmp%6#0: bytes = (concat tmp%5#0 maybe_value%0#0)
+        let tmp%7#2: bytes = (concat tmp%6#0 "\",\"quorum\":")
         let (maybe_value%3#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "quorum")
         (assert maybe_exists%4#0) // check self.quorum exists
         let tmp%8#1: string = examples.voting.voting.itoa(maybe_value%3#0)
@@ -76,41 +77,41 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         let question_index#0: uint64 = item_index_internal%0#0
-        goto block@25
-    block@25: // for_header_L132
+        goto block@27
+    block@27: // for_header_L132
         let continue_looping%0#0: bool = (< question_index#0 aggregate%array_length%0#0)
-        goto continue_looping%0#0 ? block@26 : block@36
-    block@26: // for_body_L133
+        goto continue_looping%0#0 ? block@28 : block@38
+    block@28: // for_body_L133
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) maybe_value%5#0)
         let question_options#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 question_index#0 1u) // on error: index access is out of bounds
         let note#17: string = note#0
-        goto question_index#0 ? block@27 : block@28
-    block@27: // if_body_L134
+        goto question_index#0 ? block@29 : block@30
+    block@29: // if_body_L134
         let note#0: string = (concat note#0 ",")
         let note#17: string = note#0
-        goto block@28
-    block@28: // after_if_else_L133
+        goto block@30
+    block@30: // after_if_else_L133
         let note#0: string = note#17
         let tmp%16#1: bool = (b> question_options#0 0x00)
         let current_index#15: uint64 = current_index#0
         let note#17: string = note#0
-        goto tmp%16#1 ? block@29 : block@35
-    block@29: // if_body_L136
+        goto tmp%16#1 ? block@31 : block@37
+    block@31: // if_body_L136
         let note#0: string = (concat note#0 "[")
         let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let option_index#0: uint64 = 0u
-        goto block@30
-    block@30: // for_header_L137
+        goto block@32
+    block@32: // for_header_L137
         let continue_looping%1#0: bool = (< option_index#0 tmp%18#0)
-        goto continue_looping%1#0 ? block@31 : block@34
-    block@31: // for_body_L138
+        goto continue_looping%1#0 ? block@33 : block@36
+    block@33: // for_body_L138
         let note#17: string = note#0
-        goto option_index#0 ? block@32 : block@33
-    block@32: // if_body_L139
+        goto option_index#0 ? block@34 : block@35
+    block@34: // if_body_L139
         let note#0: string = (concat note#0 ",")
         let note#17: string = note#0
-        goto block@33
-    block@33: // after_if_else_L138
+        goto block@35
+    block@35: // after_if_else_L138
         let note#0: string = note#17
         let tmp%0#13: bytes = (box_extract "V" current_index#0 8u)
         let votes_for_option#0: uint64 = (btoi tmp%0#13)
@@ -118,19 +119,19 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let note#0: string = (concat note#0 tmp%22#0)
         let current_index#0: uint64 = (+ current_index#0 1u)
         let option_index#0: uint64 = (+ option_index#0 1u)
-        goto block@30
-    block@34: // after_for_L137
+        goto block@32
+    block@36: // after_for_L137
         let note#0: string = (concat note#0 "]")
         let current_index#15: uint64 = current_index#0
         let note#17: string = note#0
-        goto block@35
-    block@35: // after_if_else_L135
+        goto block@37
+    block@37: // after_if_else_L135
         let current_index#0: uint64 = current_index#15
         let note#0: string = note#17
         let item_index_internal%0#0: uint64 = (+ question_index#0 1u)
         let question_index#0: uint64 = item_index_internal%0#0
-        goto block@25
-    block@36: // after_for_L132
+        goto block@27
+    block@38: // after_for_L132
         let note#0: string = (concat note#0 "]}}")
         itxn_begin
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
@@ -162,8 +163,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let materialized_values%0#0: account = (txn Sender)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
-        let tmp%6#3: uint64 = (global LatestTimestamp)
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#3)
+        let tmp%6#4: uint64 = (global LatestTimestamp)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#4)
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
@@ -171,8 +172,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (log tmp%2#2)
         exit 1u
     block@8: // vote_route_L169
-        let tmp%0#2: uint64 = (txn GroupIndex)
-        let fund_min_bal_req#0: uint64 = (- tmp%0#2 1u)
+        let tmp%0#4: uint64 = (txn GroupIndex)
+        let fund_min_bal_req#0: uint64 = (- tmp%0#4 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) fund_min_bal_req#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
@@ -192,8 +193,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 answer_ids#0 0u)
-        let tmp%6#1: bool = (== aggregate%array_length%2#0 questions_count#0)
-        (assert tmp%6#1) // Number of answers incorrect
+        let tmp%6#2: bool = (== aggregate%array_length%2#0 questions_count#0)
+        (assert tmp%6#2) // Number of answers incorrect
         let tmp%9#0: uint64 = (+ 34u aggregate%array_length%2#0)
         let tmp%10#0: uint64 = (* tmp%9#0 400u)
         let min_bal_req#0: uint64 = (+ 2500u tmp%10#0)
@@ -208,11 +209,11 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert tmp%17#0) // Payment must be the exact min balance
         let cumulative_offset#0: uint64 = 0u
         let question_index#0: uint64 = 0u
-        goto block@18
-    block@18: // for_header_L195
+        goto block@20
+    block@20: // for_header_L195
         let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
-        goto continue_looping%0#0 ? block@19 : block@20
-    block@19: // for_body_L197
+        goto continue_looping%0#0 ? block@21 : block@22
+    block@21: // for_body_L197
         let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) answer_ids#0)
         let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
@@ -236,13 +237,15 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%23#0: uint64 = (+ maybe_value%2#0 1u)
         (app_global_put "voter_count" tmp%23#0)
         let question_index#0: uint64 = (+ question_index#0 1u)
-        goto block@18
-    block@20: // after_for_L195
+        goto block@20
+    block@22: // after_for_L195
         exit 1u
-    block@9: // create_NoOp_L49
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@10, * => block@11}
-    block@10: // create_route_L58
+    block@9: // switch_case_next_L49
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@10: // switch_case_1_L49
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@11, * => block@12}
+    block@11: // create_route_L58
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let vote_id#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
@@ -276,24 +279,26 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert tmp%3#2) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
-        goto block@13
-    block@13: // for_header_L223
+        goto block@15
+    block@15: // for_header_L223
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%4#0)
-        goto continue_looping%0#0 ? block@14 : block@15
-    block@14: // for_body_L224
+        goto continue_looping%0#0 ? block@16 : block@17
+    block@16: // for_body_L224
         let aggregate%array_trimmed%3#0: bytes = ((extract 2 0) option_counts#0)
-        let tmp%4#2: uint64 = (getbyte aggregate%array_trimmed%3#0 item_index_internal%0#0)
-        let total_options#0: uint64 = (+ total_options#0 tmp%4#2)
+        let tmp%4#0: uint64 = (getbyte aggregate%array_trimmed%3#0 item_index_internal%0#0)
+        let total_options#0: uint64 = (+ total_options#0 tmp%4#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@13
-    block@15: // after_for_L223
-        let tmp%6#1: bool = (<= total_options#0 128u)
-        (assert tmp%6#1) // Can't have more than 128 vote options
+        goto block@15
+    block@17: // after_for_L223
+        let tmp%6#2: bool = (<= total_options#0 128u)
+        (assert tmp%6#2) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#0)
         exit 1u
-    block@11: // after_if_else_L49
-        fail
+    block@12: // switch_case_next_L49
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@13: // switch_case_default_L49
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
     block@0: // L12

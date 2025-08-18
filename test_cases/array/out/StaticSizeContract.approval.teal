@@ -16,25 +16,33 @@ main:
 after_if_else@2:
     // array/static_size.py:37
     // class StaticSizeContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@14
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
     pushbytess 0x28d7c1b8 0xfa9cb973 0x6039a240 0xf8fd68a7 0x1f028db1 0x096b3a59 0x8d6e3a25 // method "test_array(uint64,uint64,uint64,uint64)uint64", method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_bool_array(uint64)uint64", method "test_arc4_conversion(uint64)uint64[]", method "sum_array(uint64[])uint64", method "test_arc4_bool()bool[]"
     txna ApplicationArgs 0
     match test_array test_extend_from_tuple test_extend_from_arc4_tuple test_bool_array test_arc4_conversion sum_array test_arc4_bool
-    err
-
-__algopy_default_create@14:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:

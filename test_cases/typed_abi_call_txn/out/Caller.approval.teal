@@ -7,25 +7,33 @@ main:
     bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@12
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // typed_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
     pushbytess 0x0ab53563 0xea6a6ade 0x2381ff80 0x00b50f1c // method "test_call_with_txn(byte[],byte[],uint64)void", method "test_call_with_acfg(byte[],byte[],uint64)void", method "test_call_with_infer(byte[],byte[],uint64)void", method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
     txna ApplicationArgs 0
     match test_call_with_txn test_call_with_acfg test_call_with_infer test_call_with_acfg_no_return
-    err
-
-__algopy_default_create@12:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:

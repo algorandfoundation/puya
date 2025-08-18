@@ -26,19 +26,29 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@12
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xddc4cb4a 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(address)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
     txna ApplicationArgs 0
-    match set_governor_route@6 bootstrap_route@7 mint_route@8 burn_route@9 swap_route@10
-    err
+    match set_governor_route@5 bootstrap_route@6 mint_route@7 burn_route@8 swap_route@9
+    err // this contract does not implement the given ABI method for call NoOp
 
-swap_route@10:
+swap_route@9:
     txn GroupIndex
     intc_1 // 1
     -
@@ -141,7 +151,7 @@ switch_case_0@14:
     assert // check self.asset_a exists
     b switch_case_next@17
 
-burn_route@9:
+burn_route@8:
     txn GroupIndex
     intc_1 // 1
     -
@@ -237,7 +247,7 @@ burn_route@9:
     intc_1 // 1
     return
 
-mint_route@8:
+mint_route@7:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -412,7 +422,7 @@ bool_false@24:
     intc_0 // 0
     b bool_merge@25
 
-bootstrap_route@7:
+bootstrap_route@6:
     txn GroupIndex
     intc_1 // 1
     -
@@ -520,7 +530,7 @@ bootstrap_route@7:
     intc_1 // 1
     return
 
-set_governor_route@6:
+set_governor_route@5:
     txna ApplicationArgs 1
     callsub _check_is_governor
     bytec_3 // "governor"
@@ -528,14 +538,6 @@ set_governor_route@6:
     app_global_put
     intc_1 // 1
     return
-
-__algopy_default_create@12:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:

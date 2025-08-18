@@ -37,79 +37,83 @@ subroutine main:
     after_if_else@2:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn NumAppArgs                                                                       tmp%0#3
-        bz __algopy_default_create@13 ; b abi_routing@4
+        txn ApplicationID                                                                    tmp%0#0
+        !                                                                                    tmp%1#0
+        txn OnCompletion                                                                     tmp%1#0,tmp%2#0
+        int 1                                                                                tmp%1#0,tmp%2#0,1
+        shl                                                                                  tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                     tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                     tmp%1#0,tmp%3#0
+        +                                                                                    tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@4:
+    call_NoOp:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn OnCompletion                                                                     tmp%2#0
-        !                                                                                    tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                    tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                               tmp%6#0
-        method opt_into_asset(uint64)void                                                    tmp%6#0,Method(opt_into_asset(uint64)void)
-        method start_auction(uint64,uint64,axfer)void                                        tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void)
-        method opt_in()void                                                                  tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void)
-        method bid(pay)void                                                                  tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void)
-        method claim_bids()void                                                              tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
-        method claim_asset(uint64)void                                                       tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void)
-        l-load tmp%6#0 6                                                                     Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void),tmp%6#0
-        match opt_into_asset_route@6 start_auction_route@7 opt_in_route@8 bid_route@9 claim_bids_route@10 claim_asset_route@11 ; b after_if_else@12 
+        txna ApplicationArgs 0                                                               tmp%5#0
+        method opt_into_asset(uint64)void                                                    tmp%5#0,Method(opt_into_asset(uint64)void)
+        method start_auction(uint64,uint64,axfer)void                                        tmp%5#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void)
+        method opt_in()void                                                                  tmp%5#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void)
+        method bid(pay)void                                                                  tmp%5#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void)
+        method claim_bids()void                                                              tmp%5#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
+        method claim_asset(uint64)void                                                       tmp%5#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void)
+        l-load tmp%5#0 6                                                                     Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void),tmp%5#0
+        match opt_into_asset_route@5 start_auction_route@6 opt_in_route@7 bid_route@8 claim_bids_route@9 claim_asset_route@10 ; b switch_case_next@11 
 
-    opt_into_asset_route@6:
-        // auction/contract.py:25
-        // @arc4.abimethod
+    opt_into_asset_route@5:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
         callsub opt_into_asset
-        b after_if_else@12
+        b switch_case_next@11
 
-    start_auction_route@7:
-        // auction/contract.py:40
-        // @arc4.abimethod
+    start_auction_route@6:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
         callsub start_auction
-        b after_if_else@12
+        b switch_case_next@11
 
-    opt_in_route@8:
+    opt_in_route@7:
         // auction/contract.py:62
         // @arc4.abimethod
         int 1                                                                                1
         return
 
-    bid_route@9:
-        // auction/contract.py:66
-        // @arc4.abimethod
-        callsub bid
-        b after_if_else@12
-
-    claim_bids_route@10:
-        // auction/contract.py:82
-        // @arc4.abimethod
-        callsub claim_bids
-        b after_if_else@12
-
-    claim_asset_route@11:
-        // auction/contract.py:97
-        // @arc4.abimethod
-        callsub claim_asset
-        b after_if_else@12
-
-    after_if_else@12:
+    bid_route@8:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        err
+        callsub bid
+        b switch_case_next@11
 
-    __algopy_default_create@13:
-        txn OnCompletion                                                                     tmp%7#0
-        !                                                                                    tmp%8#0
-        txn ApplicationID                                                                    tmp%8#0,tmp%9#0
-        !                                                                                    tmp%8#0,tmp%10#0
-        l-load tmp%8#0 1                                                                     tmp%10#0,tmp%8#0
-        l-load tmp%10#0 1                                                                    tmp%8#0,tmp%10#0
-        &&                                                                                   tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
+    claim_bids_route@9:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
+        callsub claim_bids
+        b switch_case_next@11
+
+    claim_asset_route@10:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
+        callsub claim_asset
+        b switch_case_next@11
+
+    switch_case_next@11:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
+        txn NumAppArgs                                                                       tmp%6#0
+        !                                                                                    tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                                1
         return
+
+    *NOT_IMPLEMENTED:
+        // auction/contract.py:16
+        // class Auction(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // examples.auction.contract.Auction.opt_into_asset[routing]() -> void:

@@ -12,62 +12,96 @@ subroutine test_cases.arc_56.contract.echo(s: Encoded((len+uint8[]),uint8)) -> <
 
 subroutine test_cases.arc_56.contract.Contract.__puya_arc4_router__() -> bool:
     block@0: // L54
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%0#0 ? block@1 : block@17
-    block@1: // abi_routing_L54
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@2, * => block@4}
-    block@2: // create_route_L81
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: uint64 = (shl 1u tmp%3#0)
-        let tmp%5#0: uint64 = (& tmp%4#0 3u)
-        (assert tmp%5#0) // OnCompletion must be one of NoOp, OptIn
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@1, block@14, block@20, block@26, block@42, block@42, block@42, block@42, block@42, block@42, block@42, block@39][tmp%4#0] else goto block@42
+    block@1: // switch_case_0_L54
+        let tmp%5#0: uint64 = (txn NumAppArgs)
+        let tmp%6#0: bool = (! tmp%5#0)
+        goto tmp%5#0 ? block@3 : block@2
+    block@2: // bare_create_L77
+        exit 1u
+    block@3: // else_body_L54
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "create()void" => block@4, method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@5, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@6, method "emits_error((uint64,string,(byte[],uint8)))void" => block@7, method "emitter()void" => block@8, method "conditional_emit(bool)void" => block@9, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@10, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@11, * => block@13}
+    block@4: // create_route_L81
         test_cases.arc_56.contract.Contract.create[routing]()
-        goto block@4
-    block@4: // switch_case_next_L54
-        let tmp%6#0: uint64 = (txn OnCompletion)
-        let tmp%7#0: bool = (! tmp%6#0)
-        (assert tmp%7#0) // OnCompletion must be NoOp
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (!= tmp%8#0 0u)
-        goto tmp%8#0 ? block@5 : block@22
-    block@5: // call_NoOp_L54
-        let tmp%10#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%10#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@6, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@7, method "emits_error((uint64,string,(byte[],uint8)))void" => block@8, method "emitter()void" => block@9, method "conditional_emit(bool)void" => block@10, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@11, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@12, * => block@22}
-    block@6: // struct_arg_route_L89
+        goto block@13
+    block@5: // struct_arg_route_L89
         test_cases.arc_56.contract.Contract.struct_arg[routing]()
-        goto block@22
-    block@7: // struct_return_route_L95
+        goto block@13
+    block@6: // struct_return_route_L95
         test_cases.arc_56.contract.Contract.struct_return[routing]()
-        goto block@22
-    block@8: // emits_error_route_L100
+        goto block@13
+    block@7: // emits_error_route_L100
         test_cases.arc_56.contract.Contract.errors[routing]()
-        goto block@22
-    block@9: // emitter_route_L104
+        goto block@13
+    block@8: // emitter_route_L104
         test_cases.arc_56.contract.Contract.emitter[routing]()
-        goto block@22
-    block@10: // conditional_emit_route_L114
+        goto block@13
+    block@9: // conditional_emit_route_L114
         test_cases.arc_56.contract.Contract.conditional_emit[routing]()
-        goto block@22
-    block@11: // template_value_route_L123
+        goto block@13
+    block@10: // template_value_route_L123
         test_cases.arc_56.contract.Contract.template_value[routing]()
-        goto block@22
-    block@12: // with_constant_defaults_route_L132
+        goto block@13
+    block@11: // with_constant_defaults_route_L132
         test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
-        goto block@22
-    block@17: // bare_routing_L54
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        goto_nth [block@18, block@18, block@22, block@22, block@22, block@19][tmp%11#0] else goto block@22
-    block@18: // bare_create_L77
+        goto block@13
+    block@13: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@14: // switch_case_1_L54
+        let tmp%8#0: uint64 = (txn NumAppArgs)
+        let tmp%9#0: bool = (! tmp%8#0)
+        goto tmp%8#0 ? block@16 : block@15
+    block@15: // bare_create_L77
         exit 1u
-    block@19: // transient_L85
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // can only call when creating
+    block@16: // else_body_L54
+        let tmp%10#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%10#0 {method "create()void" => block@17, * => block@19}
+    block@17: // create_route_L81
+        test_cases.arc_56.contract.Contract.create[routing]()
+        goto block@19
+    block@19: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@20: // switch_case_2_L54
+        let tmp%11#0: uint64 = (txn NumAppArgs)
+        let tmp%12#0: bool = (! tmp%11#0)
+        goto tmp%11#0 ? block@22 : block@21
+    block@21: // bare_create_L77
         exit 1u
-    block@22: // after_if_else_L54
-        fail
+    block@22: // else_body_L54
+        let tmp%13#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%13#0 {method "create()void" => block@23, * => block@25}
+    block@23: // create_route_L81
+        test_cases.arc_56.contract.Contract.create[routing]()
+        goto block@25
+    block@25: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for call OptIn
+    block@26: // switch_case_3_L54
+        let tmp%14#0: uint64 = (txn NumAppArgs)
+        let tmp%15#0: bool = (! tmp%14#0)
+        goto tmp%14#0 ? block@28 : block@27
+    block@27: // bare_create_L77
+        exit 1u
+    block@28: // else_body_L54
+        let tmp%16#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%16#0 {method "create()void" => block@29, * => block@31}
+    block@29: // create_route_L81
+        test_cases.arc_56.contract.Contract.create[routing]()
+        goto block@31
+    block@31: // switch_case_next_L54
+        fail // this contract does not implement the given ABI method for create OptIn
+    block@39: // switch_case_11_L54
+        let tmp%17#0: uint64 = (txn NumAppArgs)
+        let tmp%18#0: bool = (! tmp%17#0)
+        (assert tmp%18#0) // this contract does not implement the given ABI method for create DeleteApplication
+        exit 1u
+    block@42: // switch_case_default_L54
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.arc_56.contract.Contract.create[routing]() -> void:
     block@0: // L81

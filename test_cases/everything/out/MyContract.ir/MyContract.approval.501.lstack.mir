@@ -4,98 +4,113 @@ subroutine main:
     block@0:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0                                                          tmp%0#2
-        method register(string)void                                                     tmp%0#2,Method(register(string)void)
-        method close_out()void                                                          tmp%0#2,Method(register(string)void),Method(close_out()void)
-        l-load tmp%0#2 2                                                                Method(register(string)void),Method(close_out()void),tmp%0#2
-        match register_route@4 close_out_route@5 ; b switch_case_next@6
+        txn ApplicationID                                                               tmp%0#2
+        l-load tmp%0#2 0                                                                tmp%0#2
+        !                                                                               tmp%1#0
+        txn OnCompletion                                                                tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                                tmp%1#0,tmp%2#0
+        int 1                                                                           tmp%1#0,tmp%2#0,1
+        shl                                                                             tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        l-load tmp%4#0 0                                                                tmp%4#0
+        switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED call_CloseOut *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    register_route@4:
-        // everything/contract.py:47
-        // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txn OnCompletion                                                                tmp%1#0
-        int 1                                                                           tmp%1#0,1
-        l-load tmp%1#0 1                                                                1,tmp%1#0
-        shl                                                                             tmp%2#0
-        l-load tmp%2#0 0                                                                tmp%2#0
-        int 3                                                                           tmp%2#0,3
-        &                                                                               tmp%3#0
-        txn ApplicationID                                                               tmp%3#0,tmp%4#0
-        l-load tmp%3#0 1                                                                tmp%4#0,tmp%3#0
-        l-load tmp%4#0 1                                                                tmp%3#0,tmp%4#0
-        &&                                                                              tmp%6#0
-        l-load tmp%6#0 0                                                                tmp%6#0
-        assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating 
+    call_NoOp:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 0                                                          tmp%5#0
+        method register(string)void                                                     tmp%5#0,Method(register(string)void)
+        method say_hello()string                                                        tmp%5#0,Method(register(string)void),Method(say_hello()string)
+        method calculate(uint64,uint64)uint64                                           tmp%5#0,Method(register(string)void),Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
+        l-load tmp%5#0 3                                                                Method(register(string)void),Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%5#0
+        match register_route@5 say_hello_route@6 calculate_route@7 ; b switch_case_next@8 
+
+    register_route@5:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         callsub register
-        b switch_case_next@6
+        b switch_case_next@8
 
-    close_out_route@5:
-        // everything/contract.py:69
-        // @abimethod(allow_actions=["CloseOut"])
-        txn OnCompletion                                                                tmp%7#0
-        l-load tmp%7#0 0                                                                tmp%7#0
-        int CloseOut                                                                    tmp%7#0,CloseOut
-        ==                                                                              tmp%8#0
-        txn ApplicationID                                                               tmp%8#0,tmp%9#0
-        l-load tmp%8#0 1                                                                tmp%9#0,tmp%8#0
-        l-load tmp%9#0 1                                                                tmp%8#0,tmp%9#0
-        &&                                                                              tmp%11#0
-        l-load tmp%11#0 0                                                               tmp%11#0
-        assert // OnCompletion must be CloseOut && can only call when not creating
-        callsub close_out
-        b switch_case_next@6
-
-    switch_case_next@6:
+    say_hello_route@6:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txn OnCompletion                                                                tmp%12#0
-        l-load tmp%12#0 0                                                               tmp%12#0
-        !                                                                               tmp%13#0
-        l-load tmp%13#0 0                                                               tmp%13#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                               tmp%14#0
-        l-load tmp%14#0 0                                                               tmp%14#0
-        bz create_NoOp@10 ; b call_NoOp@7
-
-    call_NoOp@7:
-        // everything/contract.py:37
-        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0                                                          tmp%16#0
-        method say_hello()string                                                        tmp%16#0,Method(say_hello()string)
-        method calculate(uint64,uint64)uint64                                           tmp%16#0,Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
-        l-load tmp%16#0 2                                                               Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%16#0
-        match say_hello_route@8 calculate_route@9 ; b after_if_else@12
-
-    say_hello_route@8:
-        // everything/contract.py:56
-        // @abimethod
         callsub say_hello
-        b after_if_else@12
+        b switch_case_next@8
 
-    calculate_route@9:
-        // everything/contract.py:64
-        // @abimethod
+    calculate_route@7:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         callsub calculate
-        b after_if_else@12
+        b switch_case_next@8
 
-    create_NoOp@10:
+    switch_case_next@8:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0                                                          tmp%17#0
-        method create()void                                                             tmp%17#0,Method(create()void)
-        l-load tmp%17#0 1                                                               Method(create()void),tmp%17#0
-        match create_route@11 ; b after_if_else@12
+        err // this contract does not implement the given ABI method for call NoOp
 
-    create_route@11:
-        // everything/contract.py:41
-        // @abimethod(create="require")
+    create_NoOp:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 0                                                          tmp%6#0
+        method create()void                                                             tmp%6#0,Method(create()void)
+        l-load tmp%6#0 1                                                                Method(create()void),tmp%6#0
+        match create_route@10 ; b switch_case_next@11
+
+    create_route@10:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         callsub create
-        b after_if_else@12
+        b switch_case_next@11
 
-    after_if_else@12:
+    switch_case_next@11:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        err
+        err // this contract does not implement the given ABI method for create NoOp
+
+    call_OptIn:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 0                                                          tmp%7#0
+        method register(string)void                                                     tmp%7#0,Method(register(string)void)
+        l-load tmp%7#0 1                                                                Method(register(string)void),tmp%7#0
+        match register_route@13 ; b switch_case_next@14
+
+    register_route@13:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        callsub register
+        b switch_case_next@14
+
+    switch_case_next@14:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        err // this contract does not implement the given ABI method for call OptIn
+
+    call_CloseOut:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 0                                                          tmp%8#0
+        method close_out()void                                                          tmp%8#0,Method(close_out()void)
+        l-load tmp%8#0 1                                                                Method(close_out()void),tmp%8#0
+        match close_out_route@16 ; b switch_case_next@17
+
+    close_out_route@16:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        callsub close_out
+        b switch_case_next@17
+
+    switch_case_next@17:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        err // this contract does not implement the given ABI method for call CloseOut
+
+    *NOT_IMPLEMENTED:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.everything.contract.Everything.create[routing]() -> void:

@@ -4,30 +4,40 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 6 1 2
-    bytecblock base64(CoEBQw==) base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=) 0x33b3499e 0x0020 0x002a 0x000b48656c6c6f20576f726c64 0x000d000b48656c6c6f20576f726c64 0x0003 0x8d762fdf 0x00080000000000000000 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0xe5cacd06 0x000180 0x00030006 0x0006 0x89af557b 0x001a0003000000000000000100000000000000020000000000000003 0x0000000000000000 0x0004
+    bytecblock base64(CoEBQw==) base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=) 0x33b3499e 0x0020 0x002a 0x000b48656c6c6f20576f726c64 0x000d000b48656c6c6f20576f726c64 0x0003 0x8d762fdf 0x00080000000000000000 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0xe5cacd06 0x000180 0x00030006 0x0006 0x89af557b 0x001a0003000000000000000100000000000000020000000000000003 0x0000000000000000 0x0004
     intc_0 // 0
     dup
     pushbytes ""
-    txn NumAppArgs
-    bz __algopy_default_create@15
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_2 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xc36825ff 0x620ac6f0 0x344a880b 0xa92e03c4 0x6c4f8453 0x7bda9a46 0x9a3f8f9b // method "test_literal_encoding()void", method "test_native_encoding()void", method "test_arc4_encoding()void", method "test_array_uint64_encoding()void", method "test_array_static_encoding()void", method "test_array_dynamic_encoding()void", method "test_bytes_to_fixed(bool)void"
     txna ApplicationArgs 0
-    match test_literal_encoding_route@4 test_native_encoding_route@5 test_arc4_encoding_route@6 test_array_uint64_encoding_route@7 test_array_static_encoding_route@8 test_array_dynamic_encoding_route@9 test_bytes_to_fixed_route@10
-    err
+    match test_literal_encoding_route@3 test_native_encoding_route@4 test_arc4_encoding_route@5 test_array_uint64_encoding_route@6 test_array_static_encoding_route@7 test_array_dynamic_encoding_route@8 test_bytes_to_fixed_route@9
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_bytes_to_fixed_route@10:
+test_bytes_to_fixed_route@9:
     txna ApplicationArgs 1
     intc_0 // 0
     getbit
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -40,13 +50,13 @@ test_bytes_to_fixed_route@10:
     dup
     bury 5
     bury 3
-    bz after_if_else@20
+    bz after_if_else@30
     dig 2
     dup
     concat
     bury 2
 
-after_if_else@20:
+after_if_else@30:
     dig 1
     itxn_begin
     dup
@@ -80,11 +90,11 @@ after_if_else@20:
     intc_2 // 1
     return
 
-test_array_dynamic_encoding_route@9:
+test_array_dynamic_encoding_route@8:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -330,11 +340,11 @@ test_array_dynamic_encoding_route@9:
     intc_2 // 1
     return
 
-test_array_static_encoding_route@8:
+test_array_static_encoding_route@7:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -453,11 +463,11 @@ test_array_static_encoding_route@8:
     intc_2 // 1
     return
 
-test_array_uint64_encoding_route@7:
+test_array_uint64_encoding_route@6:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -569,11 +579,11 @@ test_array_uint64_encoding_route@7:
     intc_2 // 1
     return
 
-test_arc4_encoding_route@6:
+test_arc4_encoding_route@5:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -686,11 +696,11 @@ test_arc4_encoding_route@6:
     intc_2 // 1
     return
 
-test_native_encoding_route@5:
+test_native_encoding_route@4:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -806,11 +816,11 @@ test_native_encoding_route@5:
     intc_2 // 1
     return
 
-test_literal_encoding_route@4:
+test_literal_encoding_route@3:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_1 // base64(CjEbQQCWgAQzs0meNhoAjgEAgDEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MAAgAEwAIAAgACAAIAAgACAAIAAgACAABADYaATEAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDMRmBBRIxGBBDMRkUMRgUEEM=)
+    bytec_1 // base64(CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwACAATAAgACAAIAAgACAAIAAgACAAIAAEANhoBMQASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM=)
     itxn_field ApprovalProgramPages
     intc_1 // appl
     itxn_field TypeEnum
@@ -901,14 +911,6 @@ test_literal_encoding_route@4:
     itxn_submit
     intc_2 // 1
     return
-
-__algopy_default_create@15:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> bytes:

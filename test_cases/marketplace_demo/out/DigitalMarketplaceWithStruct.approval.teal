@@ -15,33 +15,41 @@ main:
 after_if_else@2:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@16
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
     pushbytess 0xd98ef6a9 0x6a4e7fca 0x12f08c98 0x9b4b8234 0x4d8b23d8 0x52ac5df7 0xe3aeb25c 0x3234b711 0xcc826346 // method "getListingsMbr()uint64", method "allowAsset(pay,uint64)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(uint64,uint64,uint64)void", method "buy(address,uint64,uint64,pay,uint64)void", method "withdraw(uint64,uint64)void", method "bid(address,uint64,uint64,pay,uint64,uint64)void", method "acceptBid(uint64,uint64)void"
     txna ApplicationArgs 0
-    match getListingsMbr_route@6 allow_asset first_deposit deposit set_price buy withdraw bid accept_bid
-    err
+    match getListingsMbr_route@5 allow_asset first_deposit deposit set_price buy withdraw bid accept_bid
+    err // this contract does not implement the given ABI method for call NoOp
 
-getListingsMbr_route@6:
+getListingsMbr_route@5:
     // marketplace_demo/marketplace_with_mutable_struct.py:78
     // @arc4.abimethod(readonly=True, name="getListingsMbr")
     pushbytes 0x151f7c75000000000000c544
     log
     intc_0 // 1
     return
-
-__algopy_default_create@16:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]() -> void:

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 4
+    intcblock 1 4 0 2
     b block@0
 
 block@0:
@@ -12,26 +12,108 @@ block@0:
 block@1:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@11
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_2 // 0
+    intc_0 // 1
+    intc_3 // 2
+    pushint 3 // 3
+    intc_1 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@9
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_2 // 0
+    ==
+    bz else_body@10
+    b __algopy_default_create@9
+
+__algopy_default_create@9:
+    b block@23
+
+block@23:
+    b after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@24
+
+after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@24:
+    intc_0 // 1
+    return
+
+else_body@10:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -39,61 +121,34 @@ call_NoOp@3:
     pushbytes 0xe31958f9 // method "test_uint16()void"
     pushbytes 0xc7ed8497 // method "test_uint32()void"
     uncover 3
-    match test_uint8_route@4 test_uint16_route@5 test_uint32_route@6
-    b switch_case_default@7
+    match test_uint8_route@3 test_uint16_route@4 test_uint32_route@5
+    b switch_case_default@6
 
-switch_case_default@7:
-    b switch_case_next@8
+switch_case_default@6:
+    b switch_case_next@7
 
-switch_case_next@8:
-    b after_if_else@10
-
-after_if_else@10:
-    b after_if_else@12
-
-after_if_else@12:
+switch_case_next@7:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_uint32_route@6:
-    // arc4_types/uint_overflow.py:15
-    // @arc4.abimethod()
+test_uint32_route@5:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
     callsub test_uint32
-    b switch_case_next@8
+    b switch_case_next@7
 
-test_uint16_route@5:
-    // arc4_types/uint_overflow.py:10
-    // @arc4.abimethod()
+test_uint16_route@4:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
     callsub test_uint16
-    b switch_case_next@8
+    b switch_case_next@7
 
-test_uint8_route@4:
-    // arc4_types/uint_overflow.py:5
-    // @arc4.abimethod()
+test_uint8_route@3:
+    // arc4_types/uint_overflow.py:4
+    // class UIntOverflow(arc4.ARC4Contract):
     callsub test_uint8
-    b switch_case_next@8
-
-create_NoOp@9:
-    b after_if_else@10
-
-__algopy_default_create@11:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@14
-
-block@14:
-    b after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@15
-
-after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@15:
-    intc_1 // 1
-    return
+    b switch_case_next@7
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]() -> void:
@@ -104,7 +159,7 @@ test_uint8_block@0:
     // arc4_types/uint_overflow.py:5
     // @arc4.abimethod()
     callsub test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -116,7 +171,7 @@ test_uint16_block@0:
     // arc4_types/uint_overflow.py:10
     // @arc4.abimethod()
     callsub test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -128,7 +183,7 @@ test_uint32_block@0:
     // arc4_types/uint_overflow.py:15
     // @arc4.abimethod()
     callsub test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -149,7 +204,7 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8_block@0:
     <=
     assert // overflow
     pushint 7 // 7
-    intc_1 // 1
+    intc_0 // 1
     extract3
     // arc4_types/uint_overflow.py:8
     // assert too_big.bytes != b"\x01", "this should not happen"
@@ -176,7 +231,7 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16_block@0:
     <=
     assert // overflow
     pushint 6 // 6
-    pushint 2 // 2
+    intc_3 // 2
     extract3
     // arc4_types/uint_overflow.py:13
     // assert too_big.bytes != b"\x00\x01", "this should not happen"
@@ -202,8 +257,8 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32_block@0:
     pushint 32 // 32
     <=
     assert // overflow
-    intc_2 // 4
-    intc_2 // 4
+    intc_1 // 4
+    intc_1 // 4
     extract3
     // arc4_types/uint_overflow.py:18
     // assert too_big.bytes != b"\x00\x00\x00\x01", "this should not happen"

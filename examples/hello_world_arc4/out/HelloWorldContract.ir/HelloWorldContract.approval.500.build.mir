@@ -1,66 +1,64 @@
-// Op                                                                          Stack (out)
+// Op                                                                                   Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     block@0:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txn NumAppArgs                                                         tmp%0#1
+        txn ApplicationID                                                               tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                                                         tmp%0#1
-        bz __algopy_default_create@6 ; b abi_routing@2
+        v-load tmp%0#1                                                                  tmp%0#1
+        !                                                                               tmp%1#0
+        v-store tmp%1#0
+        txn OnCompletion                                                                tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                  tmp%2#0
+        int 1                                                                           tmp%2#0,1
+        shl                                                                             tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%1#0                                                                  tmp%1#0
+        v-load tmp%3#0                                                                  tmp%1#0,tmp%3#0
+        +                                                                               tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                  tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    abi_routing@2:
+    call_NoOp:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txna ApplicationArgs 0                                                 tmp%2#0
-        v-store tmp%2#0
-        method hello(string)string                                             Method(hello(string)string)
-        v-load tmp%2#0                                                         Method(hello(string)string),tmp%2#0
+        txna ApplicationArgs 0                                                          tmp%5#0
+        v-store tmp%5#0
+        method hello(string)string                                                      Method(hello(string)string)
+        v-load tmp%5#0                                                                  Method(hello(string)string),tmp%5#0
         match hello_route@3 ; b switch_case_next@5
 
     hello_route@3:
-        // hello_world_arc4/contract.py:10
-        // @arc4.abimethod
-        txn OnCompletion                                                       tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                         tmp%3#0
-        !                                                                      tmp%4#0
-        v-store tmp%4#0
-        txn ApplicationID                                                      tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%4#0                                                         tmp%4#0
-        v-load tmp%5#0                                                         tmp%4#0,tmp%5#0
-        &&                                                                     tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                         tmp%7#0
-        assert // OnCompletion must be NoOp && can only call when not creating
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
         callsub hello
         b switch_case_next@5
 
     switch_case_next@5:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        err
+        err // this contract does not implement the given ABI method for call NoOp
 
-    __algopy_default_create@6:
-        txn OnCompletion                                                       tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                         tmp%8#0
-        !                                                                      tmp%9#0
-        v-store tmp%9#0
-        txn ApplicationID                                                      tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                                        tmp%10#0
-        !                                                                      tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%9#0                                                         tmp%9#0
-        v-load tmp%11#0                                                        tmp%9#0,tmp%11#0
-        &&                                                                     tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                        tmp%12#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                  1
+    create_NoOp:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        txn NumAppArgs                                                                  tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                  tmp%6#0
+        !                                                                               tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                  tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
+        int 1                                                                           1
         return
+
+    *NOT_IMPLEMENTED:
+        // hello_world_arc4/contract.py:9
+        // class HelloWorldContract(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello[routing]() -> void:
@@ -68,39 +66,39 @@ subroutine hello:
     hello_block@0:
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                 reinterpret_Encoded(len+utf8[])%0#0
+        txna ApplicationArgs 1                                                          reinterpret_Encoded(len+utf8[])%0#0
         v-store reinterpret_Encoded(len+utf8[])%0#0
-        v-load reinterpret_Encoded(len+utf8[])%0#0                             reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                            name#0
+        v-load reinterpret_Encoded(len+utf8[])%0#0                                      reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                     name#0
         v-store name#0
         // hello_world_arc4/contract.py:12
         // return "Hello, " + name
-        byte "Hello, "                                                         "Hello, "
-        v-load name#0                                                          "Hello, ",name#0
-        concat                                                                 tmp%0#1
+        byte "Hello, "                                                                  "Hello, "
+        v-load name#0                                                                   "Hello, ",name#0
+        concat                                                                          tmp%0#1
         v-store tmp%0#1
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        v-load tmp%0#1                                                         tmp%0#1
-        len                                                                    aggregate%length%0#0
+        v-load tmp%0#1                                                                  tmp%0#1
+        len                                                                             aggregate%length%0#0
         v-store aggregate%length%0#0
-        v-load aggregate%length%0#0                                            aggregate%length%0#0
-        itob                                                                   aggregate%as_bytes%0#0
+        v-load aggregate%length%0#0                                                     aggregate%length%0#0
+        itob                                                                            aggregate%as_bytes%0#0
         v-store aggregate%as_bytes%0#0
-        v-load aggregate%as_bytes%0#0                                          aggregate%as_bytes%0#0
-        extract 6 2                                                            aggregate%length_uint16%0#0
+        v-load aggregate%as_bytes%0#0                                                   aggregate%as_bytes%0#0
+        extract 6 2                                                                     aggregate%length_uint16%0#0
         v-store aggregate%length_uint16%0#0
-        v-load aggregate%length_uint16%0#0                                     aggregate%length_uint16%0#0
-        v-load tmp%0#1                                                         aggregate%length_uint16%0#0,tmp%0#1
-        concat                                                                 aggregate%encoded_value%0#0
+        v-load aggregate%length_uint16%0#0                                              aggregate%length_uint16%0#0
+        v-load tmp%0#1                                                                  aggregate%length_uint16%0#0,tmp%0#1
+        concat                                                                          aggregate%encoded_value%0#0
         v-store aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                        0x151f7c75
-        v-load aggregate%encoded_value%0#0                                     0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                 tmp%3#0
+        byte 0x151f7c75                                                                 0x151f7c75
+        v-load aggregate%encoded_value%0#0                                              0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                          tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                         tmp%3#0
+        v-load tmp%3#0                                                                  tmp%3#0
         log
-        int 1                                                                  1
+        int 1                                                                           1
         return
 
 

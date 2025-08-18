@@ -4,52 +4,68 @@ subroutine main:
     block@0:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                 tmp%0#1
+        txn ApplicationID                                                                tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                   tmp%0#1
         !                                                                                tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                                                   tmp%1#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                tmp%2#0
+        txn OnCompletion                                                                 tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                   tmp%2#0
-        bz create_NoOp@6 ; b call_NoOp@2
-
-    call_NoOp@2:
-        // avm_types_in_abi/contract.py:4
-        // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                           tmp%4#0
+        int 1                                                                            tmp%2#0,1
+        shl                                                                              tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%1#0                                                                   tmp%1#0
+        v-load tmp%3#0                                                                   tmp%1#0,tmp%3#0
+        +                                                                                tmp%4#0
         v-store tmp%4#0
-        method tuple_of_arc4((uint8,address))(uint8,address)                             Method(tuple_of_arc4((uint8,address))(uint8,address))
-        v-load tmp%4#0                                                                   Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
-        match tuple_of_arc4_route@3 ; b after_if_else@10
+        v-load tmp%4#0                                                                   tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    tuple_of_arc4_route@3:
-        // avm_types_in_abi/contract.py:19
-        // @arc4.abimethod
-        callsub tuple_of_arc4
-        b after_if_else@10
-
-    create_NoOp@6:
+    call_NoOp:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                           tmp%5#0
         v-store tmp%5#0
-        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
-        v-load tmp%5#0                                                                   Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
-        match create_route@7 ; b after_if_else@10
+        method tuple_of_arc4((uint8,address))(uint8,address)                             Method(tuple_of_arc4((uint8,address))(uint8,address))
+        v-load tmp%5#0                                                                   Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%5#0
+        match tuple_of_arc4_route@3 ; b switch_case_next@5
 
-    create_route@7:
-        // avm_types_in_abi/contract.py:5
-        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        callsub create
-        b after_if_else@10
-
-    after_if_else@10:
+    tuple_of_arc4_route@3:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        err
+        callsub tuple_of_arc4
+        b switch_case_next@5
+
+    switch_case_next@5:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                           tmp%6#0
+        v-store tmp%6#0
+        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
+        v-load tmp%6#0                                                                   Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%6#0
+        match create_route@7 ; b switch_case_next@9
+
+    create_route@7:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        callsub create
+        b switch_case_next@9
+
+    switch_case_next@9:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for create NoOp
+
+    *NOT_IMPLEMENTED:
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:

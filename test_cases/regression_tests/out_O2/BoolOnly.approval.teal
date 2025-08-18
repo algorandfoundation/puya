@@ -5,19 +5,29 @@
 main:
     intcblock 0 1
     bytecblock 0x151f7c75
-    txn NumAppArgs
-    bz __algopy_default_create@11
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xa85bff00 0xc4af225c 0x83589f2d // method "set_0_convert(byte[])byte[]", method "set_0_compare(byte[])byte[]", method "bool_only_properties()void"
     txna ApplicationArgs 0
-    match set_0_convert_route@4 set_0_compare_route@5 bool_only_properties_route@6
-    err
+    match set_0_convert_route@3 set_0_compare_route@4 bool_only_properties_route@5
+    err // this contract does not implement the given ABI method for call NoOp
 
-bool_only_properties_route@6:
+bool_only_properties_route@5:
     itxn_begin
     pushint 3 // acfg
     itxn_field TypeEnum
@@ -37,7 +47,7 @@ bool_only_properties_route@6:
     intc_1 // 1
     return
 
-set_0_compare_route@5:
+set_0_compare_route@4:
     txna ApplicationArgs 1
     extract 2 0
     txn NumAppArgs
@@ -59,7 +69,7 @@ set_0_compare_route@5:
     intc_1 // 1
     return
 
-set_0_convert_route@4:
+set_0_convert_route@3:
     txna ApplicationArgs 1
     extract 2 0
     txn NumAppArgs
@@ -80,11 +90,3 @@ set_0_convert_route@4:
     log
     intc_1 // 1
     return
-
-__algopy_default_create@11:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

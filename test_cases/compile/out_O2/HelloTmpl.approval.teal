@@ -11,22 +11,45 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz update@12
+    txn ApplicationID
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
-    match delete_route@5
-    txn OnCompletion
+    match create_route@8
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+create_route@8:
+    pushint 1 // 1
+    return
+
+call_UpdateApplication:
+    txn NumAppArgs
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    bz create_NoOp@9
+    return // on error: this contract does not implement the given ABI method for call UpdateApplication
+
+create_NoOp:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@8
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
-    match greet_route@8
-    err
+    match greet_route@5
+    err // this contract does not implement the given ABI method for call NoOp
 
-greet_route@8:
+greet_route@5:
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -49,29 +72,3 @@ greet_route@8:
     log
     pushint 1 // 1
     return
-
-create_NoOp@9:
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match create_route@10
-    err
-
-create_route@10:
-    pushint 1 // 1
-    return
-
-delete_route@5:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
-
-update@12:
-    txn OnCompletion
-    pushint 4 // UpdateApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be UpdateApplication && can only call when not creating

@@ -4,58 +4,60 @@ subroutine main:
     block@0:
         // inner_transactions/field_tuple_assignment.py:24
         // class FieldTupleContract(ARC4Contract):
-        txn NumAppArgs                                                                   tmp%0#1
+        txn ApplicationID                                                                tmp%0#1
         l-load tmp%0#1 0                                                                 tmp%0#1
-        bz __algopy_default_create@10 ; b abi_routing@2
-
-    abi_routing@2:
-        // inner_transactions/field_tuple_assignment.py:24
-        // class FieldTupleContract(ARC4Contract):
-        txn OnCompletion                                                                 tmp%2#0
-        l-load tmp%2#0 0                                                                 tmp%2#0
-        !                                                                                tmp%3#0
-        l-load tmp%3#0 0                                                                 tmp%3#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                tmp%4#0
+        !                                                                                tmp%1#0
+        txn OnCompletion                                                                 tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                                 tmp%1#0,tmp%2#0
+        int 1                                                                            tmp%1#0,tmp%2#0,1
+        shl                                                                              tmp%1#0,tmp%3#0
+        l-load tmp%1#0 1                                                                 tmp%3#0,tmp%1#0
+        l-load tmp%3#0 1                                                                 tmp%1#0,tmp%3#0
+        +                                                                                tmp%4#0
         l-load tmp%4#0 0                                                                 tmp%4#0
-        assert
-        txna ApplicationArgs 0                                                           tmp%6#0
-        method test_assign_tuple()void                                                   tmp%6#0,Method(test_assign_tuple()void)
-        method test_assign_tuple_mixed()void                                             tmp%6#0,Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void)
-        l-load tmp%6#0 2                                                                 Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void),tmp%6#0
-        match test_assign_tuple_route@4 test_assign_tuple_mixed_route@5 ; b after_if_else@9 
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    test_assign_tuple_route@4:
-        // inner_transactions/field_tuple_assignment.py:25
-        // @arc4.abimethod
-        callsub test_assign_tuple
-        b after_if_else@9
-
-    test_assign_tuple_mixed_route@5:
-        // inner_transactions/field_tuple_assignment.py:85
-        // @arc4.abimethod
-        callsub test_assign_tuple_mixed
-        b after_if_else@9
-
-    after_if_else@9:
+    call_NoOp:
         // inner_transactions/field_tuple_assignment.py:24
         // class FieldTupleContract(ARC4Contract):
-        err
+        txna ApplicationArgs 0                                                           tmp%5#0
+        method test_assign_tuple()void                                                   tmp%5#0,Method(test_assign_tuple()void)
+        method test_assign_tuple_mixed()void                                             tmp%5#0,Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void)
+        l-load tmp%5#0 2                                                                 Method(test_assign_tuple()void),Method(test_assign_tuple_mixed()void),tmp%5#0
+        match test_assign_tuple_route@3 test_assign_tuple_mixed_route@4 ; b switch_case_next@6 
 
-    __algopy_default_create@10:
-        txn OnCompletion                                                                 tmp%7#0
+    test_assign_tuple_route@3:
+        // inner_transactions/field_tuple_assignment.py:24
+        // class FieldTupleContract(ARC4Contract):
+        callsub test_assign_tuple
+        b switch_case_next@6
+
+    test_assign_tuple_mixed_route@4:
+        // inner_transactions/field_tuple_assignment.py:24
+        // class FieldTupleContract(ARC4Contract):
+        callsub test_assign_tuple_mixed
+        b switch_case_next@6
+
+    switch_case_next@6:
+        // inner_transactions/field_tuple_assignment.py:24
+        // class FieldTupleContract(ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // inner_transactions/field_tuple_assignment.py:24
+        // class FieldTupleContract(ARC4Contract):
+        txn NumAppArgs                                                                   tmp%6#0
+        l-load tmp%6#0 0                                                                 tmp%6#0
+        !                                                                                tmp%7#0
         l-load tmp%7#0 0                                                                 tmp%7#0
-        !                                                                                tmp%8#0
-        txn ApplicationID                                                                tmp%8#0,tmp%9#0
-        l-load tmp%9#0 0                                                                 tmp%8#0,tmp%9#0
-        !                                                                                tmp%8#0,tmp%10#0
-        l-load tmp%8#0 1                                                                 tmp%10#0,tmp%8#0
-        l-load tmp%10#0 1                                                                tmp%8#0,tmp%10#0
-        &&                                                                               tmp%11#0
-        l-load tmp%11#0 0                                                                tmp%11#0
-        assert // OnCompletion must be NoOp && can only call when creating
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                            1
         return
+
+    *NOT_IMPLEMENTED:
+        // inner_transactions/field_tuple_assignment.py:24
+        // class FieldTupleContract(ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple[routing]() -> void:

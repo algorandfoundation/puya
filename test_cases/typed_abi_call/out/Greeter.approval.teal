@@ -7,25 +7,33 @@ main:
     bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x0000000000000001 0x16e03919 0x00027331 0x00026231 0x0000000000000001000a00056c6f672031 0x01 0xb4b4334e "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x000b6563686f3a207475706c65 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@27
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // typed_abi_call/typed_c2c.py:24
+    // class Greeter(ARC4Contract):
     pushbytess 0x094418cd 0x31e8e212 0xb5dcf0ba 0xbf3b242b 0x063beac7 0xe9f3087d 0xc88920f9 0xc2f21b73 0x86052a5c 0xe85f2441 0x92082d08 0x6211cd59 0x19eed724 0x92f75ee2 0xe748ef8e 0xc7b94959 0x868e49e7 0xaccd5072 0xf7f3d8ac // method "test_is_a_b(byte[],byte[],uint64)void", method "test_method_selector_kinds(uint64)void", method "test_method_overload(uint64)void", method "test_arg_conversion(uint64)void", method "test_15plus_args(uint64)void", method "test_void(uint64)void", method "test_ref_types(uint64,uint64)void", method "test_account_to_address(uint64)void", method "test_native_string(uint64)void", method "test_native_bytes(uint64)void", method "test_native_uint64(uint64)void", method "test_native_biguint(uint64)void", method "test_native_tuple(uint64)void", method "test_native_tuple_method_ref(uint64)void", method "test_nested_tuples(uint64)void", method "test_no_args(uint64)void", method "test_named_tuples(uint64)void", method "test_arc4_struct(uint64)void", method "test_resource_encoding(uint64,uint64)void"
     txna ApplicationArgs 0
     match test_is_a_b test_method_selector_kinds test_method_overload test_arg_conversion test_15plus_args test_void test_ref_types test_account_to_address test_native_string test_native_bytes test_native_uint64 test_native_biguint test_native_tuple test_native_tuple_method_ref test_nested_tuples test_no_args test_named_tuples test_arc4_struct test_resource_encoding
-    err
-
-__algopy_default_create@27:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b[routing]() -> void:

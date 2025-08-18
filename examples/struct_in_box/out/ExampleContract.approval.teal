@@ -3,27 +3,36 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn NumAppArgs
-    bz __algopy_default_create@11
-    txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // struct_in_box/contract.py:10
+    // class ExampleContract(ARC4Contract):
     pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
     match add_user attach_asset_to_user get_user
-    err
-
-__algopy_default_create@11:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
@@ -56,7 +65,7 @@ add_user:
     box_put
     // struct_in_box/contract.py:30
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -92,7 +101,7 @@ attach_asset_to_user:
     box_put
     // struct_in_box/contract.py:35
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -113,5 +122,5 @@ get_user:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_0 // 1
     return

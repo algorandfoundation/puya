@@ -7,25 +7,33 @@ main:
     bytecblock "tup_bag" 0x151f7c75
     // mutable_native_types/case3_with_mutable_struct.py:34
     // class Case3WithStruct(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@18
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
     pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 0x53030b41 0x7d39df51 0x7a1e7b43 0x3447847f 0x2ba64852 0xabc9be78 0x73457a19 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)", method "sum()uint64", method "add_many_tups((uint64,uint64)[])void", method "add_fixed_tups((uint64,uint64)[3])void", method "set_a(uint64)void", method "set_b(uint64)void", method "get_3_tups(uint64)(uint64,uint64)[3]", method "get_all_tups()(uint64,uint64)[]"
     txna ApplicationArgs 0
     match create_box num_tups add_tup get_tup sum add_many_tups add_fixed_tups set_a set_b get_3_tups get_all_tups
-    err
-
-__algopy_default_create@18:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box[routing]() -> void:

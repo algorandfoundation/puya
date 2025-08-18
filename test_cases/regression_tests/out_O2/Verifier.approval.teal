@@ -3,19 +3,29 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    txn ApplicationID
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     txn NumAppArgs
-    bz __algopy_default_create@6
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     txna ApplicationArgs 0
     match verify_route@3
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 verify_route@3:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     dup
     pushints 258 32 // 258, 32
@@ -46,11 +56,3 @@ verify_route@3:
     log
     pushint 1 // 1
     return
-
-__algopy_default_create@6:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

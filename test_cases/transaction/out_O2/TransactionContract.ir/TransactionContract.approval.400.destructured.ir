@@ -1,16 +1,17 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn OnCompletion)
+        let tmp%0#1: bool = (txn ApplicationID)
         let tmp%1#0: bool = (! tmp%0#1)
-        (assert tmp%1#0) // OnCompletion must be NoOp
-        let tmp%2#0: uint64 = (txn ApplicationID)
-        goto tmp%2#0 ? block@2 : block@14
-    block@2: // call_NoOp_L11
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@18}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@14, block@28, block@28, block@28, block@28, block@28, block@28, block@28, block@28, block@28, block@28][tmp%4#0] else goto block@28
+    block@2: // switch_case_0_L11
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@13}
     block@3: // pay_route_L31
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
@@ -19,23 +20,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#12: account = (global CurrentApplicationAddress)
         let tmp%2#2: bool = (== tmp%0#19 tmp%1#12)
         (assert tmp%2#2) // Payment should be for this app
-        let tmp%3#7: uint64 = ((gtxns Amount) txn#1)
-        let tmp%4#3: bool = (> tmp%3#7 1000u)
+        let tmp%3#0: uint64 = ((gtxns Amount) txn#1)
+        let tmp%4#3: bool = (> tmp%3#0 1000u)
         (assert tmp%4#3) // Payment should be for >1000 micro algos
         let tmp%5#4: account = ((gtxns CloseRemainderTo) txn#1)
-        let tmp%6#4: account = (global ZeroAddress)
-        let tmp%7#4: bool = (== tmp%5#4 tmp%6#4)
+        let tmp%6#5: account = (global ZeroAddress)
+        let tmp%7#4: bool = (== tmp%5#4 tmp%6#5)
         (assert tmp%7#4) // close_remainder_to
         exit 1u
     block@4: // key_route_L40
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 keyreg)
         (assert gtxn_type_matches%0#0) // transaction type is keyreg
         test_cases.transaction.contract.TransactionContract._common_checks(txn#1)
-        let tmp%6#0: uint64 = ((gtxns VoteKeyDilution) txn#1)
-        (assert tmp%6#0) // vote_key_dilution
+        let tmp%6#1: uint64 = ((gtxns VoteKeyDilution) txn#1)
+        (assert tmp%6#1) // vote_key_dilution
         let tmp%8#2: uint64 = ((gtxns VoteFirst) txn#1)
         (assert tmp%8#2) // vote_first
         let tmp%10#3: uint64 = ((gtxns VoteLast) txn#1)
@@ -47,20 +48,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%14#0) // state_proof_key
         exit 1u
     block@5: // asset_config_route_L51
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
         test_cases.transaction.contract.TransactionContract._common_checks(txn#1)
-        let tmp%0#1: uint64 = ((gtxns ConfigAsset) txn#1)
-        (assert tmp%0#1) // config_asset
+        let tmp%0#2: uint64 = ((gtxns ConfigAsset) txn#1)
+        (assert tmp%0#2) // config_asset
         let tmp%2#0: uint64 = ((gtxns ConfigAssetTotal) txn#1)
         (assert tmp%2#0) // total
-        let tmp%4#2: uint64 = ((gtxns ConfigAssetDecimals) txn#1)
-        (assert tmp%4#2) // decimals
-        let tmp%6#1: bool = ((gtxns ConfigAssetDefaultFrozen) txn#1)
-        (assert tmp%6#1) // default_frozen
+        let tmp%4#0: uint64 = ((gtxns ConfigAssetDecimals) txn#1)
+        (assert tmp%4#0) // decimals
+        let tmp%6#2: bool = ((gtxns ConfigAssetDefaultFrozen) txn#1)
+        (assert tmp%6#2) // default_frozen
         let tmp%7#2: bytes = ((gtxns ConfigAssetUnitName) txn#1)
         let tmp%8#2: uint64 = (len tmp%7#2)
         (assert tmp%8#2) // unit_name
@@ -88,20 +89,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%30#1) // clawback
         exit 1u
     block@6: // asset_transfer_route_L68
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
         test_cases.transaction.contract.TransactionContract._common_checks(txn#1)
-        let tmp%0#1: uint64 = ((gtxns XferAsset) txn#1)
-        (assert tmp%0#1) // xfer_asset
+        let tmp%0#2: uint64 = ((gtxns XferAsset) txn#1)
+        (assert tmp%0#2) // xfer_asset
         let tmp%2#0: uint64 = ((gtxns AssetAmount) txn#1)
         (assert tmp%2#0) // asset_amount
         let tmp%4#4: account = ((gtxns AssetSender) txn#1)
         let tmp%5#4: account = (global ZeroAddress)
-        let tmp%6#1: bool = (!= tmp%4#4 tmp%5#4)
-        (assert tmp%6#1) // asset_sender
+        let tmp%6#2: bool = (!= tmp%4#4 tmp%5#4)
+        (assert tmp%6#2) // asset_sender
         let tmp%7#1: account = ((gtxns AssetReceiver) txn#1)
         let tmp%8#1: account = (global ZeroAddress)
         let tmp%9#1: bool = (!= tmp%7#1 tmp%8#1)
@@ -112,14 +113,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%12#1) // asset_close_to
         exit 1u
     block@7: // asset_freeze_route_L77
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 afrz)
         (assert gtxn_type_matches%0#0) // transaction type is afrz
         test_cases.transaction.contract.TransactionContract._common_checks(txn#1)
-        let tmp%0#1: uint64 = ((gtxns FreezeAsset) txn#1)
-        (assert tmp%0#1) // freeze_asset
+        let tmp%0#2: uint64 = ((gtxns FreezeAsset) txn#1)
+        (assert tmp%0#2) // freeze_asset
         let tmp%2#6: account = ((gtxns FreezeAssetAccount) txn#1)
         let tmp%3#3: account = (global ZeroAddress)
         let tmp%4#3: bool = (!= tmp%2#6 tmp%3#3)
@@ -128,20 +129,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%5#1) // frozen
         exit 1u
     block@8: // application_call_route_L85
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn#1: uint64 = (- tmp%0#1 1u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn#1: uint64 = (- tmp%0#2 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn#1)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 appl)
         (assert gtxn_type_matches%0#0) // transaction type is appl
         test_cases.transaction.contract.TransactionContract._common_checks(txn#1)
-        let tmp%0#1: uint64 = ((gtxns ApplicationID) txn#1)
-        (assert tmp%0#1) // app_id
+        let tmp%0#2: uint64 = ((gtxns ApplicationID) txn#1)
+        (assert tmp%0#2) // app_id
         let tmp%2#0: uint64 = ((gtxns OnCompletion) txn#1)
         (assert tmp%2#0) // on_completion
-        let tmp%4#2: uint64 = ((gtxns NumAppArgs) txn#1)
-        (assert tmp%4#2) // num_app_args
-        let tmp%6#0: uint64 = ((gtxns NumAccounts) txn#1)
-        (assert tmp%6#0) // num_accounts
+        let tmp%4#0: uint64 = ((gtxns NumAppArgs) txn#1)
+        (assert tmp%4#0) // num_app_args
+        let tmp%6#1: uint64 = ((gtxns NumAccounts) txn#1)
+        (assert tmp%6#1) // num_accounts
         let tmp%8#0: bytes = ((gtxns ApprovalProgram) txn#1)
         let tmp%9#0: uint64 = (len tmp%8#0)
         (assert tmp%9#0) // approval_program
@@ -188,8 +189,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%49#0) // clear_state_program_pages(0)
         exit 1u
     block@9: // multiple_txns_route_L111
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn1#0: uint64 = (- tmp%0#1 3u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn1#0: uint64 = (- tmp%0#2 3u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) txn1#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 appl)
         (assert gtxn_type_matches%0#0) // transaction type is appl
@@ -205,81 +206,85 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert gtxn_type_matches%2#0) // transaction type is appl
         let index#0: uint64 = 0u
         let app#1: uint64 = txn1#0
-        goto block@34
-    block@34: // for_body_L119
-        let tmp%0#1: uint64 = ((gtxns GroupIndex) app#1)
-        let tmp%1#0: bool = (== tmp%0#1 index#0)
+        goto block@44
+    block@44: // for_body_L119
+        let tmp%0#2: uint64 = ((gtxns GroupIndex) app#1)
+        let tmp%1#0: bool = (== tmp%0#2 index#0)
         (assert tmp%1#0)
-        goto_nth [block@35, block@36][index#0] else goto block@37
-    block@35: // for_header_1_L118
+        goto_nth [block@45, block@46][index#0] else goto block@47
+    block@45: // for_header_1_L118
         let index#0: uint64 = 1u
         let app#1: uint64 = txn2#0
-        goto block@34
-    block@36: // for_header_2_L118
+        goto block@44
+    block@46: // for_header_2_L118
         let index#0: uint64 = 2u
         let app#1: uint64 = txn3#0
-        goto block@34
-    block@37: // after_for_L118
+        goto block@44
+    block@47: // after_for_L118
         exit 1u
     block@10: // any_txn_route_L121
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn1#0: uint64 = (- tmp%0#1 3u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn1#0: uint64 = (- tmp%0#2 3u)
         let tmp%1#1: uint64 = (txn GroupIndex)
         let txn2#0: uint64 = (- tmp%1#1 2u)
         let tmp%2#0: uint64 = (txn GroupIndex)
         let txn3#0: uint64 = (- tmp%2#0 1u)
         let index#0: uint64 = 0u
         let txn#1: uint64 = txn1#0
-        goto block@28
-    block@28: // for_body_L129
-        let tmp%0#1: uint64 = ((gtxns GroupIndex) txn#1)
-        let tmp%1#0: bool = (== tmp%0#1 index#0)
+        goto block@38
+    block@38: // for_body_L129
+        let tmp%0#2: uint64 = ((gtxns GroupIndex) txn#1)
+        let tmp%1#0: bool = (== tmp%0#2 index#0)
         (assert tmp%1#0)
-        goto_nth [block@29, block@30][index#0] else goto block@37
-    block@29: // for_header_1_L128
+        goto_nth [block@39, block@40][index#0] else goto block@47
+    block@39: // for_header_1_L128
         let index#0: uint64 = 1u
         let txn#1: uint64 = txn2#0
-        goto block@28
-    block@30: // for_header_2_L128
+        goto block@38
+    block@40: // for_header_2_L128
         let index#0: uint64 = 2u
         let txn#1: uint64 = txn3#0
-        goto block@28
+        goto block@38
     block@11: // group_init_route_L131
-        let tmp%0#1: uint64 = (txn GroupIndex)
-        let txn1#0: uint64 = (- tmp%0#1 3u)
+        let tmp%0#2: uint64 = (txn GroupIndex)
+        let txn1#0: uint64 = (- tmp%0#2 3u)
         let tmp%1#1: uint64 = (txn GroupIndex)
         let txn2#0: uint64 = (- tmp%1#1 2u)
         let tmp%2#0: uint64 = (txn GroupIndex)
         let txn3#0: uint64 = (- tmp%2#0 1u)
         let loop_counter%0#0: uint64 = 0u
         let txn#1: uint64 = txn1#0
-        goto block@22
-    block@22: // for_body_L139
+        goto block@32
+    block@32: // for_body_L139
         let txn_from_index#0: uint64 = ((gtxns GroupIndex) txn#1)
         let tmp%0#3: bytes = ((gtxns TxID) txn#1)
         let tmp%1#2: bytes = ((gtxns TxID) txn_from_index#0)
         let tmp%2#2: bool = (== tmp%0#3 tmp%1#2)
         (assert tmp%2#2)
-        goto_nth [block@23, block@24][loop_counter%0#0] else goto block@25
-    block@23: // for_header_1_L138
+        goto_nth [block@33, block@34][loop_counter%0#0] else goto block@35
+    block@33: // for_header_1_L138
         let loop_counter%0#0: uint64 = 1u
         let txn#1: uint64 = txn2#0
-        goto block@22
-    block@24: // for_header_2_L138
+        goto block@32
+    block@34: // for_header_2_L138
         let loop_counter%0#0: uint64 = 2u
         let txn#1: uint64 = txn3#0
-        goto block@22
-    block@25: // after_for_L138
+        goto block@32
+    block@35: // after_for_L138
         let tmp%3#1: bytes = ((gtxns TxID) txn1#0)
-        let tmp%4#0: bytes = ((gtxns TxID) 0u)
-        let tmp%5#1: bool = (== tmp%3#1 tmp%4#0)
+        let tmp%4#1: bytes = ((gtxns TxID) 0u)
+        let tmp%5#1: bool = (== tmp%3#1 tmp%4#1)
         (assert tmp%5#1)
         exit 1u
-    block@14: // create_NoOp_L11
-        let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create()void" => block@37, * => block@18}
-    block@18: // after_if_else_L11
-        fail
+    block@13: // switch_case_next_L11
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@14: // switch_case_1_L11
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create()void" => block@47, * => block@17}
+    block@17: // switch_case_next_L11
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@28: // switch_case_default_L11
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
     block@0: // L16

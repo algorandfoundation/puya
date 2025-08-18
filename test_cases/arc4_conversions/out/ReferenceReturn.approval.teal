@@ -7,19 +7,35 @@ main:
     bytecblock 0x151f7c75 0x151f7c7500000000000004d2 "apps" "assets" "accounts"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@18
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // arc4_conversions/reference.py:4
+    // class ReferenceReturn(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // arc4_conversions/reference.py:4
+    // class ReferenceReturn(arc4.ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // arc4_conversions/reference.py:4
+    // class ReferenceReturn(arc4.ARC4Contract):
     pushbytess 0x6c7a1cb5 0xc8480f0c 0x37c0cbf2 0x2d018f8a 0x6728b1a1 0xce7e6cd3 0x0a37f6e1 0x4c894d7e 0x62ebcf89 0x924e778c // method "acc_ret()address", method "asset_ret()uint64", method "app_ret()uint64", method "store(address,uint64,uint64)void", method "store_apps(uint64[])void", method "store_assets(uint64[])void", method "store_accounts(address[])void", method "return_apps()uint64[]", method "return_assets()uint64[]", method "return_accounts()address[]"
     txna ApplicationArgs 0
-    match acc_ret asset_ret_route@5 app_ret_route@6 store store_apps store_assets store_accounts return_apps return_assets return_accounts
-    err
+    match acc_ret asset_ret_route@4 app_ret_route@5 store store_apps store_assets store_accounts return_apps return_assets return_accounts
+    err // this contract does not implement the given ABI method for call NoOp
 
-app_ret_route@6:
+app_ret_route@5:
     // arc4_conversions/reference.py:13
     // @arc4.abimethod
     bytec_1 // 0x151f7c7500000000000004d2
@@ -27,21 +43,13 @@ app_ret_route@6:
     intc_0 // 1
     return
 
-asset_ret_route@5:
+asset_ret_route@4:
     // arc4_conversions/reference.py:9
     // @arc4.abimethod
     bytec_1 // 0x151f7c7500000000000004d2
     log
     intc_0 // 1
     return
-
-__algopy_default_create@18:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // test_cases.arc4_conversions.reference.ReferenceReturn.acc_ret[routing]() -> void:

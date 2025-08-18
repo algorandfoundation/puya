@@ -1,46 +1,44 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@15
-    block@2: // abi_routing_L22
+        let tmp%0#1: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#1)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (! tmp%2#0)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_literal_encoding()void" => block@4, method "test_native_encoding()void" => block@5, method "test_arc4_encoding()void" => block@6, method "test_array_uint64_encoding()void" => block@7, method "test_array_static_encoding()void" => block@8, method "test_array_dynamic_encoding()void" => block@9, method "test_bytes_to_fixed(bool)void" => block@10, * => block@14}
-    block@4: // test_literal_encoding_route_L23
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        goto_nth [block@2, block@12, block@25, block@25, block@25, block@25, block@25, block@25, block@25, block@25, block@25, block@25][tmp%4#0] else goto block@25
+    block@2: // switch_case_0_L22
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "test_literal_encoding()void" => block@3, method "test_native_encoding()void" => block@4, method "test_arc4_encoding()void" => block@5, method "test_array_uint64_encoding()void" => block@6, method "test_array_static_encoding()void" => block@7, method "test_array_dynamic_encoding()void" => block@8, method "test_bytes_to_fixed(bool)void" => block@9, * => block@11}
+    block@3: // test_literal_encoding_route_L23
         test_cases.arc4_conversions.contract.TestContract.test_literal_encoding[routing]()
-        goto block@14
-    block@5: // test_native_encoding_route_L46
+        goto block@11
+    block@4: // test_native_encoding_route_L46
         test_cases.arc4_conversions.contract.TestContract.test_native_encoding[routing]()
-        goto block@14
-    block@6: // test_arc4_encoding_route_L74
+        goto block@11
+    block@5: // test_arc4_encoding_route_L74
         test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[routing]()
-        goto block@14
-    block@7: // test_array_uint64_encoding_route_L102
+        goto block@11
+    block@6: // test_array_uint64_encoding_route_L102
         test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding[routing]()
-        goto block@14
-    block@8: // test_array_static_encoding_route_L126
+        goto block@11
+    block@7: // test_array_static_encoding_route_L126
         test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding[routing]()
-        goto block@14
-    block@9: // test_array_dynamic_encoding_route_L150
+        goto block@11
+    block@8: // test_array_dynamic_encoding_route_L150
         test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding[routing]()
-        goto block@14
-    block@10: // test_bytes_to_fixed_route_L178
+        goto block@11
+    block@9: // test_bytes_to_fixed_route_L178
         test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]()
-        goto block@14
-    block@14: // after_if_else_L22
-        fail
-    block@15: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (! tmp%9#0)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@11
+    block@11: // switch_case_next_L22
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@12: // switch_case_1_L22
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@25: // switch_case_default_L22
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> Encoded(uint64,uint8[32],(len+uint8[])):
     block@0: // L223
@@ -57,7 +55,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
     block@0: // L23
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -115,7 +113,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
     block@0: // L46
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -190,7 +188,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding[
     block@0: // L74
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -262,7 +260,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
     block@0: // L102
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -336,7 +334,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
     block@0: // L126
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -409,7 +407,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
     block@0: // L150
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -550,7 +548,7 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
         let wrong_size#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CjEbQQB5gAQzs0meNhoAjgEAYzEZFEQxGESCDASNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4MABIAHQAoADMAPgBJAFQAXwBqAHUAgACLADEZgQUSMRgQQzEZFDEYFBBDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
+        ((itxn_field ApprovalProgramPages) CjEYFDEZgQGQCI0MABYAEgAAAAAAAAAAAAAAAAAAAAAAAQAAAIAEM7NJnjYaAI4BAAEAgQFDMRsUQ4IMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwAAQAMABcAIgAtADgAQwBOAFkAZABvAHoANhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATYaAlcCABJDNhoBNhoCVwIAEkM2GgE2GgJXAgASQzYaATEAEkM=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

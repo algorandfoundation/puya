@@ -7,19 +7,35 @@ main:
     bytecblock 0x151f7c750101
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@12
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
     pushbytess 0x3d694b70 0x7fb34e8a 0x8ba7c4c2 0x46dadea3 // method "get_one()(uint8,uint8)", method "get_two()(uint8,uint8)", method "get_three()(uint8,uint8)", method "compare()bool"
     txna ApplicationArgs 0
-    match get_one_route@4 get_two_route@5 get_three_route@6 compare_route@7
-    err
+    match get_one_route@3 get_two_route@4 get_three_route@5 compare_route@6
+    err // this contract does not implement the given ABI method for call NoOp
 
-compare_route@7:
+compare_route@6:
     // struct_by_name/contract.py:46
     // @arc4.abimethod()
     pushbytes 0x151f7c7580
@@ -27,7 +43,7 @@ compare_route@7:
     intc_0 // 1
     return
 
-get_three_route@6:
+get_three_route@5:
     // struct_by_name/contract.py:39
     // @arc4.abimethod()
     bytec_0 // 0x151f7c750101
@@ -35,7 +51,7 @@ get_three_route@6:
     intc_0 // 1
     return
 
-get_two_route@5:
+get_two_route@4:
     // struct_by_name/contract.py:32
     // @arc4.abimethod()
     bytec_0 // 0x151f7c750101
@@ -43,18 +59,10 @@ get_two_route@5:
     intc_0 // 1
     return
 
-get_one_route@4:
+get_one_route@3:
     // struct_by_name/contract.py:25
     // @arc4.abimethod()
     bytec_0 // 0x151f7c750101
     log
     intc_0 // 1
     return
-
-__algopy_default_create@12:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

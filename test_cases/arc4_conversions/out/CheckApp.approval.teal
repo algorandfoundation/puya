@@ -5,38 +5,47 @@
 main:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
-    txn NumAppArgs
-    bz __algopy_default_create@23
+    txn ApplicationID
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
     pushbytes 0x33b3499e // method "delete_application()void"
     txna ApplicationArgs 0
-    match delete_application_route@3
-    txn OnCompletion
+    match delete_application_route@29
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+delete_application_route@29:
+    // arc4_conversions/contract.py:231
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    pushint 1 // 1
+    return
+
+create_NoOp:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    txn NumAppArgs
     !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
     pushbytess 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
     txna ApplicationArgs 0
     match check_uint64 check_dynamic_bytes check_string check_biguint check_bool check_dyn_array_uin64 check_static_array_uin64_3 check_dyn_array_struct check_static_array_struct check_dyn_array_dyn_struct check_static_array_dyn_struct check_static_bytes
-    err
-
-delete_application_route@3:
-    // arc4_conversions/contract.py:231
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
-
-__algopy_default_create@23:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]() -> void:

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     b block@0
 
 block@0:
@@ -12,81 +12,136 @@ block@0:
 block@1:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@10
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@8
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@9
+    b __algopy_default_create@8
+
+__algopy_default_create@8:
+    b block@22
+
+block@22:
+    b after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@23
+
+after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@23:
+    intc_0 // 1
+    return
+
+else_body@9:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x4034b731 // method "bytes_to_bool()bool"
     pushbytes 0x7e9fd4cf // method "test_bytes_to_biguint()void"
     uncover 2
-    match bytes_to_bool_route@4 test_bytes_to_biguint_route@5
-    b switch_case_default@6
+    match bytes_to_bool_route@3 test_bytes_to_biguint_route@4
+    b switch_case_default@5
 
-switch_case_default@6:
-    b switch_case_next@7
+switch_case_default@5:
+    b switch_case_next@6
 
-switch_case_next@7:
-    b after_if_else@9
-
-after_if_else@9:
-    b after_if_else@11
-
-after_if_else@11:
+switch_case_next@6:
     // reinterpret_cast/contract.py:4
     // class Contract(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_bytes_to_biguint_route@5:
-    // reinterpret_cast/contract.py:9
-    // @arc4.abimethod()
+test_bytes_to_biguint_route@4:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
     callsub test_bytes_to_biguint
-    b switch_case_next@7
+    b switch_case_next@6
 
-bytes_to_bool_route@4:
-    // reinterpret_cast/contract.py:5
-    // @arc4.abimethod()
+bytes_to_bool_route@3:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
     callsub bytes_to_bool
-    b switch_case_next@7
-
-create_NoOp@8:
-    b after_if_else@9
-
-__algopy_default_create@10:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@13
-
-block@13:
-    b after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14
-
-after_inlined_test_cases.reinterpret_cast.contract.Contract.__algopy_default_create@14:
-    intc_1 // 1
-    return
+    b switch_case_next@6
 
 
 // test_cases.reinterpret_cast.contract.bytes_to_biguint() -> bytes:
@@ -109,14 +164,14 @@ bytes_to_bool_block@0:
     // @arc4.abimethod()
     callsub test_cases.reinterpret_cast.contract.Contract.bytes_to_bool
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -128,7 +183,7 @@ test_bytes_to_biguint_block@0:
     // reinterpret_cast/contract.py:9
     // @arc4.abimethod()
     callsub test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -141,7 +196,7 @@ test_cases.reinterpret_cast.contract.Contract.bytes_to_bool_block@0:
     // return bool(Bytes())
     pushbytes 0x
     len
-    intc_0 // 0
+    intc_1 // 0
     !=
     retsub
 

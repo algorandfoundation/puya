@@ -15,19 +15,29 @@ main:
     log
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@16
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xd98ef6a9 0x6a4e7fca 0x12f08c98 0x9b4b8234 0x4d8b23d8 0x52ac5df7 0xe3aeb25c 0x3234b711 0xcc826346 // method "getListingsMbr()uint64", method "allowAsset(pay,uint64)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(uint64,uint64,uint64)void", method "buy(address,uint64,uint64,pay,uint64)void", method "withdraw(uint64,uint64)void", method "bid(address,uint64,uint64,pay,uint64,uint64)void", method "acceptBid(uint64,uint64)void"
     txna ApplicationArgs 0
-    match getListingsMbr_route@6 allowAsset_route@7 firstDeposit_route@8 deposit_route@9 setPrice_route@10 buy_route@11 withdraw_route@12 bid_route@13 acceptBid_route@14
-    err
+    match getListingsMbr_route@5 allowAsset_route@6 firstDeposit_route@7 deposit_route@8 setPrice_route@9 buy_route@10 withdraw_route@11 bid_route@12 acceptBid_route@13
+    err // this contract does not implement the given ABI method for call NoOp
 
-acceptBid_route@14:
+acceptBid_route@13:
     txna ApplicationArgs 1
     btoi
     dup
@@ -149,7 +159,7 @@ ternary_false@19:
     dup
     b ternary_merge@20
 
-bid_route@13:
+bid_route@12:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -286,7 +296,7 @@ after_if_else@24:
     intc_0 // 1
     return
 
-withdraw_route@12:
+withdraw_route@11:
     txna ApplicationArgs 1
     btoi
     dup
@@ -379,7 +389,7 @@ after_if_else@28:
     intc_0 // 1
     return
 
-buy_route@11:
+buy_route@10:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -475,7 +485,7 @@ buy_route@11:
     intc_0 // 1
     return
 
-setPrice_route@10:
+setPrice_route@9:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -516,7 +526,7 @@ setPrice_route@10:
     intc_0 // 1
     return
 
-deposit_route@9:
+deposit_route@8:
     txn GroupIndex
     intc_0 // 1
     -
@@ -581,7 +591,7 @@ deposit_route@9:
     intc_0 // 1
     return
 
-firstDeposit_route@8:
+firstDeposit_route@7:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -666,7 +676,7 @@ firstDeposit_route@8:
     intc_0 // 1
     return
 
-allowAsset_route@7:
+allowAsset_route@6:
     txn GroupIndex
     intc_0 // 1
     -
@@ -707,16 +717,8 @@ allowAsset_route@7:
     intc_0 // 1
     return
 
-getListingsMbr_route@6:
+getListingsMbr_route@5:
     pushbytes 0x151f7c75000000000000c544
     log
     intc_0 // 1
     return
-
-__algopy_default_create@16:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

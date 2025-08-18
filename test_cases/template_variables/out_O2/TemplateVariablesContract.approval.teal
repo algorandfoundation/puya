@@ -3,40 +3,62 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 64 1 TMPL_DELETABLE TMPL_UPDATABLE
+    intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
-    txn NumAppArgs
-    bz bare_routing@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication *NOT_IMPLEMENTED call_DeleteApplication *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_DeleteApplication:
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call DeleteApplication
+    intc_2 // TMPL_DELETABLE
+    return
+
+call_UpdateApplication:
+    txn NumAppArgs
+    !
+    assert // this contract does not implement the given ABI method for call UpdateApplication
+    intc_3 // TMPL_UPDATABLE
+    return
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
     txna ApplicationArgs 0
-    match get_bytes_route@4 get_big_uint_route@5
+    match get_bytes_route@3 get_big_uint_route@4
+    err // this contract does not implement the given ABI method for call NoOp
 
-after_if_else@16:
-    err
-
-get_big_uint_route@5:
+get_big_uint_route@4:
     bytec_1 // TMPL_SOME_BIG_UINT
     dup
     len
-    intc_0 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_0 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
-get_bytes_route@4:
+get_bytes_route@3:
     bytec_2 // TMPL_SOME_BYTES
     dup
     len
@@ -48,27 +70,5 @@ get_bytes_route@4:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
-
-bare_routing@10:
-    txn OnCompletion
-    switch __algopy_default_create@11 after_if_else@16 after_if_else@16 after_if_else@16 on_update@12 on_delete@13
-    err
-
-on_delete@13:
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_2 // TMPL_DELETABLE
-    return
-
-on_update@12:
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_3 // TMPL_UPDATABLE
-    return
-
-__algopy_default_create@11:
-    txn ApplicationID
-    !
-    return // on error: can only call when creating

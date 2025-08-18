@@ -3,6 +3,7 @@
 
 // test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
+    intcblock 1 0
     b block@0
 
 block@0:
@@ -48,34 +49,147 @@ approval_program_block@1:
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    txn NumAppArgs
-    pushint 0 // 0
-    !=
-    bz approval_program_create@3
-    b approval_program_abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match approval_program_call_NoOp approval_program_create_NoOp approval_program_call_OptIn approval_program_create_OptIn approval_program_call_CloseOut approval_program_create_CloseOut approval_program_call_ClearState approval_program_create_ClearState approval_program_call_UpdateApplication approval_program_create_UpdateApplication approval_program_call_DeleteApplication approval_program_create_DeleteApplication
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_abi_routing@2:
-    b approval_program_after_if_else@4
-
-approval_program_after_if_else@4:
+approval_program_*NOT_IMPLEMENTED:
     // state_totals/contract.py:6-9
     // class Contract(
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    err
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-approval_program_create@3:
+approval_program_create_DeleteApplication:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_DeleteApplication:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_UpdateApplication:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_UpdateApplication:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_ClearState:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_ClearState:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_CloseOut:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_CloseOut:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_OptIn:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_OptIn:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_NoOp:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz approval_program_else_body@5
+    b approval_program_create@4
+
+approval_program_create@4:
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
-    txn OnCompletion
-    pushint 0 // NoOp
-    ==
-    txn ApplicationID
-    pushint 0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
     callsub create
-    pushint 1 // 1
+    intc_0 // 1
     return
+
+approval_program_else_body@5:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    err // this contract does not implement the given ABI method for create NoOp
+
+approval_program_call_NoOp:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    b approval_program_*NOT_IMPLEMENTED

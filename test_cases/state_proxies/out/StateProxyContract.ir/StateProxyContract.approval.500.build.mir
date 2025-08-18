@@ -40,86 +40,89 @@ subroutine main:
     after_if_else@2:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        txna ApplicationArgs 0                                                                    tmp%0#3
-        v-store tmp%0#3
-        method create()void                                                                       Method(create()void)
-        v-load tmp%0#3                                                                            Method(create()void),tmp%0#3
-        match create_route@4 ; b switch_case_next@5
-
-    create_route@4:
-        // state_proxies/contract.py:31
-        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
-        txn OnCompletion                                                                          tmp%1#2
+        txn ApplicationID                                                                         tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                            tmp%0#0
+        !                                                                                         tmp%1#2
         v-store tmp%1#2
-        v-load tmp%1#2                                                                            tmp%1#2
-        int OptIn                                                                                 tmp%1#2,OptIn
-        ==                                                                                        tmp%2#0
+        txn OnCompletion                                                                          tmp%2#0
         v-store tmp%2#0
-        txn ApplicationID                                                                         tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                            tmp%3#0
-        !                                                                                         tmp%4#0
-        v-store tmp%4#0
         v-load tmp%2#0                                                                            tmp%2#0
-        v-load tmp%4#0                                                                            tmp%2#0,tmp%4#0
-        &&                                                                                        tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                            tmp%5#0
-        assert // OnCompletion must be OptIn && can only call when creating
-        callsub create
-        b switch_case_next@5
+        int 1                                                                                     tmp%2#0,1
+        shl                                                                                       tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%1#2                                                                            tmp%1#2
+        v-load tmp%3#0                                                                            tmp%1#2,tmp%3#0
+        +                                                                                         tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                            tmp%4#0
+        switch call_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED create_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    switch_case_next@5:
+    call_NoOp:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        txn OnCompletion                                                                          tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                            tmp%6#0
-        !                                                                                         tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                                            tmp%7#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                         tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                                            tmp%8#0
-        assert
-        txna ApplicationArgs 0                                                                    tmp%10#0
-        v-store tmp%10#0
+        txna ApplicationArgs 0                                                                    tmp%5#0
+        v-store tmp%5#0
         method clear()void                                                                        Method(clear()void)
         method order_of_eval_global()void                                                         Method(clear()void),Method(order_of_eval_global()void)
         method order_of_eval_local()void                                                          Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
         method order_of_eval_box()void                                                            Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
-        v-load tmp%10#0                                                                           Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%10#0
-        match clear_route@7 order_of_eval_global_route@8 order_of_eval_local_route@9 order_of_eval_box_route@10 ; b after_if_else@11 
+        v-load tmp%5#0                                                                            Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%5#0
+        match clear_route@5 order_of_eval_global_route@6 order_of_eval_local_route@7 order_of_eval_box_route@8 ; b switch_case_next@9 
 
-    clear_route@7:
-        // state_proxies/contract.py:37
-        // @arc4.abimethod()
-        callsub clear
-        b after_if_else@11
-
-    order_of_eval_global_route@8:
-        // state_proxies/contract.py:44
-        // @arc4.abimethod()
-        callsub order_of_eval_global
-        b after_if_else@11
-
-    order_of_eval_local_route@9:
-        // state_proxies/contract.py:49
-        // @arc4.abimethod()
-        callsub order_of_eval_local
-        b after_if_else@11
-
-    order_of_eval_box_route@10:
-        // state_proxies/contract.py:54
-        // @arc4.abimethod()
-        callsub order_of_eval_box
-        b after_if_else@11
-
-    after_if_else@11:
+    clear_route@5:
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        err
+        callsub clear
+        b switch_case_next@9
+
+    order_of_eval_global_route@6:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        callsub order_of_eval_global
+        b switch_case_next@9
+
+    order_of_eval_local_route@7:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        callsub order_of_eval_local
+        b switch_case_next@9
+
+    order_of_eval_box_route@8:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        callsub order_of_eval_box
+        b switch_case_next@9
+
+    switch_case_next@9:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_OptIn:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        txna ApplicationArgs 0                                                                    tmp%6#0
+        v-store tmp%6#0
+        method create()void                                                                       Method(create()void)
+        v-load tmp%6#0                                                                            Method(create()void),tmp%6#0
+        match create_route@11 ; b switch_case_next@12
+
+    create_route@11:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        callsub create
+        b switch_case_next@12
+
+    switch_case_next@12:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        err // this contract does not implement the given ABI method for create OptIn
+
+    *NOT_IMPLEMENTED:
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.state_proxies.contract.get_key() -> bytes:

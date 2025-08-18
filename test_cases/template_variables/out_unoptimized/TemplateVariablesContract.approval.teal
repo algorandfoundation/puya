@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 64 TMPL_UPDATABLE TMPL_DELETABLE
+    intcblock 1 0 64 TMPL_UPDATABLE TMPL_DELETABLE
     bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
     b block@0
 
@@ -13,116 +13,168 @@ block@0:
 block@1:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz bare_routing@10
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@8
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@22
+    b on_delete@21
+
+on_delete@21:
+    // template_variables/contract.py:19
+    // @arc4.baremethod(allow_actions=["DeleteApplication"])
+    callsub on_delete
+    intc_0 // 1
+    return
+
+else_body@22:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+create_UpdateApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@18
+    b on_update@17
+
+on_update@17:
+    // template_variables/contract.py:15
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    callsub on_update
+    intc_0 // 1
+    return
+
+else_body@18:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for call UpdateApplication
+
+create_ClearState:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@9
+    b __algopy_default_create@8
+
+__algopy_default_create@8:
+    b block@26
+
+block@26:
+    b after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@27
+
+after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@27:
+    intc_0 // 1
+    return
+
+else_body@9:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x2fcaddf6 // method "get_bytes()byte[]"
     pushbytes 0x37f64cf3 // method "get_big_uint()uint512"
     uncover 2
-    match get_bytes_route@4 get_big_uint_route@5
-    b switch_case_default@6
+    match get_bytes_route@3 get_big_uint_route@4
+    b switch_case_default@5
 
-switch_case_default@6:
-    b switch_case_next@7
+switch_case_default@5:
+    b switch_case_next@6
 
-switch_case_next@7:
-    b after_if_else@9
-
-after_if_else@9:
-    b after_if_else@16
-
-after_if_else@16:
+switch_case_next@6:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-get_big_uint_route@5:
-    // template_variables/contract.py:10
-    // @arc4.abimethod()
+get_big_uint_route@4:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
     callsub get_big_uint
-    b switch_case_next@7
+    b switch_case_next@6
 
-get_bytes_route@4:
-    // template_variables/contract.py:6
-    // @arc4.abimethod()
-    callsub get_bytes
-    b switch_case_next@7
-
-create_NoOp@8:
-    b after_if_else@9
-
-bare_routing@10:
+get_bytes_route@3:
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    pushint 4 // UpdateApplication
-    pushint 5 // DeleteApplication
-    uncover 3
-    match __algopy_default_create@11 on_update@12 on_delete@13
-    b switch_case_default@14
-
-switch_case_default@14:
-    b switch_case_next@15
-
-switch_case_next@15:
-    b after_if_else@16
-
-on_delete@13:
-    // template_variables/contract.py:19
-    // @arc4.baremethod(allow_actions=["DeleteApplication"])
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub on_delete
-    intc_1 // 1
-    return
-
-on_update@12:
-    // template_variables/contract.py:15
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
-    callsub on_update
-    intc_1 // 1
-    return
-
-__algopy_default_create@11:
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    assert // can only call when creating
-    b block@18
-
-block@18:
-    b after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@19
-
-after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@19:
-    intc_1 // 1
-    return
+    callsub get_bytes
+    b switch_case_next@6
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:
@@ -143,7 +195,7 @@ get_bytes_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -159,7 +211,7 @@ get_big_uint_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -216,7 +268,7 @@ on_delete_block@0:
     // template_variables/contract.py:21
     // assert TemplateVar[UInt64]("DELETABLE")
     intc 4 // TMPL_DELETABLE
-    intc_0 // 0
+    intc_1 // 0
     !=
     assert
     retsub

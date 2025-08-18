@@ -5,19 +5,29 @@
 main:
     intcblock 1 6
     bytecblock 0x151f7c75
-    txn NumAppArgs
-    bz __algopy_default_create@10
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x6d3a0439 0x62a0ef62 // method "create_group(acfg,appl)(uint64,uint64)", method "log_group(appl)void"
     txna ApplicationArgs 0
-    match create_group_route@4 log_group_route@5
-    err
+    match create_group_route@3 log_group_route@4
+    err // this contract does not implement the given ABI method for call NoOp
 
-log_group_route@5:
+log_group_route@4:
     txn GroupIndex
     intc_0 // 1
     -
@@ -56,7 +66,7 @@ log_group_route@5:
     b==
     return
 
-create_group_route@4:
+create_group_route@3:
     txn GroupIndex
     pushint 2 // 2
     -
@@ -104,11 +114,3 @@ create_group_route@4:
     log
     intc_0 // 1
     return
-
-__algopy_default_create@10:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

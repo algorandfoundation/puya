@@ -520,110 +520,122 @@ subroutine test_cases.array.immutable.sum_arr(arr: Encoded(len+uint64[])) -> uin
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__() -> bool:
     block@0: // L93
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@31
-    block@1: // abi_routing_L93
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@29
-    block@2: // call_NoOp_L93
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_uint64_array()void" => block@3, method "test_biguint_array()void" => block@4, method "test_bool_array(uint64)void" => block@5, method "test_fixed_size_tuple_array()void" => block@6, method "test_fixed_size_named_tuple_array()void" => block@7, method "test_dynamic_sized_tuple_array()void" => block@8, method "test_dynamic_sized_named_tuple_array()void" => block@9, method "test_implicit_conversion_log(uint64[])void" => block@10, method "test_implicit_conversion_emit(uint64[])void" => block@11, method "test_nested_array(uint64,uint64[][])uint64[]" => block@12, method "test_bit_packed_tuples()void" => block@13, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@14, method "test_uint64_return(uint64)uint64[]" => block@15, method "test_bool_return(uint64)bool[]" => block@16, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@17, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@18, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@19, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@20, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@21, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@22, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@23, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@24, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@25, method "test_imm_fixed_arr()(uint64,uint64)[3]" => block@26, * => block@27}
-    block@3: // test_uint64_array_route_L94
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@1, 1u => block@28, 2u => block@31, 3u => block@32, 4u => block@33, 5u => block@34, 6u => block@35, 7u => block@36, 8u => block@37, 9u => block@38, 10u => block@39, 11u => block@40, * => block@41}
+    block@1: // switch_case_0_L93
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "test_uint64_array()void" => block@2, method "test_biguint_array()void" => block@3, method "test_bool_array(uint64)void" => block@4, method "test_fixed_size_tuple_array()void" => block@5, method "test_fixed_size_named_tuple_array()void" => block@6, method "test_dynamic_sized_tuple_array()void" => block@7, method "test_dynamic_sized_named_tuple_array()void" => block@8, method "test_implicit_conversion_log(uint64[])void" => block@9, method "test_implicit_conversion_emit(uint64[])void" => block@10, method "test_nested_array(uint64,uint64[][])uint64[]" => block@11, method "test_bit_packed_tuples()void" => block@12, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@13, method "test_uint64_return(uint64)uint64[]" => block@14, method "test_bool_return(uint64)bool[]" => block@15, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@16, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@17, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@18, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@19, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@20, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@21, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@22, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@23, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@24, method "test_imm_fixed_arr()(uint64,uint64)[3]" => block@25, * => block@26}
+    block@2: // test_uint64_array_route_L94
         test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[routing]()
-        goto block@28
-    block@4: // test_biguint_array_route_L130
+        goto block@27
+    block@3: // test_biguint_array_route_L130
         test_cases.array.immutable.ImmutableArrayContract.test_biguint_array[routing]()
-        goto block@28
-    block@5: // test_bool_array_route_L155
+        goto block@27
+    block@4: // test_bool_array_route_L155
         test_cases.array.immutable.ImmutableArrayContract.test_bool_array[routing]()
-        goto block@28
-    block@6: // test_fixed_size_tuple_array_route_L179
+        goto block@27
+    block@5: // test_fixed_size_tuple_array_route_L179
         test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array[routing]()
-        goto block@28
-    block@7: // test_fixed_size_named_tuple_array_route_L197
+        goto block@27
+    block@6: // test_fixed_size_named_tuple_array_route_L197
         test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array[routing]()
-        goto block@28
-    block@8: // test_dynamic_sized_tuple_array_route_L212
+        goto block@27
+    block@7: // test_dynamic_sized_tuple_array_route_L212
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array[routing]()
-        goto block@28
-    block@9: // test_dynamic_sized_named_tuple_array_route_L231
+        goto block@27
+    block@8: // test_dynamic_sized_named_tuple_array_route_L231
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array[routing]()
-        goto block@28
-    block@10: // test_implicit_conversion_log_route_L250
+        goto block@27
+    block@9: // test_implicit_conversion_log_route_L250
         test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log[routing]()
-        goto block@28
-    block@11: // test_implicit_conversion_emit_route_L254
+        goto block@27
+    block@10: // test_implicit_conversion_emit_route_L254
         test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit[routing]()
-        goto block@28
-    block@12: // test_nested_array_route_L258
+        goto block@27
+    block@11: // test_nested_array_route_L258
         test_cases.array.immutable.ImmutableArrayContract.test_nested_array[routing]()
-        goto block@28
-    block@13: // test_bit_packed_tuples_route_L276
+        goto block@27
+    block@12: // test_bit_packed_tuples_route_L276
         test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples[routing]()
-        goto block@28
-    block@14: // sum_uints_and_lengths_and_trues_route_L341
+        goto block@27
+    block@13: // sum_uints_and_lengths_and_trues_route_L341
         test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues[routing]()
-        goto block@28
-    block@15: // test_uint64_return_route_L368
+        goto block@27
+    block@14: // test_uint64_return_route_L368
         test_cases.array.immutable.ImmutableArrayContract.test_uint64_return[routing]()
-        goto block@28
-    block@16: // test_bool_return_route_L375
+        goto block@27
+    block@15: // test_bool_return_route_L375
         test_cases.array.immutable.ImmutableArrayContract.test_bool_return[routing]()
-        goto block@28
-    block@17: // test_tuple_return_route_L382
+        goto block@27
+    block@16: // test_tuple_return_route_L382
         test_cases.array.immutable.ImmutableArrayContract.test_tuple_return[routing]()
-        goto block@28
-    block@18: // test_dynamic_tuple_return_route_L389
+        goto block@27
+    block@17: // test_dynamic_tuple_return_route_L389
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return[routing]()
-        goto block@28
-    block@19: // test_convert_to_array_and_back_route_L396
+        goto block@27
+    block@18: // test_convert_to_array_and_back_route_L396
         test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back[routing]()
-        goto block@28
-    block@20: // test_concat_with_arc4_tuple_route_L406
+        goto block@27
+    block@19: // test_concat_with_arc4_tuple_route_L406
         test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple[routing]()
-        goto block@28
-    block@21: // test_concat_with_native_tuple_route_L414
+        goto block@27
+    block@20: // test_concat_with_native_tuple_route_L414
         test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple[routing]()
-        goto block@28
-    block@22: // test_dynamic_concat_with_arc4_tuple_route_L422
+        goto block@27
+    block@21: // test_dynamic_concat_with_arc4_tuple_route_L422
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple[routing]()
-        goto block@28
-    block@23: // test_dynamic_concat_with_native_tuple_route_L430
+        goto block@27
+    block@22: // test_dynamic_concat_with_native_tuple_route_L430
         test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple[routing]()
-        goto block@28
-    block@24: // test_concat_immutable_dynamic_route_L438
+        goto block@27
+    block@23: // test_concat_immutable_dynamic_route_L438
         test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic[routing]()
-        goto block@28
-    block@25: // test_immutable_arc4_route_L444
+        goto block@27
+    block@24: // test_immutable_arc4_route_L444
         test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4[routing]()
-        goto block@28
-    block@26: // test_imm_fixed_arr_route_L450
+        goto block@27
+    block@25: // test_imm_fixed_arr_route_L450
         test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[routing]()
-        goto block@28
-    block@27: // switch_case_default_L93
-        goto block@28
-    block@28: // switch_case_next_L93
-        goto block@30
-    block@29: // create_NoOp_L93
-        goto block@30
-    block@30: // after_if_else_L93
-        goto block@32
-    block@31: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@27
+    block@26: // switch_case_default_L93
+        goto block@27
+    block@27: // switch_case_next_L93
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@28: // switch_case_1_L93
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (== tmp%6#0 0u)
+        goto tmp%7#0 ? block@29 : block@30
+    block@29: // __algopy_default_create_L1
         test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create()
         exit 1u
-    block@32: // after_if_else_L93
-        exit 0u
+    block@30: // else_body_L93
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@31: // switch_case_2_L93
+        goto block@41
+    block@32: // switch_case_3_L93
+        goto block@41
+    block@33: // switch_case_4_L93
+        goto block@41
+    block@34: // switch_case_5_L93
+        goto block@41
+    block@35: // switch_case_6_L93
+        goto block@41
+    block@36: // switch_case_7_L93
+        goto block@41
+    block@37: // switch_case_8_L93
+        goto block@41
+    block@38: // switch_case_9_L93
+        goto block@41
+    block@39: // switch_case_10_L93
+        goto block@41
+    block@40: // switch_case_11_L93
+        goto block@41
+    block@41: // switch_case_default_L93
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[routing]() -> void:
     block@0: // L94

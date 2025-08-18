@@ -2,60 +2,72 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         goto block@1
     block@1: // L102
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@14
-    block@2: // abi_routing_L102
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@12
-    block@3: // call_NoOp_L102
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_fixed_struct()void" => block@4, method "test_nested_struct()void" => block@5, method "test_dynamic_struct()void" => block@6, method "test_fixed_array()void" => block@7, method "test_native_array()void" => block@8, method "test_log()void" => block@9, * => block@10}
-    block@4: // test_fixed_struct_route_L103
+        let tmp%3#0: uint64 = (shl tmp%2#0 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
+        switch tmp%4#0 {0u => block@2, 1u => block@11, 2u => block@14, 3u => block@15, 4u => block@16, 5u => block@17, 6u => block@18, 7u => block@19, 8u => block@20, 9u => block@21, 10u => block@22, 11u => block@23, * => block@24}
+    block@2: // switch_case_0_L102
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#0 {method "test_fixed_struct()void" => block@3, method "test_nested_struct()void" => block@4, method "test_dynamic_struct()void" => block@5, method "test_fixed_array()void" => block@6, method "test_native_array()void" => block@7, method "test_log()void" => block@8, * => block@9}
+    block@3: // test_fixed_struct_route_L103
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]()
-        goto block@11
-    block@5: // test_nested_struct_route_L122
+        goto block@10
+    block@4: // test_nested_struct_route_L122
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct[routing]()
-        goto block@11
-    block@6: // test_dynamic_struct_route_L149
+        goto block@10
+    block@5: // test_dynamic_struct_route_L149
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct[routing]()
-        goto block@11
-    block@7: // test_fixed_array_route_L188
+        goto block@10
+    block@6: // test_fixed_array_route_L188
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array[routing]()
-        goto block@11
-    block@8: // test_native_array_route_L214
+        goto block@10
+    block@7: // test_native_array_route_L214
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array[routing]()
-        goto block@11
-    block@9: // test_log_route_L242
+        goto block@10
+    block@8: // test_log_route_L242
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing]()
-        goto block@11
-    block@10: // switch_case_default_L102
-        goto block@11
-    block@11: // switch_case_next_L102
-        goto block@13
-    block@12: // create_NoOp_L102
-        goto block@13
-    block@13: // after_if_else_L102
-        goto block@15
-    block@14: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
-        goto block@17
-    block@17: // L1
-        goto block@18
-    block@18: // after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create_L1
+        goto block@10
+    block@9: // switch_case_default_L102
+        goto block@10
+    block@10: // switch_case_next_L102
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@11: // switch_case_1_L102
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#0: bool = (== tmp%6#0 0u)
+        goto tmp%7#0 ? block@12 : block@13
+    block@12: // __algopy_default_create_L1
+        goto block@26
+    block@26: // L1
+        goto block@27
+    block@27: // after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create_L1
         exit 1u
-    block@15: // after_if_else_L102
-        exit 0u
-    block@16: // after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router___L1
+    block@13: // else_body_L102
+        fail // this contract does not implement the given ABI method for create NoOp
+    block@14: // switch_case_2_L102
+        goto block@24
+    block@15: // switch_case_3_L102
+        goto block@24
+    block@16: // switch_case_4_L102
+        goto block@24
+    block@17: // switch_case_5_L102
+        goto block@24
+    block@18: // switch_case_6_L102
+        goto block@24
+    block@19: // switch_case_7_L102
+        goto block@24
+    block@20: // switch_case_8_L102
+        goto block@24
+    block@21: // switch_case_9_L102
+        goto block@24
+    block@22: // switch_case_10_L102
+        goto block@24
+    block@23: // switch_case_11_L102
+        goto block@24
+    block@24: // switch_case_default_L102
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+    block@25: // after_inlined_test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 
@@ -99,7 +111,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -212,7 +224,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -341,7 +353,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -535,7 +547,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -660,7 +672,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -789,7 +801,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log() -> vo
         ((itxn_field ExtraProgramPages) 0u)
         ((itxn_field ClearStateProgramPages) CkIAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGI0NCAAA2GgGIAH8jQ0IAAIgAgihPAVCwI0NCAAA2GgGIAHojQ0IAAIgAfShPAVCwI0NCAAA2GgGIAHUjQ0IAAIgAeChPAVCwI0NCAAA2GgGIAHAjQ0IAAIgAdChPAVCwI0NCAAA2GgGIAG0jQ0IAAIgAcShPAVCwI0NCAACIAG0jQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAiKWVEiYoBAEIAACqL/2eJQgAAIiplRImKAQBCAAAri/9niUIAACIrZUSJigEAQgAAJwSL/2eJQgAAIicEZUSJigEAQgAAJwWL/2eJQgAAIicFZUSJQgAAIillRLAiKmVEsCIrZUSwIicEZUSwIicFZUSwiUIAAEIAADEbIhNBAOlCAAA2GgCABCQ3jTxPAY4BAMZCAABCAAAxGSISRDEYIhNBALFCAAA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEkAQwA9ADcAMQArACUAHwAZABMADUIAAEIAAEIAAEIAAACI/stC//OI/rhC/+2I/qdC/+eI/pRC/+GI/oNC/9uI/nBC/9WI/l9C/8+I/kxC/8mI/jtC/8OI/ihC/72I/hdC/7dC/7cxGYEFEjEYIhMQRIj9+0L/LzEZIhIxGCISEERCAABCAAAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyQgAAMRhAAAlCAACIAI9CAACIARNDQgAAiACGIkNCAAA2GgGIAH8iQ0IAAIgAgihPAVCwIkNCAAA2GgGIAHoiQ0IAAIgAfShPAVCwIkNCAAA2GgGIAHUiQ0IAAIgAeChPAVCwIkNCAAA2GgGIAHAiQ0IAAIgAdChPAVCwIkNCAAA2GgGIAG0iQ0IAAIgAcShPAVCwIkNCAACIAG0iQ0IAAIlCAACJigEAQgAAKYv/Z4lCAAAjKWVEiYoBAEIAACqL/2eJQgAAIyplRImKAQBCAAAri/9niUIAACMrZUSJigEAQgAAJwSL/2eJQgAAIycEZUSJigEAQgAAJwWL/2eJQgAAIycFZUSJQgAAIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwiUIAAEIAADEYFDEZIpAIIyKBAoEDgQSBBYEGgQeBCIEJgQqBC08MjgwATgA7ADgANQAyAC8ALAApACYAIwAHAARCAAAAQv/8NhoAgAQkN408TwGOAQAHQgAAQgAAAIj+jkL/+UL/3UL/2kL/10L/1EL/0UL/zkL/y0L/yDEbIxJBAAtCAABCAABCAAAiQwA2GgCABBGxm5WABNKLlkqABOoYZV+ABLs7/beABEbsFKCABJtNCSaABE8N61CABFlmSraABBJdE3aABIGOSmKABJu+EDJPC44LAEMAPQA3ADEAKwAlAB8AGQATAA0AB0IAAEIAAACI/ndC//mI/mRC//OI/lNC/+2I/kBC/+eI/i9C/+GI/hxC/9uI/gtC/9WI/fhC/8+I/edC/8mI/dRC/8OI/cNC/70=)
         (itxn_field ApprovalProgramPages)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0 10
     b block@0
 
 block@0:
@@ -12,26 +12,108 @@ block@0:
 block@1:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@11
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    intc_2 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@9
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@10
+    b __algopy_default_create@9
+
+__algopy_default_create@9:
+    b block@23
+
+block@23:
+    b after_inlined_test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create@24
+
+after_inlined_test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create@24:
+    intc_0 // 1
+    return
+
+else_body@10:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
     txna ApplicationArgs 0
@@ -39,61 +121,34 @@ call_NoOp@3:
     pushbytes 0xb667bc14 // method "discard_subroutine()void"
     pushbytes 0x0756dbf1 // method "discard_constants()void"
     uncover 3
-    match discard_op_route@4 discard_subroutine_route@5 discard_constants_route@6
-    b switch_case_default@7
+    match discard_op_route@3 discard_subroutine_route@4 discard_constants_route@5
+    b switch_case_default@6
 
-switch_case_default@7:
-    b switch_case_next@8
+switch_case_default@6:
+    b switch_case_next@7
 
-switch_case_next@8:
-    b after_if_else@10
-
-after_if_else@10:
-    b after_if_else@12
-
-after_if_else@12:
+switch_case_next@7:
     // unassigned_expression/contract.py:4
     // class Unassigned(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-discard_constants_route@6:
-    // unassigned_expression/contract.py:13
-    // @arc4.abimethod()
+discard_constants_route@5:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
     callsub discard_constants
-    b switch_case_next@8
+    b switch_case_next@7
 
-discard_subroutine_route@5:
-    // unassigned_expression/contract.py:9
-    // @arc4.abimethod()
+discard_subroutine_route@4:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
     callsub discard_subroutine
-    b switch_case_next@8
+    b switch_case_next@7
 
-discard_op_route@4:
-    // unassigned_expression/contract.py:5
-    // @arc4.abimethod()
+discard_op_route@3:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
     callsub discard_op
-    b switch_case_next@8
-
-create_NoOp@9:
-    b after_if_else@10
-
-__algopy_default_create@11:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@14
-
-block@14:
-    b after_inlined_test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create@15
-
-after_inlined_test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create@15:
-    intc_1 // 1
-    return
+    b switch_case_next@7
 
 
 // test_cases.unassigned_expression.contract.get_a_value() -> uint64:
@@ -115,7 +170,7 @@ discard_op_block@0:
     // unassigned_expression/contract.py:5
     // @arc4.abimethod()
     callsub test_cases.unassigned_expression.contract.Unassigned.discard_op
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -127,7 +182,7 @@ discard_subroutine_block@0:
     // unassigned_expression/contract.py:9
     // @arc4.abimethod()
     callsub test_cases.unassigned_expression.contract.Unassigned.discard_subroutine
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -139,7 +194,7 @@ discard_constants_block@0:
     // unassigned_expression/contract.py:13
     // @arc4.abimethod()
     callsub test_cases.unassigned_expression.contract.Unassigned.discard_constants
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -150,7 +205,7 @@ test_cases.unassigned_expression.contract.Unassigned.discard_op:
 test_cases.unassigned_expression.contract.Unassigned.discard_op_block@0:
     // unassigned_expression/contract.py:7
     // op.bzero(10)
-    pushint 10 // 10
+    intc_2 // 10
     bzero
     pop
     retsub

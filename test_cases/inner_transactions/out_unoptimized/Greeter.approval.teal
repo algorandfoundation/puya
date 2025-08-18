@@ -215,78 +215,133 @@ approval_program_block@0:
 approval_program_block@1:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    txn NumAppArgs
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
     intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@10
-    b approval_program_abi_routing@2
+    intc_1 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    intc_2 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match approval_program_call_NoOp approval_program_create_NoOp approval_program_call_OptIn approval_program_create_OptIn approval_program_call_CloseOut approval_program_create_CloseOut approval_program_call_ClearState approval_program_create_ClearState approval_program_call_UpdateApplication approval_program_create_UpdateApplication approval_program_call_DeleteApplication approval_program_create_DeleteApplication
+    b approval_program_*NOT_IMPLEMENTED
 
-approval_program_abi_routing@2:
+approval_program_*NOT_IMPLEMENTED:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@8
-    b approval_program_call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-approval_program_call_NoOp@3:
+approval_program_create_DeleteApplication:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_DeleteApplication:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_UpdateApplication:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_UpdateApplication:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_ClearState:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_ClearState:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_CloseOut:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_CloseOut:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_OptIn:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_call_OptIn:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    b approval_program_*NOT_IMPLEMENTED
+
+approval_program_create_NoOp:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    ==
+    bz approval_program_else_body@11
+    b approval_program___algopy_default_create@8
+
+approval_program___algopy_default_create@8:
+    b approval_program_block@9
+
+approval_program_block@9:
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@10
+
+approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@10:
+    intc_1 // 1
+    return
+
+approval_program_else_body@11:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+approval_program_call_NoOp:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x786b6291 // method "bootstrap()uint64"
     pushbytes 0x33fb5d48 // method "log_greetings(string)void"
     uncover 2
-    match approval_program_bootstrap_route@4 approval_program_log_greetings_route@5
-    b approval_program_switch_case_default@6
+    match approval_program_bootstrap_route@3 approval_program_log_greetings_route@4
+    b approval_program_switch_case_default@5
 
-approval_program_switch_case_default@6:
-    b approval_program_switch_case_next@7
+approval_program_switch_case_default@5:
+    b approval_program_switch_case_next@6
 
-approval_program_switch_case_next@7:
-    b approval_program_after_if_else@9
-
-approval_program_after_if_else@9:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
+approval_program_switch_case_next@6:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-approval_program_log_greetings_route@5:
-    // inner_transactions/c2c.py:23
-    // @arc4.abimethod()
+approval_program_log_greetings_route@4:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     callsub log_greetings
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
-approval_program_bootstrap_route@4:
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
+approval_program_bootstrap_route@3:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     callsub bootstrap
-    b approval_program_switch_case_next@7
-
-approval_program_create_NoOp@8:
-    b approval_program_after_if_else@9
-
-approval_program___algopy_default_create@10:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@11
-
-approval_program_block@11:
-    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@12
-
-approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@12:
-    intc_1 // 1
-    return
+    b approval_program_switch_case_next@6

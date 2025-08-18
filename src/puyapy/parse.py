@@ -290,6 +290,7 @@ def get_mypy_options(
 
     # set python_executable so third-party packages can be found
     mypy_opts.python_executable = _get_python_executable()
+    mypy_opts.python_version = (3, 12)
 
     mypy_opts.preserve_asts = True
     mypy_opts.include_docstrings = True

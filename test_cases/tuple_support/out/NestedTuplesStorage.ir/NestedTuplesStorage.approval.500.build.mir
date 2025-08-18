@@ -55,111 +55,102 @@ subroutine main:
     after_if_else@2:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
-        txn NumAppArgs                                                                     tmp%0#2
-        v-store tmp%0#2
-        v-load tmp%0#2                                                                     tmp%0#2
-        bz __algopy_default_create@13 ; b abi_routing@4
-
-    abi_routing@4:
-        // tuple_support/tuple_storage.py:11
-        // class NestedTuplesStorage(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                             tmp%2#0
+        txn ApplicationID                                                                  tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                     tmp%0#0
+        !                                                                                  tmp%1#0
+        v-store tmp%1#0
+        txn OnCompletion                                                                   tmp%2#0
         v-store tmp%2#0
-        method bootstrap()void                                                             Method(bootstrap()void)
-        v-load tmp%2#0                                                                     Method(bootstrap()void),tmp%2#0
-        match bootstrap_route@5 ; b switch_case_next@6
-
-    bootstrap_route@5:
-        // tuple_support/tuple_storage.py:23
-        // @arc4.abimethod(allow_actions=["OptIn"])
-        txn OnCompletion                                                                   tmp%3#0
+        v-load tmp%2#0                                                                     tmp%2#0
+        int 1                                                                              tmp%2#0,1
+        shl                                                                                tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                                     tmp%3#0
-        int OptIn                                                                          tmp%3#0,OptIn
-        ==                                                                                 tmp%4#0
+        v-load tmp%1#0                                                                     tmp%1#0
+        v-load tmp%3#0                                                                     tmp%1#0,tmp%3#0
+        +                                                                                  tmp%4#0
         v-store tmp%4#0
-        txn ApplicationID                                                                  tmp%5#0
-        v-store tmp%5#0
         v-load tmp%4#0                                                                     tmp%4#0
-        v-load tmp%5#0                                                                     tmp%4#0,tmp%5#0
-        &&                                                                                 tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                                     tmp%7#0
-        assert // OnCompletion must be OptIn && can only call when not creating
-        callsub bootstrap
-        b switch_case_next@6
+        switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    switch_case_next@6:
+    call_NoOp:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
-        txn OnCompletion                                                                   tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                                     tmp%8#0
-        !                                                                                  tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                     tmp%9#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                  tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                                                    tmp%10#0
-        assert
-        txna ApplicationArgs 0                                                             tmp%12#0
-        v-store tmp%12#0
+        txna ApplicationArgs 0                                                             tmp%5#0
+        v-store tmp%5#0
         method mutate_tuple(uint64)void                                                    Method(mutate_tuple(uint64)void)
         method mutate_box(uint64)void                                                      Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void)
         method mutate_global(uint64)void                                                   Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void)
         method mutate_local(uint64)void                                                    Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void)
-        v-load tmp%12#0                                                                    Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void),tmp%12#0
-        match mutate_tuple_route@8 mutate_box_route@9 mutate_global_route@10 mutate_local_route@11 ; b after_if_else@12 
+        v-load tmp%5#0                                                                     Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void),tmp%5#0
+        match mutate_tuple_route@5 mutate_box_route@6 mutate_global_route@7 mutate_local_route@8 ; b switch_case_next@9 
 
-    mutate_tuple_route@8:
-        // tuple_support/tuple_storage.py:28
-        // @arc4.abimethod()
-        callsub mutate_tuple
-        b after_if_else@12
-
-    mutate_box_route@9:
-        // tuple_support/tuple_storage.py:32
-        // @arc4.abimethod()
-        callsub mutate_box
-        b after_if_else@12
-
-    mutate_global_route@10:
-        // tuple_support/tuple_storage.py:36
-        // @arc4.abimethod()
-        callsub mutate_global
-        b after_if_else@12
-
-    mutate_local_route@11:
-        // tuple_support/tuple_storage.py:40
-        // @arc4.abimethod()
-        callsub mutate_local
-        b after_if_else@12
-
-    after_if_else@12:
+    mutate_tuple_route@5:
         // tuple_support/tuple_storage.py:11
         // class NestedTuplesStorage(arc4.ARC4Contract):
-        err
+        callsub mutate_tuple
+        b switch_case_next@9
 
-    __algopy_default_create@13:
-        txn OnCompletion                                                                   tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                    tmp%13#0
-        !                                                                                  tmp%14#0
-        v-store tmp%14#0
-        txn ApplicationID                                                                  tmp%15#0
-        v-store tmp%15#0
-        v-load tmp%15#0                                                                    tmp%15#0
-        !                                                                                  tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%14#0                                                                    tmp%14#0
-        v-load tmp%16#0                                                                    tmp%14#0,tmp%16#0
-        &&                                                                                 tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                    tmp%17#0
-        assert // OnCompletion must be NoOp && can only call when creating
+    mutate_box_route@6:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        callsub mutate_box
+        b switch_case_next@9
+
+    mutate_global_route@7:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        callsub mutate_global
+        b switch_case_next@9
+
+    mutate_local_route@8:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        callsub mutate_local
+        b switch_case_next@9
+
+    switch_case_next@9:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txn NumAppArgs                                                                     tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                     tmp%6#0
+        !                                                                                  tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                     tmp%7#0
+        assert // this contract does not implement the given ABI method for create NoOp
         int 1                                                                              1
         return
+
+    call_OptIn:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                             tmp%8#0
+        v-store tmp%8#0
+        method bootstrap()void                                                             Method(bootstrap()void)
+        v-load tmp%8#0                                                                     Method(bootstrap()void),tmp%8#0
+        match bootstrap_route@12 ; b switch_case_next@13
+
+    bootstrap_route@12:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        callsub bootstrap
+        b switch_case_next@13
+
+    switch_case_next@13:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        err // this contract does not implement the given ABI method for call OptIn
+
+    *NOT_IMPLEMENTED:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]() -> void:

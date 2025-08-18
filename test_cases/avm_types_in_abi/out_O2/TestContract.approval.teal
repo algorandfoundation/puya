@@ -5,43 +5,22 @@
 main:
     intcblock 1 0 64
     bytecblock 0x151f7c75
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@6
-    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
-    txna ApplicationArgs 0
-    match tuple_of_arc4_route@3
-    err
-
-tuple_of_arc4_route@3:
-    txna ApplicationArgs 1
-    dup
-    extract 0 1
-    dig 1
-    extract 1 32
-    swap
-    len
+    !
+    txn OnCompletion
     intc_0 // 1
-    ==
-    assert
-    len
-    pushint 32 // 32
-    ==
-    assert
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
 
-create_NoOp@6:
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
     pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     txna ApplicationArgs 0
     match create_route@7
-    err
+    err // this contract does not implement the given ABI method for create NoOp
 
 create_route@7:
     txna ApplicationArgs 1
@@ -149,6 +128,34 @@ create_route@7:
     concat
     swap
     concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+call_NoOp:
+    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
+    txna ApplicationArgs 0
+    match tuple_of_arc4_route@3
+    err // this contract does not implement the given ABI method for call NoOp
+
+tuple_of_arc4_route@3:
+    txna ApplicationArgs 1
+    dup
+    extract 0 1
+    dig 1
+    extract 1 32
+    swap
+    len
+    intc_0 // 1
+    ==
+    assert
+    len
+    pushint 32 // 32
+    ==
+    assert
     bytec_0 // 0x151f7c75
     swap
     concat

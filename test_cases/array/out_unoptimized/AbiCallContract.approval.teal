@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 1 6
+    intcblock 2 0 1 6
     bytecblock 0x
     b block@0
 
@@ -13,13 +13,108 @@ block@0:
 block@1:
     // array/unused_opt_allowed.py:12
     // class AbiCallContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@6
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_2 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_2 // 1
+    intc_0 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    intc_3 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_DeleteApplication:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@8
+    b __algopy_default_create@7
+
+__algopy_default_create@7:
+    b block@21
+
+block@21:
+    b after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create@22
+
+after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create@22:
+    intc_2 // 1
+    return
+
+else_body@8:
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // array/unused_opt_allowed.py:12
     // class AbiCallContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -32,44 +127,15 @@ switch_case_default@4:
     b switch_case_next@5
 
 switch_case_next@5:
-    b after_if_else@7
-
-after_if_else@7:
     // array/unused_opt_allowed.py:12
     // class AbiCallContract(arc4.ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 test_implicit_conversion_abi_call_route@3:
-    // array/unused_opt_allowed.py:13
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    // array/unused_opt_allowed.py:12
+    // class AbiCallContract(arc4.ARC4Contract):
     callsub test_implicit_conversion_abi_call
     b switch_case_next@5
-
-__algopy_default_create@6:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@9
-
-block@9:
-    b after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create@10
-
-after_inlined_test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create@10:
-    intc_2 // 1
-    return
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
@@ -81,14 +147,14 @@ dynamic_array_concat_dynamic_element:
 dynamic_array_concat_dynamic_element_block@0:
     bytec_0 // 0x
     frame_dig -2
-    intc_1 // 2
+    intc_0 // 2
     *
     frame_dig -4
-    intc_1 // 2
+    intc_0 // 2
     *
-    intc_1 // 2
+    intc_0 // 2
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_for_header@1:
@@ -114,7 +180,7 @@ dynamic_array_concat_dynamic_element_for_body@2:
 
 dynamic_array_concat_dynamic_element_for_footer@3:
     frame_dig 4
-    intc_1 // 2
+    intc_0 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
@@ -124,12 +190,12 @@ dynamic_array_concat_dynamic_element_after_for@4:
     len
     frame_bury 2
     frame_dig -2
-    intc_1 // 2
+    intc_0 // 2
     *
     frame_bury 0
-    intc_1 // 2
+    intc_0 // 2
     assert // Step cannot be zero
-    intc_0 // 0
+    intc_1 // 0
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
 
@@ -156,7 +222,7 @@ dynamic_array_concat_dynamic_element_for_body@6:
 
 dynamic_array_concat_dynamic_element_for_footer@7:
     frame_dig 4
-    intc_1 // 2
+    intc_0 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
@@ -170,7 +236,7 @@ dynamic_array_concat_dynamic_element_after_for@8:
     frame_dig 1
     concat
     frame_dig -4
-    intc_1 // 2
+    intc_0 // 2
     *
     frame_dig -3
     len
@@ -180,7 +246,7 @@ dynamic_array_concat_dynamic_element_after_for@8:
     substring3
     concat
     frame_dig -2
-    intc_1 // 2
+    intc_0 // 2
     *
     frame_dig -1
     len
@@ -216,7 +282,7 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     //     self, arr: ImmutableArray[UInt64], app: Application
     // ) -> None:
     proto 2 0
-    intc_0 // 0
+    intc_1 // 0
     b test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call_block@0
 
 test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call_block@0:
@@ -232,7 +298,7 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call_next_txn@1
 
@@ -243,22 +309,22 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     itxn_submit
     // array/unused_opt_allowed.py:20
     // nested_arr = ImmutableArray[ImmutableArray[UInt64]]()
-    intc_0 // 0
+    intc_1 // 0
     itob
     extract 6 2
     // array/unused_opt_allowed.py:21
     // nested_arr = nested_arr.append(arr)
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     cover 1
     dup
     len
     cover 1
-    intc_1 // 2
+    intc_0 // 2
     uncover 2
     substring3
-    intc_1 // 2
+    intc_0 // 2
     itob
     extract 6 2
     bytec_0 // 0x
@@ -281,7 +347,7 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call_next_txn@2
 
@@ -291,24 +357,24 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     itxn_submit
     // array/unused_opt_allowed.py:24
     // indirect_nested_arr = ImmutableArray[MyTuple]()
-    intc_0 // 0
+    intc_1 // 0
     itob
     extract 6 2
     // array/unused_opt_allowed.py:25
     // indirect_nested_arr.append(MyTuple(foo=arr, bar=arr.length))
     frame_dig -2
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     cover 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     cover 2
     dup
     len
     cover 1
     dup
-    intc_1 // 2
+    intc_0 // 2
     uncover 3
     substring3
     cover 1
@@ -323,7 +389,7 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     concat
     frame_dig -2
     concat
-    intc_1 // 2
+    intc_0 // 2
     itob
     extract 6 2
     bytec_0 // 0x
@@ -347,7 +413,7 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call_next_txn@3
 

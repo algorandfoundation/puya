@@ -5,30 +5,33 @@
 main:
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
     txn NumAppArgs
-    bz __algopy_default_create@6
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
-    match hello_route@3
-    err
-
-hello_route@3:
-    // hello_world_arc4/contract.py:10
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    b hello
-
-__algopy_default_create@6:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    match hello
+    err // this contract does not implement the given ABI method for call NoOp
 
 
 // examples.hello_world_arc4.contract.HelloWorldContract.hello[routing]() -> void:

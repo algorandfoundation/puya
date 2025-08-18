@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     bytecblock 0x01 0x 0x151f7c75
     b block@0
 
@@ -13,26 +13,108 @@ block@0:
 block@1:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz __algopy_default_create@12
-    b abi_routing@2
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-abi_routing@2:
+*NOT_IMPLEMENTED:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@10
-    b call_NoOp@3
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-call_NoOp@3:
+create_DeleteApplication:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    ==
+    bz else_body@11
+    b __algopy_default_create@10
+
+__algopy_default_create@10:
+    b block@24
+
+block@24:
+    b after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@25
+
+after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@25:
+    intc_0 // 1
+    return
+
+else_body@11:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -41,67 +123,40 @@ call_NoOp@3:
     pushbytes 0x8ba7c4c2 // method "get_three()(uint8,uint8)"
     pushbytes 0x46dadea3 // method "compare()bool"
     uncover 4
-    match get_one_route@4 get_two_route@5 get_three_route@6 compare_route@7
-    b switch_case_default@8
+    match get_one_route@3 get_two_route@4 get_three_route@5 compare_route@6
+    b switch_case_default@7
 
-switch_case_default@8:
-    b switch_case_next@9
+switch_case_default@7:
+    b switch_case_next@8
 
-switch_case_next@9:
-    b after_if_else@11
-
-after_if_else@11:
-    b after_if_else@13
-
-after_if_else@13:
+switch_case_next@8:
     // struct_by_name/contract.py:18
     // class DemoContract(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
-compare_route@7:
-    // struct_by_name/contract.py:46
-    // @arc4.abimethod()
+compare_route@6:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
     callsub compare
-    b switch_case_next@9
+    b switch_case_next@8
 
-get_three_route@6:
-    // struct_by_name/contract.py:39
-    // @arc4.abimethod()
+get_three_route@5:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
     callsub get_three
-    b switch_case_next@9
+    b switch_case_next@8
 
-get_two_route@5:
-    // struct_by_name/contract.py:32
-    // @arc4.abimethod()
+get_two_route@4:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
     callsub get_two
-    b switch_case_next@9
+    b switch_case_next@8
 
-get_one_route@4:
-    // struct_by_name/contract.py:25
-    // @arc4.abimethod()
+get_one_route@3:
+    // struct_by_name/contract.py:18
+    // class DemoContract(ARC4Contract):
     callsub get_one
-    b switch_case_next@9
-
-create_NoOp@10:
-    b after_if_else@11
-
-__algopy_default_create@12:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@15
-
-block@15:
-    b after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16
-
-after_inlined_test_cases.struct_by_name.contract.DemoContract.__algopy_default_create@16:
-    intc_1 // 1
-    return
+    b switch_case_next@8
 
 
 // test_cases.struct_by_name.contract.DemoContract.get_one[routing]() -> void:
@@ -122,7 +177,7 @@ get_one_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -144,7 +199,7 @@ get_two_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -166,7 +221,7 @@ get_three_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -179,14 +234,14 @@ compare_block@0:
     // @arc4.abimethod()
     callsub test_cases.struct_by_name.contract.DemoContract.compare
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     bytec_2 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -287,7 +342,7 @@ test_cases.struct_by_name.contract.DemoContract.compare_and_contd@1:
     b test_cases.struct_by_name.contract.DemoContract.compare_bool_true@2
 
 test_cases.struct_by_name.contract.DemoContract.compare_bool_true@2:
-    intc_1 // 1
+    intc_0 // 1
     frame_bury 0
     b test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4
 
@@ -299,6 +354,6 @@ test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4:
     retsub
 
 test_cases.struct_by_name.contract.DemoContract.compare_bool_false@3:
-    intc_0 // 0
+    intc_1 // 0
     frame_bury 0
     b test_cases.struct_by_name.contract.DemoContract.compare_bool_merge@4

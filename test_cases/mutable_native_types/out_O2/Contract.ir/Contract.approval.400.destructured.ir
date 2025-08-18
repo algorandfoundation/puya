@@ -37,19 +37,18 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (app_global_put "payments" tmp%16#0)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@19
-    block@4: // abi_routing_L71
+        let tmp%0#0: bool = (txn ApplicationID)
+        let tmp%1#2: bool = (! tmp%0#0)
         let tmp%2#1: uint64 = (txn OnCompletion)
-        let tmp%3#1: bool = (! tmp%2#1)
-        (assert tmp%3#1) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        (assert tmp%4#0)
-        let tmp%6#1: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#1 {method "test_imm_fixed_array()void" => block@6, method "fixed_initialize()void" => block@6, method "add_payment((address,uint64,uint64))void" => block@8, method "increment_payment(uint64,uint64)void" => block@9, method "create_storage(uint64)void" => block@10, method "local_struct()(address,uint64,uint64)" => block@11, method "delete_storage(uint64)void" => block@12, method "struct_arg(uint64,(uint64,uint64))void" => block@13, method "struct_return()(uint64,uint64)" => block@14, method "tup_return()(uint64,uint64)" => block@15, method "calculate_sum()uint64" => block@16, method "test_arr((uint64,uint64)[])(uint64,uint64)[]" => block@17, * => block@18}
-    block@6: // test_imm_fixed_array_route_L95
+        let tmp%3#0: uint64 = (shl tmp%2#1 1u)
+        let tmp%4#0: uint64 = (+ tmp%1#2 tmp%3#0)
+        goto_nth [block@4, block@18, block@19, block@19, block@19, block@19, block@19, block@19, block@19, block@19, block@19, block@19][tmp%4#0] else goto block@19
+    block@4: // switch_case_0_L71
+        let tmp%5#1: bytes = (txna ApplicationArgs 0)
+        switch tmp%5#1 {method "test_imm_fixed_array()void" => block@5, method "fixed_initialize()void" => block@5, method "add_payment((address,uint64,uint64))void" => block@7, method "increment_payment(uint64,uint64)void" => block@8, method "create_storage(uint64)void" => block@9, method "local_struct()(address,uint64,uint64)" => block@10, method "delete_storage(uint64)void" => block@11, method "struct_arg(uint64,(uint64,uint64))void" => block@12, method "struct_return()(uint64,uint64)" => block@13, method "tup_return()(uint64,uint64)" => block@14, method "calculate_sum()uint64" => block@15, method "test_arr((uint64,uint64)[])(uint64,uint64)[]" => block@16, * => block@17}
+    block@5: // test_imm_fixed_array_route_L95
         exit 1u
-    block@8: // add_payment_route_L131
+    block@7: // add_payment_route_L131
         let pay#0: Encoded(uint8[32],uint64,uint64) = (txna ApplicationArgs 1)
         let (maybe_value%0#6: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#1) // check self.num_payments exists
@@ -65,7 +64,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%1#1: uint64 = (+ maybe_value%3#0 1u)
         (app_global_put "num_payments" tmp%1#1)
         exit 1u
-    block@9: // increment_payment_route_L137
+    block@8: // increment_payment_route_L137
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -85,7 +84,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let aggregate%updated_array%4#0: bytes = (replace3 maybe_value%1#2 aggregate%bytes_offset%7#0 aggregate%updated_data%0#0) // on error: index access is out of bounds
         (app_global_put "payments" aggregate%updated_array%4#0)
         exit 1u
-    block@10: // create_storage_route_L142
+    block@9: // create_storage_route_L142
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "nested")
@@ -95,14 +94,14 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%1#2) // check self.nested exists
         let tmp%0#15: account = (txn Sender)
         (app_local_put tmp%0#15 0x6c maybe_value%1#2)
-        let tmp%1#9: bool = (box_create "box" 2064u)
-        (assert tmp%1#9) // expected box to not exist
+        let tmp%1#2: bool = (box_create "box" 2064u)
+        (assert tmp%1#2) // expected box to not exist
         let aggregate%extract%5#0: bytes = ((extract 0 16) maybe_value%1#2)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u aggregate%extract%5#0)
         exit 1u
-    block@11: // local_struct_route_L149
+    block@10: // local_struct_route_L149
         let tmp%0#15: account = (txn Sender)
         let aggregate%val_as_bytes%27#0: bytes[8] = (itob 1234u)
         let aggregate%head%33#0: bytes = (concat tmp%0#15 aggregate%val_as_bytes%27#0)
@@ -112,15 +111,15 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let bar#0: uint64 = (extract_uint64 a#0 32u)
         let baz#0: uint64 = (extract_uint64 a#0 40u)
         let tmp%2#6: account = (global ZeroAddress)
-        let tmp%3#1: bool = (!= foo#0 tmp%2#6)
-        (assert tmp%3#1) // use foo
+        let tmp%3#5: bool = (!= foo#0 tmp%2#6)
+        (assert tmp%3#5) // use foo
         (assert bar#0) // use bar
         (assert baz#0) // use baz
         let a#0: bytes = test_cases.mutable_native_types.contract.do_something(a#0)
         let tmp%1#3: bytes = (concat 0x151f7c75 a#0)
         (log tmp%1#3)
         exit 1u
-    block@12: // delete_storage_route_L161
+    block@11: // delete_storage_route_L161
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         (app_global_del 0x70)
@@ -131,7 +130,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_del box_prefixed_key%0#0)
         exit 1u
-    block@13: // struct_arg_route_L168
+    block@12: // struct_arg_route_L168
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let a#0: bytes = (txna ApplicationArgs 2)
@@ -153,21 +152,21 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u a#0)
         exit 1u
-    block@14: // struct_return_route_L178
+    block@13: // struct_return_route_L178
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#1) // check self.nested exists
         let aggregate%extract%12#0: bytes = ((extract 0 16) maybe_value%0#1)
         let tmp%1#3: bytes = (concat 0x151f7c75 aggregate%extract%12#0)
         (log tmp%1#3)
         exit 1u
-    block@15: // tup_return_route_L182
+    block@14: // tup_return_route_L182
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#1) // check self.nested exists
         let aggregate%extract%13#0: bytes = ((extract 32 16) maybe_value%0#1)
         let tmp%3#2: bytes = (concat 0x151f7c75 aggregate%extract%13#0)
         (log tmp%3#2)
         exit 1u
-    block@16: // calculate_sum_route_L186
+    block@15: // calculate_sum_route_L186
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#1) // check self.nested exists
         let fixed_a#0: Encoded(uint64,uint64) = ((extract 0 16) maybe_value%0#1)
@@ -179,9 +178,9 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let values%1#0: uint64 = (extract_uint64 fixed_b#0 8u)
         let tmp%0#22: uint64 = (+ values%0#1 values%1#0)
         let result#2: uint64 = (+ tmp%0#2 tmp%0#22)
-        let tmp%3#1: bool = (< result#2 100u)
+        let tmp%3#5: bool = (< result#2 100u)
         let result#8: uint64 = result#2
-        goto tmp%3#1 ? block@27 : block@28
+        goto tmp%3#5 ? block@27 : block@28
     block@27: // if_body_L192
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
@@ -198,11 +197,11 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%2#2: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%29#0)
         (log tmp%2#2)
         exit 1u
-    block@17: // test_arr_route_L197
+    block@16: // test_arr_route_L197
         let arr#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%1#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%1#9: bool = (! aggregate%array_length%1#0)
-        (assert tmp%1#9) // expected empty array
+        let tmp%1#2: bool = (! aggregate%array_length%1#0)
+        (assert tmp%1#2) // expected empty array
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         store(local.0, extract_to_end%0#0)
         let aggregate%bytes_len%0#0: uint64 = (len extract_to_end%0#0)
@@ -303,16 +302,15 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%1#3: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#3)
         exit 1u
-    block@18: // after_if_else_L71
-        fail
-    block@19: // __algopy_default_create_L1
-        let tmp%7#1: uint64 = (txn OnCompletion)
-        let tmp%8#1: bool = (! tmp%7#1)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#1: bool = (! tmp%9#0)
-        let tmp%11#1: bool = (&& tmp%8#1 tmp%10#1)
-        (assert tmp%11#1) // OnCompletion must be NoOp && can only call when creating
+    block@17: // switch_case_next_L71
+        fail // this contract does not implement the given ABI method for call NoOp
+    block@18: // switch_case_1_L71
+        let tmp%6#0: uint64 = (txn NumAppArgs)
+        let tmp%7#1: bool = (! tmp%6#0)
+        (assert tmp%7#1) // this contract does not implement the given ABI method for create NoOp
         exit 1u
+    block@19: // switch_case_default_L71
+        fail // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
 subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(len+(uint64,uint64)[])) -> uint64:
     block@0: // L262

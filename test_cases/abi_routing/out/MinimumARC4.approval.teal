@@ -14,12 +14,22 @@ main:
 after_if_else@2:
     // abi_routing/minimal.py:4
     // class MinimumARC4(ARC4Contract):
-    txn NumAppArgs
-    !
-    assert
-    txn OnCompletion
-    !
     txn ApplicationID
     !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    txn OnCompletion
+    pushint 1 // 1
+    shl
+    +
+    switch *NOT_IMPLEMENTED create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp

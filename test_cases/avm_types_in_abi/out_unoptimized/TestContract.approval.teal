@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 64 75
+    intcblock 1 0 64 8
     bytecblock 0x 0x151f7c75
     b block@0
 
@@ -13,43 +13,84 @@ block@0:
 block@1:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    intc_0 // 0
-    !=
-    bz create_NoOp@6
-    b call_NoOp@2
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    intc_1 // 0
+    intc_0 // 1
+    pushint 2 // 2
+    pushint 3 // 3
+    pushint 4 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    intc_3 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
 
-call_NoOp@2:
+*NOT_IMPLEMENTED:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
-    uncover 1
-    match tuple_of_arc4_route@3
-    b switch_case_default@4
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-switch_case_default@4:
-    b switch_case_next@5
-
-switch_case_next@5:
-    b after_if_else@10
-
-after_if_else@10:
+create_DeleteApplication:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    err
+    b *NOT_IMPLEMENTED
 
-tuple_of_arc4_route@3:
-    // avm_types_in_abi/contract.py:19
-    // @arc4.abimethod
-    callsub tuple_of_arc4
-    b switch_case_next@5
+call_DeleteApplication:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
 
-create_NoOp@6:
+create_UpdateApplication:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -62,13 +103,38 @@ switch_case_default@8:
     b switch_case_next@9
 
 switch_case_next@9:
-    b after_if_else@10
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
 
 create_route@7:
-    // avm_types_in_abi/contract.py:5
-    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
     callsub create
     b switch_case_next@9
+
+call_NoOp:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
+    uncover 1
+    match tuple_of_arc4_route@3
+    b switch_case_default@4
+
+switch_case_default@4:
+    b switch_case_next@5
+
+switch_case_next@5:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    err // this contract does not implement the given ABI method for call NoOp
+
+tuple_of_arc4_route@3:
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    callsub tuple_of_arc4
+    b switch_case_next@5
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
@@ -79,7 +145,7 @@ create_block@0:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txna ApplicationArgs 1
-    intc_0 // 0
+    intc_1 // 0
     getbit
     txna ApplicationArgs 2
     btoi
@@ -90,12 +156,12 @@ create_block@0:
     extract 2 0
     txna ApplicationArgs 6
     dup
-    intc_0 // 0
+    intc_1 // 0
     getbit
     cover 1
     dup
-    intc_1 // 1
-    pushint 8 // 8
+    intc_0 // 1
+    intc_3 // 8
     extract3
     btoi
     cover 1
@@ -104,7 +170,7 @@ create_block@0:
     extract_uint16
     cover 1
     dup
-    intc_3 // 75
+    pushint 75 // 75
     extract_uint16
     dig 1
     uncover 3
@@ -118,7 +184,7 @@ create_block@0:
     extract3
     cover 1
     dup
-    intc_3 // 75
+    pushint 75 // 75
     extract_uint16
     cover 1
     dup
@@ -152,7 +218,7 @@ create_block@0:
     cover 2
     cover 1
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     bytec_0 // 0x
@@ -212,7 +278,7 @@ create_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -225,11 +291,11 @@ tuple_of_arc4_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    intc_1 // 1
+    intc_1 // 0
+    intc_0 // 1
     extract3
     cover 1
-    intc_1 // 1
+    intc_0 // 1
     pushint 32 // 32
     extract3
     callsub test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4
@@ -243,7 +309,7 @@ tuple_of_arc4_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -321,7 +387,7 @@ test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4_block@0:
     // assert args[0].bytes.length == 1
     frame_dig -2
     len
-    intc_1 // 1
+    intc_0 // 1
     ==
     assert
     // avm_types_in_abi/contract.py:24

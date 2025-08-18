@@ -16,19 +16,29 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@14
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0x28d7c1b8 0xfa9cb973 0x6039a240 0xf8fd68a7 0x1f028db1 0x096b3a59 0x8d6e3a25 // method "test_array(uint64,uint64,uint64,uint64)uint64", method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_bool_array(uint64)uint64", method "test_arc4_conversion(uint64)uint64[]", method "sum_array(uint64[])uint64", method "test_arc4_bool()bool[]"
     txna ApplicationArgs 0
-    match test_array_route@6 test_extend_from_tuple_route@7 test_extend_from_arc4_tuple_route@8 test_bool_array_route@9 test_arc4_conversion_route@10 sum_array_route@11 test_arc4_bool_route@12
-    err
+    match test_array_route@5 test_extend_from_tuple_route@6 test_extend_from_arc4_tuple_route@7 test_bool_array_route@8 test_arc4_conversion_route@9 sum_array_route@10 test_arc4_bool_route@11
+    err // this contract does not implement the given ABI method for call NoOp
 
-test_arc4_bool_route@12:
+test_arc4_bool_route@11:
     txn Sender
     txn Receiver
     ==
@@ -186,7 +196,7 @@ after_for@18:
     intc_1 // 1
     return
 
-sum_array_route@11:
+sum_array_route@10:
     txna ApplicationArgs 1
     extract 2 0
     dup
@@ -230,7 +240,7 @@ after_for@23:
     intc_1 // 1
     return
 
-test_arc4_conversion_route@10:
+test_arc4_conversion_route@9:
     txna ApplicationArgs 1
     btoi
     dup
@@ -324,7 +334,7 @@ after_for@33:
     intc_1 // 1
     return
 
-test_bool_array_route@9:
+test_bool_array_route@8:
     txna ApplicationArgs 1
     btoi
     dup
@@ -422,7 +432,7 @@ after_for@43:
     intc_1 // 1
     return
 
-test_extend_from_arc4_tuple_route@8:
+test_extend_from_arc4_tuple_route@7:
     txna ApplicationArgs 1
     dup
     pop
@@ -441,7 +451,7 @@ test_extend_from_arc4_tuple_route@8:
     intc_1 // 1
     return
 
-test_extend_from_tuple_route@7:
+test_extend_from_tuple_route@6:
     txna ApplicationArgs 1
     dup
     extract 0 16
@@ -494,7 +504,7 @@ test_extend_from_tuple_route@7:
     intc_1 // 1
     return
 
-test_array_route@6:
+test_array_route@5:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -743,14 +753,6 @@ after_for@61:
     log
     intc_1 // 1
     return
-
-__algopy_default_create@14:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
 // _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:

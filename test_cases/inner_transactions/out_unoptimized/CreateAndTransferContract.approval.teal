@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 1000
+    intcblock 0 1 3 4
     b block@0
 
 block@0:
@@ -12,13 +12,108 @@ block@0:
 block@1:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    intc_0 // 0
+    intc_1 // 1
+    pushint 2 // 2
+    intc_2 // 3
+    intc_3 // 4
+    pushint 5 // 5
+    pushint 6 // 6
+    pushint 7 // 7
+    pushint 8 // 8
+    pushint 9 // 9
+    pushint 10 // 10
+    pushint 11 // 11
+    uncover 12
+    match call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut call_ClearState create_ClearState call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
+    b *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_DeleteApplication:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_DeleteApplication:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_UpdateApplication:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_UpdateApplication:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_ClearState:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_ClearState:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_CloseOut:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_CloseOut:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_OptIn:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+call_OptIn:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    b *NOT_IMPLEMENTED
+
+create_NoOp:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
-    !=
-    bz __algopy_default_create@6
-    b abi_routing@2
+    ==
+    bz else_body@8
+    b __algopy_default_create@7
 
-abi_routing@2:
+__algopy_default_create@7:
+    b block@21
+
+block@21:
+    b after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create@22
+
+after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create@22:
+    intc_1 // 1
+    return
+
+else_body@8:
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txna ApplicationArgs 0
@@ -31,44 +126,15 @@ switch_case_default@4:
     b switch_case_next@5
 
 switch_case_next@5:
-    b after_if_else@7
-
-after_if_else@7:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
-    err
+    err // this contract does not implement the given ABI method for call NoOp
 
 create_and_transfer_route@3:
-    // inner_transactions/asset_transfer.py:11
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
     callsub create_and_transfer
     b switch_case_next@5
-
-__algopy_default_create@6:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b block@9
-
-block@9:
-    b after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create@10
-
-after_inlined_test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.__algopy_default_create@10:
-    intc_1 // 1
-    return
 
 
 // test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:
@@ -121,11 +187,11 @@ test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_an
     itxn_field ConfigAssetName
     // inner_transactions/asset_transfer.py:16
     // total=1000,
-    intc_2 // 1000
+    pushint 1000 // 1000
     itxn_field ConfigAssetTotal
     // inner_transactions/asset_transfer.py:15
     // itxn.AssetConfig(
-    pushint 3 // acfg
+    intc_2 // acfg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -179,14 +245,14 @@ test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_an
     itxn_field XferAsset
     // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,
-    intc_2 // 1000
+    pushint 1000 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
     // inner_transactions/asset_transfer.py:27-28
     // # transfer
     // itxn.AssetTransfer(
-    pushint 4 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

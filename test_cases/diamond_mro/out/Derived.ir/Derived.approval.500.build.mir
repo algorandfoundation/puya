@@ -1,80 +1,96 @@
-// Op                                            Stack (out)
+// Op                                                                                Stack (out)
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     block@0:
-        txn ApplicationID                        tmp%0#0
+        txn ApplicationID                                                            tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                           tmp%0#0
+        v-load tmp%0#0                                                               tmp%0#0
         bz call___init__@1 ; b after_if_else@2
 
     call___init__@1:
         // diamond_mro/derived.py:9
         // log("derived.__init__")
-        byte "derived.__init__"                  "derived.__init__"
+        byte "derived.__init__"                                                      "derived.__init__"
         log
         // diamond_mro/base1.py:8
         // log("base1.__init__")
-        byte "base1.__init__"                    "base1.__init__"
+        byte "base1.__init__"                                                        "base1.__init__"
         log
         // diamond_mro/base2.py:8
         // log("base2.__init__")
-        byte "base2.__init__"                    "base2.__init__"
+        byte "base2.__init__"                                                        "base2.__init__"
         log
         // diamond_mro/gp.py:8
         // log("gp.__init__")
-        byte "gp.__init__"                       "gp.__init__"
+        byte "gp.__init__"                                                           "gp.__init__"
         log
         b after_if_else@2
 
     after_if_else@2:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        txn OnCompletion                         tmp%0#2
-        v-store tmp%0#2
-        v-load tmp%0#2                           tmp%0#2
-        !                                        tmp%1#0
+        txn ApplicationID                                                            tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                               tmp%0#0
+        !                                                                            tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                           tmp%1#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                        tmp%2#0
+        txn OnCompletion                                                             tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                           tmp%2#0
-        bz create_NoOp@6 ; b call_NoOp@4
+        v-load tmp%2#0                                                               tmp%2#0
+        int 1                                                                        tmp%2#0,1
+        shl                                                                          tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%1#0                                                               tmp%1#0
+        v-load tmp%3#0                                                               tmp%1#0,tmp%3#0
+        +                                                                            tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                               tmp%4#0
+        switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED ; b *NOT_IMPLEMENTED 
 
-    call_NoOp@4:
+    call_NoOp:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        txna ApplicationArgs 0                   tmp%4#0
-        v-store tmp%4#0
-        method method()void                      Method(method()void)
-        v-load tmp%4#0                           Method(method()void),tmp%4#0
-        match method_route@5 ; b after_if_else@8
+        txna ApplicationArgs 0                                                       tmp%5#0
+        v-store tmp%5#0
+        method method()void                                                          Method(method()void)
+        v-load tmp%5#0                                                               Method(method()void),tmp%5#0
+        match method_route@5 ; b switch_case_next@6
 
     method_route@5:
-        // diamond_mro/derived.py:12
-        // @arc4.abimethod
-        callsub method
-        b after_if_else@8
-
-    create_NoOp@6:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        txna ApplicationArgs 0                   tmp%5#0
-        v-store tmp%5#0
-        method create()void                      Method(create()void)
-        v-load tmp%5#0                           Method(create()void),tmp%5#0
-        match create_route@7 ; b after_if_else@8
+        callsub method
+        b switch_case_next@6
 
-    create_route@7:
+    switch_case_next@6:
+        // diamond_mro/derived.py:7
+        // class Derived(Base1, Base2):
+        err // this contract does not implement the given ABI method for call NoOp
+
+    create_NoOp:
+        // diamond_mro/derived.py:7
+        // class Derived(Base1, Base2):
+        txna ApplicationArgs 0                                                       tmp%6#0
+        v-store tmp%6#0
+        method create()void                                                          Method(create()void)
+        v-load tmp%6#0                                                               Method(create()void),tmp%6#0
+        match create_route@8 ; b switch_case_next@9
+
+    create_route@8:
         // diamond_mro/gp.py:11
         // @arc4.abimethod(create="require")
-        int 1                                    1
+        int 1                                                                        1
         return
 
-    after_if_else@8:
+    switch_case_next@9:
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        err
+        err // this contract does not implement the given ABI method for create NoOp
+
+    *NOT_IMPLEMENTED:
+        // diamond_mro/derived.py:7
+        // class Derived(Base1, Base2):
+        err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID? 
 
 
 // test_cases.diamond_mro.derived.Derived.method[routing]() -> void:
@@ -82,23 +98,23 @@ subroutine method:
     method_block@0:
         // diamond_mro/derived.py:14
         // log("derived.method")
-        byte "derived.method"                    "derived.method"
+        byte "derived.method"                                                        "derived.method"
         log
         // diamond_mro/base1.py:13
         // log("base1.method")
-        byte "base1.method"                      "base1.method"
+        byte "base1.method"                                                          "base1.method"
         log
         // diamond_mro/base2.py:13
         // log("base2.method")
-        byte "base2.method"                      "base2.method"
+        byte "base2.method"                                                          "base2.method"
         log
         // diamond_mro/gp.py:17
         // log("gp.method")
-        byte "gp.method"                         "gp.method"
+        byte "gp.method"                                                             "gp.method"
         log
         // diamond_mro/derived.py:12
         // @arc4.abimethod
-        int 1                                    1
+        int 1                                                                        1
         return
 
 

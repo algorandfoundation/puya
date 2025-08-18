@@ -4,10 +4,10 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 123 2
-    bytecblock 0x151f7c75 "asa" "local_uint" "local_bytes"
+    bytecblock 0x3a5353fc 0x151f7c75 "asa" 0xd2f2f53c "local_uint" "local_bytes"
     txn ApplicationID
     bnz after_if_else@2
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     intc_2 // 123
     app_global_put
     pushbytes "an_int"
@@ -23,22 +23,119 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz bare_abi_config@23
-    pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
-    txna ApplicationArgs 0
-    match opt_in_route@5 all_the_things_route@6 mixed_oca_route@7
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
-    pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
-    txna ApplicationArgs 0
-    match noop_with_uint64_route@10 opt_into_asset_route@11 with_transactions_route@12 compare_assets_route@13 get_address_route@14 get_asset_route@15 get_asset_route@15 get_an_int_route@17 method_with_default_args_route@18 method_with_15_args_route@19 method_with_more_than_15_args_route@20 hello_with_algopy_string_route@21
-    err
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
 
-hello_with_algopy_string_route@21:
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_DeleteApplication:
+    txn NumAppArgs
+    bz bare_abi_config@21
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create DeleteApplication
+
+bare_abi_config@21:
+    pushbytes "Hello World"
+    log
+    intc_0 // 1
+    return
+
+call_DeleteApplication:
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec_3 // method "mixed_oca(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config mixed_oca
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+create_UpdateApplication:
+    txn NumAppArgs
+    bz bare_abi_config@21
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create UpdateApplication
+
+call_UpdateApplication:
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for call UpdateApplication
+
+create_CloseOut:
+    txn NumAppArgs
+    bz bare_abi_config@21
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create CloseOut
+
+call_CloseOut:
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec_3 // method "mixed_oca(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config mixed_oca
+    err // this contract does not implement the given ABI method for call CloseOut
+
+create_OptIn:
+    txn NumAppArgs
+    bz bare_abi_config@21
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create OptIn
+
+call_OptIn:
+    pushbytes 0x01040023 // method "opt_in(uint64,byte[])void"
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match opt_in_route@26 full_abi_config
+    err // this contract does not implement the given ABI method for call OptIn
+
+opt_in_route@26:
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    extract 2 0
+    txn Sender
+    bytec 4 // "local_uint"
+    uncover 3
+    app_local_put
+    txn Sender
+    bytec 5 // "local_bytes"
+    uncover 2
+    app_local_put
+    intc_0 // 1
+    return
+
+create_NoOp:
+    txn NumAppArgs
+    bnz else_body@22
+    b bare_abi_config@21
+
+else_body@22:
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec_3 // method "mixed_oca(uint64)uint8"
+    pushbytess 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
+    txna ApplicationArgs 0
+    match noop_with_uint64_route@5 full_abi_config mixed_oca opt_into_asset_route@8 with_transactions_route@9 compare_assets_route@10 get_address_route@11 get_asset_route@12 get_asset_route@12 get_an_int_route@14 method_with_default_args_route@15 method_with_15_args_route@16 method_with_more_than_15_args_route@17 hello_with_algopy_string_route@18
+    err // this contract does not implement the given ABI method for call NoOp
+
+hello_with_algopy_string_route@18:
     txna ApplicationArgs 1
     extract 2 0
     pushbytes "Hello "
@@ -52,14 +149,14 @@ hello_with_algopy_string_route@21:
     extract 6 2
     swap
     concat
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-method_with_more_than_15_args_route@20:
+method_with_more_than_15_args_route@17:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     txna ApplicationArgs 3
@@ -204,14 +301,14 @@ method_with_more_than_15_args_route@20:
     extract_uint64
     +
     itob
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-method_with_15_args_route@19:
+method_with_15_args_route@16:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -269,14 +366,14 @@ method_with_15_args_route@19:
     uncover 2
     +
     assert
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-method_with_default_args_route@18:
+method_with_default_args_route@15:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -355,7 +452,7 @@ method_with_default_args_route@18:
     assert
     txn Sender
     intc_1 // 0
-    bytec_2 // "local_uint"
+    bytec 4 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
     uncover 2
@@ -363,31 +460,31 @@ method_with_default_args_route@18:
     assert
     txn Sender
     intc_1 // 0
-    bytec_3 // "local_bytes"
+    bytec 5 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
     ==
     return
 
-get_an_int_route@17:
+get_an_int_route@14:
     pushbytes 0x151f7c750000000000000003
     log
     intc_0 // 1
     return
 
-get_asset_route@15:
+get_asset_route@12:
     pushbytes 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
 
-get_address_route@14:
+get_address_route@11:
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
     intc_0 // 1
     return
 
-compare_assets_route@13:
+compare_assets_route@10:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -395,7 +492,7 @@ compare_assets_route@13:
     ==
     return // on error: asset a == b
 
-with_transactions_route@12:
+with_transactions_route@9:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -409,7 +506,7 @@ with_transactions_route@12:
     assert // transaction type is pay
     txna ApplicationArgs 3
     intc_1 // 0
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     uncover 4
@@ -430,7 +527,7 @@ with_transactions_route@12:
     ==
     return // on error: is correct int
 
-opt_into_asset_route@11:
+opt_into_asset_route@8:
     txna ApplicationArgs 1
     btoi
     txn Sender
@@ -438,12 +535,12 @@ opt_into_asset_route@11:
     ==
     assert // Only creator can opt in to ASA
     intc_1 // 0
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
     assert // ASA already opted in
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     dig 1
     app_global_put
     itxn_begin
@@ -458,7 +555,7 @@ opt_into_asset_route@11:
     intc_0 // 1
     return
 
-noop_with_uint64_route@10:
+noop_with_uint64_route@5:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -470,22 +567,16 @@ noop_with_uint64_route@10:
     <=
     assert // overflow
     extract 7 1
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-mixed_oca_route@7:
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 37 // 37
-    &
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
+
+// test_cases.abi_routing.contract.Reference.full_abi_config[routing]() -> void:
+full_abi_config:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -497,14 +588,16 @@ mixed_oca_route@7:
     <=
     assert // overflow
     extract 7 1
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-all_the_things_route@6:
+
+// test_cases.abi_routing.contract.Reference.mixed_oca[routing]() -> void:
+mixed_oca:
     txna ApplicationArgs 1
     btoi
     intc_0 // 1
@@ -516,40 +609,9 @@ all_the_things_route@6:
     <=
     assert // overflow
     extract 7 1
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
-    log
-    intc_0 // 1
-    return
-
-opt_in_route@5:
-    txn OnCompletion
-    intc_0 // OptIn
-    ==
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be OptIn && can only call when not creating
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    extract 2 0
-    txn Sender
-    bytec_2 // "local_uint"
-    uncover 3
-    app_local_put
-    txn Sender
-    bytec_3 // "local_bytes"
-    uncover 2
-    app_local_put
-    intc_0 // 1
-    return
-
-bare_abi_config@23:
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    pushbytes "Hello World"
     log
     intc_0 // 1
     return

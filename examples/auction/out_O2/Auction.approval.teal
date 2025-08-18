@@ -26,19 +26,29 @@ main:
     app_global_put
 
 after_if_else@2:
-    txn NumAppArgs
-    bz __algopy_default_create@13
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    assert
+    !
+    txn OnCompletion
+    intc_1 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+create_NoOp:
+    txn NumAppArgs
+    !
+    return // on error: this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
     pushbytess 0xd8f62d9a 0xf0aa7023 0x30c6d58a 0xdb7fe843 0xe654625b 0x59b2ab26 // method "opt_into_asset(uint64)void", method "start_auction(uint64,uint64,axfer)void", method "opt_in()void", method "bid(pay)void", method "claim_bids()void", method "claim_asset(uint64)void"
     txna ApplicationArgs 0
-    match opt_into_asset_route@6 start_auction_route@7 opt_in_route@8 bid_route@9 claim_bids_route@10 claim_asset_route@11
-    err
+    match opt_into_asset_route@5 start_auction_route@6 opt_in_route@7 bid_route@8 claim_bids_route@9 claim_asset_route@10
+    err // this contract does not implement the given ABI method for call NoOp
 
-claim_asset_route@11:
+claim_asset_route@10:
     txna ApplicationArgs 1
     btoi
     global LatestTimestamp
@@ -70,7 +80,7 @@ claim_asset_route@11:
     intc_1 // 1
     return
 
-claim_bids_route@10:
+claim_bids_route@9:
     txn Sender
     intc_0 // 0
     bytec 5 // "claim"
@@ -120,7 +130,7 @@ after_if_else@18:
     intc_1 // 1
     return
 
-bid_route@9:
+bid_route@8:
     txn GroupIndex
     intc_1 // 1
     -
@@ -164,11 +174,11 @@ bid_route@9:
     intc_1 // 1
     return
 
-opt_in_route@8:
+opt_in_route@7:
     intc_1 // 1
     return
 
-start_auction_route@7:
+start_auction_route@6:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
@@ -211,7 +221,7 @@ start_auction_route@7:
     intc_1 // 1
     return
 
-opt_into_asset_route@6:
+opt_into_asset_route@5:
     txna ApplicationArgs 1
     btoi
     txn Sender
@@ -238,11 +248,3 @@ opt_into_asset_route@6:
     itxn_submit
     intc_1 // 1
     return
-
-__algopy_default_create@13:
-    txn OnCompletion
-    !
-    txn ApplicationID
-    !
-    &&
-    return // on error: OnCompletion must be NoOp && can only call when creating

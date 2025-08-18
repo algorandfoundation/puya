@@ -4,22 +4,72 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
-    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
+    bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0xbd6099e5 0x151f7c75
     intc_1 // 0
-    pushbytess 0xbd6099e5 0x1658aa2f // method "register(string)void", method "close_out()void"
-    txna ApplicationArgs 0
-    match register_route@4 close_out_route@5
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz create_NoOp@10
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn *NOT_IMPLEMENTED call_CloseOut *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED
+
+*NOT_IMPLEMENTED:
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
+
+call_CloseOut:
+    pushbytes 0x1658aa2f // method "close_out()void"
+    txna ApplicationArgs 0
+    match close_out_route@16
+    err // this contract does not implement the given ABI method for call CloseOut
+
+close_out_route@16:
+    intc_1 // 0
+    bytec_0 // "counter"
+    app_global_get_ex
+    assert // check self.counter exists
+    intc_0 // 1
+    -
+    bytec_0 // "counter"
+    swap
+    app_global_put
+    intc_0 // 1
+    return
+
+call_OptIn:
+    bytec_3 // method "register(string)void"
+    txna ApplicationArgs 0
+    match register
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_NoOp:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create_route@10
+    err // this contract does not implement the given ABI method for create NoOp
+
+create_route@10:
+    txn Sender
+    bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    !=
+    assert // You are banned, goodbye
+    pushbytes "creator"
+    txn Sender
+    app_global_put
+    bytec_0 // "counter"
+    intc_1 // 0
+    app_global_put
+    intc_0 // 1
+    return
+
+call_NoOp:
+    bytec_3 // method "register(string)void"
     pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
     txna ApplicationArgs 0
-    match say_hello_route@8 calculate_route@9
-    err
+    match register say_hello_route@6 calculate_route@7
+    err // this contract does not implement the given ABI method for call NoOp
 
-calculate_route@9:
+calculate_route@7:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     btoi
@@ -30,14 +80,14 @@ calculate_route@9:
     +
     *
     itob
-    bytec_3 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-say_hello_route@8:
+say_hello_route@6:
     txn Sender
     bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     !=
@@ -48,18 +98,18 @@ say_hello_route@8:
     app_local_get_ex
     swap
     bury 2
-    bnz after_if_else@19
+    bnz after_if_else@27
     pushbytes 0x000f486f77647920737472616e67657221
 
-after_inlined_test_cases.everything.contract.Everything.say_hello@20:
-    bytec_3 // 0x151f7c75
+after_inlined_test_cases.everything.contract.Everything.say_hello@28:
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
     return
 
-after_if_else@19:
+after_if_else@27:
     dup
     extract 2 0
     pushbytes 0x000748656c6c6f2c20
@@ -79,58 +129,12 @@ after_if_else@19:
     itob
     extract 6 2
     replace2 0
-    b after_inlined_test_cases.everything.contract.Everything.say_hello@20
+    b after_inlined_test_cases.everything.contract.Everything.say_hello@28
 
-create_NoOp@10:
-    pushbytes 0x4c5c61ba // method "create()void"
-    txna ApplicationArgs 0
-    match create_route@11
-    err
 
-create_route@11:
-    txn Sender
-    bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
-    !=
-    assert // You are banned, goodbye
-    pushbytes "creator"
-    txn Sender
-    app_global_put
-    bytec_0 // "counter"
-    intc_1 // 0
-    app_global_put
-    intc_0 // 1
-    return
-
-close_out_route@5:
-    txn OnCompletion
-    pushint 2 // CloseOut
-    ==
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be CloseOut && can only call when not creating
-    intc_1 // 0
-    bytec_0 // "counter"
-    app_global_get_ex
-    assert // check self.counter exists
-    intc_0 // 1
-    -
-    bytec_0 // "counter"
-    swap
-    app_global_put
-    intc_0 // 1
-    return
-
-register_route@4:
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 3 // 3
-    &
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
+// test_cases.everything.contract.Everything.register[routing]() -> void:
+register:
     txna ApplicationArgs 1
-    bury 1
     txn Sender
     bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     !=
@@ -138,13 +142,13 @@ register_route@4:
     txn OnCompletion
     intc_0 // OptIn
     ==
-    bz after_if_else@26
+    bz register_after_if_else@5
     intc_1 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
     bury 1
-    bnz after_if_else@26
+    bnz register_after_if_else@5
     intc_1 // 0
     bytec_0 // "counter"
     app_global_get_ex
@@ -155,7 +159,7 @@ register_route@4:
     swap
     app_global_put
 
-after_if_else@26:
+register_after_if_else@5:
     intc_1 // 0
     bytec_2 // "name"
     dig 2

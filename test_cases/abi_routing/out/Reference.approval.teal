@@ -4,12 +4,12 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 123 2
-    bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
+    bytecblock 0x3a5353fc 0x151f7c75 "Hello World" "asa" 0xd2f2f53c 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
     txn ApplicationID
     bnz after_if_else@2
     // abi_routing/contract.py:26
     // self.asa = Asset(123)
-    bytec_1 // "asa"
+    bytec_3 // "asa"
     intc_2 // 123
     app_global_put
     // abi_routing/contract.py:27
@@ -35,26 +35,221 @@ main:
 after_if_else@2:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
-    txn NumAppArgs
-    bz bare_abi_config@23
-    pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
-    txna ApplicationArgs 0
-    match opt_in_route@5 full_abi_config mixed_oca_route@7
+    txn ApplicationID
+    !
+    txn OnCompletion
+    intc_0 // 1
+    shl
+    +
+    switch call_NoOp create_NoOp call_OptIn create_OptIn call_CloseOut create_CloseOut *NOT_IMPLEMENTED *NOT_IMPLEMENTED call_UpdateApplication create_UpdateApplication call_DeleteApplication create_DeleteApplication
 
-switch_case_next@8:
+*NOT_IMPLEMENTED:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
-    txn OnCompletion
-    !
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    assert
-    pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
-    txna ApplicationArgs 0
-    match noop_with_uint64 opt_into_asset with_transactions compare_assets get_address_route@14 get_asset_route@15 get_application_route@16 get_an_int_route@17 method_with_default_args method_with_15_args method_with_more_than_15_args hello_with_algopy_string
-    err
+    err // The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?
 
-get_an_int_route@17:
+create_DeleteApplication:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@57
+    // abi_routing/contract.py:90
+    // log("Hello World")
+    bytec_2 // "Hello World"
+    log
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    intc_0 // 1
+    return
+
+else_body@57:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create DeleteApplication
+
+call_DeleteApplication:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec 4 // method "mixed_oca(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config mixed_oca
+    err // this contract does not implement the given ABI method for call DeleteApplication
+
+create_UpdateApplication:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@48
+    // abi_routing/contract.py:90
+    // log("Hello World")
+    bytec_2 // "Hello World"
+    log
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    intc_0 // 1
+    return
+
+else_body@48:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create UpdateApplication
+
+call_UpdateApplication:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for call UpdateApplication
+
+create_CloseOut:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@40
+    // abi_routing/contract.py:90
+    // log("Hello World")
+    bytec_2 // "Hello World"
+    log
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    intc_0 // 1
+    return
+
+else_body@40:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create CloseOut
+
+call_CloseOut:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec 4 // method "mixed_oca(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config mixed_oca
+    err // this contract does not implement the given ABI method for call CloseOut
+
+create_OptIn:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@31
+    // abi_routing/contract.py:90
+    // log("Hello World")
+    bytec_2 // "Hello World"
+    log
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    intc_0 // 1
+    return
+
+else_body@31:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create OptIn
+
+call_OptIn:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    pushbytes 0x01040023 // method "opt_in(uint64,byte[])void"
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match opt_in full_abi_config
+    err // this contract does not implement the given ABI method for call OptIn
+
+create_NoOp:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    bnz else_body@22
+    // abi_routing/contract.py:90
+    // log("Hello World")
+    bytec_2 // "Hello World"
+    log
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    intc_0 // 1
+    return
+
+else_body@22:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    bytec_0 // method "all_the_things(uint64)uint8"
+    txna ApplicationArgs 0
+    match full_abi_config
+    err // this contract does not implement the given ABI method for create NoOp
+
+call_NoOp:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
+    bytec_0 // method "all_the_things(uint64)uint8"
+    bytec 4 // method "mixed_oca(uint64)uint8"
+    pushbytess 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
+    txna ApplicationArgs 0
+    match noop_with_uint64 full_abi_config mixed_oca opt_into_asset with_transactions compare_assets get_address_route@11 get_asset_route@12 get_application_route@13 get_an_int_route@14 method_with_default_args method_with_15_args method_with_more_than_15_args hello_with_algopy_string
+    err // this contract does not implement the given ABI method for call NoOp
+
+get_an_int_route@14:
     // abi_routing/contract.py:138
     // @arc4.abimethod(readonly=True, name="get_an_int")
     pushbytes 0x151f7c750000000000000003
@@ -62,92 +257,27 @@ get_an_int_route@17:
     intc_0 // 1
     return
 
-get_application_route@16:
+get_application_route@13:
     // abi_routing/contract.py:134
     // @arc4.abimethod(readonly=True, name="get_application")
-    bytec_2 // 0x151f7c7500000000000001c8
+    bytec 5 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
 
-get_asset_route@15:
+get_asset_route@12:
     // abi_routing/contract.py:130
     // @arc4.abimethod(readonly=True)
-    bytec_2 // 0x151f7c7500000000000001c8
+    bytec 5 // 0x151f7c7500000000000001c8
     log
     intc_0 // 1
     return
 
-get_address_route@14:
+get_address_route@11:
     // abi_routing/contract.py:126
     // @arc4.abimethod(readonly=True)
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
-    intc_0 // 1
-    return
-
-mixed_oca_route@7:
-    // abi_routing/contract.py:66-74
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "CloseOut",
-    //         "DeleteApplication",
-    //     ],
-    //     create="disallow",
-    //     readonly=True,
-    // )
-    intc_0 // 1
-    txn OnCompletion
-    shl
-    pushint 37 // 37
-    &
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
-    b mixed_oca
-
-opt_in_route@5:
-    // abi_routing/contract.py:45
-    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-    txn OnCompletion
-    intc_0 // OptIn
-    ==
-    txn ApplicationID
-    &&
-    assert // OnCompletion must be OptIn && can only call when not creating
-    b opt_in
-
-bare_abi_config@23:
-    // abi_routing/contract.py:79-88
-    // @arc4.baremethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "OptIn",
-    //         "CloseOut",
-    //         "UpdateApplication",
-    //         "DeleteApplication",
-    //     ],
-    //     create="require",
-    // )
-    txn ApplicationID
-    !
-    assert // can only call when creating
-    // abi_routing/contract.py:90
-    // log("Hello World")
-    pushbytes "Hello World"
-    log
-    // abi_routing/contract.py:79-88
-    // @arc4.baremethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "OptIn",
-    //         "CloseOut",
-    //         "UpdateApplication",
-    //         "DeleteApplication",
-    //     ],
-    //     create="require",
-    // )
     intc_0 // 1
     return
 
@@ -173,7 +303,7 @@ noop_with_uint64:
     extract 7 1
     // abi_routing/contract.py:40
     // @arc4.abimethod
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -192,13 +322,13 @@ opt_in:
     // abi_routing/contract.py:47
     // self.local_uint[Txn.sender] = uint
     txn Sender
-    bytec_3 // "local_uint"
+    bytec 6 // "local_uint"
     uncover 3
     app_local_put
     // abi_routing/contract.py:48
     // self.local_bytes[Txn.sender] = bites
     txn Sender
-    bytec 4 // "local_bytes"
+    bytec 7 // "local_bytes"
     uncover 2
     app_local_put
     // abi_routing/contract.py:45
@@ -250,7 +380,7 @@ full_abi_config:
     //     create="allow",
     //     readonly=True,
     // )
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -295,7 +425,7 @@ mixed_oca:
     //     create="disallow",
     //     readonly=True,
     // )
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -320,7 +450,7 @@ opt_into_asset:
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
     intc_1 // 0
-    bytec_1 // "asa"
+    bytec_3 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
@@ -328,7 +458,7 @@ opt_into_asset:
     // abi_routing/contract.py:98-99
     // # Save ASA ID in global state
     // self.asa = asset
-    bytec_1 // "asa"
+    bytec_3 // "asa"
     dig 1
     app_global_put
     // abi_routing/contract.py:101-102
@@ -378,7 +508,7 @@ with_transactions:
     // abi_routing/contract.py:117
     // assert self.asa == asset, "is correct asset"
     intc_1 // 0
-    bytec_1 // "asa"
+    bytec_3 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     uncover 4
@@ -550,7 +680,7 @@ method_with_default_args:
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
     intc_1 // 0
-    bytec_3 // "local_uint"
+    bytec 6 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
     uncover 2
@@ -560,7 +690,7 @@ method_with_default_args:
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
     intc_1 // 0
-    bytec 4 // "local_bytes"
+    bytec 7 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
     ==
@@ -782,7 +912,7 @@ method_with_15_args:
     assert
     // abi_routing/contract.py:191
     // @arc4.abimethod
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -1263,7 +1393,7 @@ method_with_more_than_15_args:
     itob
     // abi_routing/contract.py:229
     // @arc4.abimethod
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -1292,7 +1422,7 @@ hello_with_algopy_string:
     extract 6 2
     swap
     concat
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
