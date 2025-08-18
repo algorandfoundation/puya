@@ -272,7 +272,9 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         arc4_router_awst, allow_implicits=False
     )
     for wf in wrapper_funcs:
-        ctx.subroutines[wf] = make_subroutine(wf, allow_implicits=False)
+        wrapper_sub = make_subroutine(wf, allow_implicits=False)
+        wrapper_sub.is_routing_wrapper = True
+        ctx.subroutines[wf] = wrapper_sub
 
     # Build callees list, excluding calls from router.
     # Used to if a function should implicitly return mutable reference parameters.
