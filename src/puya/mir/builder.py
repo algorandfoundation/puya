@@ -40,8 +40,16 @@ class MemoryIRBuilder(IRVisitor[None]):
     def _get_block_name(self, block: ir.BasicBlock) -> str:
         assert block in self.current_subroutine.body
         comment = (block.comment or "block").replace(" ", "_")
-        subroutine_name = self.context.subroutine_names[self.current_subroutine]
-        return f"{subroutine_name}_{comment}@{block.id}"
+        if self.is_main:
+            prefix = ""
+        else:
+            subroutine_name = self.context.subroutine_names[self.current_subroutine]
+            prefix = f"{subroutine_name}_"
+        if block.label is not None:
+            suffix = block.label
+        else:
+            suffix = f"{comment}@{block.id}"
+        return f"{prefix}{suffix}"
 
     def visit_assignment(self, ass: ir.Assignment) -> None:
         ass.source.accept(self)
