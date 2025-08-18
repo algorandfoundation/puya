@@ -30,18 +30,14 @@ def optimize_teal_program(
     maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
 
     if context.options.optimization_level > 0:
-        branchable_subroutines = set[str]()
-        for teal_sub in teal_program.all_subroutines:
-            first_block = teal_sub.blocks[0]
-            if first_block.ops[0].op_code != "proto":
-                for block in teal_sub.blocks:
-                    if block.ops[-1].op_code == "retsub":
-                        break
-                else:
-                    branchable_subroutines.add(first_block.label)
+        branchable_subroutine_entry_blocks = {
+            sub.blocks[0].label
+            for sub in teal_program.all_subroutines
+            if _is_branchable_subroutine(sub)
+        }
 
         for teal_sub in teal_program.all_subroutines:
-            _optimize_subroutine_blocks(context, teal_sub, branchable_subroutines)
+            _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
         maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
     gather_program_constants(teal_program)
@@ -83,6 +79,14 @@ def _optimize_subroutine_blocks(
             _replace_callsubs_with_branch(teal_sub, branchable_subroutines)
         _inline_jump_chains(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
+
+
+def _is_branchable_subroutine(sub: models.TealSubroutine) -> bool:
+    # a subroutine is branchable if it does not have a proto op, and it never retsubs
+    blocks = sub.blocks
+    if blocks[0].ops[0].op_code == "proto":
+        return False
+    return all(block.ops[-1].op_code != "retsub" for block in blocks)
 
 
 def _replace_callsubs_with_branch(
