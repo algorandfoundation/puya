@@ -1124,6 +1124,7 @@ class Subroutine(Context):
     _returns: Sequence[IRType]
     body: list[BasicBlock] = attrs.field()
     inline: bool | None
+    is_routing_wrapper: bool = False
 
     @property
     def returns(self) -> list[IRType]:

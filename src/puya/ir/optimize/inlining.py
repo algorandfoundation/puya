@@ -61,13 +61,13 @@ def analyse_subroutines_for_inlining(
     if context.options.optimization_level == 0:
         return
 
-    # for optimization levels below 2, skip auto-inlining routable methods into the approval
+    # for optimization levels below 2, skip auto-inlining ABI-method wrappers into the approval
     # program. mostly this can be beneficial in terms of #ops, but not always.
-    # also, it impacts the debugging experience
+    # also, it impacts the readability of the TEAL, and potentially on the debugging
     skip_routable_ids = frozenset[str]()
     if context.options.optimization_level < 2:
         skip_routable_ids = frozenset(
-            sub.id for sub in program.subroutines if sub.id.endswith("[routing]")
+            sub.id for sub in program.subroutines if sub.is_routing_wrapper
         )
 
     for sub in program.subroutines:
