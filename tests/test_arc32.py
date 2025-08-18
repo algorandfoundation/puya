@@ -917,12 +917,8 @@ def test_template_variables(
 
     assert get_uint.return_value == 0
 
-    try:
+    with pytest.raises(Exception, match="transaction rejected by ApprovalProgram"):
         app_client.update()
-    except Exception:
-        pass
-    else:
-        raise AssertionError("Update should fail")
 
     app_client.delete()
 
