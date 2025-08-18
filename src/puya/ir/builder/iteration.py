@@ -269,38 +269,57 @@ def _iterate_urange_simple(
     range_loc: SourceLocation,
 ) -> None:
     body = context.block_builder.mkblock(loop_body, "for_body")
-    header, footer, next_block = context.block_builder.mkblocks(
-        "for_header", "for_footer", "after_for", source_location=statement_loc
+    footer, increment_block, next_block = context.block_builder.mkblocks(
+        "for_footer", "for_increment", "after_for", source_location=statement_loc
     )
 
     loop_vars = assigner.assign_user_loop_vars(
         start, UInt64Constant(value=0, source_location=None)
     )
-    context.block_builder.goto(header)
-    with context.block_builder.activate_open_block(header):
-        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
-        continue_looping = assign_intrinsic_op(
-            context,
-            target="continue_looping",
-            op=AVMOp.lt,
-            args=[current_range_item, stop],
-            source_location=range_loc,
-        )
-        context.block_builder.terminate(
-            ConditionalBranch(
-                condition=continue_looping,
-                non_zero=body,
-                zero=next_block,
-                source_location=statement_loc,
-            )
-        )
 
-        context.block_builder.activate_block(body)
+    # A pre-check is needed, if the range is empty the loop should not happen
+    should_loop = assign_intrinsic_op(
+        context,
+        target="should_loop",
+        op=AVMOp.lt,
+        args=[start, stop],
+        source_location=statement_loc,
+    )
+    context.block_builder.terminate(
+        ConditionalBranch(
+            condition=should_loop,
+            non_zero=body,
+            zero=next_block,
+            source_location=statement_loc,
+        )
+    )
+
+    context.block_builder.goto(body)
+    with context.block_builder.activate_open_block(body):
+        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
+
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(context.visitor)
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
+            continue_looping = assign_intrinsic_op(
+                context,
+                target="continue_looping",
+                op=AVMOp.lt,
+                args=[current_range_item, stop],
+                source_location=range_loc,
+            )
+            context.block_builder.terminate(
+                ConditionalBranch(
+                    condition=continue_looping,
+                    non_zero=increment_block,
+                    zero=next_block,
+                    source_location=statement_loc,
+                )
+            )
+
+            context.block_builder.activate_block(increment_block)
             _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
@@ -316,7 +335,7 @@ def _iterate_urange_simple(
                     args=[current_range_index, 1],
                     source_location=range_loc,
                 )
-            context.block_builder.goto(header)
+            context.block_builder.goto(body)
 
     context.block_builder.activate_block(next_block)
 
