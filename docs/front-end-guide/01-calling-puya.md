@@ -1,13 +1,8 @@
-# Building a front end for Puya
-
-**Previous**: [Introduction](./00-introduction.md)
-
-
-## Calling puya
+# Calling puya
 
 Before getting into building out the front end, let's look at how we will be calling into the back end which informs us of the artifacts we will need to produce. 
 
-### Installing puya
+## Installing puya
 
 The Puya compiler is currently published to the Python Package Index under the name `puyapy`. This package includes the `puyapy` front end cli for compiling Algorand Python projects, and a `puya` executable for invoking just the back end. To install it you will require a working python 3.12 environment then the package can be installed with:
 
@@ -34,7 +29,7 @@ puya: error: the following arguments are required: --options, --awst
 
 You should see an error message saying two required arguments are not present. 
 
-### Puya Options
+## Puya Options
 
 The first artifact required by the Puya compiler is a file containing the options to be used when producing compilation output. You can find the JSON schema for this file [here](./puya-options.json). The only required property is `compilationSet` which is what Puya uses to determine compilation targets. Whilst not strictly speaking required, if none of the `output*` properties are set to `true`, there will be no compilation output.  
 
@@ -53,7 +48,7 @@ A minimal options file might look like this:
 
 Puya will look for a contract with `"id": "HelloWorldContract"` and produce `*.teal` files in the `out` directory (relative to the current working directory). 
 
-### AWST json
+## AWST json
 
 The second artifact required by the compiler is the AWST nodes themselves, serialized to JSON. This file will be deserialized by Python's cattrs library using a `_type` property to disambiguate nodes. As such, each node should be serialized with an additional `_type` property set to the node's name. eg.
 

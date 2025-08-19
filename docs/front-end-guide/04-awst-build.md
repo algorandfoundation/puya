@@ -1,22 +1,18 @@
-# Building a front end for Puya
-
-**Previous**: [Parsing](./03-parsing.md)
-
-## AWST build
+# AWST build
 
 The AWST build phase is where we convert the source language AST to AWST.
 
-### Define AWST nodes and WTypes
+## Define AWST nodes and WTypes
 
 The first step to building AWST is to create a local representation of the AWST nodes in your front-end's language. This will also need to include a version of Puya's wtypes. WTypes are attached to every AWST expression and their implementation must match Puya's. 
 
 Puyapy is written in python which means it has the luxury of being able to just reference the types in the `puya` module directly. Puya-ts uses a script to build `nodes.py` from and visits the AST to build equivalent TypeScript definitions which are then written to `nodes.ts`. We are exploring options for generating a JSON schema for the nodes which would make it easier for other front ends to generate compatible node types. Puya-ts hand rolls the wtypes file as there are not that many of them, and it makes it easier to write bespoke constructors for each type.
 
-### Visit AST and produce AWST
+## Visit AST and produce AWST
 
 Once you have your nodes and wtypes, it's time to start visiting your AST and building AWST nodes. Puya does not have any requirement for how this is done. The rest of this section will discuss the approach used by puyapy and puya-ts.
 
-#### Builder Pattern 
+### Builder Pattern 
 
 In the context of the AWST build process, the builder pattern refers to the practice of wrapping resolved expressions in a _builder_ class which is then used to build out bigger expression trees, all wrapped in a builder until we reach the statement level where we resolve it to AWST nodes. Take the following code expression as an example.
 
@@ -189,13 +185,13 @@ class Visitor {
 
 In practice the builders will need more than just call and member access, but hopefully this demonstrates the power of the pattern. You review the Python implementation of this patten in src/puyapy/awst_build/eb or the TypeScript implementation in `src/awst_build/eb` in the puya-ts repository.  
 
-#### PyTypes and PTypes
+### PyTypes and PTypes
 
 Whilst the aforementioned WTypes are enough to accurately describe all the expression types that are supported in AWST; you will likely find they are insufficient for describing all the possible types in your front end language. For this reason, puyapy introduces the concept of a `PyType` which is a largely a superset of WTypes. Many of the PyTypes map directly to an equivalent WType - such as strings, uints, bytes, and arrays; but other PyTypes represent concepts that only exist in Algorand Python - such as a Box proxy. A box proxy is clearly a type in the front end, but it has no representation in AWST. What would it mean to return `self.my_box` from an ABI method for example? `self.my_box.value` however, would map to an `AppStateExpression`. PyTypes allow you to describe these front end only types. 
 
 In puya-ts, the equivalent concept is a `PType` - because `TsType` was already taken by the `typescript` namespace and [naming things is hard](https://martinfowler.com/bliki/TwoHardThings.html). 
 
-### Serialize to JSON
+## Serialize to JSON
 
 The last step once you have built your AWST tree is to produce the two required artifacts discussed [earlier](01-calling-puya.md) and then invoke puya. 
 
