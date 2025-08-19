@@ -18,7 +18,7 @@ e.g.
 from algopy import ReferenceArray as Array
 ```
 
-If you need to use both `algopy.ReferenceArray` and the new `algopy.Array` then it would be better to rename existing
+If you need to use both `algopy.ReferenceArray` and the new `algopy.Array` then it would be better to update existing
 `algopy.Array` references to `algopy.ReferenceArray`
 
 e.g. code that was using `algopy.Array` prior to 5.0
@@ -59,7 +59,7 @@ There are two methods to return to the 4.x behaviour for these types:
 The original behaviour can be restored by using the `--resource-encoding` CLI option on `puyapy`
 
 e.g.
-`puyapy --resource-encoding=foreign_index path/to/contracts`
+`puyapy --resource-encoding=index path/to/contracts`
 
 2.) Use original behaviour for specific methods by using an `abimethod` option
 Individual methods can be forced to use the original behaviour by setting the `resource_encoding` option
@@ -69,7 +69,7 @@ on `arc4.abimethod` e.g.
 from algopy import arc4, Account, Application, Asset
 
 class MyContract(arc4.ARC4Contract):
-    @arc4.abimethod(resource_encoding="foreign_index")
+    @arc4.abimethod(resource_encoding="index")
     def my_abi_method(self, app: Application, asset: Asset, account: Account) -> None:
         ...
         # has an ARC-4 signature of my_abi_method(application,asset,account)void
