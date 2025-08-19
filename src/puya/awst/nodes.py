@@ -812,7 +812,6 @@ class CreateInnerTransaction(Expression):
     """
     Create an InnerTransactionFields object with the specified fields. This object can be updated
     with UpdateInnerTransaction, or submitted with SubmitInnerTransaction.
-
     """
 
     wtype: wtypes.WInnerTransactionFields
@@ -1595,22 +1594,20 @@ class BytesComparisonExpression(Expression):
 class SubroutineID:
     """
     Identifies a free subroutine
-
-    target: The fully qualified name of a subroutine
     """
 
     target: str
+    """The fully qualified name of a subroutine """
 
 
 @attrs.frozen(kw_only=True)
 class InstanceMethodTarget:
     """
     Identifies a method on the current contract
-
-    member_name: The local name of the instance method
     """
 
     member_name: str
+    """The local name of the instance method """
 
 
 @attrs.frozen(kw_only=True)
@@ -1618,23 +1615,22 @@ class InstanceSuperMethodTarget:
     """
     Identifies a method on ANY of the current contract's base types. Resolved using
     the contract's method_resolution_order
-    member_name: The local name of the instance method
     """
 
     member_name: str
+    """ The local name of the instance method """
 
 
 @attrs.frozen(kw_only=True)
 class ContractMethodTarget:
     """
     Identifies a method on a SPECIFIC contract in the current contract's method_resolution_order.
-
-    cref: The target contract's identifier
-    member_name: The local name of the instance method
     """
 
     cref: ContractReference
+    """The target contract's identifier"""
     member_name: str
+    """The local name of the instance method"""
 
 
 SubroutineTarget = (
