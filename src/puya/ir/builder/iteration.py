@@ -270,7 +270,12 @@ def _iterate_urange_simple(
 ) -> None:
     body = context.block_builder.mkblock(loop_body, "for_body")
     header, footer, did_loop, iter_dec, next_block = context.block_builder.mkblocks(
-        "for_header", "for_footer", "did_loop", "iteration_variable_decrement", "after_for", source_location=statement_loc
+        "for_header",
+        "for_footer",
+        "did_loop",
+        "iteration_variable_decrement",
+        "after_for",
+        source_location=statement_loc,
     )
 
     loop_vars = assigner.assign_user_loop_vars(
@@ -323,12 +328,12 @@ def _iterate_urange_simple(
         # Otherwise keep going.
         with context.block_builder.activate_open_block(did_loop):
             looped = assign_intrinsic_op(
-            context,
-            target="looped",
-            op=AVMOp.neq,
-            args=[current_range_item, start],
-            source_location=range_loc,
-        )
+                context,
+                target="looped",
+                op=AVMOp.neq,
+                args=[current_range_item, start],
+                source_location=range_loc,
+            )
         context.block_builder.terminate(
             ConditionalBranch(
                 condition=looped,
@@ -356,7 +361,6 @@ def _iterate_urange_simple(
                     source_location=range_loc,
                 )
             context.block_builder.goto(next_block)
-    
 
     context.block_builder.activate_block(next_block)
 
