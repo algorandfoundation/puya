@@ -133,7 +133,7 @@ class IRTraverser(IRVisitor[None]):
             self.visit_block(block)
 
     def visit_block(self, block: puya.ir.models.BasicBlock) -> None:
-        for op in list(block.all_ops):  # make a copy in case visitors need to modify ops
+        for op in block.all_ops:
             op.accept(self)
 
     def visit_assignment(self, ass: puya.ir.models.Assignment) -> None:

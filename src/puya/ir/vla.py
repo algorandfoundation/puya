@@ -62,9 +62,11 @@ class VariableLifetimeAnalysis:
     @_op_lifetimes.default
     def _op_lifetimes_factory(self) -> dict[IrOp, _OpLifetime]:
         result = dict[IrOp, _OpLifetime]()
+        block_ops = dict[ops.BasicBlock, list[IrOp]]()
         for block in self.subroutine.body:
             assert not block.phis
-            all_ops = list(block.all_ops)
+            all_ops = block.all_ops
+            block_ops[block] = all_ops
             for op in all_ops:
                 used, defined = _VlaTraverser.apply(op)
                 result[op] = _OpLifetime(
@@ -74,11 +76,11 @@ class VariableLifetimeAnalysis:
                 )
         # provide lookup for the first and last lifetimes of a block
         block_map = {
-            b.id: (result[next(b.all_ops)], result[typing.cast(ops.ControlOp, b.terminator)])
+            b.id: (result[block_ops[b][0]], result[typing.cast(ops.ControlOp, b.terminator)])
             for b in self.subroutine.body
         }
         for block in self.subroutine.body:
-            lifetimes = [result[op] for op in block.all_ops]
+            lifetimes = [result[op] for op in block_ops[block]]
             # for the first op add control op of each predecessor block
             lifetimes[0].predecessors = tuple(block_map[p.id][1] for p in block.predecessors)
             # iterate all ops until the last
