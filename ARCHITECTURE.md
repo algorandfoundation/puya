@@ -135,7 +135,7 @@ the entry point here.
 ### 3rd Party Front Ends
 
 Puya has been architected in a way to support additional front end languages, allowing them to take
-advantage of the compilation and optimizations of the backend layers. Please see the [Building a front end for Puya](docs/front-end-guide/readme.md) docs for a guide to contributing your own front end.
+advantage of the compilation and optimizations of the backend layers. Please see the [Building a front end for Puya](docs/front-end-guide/index.md) docs for a guide to contributing your own front end.
 
 ## 4. Backend Layers
 

@@ -1,6 +1,4 @@
-# Building a front end for Puya
-
-## Introduction
+# Introduction
 
 Puya is a multi-stage compiler designed from the start to support multiple source languages. The first supported language was Algorand Python, the second was Algorand TypeScript. We refer to the code used to support these languages as a 'front end'. The job of a front end is to parse a source language, then respecting the relevant syntactical and semantic rules of that source language, convert it into a common AST which is used as an input into the later stages of the puya compiler. This AST is referred to as AWST (Abstract Wyvern Syntax Tree) after the code name for the compiler (Wyvern). 
 
@@ -26,4 +24,3 @@ The available AWST nodes may change over time as the capabilities of the underly
 
 As an example, Algorand Python makes use of Python's `assert <condition>` statement for asserts resulting in an initial `AssertStatement` node. When support was added for Algorand TypeScript, there is no such statement available and asserts were implemented by a function call expression `assert(<condition>)`. Since this is an expression, this code could appear anywhere expressions are valid - not just at the statement level. As a result, the `AssertStatement` node was converted to an `AssertExpression` and Algorand Python was updated to use `ExpressionStatement(AssertExpression)`. 
 
-**Next up**: [Calling puya](./01-calling-puya.md)

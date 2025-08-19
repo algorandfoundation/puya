@@ -56,10 +56,10 @@ hidden: true
 ---
 
 language-guide
-front-end-guide/readme
 principles
 api
 compiler
 references/algopy_testing
 references/avm_debugger
+front-end-guide/index
 ```
