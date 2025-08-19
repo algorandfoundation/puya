@@ -269,57 +269,38 @@ def _iterate_urange_simple(
     range_loc: SourceLocation,
 ) -> None:
     body = context.block_builder.mkblock(loop_body, "for_body")
-    footer, increment_block, next_block = context.block_builder.mkblocks(
-        "for_footer", "for_increment", "after_for", source_location=statement_loc
+    header, footer, did_loop, iter_dec, next_block = context.block_builder.mkblocks(
+        "for_header", "for_footer", "did_loop", "iteration_variable_decrement", "after_for", source_location=statement_loc
     )
 
     loop_vars = assigner.assign_user_loop_vars(
         start, UInt64Constant(value=0, source_location=None)
     )
-
-    # A pre-check is needed, if the range is empty the loop should not happen
-    should_loop = assign_intrinsic_op(
-        context,
-        target="should_loop",
-        op=AVMOp.lt,
-        args=[start, stop],
-        source_location=statement_loc,
-    )
-    context.block_builder.terminate(
-        ConditionalBranch(
-            condition=should_loop,
-            non_zero=body,
-            zero=next_block,
-            source_location=statement_loc,
-        )
-    )
-
-    context.block_builder.goto(body)
-    with context.block_builder.activate_open_block(body):
+    context.block_builder.goto(header)
+    with context.block_builder.activate_open_block(header):
         (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
+        continue_looping = assign_intrinsic_op(
+            context,
+            target="continue_looping",
+            op=AVMOp.lt,
+            args=[current_range_item, stop],
+            source_location=range_loc,
+        )
+        context.block_builder.terminate(
+            ConditionalBranch(
+                condition=continue_looping,
+                non_zero=body,
+                zero=did_loop,
+                source_location=statement_loc,
+            )
+        )
 
+        context.block_builder.activate_block(body)
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(context.visitor)
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
-            continue_looping = assign_intrinsic_op(
-                context,
-                target="continue_looping",
-                op=AVMOp.lt,
-                args=[current_range_item, stop],
-                source_location=range_loc,
-            )
-            context.block_builder.terminate(
-                ConditionalBranch(
-                    condition=continue_looping,
-                    non_zero=increment_block,
-                    zero=next_block,
-                    source_location=statement_loc,
-                )
-            )
-
-            context.block_builder.activate_block(increment_block)
             _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
@@ -335,7 +316,47 @@ def _iterate_urange_simple(
                     args=[current_range_index, 1],
                     source_location=range_loc,
                 )
-            context.block_builder.goto(body)
+            context.block_builder.goto(header)
+
+        # Issue #453 fix: if we did loop, go to the iteration decrement block (rollback of last
+        #   loop increment).
+        # Otherwise keep going.
+        with context.block_builder.activate_open_block(did_loop):
+            looped = assign_intrinsic_op(
+            context,
+            target="looped",
+            op=AVMOp.neq,
+            args=[current_range_item, start],
+            source_location=range_loc,
+        )
+        context.block_builder.terminate(
+            ConditionalBranch(
+                condition=looped,
+                non_zero=iter_dec,
+                zero=next_block,
+                source_location=statement_loc,
+            )
+        )
+
+        # Rollback the last increment of the loop for both item and index iteration variables.
+        with context.block_builder.activate_open_block(iter_dec):
+            _reassign_with_intrinsic_op(
+                context,
+                target=current_range_item,
+                op=AVMOp.sub,
+                args=[current_range_item, step],
+                source_location=range_loc,
+            )
+            if current_range_index:
+                _reassign_with_intrinsic_op(
+                    context,
+                    target=current_range_index,
+                    op=AVMOp.sub,
+                    args=[current_range_index, 1],
+                    source_location=range_loc,
+                )
+            context.block_builder.goto(next_block)
+    
 
     context.block_builder.activate_block(next_block)
 
