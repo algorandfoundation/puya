@@ -62,27 +62,18 @@ class VariableLifetimeAnalysis:
     @_op_lifetimes.default
     def _op_lifetimes_factory(self) -> dict[IrOp, _OpLifetime]:
         result = dict[IrOp, _OpLifetime]()
-        block_ops = dict[ops.BasicBlock, list[IrOp]]()
+        block_lifetimes = dict[ops.BasicBlock, list[_OpLifetime]]()
         for block in self.subroutine.body:
-            assert not block.phis
-            all_ops = block.all_ops
-            block_ops[block] = all_ops
-            for op in all_ops:
+            assert not block.phis, "IR VLA cannot operate on SSA IR"
+            block_lifetimes[block] = lifetimes = []
+            for op in block.all_ops:
                 used, defined = _VlaTraverser.apply(op)
-                result[op] = _OpLifetime(
-                    block=block,
-                    used=used,
-                    defined=defined,
-                )
-        # provide lookup for the first and last lifetimes of a block
-        block_map = {
-            b.id: (result[block_ops[b][0]], result[typing.cast(ops.ControlOp, b.terminator)])
-            for b in self.subroutine.body
-        }
-        for block in self.subroutine.body:
-            lifetimes = [result[op] for op in block_ops[block]]
+                olt = _OpLifetime(block=block, used=used, defined=defined)
+                lifetimes.append(olt)
+                result[op] = olt
+        for block, lifetimes in block_lifetimes.items():
             # for the first op add control op of each predecessor block
-            lifetimes[0].predecessors = tuple(block_map[p.id][1] for p in block.predecessors)
+            lifetimes[0].predecessors = tuple(block_lifetimes[p][-1] for p in block.predecessors)
             # iterate all ops until the last
             for op_idx in range(len(lifetimes) - 1):
                 op_lifetime = lifetimes[op_idx]
@@ -91,7 +82,7 @@ class VariableLifetimeAnalysis:
                 next_op_lifetime.predecessors = (op_lifetime,)
 
             # for the last op set successors to the first op of each successor block
-            lifetimes[-1].successors = tuple(block_map[s.id][0] for s in block.successors)
+            lifetimes[-1].successors = tuple(block_lifetimes[s][0] for s in block.successors)
         return result
 
     def get_live_out_variables(self, op: IrOp) -> Set[ops.Register]:
