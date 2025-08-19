@@ -923,11 +923,11 @@ class BasicBlock(Context):
         return not (self.phis or self.ops or self.terminator)
 
     @property
-    def all_ops(self) -> Iterator[Phi | Op | ControlOp]:
-        yield from self.phis.copy()
-        yield from self.ops.copy()  # copy in case ops is modified
+    def all_ops(self) -> list[Phi | Op | ControlOp]:
+        result: list[Phi | Op | ControlOp] = [*self.phis, *self.ops]
         if self.terminator is not None:
-            yield self.terminator
+            result.append(self.terminator)
+        return result
 
     def get_assigned_registers(self) -> Iterator[Register]:
         for phi in self.phis:
