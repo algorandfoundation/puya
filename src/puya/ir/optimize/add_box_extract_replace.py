@@ -24,14 +24,18 @@ def replace_aggregate_box_ops(
     context: IROptimizationContext, subroutine: models.Subroutine
 ) -> bool:
     aggregates = _AggregateCollector()
+    interesting_blocks = list[models.BasicBlock]()
     for block in subroutine.body:
-        for op in block.all_ops:
+        aggregates.reset_flags()
+        for op in block.ops:
             op.accept(aggregates)
+        if aggregates.any_flag():
+            interesting_blocks.append(block)
     # all optimizations involve a box read, so exit if none were found
     if not aggregates.box_reads:
         return False
     # also exit early if none of the nodes we visit were found
-    if not (aggregates.has_box_write or aggregates.extract_values or aggregates.has_array_length):
+    if not interesting_blocks:
         return False
     replacer = _AddDirectBoxOpsVisitor(
         temp_prefix="box",
@@ -39,7 +43,9 @@ def replace_aggregate_box_ops(
         subroutine=subroutine,
         embedded_funcs=context.embedded_funcs,
     )
-    replacer.process_and_validate()
+    for block in interesting_blocks:
+        replacer.visit_block(block)
+    subroutine.validate_with_ssa()
     return replacer.modified
 
 
@@ -51,6 +57,15 @@ class _AggregateCollector(NoOpIRVisitor[None]):
     _target: models.Register | None = None
     has_array_length: bool = False
     has_box_write: bool = False
+    has_extract: bool = False
+
+    def reset_flags(self) -> None:
+        self.has_array_length = False
+        self.has_box_write = False
+        self.has_extract = False
+
+    def any_flag(self) -> bool:
+        return self.has_array_length or self.has_box_write or self.has_extract
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
@@ -76,6 +91,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> None:
+        self.has_extract = True
         if self._target:
             self.extract_values[self._target] = read
 
