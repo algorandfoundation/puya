@@ -1,18 +1,16 @@
-import contextlib
-import functools
-import operator
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence, Set
 
 import attrs
+import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
 from puya.context import CompileContext
+from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
-from puya.utils import not_none
 
 logger = log.get_logger(__name__)
 
@@ -20,68 +18,70 @@ logger = log.get_logger(__name__)
 def repeated_expression_elimination(
     context: CompileContext, subroutine: models.Subroutine
 ) -> bool:
-    any_modified = False
-    dom = compute_dominators(subroutine)
-    modified = True
-    while modified:
-        modified = False
-        block_visitors = dict[models.BasicBlock, RCEVisitor]()
-        for block in subroutine.body:
-            modified |= _visit_block_and_dominators(dom, block_visitors, block).modified
-        if modified:
-            any_modified = True
-            copy_propagation(context, subroutine)
-    return any_modified
+    start, dom_tree = compute_dominator_tree(subroutine)
+    modified = False
+    while _recursive_rce(dom_tree, start, const_intrinsics={}, asserted=set()):
+        modified = True
+        copy_propagation(context, subroutine)
+    return modified
 
 
-def compute_dominators(
+def _recursive_rce(
+    dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
+    block: models.BasicBlock,
+    *,
+    const_intrinsics: Mapping[object, Sequence[models.Register]],
+    asserted: Set[models.Value],
+) -> bool:
+    visitor = RCEVisitor(
+        block=block,
+        const_intrinsics=dict(const_intrinsics),
+        asserted=set(asserted),
+    )
+    for op in block.ops.copy():
+        op.accept(visitor)
+    modified = visitor.modified
+    for child in dom_tree.get(block, []):
+        modified |= _recursive_rce(
+            dom_tree, child, const_intrinsics=visitor.const_intrinsics, asserted=visitor.asserted
+        )
+    return modified
+
+
+def compute_dominator_tree(
     subroutine: models.Subroutine,
-) -> dict[models.BasicBlock, list[models.BasicBlock]]:
-    """
-    For each block in the subroutine, compute its dominators (other than itself).
-
-    A block X dominates another block Y if all possible control flow paths to Y must
-    pass through X at least once.
-    """
-    # This is the simple iterative data-flow approach, described as such in the introduction of:
-    # https://www.clear.rice.edu/comp512/Lectures/Papers/TR06-33870-Dom.pdf
-    # Note that the pseudocode in Figure 1 is somewhat misleading, it omits the important detail
-    # that the start node *must* remain as having no dominators other than itself, even if it
-    # forms part of a loop (ie has predecessors).
-    all_blocks = set(subroutine.body)
-    non_root_blocks = list[models.BasicBlock]()
-    dom = {subroutine.entry: {subroutine.entry}}
-    # Reversed here is not critical but should reduce iterations.
-    # Paper calls for reverse post-order traversal, but this is simpler and good enough.
-    for b in reversed(subroutine.body[1:]):
-        if b.predecessors:
-            dom[b] = all_blocks
-            non_root_blocks.append(b)
-        else:
-            # For non-entry blocks with no predecessors (ie unreachable blocks),
-            # we can similarly pre-compute the end result.
-            # This isn't critical, but without this here we'd need to handle this inside
-            # the loop as the reduce result will be undefined, but should be empty.
-            dom[b] = {b}
-    changes = True
-    while changes:
-        changes = False
-        for block in non_root_blocks:
-            pred_dom = functools.reduce(set.intersection, (dom[p] for p in block.predecessors))
-            new = pred_dom | {block}
-            if new != dom[block]:
-                dom[block] = new
-                changes = True
-    # Dominator sets are defined as including the node itself, but that's not useful to us,
-    # so remove it here and also sort the list by block ID.
-    return {b: sorted(dom_set - {b}, key=lambda a: not_none(a.id)) for b, dom_set in dom.items()}
+) -> tuple[models.BasicBlock, dict[models.BasicBlock, list[models.BasicBlock]]]:
+    block_graph = nx.DiGraph()
+    for block in subroutine.body:
+        block_graph.add_node(block.id)
+        for target in block.successors:
+            block_graph.add_edge(block.id, target.id)
+    start = subroutine.body[0]
+    idom_ids = nx.immediate_dominators(block_graph, start.id)
+    idom_ids.pop(start.id)
+    dom_tree_ids = dict[int, list[int]]()
+    blocks_by_id = {b.id: b for b in subroutine.body}
+    for block_id, idom_id in idom_ids.items():
+        if block_id == idom_id:
+            raise InternalError(
+                f"cycle in immediate dominators at block ID = {block_id}",
+                blocks_by_id[block_id].source_location,
+            )
+        dom_tree_ids.setdefault(idom_id, []).append(block_id)
+    for child_id_list in dom_tree_ids.values():
+        child_id_list.sort()
+    dom_tree = {
+        blocks_by_id[pid]: [blocks_by_id[c] for c in child_id_list]
+        for pid, child_id_list in dom_tree_ids.items()
+    }
+    return start, dom_tree
 
 
-@attrs.define
+@attrs.define(kw_only=True)
 class RCEVisitor(NoOpIRVisitor[None]):
     block: models.BasicBlock
-    const_intrinsics: dict[object, Sequence[models.Register]] = attrs.field(factory=dict)
-    asserted: set[models.Value] = attrs.field(factory=set)
+    const_intrinsics: dict[object, Sequence[models.Register]]
+    asserted: set[models.Value]
     modified: bool = False
 
     _assignment: models.Assignment | None = None
@@ -158,31 +158,3 @@ class RCEVisitor(NoOpIRVisitor[None]):
                 for dst, src in zip(ass.targets, existing, strict=True)
             ]
         self.modified = True
-
-
-def _visit_block_and_dominators(
-    doms: dict[models.BasicBlock, list[models.BasicBlock]],
-    block_visitors: dict[models.BasicBlock, RCEVisitor],
-    block: models.BasicBlock,
-) -> RCEVisitor:
-    with contextlib.suppress(KeyError):
-        return block_visitors[block]
-    dominators = doms[block]
-    dom_visitors = [_visit_block_and_dominators(doms, block_visitors, d) for d in dominators]
-    block_visitors[block] = visitor = RCEVisitor(
-        block,
-        const_intrinsics=functools.reduce(
-            operator.or_,
-            (v.const_intrinsics for v in dom_visitors),
-            {},
-        ),
-        asserted=functools.reduce(
-            operator.or_,
-            (v.asserted for v in dom_visitors),
-            set(),
-        ),
-    )
-    for op in block.ops.copy():
-        op.accept(visitor)
-
-    return visitor
