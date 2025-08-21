@@ -124,7 +124,7 @@ enumerate_urange_for_header@1:
     frame_dig 4
     frame_dig -2
     <
-    bz enumerate_urange_after_for@4
+    bz enumerate_urange_did_loop@4
     b enumerate_urange_for_body@2
 
 enumerate_urange_for_body@2:
@@ -151,7 +151,19 @@ enumerate_urange_for_footer@3:
     frame_bury 4
     b enumerate_urange_for_header@1
 
-enumerate_urange_after_for@4:
+enumerate_urange_did_loop@4:
+    // enumeration/contract.py:38
+    // for item in urange(start, stop, step):
+    frame_dig 4
+    frame_dig -3
+    !=
+    bz enumerate_urange_after_for@6
+    b enumerate_urange_iteration_variable_decrement@5
+
+enumerate_urange_iteration_variable_decrement@5:
+    b enumerate_urange_after_for@6
+
+enumerate_urange_after_for@6:
     // enumeration/contract.py:42
     // for index, item in uenumerate(urange(start, stop, step)):
     frame_dig -1
@@ -160,18 +172,18 @@ enumerate_urange_after_for@4:
     frame_bury 4
     intc_1 // 0
     frame_bury 0
-    b enumerate_urange_for_header@5
+    b enumerate_urange_for_header@7
 
-enumerate_urange_for_header@5:
+enumerate_urange_for_header@7:
     // enumeration/contract.py:42
     // for index, item in uenumerate(urange(start, stop, step)):
     frame_dig 4
     frame_dig -2
     <
-    bz enumerate_urange_after_for@8
-    b enumerate_urange_for_body@6
+    bz enumerate_urange_did_loop@10
+    b enumerate_urange_for_body@8
 
-enumerate_urange_for_body@6:
+enumerate_urange_for_body@8:
     // enumeration/contract.py:43
     // iteration_count += 1
     frame_dig 1
@@ -190,9 +202,9 @@ enumerate_urange_for_body@6:
     frame_dig 0
     +
     frame_bury 3
-    b enumerate_urange_for_footer@7
+    b enumerate_urange_for_footer@9
 
-enumerate_urange_for_footer@7:
+enumerate_urange_for_footer@9:
     // enumeration/contract.py:42
     // for index, item in uenumerate(urange(start, stop, step)):
     frame_dig 4
@@ -203,9 +215,21 @@ enumerate_urange_for_footer@7:
     intc_0 // 1
     +
     frame_bury 0
-    b enumerate_urange_for_header@5
+    b enumerate_urange_for_header@7
 
-enumerate_urange_after_for@8:
+enumerate_urange_did_loop@10:
+    // enumeration/contract.py:42
+    // for index, item in uenumerate(urange(start, stop, step)):
+    frame_dig 4
+    frame_dig -3
+    !=
+    bz enumerate_urange_after_for@12
+    b enumerate_urange_iteration_variable_decrement@11
+
+enumerate_urange_iteration_variable_decrement@11:
+    b enumerate_urange_after_for@12
+
+enumerate_urange_after_for@12:
     // enumeration/contract.py:47
     // return iteration_count, item_sum, index_sum
     frame_dig 1

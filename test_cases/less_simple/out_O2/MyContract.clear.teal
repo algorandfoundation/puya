@@ -10,9 +10,7 @@ main_for_header@1:
     dup
     pushint 100 // 100
     <
-    dig 2
-    bury 4
-    bz main_after_for@8
+    bz main_did_loop@8
     dupn 2
     sqrt
     dup
@@ -32,10 +30,12 @@ main_after_if_else@4:
     pushint 200 // 200
     >
     bz main_after_if_else@6
+
+main_if_body@5:
     dig 1
     bury 3
 
-main_after_for@8:
+main_after_for@10:
     dig 2
     return
 
@@ -45,3 +45,12 @@ main_after_if_else@6:
     +
     bury 1
     b main_for_header@1
+
+main_did_loop@8:
+    dup
+    pushint 1 // 1
+    !=
+    dig 2
+    bury 4
+    bnz main_if_body@5
+    b main_after_for@10

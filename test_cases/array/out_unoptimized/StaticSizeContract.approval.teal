@@ -177,7 +177,7 @@ path_length_for_header@1:
     frame_dig 8
     frame_dig 7
     <
-    bz path_length_after_for@10
+    bz path_length_did_loop@10
     b path_length_for_body@2
 
 path_length_for_body@2:
@@ -285,7 +285,19 @@ path_length_else_body@4:
     frame_bury 1
     b path_length_after_if_else@5
 
-path_length_after_for@10:
+path_length_did_loop@10:
+    // array/static_size.py:169
+    // for point_idx in urange(1, path.length):
+    frame_dig 8
+    intc_1 // 1
+    !=
+    bz path_length_after_for@12
+    b path_length_iteration_variable_decrement@11
+
+path_length_iteration_variable_decrement@11:
+    b path_length_after_for@12
+
+path_length_after_for@12:
     // array/static_size.py:180
     // return length
     frame_dig 6
@@ -614,7 +626,7 @@ test_cases.array.static_size.StaticSizeContract.test_array_for_header@1:
     frame_dig 1
     pushint 3 // 3
     <
-    bz test_cases.array.static_size.StaticSizeContract.test_array_after_for@4
+    bz test_cases.array.static_size.StaticSizeContract.test_array_did_loop@4
     b test_cases.array.static_size.StaticSizeContract.test_array_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_array_for_body@2:
@@ -707,7 +719,19 @@ test_cases.array.static_size.StaticSizeContract.test_array_for_footer@3:
     frame_bury 1
     b test_cases.array.static_size.StaticSizeContract.test_array_for_header@1
 
-test_cases.array.static_size.StaticSizeContract.test_array_after_for@4:
+test_cases.array.static_size.StaticSizeContract.test_array_did_loop@4:
+    // array/static_size.py:49
+    // for i in urange(3):
+    frame_dig 1
+    intc_0 // 0
+    !=
+    bz test_cases.array.static_size.StaticSizeContract.test_array_after_for@6
+    b test_cases.array.static_size.StaticSizeContract.test_array_iteration_variable_decrement@5
+
+test_cases.array.static_size.StaticSizeContract.test_array_iteration_variable_decrement@5:
+    b test_cases.array.static_size.StaticSizeContract.test_array_after_for@6
+
+test_cases.array.static_size.StaticSizeContract.test_array_after_for@6:
     // array/static_size.py:54
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
     frame_dig 0
@@ -908,7 +932,7 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@1:
     frame_dig 6
     frame_dig 5
     <
-    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@4
+    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_did_loop@4
     b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@2:
@@ -944,7 +968,19 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@3:
     frame_bury 6
     b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@1
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@4:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_did_loop@4:
+    // array/static_size.py:80
+    // for i in urange(1, length + 1):
+    frame_dig 6
+    intc_1 // 1
+    !=
+    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@6
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_iteration_variable_decrement@5
+
+test_cases.array.static_size.StaticSizeContract.test_bool_array_iteration_variable_decrement@5:
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@6
+
+test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@6:
     // array/static_size.py:82
     // assert arr.length == length, "expected correct length"
     frame_dig 4
@@ -1000,18 +1036,18 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@4:
     frame_bury 0
     intc_0 // 0
     frame_bury 3
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@5
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@7
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@5:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@7:
     // array/static_size.py:89
     // for val in arr:
     frame_dig 3
     frame_dig 0
     <
-    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@10
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@6
+    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@12
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@8
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@6:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@8:
     // array/static_size.py:89
     // for val in arr:
     frame_dig 4
@@ -1027,31 +1063,31 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@6:
     frame_bury 2
     // array/static_size.py:90
     // if val:
-    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@8
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_if_body@7
+    bz test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@10
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_if_body@9
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_if_body@7:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_if_body@9:
     // array/static_size.py:91
     // count += 1
     frame_dig 1
     intc_1 // 1
     +
     frame_bury 2
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@8
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@10
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@8:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_after_if_else@10:
     frame_dig 2
     frame_bury 1
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@9
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@11
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@9:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@11:
     frame_dig 3
     intc_1 // 1
     +
     frame_bury 3
-    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@5
+    b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@7
 
-test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@10:
+test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@12:
     // array/static_size.py:92
     // return count
     frame_dig 1
@@ -1104,7 +1140,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@
     frame_dig 6
     frame_dig 5
     <
-    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@4
+    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_did_loop@4
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@2:
@@ -1133,7 +1169,19 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@
     frame_bury 6
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@1
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@4:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_did_loop@4:
+    // array/static_size.py:99
+    // for i in urange(1, length + 1):
+    frame_dig 6
+    intc_1 // 1
+    !=
+    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@6
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_iteration_variable_decrement@5
+
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_iteration_variable_decrement@5:
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@6
+
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@6:
     // array/static_size.py:101
     // assert arr.length == length, "expected correct length"
     frame_dig 4
@@ -1158,18 +1206,18 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@4
     frame_bury 0
     intc_0 // 0
     frame_bury 3
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@5
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@7
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@5:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@7:
     // array/static_size.py:103
     // for val in arr:
     frame_dig 3
     frame_dig 0
     <
-    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@10
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@6
+    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@12
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@8
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@6:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@8:
     // array/static_size.py:103
     // for val in arr:
     frame_dig 4
@@ -1185,31 +1233,31 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@6:
     b!=
     frame_dig 1
     frame_bury 2
-    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@8
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_if_body@7
+    bz test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@10
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_if_body@9
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_if_body@7:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_if_body@9:
     // array/static_size.py:105
     // count += 1
     frame_dig 1
     intc_1 // 1
     +
     frame_bury 2
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@8
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@10
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@8:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_if_else@10:
     frame_dig 2
     frame_bury 1
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@9
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@11
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@9:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@11:
     frame_dig 3
     intc_1 // 1
     +
     frame_bury 3
-    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@5
+    b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@7
 
-test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@10:
+test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@12:
     // array/static_size.py:107
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
     intc_0 // 0

@@ -246,11 +246,11 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
     block@1: // for_header_L132
-        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@13)
-        let note#1: string = φ(note#0 <- block@0, note#10 <- block@13)
-        let current_index#5: uint64 = φ(current_index#0 <- block@0, current_index#6 <- block@13)
+        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@15)
+        let note#1: string = φ(note#0 <- block@0, note#11 <- block@15)
+        let current_index#5: uint64 = φ(current_index#0 <- block@0, current_index#6 <- block@15)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@14
+        goto continue_looping%0#0 ? block@2 : block@16
     block@2: // for_body_L133
         let array_item%0#0: Encoded(uint8) = extract_value(maybe_value%5#0, item_index_internal%0#1)
         let question_options#0: Encoded(uint8) = array_item%0#0
@@ -266,7 +266,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let reinterpret_biguint%0#0: biguint = question_options#0
         let reinterpret_biguint%1#0: biguint = 0x00
         let tmp%16#0: bool = (b> reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        goto tmp%16#0 ? block@5 : block@12
+        goto tmp%16#0 ? block@5 : block@14
     block@5: // if_body_L136
         let tmp%17#0: bytes = (concat note#3 "[")
         let note#4: string = tmp%17#0
@@ -300,20 +300,26 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
     block@10: // for_footer_L137
         let option_index#2: uint64 = (+ option_index#1 1u)
         goto block@6
-    block@11: // after_for_L137
-        let tmp%25#0: bytes = (concat note#5 "]")
-        let note#9: string = tmp%25#0
-        goto block@12
-    block@12: // after_if_else_L135
-        let note#10: string = φ(note#3 <- block@4, note#9 <- block@11)
-        let current_index#6: uint64 = φ(current_index#5 <- block@4, current_index#2 <- block@11)
+    block@11: // did_loop_L137
+        let looped%0#0: bool = (!= option_index#1 0u)
+        goto looped%0#0 ? block@12 : block@13
+    block@12: // iteration_variable_decrement_L137
+        let option_index#3: uint64 = (- option_index#1 1u)
         goto block@13
-    block@13: // for_footer_L132
+    block@13: // after_for_L137
+        let tmp%25#0: bytes = (concat note#5 "]")
+        let note#10: string = tmp%25#0
+        goto block@14
+    block@14: // after_if_else_L135
+        let note#11: string = φ(note#3 <- block@4, note#10 <- block@13)
+        let current_index#6: uint64 = φ(current_index#5 <- block@4, current_index#2 <- block@13)
+        goto block@15
+    block@15: // for_footer_L132
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@14: // after_for_L132
+    block@16: // after_for_L132
         let tmp%26#0: bytes = (concat note#1 "]}}")
-        let note#11: string = tmp%26#0
+        let note#12: string = tmp%26#0
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
@@ -336,7 +342,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         (assert maybe_exists%8#0) // check self.nft_image_url exists
         let inner_txn_params%0%%param_ConfigAssetURL_idx_0#0: bytes = maybe_value%7#0
         let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_Note_idx_0#0: string = note#11
+        let inner_txn_params%0%%param_Note_idx_0#0: string = note#12
         let inner_txn_params%0%%Note_length#0: uint64 = 1u
         let inner_txn_params%0%%Sender_length#0: uint64 = 0u
         let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
@@ -389,8 +395,8 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         ((itxn_field ConfigAssetTotal) inner_txn_params%0%%param_ConfigAssetTotal_idx_0#0)
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-        goto block@15
-    block@15: // next_txn_L146
+        goto block@17
+    block@17: // next_txn_L146
         itxn_submit
         let tmp%27#0: uint64 = itxn[itxn_group_idx(0)].CreatedAssetID
         (app_global_put "nft_asset_id" tmp%27#0)
@@ -476,7 +482,13 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
     block@3: // for_footer_L195
         let question_index#2: uint64 = (+ question_index#1 1u)
         goto block@1
-    block@4: // after_for_L195
+    block@4: // did_loop_L195
+        let looped%0#0: bool = (!= question_index#1 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L195
+        let question_index#3: uint64 = (- question_index#1 1u)
+        goto block@6
+    block@6: // after_for_L195
         return 
 
 subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:

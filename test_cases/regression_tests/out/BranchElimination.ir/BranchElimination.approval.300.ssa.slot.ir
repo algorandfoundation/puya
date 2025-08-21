@@ -43,7 +43,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm[rou
         let ahuh#0: uint64 = 0u
         goto block@2
     block@2: // while_top_L8
-        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@15)
+        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@17)
         let tmp%0#1: uint64 = test_cases.regression_tests.leftover_branch.hmm_uint64()
         let _i#0: uint64 = 0u
         goto block@4
@@ -75,15 +75,15 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm[rou
         let ahuh#4: uint64 = φ(ahuh#1 <- block@5, ahuh#5 <- block@10)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@4
-    block@13: // after_for_L9
+    block@13: // did_loop_L9
         let tmp%6#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%6#0 ? block@14 : block@15
-    block@14: // if_body_L15
+        goto tmp%6#0 ? block@16 : block@17
+    block@16: // if_body_L15
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob ahuh#1)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%2#0)
         exit 1u
-    block@15: // after_if_else_L14
+    block@17: // after_if_else_L14
         goto block@2
 
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]() -> void:
@@ -133,7 +133,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@13)
         let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@13)
         let continue_looping%0#0: bool = (< i#1 aggregate%array_length%0#0)
-        goto continue_looping%0#0 ? block@3 : block@15
+        goto continue_looping%0#0 ? block@3 : block@17
     block@3: // for_body_L39
         let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) nested_list#0)
         (assert continue_looping%0#0) // index access is out of bounds
@@ -186,8 +186,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let num_boosts#4: uint64 = φ(num_boosts#1 <- block@5, num_boosts#5 <- block@10)
         let j#2: uint64 = (+ j#1 1u)
         goto block@4
-    block@13: // after_for_L41
+    block@13: // did_loop_L41
         let i#2: uint64 = (+ i#1 1u)
         goto block@2
-    block@15: // after_for_L38
+    block@17: // did_loop_L38
         exit 1u

@@ -206,7 +206,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         goto block@1
     block@1: // for_header_L132
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@14
+        goto continue_looping%0#0 ? block@2 : block@16
     block@2: // for_body_L133
         let aggregate%total_length%0#0: uint64 = (len maybe_value%5#0)
         let aggregate%array_trimmed%0#0: bytes = (substring3 maybe_value%5#0 2u aggregate%total_length%0#0)
@@ -216,20 +216,20 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let question_options#0: Encoded(uint8) = array_item%0#0
         let question_index#0: uint64 = item_index_internal%0#0
         let tmp%14#0: bool = (> question_index#0 0u)
-        let note#17: string = note#0
+        let note#18: string = note#0
         goto tmp%14#0 ? block@3 : block@4
     block@3: // if_body_L134
         let tmp%15#0: bytes = (concat note#0 ",")
         let note#0: string = tmp%15#0
-        let note#17: string = note#0
+        let note#18: string = note#0
         goto block@4
     block@4: // after_if_else_L133
-        let note#0: string = note#17
+        let note#0: string = note#18
         let reinterpret_biguint%0#0: biguint = question_options#0
         let tmp%16#0: bool = (b> reinterpret_biguint%0#0 0x00)
         let current_index#15: uint64 = current_index#0
-        let note#17: string = note#0
-        goto tmp%16#0 ? block@5 : block@12
+        let note#18: string = note#0
+        goto tmp%16#0 ? block@5 : block@14
     block@5: // if_body_L136
         let tmp%17#0: bytes = (concat note#0 "[")
         let note#0: string = tmp%17#0
@@ -242,15 +242,15 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         goto continue_looping%1#0 ? block@7 : block@11
     block@7: // for_body_L138
         let tmp%19#0: bool = (> option_index#0 0u)
-        let note#17: string = note#0
+        let note#18: string = note#0
         goto tmp%19#0 ? block@8 : block@9
     block@8: // if_body_L139
         let tmp%20#0: bytes = (concat note#0 ",")
         let note#0: string = tmp%20#0
-        let note#17: string = note#0
+        let note#18: string = note#0
         goto block@9
     block@9: // after_if_else_L138
-        let note#0: string = note#17
+        let note#0: string = note#18
         let tmp%21#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#0)
         let votes_for_option#0: uint64 = tmp%21#0
         let tmp%22#0: string = examples.voting.voting.itoa(votes_for_option#0)
@@ -262,20 +262,25 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
     block@10: // for_footer_L137
         let option_index#0: uint64 = (+ option_index#0 1u)
         goto block@6
-    block@11: // after_for_L137
+    block@11: // did_loop_L137
+        let looped%0#0: bool = (!= option_index#0 0u)
+        goto looped%0#0 ? block@12 : block@13
+    block@12: // iteration_variable_decrement_L137
+        goto block@13
+    block@13: // after_for_L137
         let tmp%25#0: bytes = (concat note#0 "]")
         let note#0: string = tmp%25#0
         let current_index#15: uint64 = current_index#0
-        let note#17: string = note#0
-        goto block@12
-    block@12: // after_if_else_L135
+        let note#18: string = note#0
+        goto block@14
+    block@14: // after_if_else_L135
         let current_index#0: uint64 = current_index#15
-        let note#0: string = note#17
-        goto block@13
-    block@13: // for_footer_L132
+        let note#0: string = note#18
+        goto block@15
+    block@15: // for_footer_L132
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
-    block@14: // after_for_L132
+    block@16: // after_for_L132
         let tmp%26#0: bytes = (concat note#0 "]}}")
         let note#0: string = tmp%26#0
         itxn_begin
@@ -296,8 +301,8 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-        goto block@15
-    block@15: // next_txn_L146
+        goto block@17
+    block@17: // next_txn_L146
         itxn_submit
         let tmp%27#0: uint64 = (itxn CreatedAssetID)
         (app_global_put "nft_asset_id" tmp%27#0)
@@ -406,7 +411,12 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
     block@3: // for_footer_L195
         let question_index#0: uint64 = (+ question_index#0 1u)
         goto block@1
-    block@4: // after_for_L195
+    block@4: // did_loop_L195
+        let looped%0#0: bool = (!= question_index#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L195
+        goto block@6
+    block@6: // after_for_L195
         return 
 
 subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:

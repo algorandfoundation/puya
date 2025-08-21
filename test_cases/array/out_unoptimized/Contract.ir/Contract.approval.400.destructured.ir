@@ -249,7 +249,12 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
     block@3: // for_footer_L258
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L258
+    block@4: // did_loop_L258
+        let looped%0#0: bool = (!= i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L258
+        goto block@6
+    block@6: // after_for_L258
         return arr#0
 
 subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) -> void:
@@ -309,7 +314,12 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
     block@3: // for_footer_L279
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L279
+    block@4: // did_loop_L279
+        let looped%0#0: bool = (!= i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L279
+        goto block@6
+    block@6: // after_for_L279
         return 
 
 subroutine test_cases.array.uint64.pop_x(arr: Encoded(uint64[])*, x: uint64, expected: uint64) -> void:
@@ -338,7 +348,12 @@ subroutine test_cases.array.uint64.pop_x(arr: Encoded(uint64[])*, x: uint64, exp
     block@3: // for_footer_L285
         let _i#0: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L285
+    block@4: // did_loop_L285
+        let looped%0#0: bool = (!= _i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L285
+        goto block@6
+    block@6: // after_for_L285
         return 
 
 subroutine test_cases.array.uint64.append_length_and_return(arr: Encoded(uint64[])*) -> Encoded(uint64[])*:
@@ -737,7 +752,12 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long() -> void:
     block@3: // for_footer_L78
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L78
+    block@4: // did_loop_L78
+        let looped%0#0: bool = (!= i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L78
+        goto block@6
+    block@6: // after_for_L78
         let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(array#0)
         let aggregate%bytes_len%0#0: uint64 = (len aggregate%slot_contents%0#0)
         let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
@@ -778,7 +798,12 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
     block@3: // for_footer_L87
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L87
+    block@4: // did_loop_L87
+        let looped%0#0: bool = (!= i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L87
+        goto block@6
+    block@6: // after_for_L87
         let slot%1#0: Encoded(uint64[])* = new()
         let slot_contents%1#0: Encoded(uint64[]) = load(array#0)
         store(slot%1#0, slot_contents%1#0)
@@ -1060,7 +1085,12 @@ subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> voi
     block@3: // for_footer_L136
         let _i#0: uint64 = (+ _i#0 1u)
         goto block@1
-    block@4: // after_for_L136
+    block@4: // did_loop_L136
+        let looped%0#0: bool = (!= _i#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L136
+        goto block@6
+    block@6: // after_for_L136
         return 
 
 subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
@@ -1087,7 +1117,12 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@3: // for_footer_L143
         let val#0: uint64 = (+ val#0 1u)
         goto block@1
-    block@4: // after_for_L143
+    block@4: // did_loop_L143
+        let looped%0#0: bool = (!= val#0 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L143
+        goto block@6
+    block@6: // after_for_L143
         let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_len%0#0: uint64 = (len aggregate%slot_contents%0#0)
         let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
@@ -1100,11 +1135,11 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let aggregate%array_len%1#0: uint64 = (/ aggregate%bytes_len%1#0 8u)
         let array_length%0#0: uint64 = aggregate%array_len%1#0
         let item_index_internal%0#0: uint64 = 0u
-        goto block@5
-    block@5: // for_header_L149
+        goto block@7
+    block@7: // for_header_L149
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array_length%0#0)
-        goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L150
+        goto continue_looping%1#0 ? block@8 : block@10
+    block@8: // for_body_L150
         let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
@@ -1114,21 +1149,21 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let tmp%3#0: bool = (>= value#0 last#0)
         (assert tmp%3#0) // array is not sorted
         let last#0: uint64 = value#0
-        goto block@7
-    block@7: // for_footer_L149
+        goto block@9
+    block@9: // for_footer_L149
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@5
-    block@8: // after_for_L149
+        goto block@7
+    block@10: // after_for_L149
         let aggregate%slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_len%2#0: uint64 = (len aggregate%slot_contents%2#0)
         let aggregate%array_len%2#0: uint64 = (/ aggregate%bytes_len%2#0 8u)
         let array_length%1#0: uint64 = aggregate%array_len%2#0
         let item_index_internal%1#0: uint64 = 0u
-        goto block@9
-    block@9: // for_header_L154
+        goto block@11
+    block@11: // for_header_L154
         let continue_looping%2#0: bool = (< item_index_internal%1#0 array_length%1#0)
-        goto continue_looping%2#0 ? block@10 : block@12
-    block@10: // for_body_L155
+        goto continue_looping%2#0 ? block@12 : block@14
+    block@12: // for_body_L155
         let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%1#0 8u)
         let aggregate%encoded_element%1#0: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%1#0 8u) // on error: index access is out of bounds
@@ -1138,21 +1173,21 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let idx#0: uint64 = item_index_internal%1#0
         let tmp%4#0: bool = (== value#0 idx#0)
         (assert tmp%4#0) // incorrect array value
-        goto block@11
-    block@11: // for_footer_L154
+        goto block@13
+    block@13: // for_footer_L154
         let item_index_internal%1#0: uint64 = (+ item_index_internal%1#0 1u)
-        goto block@9
-    block@12: // after_for_L154
+        goto block@11
+    block@14: // after_for_L154
         let aggregate%slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_len%3#0: uint64 = (len aggregate%slot_contents%3#0)
         let aggregate%array_len%3#0: uint64 = (/ aggregate%bytes_len%3#0 8u)
         let array_length%2#0: uint64 = aggregate%array_len%3#0
         let reverse_index_internal%2#0: uint64 = array_length%2#0
-        goto block@13
-    block@13: // for_header_L158
+        goto block@15
+    block@15: // for_header_L158
         let continue_looping%3#0: bool = (> reverse_index_internal%2#0 0u)
-        goto continue_looping%3#0 ? block@14 : block@16
-    block@14: // for_body_L159
+        goto continue_looping%3#0 ? block@16 : block@18
+    block@16: // for_body_L159
         let reverse_index_internal%2#0: uint64 = (- reverse_index_internal%2#0 1u)
         let slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_offset%2#0: uint64 = (* reverse_index_internal%2#0 8u)
@@ -1163,10 +1198,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let tmp%5#0: bool = (<= value#0 last#0)
         (assert tmp%5#0) // array is not sorted
         let last#0: uint64 = value#0
+        goto block@17
+    block@17: // for_footer_L158
         goto block@15
-    block@15: // for_footer_L158
-        goto block@13
-    block@16: // after_for_L158
+    block@18: // after_for_L158
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = aggregate%len_u16%0#0
@@ -1177,11 +1212,11 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let native_arr#0: Encoded(uint64[])* = slot%1#0
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
-        goto block@17
-    block@17: // for_header_L164
+        goto block@19
+    block@19: // for_header_L164
         let continue_looping%4#0: bool = (< i#0 5u)
-        goto continue_looping%4#0 ? block@18 : block@20
-    block@18: // for_body_L165
+        goto continue_looping%4#0 ? block@20 : block@22
+    block@20: // for_body_L165
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
         let tmp%6#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
@@ -1205,11 +1240,16 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let tmp%9#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%4#0
         let concat%2#0: Encoded(uint64[]) = (concat slot_contents%4#0 tmp%9#0) // on error: max array length exceeded
         store(native_arr#0, concat%2#0)
-        goto block@19
-    block@19: // for_footer_L164
+        goto block@21
+    block@21: // for_footer_L164
         let i#0: uint64 = (+ i#0 1u)
-        goto block@17
-    block@20: // after_for_L164
+        goto block@19
+    block@22: // did_loop_L164
+        let looped%1#0: bool = (!= i#0 0u)
+        goto looped%1#0 ? block@23 : block@24
+    block@23: // iteration_variable_decrement_L164
+        goto block@24
+    block@24: // after_for_L164
         let slot_contents%5#0: Encoded(uint64[]) = load(native_arr#0)
         let concat%3#0: Encoded(len+uint64[]) = (concat arc4_arr#0 slot_contents%5#0) // on error: max array length exceeded
         let total_length%0#0: uint64 = (len concat%3#0)

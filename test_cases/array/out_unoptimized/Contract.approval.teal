@@ -544,7 +544,7 @@ create_array_for_header@1:
     frame_dig 1
     pushint 5 // 5
     <
-    bz create_array_after_for@4
+    bz create_array_did_loop@4
     b create_array_for_body@2
 
 create_array_for_body@2:
@@ -571,7 +571,19 @@ create_array_for_footer@3:
     frame_bury 1
     b create_array_for_header@1
 
-create_array_after_for@4:
+create_array_did_loop@4:
+    // array/uint64.py:258
+    // for i in urange(5):
+    frame_dig 1
+    intc_2 // 0
+    !=
+    bz create_array_after_for@6
+    b create_array_iteration_variable_decrement@5
+
+create_array_iteration_variable_decrement@5:
+    b create_array_after_for@6
+
+create_array_after_for@6:
     // array/uint64.py:260
     // return arr
     retsub
@@ -674,7 +686,7 @@ add_x_for_header@1:
     frame_dig 0
     frame_dig -1
     <
-    bz add_x_after_for@4
+    bz add_x_did_loop@4
     b add_x_for_body@2
 
 add_x_for_body@2:
@@ -702,7 +714,19 @@ add_x_for_footer@3:
     frame_bury 0
     b add_x_for_header@1
 
-add_x_after_for@4:
+add_x_did_loop@4:
+    // array/uint64.py:279
+    // for i in urange(x):
+    frame_dig 0
+    intc_2 // 0
+    !=
+    bz add_x_after_for@6
+    b add_x_iteration_variable_decrement@5
+
+add_x_iteration_variable_decrement@5:
+    b add_x_after_for@6
+
+add_x_after_for@6:
     retsub
 
 
@@ -728,7 +752,7 @@ pop_x_for_header@1:
     frame_dig 0
     frame_dig -2
     <
-    bz pop_x_after_for@4
+    bz pop_x_did_loop@4
     b pop_x_for_body@2
 
 pop_x_for_body@2:
@@ -778,7 +802,19 @@ pop_x_for_footer@3:
     frame_bury 0
     b pop_x_for_header@1
 
-pop_x_after_for@4:
+pop_x_did_loop@4:
+    // array/uint64.py:285
+    // for _i in urange(x):
+    frame_dig 0
+    intc_2 // 0
+    !=
+    bz pop_x_after_for@6
+    b pop_x_iteration_variable_decrement@5
+
+pop_x_iteration_variable_decrement@5:
+    b pop_x_after_for@6
+
+pop_x_after_for@6:
     retsub
 
 
@@ -1506,7 +1542,7 @@ test_cases.array.uint64.Contract.test_array_too_long_for_header@1:
     frame_dig 1
     intc 4 // 512
     <
-    bz test_cases.array.uint64.Contract.test_array_too_long_after_for@4
+    bz test_cases.array.uint64.Contract.test_array_too_long_did_loop@4
     b test_cases.array.uint64.Contract.test_array_too_long_for_body@2
 
 test_cases.array.uint64.Contract.test_array_too_long_for_body@2:
@@ -1533,7 +1569,19 @@ test_cases.array.uint64.Contract.test_array_too_long_for_footer@3:
     frame_bury 1
     b test_cases.array.uint64.Contract.test_array_too_long_for_header@1
 
-test_cases.array.uint64.Contract.test_array_too_long_after_for@4:
+test_cases.array.uint64.Contract.test_array_too_long_did_loop@4:
+    // array/uint64.py:78
+    // for i in urange(512):
+    frame_dig 1
+    intc_2 // 0
+    !=
+    bz test_cases.array.uint64.Contract.test_array_too_long_after_for@6
+    b test_cases.array.uint64.Contract.test_array_too_long_iteration_variable_decrement@5
+
+test_cases.array.uint64.Contract.test_array_too_long_iteration_variable_decrement@5:
+    b test_cases.array.uint64.Contract.test_array_too_long_after_for@6
+
+test_cases.array.uint64.Contract.test_array_too_long_after_for@6:
     // array/uint64.py:80
     // assert array.length == 512, "array is expected length"
     frame_dig 0
@@ -1587,7 +1635,7 @@ test_cases.array.uint64.Contract.test_array_copy_and_extend_for_header@1:
     frame_dig 1
     pushint 5 // 5
     <
-    bz test_cases.array.uint64.Contract.test_array_copy_and_extend_after_for@4
+    bz test_cases.array.uint64.Contract.test_array_copy_and_extend_did_loop@4
     b test_cases.array.uint64.Contract.test_array_copy_and_extend_for_body@2
 
 test_cases.array.uint64.Contract.test_array_copy_and_extend_for_body@2:
@@ -1614,7 +1662,19 @@ test_cases.array.uint64.Contract.test_array_copy_and_extend_for_footer@3:
     frame_bury 1
     b test_cases.array.uint64.Contract.test_array_copy_and_extend_for_header@1
 
-test_cases.array.uint64.Contract.test_array_copy_and_extend_after_for@4:
+test_cases.array.uint64.Contract.test_array_copy_and_extend_did_loop@4:
+    // array/uint64.py:87
+    // for i in urange(5):
+    frame_dig 1
+    intc_2 // 0
+    !=
+    bz test_cases.array.uint64.Contract.test_array_copy_and_extend_after_for@6
+    b test_cases.array.uint64.Contract.test_array_copy_and_extend_iteration_variable_decrement@5
+
+test_cases.array.uint64.Contract.test_array_copy_and_extend_iteration_variable_decrement@5:
+    b test_cases.array.uint64.Contract.test_array_copy_and_extend_after_for@6
+
+test_cases.array.uint64.Contract.test_array_copy_and_extend_after_for@6:
     // array/uint64.py:89
     // array2 = array.copy()
     callsub _puya_lib.mem.new_slot
@@ -2108,7 +2168,7 @@ test_cases.array.uint64.Contract.test_allocations_for_header@1:
     frame_dig 0
     frame_dig -1
     <
-    bz test_cases.array.uint64.Contract.test_allocations_after_for@4
+    bz test_cases.array.uint64.Contract.test_allocations_did_loop@4
     b test_cases.array.uint64.Contract.test_allocations_for_body@2
 
 test_cases.array.uint64.Contract.test_allocations_for_body@2:
@@ -2133,7 +2193,19 @@ test_cases.array.uint64.Contract.test_allocations_for_footer@3:
     frame_bury 0
     b test_cases.array.uint64.Contract.test_allocations_for_header@1
 
-test_cases.array.uint64.Contract.test_allocations_after_for@4:
+test_cases.array.uint64.Contract.test_allocations_did_loop@4:
+    // array/uint64.py:136
+    // for _i in urange(num):
+    frame_dig 0
+    intc_2 // 0
+    !=
+    bz test_cases.array.uint64.Contract.test_allocations_after_for@6
+    b test_cases.array.uint64.Contract.test_allocations_iteration_variable_decrement@5
+
+test_cases.array.uint64.Contract.test_allocations_iteration_variable_decrement@5:
+    b test_cases.array.uint64.Contract.test_allocations_after_for@6
+
+test_cases.array.uint64.Contract.test_allocations_after_for@6:
     retsub
 
 
@@ -2174,7 +2246,7 @@ test_cases.array.uint64.Contract.test_iteration_for_header@1:
     frame_dig 10
     pushint 5 // 5
     <
-    bz test_cases.array.uint64.Contract.test_iteration_after_for@4
+    bz test_cases.array.uint64.Contract.test_iteration_did_loop@4
     b test_cases.array.uint64.Contract.test_iteration_for_body@2
 
 test_cases.array.uint64.Contract.test_iteration_for_body@2:
@@ -2201,7 +2273,19 @@ test_cases.array.uint64.Contract.test_iteration_for_footer@3:
     frame_bury 10
     b test_cases.array.uint64.Contract.test_iteration_for_header@1
 
-test_cases.array.uint64.Contract.test_iteration_after_for@4:
+test_cases.array.uint64.Contract.test_iteration_did_loop@4:
+    // array/uint64.py:143
+    // for val in urange(5):
+    frame_dig 10
+    intc_2 // 0
+    !=
+    bz test_cases.array.uint64.Contract.test_iteration_after_for@6
+    b test_cases.array.uint64.Contract.test_iteration_iteration_variable_decrement@5
+
+test_cases.array.uint64.Contract.test_iteration_iteration_variable_decrement@5:
+    b test_cases.array.uint64.Contract.test_iteration_after_for@6
+
+test_cases.array.uint64.Contract.test_iteration_after_for@6:
     // array/uint64.py:145
     // assert arr.length == 5, "expected array of length 5"
     frame_dig 9
@@ -2227,18 +2311,18 @@ test_cases.array.uint64.Contract.test_iteration_after_for@4:
     frame_bury 1
     intc_2 // 0
     frame_bury 4
-    b test_cases.array.uint64.Contract.test_iteration_for_header@5
+    b test_cases.array.uint64.Contract.test_iteration_for_header@7
 
-test_cases.array.uint64.Contract.test_iteration_for_header@5:
+test_cases.array.uint64.Contract.test_iteration_for_header@7:
     // array/uint64.py:149
     // for value in arr:
     frame_dig 4
     frame_dig 1
     <
-    bz test_cases.array.uint64.Contract.test_iteration_after_for@8
-    b test_cases.array.uint64.Contract.test_iteration_for_body@6
+    bz test_cases.array.uint64.Contract.test_iteration_after_for@10
+    b test_cases.array.uint64.Contract.test_iteration_for_body@8
 
-test_cases.array.uint64.Contract.test_iteration_for_body@6:
+test_cases.array.uint64.Contract.test_iteration_for_body@8:
     // array/uint64.py:149
     // for value in arr:
     frame_dig 9
@@ -2258,16 +2342,16 @@ test_cases.array.uint64.Contract.test_iteration_for_body@6:
     // array/uint64.py:151
     // last = value
     frame_bury 6
-    b test_cases.array.uint64.Contract.test_iteration_for_footer@7
+    b test_cases.array.uint64.Contract.test_iteration_for_footer@9
 
-test_cases.array.uint64.Contract.test_iteration_for_footer@7:
+test_cases.array.uint64.Contract.test_iteration_for_footer@9:
     frame_dig 4
     intc_1 // 1
     +
     frame_bury 4
-    b test_cases.array.uint64.Contract.test_iteration_for_header@5
+    b test_cases.array.uint64.Contract.test_iteration_for_header@7
 
-test_cases.array.uint64.Contract.test_iteration_after_for@8:
+test_cases.array.uint64.Contract.test_iteration_after_for@10:
     // array/uint64.py:153-154
     // # enumerate
     // for idx, value in uenumerate(arr):
@@ -2279,19 +2363,19 @@ test_cases.array.uint64.Contract.test_iteration_after_for@8:
     frame_bury 2
     intc_2 // 0
     frame_bury 5
-    b test_cases.array.uint64.Contract.test_iteration_for_header@9
+    b test_cases.array.uint64.Contract.test_iteration_for_header@11
 
-test_cases.array.uint64.Contract.test_iteration_for_header@9:
+test_cases.array.uint64.Contract.test_iteration_for_header@11:
     // array/uint64.py:153-154
     // # enumerate
     // for idx, value in uenumerate(arr):
     frame_dig 5
     frame_dig 2
     <
-    bz test_cases.array.uint64.Contract.test_iteration_after_for@12
-    b test_cases.array.uint64.Contract.test_iteration_for_body@10
+    bz test_cases.array.uint64.Contract.test_iteration_after_for@14
+    b test_cases.array.uint64.Contract.test_iteration_for_body@12
 
-test_cases.array.uint64.Contract.test_iteration_for_body@10:
+test_cases.array.uint64.Contract.test_iteration_for_body@12:
     // array/uint64.py:153-154
     // # enumerate
     // for idx, value in uenumerate(arr):
@@ -2309,16 +2393,16 @@ test_cases.array.uint64.Contract.test_iteration_for_body@10:
     // assert value == idx, "incorrect array value"
     ==
     assert // incorrect array value
-    b test_cases.array.uint64.Contract.test_iteration_for_footer@11
+    b test_cases.array.uint64.Contract.test_iteration_for_footer@13
 
-test_cases.array.uint64.Contract.test_iteration_for_footer@11:
+test_cases.array.uint64.Contract.test_iteration_for_footer@13:
     frame_dig 5
     intc_1 // 1
     +
     frame_bury 5
-    b test_cases.array.uint64.Contract.test_iteration_for_header@9
+    b test_cases.array.uint64.Contract.test_iteration_for_header@11
 
-test_cases.array.uint64.Contract.test_iteration_after_for@12:
+test_cases.array.uint64.Contract.test_iteration_after_for@14:
     // array/uint64.py:157-158
     // # reverse
     // for value in reversed(arr):
@@ -2328,19 +2412,19 @@ test_cases.array.uint64.Contract.test_iteration_after_for@12:
     intc_0 // 8
     /
     frame_bury 8
-    b test_cases.array.uint64.Contract.test_iteration_for_header@13
+    b test_cases.array.uint64.Contract.test_iteration_for_header@15
 
-test_cases.array.uint64.Contract.test_iteration_for_header@13:
+test_cases.array.uint64.Contract.test_iteration_for_header@15:
     // array/uint64.py:157-158
     // # reverse
     // for value in reversed(arr):
     frame_dig 8
     intc_2 // 0
     >
-    bz test_cases.array.uint64.Contract.test_iteration_after_for@16
-    b test_cases.array.uint64.Contract.test_iteration_for_body@14
+    bz test_cases.array.uint64.Contract.test_iteration_after_for@18
+    b test_cases.array.uint64.Contract.test_iteration_for_body@16
 
-test_cases.array.uint64.Contract.test_iteration_for_body@14:
+test_cases.array.uint64.Contract.test_iteration_for_body@16:
     frame_dig 8
     intc_1 // 1
     -
@@ -2366,12 +2450,12 @@ test_cases.array.uint64.Contract.test_iteration_for_body@14:
     // array/uint64.py:160
     // last = value
     frame_bury 6
-    b test_cases.array.uint64.Contract.test_iteration_for_footer@15
+    b test_cases.array.uint64.Contract.test_iteration_for_footer@17
 
-test_cases.array.uint64.Contract.test_iteration_for_footer@15:
-    b test_cases.array.uint64.Contract.test_iteration_for_header@13
+test_cases.array.uint64.Contract.test_iteration_for_footer@17:
+    b test_cases.array.uint64.Contract.test_iteration_for_header@15
 
-test_cases.array.uint64.Contract.test_iteration_after_for@16:
+test_cases.array.uint64.Contract.test_iteration_after_for@18:
     // array/uint64.py:162
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
     intc_2 // 0
@@ -2391,18 +2475,18 @@ test_cases.array.uint64.Contract.test_iteration_after_for@16:
     assert // Step cannot be zero
     intc_2 // 0
     frame_bury 3
-    b test_cases.array.uint64.Contract.test_iteration_for_header@17
+    b test_cases.array.uint64.Contract.test_iteration_for_header@19
 
-test_cases.array.uint64.Contract.test_iteration_for_header@17:
+test_cases.array.uint64.Contract.test_iteration_for_header@19:
     // array/uint64.py:164
     // for i in urange(5):
     frame_dig 3
     pushint 5 // 5
     <
-    bz test_cases.array.uint64.Contract.test_iteration_after_for@20
-    b test_cases.array.uint64.Contract.test_iteration_for_body@18
+    bz test_cases.array.uint64.Contract.test_iteration_did_loop@22
+    b test_cases.array.uint64.Contract.test_iteration_for_body@20
 
-test_cases.array.uint64.Contract.test_iteration_for_body@18:
+test_cases.array.uint64.Contract.test_iteration_for_body@20:
     // array/uint64.py:165
     // arc4_arr.append(arc4.UInt64(i))
     frame_dig 3
@@ -2441,18 +2525,30 @@ test_cases.array.uint64.Contract.test_iteration_for_body@18:
     concat
     concat // on error: max array length exceeded
     stores
-    b test_cases.array.uint64.Contract.test_iteration_for_footer@19
+    b test_cases.array.uint64.Contract.test_iteration_for_footer@21
 
-test_cases.array.uint64.Contract.test_iteration_for_footer@19:
+test_cases.array.uint64.Contract.test_iteration_for_footer@21:
     // array/uint64.py:164
     // for i in urange(5):
     frame_dig 3
     intc_1 // 1
     +
     frame_bury 3
-    b test_cases.array.uint64.Contract.test_iteration_for_header@17
+    b test_cases.array.uint64.Contract.test_iteration_for_header@19
 
-test_cases.array.uint64.Contract.test_iteration_after_for@20:
+test_cases.array.uint64.Contract.test_iteration_did_loop@22:
+    // array/uint64.py:164
+    // for i in urange(5):
+    frame_dig 3
+    intc_2 // 0
+    !=
+    bz test_cases.array.uint64.Contract.test_iteration_after_for@24
+    b test_cases.array.uint64.Contract.test_iteration_iteration_variable_decrement@23
+
+test_cases.array.uint64.Contract.test_iteration_iteration_variable_decrement@23:
+    b test_cases.array.uint64.Contract.test_iteration_after_for@24
+
+test_cases.array.uint64.Contract.test_iteration_after_for@24:
     // array/uint64.py:167
     // combined_arr = arc4_arr + native_arr
     frame_dig 7

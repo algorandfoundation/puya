@@ -160,7 +160,13 @@ subroutine test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: ui
     block@3: // for_footer_L72
         let _item#2: uint64 = (+ _item#1 1u)
         goto block@1
-    block@4: // after_for_L72
+    block@4: // did_loop_L72
+        let looped%0#0: bool = (!= _item#1 0u)
+        goto looped%0#0 ? block@5 : block@6
+    block@5: // iteration_variable_decrement_L72
+        let _item#3: uint64 = (- _item#1 1u)
+        goto block@6
+    block@6: // after_for_L72
         return a#1 b#1
 
 subroutine test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(x: uint64) -> uint64:

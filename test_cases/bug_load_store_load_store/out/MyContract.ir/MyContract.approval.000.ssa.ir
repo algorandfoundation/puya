@@ -36,7 +36,13 @@ main test_cases.bug_load_store_load_store.contract.MyContract.approval_program:
     block@10: // for_footer_L12
         let _idx#2: uint64 = (+ _idx#1 1u)
         goto block@1
-    block@11: // after_for_L12
+    block@11: // did_loop_L12
+        let looped%0#0: bool = (!= _idx#1 0u)
+        goto looped%0#0 ? block@12 : block@13
+    block@12: // iteration_variable_decrement_L12
+        let _idx#3: uint64 = (- _idx#1 1u)
+        goto block@13
+    block@13: // after_for_L12
         return val#1
 
 subroutine test_cases.bug_load_store_load_store.contract.get_bool() -> bool:

@@ -270,7 +270,7 @@ bytes_multiply_for_header@1:
     frame_dig 3
     frame_dig 1
     <
-    bz bytes_multiply_after_for@4
+    bz bytes_multiply_did_loop@4
     b bytes_multiply_for_body@2
 
 bytes_multiply_for_body@2:
@@ -291,7 +291,19 @@ bytes_multiply_for_footer@3:
     frame_bury 3
     b bytes_multiply_for_header@1
 
-bytes_multiply_after_for@4:
+bytes_multiply_did_loop@4:
+    // tuple_support/tuple_support.py:133
+    // for _i in urange(count):
+    frame_dig 3
+    intc_2 // 0
+    !=
+    bz bytes_multiply_after_for@6
+    b bytes_multiply_iteration_variable_decrement@5
+
+bytes_multiply_iteration_variable_decrement@5:
+    b bytes_multiply_after_for@6
+
+bytes_multiply_after_for@6:
     // tuple_support/tuple_support.py:135
     // return result
     frame_dig 2

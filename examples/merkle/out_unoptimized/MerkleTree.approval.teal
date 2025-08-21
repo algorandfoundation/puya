@@ -99,7 +99,7 @@ compute_root_hash_for_header@1:
     frame_dig 2
     frame_dig 1
     <
-    bz compute_root_hash_after_for@4
+    bz compute_root_hash_did_loop@4
     b compute_root_hash_for_body@2
 
 compute_root_hash_for_body@2:
@@ -131,7 +131,19 @@ compute_root_hash_for_footer@3:
     frame_bury 2
     b compute_root_hash_for_header@1
 
-compute_root_hash_after_for@4:
+compute_root_hash_did_loop@4:
+    // merkle/contract.py:22
+    // for idx in urange(proof.length):
+    frame_dig 2
+    intc_0 // 0
+    !=
+    bz compute_root_hash_after_for@6
+    b compute_root_hash_iteration_variable_decrement@5
+
+compute_root_hash_iteration_variable_decrement@5:
+    b compute_root_hash_after_for@6
+
+compute_root_hash_after_for@6:
     // merkle/contract.py:24
     // return computed
     frame_dig 0

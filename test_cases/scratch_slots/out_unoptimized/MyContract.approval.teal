@@ -42,7 +42,7 @@ main_for_header@1:
     dup
     pushint 20 // 20
     <
-    bz main_after_for@4
+    bz main_did_loop@4
     b main_for_body@2
 
 main_for_body@2:
@@ -61,7 +61,19 @@ main_for_footer@3:
     bury 1
     b main_for_header@1
 
-main_after_for@4:
+main_did_loop@4:
+    // scratch_slots/contract.py:14
+    // for i in urange(3, 20):
+    dup
+    pushint 3 // 3
+    !=
+    bz main_after_for@6
+    b main_iteration_variable_decrement@5
+
+main_iteration_variable_decrement@5:
+    b main_after_for@6
+
+main_after_for@6:
     // scratch_slots/contract.py:17
     // assert op.Scratch.load_uint64(1) == UInt64(5)
     intc_0 // 1
