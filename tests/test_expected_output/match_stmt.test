@@ -1,0 +1,91 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: cases_after_wildcard
+from algopy import *
+
+@subroutine
+def is_one_or_two(arg: UInt64) -> bool:
+    match arg:
+        case _:
+            return False
+        case 1: ## E: unreachable code - default case already encountered
+            return True
+        case 2:
+            return True
+
+
+## case: wildcard_aliasing_not_supported
+from algopy import *
+
+@subroutine
+def is_one_or_two(arg: UInt64) -> bool:
+    match arg:
+        case 1:
+            return True
+        case 2:
+            return True
+        case _ as x: ## E: capture patterns are not supported
+            log("bad arg: ", x)
+            return False
+
+
+## case: cls_capture_not_supported
+from algopy import *
+
+@subroutine
+def unsupported(arg: UInt64) -> bool:
+    match arg:
+        case UInt64(1) as one: ## E: capture patterns are not supported
+            assert one
+            return True
+        case _:
+            return False
+
+
+## case: named_wildcard_not_supported
+from algopy import *
+
+@subroutine
+def is_one_or_two(arg: UInt64) -> bool:
+    match arg:
+        case 1:
+            return True
+        case 2:
+            return True
+        case x: ## E: capture patterns are not supported
+            log("bad arg: ", x)
+            return False
+
+
+## case: match_none_not_supported
+from algopy import *
+
+@subroutine
+def is_one(arg: UInt64) -> bool:
+    match arg:
+        case 1:
+            return True
+        case None: ## E: None is not supported as a value, only a return type
+            return False
+        case _:
+            return False
+
+
+## case: match_named_tuples
+import typing
+from algopy import *
+
+class SimpleTup(typing.NamedTuple):
+    a: UInt64
+    b: UInt64
+
+@subroutine
+def match_one_two(value: SimpleTup) -> bool:
+    expected = SimpleTup(UInt64(1), UInt64(2))
+    match value: ## E: matching against tuple values is not supported
+        case SimpleTup(expected.a, expected.b):
+            return True
+        case _:
+            return False
