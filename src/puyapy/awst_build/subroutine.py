@@ -1277,10 +1277,7 @@ class FunctionASTConverter(
                     )
                 cls_args = []
                 for pos_case in cls_pattern.positionals:
-                    if isinstance(pos_case, mypy.patterns.ValuePattern):
-                        cls_args.append(pos_case.expr.accept(self))
-                    else:
-                        raise CodeError("expected a value pattern", self._location(pos_case))
+                    cls_args.append(self._visit_match_inner_pattern(pos_case))
                 return class_builder.call(
                     args=cls_args,
                     arg_kinds=[models.ArgKind.ARG_POS] * len(cls_args),

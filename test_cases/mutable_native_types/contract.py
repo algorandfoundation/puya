@@ -260,9 +260,8 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def test_match_struct(self, arg: FixedStruct) -> bool:
-        compare = FixedStruct(UInt64(1), UInt64(2))
         match arg:
-            case FixedStruct(compare.a, compare.b):
+            case FixedStruct(UInt64(1), UInt64(2)):
                 return True
             case _:
                 return False
