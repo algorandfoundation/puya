@@ -31,7 +31,7 @@ BigBytes = FixedArray[arc4.Byte, typing.Literal[2048]]
 FixedUInt64Of3 = FixedArray[UInt64, typing.Literal[3]]
 
 
-class FixedStruct(Struct, frozen=True, kw_only=True):
+class FixedStruct(Struct, frozen=True):
     a: UInt64
     b: UInt64
 
@@ -257,6 +257,15 @@ class Contract(arc4.ARC4Contract):
         assert arr11
 
         return self.arr
+
+    @arc4.abimethod
+    def test_match_struct(self, arg: FixedStruct) -> bool:
+        compare = FixedStruct(UInt64(1), UInt64(2))
+        match arg:
+            case FixedStruct(compare.a, compare.b):
+                return True
+            case _:
+                return False
 
 
 @subroutine()

@@ -2697,6 +2697,12 @@ def test_mutable_native_types_contract(
     app_client.call("test_arr", arr=[])
     app_client.call("test_imm_fixed_array")
 
+    response = app_client.call("test_match_struct", arg=[1, 2])
+    assert response.return_value is True
+
+    response = app_client.call("test_match_struct", arg=[2, 1])
+    assert response.return_value is False
+
 
 # see https://github.com/algorandfoundation/puya-ts-demo/blob/main/contracts/marketplace/marketplace.test.ts
 def test_marketplace_with_tups(
