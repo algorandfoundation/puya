@@ -1,6 +1,6 @@
 import abc
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 
 import attrs
 import docstring_parser
@@ -236,7 +236,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             case "False":
                 return LiteralBuilderImpl(source_location=location, value=False)
             case "None":
-                raise CodeError("None is not supported as a value, only a return type", location)
+                _none_value_error(location)
             case "len":
                 raise CodeError(
                     "len() is not supported -"
@@ -1195,6 +1195,7 @@ class FunctionASTConverter(
             )
         return ReturnStatement(source_location=loc, value=returning_builder.resolve())
 
+    @typing.override
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
         subject = require_instance_builder(stmt.subject.accept(self))
@@ -1204,66 +1205,90 @@ class FunctionASTConverter(
             if guard is not None:
                 self._error("guard clauses are not supported", guard)
             if default_block is not None:
-                self._error("default case already encountered", pattern)
-                continue
-            case_block = self.visit_block(block)
-            pattern_loc = self._location(pattern)
-            case_value_builder: InstanceBuilder | None = None
+                self._error("unreachable code - default case already encountered", pattern)
+                break
             match pattern:
                 case mypy.patterns.AsPattern(name=None, pattern=None):
-                    default_block = case_block
-                case mypy.patterns.ValuePattern(expr=case_expr):
-                    case_value_builder = require_instance_builder(case_expr.accept(self))
-                    case_value_builder = maybe_resolve_literal(case_value_builder, subject.pytype)
-                case mypy.patterns.SingletonPattern(value=bool(bool_literal)):
-                    case_value_builder = LiteralBuilderImpl(
-                        value=bool_literal, source_location=pattern_loc
-                    )
-                    case_value_builder = maybe_resolve_literal(case_value_builder, subject.pytype)
-                case mypy.patterns.ClassPattern() as cls_pattern:
-                    class_builder = cls_pattern.class_ref.accept(self)
-                    if not isinstance(class_builder, CallableBuilder):
-                        logger.error("expected a type", location=class_builder.source_location)
-                    elif cls_pattern.keyword_values:
-                        self._error(
-                            "attribute matching is not supported", cls_pattern.keyword_values[0]
-                        )
-                    else:
-                        cls_args = []
-                        has_error = False
-                        for pos_case in cls_pattern.positionals:
-                            if isinstance(pos_case, mypy.patterns.ValuePattern):
-                                cls_args.append(pos_case.expr.accept(self))
-                            else:
-                                has_error = True
-                                self._error("expected a value pattern", pos_case)
-                        if not has_error:
-                            case_value_builder = class_builder.call(
-                                args=cls_args,
-                                arg_kinds=[models.ArgKind.ARG_POS] * len(cls_args),
-                                arg_names=[None] * len(cls_args),
-                                location=pattern_loc,
-                            )
-
+                    default_block = self.visit_block(block)
                 case _:
-                    logger.error("unsupported case pattern", location=pattern_loc)
-            if case_value_builder is not None:
-                if case_value_builder.pytype != subject.pytype:
-                    # TODO: what about other comparable types, or subtypes?
-                    logger.error(
-                        "type mismatch,"
-                        " case values must be the exact same type as the subject type",
-                        location=pattern_loc,
-                    )
-                else:
-                    case_block_map[case_value_builder.resolve()] = case_block
-
+                    case_block_label = Label(f"match_case_L{block.line}")
+                    *others, last = self._visit_match_pattern(pattern, subject.pytype)
+                    for other in others:
+                        goto_case_block = Goto(
+                            target=case_block_label, source_location=other.source_location
+                        )
+                        case_block_map[other.resolve()] = Block(
+                            body=[goto_case_block], source_location=other.source_location
+                        )
+                    case_block = self.visit_block(block)
+                    case_block = attrs.evolve(case_block, label=case_block_label)
+                    case_block_map[last.resolve()] = case_block
         return Switch(
             source_location=loc,
             value=subject.resolve(),
             cases=case_block_map,
             default_case=default_block,
         )
+
+    def _visit_match_pattern(
+        self, pattern: mypy.patterns.Pattern, subject_type: pytypes.PyType
+    ) -> Iterator[InstanceBuilder]:
+        if isinstance(pattern, mypy.patterns.OrPattern):
+            patterns = pattern.patterns
+        else:
+            patterns = [pattern]
+        for inner_pattern in patterns:
+            # TODO: visit all patterns, but not necessarily body..?
+            case_value_builder = self._visit_match_inner_pattern(inner_pattern)
+            case_value_builder = maybe_resolve_literal(case_value_builder, subject_type)
+            if case_value_builder.pytype != subject_type:
+                # TODO: what about other comparable types, or subtypes?
+                raise CodeError(
+                    "type mismatch, case values must be the exact same type as the subject type",
+                    self._location(inner_pattern),
+                )
+            yield case_value_builder
+
+    def _visit_match_inner_pattern(self, pattern: mypy.patterns.Pattern) -> InstanceBuilder:
+        loc = self._location(pattern)
+        match pattern:
+            case mypy.patterns.AsPattern(name=as_name, pattern=capture_pattern):
+                if capture_pattern is None and as_name is None:
+                    msg = "wildcard pattern is not supported in combination with or-pattern"
+                else:
+                    msg = "capture patterns are not supported"
+                raise CodeError(msg, loc)
+            case mypy.patterns.OrPattern():
+                raise CodeError("nesting of or-patterns is not supported", loc)
+            case mypy.patterns.ValuePattern(expr=case_expr):
+                return require_instance_builder(case_expr.accept(self))
+            case mypy.patterns.SingletonPattern(value=singleton_value):
+                if singleton_value is None:
+                    _none_value_error(loc)
+                return LiteralBuilderImpl(value=singleton_value, source_location=loc)
+            case mypy.patterns.ClassPattern() as cls_pattern:
+                class_builder = cls_pattern.class_ref.accept(self)
+                if not isinstance(class_builder, CallableBuilder):
+                    raise CodeError("expected a type", class_builder.source_location)
+                if cls_pattern.keyword_values:
+                    raise CodeError(
+                        "attribute matching is not supported",
+                        self._location(cls_pattern.keyword_values[0]),
+                    )
+                cls_args = []
+                for pos_case in cls_pattern.positionals:
+                    if isinstance(pos_case, mypy.patterns.ValuePattern):
+                        cls_args.append(pos_case.expr.accept(self))
+                    else:
+                        raise CodeError("expected a value pattern", self._location(pos_case))
+                return class_builder.call(
+                    args=cls_args,
+                    arg_kinds=[models.ArgKind.ARG_POS] * len(cls_args),
+                    arg_names=[None] * len(cls_args),
+                    location=loc,
+                )
+            case _:
+                raise CodeError("unsupported case pattern", loc)
 
     # Unsupported statements
     @typing.override
@@ -1318,3 +1343,7 @@ def _parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
 
 def _join_single_new_line(doc: str) -> str:
     return doc.strip().replace("\n", " ")
+
+
+def _none_value_error(location: SourceLocation) -> typing.Never:
+    raise CodeError("None is not supported as a value, only a return type", location)
