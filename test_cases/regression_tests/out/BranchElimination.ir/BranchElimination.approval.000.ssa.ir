@@ -80,8 +80,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm() -
         let ahuh#0: uint64 = 0u
         goto block@1
     block@1: // while_top_L8
-        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@14)
-        goto 1u ? block@2 : block@15
+        let ahuh#3: uint64 = φ(ahuh#0 <- block@0, ahuh#1 <- block@16)
+        goto 1u ? block@2 : block@17
     block@2: // while_body_L9
         let tmp%0#0: uint64 = test_cases.regression_tests.leftover_branch.hmm_uint64()
         (assert 1u) // Step cannot be zero
@@ -118,16 +118,22 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm() -
     block@11: // for_footer_L9
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@3
-    block@12: // after_for_L9
+    block@12: // did_loop_L9
+        let looped%0#0: bool = (!= _i#1 0u)
+        goto looped%0#0 ? block@13 : block@14
+    block@13: // iteration_variable_decrement_L9
+        let _i#3: uint64 = (- _i#1 1u)
+        goto block@14
+    block@14: // after_for_L9
         let tmp%6#0: bool = test_cases.regression_tests.leftover_branch.hmm()
-        goto tmp%6#0 ? block@13 : block@14
-    block@13: // if_body_L15
-        goto block@15
-    block@14: // after_if_else_L14
+        goto tmp%6#0 ? block@15 : block@16
+    block@15: // if_body_L15
+        goto block@17
+    block@16: // after_if_else_L14
         goto block@1
-    block@15: // after_while_L8
-        let ahuh#7: uint64 = φ(ahuh#3 <- block@1, ahuh#1 <- block@13)
-        return ahuh#7
+    block@17: // after_while_L8
+        let ahuh#8: uint64 = φ(ahuh#3 <- block@1, ahuh#1 <- block@15)
+        return ahuh#8
 
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2() -> void:
     block@0: // L18
@@ -176,11 +182,11 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L38
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@13)
-        let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@13)
-        let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@13)
+        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@15)
+        let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@15)
+        let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@15)
         let continue_looping%0#0: bool = (< i#1 tmp%0#0)
-        goto continue_looping%0#0 ? block@2 : block@14
+        goto continue_looping%0#0 ? block@2 : block@16
     block@2: // for_body_L39
         let array_item%0#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#1)
         let inner_list#0: Encoded(len+uint64[]) = array_item%0#0
@@ -239,12 +245,24 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@11: // for_footer_L41
         let j#2: uint64 = (+ j#1 1u)
         goto block@3
-    block@12: // after_for_L41
-        goto block@13
-    block@13: // for_footer_L38
+    block@12: // did_loop_L41
+        let looped%0#0: bool = (!= j#1 0u)
+        goto looped%0#0 ? block@13 : block@14
+    block@13: // iteration_variable_decrement_L41
+        let j#3: uint64 = (- j#1 1u)
+        goto block@14
+    block@14: // after_for_L41
+        goto block@15
+    block@15: // for_footer_L38
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@14: // after_for_L38
+    block@16: // did_loop_L38
+        let looped%1#0: bool = (!= i#1 0u)
+        goto looped%1#0 ? block@17 : block@18
+    block@17: // iteration_variable_decrement_L38
+        let i#3: uint64 = (- i#1 1u)
+        goto block@18
+    block@18: // after_for_L38
         return 
 
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create() -> void:

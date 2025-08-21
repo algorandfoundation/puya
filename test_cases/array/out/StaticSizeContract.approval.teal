@@ -245,7 +245,7 @@ test_array_for_header@2:
     dup
     pushint 3 // 3
     <
-    bz test_array_after_for@5
+    bz test_array_did_loop@5
     // array/static_size.py:50
     // assert path[i].other.b == i + 1
     dup2
@@ -290,7 +290,7 @@ test_array_for_header@2:
     bury 1
     b test_array_for_header@2
 
-test_array_after_for@5:
+test_array_did_loop@5:
     dig 1
     // array/static_size.py:54
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
@@ -330,13 +330,13 @@ test_array_after_for@5:
     intc_1 // 1
     bury 3
 
-test_array_for_header@7:
+test_array_for_header@9:
     // array/static_size.py:169
     // for point_idx in urange(1, path.length):
     dig 2
     dig 8
     <
-    bz test_array_after_for@15
+    bz test_array_did_loop@17
     dig 1
     // array/static_size.py:170
     // point = path[point_idx]
@@ -355,7 +355,7 @@ test_array_for_header@7:
     // if point.x < last_point.x:
     dig 10
     b<
-    bz test_array_else_body@10
+    bz test_array_else_body@12
     // array/static_size.py:172
     // dx = last_point.x.native - point.x.native
     dig 10
@@ -375,20 +375,20 @@ test_array_for_header@7:
     -
     bury 7
 
-test_array_after_if_else@11:
+test_array_after_if_else@13:
     // array/static_size.py:175
     // if point.y < last_point.y:
     dig 3
     dig 6
     <
-    bz test_array_else_body@13
+    bz test_array_else_body@15
     // array/static_size.py:176
     // dy = last_point.y - point.y
     dig 5
     dig 4
     -
 
-test_array_after_if_else@14:
+test_array_after_if_else@16:
     // array/static_size.py:179
     // length += op.sqrt(dx * dx + dy * dy)
     dig 7
@@ -408,17 +408,17 @@ test_array_after_if_else@14:
     intc_1 // 1
     +
     bury 3
-    b test_array_for_header@7
+    b test_array_for_header@9
 
-test_array_else_body@13:
+test_array_else_body@15:
     // array/static_size.py:178
     // dy = point.y - last_point.y
     dig 3
     dig 6
     -
-    b test_array_after_if_else@14
+    b test_array_after_if_else@16
 
-test_array_else_body@10:
+test_array_else_body@12:
     // array/static_size.py:170
     // point = path[point_idx]
     intc_0 // 0
@@ -434,9 +434,9 @@ test_array_else_body@10:
     extract_uint64
     -
     bury 7
-    b test_array_after_if_else@11
+    b test_array_after_if_else@13
 
-test_array_after_for@15:
+test_array_did_loop@17:
     // array/static_size.py:41
     // @arc4.abimethod()
     dig 4
@@ -572,7 +572,7 @@ test_bool_array_for_header@2:
     dup
     dig 2
     <
-    bz test_bool_array_after_for@5
+    bz test_bool_array_did_loop@5
     // array/static_size.py:81
     // arr.append(i % 2 == 0)
     dupn 2
@@ -594,7 +594,7 @@ test_bool_array_for_header@2:
     bury 1
     b test_bool_array_for_header@2
 
-test_bool_array_after_for@5:
+test_bool_array_did_loop@5:
     dig 2
     dupn 2
     // array/static_size.py:82
@@ -628,13 +628,13 @@ test_bool_array_after_for@5:
     intc_0 // 0
     bury 5
 
-test_bool_array_for_header@6:
+test_bool_array_for_header@8:
     // array/static_size.py:89
     // for val in arr:
     dig 4
     dig 8
     <
-    bz test_bool_array_after_for@11
+    bz test_bool_array_after_for@13
     dig 2
     dig 5
     intc_1 // 1
@@ -645,7 +645,7 @@ test_bool_array_for_header@6:
     bury 7
     // array/static_size.py:90
     // if val:
-    bz test_bool_array_after_if_else@9
+    bz test_bool_array_after_if_else@11
     // array/static_size.py:91
     // count += 1
     dig 6
@@ -653,16 +653,16 @@ test_bool_array_for_header@6:
     +
     bury 6
 
-test_bool_array_after_if_else@9:
+test_bool_array_after_if_else@11:
     dig 5
     bury 7
     dig 4
     intc_1 // 1
     +
     bury 5
-    b test_bool_array_for_header@6
+    b test_bool_array_for_header@8
 
-test_bool_array_after_for@11:
+test_bool_array_after_for@13:
     // array/static_size.py:75
     // @arc4.abimethod()
     dig 6
@@ -700,7 +700,7 @@ test_arc4_conversion_for_header@2:
     dup
     dig 2
     <
-    bz test_arc4_conversion_after_for@5
+    bz test_arc4_conversion_did_loop@5
     // array/static_size.py:100
     // arr.append(arc4.UInt64(i))
     dupn 2
@@ -716,7 +716,7 @@ test_arc4_conversion_for_header@2:
     bury 1
     b test_arc4_conversion_for_header@2
 
-test_arc4_conversion_after_for@5:
+test_arc4_conversion_did_loop@5:
     dig 2
     // array/static_size.py:101
     // assert arr.length == length, "expected correct length"
@@ -735,13 +735,13 @@ test_arc4_conversion_after_for@5:
     intc_0 // 0
     bury 5
 
-test_arc4_conversion_for_header@6:
+test_arc4_conversion_for_header@8:
     // array/static_size.py:103
     // for val in arr:
     dig 4
     dig 8
     <
-    bz test_arc4_conversion_after_for@11
+    bz test_arc4_conversion_after_for@13
     dig 2
     dig 5
     intc_2 // 8
@@ -754,7 +754,7 @@ test_arc4_conversion_for_header@6:
     b!=
     dig 7
     bury 7
-    bz test_arc4_conversion_after_if_else@9
+    bz test_arc4_conversion_after_if_else@11
     // array/static_size.py:105
     // count += 1
     dig 6
@@ -762,16 +762,16 @@ test_arc4_conversion_for_header@6:
     +
     bury 6
 
-test_arc4_conversion_after_if_else@9:
+test_arc4_conversion_after_if_else@11:
     dig 5
     bury 7
     dig 4
     intc_1 // 1
     +
     bury 5
-    b test_arc4_conversion_for_header@6
+    b test_arc4_conversion_for_header@8
 
-test_arc4_conversion_after_for@11:
+test_arc4_conversion_after_for@13:
     // array/static_size.py:107
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
     bytec 4 // 0x0000

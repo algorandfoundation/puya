@@ -3,7 +3,7 @@
 
 // test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
 main:
-    intcblock 1 5
+    intcblock 1 5 0
     b main_block@0
 
 main_block@0:
@@ -21,7 +21,7 @@ main_block@0:
     // for i in urange(5):
     intc_0 // 1
     assert // Step cannot be zero
-    pushint 0 // 0
+    intc_2 // 0
     b main_for_header@1
 
 main_for_header@1:
@@ -30,7 +30,7 @@ main_for_header@1:
     dup
     intc_1 // 5
     <
-    bz main_after_for@4
+    bz main_did_loop@4
     b main_for_body@2
 
 main_for_body@2:
@@ -58,7 +58,19 @@ main_for_footer@3:
     bury 1
     b main_for_header@1
 
-main_after_for@4:
+main_did_loop@4:
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    dup
+    intc_2 // 0
+    !=
+    bz main_after_for@6
+    b main_iteration_variable_decrement@5
+
+main_iteration_variable_decrement@5:
+    b main_after_for@6
+
+main_after_for@6:
     // ssa2/contract.py:18
     // return a + b
     dig 2

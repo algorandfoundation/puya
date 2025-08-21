@@ -21,10 +21,15 @@ main test_cases.less_simple.contract.MyContract.clear_state_program:
         let tmp%4#0: bool = (> sum_of_squares#3 200u)
         goto tmp%4#0 ? block@5 : block@6
     block@5: // if_body_L34
-        goto block@8
+        goto block@10
     block@6: // after_if_else_L33
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@8: // after_for_L29
-        let sum_of_squares#4: uint64 = φ(sum_of_squares#1 <- block@1, sum_of_squares#3 <- block@5)
+    block@8: // did_loop_L29
+        let looped%0#0: bool = (!= i#1 1u)
+        goto looped%0#0 ? block@9 : block@10
+    block@9: // iteration_variable_decrement_L29
+        goto block@10
+    block@10: // after_for_L29
+        let sum_of_squares#4: uint64 = φ(sum_of_squares#3 <- block@5, sum_of_squares#1 <- block@8, sum_of_squares#1 <- block@9)
         return sum_of_squares#4

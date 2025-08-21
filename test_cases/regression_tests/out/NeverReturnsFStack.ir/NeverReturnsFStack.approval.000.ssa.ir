@@ -40,7 +40,13 @@ subroutine test_cases.regression_tests.never_returns.invoke_with_fstack() -> uin
     block@7: // for_footer_L30
         let idx#2: uint64 = (+ idx#1 1u)
         goto block@3
-    block@8: // after_for_L30
+    block@8: // did_loop_L30
+        let looped%0#0: bool = (!= idx#1 0u)
+        goto looped%0#0 ? block@9 : block@10
+    block@9: // iteration_variable_decrement_L30
+        let idx#3: uint64 = (- idx#1 1u)
+        goto block@10
+    block@10: // after_for_L30
         let tmp%6#0: bytes = (concat "you won't see this" "")
         let tmp%7#0: bytes = (itob one#1)
         let tmp%8#0: bytes = (concat tmp%6#0 tmp%7#0)

@@ -289,7 +289,7 @@ subroutine dynamic_array_pop_dynamic_element:
         v-load popped_header_offset#0                                                       (𝕡) array#0 | head_offset#0,popped_header_offset#0
         <                                                                                   (𝕡) array#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                       (𝕡) array#0 | continue_looping%0#0
-        bz dynamic_array_pop_dynamic_element_after_for@4 ; b dynamic_array_pop_dynamic_element_for_body@2 (𝕡) array#0 | 
+        bz dynamic_array_pop_dynamic_element_did_loop@4 ; b dynamic_array_pop_dynamic_element_for_body@2 (𝕡) array#0 | 
 
     dynamic_array_pop_dynamic_element_for_body@2:                                           (𝕡) array#0 |
         v-load head_and_tail#0                                                              (𝕡) array#0 | head_and_tail#0
@@ -313,7 +313,7 @@ subroutine dynamic_array_pop_dynamic_element:
         v-store head_offset#0                                                               (𝕡) array#0 |
         b dynamic_array_pop_dynamic_element_for_header@1                                    (𝕡) array#0 |
 
-    dynamic_array_pop_dynamic_element_after_for@4:                                          (𝕡) array#0 |
+    dynamic_array_pop_dynamic_element_did_loop@4:                                           (𝕡) array#0 |
         v-load length_minus_1#0                                                             (𝕡) array#0 | length_minus_1#0
         itob                                                                                (𝕡) array#0 | tmp%13#0
         l-load tmp%13#0 0                                                                   (𝕡) array#0 | tmp%13#0
@@ -503,7 +503,7 @@ subroutine dynamic_array_concat_byte_length_head:
         v-load tail_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0,tail_offset#0
         <                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0 | continue_looping%0#0
-        bz dynamic_array_concat_byte_length_head_after_for@4 ; b dynamic_array_concat_byte_length_head_for_body@3 (𝕡) array#0,new_items_bytes#0,new_items_count#0 | 
+        bz dynamic_array_concat_byte_length_head_did_loop@4 ; b dynamic_array_concat_byte_length_head_for_body@3 (𝕡) array#0,new_items_bytes#0,new_items_count#0 | 
 
     dynamic_array_concat_byte_length_head_for_body@3:                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load tail_offset#1                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tail_offset#1
@@ -534,7 +534,7 @@ subroutine dynamic_array_concat_byte_length_head:
         v-store head_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         b dynamic_array_concat_byte_length_head_for_header@2                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
 
-    dynamic_array_concat_byte_length_head_after_for@4:                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
+    dynamic_array_concat_byte_length_head_did_loop@4:                                       (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load tmp%5#0                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%5#0
         v-load array_head_and_tail#0                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%5#0,array_head_and_tail#0
         concat                                                                              (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%15#0
@@ -564,7 +564,7 @@ subroutine dynamic_array_concat_dynamic_element:
         v-load tmp%1#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,tmp%1#0
         <                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%0#0
-        bz dynamic_array_concat_dynamic_element_after_for@4 ; b dynamic_array_concat_dynamic_element_for_body@2 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
+        bz dynamic_array_concat_dynamic_element_did_loop@4 ; b dynamic_array_concat_dynamic_element_for_body@2 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
 
     dynamic_array_concat_dynamic_element_for_body@2:                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         p-load array_head_and_tail#0                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy)
@@ -588,22 +588,22 @@ subroutine dynamic_array_concat_dynamic_element:
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         b dynamic_array_concat_dynamic_element_for_header@1                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
-    dynamic_array_concat_dynamic_element_after_for@4:                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+    dynamic_array_concat_dynamic_element_did_loop@4:                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         p-load array_head_and_tail#0                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy)
         len                                                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#2
         v-store item_offset_adjustment#2                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         int 0                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        b dynamic_array_concat_dynamic_element_for_header@7                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
-    dynamic_array_concat_dynamic_element_for_header@5:                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+    dynamic_array_concat_dynamic_element_for_header@7:                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         v-load head_offset#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
         v-load item_offset_adjustment#0                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,item_offset_adjustment#0
         <                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%1#0
         l-load continue_looping%1#0 0                                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%1#0
-        bz dynamic_array_concat_dynamic_element_after_for@8 ; b dynamic_array_concat_dynamic_element_for_body@6 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
+        bz dynamic_array_concat_dynamic_element_did_loop@10 ; b dynamic_array_concat_dynamic_element_for_body@8 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
 
-    dynamic_array_concat_dynamic_element_for_body@6:                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+    dynamic_array_concat_dynamic_element_for_body@8:                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         p-load new_head_and_tail#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy)
         v-load head_offset#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy),head_offset#0
         l-store-copy head_offset#0 1                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,new_head_and_tail#0 (copy),head_offset#0 (copy)
@@ -623,9 +623,9 @@ subroutine dynamic_array_concat_dynamic_element:
         int 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,2
         +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        b dynamic_array_concat_dynamic_element_for_header@7                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
-    dynamic_array_concat_dynamic_element_after_for@8:                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+    dynamic_array_concat_dynamic_element_did_loop@10:                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         p-load array_items_count#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy)
         p-load new_items_count#0                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy),new_items_count#0 (copy)
         +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%14#0
@@ -743,7 +743,7 @@ subroutine times:
         p-load n#0                                                                          (𝕡) n#0 | _i#0,n#0 (copy)
         <                                                                                   (𝕡) n#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                       (𝕡) n#0 | continue_looping%0#0
-        bz times_after_for@4 ; b times_for_body@2                                           (𝕡) n#0 |
+        bz times_did_loop@4 ; b times_for_body@2                                            (𝕡) n#0 |
 
     times_for_body@2:                                                                       (𝕡) n#0 |
         // array/immutable.py:492
@@ -760,7 +760,7 @@ subroutine times:
         v-store _i#0                                                                        (𝕡) n#0 |
         b times_for_header@1                                                                (𝕡) n#0 |
 
-    times_after_for@4:                                                                      (𝕡) n#0 |
+    times_did_loop@4:                                                                       (𝕡) n#0 |
         // array/immutable.py:493
         // return result
         v-load result#0                                                                     (𝕡) n#0 | result#0
@@ -783,7 +783,7 @@ subroutine add_x:
         p-load x#0                                                                          (𝕡) arr#0,x#0 | i#0,x#0 (copy)
         <                                                                                   (𝕡) arr#0,x#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                       (𝕡) arr#0,x#0 | continue_looping%0#0
-        bz add_x_after_for@4 ; b add_x_for_body@2                                           (𝕡) arr#0,x#0 |
+        bz add_x_did_loop@4 ; b add_x_for_body@2                                            (𝕡) arr#0,x#0 |
 
     add_x_for_body@2:                                                                       (𝕡) arr#0,x#0 |
         // array/immutable.py:499
@@ -816,7 +816,7 @@ subroutine add_x:
         v-store i#0                                                                         (𝕡) arr#0,x#0 |
         b add_x_for_header@1                                                                (𝕡) arr#0,x#0 |
 
-    add_x_after_for@4:                                                                      (𝕡) arr#0,x#0 |
+    add_x_did_loop@4:                                                                       (𝕡) arr#0,x#0 |
         // array/immutable.py:500
         // return arr
         p-load arr#0                                                                        (𝕡) arr#0,x#0 | arr#0 (copy)
@@ -935,7 +935,7 @@ subroutine test_uint64_array:
         // for _i in urange(x):
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_uint64_array_after_for@4 ; b test_uint64_array_for_body@3
+        bz test_uint64_array_did_loop@4 ; b test_uint64_array_for_body@3
 
     test_uint64_array_for_body@3:
         // array/immutable.py:506
@@ -953,7 +953,7 @@ subroutine test_uint64_array:
         v-store _i#0
         b test_uint64_array_for_header@2
 
-    test_uint64_array_after_for@4:
+    test_uint64_array_did_loop@4:
         // array/immutable.py:113
         // assert arr.length == 4
         v-load arr#2                                                                        arr#2
@@ -1175,7 +1175,7 @@ subroutine test_biguint_array:
         // for i in urange(x):
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_biguint_array_after_for@4 ; b test_biguint_array_for_body@3
+        bz test_biguint_array_did_loop@4 ; b test_biguint_array_for_body@3
 
     test_biguint_array_for_body@3:
         // array/immutable.py:513
@@ -1212,7 +1212,7 @@ subroutine test_biguint_array:
         v-store i#0
         b test_biguint_array_for_header@2
 
-    test_biguint_array_after_for@4:
+    test_biguint_array_did_loop@4:
         // array/immutable.py:140
         // assert arr.length == 6
         v-load arr#1                                                                        arr#1
@@ -1405,7 +1405,7 @@ subroutine test_bool_array:
         v-load length#0                                                                     i#0,length#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_bool_array_after_for@5 ; b test_bool_array_for_body@3
+        bz test_bool_array_did_loop@5 ; b test_bool_array_for_body@3
 
     test_bool_array_for_body@3:
         // array/immutable.py:161
@@ -1433,7 +1433,7 @@ subroutine test_bool_array:
         v-store i#0
         b test_bool_array_for_header@2
 
-    test_bool_array_after_for@5:
+    test_bool_array_did_loop@5:
         // array/immutable.py:163
         // assert arr.length == length
         v-load arr#0                                                                        arr#0
@@ -1450,9 +1450,9 @@ subroutine test_bool_array:
         // array/immutable.py:165
         // if length > 0:
         l-load length#0 0                                                                   length#0
-        bz test_bool_array_after_if_else@7 ; b test_bool_array_if_body@6
+        bz test_bool_array_after_if_else@9 ; b test_bool_array_if_body@8
 
-    test_bool_array_if_body@6:
+    test_bool_array_if_body@8:
         // array/immutable.py:166
         // assert not arr[0], "expected element 0 to be False"
         v-load array_length#0                                                               array_length#0
@@ -1464,18 +1464,18 @@ subroutine test_bool_array:
         !                                                                                   tmp%8#0
         l-load tmp%8#0 0                                                                    tmp%8#0
         assert // expected element 0 to be False
-        b test_bool_array_after_if_else@7
+        b test_bool_array_after_if_else@9
 
-    test_bool_array_after_if_else@7:
+    test_bool_array_after_if_else@9:
         // array/immutable.py:167
         // if length > 1:
         v-load length#0                                                                     length#0
         int 1                                                                               length#0,1
         >                                                                                   tmp%9#0
         l-load tmp%9#0 0                                                                    tmp%9#0
-        bz test_bool_array_after_if_else@9 ; b test_bool_array_if_body@8
+        bz test_bool_array_after_if_else@11 ; b test_bool_array_if_body@10
 
-    test_bool_array_if_body@8:
+    test_bool_array_if_body@10:
         // array/immutable.py:168
         // assert not arr[1], "expected element 1 to be False"
         int 1                                                                               1
@@ -1490,18 +1490,18 @@ subroutine test_bool_array:
         !                                                                                   tmp%10#0
         l-load tmp%10#0 0                                                                   tmp%10#0
         assert // expected element 1 to be False
-        b test_bool_array_after_if_else@9
+        b test_bool_array_after_if_else@11
 
-    test_bool_array_after_if_else@9:
+    test_bool_array_after_if_else@11:
         // array/immutable.py:169
         // if length > 2:
         v-load length#0                                                                     length#0
         int 2                                                                               length#0,2
         >                                                                                   tmp%11#0
         l-load tmp%11#0 0                                                                   tmp%11#0
-        bz test_bool_array_after_if_else@11 ; b test_bool_array_if_body@10
+        bz test_bool_array_after_if_else@13 ; b test_bool_array_if_body@12
 
-    test_bool_array_if_body@10:
+    test_bool_array_if_body@12:
         // array/immutable.py:170
         // assert arr[2], "expected element 2 to be True"
         int 2                                                                               2
@@ -1514,18 +1514,18 @@ subroutine test_bool_array:
         getbit                                                                              aggregate%get_bit%2#0
         l-load aggregate%get_bit%2#0 0                                                      aggregate%get_bit%2#0
         assert // expected element 2 to be True
-        b test_bool_array_after_if_else@11
+        b test_bool_array_after_if_else@13
 
-    test_bool_array_after_if_else@11:
+    test_bool_array_after_if_else@13:
         // array/immutable.py:171
         // if length > 3:
         v-load length#0                                                                     length#0
         int 3                                                                               length#0,3
         >                                                                                   tmp%12#0
         l-load tmp%12#0 0                                                                   tmp%12#0
-        bz test_bool_array_after_if_else@13 ; b test_bool_array_if_body@12
+        bz test_bool_array_after_if_else@15 ; b test_bool_array_if_body@14
 
-    test_bool_array_if_body@12:
+    test_bool_array_if_body@14:
         // array/immutable.py:172
         // assert not arr[length - 1], "expected last element to be False"
         v-load length#0                                                                     length#0
@@ -1546,9 +1546,9 @@ subroutine test_bool_array:
         !                                                                                   tmp%14#0
         l-load tmp%14#0 0                                                                   tmp%14#0
         assert // expected last element to be False
-        b test_bool_array_after_if_else@13
+        b test_bool_array_after_if_else@15
 
-    test_bool_array_after_if_else@13:
+    test_bool_array_after_if_else@15:
         // array/immutable.py:174
         // self.g = arr
         byte "g"                                                                            "g"
@@ -1557,9 +1557,9 @@ subroutine test_bool_array:
         // array/immutable.py:175
         // if length:
         v-load length#0                                                                     length#0
-        bz test_bool_array_after_if_else@15 ; b test_bool_array_if_body@14
+        bz test_bool_array_after_if_else@17 ; b test_bool_array_if_body@16
 
-    test_bool_array_if_body@14:
+    test_bool_array_if_body@16:
         v-load array_length#0                                                               array_length#0
         int 1                                                                               array_length#0,1
         -                                                                                   length_minus_1#0
@@ -1603,9 +1603,9 @@ subroutine test_bool_array:
         ==                                                                                  tmp%21#0
         l-load tmp%21#0 0                                                                   tmp%21#0
         assert
-        b test_bool_array_after_if_else@15
+        b test_bool_array_after_if_else@17
 
-    test_bool_array_after_if_else@15:
+    test_bool_array_after_if_else@17:
         // array/immutable.py:155
         // @arc4.abimethod()
         int 1                                                                               1
@@ -1632,7 +1632,7 @@ subroutine test_fixed_size_tuple_array:
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_fixed_size_tuple_array_after_for@5 ; b test_fixed_size_tuple_array_for_body@3 
+        bz test_fixed_size_tuple_array_did_loop@5 ; b test_fixed_size_tuple_array_for_body@3 
 
     test_fixed_size_tuple_array_for_body@3:
         // array/immutable.py:185
@@ -1673,7 +1673,7 @@ subroutine test_fixed_size_tuple_array:
         v-store i#0
         b test_fixed_size_tuple_array_for_header@2
 
-    test_fixed_size_tuple_array_after_for@5:
+    test_fixed_size_tuple_array_did_loop@5:
         // array/immutable.py:187
         // assert arr.length == 5
         v-load arr#0                                                                        arr#0
@@ -1837,7 +1837,7 @@ subroutine test_fixed_size_named_tuple_array:
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_fixed_size_named_tuple_array_after_for@5 ; b test_fixed_size_named_tuple_array_for_body@3 
+        bz test_fixed_size_named_tuple_array_did_loop@5 ; b test_fixed_size_named_tuple_array_for_body@3 
 
     test_fixed_size_named_tuple_array_for_body@3:
         // array/immutable.py:203
@@ -1895,7 +1895,7 @@ subroutine test_fixed_size_named_tuple_array:
         v-store i#0
         b test_fixed_size_named_tuple_array_for_header@2
 
-    test_fixed_size_named_tuple_array_after_for@5:
+    test_fixed_size_named_tuple_array_did_loop@5:
         // array/immutable.py:205
         // assert arr.length == 5
         v-load arr#0                                                                        arr#0
@@ -1965,7 +1965,7 @@ subroutine test_dynamic_sized_tuple_array:
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_dynamic_sized_tuple_array_after_for@5 ; b test_dynamic_sized_tuple_array_for_body@3 
+        bz test_dynamic_sized_tuple_array_did_loop@5 ; b test_dynamic_sized_tuple_array_for_body@3 
 
     test_dynamic_sized_tuple_array_for_body@3:
         // array/immutable.py:218
@@ -2012,7 +2012,7 @@ subroutine test_dynamic_sized_tuple_array:
         v-store i#0
         b test_dynamic_sized_tuple_array_for_header@2
 
-    test_dynamic_sized_tuple_array_after_for@5:
+    test_dynamic_sized_tuple_array_did_loop@5:
         // array/immutable.py:220
         // assert arr.length == 5
         v-load arr#0                                                                        arr#0
@@ -2029,18 +2029,18 @@ subroutine test_dynamic_sized_tuple_array:
         // for i in urange(5):
         int 0                                                                               0
         v-store i#0
-        b test_dynamic_sized_tuple_array_for_header@6
+        b test_dynamic_sized_tuple_array_for_header@8
 
-    test_dynamic_sized_tuple_array_for_header@6:
+    test_dynamic_sized_tuple_array_for_header@8:
         // array/immutable.py:221
         // for i in urange(5):
         v-load i#0                                                                          i#0
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_dynamic_sized_tuple_array_after_for@9 ; b test_dynamic_sized_tuple_array_for_body@7 
+        bz test_dynamic_sized_tuple_array_did_loop@11 ; b test_dynamic_sized_tuple_array_for_body@9 
 
-    test_dynamic_sized_tuple_array_for_body@7:
+    test_dynamic_sized_tuple_array_for_body@9:
         // array/immutable.py:222
         // assert arr[i][0] == i + 1, "expected 1st element to be correct"
         v-load arr#0                                                                        arr#0
@@ -2104,9 +2104,9 @@ subroutine test_dynamic_sized_tuple_array:
         assert // expected 2nd element to be correct                                        i#2
         l-load i#2 0                                                                        i#2
         v-store i#0
-        b test_dynamic_sized_tuple_array_for_header@6
+        b test_dynamic_sized_tuple_array_for_header@8
 
-    test_dynamic_sized_tuple_array_after_for@9:
+    test_dynamic_sized_tuple_array_did_loop@11:
         // array/immutable.py:225
         // arr = arr.pop()
         v-load arr#0                                                                        arr#0
@@ -2259,7 +2259,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_dynamic_sized_named_tuple_array_after_for@5 ; b test_dynamic_sized_named_tuple_array_for_body@3 
+        bz test_dynamic_sized_named_tuple_array_did_loop@5 ; b test_dynamic_sized_named_tuple_array_for_body@3 
 
     test_dynamic_sized_named_tuple_array_for_body@3:
         // array/immutable.py:237
@@ -2306,7 +2306,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-store i#0
         b test_dynamic_sized_named_tuple_array_for_header@2
 
-    test_dynamic_sized_named_tuple_array_after_for@5:
+    test_dynamic_sized_named_tuple_array_did_loop@5:
         // array/immutable.py:239
         // assert arr.length == 5
         v-load arr#0                                                                        arr#0
@@ -2323,18 +2323,18 @@ subroutine test_dynamic_sized_named_tuple_array:
         // for i in urange(5):
         int 0                                                                               0
         v-store i#0
-        b test_dynamic_sized_named_tuple_array_for_header@6
+        b test_dynamic_sized_named_tuple_array_for_header@8
 
-    test_dynamic_sized_named_tuple_array_for_header@6:
+    test_dynamic_sized_named_tuple_array_for_header@8:
         // array/immutable.py:240
         // for i in urange(5):
         v-load i#0                                                                          i#0
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_dynamic_sized_named_tuple_array_after_for@9 ; b test_dynamic_sized_named_tuple_array_for_body@7 
+        bz test_dynamic_sized_named_tuple_array_did_loop@11 ; b test_dynamic_sized_named_tuple_array_for_body@9 
 
-    test_dynamic_sized_named_tuple_array_for_body@7:
+    test_dynamic_sized_named_tuple_array_for_body@9:
         // array/immutable.py:241
         // assert arr[i][0] == i + 1, "expected 1st element to be correct"
         v-load arr#0                                                                        arr#0
@@ -2398,9 +2398,9 @@ subroutine test_dynamic_sized_named_tuple_array:
         assert // expected 2nd element to be correct                                        i#2
         l-load i#2 0                                                                        i#2
         v-store i#0
-        b test_dynamic_sized_named_tuple_array_for_header@6
+        b test_dynamic_sized_named_tuple_array_for_header@8
 
-    test_dynamic_sized_named_tuple_array_after_for@9:
+    test_dynamic_sized_named_tuple_array_did_loop@11:
         // array/immutable.py:244
         // arr = arr.pop()
         v-load arr#0                                                                        arr#0
@@ -2588,7 +2588,7 @@ subroutine test_nested_array:
         v-load arr_to_add#0                                                                 i#0,arr_to_add#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_nested_array_after_for@9 ; b test_nested_array_for_body@3
+        bz test_nested_array_did_loop@11 ; b test_nested_array_for_body@3
 
     test_nested_array_for_body@3:
         // array/immutable.py:264
@@ -2608,7 +2608,7 @@ subroutine test_nested_array:
         v-load i#0                                                                          j#0,i#0
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_nested_array_after_for@7 ; b test_nested_array_for_body@5
+        bz test_nested_array_did_loop@7 ; b test_nested_array_for_body@5
 
     test_nested_array_for_body@5:
         // array/immutable.py:266
@@ -2642,7 +2642,7 @@ subroutine test_nested_array:
         v-store j#0
         b test_nested_array_for_header@4
 
-    test_nested_array_after_for@7:
+    test_nested_array_did_loop@7:
         // array/immutable.py:267
         // arr = arr.append(extra_arr)
         v-load arr#0                                                                        arr#0
@@ -2668,7 +2668,7 @@ subroutine test_nested_array:
         v-store i#0
         b test_nested_array_for_header@2
 
-    test_nested_array_after_for@9:
+    test_nested_array_did_loop@11:
         // array/immutable.py:270
         // totals = ImmutableArray[UInt64]()
         byte 0x0000                                                                         0x0000
@@ -2681,18 +2681,18 @@ subroutine test_nested_array:
         v-store aggregate%array_length%0#0
         int 0                                                                               0
         v-store item_index_internal%0#0
-        b test_nested_array_for_header@10
+        b test_nested_array_for_header@14
 
-    test_nested_array_for_header@10:
+    test_nested_array_for_header@14:
         // array/immutable.py:271
         // for inner_arr in arr:
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
         v-load aggregate%array_length%0#0                                                   item_index_internal%0#0,aggregate%array_length%0#0
         <                                                                                   continue_looping%2#0
         l-load continue_looping%2#0 0                                                       continue_looping%2#0
-        bz test_nested_array_after_for@13 ; b test_nested_array_for_body@11
+        bz test_nested_array_after_for@17 ; b test_nested_array_for_body@15
 
-    test_nested_array_for_body@11:
+    test_nested_array_for_body@15:
         // array/immutable.py:271
         // for inner_arr in arr:
         v-load arr#0                                                                        arr#0
@@ -2730,18 +2730,18 @@ subroutine test_nested_array:
         v-store aggregate%array_length%1#0
         int 0                                                                               0
         v-store item_index_internal%0#3
-        b test_nested_array_for_header@15
+        b test_nested_array_for_header@19
 
-    test_nested_array_for_header@15:
+    test_nested_array_for_header@19:
         // array/immutable.py:520
         // for i in arr:
         v-load item_index_internal%0#3                                                      item_index_internal%0#3
         v-load aggregate%array_length%1#0                                                   item_index_internal%0#3,aggregate%array_length%1#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_nested_array_after_for@17 ; b test_nested_array_for_body@16
+        bz test_nested_array_after_for@21 ; b test_nested_array_for_body@20
 
-    test_nested_array_for_body@16:
+    test_nested_array_for_body@20:
         // array/immutable.py:520
         // for i in arr:
         v-load inner_arr#0                                                                  inner_arr#0
@@ -2763,9 +2763,9 @@ subroutine test_nested_array:
         int 1                                                                               item_index_internal%0#3,1
         +                                                                                   item_index_internal%0#3
         v-store item_index_internal%0#3
-        b test_nested_array_for_header@15
+        b test_nested_array_for_header@19
 
-    test_nested_array_after_for@17:
+    test_nested_array_after_for@21:
         // array/immutable.py:272
         // totals = totals.append(sum_arr(inner_arr))
         v-load total#0                                                                      total#0
@@ -2792,9 +2792,9 @@ subroutine test_nested_array:
         int 1                                                                               item_index_internal%0#0,1
         +                                                                                   item_index_internal%0#0
         v-store item_index_internal%0#0
-        b test_nested_array_for_header@10
+        b test_nested_array_for_header@14
 
-    test_nested_array_after_for@13:
+    test_nested_array_after_for@17:
         // array/immutable.py:258
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -2838,7 +2838,7 @@ subroutine test_bit_packed_tuples:
         int 5                                                                               i#0,5
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_bit_packed_tuples_after_for@5 ; b test_bit_packed_tuples_for_body@3
+        bz test_bit_packed_tuples_did_loop@5 ; b test_bit_packed_tuples_for_body@3
 
     test_bit_packed_tuples_for_body@3:
         // array/immutable.py:288
@@ -3068,7 +3068,7 @@ subroutine test_bit_packed_tuples:
         v-store i#0
         b test_bit_packed_tuples_for_header@2
 
-    test_bit_packed_tuples_after_for@5:
+    test_bit_packed_tuples_did_loop@5:
         // array/immutable.py:332
         // assert arr2.length == 5
         v-load arr2#0                                                                       arr2#0
@@ -3506,7 +3506,7 @@ subroutine test_uint64_return:
         v-load append#0                                                                     i#0,append#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_uint64_return_after_for@5 ; b test_uint64_return_for_body@3
+        bz test_uint64_return_did_loop@5 ; b test_uint64_return_for_body@3
 
     test_uint64_return_for_body@3:
         // array/immutable.py:372
@@ -3540,7 +3540,7 @@ subroutine test_uint64_return:
         v-store i#0
         b test_uint64_return_for_header@2
 
-    test_uint64_return_after_for@5:
+    test_uint64_return_did_loop@5:
         // array/immutable.py:368
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -3578,7 +3578,7 @@ subroutine test_bool_return:
         v-load append#0                                                                     i#0,append#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_bool_return_after_for@5 ; b test_bool_return_for_body@3
+        bz test_bool_return_did_loop@5 ; b test_bool_return_for_body@3
 
     test_bool_return_for_body@3:
         // array/immutable.py:379
@@ -3607,7 +3607,7 @@ subroutine test_bool_return:
         v-store i#0
         b test_bool_return_for_header@2
 
-    test_bool_return_after_for@5:
+    test_bool_return_did_loop@5:
         // array/immutable.py:375
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -3645,7 +3645,7 @@ subroutine test_tuple_return:
         v-load append#0                                                                     i#0,append#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_tuple_return_after_for@5 ; b test_tuple_return_for_body@3
+        bz test_tuple_return_did_loop@5 ; b test_tuple_return_for_body@3
 
     test_tuple_return_for_body@3:
         // array/immutable.py:386
@@ -3700,7 +3700,7 @@ subroutine test_tuple_return:
         v-store i#0
         b test_tuple_return_for_header@2
 
-    test_tuple_return_after_for@5:
+    test_tuple_return_did_loop@5:
         // array/immutable.py:382
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -3738,7 +3738,7 @@ subroutine test_dynamic_tuple_return:
         v-load append#0                                                                     i#0,append#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_dynamic_tuple_return_after_for@5 ; b test_dynamic_tuple_return_for_body@3 
+        bz test_dynamic_tuple_return_did_loop@5 ; b test_dynamic_tuple_return_for_body@3
 
     test_dynamic_tuple_return_for_body@3:
         // array/immutable.py:393
@@ -3786,7 +3786,7 @@ subroutine test_dynamic_tuple_return:
         v-store i#0
         b test_dynamic_tuple_return_for_header@2
 
-    test_dynamic_tuple_return_after_for@5:
+    test_dynamic_tuple_return_did_loop@5:
         // array/immutable.py:389
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -3827,7 +3827,7 @@ subroutine test_convert_to_array_and_back:
         v-load append#0                                                                     i#0,append#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_convert_to_array_and_back_after_for@5 ; b test_convert_to_array_and_back_for_body@3 
+        bz test_convert_to_array_and_back_did_loop@5 ; b test_convert_to_array_and_back_for_body@3 
 
     test_convert_to_array_and_back_for_body@3:
         // array/immutable.py:403
@@ -3871,7 +3871,7 @@ subroutine test_convert_to_array_and_back:
         v-store i#0
         b test_convert_to_array_and_back_for_header@2
 
-    test_convert_to_array_and_back_after_for@5:
+    test_convert_to_array_and_back_did_loop@5:
         v-load slot%0                                                                       slot%0
         // array/immutable.py:404
         // return mutable.freeze()
@@ -4182,7 +4182,7 @@ subroutine test_imm_fixed_arr:
         int 3                                                                               i#0,3
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_imm_fixed_arr_after_for@5 ; b test_imm_fixed_arr_for_body@3
+        bz test_imm_fixed_arr_did_loop@5 ; b test_imm_fixed_arr_for_body@3
 
     test_imm_fixed_arr_for_body@3:
         // array/immutable.py:460
@@ -4204,7 +4204,7 @@ subroutine test_imm_fixed_arr:
         v-store i#0
         b test_imm_fixed_arr_for_header@2
 
-    test_imm_fixed_arr_after_for@5:
+    test_imm_fixed_arr_did_loop@5:
         // array/immutable.py:462
         // assert arr1 == arr2, "expected arrays to be the same"
         v-load arr1#0                                                                       arr1#0
@@ -4214,18 +4214,18 @@ subroutine test_imm_fixed_arr:
         assert // expected arrays to be the same
         int 0                                                                               0
         v-store item_index_internal%0#0
-        b test_imm_fixed_arr_for_header@6
+        b test_imm_fixed_arr_for_header@8
 
-    test_imm_fixed_arr_for_header@6:
+    test_imm_fixed_arr_for_header@8:
         // array/immutable.py:464
         // for struct_it in arr1:
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
         int 3                                                                               item_index_internal%0#0,3
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_imm_fixed_arr_after_for@9 ; b test_imm_fixed_arr_for_body@7
+        bz test_imm_fixed_arr_after_for@11 ; b test_imm_fixed_arr_for_body@9
 
-    test_imm_fixed_arr_for_body@7:
+    test_imm_fixed_arr_for_body@9:
         // array/immutable.py:464
         // for struct_it in arr1:
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
@@ -4247,9 +4247,9 @@ subroutine test_imm_fixed_arr:
         int 1                                                                               item_index_internal%0#0,1
         +                                                                                   item_index_internal%0#0
         v-store item_index_internal%0#0
-        b test_imm_fixed_arr_for_header@6
+        b test_imm_fixed_arr_for_header@8
 
-    test_imm_fixed_arr_after_for@9:
+    test_imm_fixed_arr_after_for@11:
         // array/immutable.py:467
         // self.imm_fixed_arr = arr1
         byte "imm_fixed_arr"                                                                "imm_fixed_arr"

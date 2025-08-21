@@ -88,7 +88,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     frame_dig 6
     frame_dig 1
     <
-    bz dynamic_array_pop_dynamic_element_after_for@4
+    bz dynamic_array_pop_dynamic_element_did_loop@4
     frame_dig 2
     frame_dig 6
     dup
@@ -107,7 +107,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     frame_bury 6
     b dynamic_array_pop_dynamic_element_for_header@1
 
-dynamic_array_pop_dynamic_element_after_for@4:
+dynamic_array_pop_dynamic_element_did_loop@4:
     frame_dig 0
     itob
     extract 6 2
@@ -263,7 +263,7 @@ dynamic_array_concat_byte_length_head_for_header@2:
     frame_dig 3
     frame_dig 2
     <
-    bz dynamic_array_concat_byte_length_head_after_for@4
+    bz dynamic_array_concat_byte_length_head_did_loop@4
     frame_dig 4
     dup
     itob
@@ -287,7 +287,7 @@ dynamic_array_concat_byte_length_head_for_header@2:
     frame_bury 3
     b dynamic_array_concat_byte_length_head_for_header@2
 
-dynamic_array_concat_byte_length_head_after_for@4:
+dynamic_array_concat_byte_length_head_did_loop@4:
     frame_dig 0
     frame_dig 1
     concat
@@ -312,7 +312,7 @@ dynamic_array_concat_dynamic_element_for_header@1:
     frame_dig 4
     frame_dig 3
     <
-    bz dynamic_array_concat_dynamic_element_after_for@4
+    bz dynamic_array_concat_dynamic_element_did_loop@4
     frame_dig -3
     frame_dig 4
     dup
@@ -331,18 +331,18 @@ dynamic_array_concat_dynamic_element_for_header@1:
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
 
-dynamic_array_concat_dynamic_element_after_for@4:
+dynamic_array_concat_dynamic_element_did_loop@4:
     frame_dig -3
     len
     frame_bury 0
     intc_0 // 0
     frame_bury 4
 
-dynamic_array_concat_dynamic_element_for_header@5:
+dynamic_array_concat_dynamic_element_for_header@7:
     frame_dig 4
     frame_dig 2
     <
-    bz dynamic_array_concat_dynamic_element_after_for@8
+    bz dynamic_array_concat_dynamic_element_did_loop@10
     frame_dig -1
     frame_dig 4
     dup
@@ -359,9 +359,9 @@ dynamic_array_concat_dynamic_element_for_header@5:
     intc_2 // 2
     +
     frame_bury 4
-    b dynamic_array_concat_dynamic_element_for_header@5
+    b dynamic_array_concat_dynamic_element_for_header@7
 
-dynamic_array_concat_dynamic_element_after_for@8:
+dynamic_array_concat_dynamic_element_did_loop@10:
     frame_dig -4
     frame_dig -2
     +
@@ -463,7 +463,7 @@ times_for_header@1:
     frame_dig 1
     frame_dig -1
     <
-    bz times_after_for@4
+    bz times_did_loop@4
     // array/immutable.py:492
     // result += String(" ")
     frame_dig 0
@@ -478,7 +478,7 @@ times_for_header@1:
     frame_bury 1
     b times_for_header@1
 
-times_after_for@4:
+times_did_loop@4:
     // array/immutable.py:493
     // return result
     retsub
@@ -500,7 +500,7 @@ add_x_for_header@1:
     frame_dig 0
     frame_dig -1
     <
-    bz add_x_after_for@4
+    bz add_x_did_loop@4
     // array/immutable.py:499
     // arr = arr.append(i)
     frame_dig 0
@@ -525,7 +525,7 @@ add_x_for_header@1:
     frame_bury 0
     b add_x_for_header@1
 
-add_x_after_for@4:
+add_x_did_loop@4:
     // array/immutable.py:500
     // return arr
     frame_dig -2
@@ -621,7 +621,7 @@ test_uint64_array_for_header@2:
     // array/immutable.py:505
     // for _i in urange(x):
     <
-    bz test_uint64_array_after_for@4
+    bz test_uint64_array_did_loop@4
     // array/immutable.py:506
     // arr = arr.pop()
     dig 1
@@ -637,7 +637,7 @@ test_uint64_array_for_header@2:
     bury 1
     b test_uint64_array_for_header@2
 
-test_uint64_array_after_for@4:
+test_uint64_array_did_loop@4:
     // array/immutable.py:113
     // assert arr.length == 4
     dig 1
@@ -814,7 +814,7 @@ test_biguint_array_for_header@2:
     // array/immutable.py:512
     // for i in urange(x):
     <
-    bz test_biguint_array_after_for@4
+    bz test_biguint_array_did_loop@4
     // array/immutable.py:513
     // arr = arr.append(BigUInt(i))
     dupn 2
@@ -841,7 +841,7 @@ test_biguint_array_for_header@2:
     bury 1
     b test_biguint_array_for_header@2
 
-test_biguint_array_after_for@4:
+test_biguint_array_did_loop@4:
     // array/immutable.py:140
     // assert arr.length == 6
     dig 1
@@ -996,7 +996,7 @@ test_bool_array_for_header@2:
     dup
     dig 3
     <
-    bz test_bool_array_after_for@5
+    bz test_bool_array_did_loop@5
     // array/immutable.py:161
     // arr = arr.append(i == Txn.num_app_args)
     txn NumAppArgs
@@ -1021,7 +1021,7 @@ test_bool_array_for_header@2:
     bury 1
     b test_bool_array_for_header@2
 
-test_bool_array_after_for@5:
+test_bool_array_did_loop@5:
     // array/immutable.py:163
     // assert arr.length == length
     dig 1
@@ -1036,7 +1036,7 @@ test_bool_array_after_for@5:
     assert
     // array/immutable.py:165
     // if length > 0:
-    bz test_bool_array_after_if_else@7
+    bz test_bool_array_after_if_else@9
     // array/immutable.py:166
     // assert not arr[0], "expected element 0 to be False"
     dig 3
@@ -1047,13 +1047,13 @@ test_bool_array_after_for@5:
     !
     assert // expected element 0 to be False
 
-test_bool_array_after_if_else@7:
+test_bool_array_after_if_else@9:
     // array/immutable.py:167
     // if length > 1:
     dig 2
     intc_1 // 1
     >
-    bz test_bool_array_after_if_else@9
+    bz test_bool_array_after_if_else@11
     // array/immutable.py:168
     // assert not arr[1], "expected element 1 to be False"
     intc_1 // 1
@@ -1066,13 +1066,13 @@ test_bool_array_after_if_else@7:
     !
     assert // expected element 1 to be False
 
-test_bool_array_after_if_else@9:
+test_bool_array_after_if_else@11:
     // array/immutable.py:169
     // if length > 2:
     dig 2
     intc_2 // 2
     >
-    bz test_bool_array_after_if_else@11
+    bz test_bool_array_after_if_else@13
     // array/immutable.py:170
     // assert arr[2], "expected element 2 to be True"
     intc_2 // 2
@@ -1084,13 +1084,13 @@ test_bool_array_after_if_else@9:
     getbit
     assert // expected element 2 to be True
 
-test_bool_array_after_if_else@11:
+test_bool_array_after_if_else@13:
     // array/immutable.py:171
     // if length > 3:
     dig 2
     pushint 3 // 3
     >
-    bz test_bool_array_after_if_else@13
+    bz test_bool_array_after_if_else@15
     // array/immutable.py:172
     // assert not arr[length - 1], "expected last element to be False"
     dig 2
@@ -1108,7 +1108,7 @@ test_bool_array_after_if_else@11:
     !
     assert // expected last element to be False
 
-test_bool_array_after_if_else@13:
+test_bool_array_after_if_else@15:
     // array/immutable.py:174
     // self.g = arr
     pushbytes "g"
@@ -1117,7 +1117,7 @@ test_bool_array_after_if_else@13:
     // array/immutable.py:175
     // if length:
     dig 2
-    bz test_bool_array_after_if_else@15
+    bz test_bool_array_after_if_else@17
     dig 3
     intc_1 // 1
     -
@@ -1152,7 +1152,7 @@ test_bool_array_after_if_else@13:
     ==
     assert
 
-test_bool_array_after_if_else@15:
+test_bool_array_after_if_else@17:
     // array/immutable.py:155
     // @arc4.abimethod()
     intc_1 // 1
@@ -1174,7 +1174,7 @@ test_fixed_size_tuple_array_for_header@2:
     dup
     pushint 5 // 5
     <
-    bz test_fixed_size_tuple_array_after_for@5
+    bz test_fixed_size_tuple_array_did_loop@5
     // array/immutable.py:185
     // arr = arr.append((i + 1, i + 2))
     dupn 2
@@ -1204,7 +1204,7 @@ test_fixed_size_tuple_array_for_header@2:
     bury 1
     b test_fixed_size_tuple_array_for_header@2
 
-test_fixed_size_tuple_array_after_for@5:
+test_fixed_size_tuple_array_did_loop@5:
     // array/immutable.py:187
     // assert arr.length == 5
     dig 1
@@ -1341,7 +1341,7 @@ test_fixed_size_named_tuple_array_for_header@2:
     dup
     pushint 5 // 5
     <
-    bz test_fixed_size_named_tuple_array_after_for@5
+    bz test_fixed_size_named_tuple_array_did_loop@5
     // array/immutable.py:203
     // arr = arr.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i * 3 % 2 == 0))
     dupn 2
@@ -1384,7 +1384,7 @@ test_fixed_size_named_tuple_array_for_header@2:
     bury 1
     b test_fixed_size_named_tuple_array_for_header@2
 
-test_fixed_size_named_tuple_array_after_for@5:
+test_fixed_size_named_tuple_array_did_loop@5:
     // array/immutable.py:205
     // assert arr.length == 5
     dig 1
@@ -1446,7 +1446,7 @@ test_dynamic_sized_tuple_array_for_header@2:
     dup
     pushint 5 // 5
     <
-    bz test_dynamic_sized_tuple_array_after_for@5
+    bz test_dynamic_sized_tuple_array_did_loop@5
     // array/immutable.py:218
     // arr = arr.append((i + 1, op.bzero(i)))
     dupn 2
@@ -1484,7 +1484,7 @@ test_dynamic_sized_tuple_array_for_header@2:
     bury 1
     b test_dynamic_sized_tuple_array_for_header@2
 
-test_dynamic_sized_tuple_array_after_for@5:
+test_dynamic_sized_tuple_array_did_loop@5:
     // array/immutable.py:220
     // assert arr.length == 5
     dig 1
@@ -1500,13 +1500,13 @@ test_dynamic_sized_tuple_array_after_for@5:
     intc_0 // 0
     bury 1
 
-test_dynamic_sized_tuple_array_for_header@6:
+test_dynamic_sized_tuple_array_for_header@8:
     // array/immutable.py:221
     // for i in urange(5):
     dup
     pushint 5 // 5
     <
-    bz test_dynamic_sized_tuple_array_after_for@9
+    bz test_dynamic_sized_tuple_array_did_loop@11
     // array/immutable.py:222
     // assert arr[i][0] == i + 1, "expected 1st element to be correct"
     dig 1
@@ -1562,9 +1562,9 @@ test_dynamic_sized_tuple_array_for_header@6:
     ==
     assert // expected 2nd element to be correct
     bury 1
-    b test_dynamic_sized_tuple_array_for_header@6
+    b test_dynamic_sized_tuple_array_for_header@8
 
-test_dynamic_sized_tuple_array_after_for@9:
+test_dynamic_sized_tuple_array_did_loop@11:
     // array/immutable.py:225
     // arr = arr.pop()
     dig 1
@@ -1696,7 +1696,7 @@ test_dynamic_sized_named_tuple_array_for_header@2:
     dup
     pushint 5 // 5
     <
-    bz test_dynamic_sized_named_tuple_array_after_for@5
+    bz test_dynamic_sized_named_tuple_array_did_loop@5
     // array/immutable.py:237
     // arr = arr.append(MyDynamicSizedTuple(foo=i + 1, bar=times(i)))
     dupn 2
@@ -1734,7 +1734,7 @@ test_dynamic_sized_named_tuple_array_for_header@2:
     bury 1
     b test_dynamic_sized_named_tuple_array_for_header@2
 
-test_dynamic_sized_named_tuple_array_after_for@5:
+test_dynamic_sized_named_tuple_array_did_loop@5:
     // array/immutable.py:239
     // assert arr.length == 5
     dig 1
@@ -1750,13 +1750,13 @@ test_dynamic_sized_named_tuple_array_after_for@5:
     intc_0 // 0
     bury 1
 
-test_dynamic_sized_named_tuple_array_for_header@6:
+test_dynamic_sized_named_tuple_array_for_header@8:
     // array/immutable.py:240
     // for i in urange(5):
     dup
     pushint 5 // 5
     <
-    bz test_dynamic_sized_named_tuple_array_after_for@9
+    bz test_dynamic_sized_named_tuple_array_did_loop@11
     // array/immutable.py:241
     // assert arr[i][0] == i + 1, "expected 1st element to be correct"
     dig 1
@@ -1812,9 +1812,9 @@ test_dynamic_sized_named_tuple_array_for_header@6:
     ==
     assert // expected 2nd element to be correct
     bury 1
-    b test_dynamic_sized_named_tuple_array_for_header@6
+    b test_dynamic_sized_named_tuple_array_for_header@8
 
-test_dynamic_sized_named_tuple_array_after_for@9:
+test_dynamic_sized_named_tuple_array_did_loop@11:
     // array/immutable.py:244
     // arr = arr.pop()
     dig 1
@@ -1983,7 +1983,7 @@ test_nested_array_for_header@2:
     dup
     dig 3
     <
-    bz test_nested_array_after_for@9
+    bz test_nested_array_did_loop@11
     // array/immutable.py:264
     // extra_arr = ImmutableArray[UInt64]()
     bytec_2 // 0x0000
@@ -1999,7 +1999,7 @@ test_nested_array_for_header@4:
     dig 4
     dig 1
     <
-    bz test_nested_array_after_for@7
+    bz test_nested_array_did_loop@7
     // array/immutable.py:266
     // extra_arr = extra_arr.append(j)
     dig 4
@@ -2025,7 +2025,7 @@ test_nested_array_for_header@4:
     bury 5
     b test_nested_array_for_header@4
 
-test_nested_array_after_for@7:
+test_nested_array_did_loop@7:
     // array/immutable.py:267
     // arr = arr.append(extra_arr)
     dig 1
@@ -2051,7 +2051,7 @@ test_nested_array_after_for@7:
     bury 1
     b test_nested_array_for_header@2
 
-test_nested_array_after_for@9:
+test_nested_array_did_loop@11:
     // array/immutable.py:269-270
     // # sum inner arrays and return an array containing sums
     // totals = ImmutableArray[UInt64]()
@@ -2066,13 +2066,13 @@ test_nested_array_after_for@9:
     intc_0 // 0
     bury 7
 
-test_nested_array_for_header@10:
+test_nested_array_for_header@14:
     // array/immutable.py:271
     // for inner_arr in arr:
     dig 6
     dig 9
     <
-    bz test_nested_array_after_for@13
+    bz test_nested_array_after_for@17
     dig 1
     extract 2 0
     dig 7
@@ -2102,13 +2102,13 @@ test_nested_array_for_header@10:
     intc_0 // 0
     bury 6
 
-test_nested_array_for_header@15:
+test_nested_array_for_header@19:
     // array/immutable.py:520
     // for i in arr:
     dig 5
     dig 8
     <
-    bz test_nested_array_after_for@17
+    bz test_nested_array_after_for@21
     dig 10
     extract 2 0
     dig 6
@@ -2125,9 +2125,9 @@ test_nested_array_for_header@15:
     intc_1 // 1
     +
     bury 6
-    b test_nested_array_for_header@15
+    b test_nested_array_for_header@19
 
-test_nested_array_after_for@17:
+test_nested_array_after_for@21:
     // array/immutable.py:272
     // totals = totals.append(sum_arr(inner_arr))
     dig 3
@@ -2149,9 +2149,9 @@ test_nested_array_after_for@17:
     intc_1 // 1
     +
     bury 7
-    b test_nested_array_for_header@10
+    b test_nested_array_for_header@14
 
-test_nested_array_after_for@13:
+test_nested_array_after_for@17:
     // array/immutable.py:258
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
@@ -2182,7 +2182,7 @@ test_bit_packed_tuples_for_header@2:
     dup
     pushint 5 // 5
     <
-    bz test_bit_packed_tuples_after_for@5
+    bz test_bit_packed_tuples_did_loop@5
     // array/immutable.py:288
     // arr2 = arr2.append(TwoBoolTuple(a=i == 0, b=i == 1))
     dupn 2
@@ -2380,7 +2380,7 @@ test_bit_packed_tuples_for_header@2:
     bury 1
     b test_bit_packed_tuples_for_header@2
 
-test_bit_packed_tuples_after_for@5:
+test_bit_packed_tuples_did_loop@5:
     // array/immutable.py:332
     // assert arr2.length == 5
     dig 4
@@ -2733,7 +2733,7 @@ test_uint64_return_for_header@2:
     dup
     dig 3
     <
-    bz test_uint64_return_after_for@5
+    bz test_uint64_return_did_loop@5
     // array/immutable.py:372
     // arr = arr.append(i)
     dupn 2
@@ -2758,7 +2758,7 @@ test_uint64_return_for_header@2:
     bury 1
     b test_uint64_return_for_header@2
 
-test_uint64_return_after_for@5:
+test_uint64_return_did_loop@5:
     // array/immutable.py:368
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
@@ -2788,7 +2788,7 @@ test_bool_return_for_header@2:
     dup
     dig 3
     <
-    bz test_bool_return_after_for@5
+    bz test_bool_return_did_loop@5
     // array/immutable.py:379
     // arr = arr.append(i % 2 == 0)
     dupn 2
@@ -2812,7 +2812,7 @@ test_bool_return_for_header@2:
     bury 1
     b test_bool_return_for_header@2
 
-test_bool_return_after_for@5:
+test_bool_return_did_loop@5:
     // array/immutable.py:375
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
@@ -2842,7 +2842,7 @@ test_tuple_return_for_header@2:
     dup
     dig 3
     <
-    bz test_tuple_return_after_for@5
+    bz test_tuple_return_did_loop@5
     // array/immutable.py:386
     // arr = arr.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
     dupn 2
@@ -2883,7 +2883,7 @@ test_tuple_return_for_header@2:
     bury 1
     b test_tuple_return_for_header@2
 
-test_tuple_return_after_for@5:
+test_tuple_return_did_loop@5:
     // array/immutable.py:382
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
@@ -2913,7 +2913,7 @@ test_dynamic_tuple_return_for_header@2:
     dup
     dig 3
     <
-    bz test_dynamic_tuple_return_after_for@5
+    bz test_dynamic_tuple_return_did_loop@5
     // array/immutable.py:393
     // arr = arr.append(MyDynamicSizedTuple(i, times(i)))
     dupn 2
@@ -2952,7 +2952,7 @@ test_dynamic_tuple_return_for_header@2:
     bury 1
     b test_dynamic_tuple_return_for_header@2
 
-test_dynamic_tuple_return_after_for@5:
+test_dynamic_tuple_return_did_loop@5:
     // array/immutable.py:389
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
@@ -2984,7 +2984,7 @@ test_convert_to_array_and_back_for_header@2:
     dup
     dig 3
     <
-    bz test_convert_to_array_and_back_after_for@5
+    bz test_convert_to_array_and_back_did_loop@5
     // array/immutable.py:403
     // mutable.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
     dupn 2
@@ -3018,7 +3018,7 @@ test_convert_to_array_and_back_for_header@2:
     bury 1
     b test_convert_to_array_and_back_for_header@2
 
-test_convert_to_array_and_back_after_for@5:
+test_convert_to_array_and_back_did_loop@5:
     dig 1
     // array/immutable.py:404
     // return mutable.freeze()
@@ -3282,7 +3282,7 @@ test_imm_fixed_arr_for_header@2:
     dup
     pushint 3 // 3
     <
-    bz test_imm_fixed_arr_after_for@5
+    bz test_imm_fixed_arr_did_loop@5
     // array/immutable.py:460
     // arr1 = arr1.replace(i, struct12)
     dupn 2
@@ -3300,7 +3300,7 @@ test_imm_fixed_arr_for_header@2:
     bury 1
     b test_imm_fixed_arr_for_header@2
 
-test_imm_fixed_arr_after_for@5:
+test_imm_fixed_arr_did_loop@5:
     // array/immutable.py:462
     // assert arr1 == arr2, "expected arrays to be the same"
     dig 3
@@ -3310,13 +3310,13 @@ test_imm_fixed_arr_after_for@5:
     intc_0 // 0
     bury 5
 
-test_imm_fixed_arr_for_header@6:
+test_imm_fixed_arr_for_header@8:
     // array/immutable.py:464
     // for struct_it in arr1:
     dig 4
     pushint 3 // 3
     <
-    bz test_imm_fixed_arr_after_for@9
+    bz test_imm_fixed_arr_after_for@11
     dig 4
     dup
     pushint 16 // 16
@@ -3333,9 +3333,9 @@ test_imm_fixed_arr_for_header@6:
     intc_1 // 1
     +
     bury 5
-    b test_imm_fixed_arr_for_header@6
+    b test_imm_fixed_arr_for_header@8
 
-test_imm_fixed_arr_after_for@9:
+test_imm_fixed_arr_after_for@11:
     // array/immutable.py:467
     // self.imm_fixed_arr = arr1
     bytec 10 // "imm_fixed_arr"

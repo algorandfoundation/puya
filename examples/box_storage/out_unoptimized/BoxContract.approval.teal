@@ -153,21 +153,22 @@ static_array_replace_dynamic_element_block@0:
     +
     intc_2 // 2
     *
+    dup
     intc_2 // 2
     assert // Step cannot be zero
     b static_array_replace_dynamic_element_for_header@1
 
 static_array_replace_dynamic_element_for_header@1:
-    frame_dig 4
+    frame_dig 5
     frame_dig 3
     <
-    bz static_array_replace_dynamic_element_after_for@4
+    bz static_array_replace_dynamic_element_did_loop@4
     b static_array_replace_dynamic_element_for_body@2
 
 static_array_replace_dynamic_element_for_body@2:
     frame_dig 2
     dup
-    frame_dig 4
+    frame_dig 5
     dup
     cover 3
     extract_uint16
@@ -185,13 +186,23 @@ static_array_replace_dynamic_element_for_body@2:
     b static_array_replace_dynamic_element_for_footer@3
 
 static_array_replace_dynamic_element_for_footer@3:
-    frame_dig 4
+    frame_dig 5
     intc_2 // 2
     +
-    frame_bury 4
+    frame_bury 5
     b static_array_replace_dynamic_element_for_header@1
 
-static_array_replace_dynamic_element_after_for@4:
+static_array_replace_dynamic_element_did_loop@4:
+    frame_dig 5
+    frame_dig 4
+    !=
+    bz static_array_replace_dynamic_element_after_for@6
+    b static_array_replace_dynamic_element_iteration_variable_decrement@5
+
+static_array_replace_dynamic_element_iteration_variable_decrement@5:
+    b static_array_replace_dynamic_element_after_for@6
+
+static_array_replace_dynamic_element_after_for@6:
     frame_dig 2
     frame_bury 0
     retsub
@@ -1791,16 +1802,16 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@0:
     frame_dig -1
     +
     cover 1
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@9
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@11
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@9:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@11:
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
     frame_dig 7
     frame_bury 1
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@10
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@12
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@10:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@12:
     // box_storage/contract.py:492
     // head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64) + size_of(arc4.UInt16)
     intc_3 // 8
@@ -1823,9 +1834,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@10:
     frame_bury 2
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@11
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@13
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@11:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@13:
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
     frame_dig 2
@@ -1842,9 +1853,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inline
     frame_bury 4
     // box_storage/contract.py:209
     // get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@12
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@14
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@12:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@14:
     // box_storage/contract.py:207-208
     // # expand box
     // self.dynamic_arr_struct.ref.resize(
@@ -1860,9 +1871,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inline
     // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
     frame_dig 6
     frame_bury 1
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@13
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@15
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@13:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@15:
     // box_storage/contract.py:492
     // head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64) + size_of(arc4.UInt16)
     intc_3 // 8
@@ -1885,9 +1896,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@13:
     frame_bury 5
     // box_storage/contract.py:213
     // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@14
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@16
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@14:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@16:
     // box_storage/contract.py:213
     // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
     frame_dig -1
@@ -1928,7 +1939,7 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_for_header@1
     frame_dig 0
     frame_dig -1
     <
-    bz examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@4
+    bz examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_did_loop@4
     b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_for_body@2
 
 examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_for_body@2:
@@ -1990,7 +2001,19 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_for_footer@3
     frame_bury 0
     b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_for_header@1
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@4:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_did_loop@4:
+    // box_storage/contract.py:217
+    // for i in urange(times):
+    frame_dig 0
+    intc_0 // 0
+    !=
+    bz examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@6
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_iteration_variable_decrement@5
+
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_iteration_variable_decrement@5:
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@6
+
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@6:
     // box_storage/contract.py:220
     // box.value.arr.length = arc4.UInt16(arr_len)
     frame_dig 6
@@ -2035,16 +2058,16 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_for@4:
     // # when calculating arr2_offset need to sub 2 from 0th index to account for length bytes
     // arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
     frame_bury 7
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@5
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@7
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@5:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@7:
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
     frame_dig 7
     frame_bury 1
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@6
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@8
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@6:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@8:
     // box_storage/contract.py:492
     // head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64) + size_of(arc4.UInt16)
     intc_3 // 8
@@ -2067,9 +2090,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_block@6:
     frame_bury 2
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@7
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@9
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@7:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr_struct_byte_index@9:
     // box_storage/contract.py:499
     // head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
     frame_dig 2
@@ -2090,9 +2113,9 @@ examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inline
     // box_storage/contract.py:221-222
     // # when calculating arr2_offset need to sub 2 from 0th index to account for length bytes
     // arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
-    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@8
+    b examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@10
 
-examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@8:
+examples.box_storage.contract.BoxContract.append_dynamic_arr_struct_after_inlined_examples.box_storage.contract.get_dynamic_arr2_struct_byte_index@10:
     // box_storage/contract.py:221-222
     // # when calculating arr2_offset need to sub 2 from 0th index to account for length bytes
     // arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
@@ -4018,7 +4041,7 @@ examples.box_storage.contract.BoxContract.append_dynamic_box_for_header@1:
     frame_dig 1
     frame_dig -1
     <
-    bz examples.box_storage.contract.BoxContract.append_dynamic_box_after_for@4
+    bz examples.box_storage.contract.BoxContract.append_dynamic_box_did_loop@4
     b examples.box_storage.contract.BoxContract.append_dynamic_box_for_body@2
 
 examples.box_storage.contract.BoxContract.append_dynamic_box_for_body@2:
@@ -4070,7 +4093,19 @@ examples.box_storage.contract.BoxContract.append_dynamic_box_for_footer@3:
     frame_bury 1
     b examples.box_storage.contract.BoxContract.append_dynamic_box_for_header@1
 
-examples.box_storage.contract.BoxContract.append_dynamic_box_after_for@4:
+examples.box_storage.contract.BoxContract.append_dynamic_box_did_loop@4:
+    // box_storage/contract.py:334
+    // for i in urange(times):
+    frame_dig 1
+    intc_0 // 0
+    !=
+    bz examples.box_storage.contract.BoxContract.append_dynamic_box_after_for@6
+    b examples.box_storage.contract.BoxContract.append_dynamic_box_iteration_variable_decrement@5
+
+examples.box_storage.contract.BoxContract.append_dynamic_box_iteration_variable_decrement@5:
+    b examples.box_storage.contract.BoxContract.append_dynamic_box_after_for@6
+
+examples.box_storage.contract.BoxContract.append_dynamic_box_after_for@6:
     // box_storage/contract.py:338
     // box.value.length = arc4.UInt16(arr_len)
     frame_dig 0
