@@ -116,3 +116,19 @@ def is_one_to_four(arg: UInt64) -> bool:
             return True
         case _:
             return False
+
+
+## case: partial_match_struct_kwarg
+from algopy import *
+
+class FixedStruct(Struct):
+    a: UInt64
+    b: UInt64
+
+@subroutine
+def a_is_one(arg: FixedStruct) -> bool:
+    match arg:
+        case FixedStruct(a=UInt64(1)): ## E: attribute matching is not supported
+            return True
+        case _:
+            return False
