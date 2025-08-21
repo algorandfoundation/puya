@@ -88,7 +88,8 @@ def _branch(
 ) -> None:
     context.block_builder.activate_block(ir_block)
     if ast_block is not None:
-        ast_block.accept(context.visitor)
+        for stmt in ast_block.body:
+            stmt.accept(context.visitor)
     context.block_builder.goto(next_ir_block)
 
 
