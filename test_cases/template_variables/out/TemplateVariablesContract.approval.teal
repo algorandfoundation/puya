@@ -4,57 +4,57 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
-    bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
-    // template_variables/contract.py:5
+    bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT TMPL_NAMED_TUPLE TMPL_TUPLE TMPL_STRUCT
+    // template_variables/contract.py:17
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
+    bz main_bare_routing@13
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
+    pushbytess 0x2fcaddf6 0x37f64cf3 0x25fcb1b1 0x95fd8ad1 0xb4cefa39 // method "get_bytes()byte[]", method "get_big_uint()uint512", method "get_a_named_tuple()(uint64,uint64)", method "get_a_tuple()(uint64,uint64)", method "get_a_struct()(uint64,uint64)"
     txna ApplicationArgs 0
-    match get_bytes get_big_uint
+    match get_bytes get_big_uint get_a_named_tuple get_a_tuple get_a_struct
 
-main_after_if_else@16:
-    // template_variables/contract.py:5
+main_after_if_else@19:
+    // template_variables/contract.py:17
     // class TemplateVariablesContract(arc4.ARC4Contract):
     err
 
-main_bare_routing@10:
-    // template_variables/contract.py:5
+main_bare_routing@13:
+    // template_variables/contract.py:17
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
-    switch main___algopy_default_create@11 main_after_if_else@16 main_after_if_else@16 main_after_if_else@16 main_on_update@12 main_on_delete@13
+    switch main___algopy_default_create@14 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_on_update@15 main_on_delete@16
     err
 
-main_on_delete@13:
-    // template_variables/contract.py:19
+main_on_delete@16:
+    // template_variables/contract.py:31
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
     assert // can only call when not creating
-    // template_variables/contract.py:21
+    // template_variables/contract.py:33
     // assert TemplateVar[UInt64]("DELETABLE")
     intc_2 // TMPL_DELETABLE
-    // template_variables/contract.py:19
+    // template_variables/contract.py:31
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     return
 
-main_on_update@12:
-    // template_variables/contract.py:15
+main_on_update@15:
+    // template_variables/contract.py:27
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
     assert // can only call when not creating
-    // template_variables/contract.py:17
+    // template_variables/contract.py:29
     // assert TemplateVar[bool]("UPDATABLE")
     intc_3 // TMPL_UPDATABLE
-    // template_variables/contract.py:15
+    // template_variables/contract.py:27
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     return
 
-main___algopy_default_create@11:
+main___algopy_default_create@14:
     txn ApplicationID
     !
     return // on error: can only call when creating
@@ -62,10 +62,10 @@ main___algopy_default_create@11:
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:
 get_bytes:
-    // template_variables/contract.py:8
+    // template_variables/contract.py:20
     // return self.receive_value(TemplateVar[Bytes]("SOME_BYTES"))
     bytec_1 // TMPL_SOME_BYTES
-    // template_variables/contract.py:6
+    // template_variables/contract.py:18
     // @arc4.abimethod()
     dup
     len
@@ -83,10 +83,10 @@ get_bytes:
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint[routing]() -> void:
 get_big_uint:
-    // template_variables/contract.py:12
+    // template_variables/contract.py:24
     // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
     bytec_2 // TMPL_SOME_BIG_UINT
-    // template_variables/contract.py:13
+    // template_variables/contract.py:25
     // return UInt512(x)
     dup
     len
@@ -96,10 +96,58 @@ get_big_uint:
     intc_1 // 64
     bzero
     b|
-    // template_variables/contract.py:10
+    // template_variables/contract.py:22
     // @arc4.abimethod()
     bytec_0 // 0x151f7c75
     swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_a_named_tuple[routing]() -> void:
+get_a_named_tuple:
+    // template_variables/contract.py:39
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    // template_variables/contract.py:41
+    // return TemplateVar[ATuple]("NAMED_TUPLE")
+    bytec_3 // TMPL_NAMED_TUPLE
+    // template_variables/contract.py:39
+    // @arc4.abimethod
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_a_tuple[routing]() -> void:
+get_a_tuple:
+    // template_variables/contract.py:43
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    // template_variables/contract.py:45
+    // return TemplateVar[tuple[UInt64, UInt64]]("TUPLE")
+    bytec 4 // TMPL_TUPLE
+    // template_variables/contract.py:43
+    // @arc4.abimethod
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_a_struct[routing]() -> void:
+get_a_struct:
+    // template_variables/contract.py:47
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    // template_variables/contract.py:49
+    // return TemplateVar[AStruct]("STRUCT")
+    bytec 5 // TMPL_STRUCT
+    // template_variables/contract.py:47
+    // @arc4.abimethod
     concat
     log
     intc_0 // 1
