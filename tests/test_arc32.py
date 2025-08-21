@@ -866,6 +866,12 @@ def test_template_variables(
 ) -> None:
     example = TEST_CASES_DIR / "template_variables"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    tuple_ = [1, 2]
+    named_tuple = [3, 4]
+    struct = [5, 6]
+    tuple_bytes = _get_arc4_bytes("(uint64,uint64)", tuple_)
+    named_tuple_bytes = _get_arc4_bytes("(uint64,uint64)", named_tuple)
+    struct_bytes = _get_arc4_bytes("(uint64,uint64)", struct)
     app_client = algokit_utils.ApplicationClient(
         algod_client,
         app_spec,
@@ -875,6 +881,9 @@ def test_template_variables(
             "SOME_BIG_UINT": (1337).to_bytes(length=2),
             "UPDATABLE": 1,
             "DELETABLE": 1,
+            "TUPLE": tuple_bytes,
+            "NAMED_TUPLE": named_tuple_bytes,
+            "STRUCT": struct_bytes,
         },
     )
 
@@ -889,6 +898,15 @@ def test_template_variables(
         call_abi_method="get_big_uint",
     )
 
+    get_tuple = app_client.call("get_a_tuple")
+    assert get_tuple.return_value == tuple_, "expected correct tuple template var"
+
+    get_named_tuple = app_client.call("get_a_named_tuple")
+    assert get_named_tuple.return_value == named_tuple, "expected correct named tuple template var"
+
+    get_struct = app_client.call("get_a_struct")
+    assert get_struct.return_value == struct, "expected correct struct template var"
+
     assert get_uint.return_value == 1337
 
     app_client = algokit_utils.ApplicationClient(
@@ -901,6 +919,9 @@ def test_template_variables(
             "SOME_BIG_UINT": (0).to_bytes(length=2),
             "UPDATABLE": 0,
             "DELETABLE": 1,
+            "TUPLE": tuple_bytes,
+            "NAMED_TUPLE": named_tuple_bytes,
+            "STRUCT": struct_bytes,
         },
     )
 
