@@ -1275,9 +1275,10 @@ class FunctionASTConverter(
                         "attribute matching is not supported",
                         self._location(cls_pattern.keyword_values[0]),
                     )
-                cls_args = []
-                for pos_case in cls_pattern.positionals:
-                    cls_args.append(self._visit_match_inner_pattern(pos_case))
+                cls_args = [
+                    self._visit_match_inner_pattern(pos_case)
+                    for pos_case in cls_pattern.positionals
+                ]
                 return class_builder.call(
                     args=cls_args,
                     arg_kinds=[models.ArgKind.ARG_POS] * len(cls_args),
