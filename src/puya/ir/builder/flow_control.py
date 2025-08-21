@@ -3,7 +3,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir.builder._utils import assign_tuple
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BasicBlock, ConditionalBranch, Switch, Value, ValueProvider, ValueTuple
@@ -42,7 +42,11 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
     case_blocks = dict[Value, BasicBlock]()
     ir_blocks = dict[awst_nodes.Block | None, BasicBlock]()
     for value, block in statement.cases.items():
-        ir_value = context.visitor.visit_and_materialise_single(value)
+        ir_value, *remainder = context.visitor.visit_and_materialise(value)
+        if remainder:
+            raise CodeError(
+                "matching against tuple values is not supported", value.source_location
+            )
         if ir_value in case_blocks:
             logger.error("code block is unreachable", location=block.source_location)
         else:
@@ -63,7 +67,11 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
     )
     next_block = context.block_builder.mkblock(statement.source_location, "switch_case_next")
 
-    switch_value = context.visitor.visit_and_materialise_single(statement.value)
+    switch_value, *remainder = context.visitor.visit_and_materialise(statement.value)
+    if remainder:
+        raise CodeError(
+            "matching against tuple values is not supported", statement.value.source_location
+        )
     context.block_builder.terminate(
         Switch(
             value=switch_value,
