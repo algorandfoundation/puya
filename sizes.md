@@ -1,0 +1,34 @@
+| Name                                    | Status | O0 bytes | O1 bytes | O2 bytes | O0 ops | O1 ops | O2 ops |
+| :---------------------------------------|------: |--------: |--------: |--------: |------: |------: |------: |
+| box_storage                             |     🟢 |      +41 |        - |        - |    +19 |      - |      - |
+| merkle                                  |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| voting                                  |     🟢 |      +26 |        - |        - |    +12 |      - |      - |
+| arc4_dynamic_arrays                     |     🟢 |      +54 |        - |        - |    +25 |      - |      - |
+| arc4_types/Arc4ArraysContract           |     🟢 |      +15 |        - |        - |     +7 |      - |      - |
+| arc4_types/Arc4MutationContract         |     🟢 |      +15 |        - |        - |     +7 |      - |      - |
+| array/AbiCallContract                   |     🟢 |      +26 |        - |        - |    +12 |      - |      - |
+| array/Contract                          |     🟢 |     +104 |        - |        - |    +48 |      - |      - |
+| array/ImmutableArrayContract            |     🟢 |     +314 |        - |        - |   +145 |      - |      - |
+| array/StaticSizeContract                |     🟢 |      +52 |        - |        - |    +24 |      - |      - |
+| bug_load_store_load_store               |     🟢 |      +12 |        - |        - |     +6 |      - |      - |
+| enumeration                             |     🟢 |      +28 |        - |        - |    +12 |      - |      - |
+| inner_transactions/itxn_loop            |     🟢 |      +12 |        - |        - |     +6 |      - |      - |
+| iteration/URangeIterationTest           |     🟢 |      +77 |        - |        - |    +36 |      - |      - |
+| less_simple                             |     🔺 |      +16 |    +14🔺 |    +10🔺 |     +9 |   +7🔺 |   +5🔺 |
+| loop_else                               |     🔺 |      +25 |     +7🔺 |       +7 |    +12 |   +3🔺 |     +3 |
+| mutable_native_types/Case1WithTups      |     🟢 |      +52 |        - |        - |    +24 |      - |      - |
+| mutable_native_types/Case2WithImmStruct |     🟢 |      +52 |        - |        - |    +24 |      - |      - |
+| mutable_native_types/Case3WithStruct    |     🟢 |      +78 |        - |        - |    +36 |      - |      - |
+| mutable_native_types/Contract           |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| nested_loops                            |     🟢 |      +90 |        - |        - |    +42 |      - |      - |
+| regression_tests/BranchElimination      |     🟢 |      +39 |        - |        - |    +18 |      - |      - |
+| regression_tests/NeverReturnsFStack     |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| scratch_slots/MyContract                |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| scratch_slots/MyContract2               |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| ssa                                     |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| ssa2                                    |     🟢 |      +12 |        - |        - |     +6 |      - |      - |
+| state_mutations                         |     🟢 |      +41 |        - |        - |    +19 |      - |      - |
+| tuple_support/NestedTuples              |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| tuple_support/TupleSupport              |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| unssa                                   |     🟢 |      +13 |        - |        - |     +6 |      - |      - |
+| Total                                   |     🔺 |    +1298 |    +21🔺 |    +17🔺 |   +603 |  +10🔺 |   +8🔺 |
