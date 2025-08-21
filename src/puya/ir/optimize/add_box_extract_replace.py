@@ -94,25 +94,26 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         if not length.array_encoding.length_header:
             return length
 
-        loc = length.source_location
-        base = length.base
-
         # look through extract values to find underlying box read
+        base = length.base
         maybe_extract_value = None
         try:
             maybe_extract_value = self.aggregates.extract_values[base]
         except KeyError:
             maybe_box_register = base
+            extract_location = None
         else:
             maybe_box_register = maybe_extract_value.base
-        loc = sequential_source_locations_merge((maybe_box_register.source_location, loc))
+            extract_location = maybe_extract_value.source_location
 
         try:
             box_read = self.aggregates.box_reads[maybe_box_register]
         except KeyError:
             return length
 
-        loc = sequential_source_locations_merge((box_read.source_location, loc))
+        loc = sequential_source_locations_merge(
+            (length.source_location, extract_location, box_read.source_location)
+        )
 
         factory = OpFactory(self, loc)
         if not maybe_extract_value:
@@ -153,7 +154,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         #       box read
 
         merged_loc = sequential_source_locations_merge(
-            (box_read.source_location, read.source_location)
+            (read.source_location, box_read.source_location)
         )
         new_read = _combine_box_and_aggregate_read(self, box_read.key, read, merged_loc)
         assert new_read.types == read.types, "expected replacement types to match"
@@ -199,7 +200,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
 
         self.modified = True
         merged_loc = sequential_source_locations_merge(
-            (agg_write.source_location, write.source_location)
+            (write.source_location, agg_write.source_location, read_src.source_location)
         )
         new_write = _combine_aggregate_and_box_write(self, agg_write, write.key, merged_loc)
         self.add_op(new_write)
