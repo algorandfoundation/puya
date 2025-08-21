@@ -1,5 +1,17 @@
-from algopy import BigUInt, Bytes, TemplateVar, UInt64, arc4, subroutine
+import typing
+
+from algopy import BigUInt, Bytes, Struct, TemplateVar, UInt64, arc4, subroutine
 from algopy.arc4 import UInt512
+
+
+class ATuple(typing.NamedTuple):
+    a: UInt64
+    b: UInt64
+
+
+class AStruct(Struct):
+    a: UInt64
+    b: UInt64
 
 
 class TemplateVariablesContract(arc4.ARC4Contract):
@@ -23,3 +35,15 @@ class TemplateVariablesContract(arc4.ARC4Contract):
     @subroutine()
     def receive_value(self, value: Bytes) -> Bytes:
         return value
+
+    @arc4.abimethod
+    def get_a_named_tuple(self) -> ATuple:
+        return TemplateVar[ATuple]("NAMED_TUPLE")
+
+    @arc4.abimethod
+    def get_a_tuple(self) -> tuple[UInt64, UInt64]:
+        return TemplateVar[tuple[UInt64, UInt64]]("TUPLE")
+
+    @arc4.abimethod
+    def get_a_struct(self) -> AStruct:
+        return TemplateVar[AStruct]("STRUCT")

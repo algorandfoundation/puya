@@ -3,41 +3,65 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 64 1 TMPL_DELETABLE TMPL_UPDATABLE
-    bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
+    intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
+    bytecblock 0x151f7c75 TMPL_STRUCT TMPL_TUPLE TMPL_NAMED_TUPLE TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
     txn NumAppArgs
-    bz main_bare_routing@10
+    bz main_bare_routing@13
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
+    pushbytess 0x2fcaddf6 0x37f64cf3 0x25fcb1b1 0x95fd8ad1 0xb4cefa39 // method "get_bytes()byte[]", method "get_big_uint()uint512", method "get_a_named_tuple()(uint64,uint64)", method "get_a_tuple()(uint64,uint64)", method "get_a_struct()(uint64,uint64)"
     txna ApplicationArgs 0
-    match main_get_bytes_route@4 main_get_big_uint_route@5
+    match main_get_bytes_route@4 main_get_big_uint_route@5 main_get_a_named_tuple_route@6 main_get_a_tuple_route@7 main_get_a_struct_route@8
 
-main_after_if_else@16:
+main_after_if_else@19:
     err
 
+main_get_a_struct_route@8:
+    bytec_0 // 0x151f7c75
+    bytec_1 // TMPL_STRUCT
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_get_a_tuple_route@7:
+    bytec_0 // 0x151f7c75
+    bytec_2 // TMPL_TUPLE
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_get_a_named_tuple_route@6:
+    bytec_0 // 0x151f7c75
+    bytec_3 // TMPL_NAMED_TUPLE
+    concat
+    log
+    intc_0 // 1
+    return
+
 main_get_big_uint_route@5:
-    bytec_1 // TMPL_SOME_BIG_UINT
+    bytec 4 // TMPL_SOME_BIG_UINT
     dup
     len
-    intc_0 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_0 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_get_bytes_route@4:
-    bytec_2 // TMPL_SOME_BYTES
+    bytec 5 // TMPL_SOME_BYTES
     dup
     len
     itob
@@ -48,27 +72,27 @@ main_get_bytes_route@4:
     swap
     concat
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
-main_bare_routing@10:
+main_bare_routing@13:
     txn OnCompletion
-    switch main___algopy_default_create@11 main_after_if_else@16 main_after_if_else@16 main_after_if_else@16 main_on_update@12 main_on_delete@13
+    switch main___algopy_default_create@14 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_on_update@15 main_on_delete@16
     err
 
-main_on_delete@13:
+main_on_delete@16:
     txn ApplicationID
     assert // can only call when not creating
     intc_2 // TMPL_DELETABLE
     return
 
-main_on_update@12:
+main_on_update@15:
     txn ApplicationID
     assert // can only call when not creating
     intc_3 // TMPL_UPDATABLE
     return
 
-main___algopy_default_create@11:
+main___algopy_default_create@14:
     txn ApplicationID
     !
     return // on error: can only call when creating

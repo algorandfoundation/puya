@@ -51,46 +51,52 @@ match_uint64_block@0:
     // n = algopy.op.Txn.num_app_args
     txn NumAppArgs
     // match/contract.py:20
-    // case 0:
+    // case 0 | 123:
     intc_0 // 0
+    pushint 123 // 123
     // match/contract.py:23
     // case algopy.UInt64(10):
     pushint 10 // 10
     // match/contract.py:19-25
     // match n:
-    //     case 0:
+    //     case 0 | 123:
     //         hello = algopy.Bytes(b"Hello")
     //         algopy.log(hello)
     //     case algopy.UInt64(10):
     //         hello = algopy.Bytes(b"Hello There")
     //         algopy.log(hello)
-    uncover 2
-    match match_uint64_switch_case_0@1 match_uint64_switch_case_1@2
-    b match_uint64_switch_case_default@3
+    uncover 3
+    match match_uint64_switch_case_0@1 match_uint64_switch_case_1@2 match_uint64_switch_case_2@3
+    b match_uint64_switch_case_default@4
 
-match_uint64_switch_case_default@3:
-    b match_uint64_switch_case_next@4
+match_uint64_switch_case_default@4:
+    b match_uint64_switch_case_next@5
 
-match_uint64_switch_case_next@4:
+match_uint64_switch_case_next@5:
     retsub
 
-match_uint64_switch_case_1@2:
+match_uint64_switch_case_2@3:
     // match/contract.py:24
     // hello = algopy.Bytes(b"Hello There")
     pushbytes 0x48656c6c6f205468657265
     // match/contract.py:25
     // algopy.log(hello)
     log
-    b match_uint64_switch_case_next@4
+    b match_uint64_switch_case_next@5
 
-match_uint64_switch_case_0@1:
+match_uint64_switch_case_1@2:
     // match/contract.py:21
     // hello = algopy.Bytes(b"Hello")
     pushbytes 0x48656c6c6f
     // match/contract.py:22
     // algopy.log(hello)
     log
-    b match_uint64_switch_case_next@4
+    b match_uint64_switch_case_next@5
+
+match_uint64_switch_case_0@1:
+    // match/contract.py:20
+    // case 0 | 123:
+    b match_uint64_switch_case_1@2
 
 
 // test_cases.match.contract.MyContract.match_bytes() -> void:

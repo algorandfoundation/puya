@@ -1054,11 +1054,31 @@ class FunctionIRBuilder(
             self.context.block_builder.add(op)
 
     def visit_template_var(self, expr: awst_nodes.TemplateVar) -> TExpression:
-        return ir.TemplateVar(
-            name=expr.name,
-            ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location),
-            source_location=expr.source_location,
-        )
+        loc = expr.source_location
+
+        value_ir_type = types.wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        # template variables can be uint64 or bytes
+        # so can't just use encoded type in all scenarios
+        # so handle TupleIRType specifically as something that will be encoded
+        if isinstance(value_ir_type, types.TupleIRType):
+            encoding = wtype_to_encoding(expr.wtype, loc)
+
+            return ir.DecodeBytes.maybe(
+                value=ir.TemplateVar(
+                    name=expr.name,
+                    ir_type=types.EncodedType(encoding),
+                    source_location=loc,
+                ),
+                encoding=encoding,
+                ir_type=value_ir_type,
+                source_location=loc,
+            )
+        else:
+            return ir.TemplateVar(
+                name=expr.name,
+                ir_type=value_ir_type,
+                source_location=loc,
+            )
 
     def visit_loop_continue(self, statement: awst_nodes.LoopContinue) -> TStatement:
         self.context.block_builder.loop_continue(statement.source_location)
