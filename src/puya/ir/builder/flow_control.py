@@ -39,6 +39,12 @@ def handle_if_else(context: IRFunctionBuildContext, stmt: awst_nodes.IfElse) -> 
 
 
 def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch) -> None:
+    switch_value, *remainder = context.visitor.visit_and_materialise(statement.value)
+    if remainder:
+        raise CodeError(
+            "matching against tuple values is not supported", statement.value.source_location
+        )
+
     case_blocks = dict[Value, BasicBlock]()
     ir_blocks = dict[awst_nodes.Block | None, BasicBlock]()
     for value, block in statement.cases.items():
@@ -67,11 +73,6 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
     )
     next_block = context.block_builder.mkblock(statement.source_location, "switch_case_next")
 
-    switch_value, *remainder = context.visitor.visit_and_materialise(statement.value)
-    if remainder:
-        raise CodeError(
-            "matching against tuple values is not supported", statement.value.source_location
-        )
     context.block_builder.terminate(
         Switch(
             value=switch_value,
