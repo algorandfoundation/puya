@@ -4,64 +4,73 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.__puya_arc4_router__() -> bool:
-    block@0: // L5
+    block@0: // L17
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@9
-    block@1: // abi_routing_L5
+        goto tmp%1#0 ? block@1 : block@12
+    block@1: // abi_routing_L17
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@7
-    block@2: // call_NoOp_L5
+        goto tmp%5#0 ? block@2 : block@10
+    block@2: // call_NoOp_L17
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "get_bytes()byte[]" => block@3, method "get_big_uint()uint512" => block@4, * => block@5}
-    block@3: // get_bytes_route_L6
+        switch tmp%6#0 {method "get_bytes()byte[]" => block@3, method "get_big_uint()uint512" => block@4, method "get_a_named_tuple()(uint64,uint64)" => block@5, method "get_a_tuple()(uint64,uint64)" => block@6, method "get_a_struct()(uint64,uint64)" => block@7, * => block@8}
+    block@3: // get_bytes_route_L18
         test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]()
-        goto block@6
-    block@4: // get_big_uint_route_L10
+        goto block@9
+    block@4: // get_big_uint_route_L22
         test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint[routing]()
-        goto block@6
-    block@5: // switch_case_default_L5
-        goto block@6
-    block@6: // switch_case_next_L5
-        goto block@8
-    block@7: // create_NoOp_L5
-        goto block@8
-    block@8: // after_if_else_L5
-        goto block@15
-    block@9: // bare_routing_L5
+        goto block@9
+    block@5: // get_a_named_tuple_route_L39
+        test_cases.template_variables.contract.TemplateVariablesContract.get_a_named_tuple[routing]()
+        goto block@9
+    block@6: // get_a_tuple_route_L43
+        test_cases.template_variables.contract.TemplateVariablesContract.get_a_tuple[routing]()
+        goto block@9
+    block@7: // get_a_struct_route_L47
+        test_cases.template_variables.contract.TemplateVariablesContract.get_a_struct[routing]()
+        goto block@9
+    block@8: // switch_case_default_L17
+        goto block@9
+    block@9: // switch_case_next_L17
+        goto block@11
+    block@10: // create_NoOp_L17
+        goto block@11
+    block@11: // after_if_else_L17
+        goto block@18
+    block@12: // bare_routing_L17
         let tmp%7#0: uint64 = (txn OnCompletion)
-        switch tmp%7#0 {NoOp => block@10, UpdateApplication => block@11, DeleteApplication => block@12, * => block@13}
-    block@10: // __algopy_default_create_L1
+        switch tmp%7#0 {NoOp => block@13, UpdateApplication => block@14, DeleteApplication => block@15, * => block@16}
+    block@13: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (== tmp%8#0 0u)
         (assert tmp%9#0) // can only call when creating
         test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create()
         exit 1u
-    block@11: // on_update_L15
+    block@14: // on_update_L27
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
         test_cases.template_variables.contract.TemplateVariablesContract.on_update()
         exit 1u
-    block@12: // on_delete_L19
+    block@15: // on_delete_L31
         let tmp%12#0: uint64 = (txn ApplicationID)
         let tmp%13#0: bool = (!= tmp%12#0 0u)
         (assert tmp%13#0) // can only call when not creating
         test_cases.template_variables.contract.TemplateVariablesContract.on_delete()
         exit 1u
-    block@13: // switch_case_default_L5
-        goto block@14
-    block@14: // switch_case_next_L5
-        goto block@15
-    block@15: // after_if_else_L5
+    block@16: // switch_case_default_L17
+        goto block@17
+    block@17: // switch_case_next_L17
+        goto block@18
+    block@18: // after_if_else_L17
         exit 0u
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:
-    block@0: // L6
+    block@0: // L18
         let tmp%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_bytes()
         let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
@@ -69,37 +78,74 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
         exit 1u
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint[routing]() -> void:
-    block@0: // L10
+    block@0: // L22
         let tmp%0#0: Encoded(uint512) = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
         let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
         (log tmp%1#0)
         exit 1u
 
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_named_tuple[routing]() -> void:
+    block@0: // L39
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = test_cases.template_variables.contract.TemplateVariablesContract.get_a_named_tuple()
+        let tmp%2#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%0#0, tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_tuple[routing]() -> void:
+    block@0: // L43
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = test_cases.template_variables.contract.TemplateVariablesContract.get_a_tuple()
+        let tmp%2#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%0#0, tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        exit 1u
+
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_struct[routing]() -> void:
+    block@0: // L47
+        let tmp%0#0: Encoded(uint64,uint64) = test_cases.template_variables.contract.TemplateVariablesContract.get_a_struct()
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
+
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:
-    block@0: // L6
+    block@0: // L18
         let tmp%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.receive_value(TemplateVar[bytes](TMPL_SOME_BYTES))
         return tmp%0#0
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> Encoded(uint512):
-    block@0: // L10
+    block@0: // L22
         let x#0: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
         let tmp%0#0: Encoded(uint512) = bytes_encode<uint512>(x#0)
         return tmp%0#0
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
-    block@0: // L15
+    block@0: // L27
         (assert TemplateVar[bool](TMPL_UPDATABLE))
         return 
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_delete() -> void:
-    block@0: // L19
+    block@0: // L31
         let tmp%0#0: bool = (!= TemplateVar[uint64](TMPL_DELETABLE) 0u)
         (assert tmp%0#0)
         return 
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.receive_value(value: bytes) -> bytes:
-    block@0: // L23
+    block@0: // L35
         return value#0
+
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_named_tuple() -> <uint64, uint64>:
+    block@0: // L39
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = decode_bytes<(uint64,uint64,)>(TemplateVar[Encoded(uint64,uint64)](TMPL_NAMED_TUPLE))
+        return tmp%0#0 tmp%1#0
+
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_tuple() -> <uint64, uint64>:
+    block@0: // L43
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = decode_bytes<(uint64,uint64,)>(TemplateVar[Encoded(uint64,uint64)](TMPL_TUPLE))
+        return tmp%0#0 tmp%1#0
+
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_a_struct() -> Encoded(uint64,uint64):
+    block@0: // L47
+        return TemplateVar[Encoded(uint64,uint64)](TMPL_STRUCT)
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create() -> void:
     block@0: // L1
