@@ -89,3 +89,30 @@ def match_one_two(value: SimpleTup) -> bool:
             return True
         case _:
             return False
+
+
+## case: or_wildcard_not_supported
+from algopy import *
+
+@subroutine
+def is_one_or_two(arg: UInt64) -> bool:
+    match arg:
+        case 1:
+            return True
+        case 2:
+            return True
+        case 3 | _: ## E: wildcard pattern is not supported in combination with or-pattern
+            return False
+
+
+
+## case: nested_or_not_supported
+from algopy import *
+
+@subroutine
+def is_one_to_four(arg: UInt64) -> bool:
+    match arg:
+        case 1 | 2 | (3 | 4): ## E: nesting of or-patterns is not supported
+            return True
+        case _:
+            return False
