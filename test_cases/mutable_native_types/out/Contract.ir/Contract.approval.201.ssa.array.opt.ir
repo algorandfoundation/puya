@@ -38,7 +38,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#3: uint64 = (txn NumAppArgs)
-        goto tmp%0#3 ? block@4 : block@19
+        goto tmp%0#3 ? block@4 : block@20
     block@4: // abi_routing_L71
         let tmp%2#1: uint64 = (txn OnCompletion)
         let tmp%3#1: bool = (! tmp%2#1)
@@ -46,45 +46,48 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%4#1: uint64 = (txn ApplicationID)
         (assert tmp%4#1)
         let tmp%6#1: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#1 {method "test_imm_fixed_array()void" => block@6, method "fixed_initialize()void" => block@7, method "add_payment((address,uint64,uint64))void" => block@8, method "increment_payment(uint64,uint64)void" => block@9, method "create_storage(uint64)void" => block@10, method "local_struct()(address,uint64,uint64)" => block@11, method "delete_storage(uint64)void" => block@12, method "struct_arg(uint64,(uint64,uint64))void" => block@13, method "struct_return()(uint64,uint64)" => block@14, method "tup_return()(uint64,uint64)" => block@15, method "calculate_sum()uint64" => block@16, method "test_arr((uint64,uint64)[])(uint64,uint64)[]" => block@17, * => block@18}
+        switch tmp%6#1 {method "test_imm_fixed_array()void" => block@6, method "fixed_initialize()void" => block@7, method "add_payment((address,uint64,uint64))void" => block@8, method "increment_payment(uint64,uint64)void" => block@9, method "create_storage(uint64)void" => block@10, method "local_struct()(address,uint64,uint64)" => block@11, method "delete_storage(uint64)void" => block@12, method "struct_arg(uint64,(uint64,uint64))void" => block@13, method "struct_return()(uint64,uint64)" => block@14, method "tup_return()(uint64,uint64)" => block@15, method "calculate_sum()uint64" => block@16, method "test_arr((uint64,uint64)[])(uint64,uint64)[]" => block@17, method "test_match_struct((uint64,uint64))bool" => block@18, * => block@19}
     block@6: // test_imm_fixed_array_route_L95
         exit 1u
     block@7: // fixed_initialize_route_L101
         test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]()
-        goto block@18
+        goto block@19
     block@8: // add_payment_route_L131
         test_cases.mutable_native_types.contract.Contract.add_payment[routing]()
-        goto block@18
+        goto block@19
     block@9: // increment_payment_route_L137
         test_cases.mutable_native_types.contract.Contract.increment_payment[routing]()
-        goto block@18
+        goto block@19
     block@10: // create_storage_route_L142
         test_cases.mutable_native_types.contract.Contract.create_storage[routing]()
-        goto block@18
+        goto block@19
     block@11: // local_struct_route_L149
         test_cases.mutable_native_types.contract.Contract.local_struct[routing]()
-        goto block@18
+        goto block@19
     block@12: // delete_storage_route_L161
         test_cases.mutable_native_types.contract.Contract.delete_storage[routing]()
-        goto block@18
+        goto block@19
     block@13: // struct_arg_route_L168
         test_cases.mutable_native_types.contract.Contract.struct_arg[routing]()
-        goto block@18
+        goto block@19
     block@14: // struct_return_route_L178
         test_cases.mutable_native_types.contract.Contract.struct_return[routing]()
-        goto block@18
+        goto block@19
     block@15: // tup_return_route_L182
         test_cases.mutable_native_types.contract.Contract.tup_return[routing]()
-        goto block@18
+        goto block@19
     block@16: // calculate_sum_route_L186
         test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]()
-        goto block@18
+        goto block@19
     block@17: // test_arr_route_L197
         test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
-        goto block@18
-    block@18: // after_if_else_L71
+        goto block@19
+    block@18: // test_match_struct_route_L261
+        test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]()
+        goto block@19
+    block@19: // after_if_else_L71
         fail
-    block@19: // __algopy_default_create_L1
+    block@20: // __algopy_default_create_L1
         let tmp%7#1: uint64 = (txn OnCompletion)
         let tmp%8#1: bool = (! tmp%7#1)
         let tmp%9#1: uint64 = (txn ApplicationID)
@@ -94,17 +97,17 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(len+(uint64,uint64)[])) -> uint64:
-    block@0: // L262
+    block@0: // L271
         let total#0: uint64 = 0u
         let aggregate%array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L265
+    block@1: // for_header_L274
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let total#1: uint64 = φ(total#0 <- block@0, total#3 <- block@2)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L266
+    block@2: // for_body_L275
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
@@ -114,18 +117,18 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let total#3: uint64 = (+ total#2 values%1#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L265
+    block@4: // after_for_L274
         return total#1
 
 subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
-    block@0: // L271
+    block@0: // L280
         let values%0#0: uint64 = (extract_uint64 val#0 0u)
         let values%1#0: uint64 = (extract_uint64 val#0 8u)
         let tmp%0#0: uint64 = (+ values%0#0 values%1#0)
         return tmp%0#0
 
 subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(uint8[32],uint64,uint64)) -> Encoded(uint8[32],uint64,uint64):
-    block@0: // L276
+    block@0: // L285
         return pay#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]() -> void:
@@ -405,4 +408,21 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         (assert aggregate%array_len%3#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 result#1)
         (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]() -> void:
+    block@0: // L261
+        let arg#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        switch arg#0 {0x00000000000000010000000000000002 => block@2, * => block@3}
+    block@2: // switch_case_0_L266
+        let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0: bool = 1u
+        goto block@4
+    block@3: // switch_case_default_L268
+        let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#1: bool = 0u
+        goto block@4
+    block@4: // after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_struct_L261
+        let tmp%0#0: bool = φ(test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 <- block@2, test_cases.mutable_native_types.contract.Contract.test_match_struct%0#1 <- block@3)
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
+        (log tmp%2#0)
         exit 1u
