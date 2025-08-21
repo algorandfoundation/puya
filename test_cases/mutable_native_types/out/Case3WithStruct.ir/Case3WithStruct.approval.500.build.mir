@@ -342,11 +342,7 @@ subroutine sum:
         // mutable_native_types/case3_with_mutable_struct.py:67
         // total += tup.b
         v-load aggregate%encoded_element%0#0                                                   aggregate%encoded_element%0#0
-        // mutable_native_types/case3_with_mutable_struct.py:65
-        // tup = self.tup_bag.value.items[i].copy()
         int 8                                                                                  aggregate%encoded_element%0#0,8
-        // mutable_native_types/case3_with_mutable_struct.py:67
-        // total += tup.b
         extract_uint64                                                                         values%2#0
         v-store values%2#0
         v-load total#0                                                                         total#0
@@ -663,6 +659,8 @@ subroutine get_3_tups:
         // mutable_native_types/case3_with_mutable_struct.py:95
         // items = self.tup_bag.value.items.copy()
         byte "tup_bag"                                                                         "tup_bag"
+        // mutable_native_types/case3_with_mutable_struct.py:99
+        // items[start].copy(),
         int 8                                                                                  "tup_bag",8
         int 128                                                                                "tup_bag",8,128
         box_extract                                                                            box%box_extract%2#0
@@ -682,8 +680,6 @@ subroutine get_3_tups:
         int 1                                                                                  start#0,1
         +                                                                                      tmp%2#1
         v-store tmp%2#1
-        // mutable_native_types/case3_with_mutable_struct.py:95
-        // items = self.tup_bag.value.items.copy()
         v-load tmp%2#1                                                                         tmp%2#1
         int 16                                                                                 tmp%2#1,16
         *                                                                                      aggregate%bytes_offset%1#0
@@ -699,8 +695,6 @@ subroutine get_3_tups:
         int 2                                                                                  start#0,2
         +                                                                                      tmp%3#0
         v-store tmp%3#0
-        // mutable_native_types/case3_with_mutable_struct.py:95
-        // items = self.tup_bag.value.items.copy()
         v-load tmp%3#0                                                                         tmp%3#0
         int 16                                                                                 tmp%3#0,16
         *                                                                                      aggregate%bytes_offset%2#0
@@ -773,6 +767,8 @@ subroutine get_all_tups:
         // mutable_native_types/case3_with_mutable_struct.py:108
         // items = self.tup_bag.value.items.copy()
         byte "tup_bag"                                                                         "tup_bag"
+        // mutable_native_types/case3_with_mutable_struct.py:111
+        // result.append(items[i].copy())
         int 8                                                                                  "tup_bag",8
         int 128                                                                                "tup_bag",8,128
         box_extract                                                                            box%box_extract%2#0
@@ -786,8 +782,6 @@ subroutine get_all_tups:
         int 16                                                                                 box%box_extract%2#0,aggregate%bytes_offset%0#0,16
         extract3 // on error: index access is out of bounds                                    aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
-        // mutable_native_types/case3_with_mutable_struct.py:111
-        // result.append(items[i].copy())
         v-load result#0                                                                        result#0
         v-load aggregate%encoded_element%0#0                                                   result#0,aggregate%encoded_element%0#0
         concat // on error: max array length exceeded                                          concat%0#0
