@@ -72,7 +72,7 @@ def _build_slot_allocation(program: ir.Program) -> models.SlotAllocation:
 def _lower_subroutine_to_mir(
     context: ProgramMIRContext, subroutine: ir.Subroutine, *, is_main: bool
 ) -> models.MemorySubroutine:
-    builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
+    builder = MemoryIRBuilder(context=context, subroutine=subroutine, is_main=is_main)
     body = [builder.lower_block_to_mir(block) for block in subroutine.body]
     signature = models.Signature(
         name=subroutine.id,

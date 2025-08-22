@@ -1,5 +1,5 @@
-import contextlib
 import typing
+from collections.abc import Mapping
 
 import attrs
 
@@ -24,10 +24,10 @@ _NEW_SLOT_SUB = "_puya_lib.mem.new_slot"
 @attrs.define
 class MemoryIRBuilder(IRVisitor[None]):
     context: ProgramMIRContext = attrs.field(on_setattr=attrs.setters.frozen)
-    current_subroutine: ir.Subroutine
-    is_main: bool
-    _block_names: dict[ir.BasicBlock, str] = attrs.field(factory=dict)
-    _param_idxs: dict[ir.Register, int | None] = attrs.field(factory=dict)
+    subroutine: ir.Subroutine = attrs.field(on_setattr=attrs.setters.frozen)
+    is_main: bool = attrs.field(on_setattr=attrs.setters.frozen)
+    _block_names: Mapping[ir.BasicBlock, str] = attrs.field(init=False)
+    _param_idxs: Mapping[ir.Register, int] = attrs.field(init=False)
     current_ops: list[models.Op] = attrs.field(factory=list)
     terminator: models.ControlOp | None = None
     active_op: ir.Op | ir.ControlOp | None = None
@@ -39,35 +39,26 @@ class MemoryIRBuilder(IRVisitor[None]):
         assert self.terminator is None
         self.terminator = op
 
-    def _get_block_name(self, block: ir.BasicBlock) -> str:
-        try:
-            return self._block_names[block]
-        except KeyError:
-            pass
-        assert block in self.current_subroutine.body
-        comment = (block.comment or "block").replace(" ", "_")
-        subroutine_name = self.context.subroutine_names[self.current_subroutine]
-        block_name = self._block_names[block] = f"{subroutine_name}_{comment}@{block.id}"
-        return block_name
+    @_block_names.default
+    def _block_names_cache(self) -> Mapping[ir.BasicBlock, str]:
+        result = {}
+        for block in self.subroutine.body:
+            comment = (block.comment or "block").replace(" ", "_")
+            subroutine_name = self.context.subroutine_names[self.subroutine]
+            result[block] = f"{subroutine_name}_{comment}@{block.id}"
+        return result
 
-    def _get_param_idx(self, target: ir.Register) -> int | None:
-        with contextlib.suppress(KeyError):
-            return self._param_idxs[target]
-        param_idx = None
-        try:
-            param_idx = self.current_subroutine.parameters.index(target)
-        except ValueError:
-            pass
-        else:
-            param_idx -= len(self.current_subroutine.parameters)
-        self._param_idxs[target] = param_idx
-        return param_idx
+    @_param_idxs.default
+    def _param_idxs_cache(self) -> Mapping[ir.Register, int]:
+        parameters = self.subroutine.parameters
+        num_params = len(parameters)
+        return {param: idx - num_params for idx, param in enumerate(parameters)}
 
     def visit_assignment(self, ass: ir.Assignment) -> None:
         ass.source.accept(self)
         # right most target is top of stack
         for target in reversed(ass.targets):
-            param_idx = self._get_param_idx(target)
+            param_idx = self._param_idxs.get(target)
             if param_idx is None:
                 self._add_op(
                     models.AbstractStore(
@@ -87,7 +78,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
 
     def visit_register(self, reg: ir.Register) -> None:
-        param_idx = self._get_param_idx(reg)
+        param_idx = self._param_idxs.get(reg)
         if param_idx is None:
             self._add_op(
                 models.AbstractLoad(
@@ -306,8 +297,8 @@ class MemoryIRBuilder(IRVisitor[None]):
         branch.condition.accept(self)
         self._terminate(
             models.ConditionalBranch(
-                nonzero_target=self._get_block_name(branch.non_zero),
-                zero_target=self._get_block_name(branch.zero),
+                nonzero_target=self._block_names[branch.non_zero],
+                zero_target=self._block_names[branch.zero],
                 source_location=branch.source_location,
             )
         )
@@ -315,18 +306,18 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_goto(self, goto: ir.Goto) -> None:
         self._terminate(
             models.Goto(
-                target=self._get_block_name(goto.target),
+                target=self._block_names[goto.target],
                 source_location=goto.source_location,
             )
         )
 
     def visit_goto_nth(self, goto_nth: ir.GotoNth) -> None:
-        block_labels = tuple(self._get_block_name(block) for block in goto_nth.blocks)
+        block_labels = tuple(self._block_names[block] for block in goto_nth.blocks)
         goto_nth.value.accept(self)
         self._terminate(
             models.Switch(
                 switch_targets=block_labels,
-                default_target=self._get_block_name(goto_nth.default),
+                default_target=self._block_names[goto_nth.default],
                 source_location=goto_nth.source_location,
             )
         )
@@ -335,13 +326,13 @@ class MemoryIRBuilder(IRVisitor[None]):
         blocks = list[str]()
         for case, block in switch.cases.items():
             case.accept(self)
-            block_name = self._get_block_name(block)
+            block_name = self._block_names[block]
             blocks.append(block_name)
         switch.value.accept(self)
         self._terminate(
             models.Match(
                 match_targets=blocks,
-                default_target=self._get_block_name(switch.default),
+                default_target=self._block_names[switch.default],
                 source_location=switch.source_location,
             )
         )
@@ -378,8 +369,8 @@ class MemoryIRBuilder(IRVisitor[None]):
                 self._add_op(models.Pop(len(op.types)))
 
         assert self.terminator is not None
-        block_name = self._get_block_name(block)
-        predecessors = [self._get_block_name(b) for b in block.predecessors]
+        block_name = self._block_names[block]
+        predecessors = [self._block_names[b] for b in block.predecessors]
         assert block.id is not None
         return models.MemoryBasicBlock(
             id=block.id,
