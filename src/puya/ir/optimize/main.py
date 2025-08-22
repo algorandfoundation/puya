@@ -105,7 +105,7 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
     for block in sub.body:
         ops = list[models.Op]()
         modified = False
-        for op in block.ops.copy():
+        for op in block.ops:
             if isinstance(op, models.Assignment) and isinstance(op.source, models.ValueTuple):
                 for dst, src in zip(op.targets, op.source.values, strict=True):
                     modified = True
