@@ -80,7 +80,6 @@ class VariableLifetimeAnalysis:
                 next_op_lifetime = lifetimes[op_idx + 1]
                 op_lifetime.successors = (next_op_lifetime,)
                 next_op_lifetime.predecessors = (op_lifetime,)
-
             # for the last op set successors to the first op of each successor block
             lifetimes[-1].successors = tuple(block_lifetimes[s][0] for s in block.successors)
         return result
