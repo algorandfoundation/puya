@@ -23,6 +23,29 @@ class _OpLifetime:
     live_in: _StableStr = attrs.field(default=_empty_set)
     live_out: _StableStr = attrs.field(default=_empty_set)
 
+    @classmethod
+    def from_op(cls, block: models.MemoryBasicBlock, op: models.BaseOp) -> typing.Self:
+        # the only nodes that change live_in are AbstractStore/Load
+        # so to improve the performance of calculating live_in
+        # use factories to create specific functions for transforming live_out -> Live_in
+        # in[n] = use[n] U (out[n] - def [n])
+        used: Sequence[str]
+        defined: Sequence[str]
+        live_in_factory = _live_in_identity
+        used = defined = ()
+        # the only nodes that change live_in are AbstractStore/Load
+        # so to improve the performance of calculating live_in
+        # use factories to create specific functions for transforming live_out -> Live_in
+        # in[n] = use[n] U (out[n] - def [n])
+        if isinstance(op, models.AbstractStore):
+            defined = (op.local_id,)
+            live_in_factory = _live_in_defined_factory(op.local_id)
+        elif isinstance(op, models.AbstractLoad):
+            used = (op.local_id,)
+            live_in_factory = _live_in_used_factory(op.local_id)
+
+        return cls(block=block, used=used, defined=defined, live_in_factory=live_in_factory)
+
 
 _live_in_identity: _LiveInFactory = dict[str, None].keys
 
@@ -65,47 +88,26 @@ class VariableLifetimeAnalysis:
 
     def _op_lifetimes_factory(self) -> dict[models.BaseOp, _OpLifetime]:
         result = dict[models.BaseOp, _OpLifetime]()
-        used: Sequence[str]
-        defined: Sequence[str]
+        block_lifetimes = dict[str, list[_OpLifetime]]()
         for block in self.subroutine.body:
+            block_lifetimes[block.block_name] = lifetimes = []
             for op in block.ops:
-                live_in_factory = _live_in_identity
-                used = defined = ()
-                # the only nodes that change live_in are AbstractStore/Load
-                # so to improve the performance of calculating live_in
-                # use factories to create specific functions for transforming live_out -> Live_in
-                # in[n] = use[n] U (out[n] - def [n])
-                if isinstance(op, models.AbstractStore):
-                    defined = (op.local_id,)
-                    live_in_factory = _live_in_defined_factory(op.local_id)
-                elif isinstance(op, models.AbstractLoad):
-                    used = (op.local_id,)
-                    live_in_factory = _live_in_used_factory(op.local_id)
-
-                result[op] = _OpLifetime(
-                    block=block,
-                    used=used,
-                    defined=defined,
-                    live_in_factory=live_in_factory,
-                )
+                olt = _OpLifetime.from_op(block, op)
+                lifetimes.append(olt)
+                result[op] = olt
         # maps the entry and terminating op for a block
-        block_map = {
-            b.block_name: (result[b.ops[0]], result[b.terminator]) for b in self.subroutine.body
-        }
         for block in self.subroutine.body:
-            # map life times for all ops once to save multiple lookups
-            lifetimes = [result[op] for op in block.ops]
+            lifetimes = block_lifetimes[block.block_name]
             # first op in block can have multiple predecessors
-            lifetimes[0].predecessors = tuple(block_map[p][1] for p in block.predecessors)
+            lifetimes[0].predecessors = tuple(block_lifetimes[p][-1] for p in block.predecessors)
             # ops can each only have one successor
-            for op_idx in range(len(block.mem_ops)):
+            for op_idx in range(len(lifetimes) - 1):
                 op_lifetime = lifetimes[op_idx]
                 next_op_lifetime = lifetimes[op_idx + 1]
                 op_lifetime.successors = (next_op_lifetime,)
                 next_op_lifetime.predecessors = (op_lifetime,)
             # terminator op can have multiple successors
-            lifetimes[-1].successors = tuple(block_map[s][0] for s in block.successors)
-
+            lifetimes[-1].successors = tuple(block_lifetimes[s][0] for s in block.successors)
         return result
 
     def get_live_out_variables(self, op: models.BaseOp) -> Set[str]:
