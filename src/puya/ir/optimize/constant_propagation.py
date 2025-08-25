@@ -1,3 +1,4 @@
+import typing
 from collections import defaultdict
 
 import attrs
@@ -35,8 +36,7 @@ def constant_replacer(_context: CompileContext, subroutine: models.Subroutine) -
                     constants[const_read.register] = maybe_phi_constant
             else:
                 replacer = _ConstantRegisterReplacer(find=const_reg, replace=const_val)
-                updated = const_read.accept(replacer)
-                assert updated is const_read, "register reads should be replaced in-place"
+                const_read.accept(replacer)
                 modified = True
     return modified
 
@@ -80,17 +80,18 @@ class _ConstantRegisterReplacer(IRMutator):
     find: models.Register
     replace: models.Constant
 
-    def visit_assignment(self, ass: models.Assignment) -> models.Assignment:
-        # don't visit target(s), needs to stay as Register
-        ass.source = ass.source.accept(self)
-        return ass
+    @typing.override
+    def visit_register_define(self, _reg: models.Register) -> None:
+        return None
 
+    @typing.override
     def visit_phi(self, phi: models.Phi) -> models.Phi:
         # don't visit phi nodes, needs to stay as Register
         return phi
 
-    def visit_register(self, reg: models.Register) -> models.Register:
+    @typing.override
+    def visit_register(self, reg: models.Register) -> models.Constant | None:
         if reg == self.find:
-            return self.replace  # type: ignore[return-value]
+            return self.replace
         else:
-            return reg
+            return None

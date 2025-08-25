@@ -310,10 +310,8 @@ class _RegisterValueReplacer(IRMutator):
     modified: int = 0
 
     @typing.override
-    def visit_assignment(self, ass: models.Assignment) -> models.Assignment:
-        # don't visit target(s), needs to stay as Register
-        ass.source = ass.source.accept(self)
-        return ass
+    def visit_register_define(self, _reg: models.Register) -> None:
+        return None
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> models.Phi:
@@ -321,9 +319,9 @@ class _RegisterValueReplacer(IRMutator):
         return phi
 
     @typing.override
-    def visit_register(self, reg: models.Register) -> models.Value:  # type: ignore[override]
+    def visit_register(self, reg: models.Register) -> models.Value | None:
         if reg != self.register:
-            return reg
+            return None
         self.modified += 1
         return self.replacement
 
