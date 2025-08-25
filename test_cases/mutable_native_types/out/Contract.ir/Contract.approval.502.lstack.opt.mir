@@ -728,12 +728,9 @@ subroutine calculate_sum:
         v-store result#0                                                                                   result#0
         // mutable_native_types/contract.py:191
         // if result < 100:
-        l-load-copy result#0 0                                                                             result#0,result#0 (copy)
-        int 100                                                                                            result#0,result#0 (copy),100
-        <                                                                                                  result#0,tmp%3#0
-        l-load result#0 1                                                                                  tmp%3#0,result#0
-        v-store result#6                                                                                   tmp%3#0
-        l-load tmp%3#0 0                                                                                   tmp%3#0
+        l-load result#0 0                                                                                  result#0
+        int 100                                                                                            result#0,100
+        <                                                                                                  tmp%3#0
         bz calculate_sum_after_if_else@3 ; b calculate_sum_if_body@2
 
     calculate_sum_if_body@2:
@@ -760,13 +757,13 @@ subroutine calculate_sum:
         // result += d
         l-load d#0 1                                                                                       result#0,d#0
         +                                                                                                  result#0
-        v-store result#6
+        v-store result#0
         b calculate_sum_after_if_else@3
 
     calculate_sum_after_if_else@3:
-        v-load result#6                                                                                    result#0
         // mutable_native_types/contract.py:186
         // @arc4.abimethod()
+        v-load result#0                                                                                    result#0
         itob                                                                                               aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                                    aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                                0x151f7c75,aggregate%val_as_bytes%0#0

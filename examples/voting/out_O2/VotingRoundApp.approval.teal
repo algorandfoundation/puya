@@ -6,9 +6,9 @@ main:
     intcblock 0 1 10 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "close_time" "vote_id" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
     intc_0 // 0
-    dupn 6
+    dupn 5
     pushbytes ""
-    dupn 10
+    dupn 9
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "is_bootstrapped"
@@ -43,7 +43,7 @@ main_vote_route@8:
     txna ApplicationArgs 2
     dup
     cover 2
-    bury 20
+    bury 18
     pushint 7700 // 7700
     intc_0 // 0
     callsub ensure_budget
@@ -90,7 +90,7 @@ main_vote_route@8:
     ==
     assert // Payment must be the exact min balance
     intc_0 // 0
-    bury 9
+    bury 8
     intc_0 // 0
     bury 4
 
@@ -99,7 +99,7 @@ main_for_header@18:
     dig 3
     <
     bz main_after_for@20
-    dig 16
+    dig 14
     dup
     extract 2 0
     dig 5
@@ -116,7 +116,7 @@ main_for_header@18:
     dup2
     <
     assert // Answer option index invalid
-    dig 12
+    dig 11
     dup
     cover 2
     uncover 3
@@ -133,7 +133,7 @@ main_for_header@18:
     cover 2
     box_replace
     +
-    bury 11
+    bury 10
     txn Sender
     dup
     box_del
@@ -235,63 +235,54 @@ main_close_route@6:
     concat
     pushbytes ",\"tallies\":["
     concat
-    bury 15
+    bury 13
     intc_0 // 0
-    bury 8
+    bury 7
     intc_0 // 0
     bytec_2 // "option_counts"
     app_global_get_ex
     swap
     dup
     cover 2
-    bury 18
+    bury 16
     assert // check self.option_counts exists
     intc_0 // 0
     extract_uint16
-    bury 11
+    bury 10
     intc_0 // 0
     bury 4
 
 main_for_header@25:
     dig 3
-    dig 11
+    dig 10
     <
     bz main_after_for@36
-    dig 15
+    dig 13
     extract 2 0
     dup
-    bury 19
+    bury 17
     dig 4
     dup
     cover 2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bury 13
-    dig 15
-    bury 15
+    bury 12
     bz main_after_if_else@28
-    dig 14
+    dig 12
     pushbytes ","
     concat
-    bury 14
+    bury 13
 
 main_after_if_else@28:
-    dig 13
-    dup
-    bury 16
-    dig 12
+    dig 10
     pushbytes 0x00
     b>
-    dig 9
-    bury 9
-    swap
-    bury 15
     bz main_after_if_else@35
-    dig 14
+    dig 12
     pushbytes "["
     concat
-    bury 15
-    dig 17
+    bury 13
+    dig 15
     dig 4
     getbyte
     bury 2
@@ -303,30 +294,29 @@ main_for_header@30:
     dig 2
     <
     bz main_after_for@34
-    dig 14
-    bury 14
     dig 4
     bz main_after_if_else@33
-    dig 14
+    dig 12
     pushbytes ","
     concat
-    bury 14
+    bury 13
 
 main_after_if_else@33:
-    dig 13
     bytec_3 // "V"
-    dig 9
+    dig 7
     dup
-    cover 3
+    cover 2
     intc_3 // 8
     box_extract
     btoi
     callsub itoa
+    dig 14
+    swap
     concat
-    bury 16
+    bury 14
     intc_1 // 1
     +
-    bury 8
+    bury 7
     dig 4
     intc_1 // 1
     +
@@ -334,18 +324,12 @@ main_after_if_else@33:
     b main_for_header@30
 
 main_after_for@34:
-    dig 14
+    dig 12
     pushbytes "]"
     concat
-    dig 8
-    bury 8
-    bury 14
+    bury 13
 
 main_after_if_else@35:
-    dig 6
-    bury 8
-    dig 13
-    bury 15
     dig 3
     intc_1 // 1
     +
@@ -353,7 +337,7 @@ main_after_if_else@35:
     b main_for_header@25
 
 main_after_for@36:
-    dig 14
+    dig 12
     pushbytes "]}}"
     concat
     itxn_begin
@@ -457,7 +441,7 @@ main_create_route@10:
     txna ApplicationArgs 6
     dup
     cover 5
-    bury 19
+    bury 18
     txna ApplicationArgs 7
     btoi
     txna ApplicationArgs 8
@@ -494,7 +478,7 @@ main_create_route@10:
     intc_0 // 0
     extract_uint16
     dup
-    bury 11
+    bury 10
     dup
     assert // option_counts should be non-empty
     pushint 112 // 112
@@ -507,10 +491,10 @@ main_create_route@10:
 
 main_for_header@13:
     dig 5
-    dig 10
+    dig 9
     <
     bz main_after_for@15
-    dig 12
+    dig 11
     extract 2 0
     dig 6
     dup
@@ -530,7 +514,7 @@ main_after_for@15:
     <=
     assert // Can't have more than 128 vote options
     bytec_2 // "option_counts"
-    dig 14
+    dig 13
     app_global_put
     bytec 9 // "total_options"
     swap

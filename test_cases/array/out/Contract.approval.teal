@@ -45,7 +45,7 @@ quicksort_window:
     // ) -> None:
     proto 3 0
     bytec_0 // ""
-    dupn 2
+    dup
     // array/uint64.py:207
     // pivot = arr[(window_left + window_right) // 2]
     frame_dig -2
@@ -68,21 +68,21 @@ quicksort_window_while_top@3:
     // while arr[left] < pivot:
     frame_dig -3
     loads
-    frame_dig 5
+    frame_dig 4
     intc_0 // 8
     *
     dup
     frame_bury 0
     extract_uint64
-    frame_dig 3
+    frame_dig 2
     <
     bz quicksort_window_while_top@6
     // array/uint64.py:213
     // left += 1
-    frame_dig 5
+    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 5
+    frame_bury 4
     b quicksort_window_while_top@3
 
 quicksort_window_while_top@6:
@@ -91,26 +91,26 @@ quicksort_window_while_top@6:
     // while pivot < arr[right]:
     frame_dig -3
     loads
-    frame_dig 4
+    frame_dig 3
     intc_0 // 8
     *
     dup
     frame_bury 1
     extract_uint64
-    frame_dig 3
+    frame_dig 2
     >
     bz quicksort_window_after_while@10
     // array/uint64.py:216-217
     // # break out of loop if right would go negative
     // if not right:
-    frame_dig 4
+    frame_dig 3
     bz quicksort_window_after_while@22
     // array/uint64.py:219
     // right -= 1
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     -
-    frame_bury 4
+    frame_bury 3
     b quicksort_window_while_top@6
 
 quicksort_window_after_while@22:
@@ -118,28 +118,28 @@ quicksort_window_after_while@22:
     // # sort left half of window
     // if window_left < right:
     frame_dig -2
-    frame_dig 4
+    frame_dig 3
     <
     bz quicksort_window_after_if_else@24
     // array/uint64.py:249
     // quicksort_window(arr, window_left, right)
     frame_dig -3
     frame_dig -2
-    frame_dig 4
+    frame_dig 3
     callsub quicksort_window
 
 quicksort_window_after_if_else@24:
     // array/uint64.py:250-251
     // # sort right half of window
     // if left < window_right:
-    frame_dig 5
+    frame_dig 4
     frame_dig -1
     <
     bz quicksort_window_after_if_else@26
     // array/uint64.py:252
     // quicksort_window(arr, left, window_right)
     frame_dig -3
-    frame_dig 5
+    frame_dig 4
     frame_dig -1
     callsub quicksort_window
 
@@ -150,8 +150,8 @@ quicksort_window_after_while@10:
     // array/uint64.py:221-222
     // # if window isn't empty then swap values and move window in
     // if left < right:
-    frame_dig 5
     frame_dig 4
+    frame_dig 3
     <
     bz quicksort_window_after_if_else@16
     // array/uint64.py:223
@@ -179,26 +179,26 @@ quicksort_window_after_while@10:
     stores
     // array/uint64.py:224
     // left += 1
-    frame_dig 5
+    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 5
+    frame_bury 4
     // array/uint64.py:225-226
     // # break out of loop if right would go negative
     // if not right:
-    frame_dig 4
+    frame_dig 3
     bz quicksort_window_after_while@22
     // array/uint64.py:228
     // right -= 1
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     -
     dup
-    frame_bury 4
+    frame_bury 3
     // array/uint64.py:229-230
     // # explicit continue to avoid hitting outer break
     // if left <= right:
-    frame_dig 5
+    frame_dig 4
     >=
     bnz quicksort_window_while_top@3
     b quicksort_window_after_while@22
@@ -207,37 +207,27 @@ quicksort_window_after_if_else@16:
     // array/uint64.py:235-236
     // # if window is just one item, don't bother swapping, but still adjust window
     // if left == right:
-    frame_dig 5
     frame_dig 4
+    frame_dig 3
     ==
     bz quicksort_window_after_while@22
     // array/uint64.py:237
     // left += 1
-    frame_dig 5
+    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 5
-    frame_dig 4
-    dup
-    frame_bury 2
+    frame_bury 4
     // array/uint64.py:238-239
     // # don't decrement right if it would go negative
     // if right:
-    bz quicksort_window_after_if_else@19
+    frame_dig 3
+    bz quicksort_window_after_while@22
     // array/uint64.py:240
     // right -= 1
-    frame_dig 4
+    frame_dig 3
     intc_1 // 1
     -
-    frame_bury 2
-
-quicksort_window_after_if_else@19:
-    frame_dig 2
-    frame_bury 4
-    // array/uint64.py:241-243
-    // # loop always ends in this scenario
-    // # and an explict break consumes fewer ops
-    // break
+    frame_bury 3
     b quicksort_window_after_while@22
 
 

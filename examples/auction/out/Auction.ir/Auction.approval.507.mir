@@ -322,77 +322,80 @@ subroutine claim_bids:
         byte "claim"                                                                         tmp%0#0,0,"claim"
         app_local_get_ex                                                                     original_amount#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                           maybe_exists%0#0,original_amount#0
-        l-store-copy original_amount#0 1                                                     original_amount#0,maybe_exists%0#0,original_amount#0
-        f-store original_amount#0                                                            (𝕗) original_amount#0 | original_amount#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                            (𝕗) original_amount#0 | original_amount#0,maybe_exists%0#0
-        assert // check self.claimable_amount exists for account                             (𝕗) original_amount#0 | original_amount#0
+        f-store original_amount#0                                                            (𝕗) original_amount#0 | maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                            (𝕗) original_amount#0 | maybe_exists%0#0
+        assert // check self.claimable_amount exists for account                             (𝕗) original_amount#0 |
         // auction/contract.py:87
         // if Txn.sender == self.previous_bidder:
-        txn Sender                                                                           (𝕗) original_amount#0 | original_amount#0,tmp%1#0
-        int 0                                                                                (𝕗) original_amount#0 | original_amount#0,tmp%1#0,0
-        byte "previous_bidder"                                                               (𝕗) original_amount#0 | original_amount#0,tmp%1#0,0,"previous_bidder"
-        app_global_get_ex                                                                    (𝕗) original_amount#0 | original_amount#0,tmp%1#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.previous_bidder exists                                          (𝕗) original_amount#0 | original_amount#0,tmp%1#0,maybe_value%1#0
-        l-load tmp%1#0 1                                                                     (𝕗) original_amount#0 | original_amount#0,maybe_value%1#0,tmp%1#0
-        l-load maybe_value%1#0 1                                                             (𝕗) original_amount#0 | original_amount#0,tmp%1#0,maybe_value%1#0
-        ==                                                                                   (𝕗) original_amount#0 | original_amount#0,tmp%2#0
-        l-load original_amount#0 1                                                           (𝕗) original_amount#0 | tmp%2#0,amount#1
-        f-store amount#1                                                                     (𝕗) original_amount#0,amount#1 | tmp%2#0
-        l-load tmp%2#0 0                                                                     (𝕗) original_amount#0,amount#1 | tmp%2#0
-        bz claim_bids_after_if_else@3 ; b claim_bids_if_body@2                               (𝕗) original_amount#0,amount#1 |
+        txn Sender                                                                           (𝕗) original_amount#0 | tmp%1#0
+        int 0                                                                                (𝕗) original_amount#0 | tmp%1#0,0
+        byte "previous_bidder"                                                               (𝕗) original_amount#0 | tmp%1#0,0,"previous_bidder"
+        app_global_get_ex                                                                    (𝕗) original_amount#0 | tmp%1#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.previous_bidder exists                                          (𝕗) original_amount#0 | tmp%1#0,maybe_value%1#0
+        l-load tmp%1#0 1                                                                     (𝕗) original_amount#0 | maybe_value%1#0,tmp%1#0
+        l-load maybe_value%1#0 1                                                             (𝕗) original_amount#0 | tmp%1#0,maybe_value%1#0
+        ==                                                                                   (𝕗) original_amount#0 | tmp%2#0
+        bz claim_bids_block@4 ; b claim_bids_if_body@2                                       (𝕗) original_amount#0 |
 
-    claim_bids_if_body@2:                                                                    (𝕗) original_amount#0,amount#1 |
+    claim_bids_block@4:                                                                      (𝕗) original_amount#0 |
+        f-load original_amount#0                                                             (𝕗) original_amount#0 | amount#1
+        x-store amount#1                                                                     (𝕗) original_amount#0 | (𝕏) amount#1 |
+        // auction/contract.py:87
+        // if Txn.sender == self.previous_bidder:
+        b claim_bids_after_if_else@3                                                         (𝕗) original_amount#0 | (𝕏) amount#1 |
+
+    claim_bids_if_body@2:                                                                    (𝕗) original_amount#0 |
         // auction/contract.py:88
         // amount -= self.previous_bid
-        int 0                                                                                (𝕗) original_amount#0,amount#1 | 0
-        byte "previous_bid"                                                                  (𝕗) original_amount#0,amount#1 | 0,"previous_bid"
-        app_global_get_ex                                                                    (𝕗) original_amount#0,amount#1 | maybe_value%2#0,maybe_exists%2#0
-        assert // check self.previous_bid exists                                             (𝕗) original_amount#0,amount#1 | maybe_value%2#0
-        f-load original_amount#0                                                             (𝕗) original_amount#0,amount#1 | maybe_value%2#0,original_amount#0
-        l-load maybe_value%2#0 1                                                             (𝕗) original_amount#0,amount#1 | original_amount#0,maybe_value%2#0
-        -                                                                                    (𝕗) original_amount#0,amount#1 | amount#1
-        f-store amount#1                                                                     (𝕗) original_amount#0,amount#1 |
-        b claim_bids_after_if_else@3                                                         (𝕗) original_amount#0,amount#1 |
+        int 0                                                                                (𝕗) original_amount#0 | 0
+        byte "previous_bid"                                                                  (𝕗) original_amount#0 | 0,"previous_bid"
+        app_global_get_ex                                                                    (𝕗) original_amount#0 | maybe_value%2#0,maybe_exists%2#0
+        assert // check self.previous_bid exists                                             (𝕗) original_amount#0 | maybe_value%2#0
+        f-load original_amount#0                                                             (𝕗) original_amount#0 | maybe_value%2#0,original_amount#0
+        l-load maybe_value%2#0 1                                                             (𝕗) original_amount#0 | original_amount#0,maybe_value%2#0
+        -                                                                                    (𝕗) original_amount#0 | amount#1
+        x-store amount#1                                                                     (𝕗) original_amount#0 | (𝕏) amount#1 |
+        b claim_bids_after_if_else@3                                                         (𝕗) original_amount#0 | (𝕏) amount#1 |
 
-    claim_bids_after_if_else@3:                                                              (𝕗) original_amount#0,amount#1 |
+    claim_bids_after_if_else@3:                                                              (𝕗) original_amount#0 | (𝕏) amount#1 |
         // auction/contract.py:90-93
         // itxn.Payment(
         //     amount=amount,
         //     receiver=Txn.sender,
         // ).submit()
-        itxn_begin                                                                           (𝕗) original_amount#0,amount#1 |
+        itxn_begin                                                                           (𝕗) original_amount#0 | (𝕏) amount#1 |
         // auction/contract.py:92
         // receiver=Txn.sender,
-        txn Sender                                                                           (𝕗) original_amount#0,amount#1 | inner_txn_params%0%%param_Receiver_idx_0#0
-        itxn_field Receiver                                                                  (𝕗) original_amount#0,amount#1 |
-        f-load amount#1                                                                      (𝕗) original_amount#0,amount#1 | amount#1
-        l-store-copy amount#1 0                                                              (𝕗) original_amount#0,amount#1 | amount#1,amount#1 (copy)
-        itxn_field Amount                                                                    (𝕗) original_amount#0,amount#1 | amount#1
+        txn Sender                                                                           (𝕗) original_amount#0 | (𝕏) amount#1 | inner_txn_params%0%%param_Receiver_idx_0#0
+        itxn_field Receiver                                                                  (𝕗) original_amount#0 | (𝕏) amount#1 |
+        x-load amount#1                                                                      (𝕗) original_amount#0 | amount#1
+        l-store-copy amount#1 0                                                              (𝕗) original_amount#0 | amount#1,amount#1 (copy)
+        itxn_field Amount                                                                    (𝕗) original_amount#0 | amount#1
         // auction/contract.py:90
         // itxn.Payment(
-        int pay                                                                              (𝕗) original_amount#0,amount#1 | amount#1,pay
-        itxn_field TypeEnum                                                                  (𝕗) original_amount#0,amount#1 | amount#1
-        int 0                                                                                (𝕗) original_amount#0,amount#1 | amount#1,0
-        itxn_field Fee                                                                       (𝕗) original_amount#0,amount#1 | amount#1
+        int pay                                                                              (𝕗) original_amount#0 | amount#1,pay
+        itxn_field TypeEnum                                                                  (𝕗) original_amount#0 | amount#1
+        int 0                                                                                (𝕗) original_amount#0 | amount#1,0
+        itxn_field Fee                                                                       (𝕗) original_amount#0 | amount#1
         // auction/contract.py:90-93
         // itxn.Payment(
         //     amount=amount,
         //     receiver=Txn.sender,
         // ).submit()
-        itxn_submit                                                                          (𝕗) original_amount#0,amount#1 | amount#1
+        itxn_submit                                                                          (𝕗) original_amount#0 | amount#1
         // auction/contract.py:95
         // self.claimable_amount[Txn.sender] = original_amount - amount
-        f-load original_amount#0                                                             (𝕗) original_amount#0,amount#1 | amount#1,original_amount#0
-        l-load amount#1 1                                                                    (𝕗) original_amount#0,amount#1 | original_amount#0,amount#1
-        -                                                                                    (𝕗) original_amount#0,amount#1 | tmp%4#0
-        txn Sender                                                                           (𝕗) original_amount#0,amount#1 | tmp%4#0,tmp%5#0
-        byte "claim"                                                                         (𝕗) original_amount#0,amount#1 | tmp%4#0,tmp%5#0,"claim"
-        l-load tmp%4#0 2                                                                     (𝕗) original_amount#0,amount#1 | tmp%5#0,"claim",tmp%4#0
-        app_local_put                                                                        (𝕗) original_amount#0,amount#1 |
+        f-load original_amount#0                                                             (𝕗) original_amount#0 | amount#1,original_amount#0
+        l-load amount#1 1                                                                    (𝕗) original_amount#0 | original_amount#0,amount#1
+        -                                                                                    (𝕗) original_amount#0 | tmp%4#0
+        txn Sender                                                                           (𝕗) original_amount#0 | tmp%4#0,tmp%5#0
+        byte "claim"                                                                         (𝕗) original_amount#0 | tmp%4#0,tmp%5#0,"claim"
+        l-load tmp%4#0 2                                                                     (𝕗) original_amount#0 | tmp%5#0,"claim",tmp%4#0
+        app_local_put                                                                        (𝕗) original_amount#0 |
         // auction/contract.py:82
         // @arc4.abimethod
-        int 1                                                                                (𝕗) original_amount#0,amount#1 | 1
-        return                                                                               (𝕗) original_amount#0,amount#1 |
+        int 1                                                                                (𝕗) original_amount#0 | 1
+        return                                                                               (𝕗) original_amount#0 |
 
 
 // examples.auction.contract.Auction.claim_asset[routing]() -> void:

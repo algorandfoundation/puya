@@ -60,16 +60,13 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%7#0: uint64 = (+ new_array_length#0 7u)
         let required_bytes#0: uint64 = (/ tmp%7#0 8u)
         let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
-        let result#7: bytes = result#0
         goto tmp%9#0 ? block@1 : block@2
     block@1: // if_body_L148
         let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%11#0: bytes = (bzero tmp%10#0)
         let result#0: bytes = (concat result#0 tmp%11#0)
-        let result#7: bytes = result#0
         goto block@2
     block@2: // after_if_else_L147
-        let result#0: bytes = result#7
         let read_offset#0: uint64 = 0u
         let write_offset#0: uint64 = (+ array_length#0 16u)
         let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
@@ -311,14 +308,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array[routi
         let slot_contents%4#0: Encoded(bool8[]) = load(local.0)
         let aggregate%encoded_element%0#0: bytes = (extract3 slot_contents%4#0 item_index_internal%0#0 1u) // on error: index access is out of bounds
         let val#0: bool = (getbit aggregate%encoded_element%0#0 0u)
-        let count#9: uint64 = count#0
         goto val#0 ? block@8 : block@9
     block@8: // if_body_L91
         let count#0: uint64 = (+ count#0 1u)
-        let count#9: uint64 = count#0
         goto block@9
     block@9: // after_if_else_L90
-        let count#0: uint64 = count#9
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@6
     block@11: // after_for_L89
@@ -362,14 +356,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 8u)
         let val#0: Encoded(uint64) = (extract3 slot_contents%1#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let tmp%7#0: bool = (b!= val#0 0b)
-        let count#9: uint64 = count#0
         goto tmp%7#0 ? block@8 : block@9
     block@8: // if_body_L105
         let count#0: uint64 = (+ count#0 1u)
-        let count#9: uint64 = count#0
         goto block@9
     block@9: // after_if_else_L104
-        let count#0: uint64 = count#9
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@6
     block@11: // after_for_L103

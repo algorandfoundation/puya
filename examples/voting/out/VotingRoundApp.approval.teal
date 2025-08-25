@@ -371,9 +371,9 @@ bootstrap:
 // examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 close:
     intc_0 // 0
-    dupn 2
+    dup
     pushbytes ""
-    dupn 2
+    dup
     // voting/voting.py:112
     // ensure_budget(20000, fee_source=OpUpFeeSource.GroupCredit)
     pushint 20000 // 20000
@@ -560,15 +560,13 @@ close_for_header@2:
     dig 2
     extract 2 0
     dup
-    bury 12
+    bury 10
     dig 1
     dup
     cover 2
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bury 10
-    dig 5
-    bury 11
+    bury 9
     // voting/voting.py:133
     // if question_index > 0:
     bz close_after_if_else@5
@@ -577,21 +575,14 @@ close_for_header@2:
     dig 4
     pushbytes ","
     concat
-    bury 10
+    bury 5
 
 close_after_if_else@5:
-    dig 9
-    dup
-    bury 6
     // voting/voting.py:135
     // if question_options > 0:
-    dig 9
+    dig 7
     pushbytes 0x00
     b>
-    dig 5
-    bury 10
-    swap
-    bury 11
     bz close_after_if_else@13
     // voting/voting.py:136
     // note += "["
@@ -601,7 +592,7 @@ close_after_if_else@5:
     bury 5
     // voting/voting.py:137
     // for option_index in urange(question_options.native):
-    dig 10
+    dig 8
     dig 1
     getbyte
     bury 6
@@ -615,8 +606,6 @@ close_for_header@7:
     dig 6
     <
     bz close_after_for@12
-    dig 4
-    bury 10
     // voting/voting.py:138
     // if option_index > 0:
     dig 6
@@ -626,22 +615,23 @@ close_for_header@7:
     dig 4
     pushbytes ","
     concat
-    bury 10
+    bury 5
 
 close_after_if_else@10:
-    dig 9
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
     bytec_3 // "V"
-    dig 5
+    dig 4
     dup
-    cover 3
+    cover 2
     intc_3 // 8
     box_extract
     btoi
     // voting/voting.py:141
     // note += itoa(votes_for_option)
     callsub itoa
+    dig 6
+    swap
     concat
     bury 6
     // voting/voting.py:142
@@ -663,15 +653,9 @@ close_after_for@12:
     dig 4
     pushbytes "]"
     concat
-    dig 4
-    bury 9
-    bury 10
+    bury 5
 
 close_after_if_else@13:
-    dig 7
-    bury 4
-    dig 9
-    bury 5
     dup
     intc_1 // 1
     +
