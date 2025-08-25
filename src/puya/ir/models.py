@@ -164,6 +164,10 @@ class ControlOp(IRVisitable, _Freezable, abc.ABC):
     def unique_targets(self) -> list["BasicBlock"]:
         return unique(self.targets())
 
+    @abc.abstractmethod
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        """Switch out target references to `find` with `replace`"""
+
 
 @attrs.frozen
 class Register(Value):
@@ -967,6 +971,12 @@ class ConditionalBranch(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_conditional_branch(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        if self.non_zero is find:
+            self.non_zero = replace
+        if self.zero is find:
+            self.zero = replace
+
 
 @attrs.define(eq=False)
 class Goto(ControlOp):
@@ -985,6 +995,10 @@ class Goto(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        if self.target is find:
+            self.target = replace
 
 
 @attrs.define(eq=False)
@@ -1006,6 +1020,13 @@ class GotoNth(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        for index, block in enumerate(self.blocks):
+            if block is find:
+                self.blocks[index] = replace
+        if self.default is find:
+            self.default = replace
 
 
 @attrs.define(eq=False)
@@ -1042,6 +1063,13 @@ class Switch(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        for case, target in self.cases.items():
+            if target is find:
+                self.cases[case] = replace
+        if self.default is find:
+            self.default = replace
+
 
 @attrs.define(eq=False)
 class SubroutineReturn(ControlOp):
@@ -1060,6 +1088,9 @@ class SubroutineReturn(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_subroutine_return(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
 
 
 @attrs.define(eq=False)
@@ -1085,6 +1116,9 @@ class ProgramExit(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_program_exit(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
+
 
 @attrs.define(eq=False)
 class Fail(ControlOp):
@@ -1107,6 +1141,9 @@ class Fail(ControlOp):
 
     def _frozen_data(self) -> object:
         return self.error_message
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
 
 
 @attrs.frozen

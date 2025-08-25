@@ -43,31 +43,19 @@ class BlockReferenceReplacer(IRMutator):
         return arg
 
     def visit_conditional_branch(self, branch: models.ConditionalBranch) -> models.ControlOp:
-        if branch.zero == self.find:
-            branch.zero = self.replacement
-        if branch.non_zero == self.find:
-            branch.non_zero = self.replacement
+        branch.replace_target(find=self.find, replace=self.replacement)
         return _replace_single_target_with_goto(branch)
 
     def visit_goto(self, goto: models.Goto) -> models.Goto:
-        if goto.target == self.find:
-            goto.target = self.replacement
+        goto.replace_target(find=self.find, replace=self.replacement)
         return goto
 
     def visit_goto_nth(self, goto_nth: models.GotoNth) -> models.ControlOp:
-        for index, block in enumerate(goto_nth.blocks):
-            if block == self.find:
-                goto_nth.blocks[index] = self.replacement
-        if goto_nth.default == self.find:
-            goto_nth.default = self.replacement
+        goto_nth.replace_target(find=self.find, replace=self.replacement)
         return _replace_single_target_with_goto(goto_nth)
 
     def visit_switch(self, switch: models.Switch) -> models.ControlOp:
-        for case, target in switch.cases.items():
-            if target == self.find:
-                switch.cases[case] = self.replacement
-        if switch.default == self.find:
-            switch.default = self.replacement
+        switch.replace_target(find=self.find, replace=self.replacement)
         return _replace_single_target_with_goto(switch)
 
 
