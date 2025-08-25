@@ -46,7 +46,7 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
         )
 
     case_blocks = dict[Value, BasicBlock]()
-    ir_blocks = dict[awst_nodes.Block | None, BasicBlock]()
+    blocks_to_visit = dict[awst_nodes.Block, BasicBlock]()
     for value, block in statement.cases.items():
         ir_value, *remainder = context.visitor.visit_and_materialise(value)
         if remainder:
@@ -57,21 +57,24 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
             logger.error("code block is unreachable", location=block.source_location)
         else:
             case_blocks[ir_value] = lazy_setdefault(
-                ir_blocks,
+                blocks_to_visit,
                 block,
                 lambda _: context.block_builder.mkblock(
                     block,  # noqa: B023
-                    f"switch_case_{len(ir_blocks)}",
+                    f"switch_case_{len(blocks_to_visit)}",
                 ),
             )
-    default_block = lazy_setdefault(
-        ir_blocks,
-        statement.default_case,
-        lambda b: context.block_builder.mkblock(
-            b, "switch_case_default", fallback_location=statement.source_location
-        ),
-    )
     next_block = context.block_builder.mkblock(statement.source_location, "switch_case_next")
+    if statement.default_case is None:
+        default_block = next_block
+    else:
+        default_block = lazy_setdefault(
+            blocks_to_visit,
+            statement.default_case,
+            lambda b: context.block_builder.mkblock(
+                b, "switch_case_default", fallback_location=statement.source_location
+            ),
+        )
 
     context.block_builder.terminate(
         Switch(
@@ -81,8 +84,8 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
             source_location=statement.source_location,
         )
     )
-    for block_, ir_block in ir_blocks.items():
-        _branch(context, ir_block, block_, next_block)
+    for awst_block, ir_block in blocks_to_visit.items():
+        _branch(context, ir_block, awst_block, next_block)
 
     # activate the "next" block if it is reachable, which  might not be the case
     # if all code paths within the cases return early
@@ -92,13 +95,11 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
 def _branch(
     context: IRFunctionBuildContext,
     ir_block: BasicBlock,
-    ast_block: awst_nodes.Block | None,
+    ast_block: awst_nodes.Block,
     next_ir_block: BasicBlock,
 ) -> None:
     context.block_builder.activate_block(ir_block)
-    if ast_block is not None:
-        for stmt in ast_block.body:
-            stmt.accept(context.visitor)
+    ast_block.accept(context.visitor)
     context.block_builder.goto(next_ir_block)
 
 
