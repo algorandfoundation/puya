@@ -11,32 +11,30 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.__puya_arc
     block@0: // L11
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@9
+        goto tmp%1#0 ? block@1 : block@8
     block@1: // abi_routing_L11
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@7
+        goto tmp%5#0 ? block@2 : block@6
     block@2: // call_NoOp_L11
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "test_itxn_slice()void" => block@3, method "test_itxn_nested()void" => block@4, * => block@5}
     block@3: // test_itxn_slice_route_L12
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]()
-        goto block@6
+        goto block@5
     block@4: // test_itxn_nested_route_L29
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]()
-        goto block@6
-    block@5: // switch_case_default_L11
-        goto block@6
-    block@6: // switch_case_next_L11
-        goto block@8
-    block@7: // create_NoOp_L11
-        goto block@8
-    block@8: // after_if_else_L11
-        goto block@10
-    block@9: // __algopy_default_create_L1
+        goto block@5
+    block@5: // switch_case_next_L11
+        goto block@7
+    block@6: // create_NoOp_L11
+        goto block@7
+    block@7: // after_if_else_L11
+        goto block@9
+    block@8: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -45,7 +43,7 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.__puya_arc
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.inner_transactions_assignment.contract.Contract.__algopy_default_create()
         exit 1u
-    block@10: // after_if_else_L11
+    block@9: // after_if_else_L11
         exit 0u
 
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]() -> void:

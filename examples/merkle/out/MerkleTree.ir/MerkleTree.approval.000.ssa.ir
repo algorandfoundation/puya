@@ -52,28 +52,24 @@ subroutine examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> bool:
         (assert tmp%1#0) // OnCompletion must be NoOp
         let tmp%2#0: uint64 = (txn ApplicationID)
         let tmp%3#0: bool = (!= tmp%2#0 0u)
-        goto tmp%3#0 ? block@1 : block@5
+        goto tmp%3#0 ? block@1 : block@4
     block@1: // call_NoOp_L9
         let tmp%4#0: bytes = (txna ApplicationArgs 0)
         switch tmp%4#0 {method "verify(byte[32][],byte[32])bool" => block@2, * => block@3}
     block@2: // verify_route_L14
         examples.merkle.contract.MerkleTree.verify[routing]()
-        goto block@4
-    block@3: // switch_case_default_L9
-        goto block@4
-    block@4: // switch_case_next_L9
-        goto block@9
-    block@5: // create_NoOp_L9
+        goto block@3
+    block@3: // switch_case_next_L9
+        goto block@7
+    block@4: // create_NoOp_L9
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create(byte[32])void" => block@6, * => block@7}
-    block@6: // create_route_L10
+        switch tmp%5#0 {method "create(byte[32])void" => block@5, * => block@6}
+    block@5: // create_route_L10
         examples.merkle.contract.MerkleTree.create[routing]()
-        goto block@8
-    block@7: // switch_case_default_L9
-        goto block@8
-    block@8: // switch_case_next_L9
-        goto block@9
-    block@9: // after_if_else_L9
+        goto block@6
+    block@6: // switch_case_next_L9
+        goto block@7
+    block@7: // after_if_else_L9
         exit 0u
 
 subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:

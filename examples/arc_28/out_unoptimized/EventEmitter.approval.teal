@@ -16,7 +16,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@10
+    bz main___algopy_default_create@9
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -29,7 +29,7 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@8
+    bz main_create_NoOp@7
     b main_call_NoOp@3
 
 main_call_NoOp@3:
@@ -40,18 +40,15 @@ main_call_NoOp@3:
     pushbytes 0x71a3151f // method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     uncover 2
     match main_emit_swapped_route@4 main_emit_ufixed_route@5
-    b main_switch_case_default@6
+    b main_switch_case_next@6
 
-main_switch_case_default@6:
-    b main_switch_case_next@7
+main_switch_case_next@6:
+    b main_after_if_else@8
 
-main_switch_case_next@7:
-    b main_after_if_else@9
+main_after_if_else@8:
+    b main_after_if_else@10
 
-main_after_if_else@9:
-    b main_after_if_else@11
-
-main_after_if_else@11:
+main_after_if_else@10:
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     err
@@ -60,18 +57,18 @@ main_emit_ufixed_route@5:
     // arc_28/contract.py:18
     // @arc4.abimethod()
     callsub emit_ufixed
-    b main_switch_case_next@7
+    b main_switch_case_next@6
 
 main_emit_swapped_route@4:
     // arc_28/contract.py:12
     // @arc4.abimethod
     callsub emit_swapped
-    b main_switch_case_next@7
+    b main_switch_case_next@6
 
-main_create_NoOp@8:
-    b main_after_if_else@9
+main_create_NoOp@7:
+    b main_after_if_else@8
 
-main___algopy_default_create@10:
+main___algopy_default_create@9:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -80,12 +77,12 @@ main___algopy_default_create@10:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@13
+    b main_block@12
 
-main_block@13:
-    b main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@14
+main_block@12:
+    b main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@13
 
-main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@14:
+main_after_inlined_examples.arc_28.contract.EventEmitter.__algopy_default_create@13:
     intc_1 // 1
     return
 

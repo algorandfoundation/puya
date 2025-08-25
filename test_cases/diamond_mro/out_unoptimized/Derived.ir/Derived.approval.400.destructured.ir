@@ -79,30 +79,26 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (assert tmp%1#0) // OnCompletion must be NoOp
         let tmp%2#0: uint64 = (txn ApplicationID)
         let tmp%3#0: bool = (!= tmp%2#0 0u)
-        goto tmp%3#0 ? block@2 : block@6
+        goto tmp%3#0 ? block@2 : block@5
     block@2: // call_NoOp_L7
         let tmp%4#0: bytes = (txna ApplicationArgs 0)
         switch tmp%4#0 {method "method()void" => block@3, * => block@4}
     block@3: // method_route_L12
         test_cases.diamond_mro.derived.Derived.method[routing]()
-        goto block@5
-    block@4: // switch_case_default_L7
-        goto block@5
-    block@5: // switch_case_next_L7
-        goto block@10
-    block@6: // create_NoOp_L7
+        goto block@4
+    block@4: // switch_case_next_L7
+        goto block@8
+    block@5: // create_NoOp_L7
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create()void" => block@7, * => block@8}
-    block@7: // create_route_L11
+        switch tmp%5#0 {method "create()void" => block@6, * => block@7}
+    block@6: // create_route_L11
         test_cases.diamond_mro.gp.GP.create[routing]()
-        goto block@9
-    block@8: // switch_case_default_L7
-        goto block@9
-    block@9: // switch_case_next_L7
-        goto block@10
-    block@10: // after_if_else_L7
+        goto block@7
+    block@7: // switch_case_next_L7
+        goto block@8
+    block@8: // after_if_else_L7
         exit 0u
-    block@11: // after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router___L1
+    block@9: // after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 

@@ -20,7 +20,7 @@ main_block@1:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@6
+    bz main_create_NoOp@5
     b main_call_NoOp@2
 
 main_call_NoOp@2:
@@ -30,15 +30,12 @@ main_call_NoOp@2:
     pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
     uncover 1
     match main_verify_route@3
-    b main_switch_case_default@4
+    b main_switch_case_next@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
+main_switch_case_next@4:
+    b main_after_if_else@8
 
-main_switch_case_next@5:
-    b main_after_if_else@10
-
-main_after_if_else@10:
+main_after_if_else@8:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     err
@@ -47,28 +44,25 @@ main_verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
     callsub verify
-    b main_switch_case_next@5
+    b main_switch_case_next@4
 
-main_create_NoOp@6:
+main_create_NoOp@5:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x8424203b // method "create(byte[32])void"
     uncover 1
-    match main_create_route@7
-    b main_switch_case_default@8
+    match main_create_route@6
+    b main_switch_case_next@7
 
-main_switch_case_default@8:
-    b main_switch_case_next@9
+main_switch_case_next@7:
+    b main_after_if_else@8
 
-main_switch_case_next@9:
-    b main_after_if_else@10
-
-main_create_route@7:
+main_create_route@6:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     callsub create
-    b main_switch_case_next@9
+    b main_switch_case_next@7
 
 
 // examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:

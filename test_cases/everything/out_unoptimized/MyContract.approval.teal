@@ -400,12 +400,9 @@ approval_program_block@1:
     pushbytes 0x1658aa2f // method "close_out()void"
     uncover 2
     match approval_program_register_route@2 approval_program_close_out_route@3
-    b approval_program_switch_case_default@4
+    b approval_program_switch_case_next@4
 
-approval_program_switch_case_default@4:
-    b approval_program_switch_case_next@5
-
-approval_program_switch_case_next@5:
+approval_program_switch_case_next@4:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txn OnCompletion
@@ -415,62 +412,56 @@ approval_program_switch_case_next@5:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@11
-    b approval_program_call_NoOp@6
+    bz approval_program_create_NoOp@9
+    b approval_program_call_NoOp@5
 
-approval_program_call_NoOp@6:
+approval_program_call_NoOp@5:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 0
     pushbytes 0x5d5c84c7 // method "say_hello()string"
     pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
     uncover 2
-    match approval_program_say_hello_route@7 approval_program_calculate_route@8
-    b approval_program_switch_case_default@9
+    match approval_program_say_hello_route@6 approval_program_calculate_route@7
+    b approval_program_switch_case_next@8
 
-approval_program_switch_case_default@9:
-    b approval_program_switch_case_next@10
+approval_program_switch_case_next@8:
+    b approval_program_after_if_else@12
 
-approval_program_switch_case_next@10:
-    b approval_program_after_if_else@15
-
-approval_program_after_if_else@15:
+approval_program_after_if_else@12:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     err
 
-approval_program_calculate_route@8:
+approval_program_calculate_route@7:
     // everything/contract.py:64
     // @abimethod
     callsub calculate
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@8
 
-approval_program_say_hello_route@7:
+approval_program_say_hello_route@6:
     // everything/contract.py:56
     // @abimethod
     callsub say_hello
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@8
 
-approval_program_create_NoOp@11:
+approval_program_create_NoOp@9:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 0
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 1
-    match approval_program_create_route@12
-    b approval_program_switch_case_default@13
+    match approval_program_create_route@10
+    b approval_program_switch_case_next@11
 
-approval_program_switch_case_default@13:
-    b approval_program_switch_case_next@14
+approval_program_switch_case_next@11:
+    b approval_program_after_if_else@12
 
-approval_program_switch_case_next@14:
-    b approval_program_after_if_else@15
-
-approval_program_create_route@12:
+approval_program_create_route@10:
     // everything/contract.py:41
     // @abimethod(create="require")
     callsub create
-    b approval_program_switch_case_next@14
+    b approval_program_switch_case_next@11
 
 approval_program_close_out_route@3:
     // everything/contract.py:69
@@ -484,7 +475,7 @@ approval_program_close_out_route@3:
     &&
     assert // OnCompletion must be CloseOut && can only call when not creating
     callsub close_out
-    b approval_program_switch_case_next@5
+    b approval_program_switch_case_next@4
 
 approval_program_register_route@2:
     // everything/contract.py:47
@@ -501,7 +492,7 @@ approval_program_register_route@2:
     &&
     assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
     callsub register
-    b approval_program_switch_case_next@5
+    b approval_program_switch_case_next@4
 
 
 // test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:

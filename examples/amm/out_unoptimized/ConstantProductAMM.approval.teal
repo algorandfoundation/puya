@@ -1327,7 +1327,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program___algopy_default_create@13
+    bz approval_program___algopy_default_create@12
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -1340,7 +1340,7 @@ approval_program_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@11
+    bz approval_program_create_NoOp@10
     b approval_program_call_NoOp@3
 
 approval_program_call_NoOp@3:
@@ -1354,18 +1354,15 @@ approval_program_call_NoOp@3:
     pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
     uncover 5
     match approval_program_set_governor_route@4 approval_program_bootstrap_route@5 approval_program_mint_route@6 approval_program_burn_route@7 approval_program_swap_route@8
-    b approval_program_switch_case_default@9
+    b approval_program_switch_case_next@9
 
-approval_program_switch_case_default@9:
-    b approval_program_switch_case_next@10
+approval_program_switch_case_next@9:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@10:
-    b approval_program_after_if_else@12
+approval_program_after_if_else@11:
+    b approval_program_after_if_else@15
 
-approval_program_after_if_else@12:
-    b approval_program_after_if_else@16
-
-approval_program_after_if_else@16:
+approval_program_after_if_else@15:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     err
@@ -1380,7 +1377,7 @@ approval_program_swap_route@8:
     //     resource_encoding="index",
     // )
     callsub swap
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@9
 
 approval_program_burn_route@7:
     // amm/contract.py:148-155
@@ -1393,7 +1390,7 @@ approval_program_burn_route@7:
     //     resource_encoding="index",
     // )
     callsub burn
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@9
 
 approval_program_mint_route@6:
     // amm/contract.py:81-88
@@ -1406,24 +1403,24 @@ approval_program_mint_route@6:
     //     resource_encoding="index",
     // )
     callsub mint
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@9
 
 approval_program_bootstrap_route@5:
     // amm/contract.py:49
     // @arc4.abimethod(resource_encoding="index")
     callsub bootstrap
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@9
 
 approval_program_set_governor_route@4:
     // amm/contract.py:43
     // @arc4.abimethod()
     callsub set_governor
-    b approval_program_switch_case_next@10
+    b approval_program_switch_case_next@9
 
-approval_program_create_NoOp@11:
-    b approval_program_after_if_else@12
+approval_program_create_NoOp@10:
+    b approval_program_after_if_else@11
 
-approval_program___algopy_default_create@13:
+approval_program___algopy_default_create@12:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -1432,11 +1429,11 @@ approval_program___algopy_default_create@13:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@14
+    b approval_program_block@13
 
-approval_program_block@14:
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@15
+approval_program_block@13:
+    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@14
 
-approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@15:
+approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@14:
     intc_1 // 1
     return

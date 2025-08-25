@@ -925,7 +925,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@11
+    bz approval_program_bare_routing@10
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -938,7 +938,7 @@ approval_program_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@9
+    bz approval_program_create_NoOp@8
     b approval_program_call_NoOp@3
 
 approval_program_call_NoOp@3:
@@ -950,18 +950,15 @@ approval_program_call_NoOp@3:
     pushbytes 0x0c29444b // method "get()(uint64,string)[]"
     uncover 3
     match approval_program_append_route@4 approval_program_modify_route@5 approval_program_get_route@6
-    b approval_program_switch_case_default@7
+    b approval_program_switch_case_next@7
 
-approval_program_switch_case_default@7:
-    b approval_program_switch_case_next@8
+approval_program_switch_case_next@7:
+    b approval_program_after_if_else@9
 
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@10
+approval_program_after_if_else@9:
+    b approval_program_after_if_else@16
 
-approval_program_after_if_else@10:
-    b approval_program_after_if_else@18
-
-approval_program_after_if_else@18:
+approval_program_after_if_else@16:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     err
@@ -970,40 +967,37 @@ approval_program_get_route@6:
     // state_mutations/contract.py:51
     // @arc4.abimethod
     callsub get
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
 approval_program_modify_route@5:
     // state_mutations/contract.py:44
     // @arc4.abimethod
     callsub modify
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
 approval_program_append_route@4:
     // state_mutations/contract.py:36
     // @arc4.abimethod
     callsub append
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
-approval_program_create_NoOp@9:
-    b approval_program_after_if_else@10
+approval_program_create_NoOp@8:
+    b approval_program_after_if_else@9
 
-approval_program_bare_routing@11:
+approval_program_bare_routing@10:
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
     intc_0 // NoOp
     intc_2 // OptIn
     uncover 2
-    match approval_program___algopy_default_create@12 approval_program_opt_in@15
-    b approval_program_switch_case_default@16
+    match approval_program___algopy_default_create@11 approval_program_opt_in@14
+    b approval_program_switch_case_next@15
 
-approval_program_switch_case_default@16:
-    b approval_program_switch_case_next@17
+approval_program_switch_case_next@15:
+    b approval_program_after_if_else@16
 
-approval_program_switch_case_next@17:
-    b approval_program_after_if_else@18
-
-approval_program_opt_in@15:
+approval_program_opt_in@14:
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
     txn ApplicationID
@@ -1014,16 +1008,16 @@ approval_program_opt_in@15:
     intc_2 // 1
     return
 
-approval_program___algopy_default_create@12:
+approval_program___algopy_default_create@11:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    b approval_program_block@13
+    b approval_program_block@12
 
-approval_program_block@13:
-    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@14
+approval_program_block@12:
+    b approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@13
 
-approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@14:
+approval_program_after_inlined_test_cases.state_mutations.contract.Contract.__algopy_default_create@13:
     intc_2 // 1
     return

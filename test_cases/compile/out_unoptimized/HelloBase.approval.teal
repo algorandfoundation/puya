@@ -121,7 +121,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@7
+    bz approval_program_bare_routing@6
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -132,15 +132,12 @@ approval_program_abi_routing@2:
     pushbytes 0xd0a28200 // method "greet(string)string"
     uncover 2
     match approval_program_delete_route@3 approval_program_greet_route@4
-    b approval_program_switch_case_default@5
+    b approval_program_switch_case_next@5
 
-approval_program_switch_case_default@5:
-    b approval_program_switch_case_next@6
+approval_program_switch_case_next@5:
+    b approval_program_after_if_else@12
 
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@14
-
-approval_program_after_if_else@14:
+approval_program_after_if_else@12:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     err
@@ -157,7 +154,7 @@ approval_program_greet_route@4:
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
     callsub greet
-    b approval_program_switch_case_next@6
+    b approval_program_switch_case_next@5
 
 approval_program_delete_route@3:
     // compile/apps.py:24
@@ -171,25 +168,22 @@ approval_program_delete_route@3:
     &&
     assert // OnCompletion must be DeleteApplication && can only call when not creating
     callsub delete
-    b approval_program_switch_case_next@6
+    b approval_program_switch_case_next@5
 
-approval_program_bare_routing@7:
+approval_program_bare_routing@6:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn OnCompletion
     intc_0 // NoOp
     pushint 4 // UpdateApplication
     uncover 2
-    match approval_program___algopy_default_create@8 approval_program_update@11
-    b approval_program_switch_case_default@12
+    match approval_program___algopy_default_create@7 approval_program_update@10
+    b approval_program_switch_case_next@11
 
-approval_program_switch_case_default@12:
-    b approval_program_switch_case_next@13
+approval_program_switch_case_next@11:
+    b approval_program_after_if_else@12
 
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@14
-
-approval_program_update@11:
+approval_program_update@10:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -200,16 +194,16 @@ approval_program_update@11:
     intc_1 // 1
     return
 
-approval_program___algopy_default_create@8:
+approval_program___algopy_default_create@7:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    b approval_program_block@9
+    b approval_program_block@8
 
-approval_program_block@9:
-    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@10
+approval_program_block@8:
+    b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@9
 
-approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@10:
+approval_program_after_inlined_test_cases.compile.apps.HelloBase.__algopy_default_create@9:
     intc_1 // 1
     return

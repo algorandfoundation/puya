@@ -10,7 +10,7 @@ main:
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@14
+    bz main_create_NoOp@13
     pushbytess 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0
     match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
@@ -32,7 +32,7 @@ main_group_init_route@11:
     bury 2
     intc_1 // 0
 
-main_for_body@22:
+main_for_body@20:
     swap
     dup
     gtxns GroupIndex
@@ -42,7 +42,7 @@ main_for_body@22:
     gtxns TxID
     ==
     assert
-    switch main_for_header_1@23 main_for_header_2@24
+    switch main_for_header_1@21 main_for_header_2@22
     dig 2
     gtxns TxID
     intc_1 // 0
@@ -50,15 +50,15 @@ main_for_body@22:
     ==
     return
 
-main_for_header_2@24:
+main_for_header_2@22:
     dup
     intc_2 // 2
-    b main_for_body@22
+    b main_for_body@20
 
-main_for_header_1@23:
+main_for_header_1@21:
     dig 1
     intc_0 // 1
-    b main_for_body@22
+    b main_for_body@20
 
 main_any_txn_route@10:
     txn GroupIndex
@@ -74,27 +74,27 @@ main_any_txn_route@10:
     bury 2
     intc_1 // 0
 
-main_for_body@28:
+main_for_body@26:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@29 main_for_header_2@30
+    switch main_for_header_1@27 main_for_header_2@28
 
-main_after_for@37:
+main_after_for@35:
     intc_0 // 1
     return
 
-main_for_header_2@30:
+main_for_header_2@28:
     dup
     intc_2 // 2
-    b main_for_body@28
+    b main_for_body@26
 
-main_for_header_1@29:
+main_for_header_1@27:
     dig 1
     intc_0 // 1
-    b main_for_body@28
+    b main_for_body@26
 
 main_multiple_txns_route@9:
     txn GroupIndex
@@ -125,24 +125,24 @@ main_multiple_txns_route@9:
     assert // transaction type is appl
     intc_1 // 0
 
-main_for_body@34:
+main_for_body@32:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@35 main_for_header_2@36
-    b main_after_for@37
+    switch main_for_header_1@33 main_for_header_2@34
+    b main_after_for@35
 
-main_for_header_2@36:
+main_for_header_2@34:
     dup
     intc_2 // 2
-    b main_for_body@34
+    b main_for_body@32
 
-main_for_header_1@35:
+main_for_header_1@33:
     dig 1
     intc_0 // 1
-    b main_for_body@34
+    b main_for_body@32
 
 main_application_call_route@8:
     txn GroupIndex
@@ -397,10 +397,10 @@ main_pay_route@3:
     ==
     return // on error: close_remainder_to
 
-main_create_NoOp@14:
+main_create_NoOp@13:
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_after_for@37
+    match main_after_for@35
     err
 
 

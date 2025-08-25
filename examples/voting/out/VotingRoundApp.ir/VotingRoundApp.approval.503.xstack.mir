@@ -96,7 +96,7 @@ subroutine ensure_budget:
         v-load required_budget_with_buffer#0                                                      (𝕡) required_budget#0,fee_source#0 | tmp%1#0,required_budget_with_buffer#0
         l-load tmp%1#0 1                                                                          (𝕡) required_budget#0,fee_source#0 | required_budget_with_buffer#0,tmp%1#0
         >                                                                                         (𝕡) required_budget#0,fee_source#0 | tmp%2#0
-        bz ensure_budget_after_while@7 ; b ensure_budget_while_body@2                             (𝕡) required_budget#0,fee_source#0 |
+        bz ensure_budget_after_while@6 ; b ensure_budget_while_body@2                             (𝕡) required_budget#0,fee_source#0 |
 
     ensure_budget_while_body@2:                                                                   (𝕡) required_budget#0,fee_source#0 |
         itxn_begin                                                                                (𝕡) required_budget#0,fee_source#0 |
@@ -109,23 +109,23 @@ subroutine ensure_budget:
         byte 0x068101                                                                             (𝕡) required_budget#0,fee_source#0 | 0x068101
         itxn_field ClearStateProgram                                                              (𝕡) required_budget#0,fee_source#0 |
         p-load fee_source#0                                                                       (𝕡) required_budget#0,fee_source#0 | fee_source#0 (copy)
-        switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4 ; b ensure_budget_switch_case_next@6 (𝕡) required_budget#0,fee_source#0 | 
+        switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4 ; b ensure_budget_switch_case_next@5 (𝕡) required_budget#0,fee_source#0 | 
 
     ensure_budget_switch_case_0@3:                                                                (𝕡) required_budget#0,fee_source#0 |
         int 0                                                                                     (𝕡) required_budget#0,fee_source#0 | 0
         itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
-        b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+        b ensure_budget_switch_case_next@5                                                        (𝕡) required_budget#0,fee_source#0 |
 
     ensure_budget_switch_case_1@4:                                                                (𝕡) required_budget#0,fee_source#0 |
         global MinTxnFee                                                                          (𝕡) required_budget#0,fee_source#0 | tmp%3#0
         itxn_field Fee                                                                            (𝕡) required_budget#0,fee_source#0 |
-        b ensure_budget_switch_case_next@6                                                        (𝕡) required_budget#0,fee_source#0 |
+        b ensure_budget_switch_case_next@5                                                        (𝕡) required_budget#0,fee_source#0 |
 
-    ensure_budget_switch_case_next@6:                                                             (𝕡) required_budget#0,fee_source#0 |
+    ensure_budget_switch_case_next@5:                                                             (𝕡) required_budget#0,fee_source#0 |
         itxn_submit                                                                               (𝕡) required_budget#0,fee_source#0 |
         b ensure_budget_while_top@1                                                               (𝕡) required_budget#0,fee_source#0 |
 
-    ensure_budget_after_while@7:                                                                  (𝕡) required_budget#0,fee_source#0 |
+    ensure_budget_after_while@6:                                                                  (𝕡) required_budget#0,fee_source#0 |
         retsub
 
 
