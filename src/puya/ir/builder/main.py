@@ -986,7 +986,12 @@ class FunctionIRBuilder(
         return target
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
-        if block.label:
+        # When traversing, blocks can appear nested arbitrarily, so start
+        # a new one if a label is encountered, otherwise there's no difference
+        # so we can just keep adding to the current block.
+        # However, some looping constructs need to create the block before it can be
+        # visited, in which case the block must be activated before this function.
+        if block.label != self.context.block_builder.active_block.label:
             ir_block = self.context.block_builder.mkblock(block)
             self.context.block_builder.goto(ir_block)
             self.context.block_builder.activate_block(ir_block)
