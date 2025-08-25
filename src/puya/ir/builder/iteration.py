@@ -21,7 +21,13 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets, convert_constants
+from puya.ir.op_utils import (
+    OpFactory,
+    assert_value,
+    assign_intrinsic_op,
+    assign_targets,
+    convert_constants,
+)
 from puya.ir.types_ import TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -342,16 +348,10 @@ def _iterate_urange_with_reversal(
 
     # The following code will result in underflow if we don't pre-check the urange
     # params
-    should_loop = assign_intrinsic_op(
-        context,
-        target="should_loop",
-        op=AVMOp.lt,
-        args=[start, stop],
-        source_location=statement_loc,
-    )
+    factory = OpFactory(context, statement_loc)
     context.block_builder.terminate(
         ConditionalBranch(
-            condition=should_loop,
+            condition=factory.lt(start, stop, "should_loop"),
             non_zero=header,
             zero=next_block,
             source_location=statement_loc,
@@ -361,41 +361,15 @@ def _iterate_urange_with_reversal(
     context.block_builder.activate_block(header)
     # iteration_count = ((stop - 1) - start) // step + 1
     # => iteration_count - 1 = (stop - start - 1) // step
-    range_length = assign_intrinsic_op(
-        context,
-        target="range_length",
-        op=AVMOp.sub,
-        args=[stop, start],
-        source_location=range_loc,
+    factory = OpFactory(context, range_loc)
+    range_length = factory.sub(stop, start, "range_length")
+    range_length_minus_one = factory.sub(range_length, 1, "range_length_minus_one")
+    iteration_count_minus_one = factory.div_floor(
+        range_length_minus_one, step, "iteration_count_minus_one"
     )
-    range_length_minus_one = assign_intrinsic_op(
-        context,
-        target="range_length_minus_one",
-        op=AVMOp.sub,
-        args=[range_length, 1],
-        source_location=range_loc,
-    )
-    iteration_count_minus_one = assign_intrinsic_op(
-        context,
-        target="iteration_count_minus_one",
-        op=AVMOp.div_floor,
-        args=[range_length_minus_one, step],
-        source_location=range_loc,
-    )
-    range_delta = assign_intrinsic_op(
-        context,
-        target="range_delta",
-        op=AVMOp.mul,
-        args=[step, iteration_count_minus_one],
-        source_location=range_loc,
-    )
-    max_range_item = assign_intrinsic_op(
-        context,
-        target="max_range_item",
-        op=AVMOp.add,
-        args=[start, range_delta],
-        source_location=range_loc,
-    )
+    range_delta = factory.mul(step, iteration_count_minus_one, "range_delta")
+    max_range_item = factory.add(start, range_delta, "max_range_item")
+
     loop_vars = assigner.assign_user_loop_vars(
         start if not reverse_items else max_range_item,
         (
@@ -414,21 +388,12 @@ def _iterate_urange_with_reversal(
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
-            continue_looping_op = Intrinsic(
-                op=AVMOp.lt,
-                args=(
-                    [current_range_item, max_range_item]
-                    if not reverse_items
-                    else [start, current_range_item]
-                ),
-                source_location=range_loc,
-            )
-            continue_looping = assign_temp(
-                context,
-                source=continue_looping_op,
-                temp_description="continue_looping",
-                source_location=range_loc,
-            )
+            if reverse_items:
+                continue_looping = factory.lt(start, current_range_item, "continue_looping")
+            else:
+                continue_looping = factory.lt(
+                    current_range_item, max_range_item, "continue_looping"
+                )
 
             context.block_builder.terminate(
                 ConditionalBranch(
