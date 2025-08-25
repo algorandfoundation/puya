@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import attrs
@@ -8,6 +9,7 @@ from puya.ir import models as ir
 from puya.ir.types_ import IRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -180,7 +182,7 @@ class BraunSSA:
 class TrivialPhiRemover(IRMutator):
     _find: ir.Phi
     _replacement: ir.Register
-    collected: list[ir.Phi] = attrs.field(factory=list)
+    collected: StableSet[ir.Phi] = attrs.field(factory=StableSet)
     replaced: int = 0
 
     @classmethod
@@ -210,19 +212,36 @@ class TrivialPhiRemover(IRMutator):
                 result.extend(cls.try_remove(phi_user, blocks))
         return result
 
-    def visit_register(self, reg: ir.Register) -> ir.Register:
+    def visit_block(self, block: ir.BasicBlock) -> None:
+        # visit phis and remove the target phi
+        for idx, phi in enumerate(block.phis.copy()):
+            if phi is self._find:
+                logger.debug(f"Deleting Phi assignment: {phi}")
+                block.phis.pop(idx)
+            else:
+                phi.accept(self)
+
+        # visit ops so any usages of the phi register can be replaced
+        for op in block.ops:
+            op.accept(self)
+        if block.terminator is not None:
+            block.terminator.accept(self)
+
+    @typing.override
+    def visit_register(self, reg: ir.Register) -> ir.Register | None:
         if reg != self._find.register:
-            return reg
+            return None
         self.replaced += 1
         return self._replacement
 
-    def visit_phi(self, phi: ir.Phi) -> ir.Phi | None:
-        if phi is self._find:
-            logger.debug(f"Deleting Phi assignment: {phi}")
-            return None
-        prior_replace_count = self.replaced
-        result = super().visit_phi(phi)
-        assert result is phi, "phi instance changed"
-        if self.replaced > prior_replace_count:
-            self.collected.append(result)
-        return result
+    @typing.override
+    def visit_phi(self, phi: ir.Phi) -> None:
+        assert phi is not self._find, "phi being removed should not be visited"
+        for arg in phi.args:
+            if replacement := self.visit_register(arg.value):
+                arg.value = replacement
+                self.collected.add(phi)
+
+    @typing.override
+    def visit_phi_argument(self, arg: ir.PhiArgument) -> None:
+        raise InternalError("PhiArgument handled in phi parent")

@@ -90,9 +90,9 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
     aggregates: _AggregateCollector
     modified: bool = False
 
-    def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider:
+    def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider | None:
         if not length.array_encoding.length_header:
-            return length
+            return None
 
         # look through extract values to find underlying box read
         base = length.base
@@ -109,7 +109,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         try:
             box_read = self.aggregates.box_reads[maybe_box_register]
         except KeyError:
-            return length
+            return None
 
         loc = sequential_source_locations_merge(
             (length.source_location, extract_location, box_read.source_location)
@@ -130,24 +130,24 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         length_bytes = factory.box_extract(box_read.key, offset, 2, ir_type=PrimitiveIRType.bytes)
         return factory.btoi(length_bytes, temp_desc="array_length")
 
-    def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
+    def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider | None:
         # find box read
         try:
             box_read = self.aggregates.box_reads[read.base]
         except KeyError:
-            return read
+            return None
 
         aggregate_encoding = read.base_type.encoding
         # can only read fixed size elements
         if read.ir_type.num_bytes is None:
-            return read
+            return None
         # box_extract is only required if the aggregate doesn't fit on the stack or aggregate
         # is dynamic
         if (
             aggregate_encoding.is_fixed
             and aggregate_encoding.checked_num_bytes <= MAX_BYTES_LENGTH
         ):
-            return read
+            return None
         # TODO: there are more scenarios where it can be more efficient e.g.
         #       a box_extract with constant offsets can be more efficient if it also eliminates
         #       the exists assertion, however this requires knowledge of other consumers of the
@@ -167,12 +167,12 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         )
         return new_read
 
-    def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
+    def visit_box_write(self, write: models.BoxWrite) -> None:
         # find aggregate
         try:
             agg_write = self.aggregates.replace_values[write.value]
         except KeyError:
-            return write
+            return
 
         # only support fixed size writes
         encoding = agg_write.base_type.encoding
@@ -186,17 +186,17 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             else:
                 raise InternalError("invalid index sequence", agg_write.source_location)
         if encoding.is_dynamic:
-            return write
+            return
 
         # find corresponding read
         try:
             read_src = self.aggregates.box_reads[agg_write.base]
         except KeyError:
-            return write
+            return
 
         # can only do an in-place update if the agg write was for a value from the same box
         if write.key != read_src.key:
-            return write
+            return
 
         self.modified = True
         merged_loc = sequential_source_locations_merge(
@@ -211,7 +211,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             f"into {new_write!s}",
             location=merged_loc,
         )
-        return None
+        self.remove_op(write)
 
 
 def _combine_box_and_aggregate_read(

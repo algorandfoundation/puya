@@ -23,10 +23,10 @@ logger = log.get_logger(__name__)
 @attrs.define
 class MemoryReplacerWithRedundantAssignmentRemoval(MemoryReplacer):
     def visit_assignment(self, op: models.Assignment) -> models.Assignment | None:
-        ass = super().visit_assignment(op)
-        if ass is None or ass.targets == (ass.source,):
-            return None
-        return ass
+        ass = super().visit_assignment(op) or op
+        if ass.targets == (ass.source,):
+            self.remove_op(ass)
+        return None
 
 
 class CoalesceGroupStrategy[TKey](t.Protocol):

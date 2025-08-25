@@ -100,10 +100,6 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
     ) -> None:
         self.add_op(ir.Assignment(targets=targets, source=source, source_location=loc))
 
-    @typing.override
-    def add_op(self, op: ir.Op) -> None:
-        self.current_block_ops.append(op)
-
 
 @attrs.define
 class _VersionGatherer(IRTraverser):

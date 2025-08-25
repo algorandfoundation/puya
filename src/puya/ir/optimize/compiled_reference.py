@@ -49,12 +49,11 @@ class CompiledReferenceReplacer(IRMutator):
     context: ArtifactCompileContext
     modified: bool = False
 
-    def visit_compiled_logicsig_reference(  # type: ignore[override]
-        self,
-        const: ir.CompiledLogicSigReference,
-    ) -> ir.CompiledLogicSigReference | ir.Constant:
+    def visit_compiled_logicsig_reference(
+        self, const: ir.CompiledLogicSigReference
+    ) -> ir.Constant | None:
         if not _is_constant(const.template_variables):
-            return const
+            return None
         template_constants = _get_template_constants(const.template_variables)
         program_bytecode = self.context.build_program_bytecode(
             const.artifact, ProgramKind.logic_signature, template_constants=template_constants
@@ -65,10 +64,9 @@ class CompiledReferenceReplacer(IRMutator):
             source_location=const.source_location,
         )
 
-    def visit_compiled_contract_reference(  # type: ignore[override]
-        self,
-        const: ir.CompiledContractReference,
-    ) -> ir.CompiledContractReference | ir.Constant:
+    def visit_compiled_contract_reference(
+        self, const: ir.CompiledContractReference
+    ) -> ir.Constant | None:
         field = const.field
         if field in (
             TxnField.GlobalNumUint,
@@ -96,7 +94,7 @@ class CompiledReferenceReplacer(IRMutator):
             )
 
         if not _is_constant(const.template_variables):
-            return const
+            return None
         template_constants = _get_template_constants(const.template_variables)
         match field:
             case TxnField.ApprovalProgramPages | TxnField.ClearStateProgramPages:

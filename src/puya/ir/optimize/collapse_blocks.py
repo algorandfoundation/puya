@@ -30,31 +30,36 @@ class BlockReferenceReplacer(IRMutator):
             replacer.visit_block(block)
 
     def visit_block(self, block: models.BasicBlock) -> None:
-        super().visit_block(block)
+        for phi in block.phis:
+            phi.accept(self)
+        if block.terminator:
+            replacement = block.terminator.accept(self)
+            if replacement:
+                block.terminator = replacement
         if self.find in block.predecessors:
             block.predecessors = [
                 self.replacement if b is self.find else b for b in block.predecessors
             ]
             logger.debug(f"Replaced predecessor {self.find} with {self.replacement} in {block}")
 
-    def visit_phi_argument(self, arg: models.PhiArgument) -> models.PhiArgument:
+    def visit_phi_argument(self, arg: models.PhiArgument) -> None:
         if arg.through == self.find:
             arg.through = self.replacement
-        return arg
 
-    def visit_conditional_branch(self, branch: models.ConditionalBranch) -> models.ControlOp:
+    def visit_conditional_branch(
+        self, branch: models.ConditionalBranch
+    ) -> models.ControlOp | None:
         if branch.zero == self.find:
             branch.zero = self.replacement
         if branch.non_zero == self.find:
             branch.non_zero = self.replacement
         return _replace_single_target_with_goto(branch)
 
-    def visit_goto(self, goto: models.Goto) -> models.Goto:
+    def visit_goto(self, goto: models.Goto) -> None:
         if goto.target == self.find:
             goto.target = self.replacement
-        return goto
 
-    def visit_goto_nth(self, goto_nth: models.GotoNth) -> models.ControlOp:
+    def visit_goto_nth(self, goto_nth: models.GotoNth) -> models.ControlOp | None:
         for index, block in enumerate(goto_nth.blocks):
             if block == self.find:
                 goto_nth.blocks[index] = self.replacement
@@ -62,7 +67,7 @@ class BlockReferenceReplacer(IRMutator):
             goto_nth.default = self.replacement
         return _replace_single_target_with_goto(goto_nth)
 
-    def visit_switch(self, switch: models.Switch) -> models.ControlOp:
+    def visit_switch(self, switch: models.Switch) -> models.ControlOp | None:
         for case, target in switch.cases.items():
             if target == self.find:
                 switch.cases[case] = self.replacement
@@ -71,7 +76,7 @@ class BlockReferenceReplacer(IRMutator):
         return _replace_single_target_with_goto(switch)
 
 
-def _replace_single_target_with_goto(terminator: models.ControlOp) -> models.ControlOp:
+def _replace_single_target_with_goto(terminator: models.ControlOp) -> models.ControlOp | None:
     """
     If a ControlOp has a single target, replace it with a Goto, otherwise return the original op.
     """
@@ -84,7 +89,7 @@ def _replace_single_target_with_goto(terminator: models.ControlOp) -> models.Con
             logger.debug(f"replaced {terminator} with {replacement}")
             return replacement
         case _:
-            return terminator
+            return None
 
 
 def remove_linear_jump(_context: CompileContext, subroutine: models.Subroutine) -> bool:

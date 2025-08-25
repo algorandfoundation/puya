@@ -151,3 +151,4 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
                 source_location=write.source_location,
             )
         )
+        self.remove_op(write)
