@@ -76,10 +76,12 @@ class LoggingContext:
         self._logs.append(log)
 
     def exit_if_errors(self) -> None:
+        from puya.errors import ErrorExitCode, PuyaExitError
+
         if self._criticals:
-            sys.exit(2)
+            raise PuyaExitError(ErrorExitCode.internal)
         if self._errors:
-            sys.exit(1)
+            raise PuyaExitError(ErrorExitCode.code)
 
 
 _current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")
@@ -285,6 +287,7 @@ def configure_logging(
     min_log_level: LogLevel = LogLevel.notset,
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
+    file: typing.TextIO | None = None,
     reconfigure_stdio: bool = True,
 ) -> None:
     if reconfigure_stdio:
@@ -331,7 +334,7 @@ def configure_logging(
     structlog.configure(
         processors=processors,
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(file=file),
         cache_logger_on_first_use=cache_logger,
     )
 

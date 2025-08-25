@@ -9,7 +9,7 @@ from tests.test_expected_output.data import TestFile
 # https://doc.pytest.org/en/latest/how-to/writing_plugins.html#collection-hooks
 def pytest_collect_file(parent: pytest.Collector, file_path: Path) -> pytest.Collector | None:
     if file_path.suffix == ".test":
-        return TestFile.from_parent(parent, path=file_path)  # type: ignore[no-any-return]
+        return TestFile.from_parent(parent, path=file_path)
     return None
 
 
