@@ -1,6 +1,5 @@
 import itertools
 import typing
-import typing as t
 from collections.abc import Iterable, Mapping, Sequence
 
 from puya import log
@@ -68,7 +67,7 @@ def _assignment_eliminated(op: models.Op) -> bool:
     return False
 
 
-class CoalesceGroupStrategy[TKey](t.Protocol):
+class CoalesceGroupStrategy[TKey](typing.Protocol):
     def get_group_key(self, reg: models.Register) -> TKey: ...
 
     def determine_group_replacement(
@@ -92,10 +91,6 @@ def coalesce_registers(
      - The "live-out" of this local does not intersect the local set
     """
     vla = VariableLifetimeAnalysis.analyze(sub)
-
-    # TODO: this uses a basic definition of interference by looking at live-ranges,
-    #       a better option is to continue with https://inria.hal.science/inria-00349925v1/document
-    #       which has already been partially implemented (phase 1 + 4 have been, anyway)
 
     variables_live_at_definition = dict[models.Register, StableSet[models.Register]]()
     if allow_params:
