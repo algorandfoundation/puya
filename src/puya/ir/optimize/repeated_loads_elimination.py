@@ -212,7 +212,8 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
     @typing.override
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         # be conservative and treat any subroutine call as a barrier
-        self._invalidate("all")
+        if not callsub.target.pure:
+            self._invalidate("all")
 
 
 def _normalize_key(keys: tuple[models.Value | _ReadType, ...]) -> _StateKey:

@@ -18,3 +18,6 @@ def subroutine(
     or not. Setting `inline=True` forces inlining, and `inline=False` ensures the function will
     never be inlined.
     """
+
+# for internal use only, leave undocumented
+def __pure[T](obj: T) -> T: ...

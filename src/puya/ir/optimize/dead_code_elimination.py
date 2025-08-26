@@ -236,19 +236,23 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     for (block, ass), registers in assignments.items():
         if registers.symmetric_difference(ass.targets):
             pass  # some registers still used
-        elif isinstance(
-            ass.source,
-            models.Value
-            | models.InnerTransactionField
-            | models.BoxRead
-            | models.ExtractValue
-            | models.ReplaceValue
-            | models.DecodeBytes
-            | models.BytesEncode
-            | models.ArrayLength,
-        ) or (
-            isinstance(ass.source, models.Intrinsic)
-            and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
+        elif (
+            isinstance(
+                ass.source,
+                models.Value
+                | models.InnerTransactionField
+                | models.BoxRead
+                | models.ExtractValue
+                | models.ReplaceValue
+                | models.DecodeBytes
+                | models.BytesEncode
+                | models.ArrayLength,
+            )
+            or (isinstance(ass.source, models.InvokeSubroutine) and ass.source.target.pure)
+            or (
+                isinstance(ass.source, models.Intrinsic)
+                and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
+            )
         ):
             for reg in sorted(registers, key=lambda r: r.local_id):
                 logger.debug(f"Removing unused variable {reg.local_id}")

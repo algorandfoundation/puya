@@ -563,6 +563,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         *,
         inline: bool | None,
+        pure: bool | None,
     ):
         super().__init__(context=context)
         func_loc = context.node_location(func_def)  # TODO: why not source_location ??
@@ -640,6 +641,7 @@ class FunctionASTConverter(
                 body=translated_body,
                 documentation=documentation,
                 inline=inline,
+                pure=pure is True,
             )
         else:
             self.result = ContractMethod(
@@ -652,6 +654,7 @@ class FunctionASTConverter(
                 documentation=documentation,
                 arc4_method_config=contract_method_info.arc4_method_config,
                 inline=inline,
+                pure=pure is True,
             )
 
     @classmethod
@@ -663,6 +666,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         *,
         inline: bool | None,
+        pure: bool = False,
     ) -> Subroutine: ...
 
     @classmethod
@@ -686,12 +690,14 @@ class FunctionASTConverter(
         contract_method_info: ContractMethodInfo | None = None,
         *,
         inline: bool | None,
+        pure: bool | None = None,
     ) -> Subroutine | ContractMethod:
         return cls(
             context=context,
             func_def=func_def,
             contract_method_info=contract_method_info,
             inline=inline,
+            pure=pure,
             source_location=source_location,
         ).result
 

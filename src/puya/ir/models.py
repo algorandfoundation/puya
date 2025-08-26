@@ -1210,6 +1210,7 @@ class Subroutine(Context):
     body: list[BasicBlock] = attrs.field()
     inline: bool | None
     is_routing_wrapper: bool = False
+    pure: bool = False
 
     @property
     def returns(self) -> list[IRType]:
