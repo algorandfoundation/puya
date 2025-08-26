@@ -1,8 +1,12 @@
+from collections import defaultdict
+
 from puya import log
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
 logger = log.get_logger(__name__)
+
+_CopyList = list[tuple[models.Register, models.Register]]
 
 
 def convert_to_cssa(sub: models.Subroutine) -> None:
@@ -14,69 +18,46 @@ def convert_to_cssa(sub: models.Subroutine) -> None:
     def make_prime(mem: models.Register) -> models.Register:
         max_versions[mem.name] += 1
         return models.Register(
-            source_location=mem.source_location,
-            ir_type=mem.ir_type,
             name=mem.name,
             version=max_versions[mem.name],
+            ir_type=mem.ir_type,
+            source_location=mem.source_location,
         )
 
-    block_exit_copies = dict[models.BasicBlock, list[tuple[models.Register, models.Register]]]()
+    block_exit_copies = defaultdict[models.BasicBlock, _CopyList](list)
     for phi_block in sub.body:
-        prime_phis = list[models.Phi]()
-        prime_copies = list[tuple[models.Register, models.Register]]()
+        keep_phis = []
         for phi in phi_block.phis:
             if not phi.args:
-                phi_block.ops.insert(
-                    0,
-                    models.Assignment(
-                        targets=[phi.register],
-                        source=models.Undefined(
-                            ir_type=phi.ir_type, source_location=phi.source_location
-                        ),
-                        source_location=phi.source_location,
-                    ),
+                loc = phi.source_location
+                undef_value = models.Undefined(ir_type=phi.ir_type, source_location=loc)
+                undef_assignment = models.Assignment(
+                    targets=[phi.register], source=undef_value, source_location=loc
                 )
+                phi_block.ops.insert(0, undef_assignment)
             else:
-                prime_args = list[models.PhiArgument]()
                 for phi_arg in phi.args:
-                    prime_arg_reg = make_prime(phi_arg.value)
-                    prime_arg = models.PhiArgument(
-                        value=prime_arg_reg,
-                        through=phi_arg.through,
-                    )
-                    prime_args.append(prime_arg)
+                    reg = phi_arg.value
+                    phi_arg.value = make_prime(reg)
                     # insert copy to prime arg at end of predecessor
-                    block_exit_copies.setdefault(phi_arg.through, []).append(
-                        (prime_arg_reg, phi_arg.value)
-                    )
-                phi_prime = models.Phi(register=make_prime(phi.register), args=prime_args)
-                prime_phis.append(phi_prime)
-                prime_copies.append((phi.register, phi_prime.register))
-        phi_block.phis = prime_phis
-        if prime_copies:
-            phi_block.ops.insert(0, _make_copy_assignment(prime_copies))
+                    block_exit_copies[phi_arg.through].append((phi_arg.value, reg))
+                keep_phis.append(phi)
+        phi_block.phis = keep_phis
 
     for block, copies in block_exit_copies.items():
         block.ops.append(_make_copy_assignment(copies))
 
 
-def _make_copy_assignment(
-    copies: list[tuple[models.Register, models.Register]],
-) -> models.Assignment:
+def _make_copy_assignment(copies: _CopyList) -> models.Assignment:
     if len(copies) == 1:
         ((dst, src),) = copies
         targets = [dst]
         source: models.ValueProvider = src
     else:
-        targets_tup, sources_tup = zip(*copies, strict=True)
-        targets = list(targets_tup)
-        sources_list = list(sources_tup)
-        source = models.ValueTuple(source_location=None, values=sources_list)
-    return models.Assignment(
-        targets=targets,
-        source=source,
-        source_location=None,
-    )
+        target_tup, source_values = zip(*copies, strict=True)
+        targets = list(target_tup)
+        source = models.ValueTuple(source_location=None, values=source_values)
+    return models.Assignment(targets=targets, source=source, source_location=None)
 
 
 def destructure_cssa(sub: models.Subroutine) -> None:
