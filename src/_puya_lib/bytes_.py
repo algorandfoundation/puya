@@ -1,6 +1,8 @@
 from algopy import Bytes, UInt64, op, subroutine
+from algopy._hints import __pure
 
 
+@__pure
 @subroutine
 def is_substring(item: Bytes, sequence: Bytes) -> bool:
     """

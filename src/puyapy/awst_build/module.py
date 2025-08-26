@@ -115,6 +115,7 @@ class ModuleASTConverter(
 
             return [deferred]
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
+        internal_pure_dec = dec_by_fullname.pop(constants.PURE_HINT, None)
         if subroutine_dec is None:
             self._error(
                 f"free functions must be annotated with @{constants.SUBROUTINE_HINT_ALIAS}",
@@ -131,7 +132,9 @@ class ModuleASTConverter(
             self._error(f'unsupported function decorator "{dec_fullname}"', dec)
 
         return [
-            lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location, inline=inline)
+            lambda ctx: FunctionASTConverter.convert(
+                ctx, func_def, source_location, inline=inline, pure=internal_pure_dec is not None
+            )
         ]
 
     def _process_logic_sig_decorator(

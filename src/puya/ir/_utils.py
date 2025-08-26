@@ -45,6 +45,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
         returns=returns,
         body=[],
         inline=func.inline,
+        pure=func.pure,
         source_location=func.source_location,
     )
 

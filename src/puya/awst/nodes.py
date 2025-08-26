@@ -2306,6 +2306,7 @@ class Function(Node, ABC):
     body: Block
     documentation: MethodDocumentation
     inline: bool | None = None
+    pure: bool = False
 
     @property
     @abstractmethod
