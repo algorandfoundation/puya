@@ -1,9 +1,10 @@
 ARC4_CONTRACT_BASE = "algopy.arc4.ARC4Contract"
 CONTRACT_BASE = "algopy._contract.Contract"
 SUBROUTINE_HINT = "algopy._hints.subroutine"
+SUBROUTINE_HINT_ALIAS = "algopy.subroutine"
+PURE_HINT = "algopy._hints.__pure"
 LOGICSIG_DECORATOR = "algopy._logic_sig.logicsig"
 LOGICSIG_DECORATOR_ALIAS = "algopy.logicsig"
-SUBROUTINE_HINT_ALIAS = "algopy.subroutine"
 ABIMETHOD_DECORATOR = "algopy.arc4.abimethod"
 ABIMETHOD_DECORATOR_ALIAS = ABIMETHOD_DECORATOR
 BAREMETHOD_DECORATOR = "algopy.arc4.baremethod"

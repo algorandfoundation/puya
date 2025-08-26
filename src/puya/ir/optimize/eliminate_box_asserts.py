@@ -45,7 +45,8 @@ def _remove_box_exists_asserts(block: models.BasicBlock) -> bool:
             source = None
 
         if isinstance(source, models.InvokeSubroutine):
-            box_exists.clear()
+            if not source.target.pure:
+                box_exists.clear()
         elif isinstance(source, models.Intrinsic):
             match source.op:
                 case (
