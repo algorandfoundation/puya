@@ -39,7 +39,8 @@ def replace_aggregate_box_ops(
         subroutine=subroutine,
         embedded_funcs=context.embedded_funcs,
     )
-    replacer.process_and_validate()
+    for block in subroutine.body:
+        replacer.visit_block(block)
     return replacer.modified
 
 
