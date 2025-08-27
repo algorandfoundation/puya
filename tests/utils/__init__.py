@@ -5,6 +5,7 @@ from pathlib import Path
 
 import attrs
 
+from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.compilation_artifacts import CompilationArtifact
 from puya.compile import awst_to_teal
@@ -141,10 +142,10 @@ def _filter_logs(logs: Sequence[Log], root_dir: Path, src_path: Path) -> list[Lo
     root_dir = root_dir.resolve()
     relative_src_root = src_path.relative_to(root_dir)
     result = []
-    for log in logs:
+    for log_ in logs:
         # ignore logs that come from files outside of src_path as these are
         # logs emitted during the cached AWST parsing step
-        relative_path = get_relative_path(log.location, root_dir)
+        relative_path = get_relative_path(log_.location, root_dir)
         if relative_path and relative_src_root not in (
             relative_path,
             *relative_path.parents,
@@ -152,11 +153,11 @@ def _filter_logs(logs: Sequence[Log], root_dir: Path, src_path: Path) -> list[Lo
             continue
 
         # ignore logs that are not output in a consistent order
-        log_prefixes_to_ignore = _UNSTABLE_LOG_PREFIXES.get(log.level)
-        if log_prefixes_to_ignore and log.message.startswith(log_prefixes_to_ignore):
+        log_prefixes_to_ignore = _UNSTABLE_LOG_PREFIXES.get(log_.level)
+        if log_prefixes_to_ignore and log_.message.startswith(log_prefixes_to_ignore):
             continue
 
-        result.append(log)
+        result.append(log_)
     return result
 
 
@@ -255,3 +256,13 @@ def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:
                 key, value = parse_template_key_value(line)
                 result[key] = value
     return prefix, result
+
+
+def log_to_str(log: log.Log, root_dir: Path) -> str:
+    if log.location and log.location.file:
+        relative_path = get_relative_path(log.location, root_dir)
+        col = f":{log.location.column + 1}" if log.location.column else ""
+        location = f"{relative_path!s}:{log.location.line}{col} "
+    else:
+        location = ""
+    return f"{location}{log.level}: {log.message}"
