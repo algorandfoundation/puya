@@ -15,8 +15,8 @@ from tests.utils import (
     SUFFIX_O2,
     PuyaTestCase,
     compile_src_from_options,
-    get_relative_path,
     load_template_vars,
+    log_to_str,
 )
 from tests.utils.git import check_for_diff
 
@@ -58,7 +58,7 @@ def _compile_test_case(
     if log_path:
         root_dir = compile_result.root_dir
         log_options = attrs.evolve(puya_options, paths=(Path(test_case.name),))
-        logs = [_log_to_str(log_, root_dir) for log_ in compile_result.logs]
+        logs = [log_to_str(log_, root_dir) for log_ in compile_result.logs]
         logs.insert(0, f"debug: {log_options}")
         log_path.write_text(
             "\n".join(map(_normalize_log, logs)),
@@ -79,16 +79,6 @@ _NORMALIZED_VCS = _normalize_path(VCS_ROOT)
 
 def _normalize_log(log: str) -> str:
     return log.replace("\\", "/").replace(_NORMALIZED_VCS, "<git root>")
-
-
-def _log_to_str(log: log.Log, root_dir: Path) -> str:
-    if log.location and log.location.file:
-        relative_path = get_relative_path(log.location, root_dir)
-        col = f":{log.location.column + 1}" if log.location.column else ""
-        location = f"{relative_path!s}:{log.location.line}{col} "
-    else:
-        location = ""
-    return f"{location}{log.level}: {log.message}"
 
 
 def _compile_no_optimization(test_case: PuyaTestCase) -> None:
