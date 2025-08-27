@@ -130,7 +130,7 @@ class BraunSSA:
                 )
             )
             logger.debug(f"Added {pred_variable} to Phi node: {phi} in {block_pred}")
-            attrs.validate(phi)
+        attrs.validate(phi)
         trivial_replacements = TrivialPhiRemover.try_remove(phi, self._all_blocks)
         if not trivial_replacements:
             return phi.register
