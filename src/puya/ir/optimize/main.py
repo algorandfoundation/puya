@@ -8,7 +8,7 @@ from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
 from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
-from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
+from puya.ir.optimize.collapse_blocks import merge_blocks, remove_linear_jumps
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
 from puya.ir.optimize.context import IROptimizationContext
@@ -86,8 +86,8 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),
         SubroutineOptimization.from_function(replace_compiled_references, min_level=0),
         SubroutineOptimization.from_function(simplify_control_ops, loop=True),
-        SubroutineOptimization.from_function(remove_linear_jump),
-        SubroutineOptimization.from_function(remove_empty_blocks),
+        SubroutineOptimization.from_function(merge_blocks),
+        SubroutineOptimization.from_function(remove_linear_jumps),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
         SubroutineOptimization.from_function(repeated_expression_elimination),
         SubroutineOptimization.from_function(encode_decode_pair_elimination),
