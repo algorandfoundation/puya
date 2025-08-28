@@ -8,7 +8,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import get_definition
 from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.types_ import PrimitiveIRType
-from puya.utils import unique
 
 logger = log.get_logger(__name__)
 
@@ -23,10 +22,8 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
     modified_phis = []
 
     def remove_target(parent: models.BasicBlock, to_remove: models.BasicBlock) -> None:
-        to_remove.predecessors.remove(parent)
-        for other_phi in to_remove.phis:
-            other_phi.args = [arg for arg in other_phi.args if arg.through is not parent]
-            modified_phis.append(other_phi)
+        if to_remove.remove_predecessor(parent):
+            modified_phis.extend(to_remove.phis)
 
     for block in subroutine.body:
         terminator = block.terminator
@@ -156,7 +153,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 block.terminator = models.Goto(
                     source_location=terminator.source_location, target=goto
                 )
-                for target in unique(terminator.targets()):
+                for target in terminator.targets():
                     if target is not goto:
                         remove_target(block, target)
             case models.GotoNth(

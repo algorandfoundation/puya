@@ -74,7 +74,7 @@ class BlocksBuilder:
                     f"Cannot add predecessor to block, as it is already sealed: "
                     f"predecessor={curr}, block={target}"
                 )
-            target.predecessors.append(curr)
+            target.add_predecessor(curr)
 
         curr.terminator = control_op
         logger.debug(f"Terminated {curr}")

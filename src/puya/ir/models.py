@@ -164,6 +164,10 @@ class ControlOp(IRVisitable, _Freezable, abc.ABC):
     def unique_targets(self) -> list["BasicBlock"]:
         return unique(self.targets())
 
+    @abc.abstractmethod
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        """Switch out target references to `find` with `replace`"""
+
 
 @attrs.frozen
 class Register(Value):
@@ -890,7 +894,7 @@ class BasicBlock(Context):
     phis: list[Phi] = attrs.field(factory=list)
     ops: list[Op] = attrs.field(factory=list)
     terminator: ControlOp | None = attrs.field(default=None)
-    predecessors: "list[BasicBlock]" = attrs.field(factory=list)
+    _predecessors: "dict[BasicBlock, None]" = attrs.field(factory=dict)
     id: int | None = None
     label: str | None = None
     comment: str | None = None
@@ -919,6 +923,52 @@ class BasicBlock(Context):
         if self.terminator is None:
             return ()
         return self.terminator.unique_targets
+
+    def add_predecessor(self, predecessor: "BasicBlock") -> None:
+        self._predecessors[predecessor] = None
+
+    def discard_predecessor(self, predecessor: "BasicBlock") -> bool:
+        try:
+            self._predecessors.pop(predecessor)
+        except KeyError:
+            return False
+        else:
+            return True
+
+    def remove_predecessor(self, predecessor: "BasicBlock") -> bool:
+        if not self.discard_predecessor(predecessor):
+            return False
+        for phi in self.phis:
+            for arg_idx, phi_arg in enumerate(phi.args):
+                if phi_arg.through == predecessor:
+                    phi.args.pop(arg_idx)
+                    break
+            else:
+                raise InternalError(
+                    "inconsistency between phi operands and predecessors", self.source_location
+                )
+        return True
+
+    def replace_predecessor(self, *, old: "BasicBlock", new: "BasicBlock") -> None:
+        self._predecessors.pop(old)
+        for phi in self.phis:
+            for phi_arg in phi.args:
+                if phi_arg.through == old:
+                    phi_arg.through = new
+                    break
+            else:
+                raise InternalError(
+                    "inconsistency between phi operands and predecessors", self.source_location
+                )
+        self.add_predecessor(new)
+        logger.debug(f"Replaced predecessor {old} with {new} in {self}")
+
+    def set_predecessors(self, predecessors: Iterable["BasicBlock"]) -> None:
+        self._predecessors = dict.fromkeys(predecessors)
+
+    @property
+    def predecessors(self) -> Set["BasicBlock"]:
+        return self._predecessors.keys()
 
     @property
     def is_empty(self) -> bool:
@@ -969,6 +1019,12 @@ class ConditionalBranch(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_conditional_branch(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        if self.non_zero is find:
+            self.non_zero = replace
+        if self.zero is find:
+            self.zero = replace
+
 
 @attrs.define(eq=False)
 class Goto(ControlOp):
@@ -987,6 +1043,10 @@ class Goto(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        if self.target is find:
+            self.target = replace
 
 
 @attrs.define(eq=False)
@@ -1008,6 +1068,13 @@ class GotoNth(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        for index, block in enumerate(self.blocks):
+            if block is find:
+                self.blocks[index] = replace
+        if self.default is find:
+            self.default = replace
 
 
 @attrs.define(eq=False)
@@ -1044,6 +1111,13 @@ class Switch(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        for case, target in self.cases.items():
+            if target is find:
+                self.cases[case] = replace
+        if self.default is find:
+            self.default = replace
+
 
 @attrs.define(eq=False)
 class SubroutineReturn(ControlOp):
@@ -1062,6 +1136,9 @@ class SubroutineReturn(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_subroutine_return(self)
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
 
 
 @attrs.define(eq=False)
@@ -1087,6 +1164,9 @@ class ProgramExit(ControlOp):
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_program_exit(self)
 
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
+
 
 @attrs.define(eq=False)
 class Fail(ControlOp):
@@ -1109,6 +1189,9 @@ class Fail(ControlOp):
 
     def _frozen_data(self) -> object:
         return self.error_message
+
+    def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
+        pass
 
 
 @attrs.frozen
@@ -1172,12 +1255,11 @@ class Subroutine(Context):
                     f"{block} of subroutine {self.id} has predecessor block(s) outside of list",
                     block.source_location,
                 )
-            block_predecessors = dict.fromkeys(block.predecessors)
             for phi in block.phis:
                 phi_blocks = dict.fromkeys(a.through for a in phi.args)
-                if block_predecessors.keys() != phi_blocks.keys():
+                if block.predecessors != phi_blocks.keys():
                     phi_block_labels = list(map(str, phi_blocks.keys()))
-                    pred_block_labels = list(map(str, block_predecessors.keys()))
+                    pred_block_labels = list(map(str, block.predecessors))
                     raise InternalError(
                         f"{self.id}: mismatch between phi predecessors ({phi_block_labels})"
                         f" and {block} predecessors ({pred_block_labels})"
@@ -1230,9 +1312,9 @@ class Subroutine(Context):
 
         for block, block_copy in zip(self.body, sub.body, strict=True):
             block_copy.terminator = copy.deepcopy(block.terminator, memo)
-            block_copy.phis = copy.deepcopy(block.phis, memo)
-            block_copy.ops = copy.deepcopy(block.ops, memo)
-            block_copy.predecessors = copy.deepcopy(block.predecessors, memo)
+            block_copy.phis[:] = copy.deepcopy(block.phis, memo)
+            block_copy.ops[:] = copy.deepcopy(block.ops, memo)
+            block_copy._predecessors = copy.deepcopy(block._predecessors, memo)  # noqa: SLF001
         attrs.validate(sub)
         return sub
 

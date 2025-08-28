@@ -1,11 +1,10 @@
 import typing
-from collections.abc import Iterable, Sequence, Set
+from collections.abc import Iterable
 
 import attrs
 
 from puya import log
 from puya.context import CompileContext
-from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
@@ -305,55 +304,24 @@ class UnusedRegisterCollector(visitor.IRTraverser):
 
 def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     reachable_set = frozenset(bfs_block_order(subroutine.entry))
-    unreachable_blocks = [b for b in subroutine.body if b not in reachable_set]
-    if not unreachable_blocks:
+    if len(reachable_set) == len(subroutine.body):
         return False
 
-    logger.debug(f"Removing unreachable blocks: {', '.join(map(str, unreachable_blocks))}")
-
-    reachable_blocks = []
-    for block in subroutine.body:
+    reachable_blocks = [subroutine.body[0]]
+    modified_blocks = dict[models.BasicBlock, None]()
+    for block in subroutine.body[1:]:
         if block in reachable_set:
             reachable_blocks.append(block)
-            if not reachable_set.issuperset(block.successors):
-                raise InternalError(
-                    f"Block {block} has unreachable successor(s),"
-                    f" but was not marked as unreachable itself"
-                )
-            if not reachable_set.issuperset(block.predecessors):
-                block.predecessors = [b for b in block.predecessors if b in reachable_set]
-                logger.debug(f"Removed unreachable predecessors from {block}")
+        else:
+            logger.debug(f"Removing unreachable block: {block}")
+            for succ in block.successors:
+                if succ in reachable_set:
+                    did_remove = succ.remove_predecessor(block)
+                    assert did_remove
+                    modified_blocks[succ] = None
 
-    UnreachablePhiArgsRemover.apply(unreachable_blocks, reachable_blocks)
-    subroutine.body = reachable_blocks
+    for block in modified_blocks:
+        for phi in block.phis:
+            TrivialPhiRemover.try_remove(phi, reachable_blocks)
+    subroutine.body[:] = reachable_blocks
     return True
-
-
-@attrs.define
-class UnreachablePhiArgsRemover(visitor.IRTraverser):
-    _unreachable_blocks: Set[models.BasicBlock]
-    _reachable_blocks: Sequence[models.BasicBlock]
-
-    @classmethod
-    def apply(
-        cls,
-        unreachable_blocks: Sequence[models.BasicBlock],
-        reachable_blocks: Sequence[models.BasicBlock],
-    ) -> None:
-        collector = cls(frozenset(unreachable_blocks), reachable_blocks)
-        collector.visit_all_blocks(reachable_blocks)
-
-    def visit_phi(self, phi: models.Phi) -> None:
-        args_to_remove = [a for a in phi.args if a.through in self._unreachable_blocks]
-        if not args_to_remove:
-            return
-        logger.debug(
-            "Removing unreachable phi arguments: " + ", ".join(sorted(map(str, args_to_remove)))
-        )
-        phi.args = [a for a in phi.args if a not in args_to_remove]
-        if not phi.non_self_args:
-            raise InternalError(
-                f"undefined phi created when removing args through "
-                f"{', '.join(map(str, self._unreachable_blocks))}"
-            )
-        TrivialPhiRemover.try_remove(phi, self._reachable_blocks)

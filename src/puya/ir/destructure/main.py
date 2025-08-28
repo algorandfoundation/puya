@@ -20,7 +20,7 @@ def destructure_ssa(context: ArtifactCompileContext, program: models.Program) ->
         destructure_cssa(subroutine)
         coalesce_locals(subroutine, context.options.locals_coalescing_strategy)
         sequentialize_parallel_copies(subroutine)
-        post_ssa_optimizer(subroutine, context.options.optimization_level)
+        post_ssa_optimizer(context, subroutine)
         attrs.validate(subroutine)
     if context.options.output_destructured_ir:
         render_program(context, program, qualifier="destructured")

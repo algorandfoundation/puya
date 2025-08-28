@@ -216,10 +216,10 @@ def _inline_call(
     terminator_after = block.terminator
     assert terminator_after is not None
     for succ in terminator_after.unique_targets:
-        succ.predecessors.remove(block)
+        succ.discard_predecessor(block)
     inlined_entry = new_blocks[0]
     block.terminator = models.Goto(target=inlined_entry, source_location=call.source_location)
-    inlined_entry.predecessors.append(block)
+    inlined_entry.add_predecessor(block)
     for phi in inlined_entry.phis:
         # TODO: assign undefined and use that as phi arg so we can inline phi nodes with args.
         #       this requires finding a new register though, and is quite hard to write code
@@ -256,10 +256,8 @@ def _inline_call(
     # create the return block and insert as a predecessor of the original blocks target(s)
     remainder = models.BasicBlock(
         id=next(next_id),
-        phis=[],
         ops=ops_after,
         terminator=terminator_after,
-        predecessors=[],
         comment=f"after_inlined_{call.target.id}",
         source_location=block.source_location,
     )
@@ -268,11 +266,11 @@ def _inline_call(
             for phi_arg in phi.args:
                 if phi_arg.through == block:
                     phi_arg.through = remainder
-        succ.predecessors.append(remainder)
+        succ.add_predecessor(remainder)
     # replace inlined retsubs with unconditional branches to the second block half
     for new_block, _ in returning_blocks:
         new_block.terminator = models.Goto(target=remainder, source_location=call.source_location)
-        remainder.predecessors.append(new_block)
+        remainder.add_predecessor(new_block)
 
     num_returns = len(returning_blocks)
     if num_returns == 0:

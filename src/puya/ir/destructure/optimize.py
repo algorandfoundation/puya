@@ -1,71 +1,48 @@
-import contextlib
-import itertools
+import attrs
 
 from puya import log
+from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
-from puya.utils import unique
+from puya.ir.optimize.collapse_blocks import remove_linear_jumps, retarget_and_simplify
 
 logger = log.get_logger(__name__)
 
 
-def post_ssa_optimizer(sub: models.Subroutine, optimization_level: int) -> None:
+def post_ssa_optimizer(context: CompileContext, sub: models.Subroutine) -> None:
+    optimization_level = context.options.optimization_level
     logger.debug(f"Performing post-SSA optimizations at level {optimization_level}")
-    if optimization_level >= 1:
-        _remove_linear_jumps(sub)
-    if optimization_level >= 2:
-        _block_deduplication(sub)
+    modified = False
+    if optimization_level >= 1:  # noqa: SIM102
+        # re-run jump-block removal now that phis have been removed
+        if remove_linear_jumps(context, sub):
+            modified = True
+    if optimization_level >= 2:  # noqa: SIM102
+        # block deduplication is only done at level 2 or above,
+        # as it could potentially produce less debuggable code
+        if _block_deduplication(context, sub):
+            modified = True
+    if modified:
+        attrs.validate(sub)
 
 
-def _remove_linear_jumps(subroutine: models.Subroutine) -> None:
-    #  P = {p0, p1, ..., pn} -> {j} -> {t}
-    # remove {j} from subroutine
-    # point P at t:
-    #  update references within P from j to t
-    #  ensure P are all in predecessors of t
-    # This exists here and not in main IR optimization loop because we only want to do it for
-    # blocks that are _truly_ empty, not ones that contain phi-node magic that results in copies
-    # build a map of any blocks that are just an unconditional branch to their targets
-    jumps = dict[models.BasicBlock, models.BasicBlock]()
-    for block in subroutine.body.copy():
-        match block:
-            case models.BasicBlock(
-                ops=[], terminator=models.Goto(target=target)
-            ) if target is not block:
-                jumps[block] = target
-                logger.debug(f"Removing jump block {block}")
-                with contextlib.suppress(ValueError):
-                    target.predecessors.remove(block)
-                subroutine.body.remove(block)
-
-    # now back-propagate any chains
-    replacements = dict[models.BasicBlock, models.BasicBlock]()
-    for src, target in jumps.items():
-        while True:
-            try:
-                target = jumps[target]
-            except KeyError:
-                break
-        logger.debug(f"branching to {src} will be replaced with {target}")
-        replacements[src] = target
-        BlockReferenceReplacer.apply(find=src, replacement=target, blocks=subroutine.body)
-        for pred in src.predecessors:
-            if pred not in target.predecessors:
-                target.predecessors.append(pred)
-
-
-def _block_deduplication(subroutine: models.Subroutine) -> None:
+def _block_deduplication(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     seen = dict[tuple[object, ...], models.BasicBlock]()
-    for block in subroutine.body.copy():
+    modified = False
+    blocks = []
+    for block in subroutine.body:
+        blocks.append(block)
         all_ops = tuple(op.freeze() for op in block.all_ops)
-        if existing := seen.get(all_ops):
+        first = seen.setdefault(all_ops, block)
+        if first is not block:
+            duplicate = block
+            modified = True
+            blocks.pop()
             logger.debug(
-                f"Removing duplicated block {block} and updating references to {existing}"
+                f"Removing duplicated block {duplicate} and updating references to {first}"
             )
-            BlockReferenceReplacer.apply(find=block, replacement=existing, blocks=subroutine.body)
-            subroutine.body.remove(block)
-            existing.predecessors = unique(
-                itertools.chain(existing.predecessors, block.predecessors)
-            )
-        else:
-            seen[all_ops] = block
+            for succ in duplicate.successors:
+                succ.replace_predecessor(old=duplicate, new=first)
+            retarget_and_simplify(old=duplicate, new=first)
+    if modified:
+        subroutine.body[:] = blocks
+    return modified
