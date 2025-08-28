@@ -1,9 +1,7 @@
 import itertools
 import typing
 import typing as t
-from collections.abc import Iterable, Sequence
-
-import attrs
+from collections.abc import Iterable, Mapping, Sequence
 
 from puya import log
 from puya.avm import AVMType
@@ -20,13 +18,54 @@ from puya.utils import StableSet
 logger = log.get_logger(__name__)
 
 
-@attrs.define
-class MemoryReplacerWithRedundantAssignmentRemoval(MemoryReplacer):
-    def visit_assignment(self, op: models.Assignment) -> models.Assignment | None:
-        ass = super().visit_assignment(op) or op
-        if ass.targets == (ass.source,):
-            self.remove_current_op()
-        return None
+def _replace_registers_and_remove_redundant_assignments(
+    blocks: Iterable[models.BasicBlock],
+    *,
+    replacements: Mapping[models.Register, models.Register],
+) -> int:
+    if not replacements:
+        return 0
+    replacer = MemoryReplacer(replacements=replacements)
+    for block in blocks:
+        assert not block.phis, "coalescing runs after phi-node removal"
+        ops = list[models.Op]()
+        for op in block.ops:
+            replacement = op.accept(replacer)
+            assert replacement is None, "MemoryReplacer should modify in-place"
+            if not _assignment_eliminated(op):
+                ops.append(op)
+        block.ops[:] = ops
+        assert block.terminator is not None
+        replacement = block.terminator.accept(replacer)
+        assert replacement is None, "MemoryReplacer should modify in-place"
+    return replacer.replaced
+
+
+def _assignment_eliminated(op: models.Op) -> bool:
+    """
+    Removes redundant copy(s) if op is an Assignment.
+    If an assignment becomes a no-op, returns True.
+    """
+    if type(op) is not models.Assignment:
+        return False
+    ass: models.Assignment = op
+    source = ass.source
+    if isinstance(source, models.Register):
+        (target,) = ass.targets
+        if source == target:
+            return True
+    elif type(source) is models.ValueTuple:
+        redundant_indexes = [
+            idx
+            for idx, (dst, src) in enumerate(zip(ass.targets, source.values, strict=True))
+            if dst == src
+        ]
+        if len(redundant_indexes) == len(ass.targets):
+            return True
+        for idx in reversed(redundant_indexes):
+            ass.targets.pop(idx)
+            source.values.pop(idx)
+    return False
 
 
 class CoalesceGroupStrategy[TKey](t.Protocol):
@@ -111,7 +150,7 @@ def coalesce_registers(
 
             logger.debug(f"Coalescing {replacement} with [{', '.join(map(str, find))}]")
             replacements.update({to_find: replacement for to_find in find})
-    total_replacements = MemoryReplacerWithRedundantAssignmentRemoval.apply(
+    total_replacements = _replace_registers_and_remove_redundant_assignments(
         sub.body, replacements=replacements
     )
     return total_replacements

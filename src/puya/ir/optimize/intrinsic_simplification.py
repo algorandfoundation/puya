@@ -5,7 +5,7 @@ import math
 import operator
 import typing
 from collections import defaultdict, deque
-from collections.abc import Callable, Container, Generator, Iterable, Mapping, Sequence, Set
+from collections.abc import Callable, Container, Generator, Iterable, Mapping, Set
 from itertools import zip_longest
 
 import attrs
@@ -209,10 +209,9 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
                             )
                             modified += 1
                             # we've checked this isn't used, so it's safe to just change it's type
-                            len_register = attrs.evolve(
+                            ass.targets[0] = attrs.evolve(
                                 maybe_value, ir_type=PrimitiveIRType.uint64
                             )
-                            ass.targets = (len_register, exists)
                             ass.source = attrs.evolve(
                                 intrinsic,
                                 op=AVMOp.box_len,
@@ -232,13 +231,13 @@ class _AssignmentWorkQueue:
     def __init__(self, constant_evaluable: Container[str]) -> None:
         self._constant_evaluable = constant_evaluable
         self._dq = deque[tuple[models.Assignment, models.Intrinsic]]()
-        self._set = set[Sequence[models.Register]]()
+        self._set = set[models.Assignment]()
 
     def enqueue(self, op: models.Assignment) -> bool:
         if (
             isinstance(op.source, models.Intrinsic)
             and op.source.op.code in self._constant_evaluable
-            and set_add(self._set, op.targets)
+            and set_add(self._set, op)
         ):
             self._dq.append((op, op.source))
             return True
@@ -247,7 +246,7 @@ class _AssignmentWorkQueue:
     def dequeue(self) -> tuple[models.Assignment, models.Intrinsic]:
         op, source = self._dq.popleft()
         assert source is op.source
-        self._set.remove(op.targets)
+        self._set.remove(op)
         return op, source
 
     def __bool__(self) -> int:
