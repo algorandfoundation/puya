@@ -14,10 +14,8 @@ class IRMutator(IRVisitor[typing.Any]):
     replacement values.
 
     A return value of None indicates nothing is modified
-    Phis cannot be replaced or removed, but can be modified during visitation
-    ControlOps can be replaced but not removed
-    Ops can be removed by using remove_op, this is only required there is not a direct replacement
-    Ops can be inserted before the current op being visited using add_op
+    Phis cannot be replaced, but can be still be modified in-place during visitation
+    Ops can be inserted before the current Op | ControlOp being visited using `insert_op`.
     Registers can be replaced via two overrides:
         visit_register_define will replace registers used in assignment and phi targets
         visit_register will allow replacements for register reads
@@ -25,18 +23,13 @@ class IRMutator(IRVisitor[typing.Any]):
     """
 
     _inserted_ops: list[ir.Op] = attrs.field(factory=list, init=False)
-    _remove_current_op: bool = attrs.field(default=False, init=False)
 
     def insert_op(self, op: ir.Op) -> None:
         self._inserted_ops.append(op)
 
-    def remove_current_op(self) -> None:
-        self._remove_current_op = True
-
     def visit_block(self, block: ir.BasicBlock) -> None:
         for phi in block.phis:
             phi.accept(self)
-            assert not self._remove_current_op, "cannot remove phi nodes"
             assert not self._inserted_ops, "cannot insert ops before phi node"
 
         ops = []
@@ -45,15 +38,10 @@ class IRMutator(IRVisitor[typing.Any]):
             if self._inserted_ops:
                 ops.extend(self._inserted_ops)
                 self._inserted_ops.clear()
-            if self._remove_current_op:
-                assert maybe_replacement is None, "don't need to remove an op if replacing"
-                self._remove_current_op = False
-            else:
-                ops.append(maybe_replacement or op)
+            ops.append(maybe_replacement or op)
 
         if block.terminator is not None:
             maybe_replacement = block.terminator.accept(self)
-            assert not self._remove_current_op, "cannot remove terminator"
             if self._inserted_ops:
                 ops.extend(self._inserted_ops)
                 self._inserted_ops.clear()

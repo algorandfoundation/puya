@@ -2,7 +2,7 @@ import copy
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
@@ -197,7 +197,7 @@ def _inline_call(
     call: models.InvokeSubroutine,
     next_id: Iterator[int],
     op_index: int,
-    return_targets: Sequence[models.Register],
+    return_targets: list[models.Register],
     host_assigned_registers: list[models.Register],
 ) -> tuple[models.BasicBlock, list[models.BasicBlock]]:
     # make a copy of the entire block graph, and adjust register versions
