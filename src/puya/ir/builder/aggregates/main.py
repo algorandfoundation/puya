@@ -24,7 +24,9 @@ def lower_aggregate_nodes(program: ir.Program) -> None:
         replacer = _AggregateNodeReplacer(
             embedded_funcs=embedded_funcs, subroutine=sub, temp_prefix="aggregate"
         )
-        replacer.process_and_validate()
+        for block in sub.body:
+            replacer.visit_block(block)
+        sub.validate_with_ssa()
 
 
 @attrs.define(kw_only=True)

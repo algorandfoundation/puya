@@ -26,15 +26,34 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
         factory=lambda: defaultdict(itertools.count)
     )
     _embedded_funcs: Mapping[PuyaLibIR, Subroutine]
+    _inserted_ops: list[ir.Op] = attrs.field(factory=list, init=False)
+
+    @typing.override
+    def visit_block(self, block: ir.BasicBlock) -> None:
+        for phi in block.phis:
+            phi.accept(self)
+            assert not self._inserted_ops, "cannot insert ops before phi node"
+
+        ops = []
+        for op in block.ops:
+            maybe_replacement = op.accept(self)
+            if self._inserted_ops:
+                ops.extend(self._inserted_ops)
+                self._inserted_ops.clear()
+            ops.append(maybe_replacement or op)
+
+        if block.terminator is not None:
+            maybe_replacement = block.terminator.accept(self)
+            if self._inserted_ops:
+                ops.extend(self._inserted_ops)
+                self._inserted_ops.clear()
+            if maybe_replacement:
+                block.terminator = maybe_replacement
+        block.ops[:] = ops
 
     @_versions.default
     def _versions_factory(self) -> dict[str, int]:
         return _VersionGatherer.gather(self.subroutine)
-
-    def process_and_validate(self) -> None:
-        for block in self.subroutine.body:
-            self.visit_block(block)
-        self.subroutine.validate_with_ssa()
 
     @typing.override
     def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
@@ -98,11 +117,11 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
     def add_assignment(
         self, targets: list[ir.Register], source: ir.ValueProvider, loc: SourceLocation | None
     ) -> None:
-        self.insert_op(ir.Assignment(targets=targets, source=source, source_location=loc))
+        self.add_op(ir.Assignment(targets=targets, source=source, source_location=loc))
 
     @typing.override
     def add_op(self, op: ir.Op) -> None:
-        self.insert_op(op)
+        self._inserted_ops.append(op)
 
 
 @attrs.define

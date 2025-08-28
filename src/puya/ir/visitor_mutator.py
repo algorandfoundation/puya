@@ -22,32 +22,12 @@ class IRMutator(IRVisitor[typing.Any]):
     ValueProviders and Values can only be replaced
     """
 
-    _inserted_ops: list[ir.Op] = attrs.field(factory=list, init=False)
-
-    def insert_op(self, op: ir.Op) -> None:
-        self._inserted_ops.append(op)
-
     def visit_block(self, block: ir.BasicBlock) -> None:
-        for phi in block.phis:
-            phi.accept(self)
-            assert not self._inserted_ops, "cannot insert ops before phi node"
-
-        ops = []
-        for op in block.ops:
+        for op in block.all_ops:
             maybe_replacement = op.accept(self)
-            if self._inserted_ops:
-                ops.extend(self._inserted_ops)
-                self._inserted_ops.clear()
-            ops.append(maybe_replacement or op)
-
-        if block.terminator is not None:
-            maybe_replacement = block.terminator.accept(self)
-            if self._inserted_ops:
-                ops.extend(self._inserted_ops)
-                self._inserted_ops.clear()
-            if maybe_replacement:
-                block.terminator = maybe_replacement
-        block.ops[:] = ops
+            # if op-level replacement is needed, consider extending MutatingRegisterContext or
+            # extracting the logic from visit_block there perhaps
+            assert maybe_replacement is None, "IRMutator cannot perform op-level replacement"
 
     def _visit_sequence[T: ir.ValueProvider](self, seq: list[T]) -> None:
         for idx, value in enumerate(seq):
@@ -79,7 +59,7 @@ class IRMutator(IRVisitor[typing.Any]):
                 if replacement_targets is None:
                     replacement_targets = list(ass.targets)
                 replacement_targets[idx] = replacement
-        if replacement_targets:
+        if replacement_targets is not None:
             ass.targets = replacement_targets
         if replacement := ass.source.accept(self):
             ass.source = replacement
