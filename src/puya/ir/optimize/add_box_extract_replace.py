@@ -168,12 +168,12 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         )
         return new_read
 
-    def visit_box_write(self, write: models.BoxWrite) -> None:
+    def visit_box_write(self, write: models.BoxWrite) -> models.Op | None:
         # find aggregate
         try:
             agg_write = self.aggregates.replace_values[write.value]
         except KeyError:
-            return
+            return None
 
         # only support fixed size writes
         encoding = agg_write.base_type.encoding
@@ -187,24 +187,23 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             else:
                 raise InternalError("invalid index sequence", agg_write.source_location)
         if encoding.is_dynamic:
-            return
+            return None
 
         # find corresponding read
         try:
             read_src = self.aggregates.box_reads[agg_write.base]
         except KeyError:
-            return
+            return None
 
         # can only do an in-place update if the agg write was for a value from the same box
         if write.key != read_src.key:
-            return
+            return None
 
         self.modified = True
         merged_loc = sequential_source_locations_merge(
             (write.source_location, agg_write.source_location, read_src.source_location)
         )
         new_write = _combine_aggregate_and_box_write(self, agg_write, write.key, merged_loc)
-        self.add_op(new_write)
         logger.debug(
             f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
             f"and ReplaceValue `{write.value!s} = {agg_write!s}`\n"
@@ -212,7 +211,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             f"into {new_write!s}",
             location=merged_loc,
         )
-        self.remove_op(write)
+        return new_write
 
 
 def _combine_box_and_aggregate_read(

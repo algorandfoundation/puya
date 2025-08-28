@@ -25,7 +25,7 @@ class MemoryReplacerWithRedundantAssignmentRemoval(MemoryReplacer):
     def visit_assignment(self, op: models.Assignment) -> models.Assignment | None:
         ass = super().visit_assignment(op) or op
         if ass.targets == (ass.source,):
-            self.remove_op(ass)
+            self.remove_current_op()
         return None
 
 

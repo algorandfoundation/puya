@@ -135,7 +135,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         return box_value
 
     @typing.override
-    def visit_box_write(self, write: ir.BoxWrite) -> None:
+    def visit_box_write(self, write: ir.BoxWrite) -> ir.Intrinsic:
         if write.delete_first:
             self.add_op(
                 ir.Intrinsic(
@@ -144,11 +144,8 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
                     source_location=write.source_location,
                 )
             )
-        self.add_op(
-            ir.Intrinsic(
-                op=AVMOp.box_put,
-                args=[write.key, write.value],
-                source_location=write.source_location,
-            )
+        return ir.Intrinsic(
+            op=AVMOp.box_put,
+            args=[write.key, write.value],
+            source_location=write.source_location,
         )
-        self.remove_op(write)
