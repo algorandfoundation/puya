@@ -98,7 +98,11 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
     def add_assignment(
         self, targets: list[ir.Register], source: ir.ValueProvider, loc: SourceLocation | None
     ) -> None:
-        self.add_op(ir.Assignment(targets=targets, source=source, source_location=loc))
+        self.insert_op(ir.Assignment(targets=targets, source=source, source_location=loc))
+
+    @typing.override
+    def add_op(self, op: ir.Op) -> None:
+        self.insert_op(op)
 
 
 @attrs.define

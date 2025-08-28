@@ -524,13 +524,17 @@ class BoxWrite(Op):
         return visitor.visit_box_write(self)
 
 
+def _value_sequence(values: Sequence[Value]) -> list[Value]:
+    return list(values)
+
+
 @attrs.define(eq=False)
 class BytesEncode(ValueProvider):
     """Encodes a sequence of values into encoded bytes"""
 
     source_location: SourceLocation = attrs.field(eq=False)
     encoding: Encoding
-    values: Sequence[Value]
+    values: list[Value] = attrs.field(converter=_value_sequence)
     values_type: IRType | TupleIRType = attrs.field()
     error_message_override: str | None = attrs.field(default=None, eq=False)
 
@@ -804,7 +808,7 @@ class InvokeSubroutine(Op, ValueProvider):
 
 @attrs.define(eq=False)
 class ValueTuple(ValueProvider):
-    values: Sequence[Value]
+    values: list[Value] = attrs.field(converter=_value_sequence)
     ir_type: TupleIRType = attrs.field()
 
     @ir_type.default

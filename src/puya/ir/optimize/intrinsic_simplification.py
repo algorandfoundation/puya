@@ -311,12 +311,12 @@ class _RegisterValueReplacer(IRMutator):
 
     @typing.override
     def visit_register_define(self, _reg: models.Register) -> None:
-        return None
+        pass
 
     @typing.override
-    def visit_phi(self, phi: models.Phi) -> models.Phi:
-        # don't visit phi nodes, needs to stay as Register
-        return phi
+    def visit_phi(self, phi: models.Phi) -> None:
+        # don't visit phi nodes / args, needs to stay as Register
+        pass
 
     @typing.override
     def visit_register(self, reg: models.Register) -> models.Value | None:

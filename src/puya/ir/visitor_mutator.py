@@ -1,5 +1,4 @@
 import typing
-from collections.abc import Sequence
 
 import attrs
 
@@ -26,63 +25,51 @@ class IRMutator(IRVisitor[typing.Any]):
     """
 
     _inserted_ops: list[ir.Op] = attrs.field(factory=list, init=False)
-    _removed_op: ir.Op | None = attrs.field(default=None, init=False)
+    _remove_current_op: bool = attrs.field(default=False, init=False)
 
-    def add_op(self, op: ir.Op) -> None:
+    def insert_op(self, op: ir.Op) -> None:
         self._inserted_ops.append(op)
 
-    def remove_op(self, op: ir.Op) -> None:
-        assert self._removed_op is None, "cannot remove op twice"
-        self._removed_op = op
+    def remove_current_op(self) -> None:
+        self._remove_current_op = True
 
     def visit_block(self, block: ir.BasicBlock) -> None:
         for phi in block.phis:
             phi.accept(self)
+            assert not self._remove_current_op, "cannot remove phi nodes"
+            assert not self._inserted_ops, "cannot insert ops before phi node"
 
-        idx = 0
-        ops = block.ops
-        for op in ops.copy():
+        ops = []
+        for op in block.ops:
             maybe_replacement = op.accept(self)
             if self._inserted_ops:
-                ops[idx:idx] = self._inserted_ops
-                idx += len(self._inserted_ops)
+                ops.extend(self._inserted_ops)
                 self._inserted_ops.clear()
-            if op is self._removed_op:
-                if maybe_replacement:
-                    raise InternalError(
-                        "don't need to remove an op if replacing", op.source_location
-                    )
-                ops.pop(idx)
-                self._removed_op = None
-                continue
-            if self._removed_op:
-                raise InternalError("Can only remove currently visited op", op.source_location)
-            if maybe_replacement:
-                ops[idx] = maybe_replacement
-            idx += 1
+            if self._remove_current_op:
+                assert maybe_replacement is None, "don't need to remove an op if replacing"
+                self._remove_current_op = False
+            else:
+                ops.append(maybe_replacement or op)
 
         if block.terminator is not None:
             maybe_replacement = block.terminator.accept(self)
+            assert not self._remove_current_op, "cannot remove terminator"
             if self._inserted_ops:
-                ops[idx:idx] = self._inserted_ops
-                idx += len(self._inserted_ops)
+                ops.extend(self._inserted_ops)
                 self._inserted_ops.clear()
             if maybe_replacement:
                 block.terminator = maybe_replacement
+        block.ops[:] = ops
 
-    def visit_sequence[T: ir.ValueProvider](self, seq: Sequence[T]) -> list[T] | None:
-        new_seq = None
+    def _visit_sequence[T: ir.ValueProvider](self, seq: list[T]) -> None:
         for idx, value in enumerate(seq):
             if replacement := value.accept(self):
-                if new_seq is None:
-                    new_seq = list(seq)
-                new_seq[idx] = replacement
-        return new_seq
+                seq[idx] = replacement
 
     def visit_register_define(self, reg: ir.Register) -> ir.Register | None:
         """Override to replace a register definition in assignment and phi nodes"""
         maybe_reg = self.visit_register(reg)
-        if maybe_reg is not None and not isinstance(maybe_reg, ir.Register):
+        if not isinstance(maybe_reg, ir.Register | None):
             raise InternalError(
                 "can only replace register definitions with another register",
                 reg.source_location,
@@ -90,12 +77,11 @@ class IRMutator(IRVisitor[typing.Any]):
         return maybe_reg
 
     @typing.override
-    def visit_phi(self, phi: ir.Phi) -> ir.Phi | None:
+    def visit_phi(self, phi: ir.Phi) -> None:
         if replacement := self.visit_register_define(phi.register):
             phi.register = replacement
         for arg in phi.args:
             arg.accept(self)
-        return None
 
     @typing.override
     def visit_assignment(self, ass: ir.Assignment) -> ir.Assignment | None:
@@ -207,8 +193,7 @@ class IRMutator(IRVisitor[typing.Any]):
 
     @typing.override
     def visit_bytes_encode(self, encode: ir.BytesEncode) -> ir.ValueProvider | None:
-        if replacement := self.visit_sequence(encode.values):
-            encode.values = replacement
+        self._visit_sequence(encode.values)
         return None
 
     @typing.override
@@ -219,8 +204,7 @@ class IRMutator(IRVisitor[typing.Any]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> ir.ValueProvider | ir.Op | None:
-        if replacement := self.visit_sequence(intrinsic.args):
-            intrinsic.args = replacement
+        self._visit_sequence(intrinsic.args)
         return None
 
     @typing.override
@@ -239,8 +223,7 @@ class IRMutator(IRVisitor[typing.Any]):
     def visit_invoke_subroutine(
         self, callsub: ir.InvokeSubroutine
     ) -> ir.ValueProvider | ir.Op | None:
-        if replacement := self.visit_sequence(callsub.args):
-            callsub.args = replacement
+        self._visit_sequence(callsub.args)
         return None
 
     @typing.override
@@ -268,8 +251,7 @@ class IRMutator(IRVisitor[typing.Any]):
 
     @typing.override
     def visit_subroutine_return(self, retsub: ir.SubroutineReturn) -> ir.ControlOp | None:
-        if replacement := self.visit_sequence(retsub.result):
-            retsub.result = replacement
+        self._visit_sequence(retsub.result)
         return None
 
     @typing.override
@@ -288,8 +270,7 @@ class IRMutator(IRVisitor[typing.Any]):
 
     @typing.override
     def visit_value_tuple(self, tup: ir.ValueTuple) -> ir.ValueProvider | None:
-        if replacement := self.visit_sequence(tup.values):
-            tup.values = replacement
+        self._visit_sequence(tup.values)
         return None
 
     @typing.override
