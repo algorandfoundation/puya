@@ -11,7 +11,7 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
     block@1: // while_top_L20
         let tmp%1#0: uint64 = (global OpcodeBudget)
         let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
-        goto tmp%2#0 ? block@2 : block@7
+        goto tmp%2#0 ? block@2 : block@6
     block@2: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -21,24 +21,22 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
     block@3: // switch_case_0_L28
         ((itxn_field Fee) 0u)
-        goto block@6
+        goto block@5
     block@4: // switch_case_1_L30
         let tmp%3#0: uint64 = (global MinTxnFee)
         ((itxn_field Fee) tmp%3#0)
-        goto block@6
-    block@5: // switch_case_default_L26
-        goto block@6
-    block@6: // switch_case_next_L26
+        goto block@5
+    block@5: // switch_case_next_L26
         itxn_submit
         goto block@1
-    block@7: // after_while_L20
+    block@6: // after_while_L20
         return 
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__() -> bool:
     block@0: // L4
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@5
+        goto tmp%1#0 ? block@1 : block@4
     block@1: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "verify(byte[],byte[],byte[])(byte[],bool)" => block@2, * => block@3}
@@ -50,12 +48,10 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_r
         let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
         (assert tmp%7#0) // OnCompletion must be NoOp && can only call when not creating
         test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]()
-        goto block@4
-    block@3: // switch_case_default_L4
-        goto block@4
-    block@4: // switch_case_next_L4
-        goto block@6
-    block@5: // __algopy_default_create_L1
+        goto block@3
+    block@3: // switch_case_next_L4
+        goto block@5
+    block@4: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
         let tmp%10#0: uint64 = (txn ApplicationID)
@@ -64,7 +60,7 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_r
         (assert tmp%12#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create()
         exit 1u
-    block@6: // after_if_else_L4
+    block@5: // after_if_else_L4
         exit 0u
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:

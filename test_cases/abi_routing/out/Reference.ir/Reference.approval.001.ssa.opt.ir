@@ -22,10 +22,10 @@ subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> b
     block@0: // L24
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%0#0 ? block@1 : block@24
+        goto tmp%0#0 ? block@1 : block@22
     block@1: // abi_routing_L24
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "opt_in(uint64,byte[])void" => block@2, method "all_the_things(uint64)uint8" => block@3, method "mixed_oca(uint64)uint8" => block@4, * => block@6}
+        switch tmp%2#0 {method "opt_in(uint64,byte[])void" => block@2, method "all_the_things(uint64)uint8" => block@3, method "mixed_oca(uint64)uint8" => block@4, * => block@5}
     block@2: // opt_in_route_L45
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 OptIn)
@@ -34,10 +34,10 @@ subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> b
         let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
         (assert tmp%7#0) // OnCompletion must be OptIn && can only call when not creating
         test_cases.abi_routing.contract.Reference.opt_in[routing]()
-        goto block@6
+        goto block@5
     block@3: // all_the_things_route_L50
         test_cases.abi_routing.contract.Reference.full_abi_config[routing]()
-        goto block@6
+        goto block@5
     block@4: // mixed_oca_route_L66
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: uint64 = (shl 1u tmp%8#0)
@@ -47,56 +47,56 @@ subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> b
         let tmp%13#0: bool = (&& tmp%10#0 tmp%11#0)
         (assert tmp%13#0) // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
         test_cases.abi_routing.contract.Reference.mixed_oca[routing]()
-        goto block@6
-    block@6: // switch_case_next_L24
+        goto block@5
+    block@5: // switch_case_next_L24
         let tmp%14#0: uint64 = (txn OnCompletion)
         let tmp%15#0: bool = (! tmp%14#0)
         (assert tmp%15#0) // OnCompletion must be NoOp
         let tmp%16#0: uint64 = (txn ApplicationID)
         let tmp%17#0: bool = (!= tmp%16#0 0u)
-        goto tmp%16#0 ? block@7 : block@23
-    block@7: // call_NoOp_L24
+        goto tmp%16#0 ? block@6 : block@21
+    block@6: // call_NoOp_L24
         let tmp%18#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%18#0 {method "noop_with_uint64(uint64)uint8" => block@8, method "opt_into_asset(uint64)void" => block@9, method "with_transactions(uint64,uint64,pay,uint64)void" => block@10, method "compare_assets(uint64,uint64)void" => block@11, method "get_address()address" => block@12, method "get_asset()uint64" => block@13, method "get_application()uint64" => block@14, method "get_an_int()uint64" => block@15, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@16, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@17, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@18, method "hello_with_algopy_string(string)string" => block@19, * => block@23}
-    block@8: // noop_with_uint64_route_L40
+        switch tmp%18#0 {method "noop_with_uint64(uint64)uint8" => block@7, method "opt_into_asset(uint64)void" => block@8, method "with_transactions(uint64,uint64,pay,uint64)void" => block@9, method "compare_assets(uint64,uint64)void" => block@10, method "get_address()address" => block@11, method "get_asset()uint64" => block@12, method "get_application()uint64" => block@13, method "get_an_int()uint64" => block@14, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@15, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@16, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@17, method "hello_with_algopy_string(string)string" => block@18, * => block@21}
+    block@7: // noop_with_uint64_route_L40
         test_cases.abi_routing.contract.Reference.noop_with_uint64[routing]()
-        goto block@23
-    block@9: // opt_into_asset_route_L92
+        goto block@21
+    block@8: // opt_into_asset_route_L92
         test_cases.abi_routing.contract.Reference.opt_into_asset[routing]()
-        goto block@23
-    block@10: // with_transactions_route_L109
+        goto block@21
+    block@9: // with_transactions_route_L109
         test_cases.abi_routing.contract.Reference.with_transactions[routing]()
-        goto block@23
-    block@11: // compare_assets_route_L122
+        goto block@21
+    block@10: // compare_assets_route_L122
         test_cases.abi_routing.contract.Reference.compare_assets[routing]()
-        goto block@23
-    block@12: // get_address_route_L126
+        goto block@21
+    block@11: // get_address_route_L126
         test_cases.abi_routing.contract.Reference.get_address[routing]()
-        goto block@23
-    block@13: // get_asset_route_L130
+        goto block@21
+    block@12: // get_asset_route_L130
         test_cases.abi_routing.contract.Reference.get_asset[routing]()
-        goto block@23
-    block@14: // get_application_route_L134
+        goto block@21
+    block@13: // get_application_route_L134
         test_cases.abi_routing.contract.Reference.get_app[routing]()
-        goto block@23
-    block@15: // get_an_int_route_L138
+        goto block@21
+    block@14: // get_an_int_route_L138
         test_cases.abi_routing.contract.Reference.get_a_int[routing]()
-        goto block@23
-    block@16: // method_with_default_args_route_L142
+        goto block@21
+    block@15: // method_with_default_args_route_L142
         test_cases.abi_routing.contract.Reference.method_with_default_args[routing]()
-        goto block@23
-    block@17: // method_with_15_args_route_L191
+        goto block@21
+    block@16: // method_with_15_args_route_L191
         test_cases.abi_routing.contract.Reference.method_with_15_args[routing]()
-        goto block@23
-    block@18: // method_with_more_than_15_args_route_L229
+        goto block@21
+    block@17: // method_with_more_than_15_args_route_L229
         test_cases.abi_routing.contract.Reference.method_with_more_than_15_args[routing]()
-        goto block@23
-    block@19: // hello_with_algopy_string_route_L295
+        goto block@21
+    block@18: // hello_with_algopy_string_route_L295
         test_cases.abi_routing.contract.Reference.hello_with_algopy_string[routing]()
-        goto block@23
-    block@23: // after_if_else_L24
+        goto block@21
+    block@21: // after_if_else_L24
         fail
-    block@24: // bare_abi_config_L79
+    block@22: // bare_abi_config_L79
         let tmp%19#0: uint64 = (txn ApplicationID)
         let tmp%20#0: bool = (! tmp%19#0)
         (assert tmp%20#0) // can only call when creating

@@ -15,7 +15,7 @@ main_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main___algopy_default_create@23
+    bz main___algopy_default_create@21
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -25,12 +25,9 @@ main_abi_routing@2:
     pushbytes 0x33b3499e // method "delete_application()void"
     uncover 1
     match main_delete_application_route@3
-    b main_switch_case_default@4
+    b main_switch_case_next@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
-
-main_switch_case_next@5:
+main_switch_case_next@4:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txn OnCompletion
@@ -40,10 +37,10 @@ main_switch_case_next@5:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz main_create_NoOp@21
-    b main_call_NoOp@6
+    bz main_create_NoOp@19
+    b main_call_NoOp@5
 
-main_call_NoOp@6:
+main_call_NoOp@5:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 0
@@ -60,97 +57,94 @@ main_call_NoOp@6:
     pushbytes 0x7d240945 // method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void"
     pushbytes 0x0351a9de // method "check_static_bytes(byte[32])void"
     uncover 12
-    match main_check_uint64_route@7 main_check_dynamic_bytes_route@8 main_check_string_route@9 main_check_biguint_route@10 main_check_bool_route@11 main_check_dyn_array_uin64_route@12 main_check_static_array_uin64_3_route@13 main_check_dyn_array_struct_route@14 main_check_static_array_struct_route@15 main_check_dyn_array_dyn_struct_route@16 main_check_static_array_dyn_struct_route@17 main_check_static_bytes_route@18
-    b main_switch_case_default@19
+    match main_check_uint64_route@6 main_check_dynamic_bytes_route@7 main_check_string_route@8 main_check_biguint_route@9 main_check_bool_route@10 main_check_dyn_array_uin64_route@11 main_check_static_array_uin64_3_route@12 main_check_dyn_array_struct_route@13 main_check_static_array_struct_route@14 main_check_dyn_array_dyn_struct_route@15 main_check_static_array_dyn_struct_route@16 main_check_static_bytes_route@17
+    b main_switch_case_next@18
 
-main_switch_case_default@19:
-    b main_switch_case_next@20
+main_switch_case_next@18:
+    b main_after_if_else@20
 
-main_switch_case_next@20:
+main_after_if_else@20:
     b main_after_if_else@22
 
 main_after_if_else@22:
-    b main_after_if_else@24
-
-main_after_if_else@24:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     err
 
-main_check_static_bytes_route@18:
+main_check_static_bytes_route@17:
     // arc4_conversions/contract.py:291
     // @arc4.abimethod
     callsub check_static_bytes
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_static_array_dyn_struct_route@17:
+main_check_static_array_dyn_struct_route@16:
     // arc4_conversions/contract.py:285
     // @arc4.abimethod
     callsub check_static_array_dyn_struct
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_dyn_array_dyn_struct_route@16:
+main_check_dyn_array_dyn_struct_route@15:
     // arc4_conversions/contract.py:279
     // @arc4.abimethod
     callsub check_dyn_array_dyn_struct
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_static_array_struct_route@15:
+main_check_static_array_struct_route@14:
     // arc4_conversions/contract.py:273
     // @arc4.abimethod
     callsub check_static_array_struct
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_dyn_array_struct_route@14:
+main_check_dyn_array_struct_route@13:
     // arc4_conversions/contract.py:267
     // @arc4.abimethod
     callsub check_dyn_array_struct
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_static_array_uin64_3_route@13:
+main_check_static_array_uin64_3_route@12:
     // arc4_conversions/contract.py:261
     // @arc4.abimethod
     callsub check_static_array_uin64_3
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_dyn_array_uin64_route@12:
+main_check_dyn_array_uin64_route@11:
     // arc4_conversions/contract.py:255
     // @arc4.abimethod
     callsub check_dyn_array_uin64
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_bool_route@11:
+main_check_bool_route@10:
     // arc4_conversions/contract.py:251
     // @arc4.abimethod
     callsub check_bool
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_biguint_route@10:
+main_check_biguint_route@9:
     // arc4_conversions/contract.py:247
     // @arc4.abimethod
     callsub check_biguint
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_string_route@9:
+main_check_string_route@8:
     // arc4_conversions/contract.py:243
     // @arc4.abimethod
     callsub check_string
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_dynamic_bytes_route@8:
+main_check_dynamic_bytes_route@7:
     // arc4_conversions/contract.py:239
     // @arc4.abimethod
     callsub check_dynamic_bytes
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_check_uint64_route@7:
+main_check_uint64_route@6:
     // arc4_conversions/contract.py:235
     // @arc4.abimethod
     callsub check_uint64
-    b main_switch_case_next@20
+    b main_switch_case_next@18
 
-main_create_NoOp@21:
-    b main_after_if_else@22
+main_create_NoOp@19:
+    b main_after_if_else@20
 
 main_delete_application_route@3:
     // arc4_conversions/contract.py:231
@@ -164,9 +158,9 @@ main_delete_application_route@3:
     &&
     assert // OnCompletion must be DeleteApplication && can only call when not creating
     callsub delete_application
-    b main_switch_case_next@5
+    b main_switch_case_next@4
 
-main___algopy_default_create@23:
+main___algopy_default_create@21:
     txn OnCompletion
     intc_1 // NoOp
     ==
@@ -175,12 +169,12 @@ main___algopy_default_create@23:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@26
+    b main_block@24
 
-main_block@26:
-    b main_after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create@27
+main_block@24:
+    b main_after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create@25
 
-main_after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create@27:
+main_after_inlined_test_cases.arc4_conversions.contract.CheckApp.__algopy_default_create@25:
     intc_0 // 1
     return
 

@@ -530,7 +530,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program___algopy_default_create@14
+    bz approval_program___algopy_default_create@13
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -543,7 +543,7 @@ approval_program_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@12
+    bz approval_program_create_NoOp@11
     b approval_program_call_NoOp@3
 
 approval_program_call_NoOp@3:
@@ -558,18 +558,15 @@ approval_program_call_NoOp@3:
     pushbytes 0x59b2ab26 // method "claim_asset(uint64)void"
     uncover 6
     match approval_program_opt_into_asset_route@4 approval_program_start_auction_route@5 approval_program_opt_in_route@6 approval_program_bid_route@7 approval_program_claim_bids_route@8 approval_program_claim_asset_route@9
-    b approval_program_switch_case_default@10
+    b approval_program_switch_case_next@10
 
-approval_program_switch_case_default@10:
-    b approval_program_switch_case_next@11
+approval_program_switch_case_next@10:
+    b approval_program_after_if_else@12
 
-approval_program_switch_case_next@11:
-    b approval_program_after_if_else@13
+approval_program_after_if_else@12:
+    b approval_program_after_if_else@16
 
-approval_program_after_if_else@13:
-    b approval_program_after_if_else@17
-
-approval_program_after_if_else@17:
+approval_program_after_if_else@16:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     err
@@ -578,42 +575,42 @@ approval_program_claim_asset_route@9:
     // auction/contract.py:97
     // @arc4.abimethod
     callsub claim_asset
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
 approval_program_claim_bids_route@8:
     // auction/contract.py:82
     // @arc4.abimethod
     callsub claim_bids
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
 approval_program_bid_route@7:
     // auction/contract.py:66
     // @arc4.abimethod
     callsub bid
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
 approval_program_opt_in_route@6:
     // auction/contract.py:62
     // @arc4.abimethod
     callsub opt_in
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
 approval_program_start_auction_route@5:
     // auction/contract.py:40
     // @arc4.abimethod
     callsub start_auction
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
 approval_program_opt_into_asset_route@4:
     // auction/contract.py:25
     // @arc4.abimethod
     callsub opt_into_asset
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@10
 
-approval_program_create_NoOp@12:
-    b approval_program_after_if_else@13
+approval_program_create_NoOp@11:
+    b approval_program_after_if_else@12
 
-approval_program___algopy_default_create@14:
+approval_program___algopy_default_create@13:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -622,11 +619,11 @@ approval_program___algopy_default_create@14:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@15
+    b approval_program_block@14
 
-approval_program_block@15:
-    b approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@16
+approval_program_block@14:
+    b approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@15
 
-approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@16:
+approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@15:
     intc_1 // 1
     return

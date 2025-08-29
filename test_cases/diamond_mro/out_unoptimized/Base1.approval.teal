@@ -126,7 +126,7 @@ approval_program_block@1:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz approval_program_create_NoOp@6
+    bz approval_program_create_NoOp@5
     b approval_program_call_NoOp@2
 
 approval_program_call_NoOp@2:
@@ -136,15 +136,12 @@ approval_program_call_NoOp@2:
     pushbytes 0x4f045d84 // method "method()void"
     uncover 1
     match approval_program_method_route@3
-    b approval_program_switch_case_default@4
+    b approval_program_switch_case_next@4
 
-approval_program_switch_case_default@4:
-    b approval_program_switch_case_next@5
+approval_program_switch_case_next@4:
+    b approval_program_after_if_else@8
 
-approval_program_switch_case_next@5:
-    b approval_program_after_if_else@10
-
-approval_program_after_if_else@10:
+approval_program_after_if_else@8:
     // diamond_mro/base1.py:6
     // class Base1(GP):
     err
@@ -153,28 +150,25 @@ approval_program_method_route@3:
     // diamond_mro/base1.py:11
     // @arc4.abimethod
     callsub method
-    b approval_program_switch_case_next@5
+    b approval_program_switch_case_next@4
 
-approval_program_create_NoOp@6:
+approval_program_create_NoOp@5:
     // diamond_mro/base1.py:6
     // class Base1(GP):
     txna ApplicationArgs 0
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 1
-    match approval_program_create_route@7
-    b approval_program_switch_case_default@8
+    match approval_program_create_route@6
+    b approval_program_switch_case_next@7
 
-approval_program_switch_case_default@8:
-    b approval_program_switch_case_next@9
+approval_program_switch_case_next@7:
+    b approval_program_after_if_else@8
 
-approval_program_switch_case_next@9:
-    b approval_program_after_if_else@10
-
-approval_program_create_route@7:
+approval_program_create_route@6:
     // diamond_mro/gp.py:11
     // @arc4.abimethod(create="require")
     callsub create
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@7
 
 
 // algopy._contract.Contract.__init__() -> void:

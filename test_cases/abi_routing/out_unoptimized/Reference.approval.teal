@@ -1699,7 +1699,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz approval_program_bare_abi_config@25
+    bz approval_program_bare_abi_config@23
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -1711,12 +1711,9 @@ approval_program_abi_routing@2:
     pushbytes 0xd2f2f53c // method "mixed_oca(uint64)uint8"
     uncover 3
     match approval_program_opt_in_route@3 approval_program_all_the_things_route@4 approval_program_mixed_oca_route@5
-    b approval_program_switch_case_default@6
+    b approval_program_switch_case_next@6
 
-approval_program_switch_case_default@6:
-    b approval_program_switch_case_next@7
-
-approval_program_switch_case_next@7:
+approval_program_switch_case_next@6:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn OnCompletion
@@ -1726,10 +1723,10 @@ approval_program_switch_case_next@7:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz approval_program_create_NoOp@23
-    b approval_program_call_NoOp@8
+    bz approval_program_create_NoOp@21
+    b approval_program_call_NoOp@7
 
-approval_program_call_NoOp@8:
+approval_program_call_NoOp@7:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txna ApplicationArgs 0
@@ -1746,42 +1743,39 @@ approval_program_call_NoOp@8:
     pushbytes 0xf6096c82 // method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64"
     pushbytes 0x9023bb19 // method "hello_with_algopy_string(string)string"
     uncover 12
-    match approval_program_noop_with_uint64_route@9 approval_program_opt_into_asset_route@10 approval_program_with_transactions_route@11 approval_program_compare_assets_route@12 approval_program_get_address_route@13 approval_program_get_asset_route@14 approval_program_get_application_route@15 approval_program_get_an_int_route@16 approval_program_method_with_default_args_route@17 approval_program_method_with_15_args_route@18 approval_program_method_with_more_than_15_args_route@19 approval_program_hello_with_algopy_string_route@20
-    b approval_program_switch_case_default@21
+    match approval_program_noop_with_uint64_route@8 approval_program_opt_into_asset_route@9 approval_program_with_transactions_route@10 approval_program_compare_assets_route@11 approval_program_get_address_route@12 approval_program_get_asset_route@13 approval_program_get_application_route@14 approval_program_get_an_int_route@15 approval_program_method_with_default_args_route@16 approval_program_method_with_15_args_route@17 approval_program_method_with_more_than_15_args_route@18 approval_program_hello_with_algopy_string_route@19
+    b approval_program_switch_case_next@20
 
-approval_program_switch_case_default@21:
-    b approval_program_switch_case_next@22
+approval_program_switch_case_next@20:
+    b approval_program_after_if_else@22
 
-approval_program_switch_case_next@22:
+approval_program_after_if_else@22:
     b approval_program_after_if_else@24
 
 approval_program_after_if_else@24:
-    b approval_program_after_if_else@26
-
-approval_program_after_if_else@26:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     err
 
-approval_program_hello_with_algopy_string_route@20:
+approval_program_hello_with_algopy_string_route@19:
     // abi_routing/contract.py:295
     // @arc4.abimethod
     callsub hello_with_algopy_string
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_method_with_more_than_15_args_route@19:
+approval_program_method_with_more_than_15_args_route@18:
     // abi_routing/contract.py:229
     // @arc4.abimethod
     callsub method_with_more_than_15_args
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_method_with_15_args_route@18:
+approval_program_method_with_15_args_route@17:
     // abi_routing/contract.py:191
     // @arc4.abimethod
     callsub method_with_15_args
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_method_with_default_args_route@17:
+approval_program_method_with_default_args_route@16:
     // abi_routing/contract.py:142-158
     // @arc4.abimethod(
     //     default_args={
@@ -1801,58 +1795,58 @@ approval_program_method_with_default_args_route@17:
     //     }
     // )
     callsub method_with_default_args
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_get_an_int_route@16:
+approval_program_get_an_int_route@15:
     // abi_routing/contract.py:138
     // @arc4.abimethod(readonly=True, name="get_an_int")
     callsub get_a_int
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_get_application_route@15:
+approval_program_get_application_route@14:
     // abi_routing/contract.py:134
     // @arc4.abimethod(readonly=True, name="get_application")
     callsub get_app
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_get_asset_route@14:
+approval_program_get_asset_route@13:
     // abi_routing/contract.py:130
     // @arc4.abimethod(readonly=True)
     callsub get_asset
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_get_address_route@13:
+approval_program_get_address_route@12:
     // abi_routing/contract.py:126
     // @arc4.abimethod(readonly=True)
     callsub get_address
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_compare_assets_route@12:
+approval_program_compare_assets_route@11:
     // abi_routing/contract.py:122
     // @arc4.abimethod
     callsub compare_assets
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_with_transactions_route@11:
+approval_program_with_transactions_route@10:
     // abi_routing/contract.py:109
     // @arc4.abimethod
     callsub with_transactions
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_opt_into_asset_route@10:
+approval_program_opt_into_asset_route@9:
     // abi_routing/contract.py:92
     // @arc4.abimethod
     callsub opt_into_asset
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_noop_with_uint64_route@9:
+approval_program_noop_with_uint64_route@8:
     // abi_routing/contract.py:40
     // @arc4.abimethod
     callsub noop_with_uint64
-    b approval_program_switch_case_next@22
+    b approval_program_switch_case_next@20
 
-approval_program_create_NoOp@23:
-    b approval_program_after_if_else@24
+approval_program_create_NoOp@21:
+    b approval_program_after_if_else@22
 
 approval_program_mixed_oca_route@5:
     // abi_routing/contract.py:66-74
@@ -1877,7 +1871,7 @@ approval_program_mixed_oca_route@5:
     &&
     assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
     callsub mixed_oca
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
 approval_program_all_the_things_route@4:
     // abi_routing/contract.py:50-61
@@ -1894,7 +1888,7 @@ approval_program_all_the_things_route@4:
     //     readonly=True,
     // )
     callsub full_abi_config
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
 approval_program_opt_in_route@3:
     // abi_routing/contract.py:45
@@ -1908,9 +1902,9 @@ approval_program_opt_in_route@3:
     &&
     assert // OnCompletion must be OptIn && can only call when not creating
     callsub opt_in
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
-approval_program_bare_abi_config@25:
+approval_program_bare_abi_config@23:
     // abi_routing/contract.py:79-88
     // @arc4.baremethod(
     //     allow_actions=[

@@ -17,7 +17,7 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
     block@1: // while_top_L20
         let tmp%1#0: uint64 = (global OpcodeBudget)
         let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
-        goto tmp%2#0 ? block@2 : block@7
+        goto tmp%2#0 ? block@2 : block@6
     block@2: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -27,17 +27,15 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
     block@3: // switch_case_0_L28
         ((itxn_field Fee) 0u)
-        goto block@6
+        goto block@5
     block@4: // switch_case_1_L30
         let tmp%3#0: uint64 = (global MinTxnFee)
         ((itxn_field Fee) tmp%3#0)
-        goto block@6
-    block@5: // switch_case_default_L26
-        goto block@6
-    block@6: // switch_case_next_L26
+        goto block@5
+    block@5: // switch_case_next_L26
         itxn_submit
         goto block@1
-    block@7: // after_while_L20
+    block@6: // after_while_L20
         return 
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
@@ -2103,144 +2101,142 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L80
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@43
+        goto tmp%1#0 ? block@2 : block@42
     block@2: // abi_routing_L80
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@41
+        goto tmp%5#0 ? block@3 : block@40
     block@3: // call_NoOp_L80
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "set_boxes(uint64,byte[],string)void" => block@4, method "check_keys()void" => block@5, method "create_many_ints()void" => block@6, method "set_many_ints(uint64,uint64)void" => block@7, method "sum_many_ints()uint64" => block@8, method "delete_boxes()void" => block@9, method "indirect_extract_and_replace()void" => block@10, method "read_boxes()(uint64,byte[],string,uint64)" => block@11, method "boxes_exist()(bool,bool,bool,bool)" => block@12, method "create_dynamic_arr_struct()void" => block@13, method "delete_dynamic_arr_struct()void" => block@14, method "append_dynamic_arr_struct(uint64)uint64" => block@15, method "pop_dynamic_arr_struct(uint64)uint64" => block@16, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@17, method "nested_write(uint64,uint64)void" => block@18, method "nested_read(uint64,uint64,uint64)uint64" => block@19, method "sum_dynamic_arr_struct()uint64" => block@20, method "create_bools()void" => block@21, method "set_bool(uint64,bool)void" => block@22, method "sum_bools(uint64)uint64" => block@23, method "create_dynamic_box()void" => block@24, method "delete_dynamic_box()void" => block@25, method "append_dynamic_box(uint64)uint64" => block@26, method "pop_dynamic_box(uint64)uint64" => block@27, method "sum_dynamic_box()uint64" => block@28, method "write_dynamic_box(uint64,uint64)void" => block@29, method "write_dynamic_arr_struct(uint64,uint64)void" => block@30, method "slice_box()void" => block@31, method "arc4_box()void" => block@32, method "test_box_ref()void" => block@33, method "box_map_test()void" => block@34, method "box_map_set(uint64,string)void" => block@35, method "box_map_get(uint64)string" => block@36, method "box_map_del(uint64)void" => block@37, method "box_map_exists(uint64)bool" => block@38, * => block@39}
     block@4: // set_boxes_route_L95
         examples.box_storage.contract.BoxContract.set_boxes[routing]()
-        goto block@40
+        goto block@39
     block@5: // check_keys_route_L131
         examples.box_storage.contract.BoxContract.check_keys[routing]()
-        goto block@40
+        goto block@39
     block@6: // create_many_ints_route_L138
         examples.box_storage.contract.BoxContract.create_many_ints[routing]()
-        goto block@40
+        goto block@39
     block@7: // set_many_ints_route_L142
         examples.box_storage.contract.BoxContract.set_many_ints[routing]()
-        goto block@40
+        goto block@39
     block@8: // sum_many_ints_route_L146
         examples.box_storage.contract.BoxContract.sum_many_ints[routing]()
-        goto block@40
+        goto block@39
     block@9: // delete_boxes_route_L154
         examples.box_storage.contract.BoxContract.delete_boxes[routing]()
-        goto block@40
+        goto block@39
     block@10: // indirect_extract_and_replace_route_L167
         examples.box_storage.contract.BoxContract.indirect_extract_and_replace[routing]()
-        goto block@40
+        goto block@39
     block@11: // read_boxes_route_L173
         examples.box_storage.contract.BoxContract.read_boxes[routing]()
-        goto block@40
+        goto block@39
     block@12: // boxes_exist_route_L182
         examples.box_storage.contract.BoxContract.boxes_exist[routing]()
-        goto block@40
+        goto block@39
     block@13: // create_dynamic_arr_struct_route_L186
         examples.box_storage.contract.BoxContract.create_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@14: // delete_dynamic_arr_struct_route_L195
         examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@15: // append_dynamic_arr_struct_route_L199
         examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@16: // pop_dynamic_arr_struct_route_L231
         examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@17: // set_nested_struct_route_L253
         examples.box_storage.contract.BoxContract.set_nested_struct[routing]()
-        goto block@40
+        goto block@39
     block@18: // nested_write_route_L267
         examples.box_storage.contract.BoxContract.nested_write[routing]()
-        goto block@40
+        goto block@39
     block@19: // nested_read_route_L277
         examples.box_storage.contract.BoxContract.nested_read[routing]()
-        goto block@40
+        goto block@39
     block@20: // sum_dynamic_arr_struct_route_L289
         examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@21: // create_bools_route_L300
         examples.box_storage.contract.BoxContract.create_bools[routing]()
-        goto block@40
+        goto block@39
     block@22: // set_bool_route_L304
         examples.box_storage.contract.BoxContract.set_bool[routing]()
-        goto block@40
+        goto block@39
     block@23: // sum_bools_route_L308
         examples.box_storage.contract.BoxContract.sum_bools[routing]()
-        goto block@40
+        goto block@39
     block@24: // create_dynamic_box_route_L318
         examples.box_storage.contract.BoxContract.create_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@25: // delete_dynamic_box_route_L322
         examples.box_storage.contract.BoxContract.delete_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@26: // append_dynamic_box_route_L326
         examples.box_storage.contract.BoxContract.append_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@27: // pop_dynamic_box_route_L341
         examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@28: // sum_dynamic_box_route_L352
         examples.box_storage.contract.BoxContract.sum_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@29: // write_dynamic_box_route_L359
         examples.box_storage.contract.BoxContract.write_dynamic_box[routing]()
-        goto block@40
+        goto block@39
     block@30: // write_dynamic_arr_struct_route_L363
         examples.box_storage.contract.BoxContract.write_dynamic_arr_struct[routing]()
-        goto block@40
+        goto block@39
     block@31: // slice_box_route_L367
         examples.box_storage.contract.BoxContract.slice_box[routing]()
-        goto block@40
+        goto block@39
     block@32: // arc4_box_route_L376
         examples.box_storage.contract.BoxContract.arc4_box[routing]()
-        goto block@40
+        goto block@39
     block@33: // test_box_ref_route_L386
         examples.box_storage.contract.BoxContract.test_box_ref[routing]()
-        goto block@40
+        goto block@39
     block@34: // box_map_test_route_L434
         examples.box_storage.contract.BoxContract.box_map_test[routing]()
-        goto block@40
+        goto block@39
     block@35: // box_map_set_route_L458
         examples.box_storage.contract.BoxContract.box_map_set[routing]()
-        goto block@40
+        goto block@39
     block@36: // box_map_get_route_L462
         examples.box_storage.contract.BoxContract.box_map_get[routing]()
-        goto block@40
+        goto block@39
     block@37: // box_map_del_route_L466
         examples.box_storage.contract.BoxContract.box_map_del[routing]()
-        goto block@40
+        goto block@39
     block@38: // box_map_exists_route_L470
         examples.box_storage.contract.BoxContract.box_map_exists[routing]()
-        goto block@40
-    block@39: // switch_case_default_L80
-        goto block@40
-    block@40: // switch_case_next_L80
-        goto block@42
-    block@41: // create_NoOp_L80
-        goto block@42
-    block@42: // after_if_else_L80
-        goto block@46
-    block@43: // __algopy_default_create_L1
+        goto block@39
+    block@39: // switch_case_next_L80
+        goto block@41
+    block@40: // create_NoOp_L80
+        goto block@41
+    block@41: // after_if_else_L80
+        goto block@45
+    block@42: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         let tmp%9#0: uint64 = (txn ApplicationID)
         let tmp%10#0: bool = (== tmp%9#0 0u)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@43
+    block@43: // L1
         goto block@44
-    block@44: // L1
-        goto block@45
-    block@45: // after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create_L1
+    block@44: // after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create_L1
         exit 1u
-    block@46: // after_if_else_L80
+    block@45: // after_if_else_L80
         exit 0u
-    block@47: // after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router___L1
+    block@46: // after_inlined_examples.box_storage.contract.BoxContract.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

@@ -213,57 +213,55 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L16
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@14
+        goto tmp%1#0 ? block@2 : block@13
     block@2: // abi_routing_L16
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@12
+        goto tmp%5#0 ? block@3 : block@11
     block@3: // call_NoOp_L16
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(uint64)void" => block@9, * => block@10}
     block@4: // opt_into_asset_route_L25
         examples.auction.contract.Auction.opt_into_asset[routing]()
-        goto block@11
+        goto block@10
     block@5: // start_auction_route_L40
         examples.auction.contract.Auction.start_auction[routing]()
-        goto block@11
+        goto block@10
     block@6: // opt_in_route_L62
         examples.auction.contract.Auction.opt_in[routing]()
-        goto block@11
+        goto block@10
     block@7: // bid_route_L66
         examples.auction.contract.Auction.bid[routing]()
-        goto block@11
+        goto block@10
     block@8: // claim_bids_route_L82
         examples.auction.contract.Auction.claim_bids[routing]()
-        goto block@11
+        goto block@10
     block@9: // claim_asset_route_L97
         examples.auction.contract.Auction.claim_asset[routing]()
-        goto block@11
-    block@10: // switch_case_default_L16
-        goto block@11
-    block@11: // switch_case_next_L16
-        goto block@13
-    block@12: // create_NoOp_L16
-        goto block@13
-    block@13: // after_if_else_L16
-        goto block@17
-    block@14: // __algopy_default_create_L1
+        goto block@10
+    block@10: // switch_case_next_L16
+        goto block@12
+    block@11: // create_NoOp_L16
+        goto block@12
+    block@12: // after_if_else_L16
+        goto block@16
+    block@13: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         let tmp%9#0: uint64 = (txn ApplicationID)
         let tmp%10#0: bool = (== tmp%9#0 0u)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@14
+    block@14: // L1
         goto block@15
-    block@15: // L1
-        goto block@16
-    block@16: // after_inlined_examples.auction.contract.Auction.__algopy_default_create_L1
+    block@15: // after_inlined_examples.auction.contract.Auction.__algopy_default_create_L1
         exit 1u
-    block@17: // after_if_else_L16
+    block@16: // after_if_else_L16
         exit 0u
-    block@18: // after_inlined_examples.auction.contract.Auction.__puya_arc4_router___L1
+    block@17: // after_inlined_examples.auction.contract.Auction.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

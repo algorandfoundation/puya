@@ -4,10 +4,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#0: bool = (! tmp%0#1)
         (assert tmp%1#0) // OnCompletion must be NoOp
         let tmp%2#0: uint64 = (txn ApplicationID)
-        goto tmp%2#0 ? block@2 : block@6
+        goto tmp%2#0 ? block@2 : block@5
     block@2: // call_NoOp_L4
         let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@10}
+        switch tmp%4#0 {method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@8}
     block@3: // tuple_of_arc4_route_L19
         let reinterpret_Encoded(uint8,uint8[32])%0#0: Encoded(uint8,uint8[32]) = (txna ApplicationArgs 1)
         let args.0#0: Encoded(uint8) = ((extract 0 1) reinterpret_Encoded(uint8,uint8[32])%0#0)
@@ -21,10 +21,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: bytes = (concat 0x151f7c75 reinterpret_Encoded(uint8,uint8[32])%0#0)
         (log tmp%5#0)
         exit 1u
-    block@6: // create_NoOp_L4
+    block@5: // create_NoOp_L4
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@7, * => block@10}
-    block@7: // create_route_L5
+        switch tmp%5#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@6, * => block@8}
+    block@6: // create_route_L5
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let bool_param#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -83,5 +83,5 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%16#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
         (log tmp%16#0)
         exit 1u
-    block@10: // after_if_else_L4
+    block@8: // after_if_else_L4
         fail

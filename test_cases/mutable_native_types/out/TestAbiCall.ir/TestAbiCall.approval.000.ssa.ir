@@ -7,44 +7,42 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_rout
     block@0: // L102
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@13
+        goto tmp%1#0 ? block@1 : block@12
     block@1: // abi_routing_L102
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@11
+        goto tmp%5#0 ? block@2 : block@10
     block@2: // call_NoOp_L102
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "test_fixed_struct()void" => block@3, method "test_nested_struct()void" => block@4, method "test_dynamic_struct()void" => block@5, method "test_fixed_array()void" => block@6, method "test_native_array()void" => block@7, method "test_log()void" => block@8, * => block@9}
     block@3: // test_fixed_struct_route_L103
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]()
-        goto block@10
+        goto block@9
     block@4: // test_nested_struct_route_L122
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct[routing]()
-        goto block@10
+        goto block@9
     block@5: // test_dynamic_struct_route_L149
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct[routing]()
-        goto block@10
+        goto block@9
     block@6: // test_fixed_array_route_L188
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array[routing]()
-        goto block@10
+        goto block@9
     block@7: // test_native_array_route_L214
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array[routing]()
-        goto block@10
+        goto block@9
     block@8: // test_log_route_L242
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing]()
-        goto block@10
-    block@9: // switch_case_default_L102
-        goto block@10
-    block@10: // switch_case_next_L102
-        goto block@12
-    block@11: // create_NoOp_L102
-        goto block@12
-    block@12: // after_if_else_L102
-        goto block@14
-    block@13: // __algopy_default_create_L1
+        goto block@9
+    block@9: // switch_case_next_L102
+        goto block@11
+    block@10: // create_NoOp_L102
+        goto block@11
+    block@11: // after_if_else_L102
+        goto block@13
+    block@12: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -53,7 +51,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.__puya_arc4_rout
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create()
         exit 1u
-    block@14: // after_if_else_L102
+    block@13: // after_if_else_L102
         exit 0u
 
 subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]() -> void:
