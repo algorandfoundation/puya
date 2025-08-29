@@ -63,137 +63,6 @@ subroutine main:
         return
 
 
-// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-subroutine dynamic_array_concat_dynamic_element:
-    dynamic_array_concat_dynamic_element_block@0:                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        byte 0x                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0x
-        v-store new_head#0                                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load new_items_count#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_items_count#0 (copy)
-        int 2                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_items_count#0 (copy),2
-        *                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#0
-        v-store item_offset_adjustment#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load array_items_count#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy)
-        int 2                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy),2
-        *                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%1#0
-        v-store tmp%1#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        int 0                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0
-        v-store head_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@1                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-
-    dynamic_array_concat_dynamic_element_for_header@1:                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        v-load tmp%1#0                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,tmp%1#0
-        <                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%0#0
-        v-store continue_looping%0#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load continue_looping%0#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%0#0
-        bz dynamic_array_concat_dynamic_element_after_for@4 ; b dynamic_array_concat_dynamic_element_for_body@2 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
-
-    dynamic_array_concat_dynamic_element_for_body@2:                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load array_head_and_tail#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy)
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy),head_offset#0
-        extract_uint16                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset#0
-        v-store item_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load item_offset_adjustment#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#0
-        v-load item_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#0,item_offset#0
-        +                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%3#0
-        v-store tmp%3#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%3#0                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%3#0
-        itob                                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%4#0
-        v-store tmp%4#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%4#0                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%4#0
-        extract 6 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%5#0
-        v-store tmp%5#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load new_head#0                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0
-        v-load tmp%5#0                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0,tmp%5#0
-        concat                                                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0
-        v-store new_head#0                                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        int 2                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,2
-        +                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        v-store head_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@1                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-
-    dynamic_array_concat_dynamic_element_after_for@4:                                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load array_head_and_tail#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy)
-        len                                                                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#2
-        v-store item_offset_adjustment#2                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        int 0                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0
-        v-store head_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-
-    dynamic_array_concat_dynamic_element_for_header@5:                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        v-load item_offset_adjustment#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,item_offset_adjustment#0
-        <                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%1#0
-        v-store continue_looping%1#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load continue_looping%1#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | continue_looping%1#0
-        bz dynamic_array_concat_dynamic_element_after_for@8 ; b dynamic_array_concat_dynamic_element_for_body@6 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 
-
-    dynamic_array_concat_dynamic_element_for_body@6:                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load new_head_and_tail#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy)
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy),head_offset#0
-        extract_uint16                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset#0
-        v-store item_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load item_offset_adjustment#2                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#2
-        v-load item_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | item_offset_adjustment#2,item_offset#0
-        +                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%10#0
-        v-store tmp%10#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%10#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%10#0
-        itob                                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%11#0
-        v-store tmp%11#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%11#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%11#0
-        extract 6 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%12#0
-        v-store tmp%12#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load new_head#0                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0
-        v-load tmp%12#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0,tmp%12#0
-        concat                                                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head#0
-        v-store new_head#0                                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load head_offset#0                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        int 2                                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,2
-        +                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
-        v-store head_offset#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-
-    dynamic_array_concat_dynamic_element_after_for@8:                                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load array_items_count#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy)
-        p-load new_items_count#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_items_count#0 (copy),new_items_count#0 (copy)
-        +                                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%14#0
-        v-store tmp%14#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%14#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%14#0
-        itob                                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%15#0
-        v-store tmp%15#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%15#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%15#0
-        extract 6 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%16#0
-        v-store tmp%16#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%16#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%16#0
-        v-load new_head#0                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%16#0,new_head#0
-        concat                                                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%17#0
-        v-store tmp%17#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load array_head_and_tail#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy)
-        v-load tmp%1#0                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy),tmp%1#0
-        v-load item_offset_adjustment#2                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | array_head_and_tail#0 (copy),tmp%1#0,item_offset_adjustment#2
-        substring3                                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%20#0
-        v-store tmp%20#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%17#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%17#0
-        v-load tmp%20#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%17#0,tmp%20#0
-        concat                                                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%21#0
-        v-store tmp%21#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load new_head_and_tail#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy)
-        len                                                                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%23#0
-        v-store tmp%23#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        p-load new_head_and_tail#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy)
-        v-load item_offset_adjustment#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy),item_offset_adjustment#0
-        v-load tmp%23#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | new_head_and_tail#0 (copy),item_offset_adjustment#0,tmp%23#0
-        substring3                                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%24#0
-        v-store tmp%24#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%21#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%21#0
-        v-load tmp%24#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%21#0,tmp%24#0
-        concat                                                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%25#0
-        v-store tmp%25#0                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
-        v-load tmp%25#0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%25#0
-        retsub                                                                                    tmp%25#0
-
-
 // test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
 subroutine test_implicit_conversion_abi_call:
     test_implicit_conversion_abi_call_block@0:
@@ -224,13 +93,94 @@ subroutine test_implicit_conversion_abi_call:
         // nested_arr = nested_arr.append(arr)
         byte 0x0002                                                                               0x0002
         v-load arr#0                                                                              0x0002,arr#0
-        concat                                                                                    aggregate%concat%0#0
-        v-store aggregate%concat%0#0
+        concat                                                                                    new_head_and_tail#0
+        v-store new_head_and_tail#0
+        byte 0x                                                                                   0x
+        v-store new_head#0
         int 0                                                                                     0
-        byte 0x                                                                                   0,0x
-        int 1                                                                                     0,0x,1
-        v-load aggregate%concat%0#0                                                               0,0x,1,aggregate%concat%0#0
-        callsub dynamic_array_concat_dynamic_element                                              nested_arr#1
+        v-store head_offset#0
+        b test_implicit_conversion_abi_call_for_header@2
+
+    test_implicit_conversion_abi_call_for_header@2:
+        v-load head_offset#0                                                                      head_offset#0
+        int 0                                                                                     head_offset#0,0
+        <                                                                                         continue_looping%0#0
+        v-store continue_looping%0#0
+        v-load continue_looping%0#0                                                               continue_looping%0#0
+        bz test_implicit_conversion_abi_call_after_for@4 ; b test_implicit_conversion_abi_call_for_body@3 
+
+    test_implicit_conversion_abi_call_for_body@3:
+        // array/unused_opt_allowed.py:21
+        // nested_arr = nested_arr.append(arr)
+        byte 0x                                                                                   0x
+        v-load head_offset#0                                                                      0x,head_offset#0
+        extract_uint16                                                                            item_offset#0
+        v-store item_offset#0
+        int 2                                                                                     2
+        v-load item_offset#0                                                                      2,item_offset#0
+        +                                                                                         tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                            tmp%3#0
+        itob                                                                                      tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                            tmp%4#0
+        extract 6 2                                                                               tmp%5#0
+        v-store tmp%5#0
+        v-load new_head#0                                                                         new_head#0
+        v-load tmp%5#0                                                                            new_head#0,tmp%5#0
+        concat                                                                                    new_head#0
+        v-store new_head#0
+        v-load head_offset#0                                                                      head_offset#0
+        int 2                                                                                     head_offset#0,2
+        +                                                                                         head_offset#0
+        v-store head_offset#0
+        b test_implicit_conversion_abi_call_for_header@2
+
+    test_implicit_conversion_abi_call_after_for@4:
+        int 0                                                                                     0
+        v-store head_offset#0
+        b test_implicit_conversion_abi_call_for_header@5
+
+    test_implicit_conversion_abi_call_for_header@5:
+        v-load head_offset#0                                                                      head_offset#0
+        int 2                                                                                     head_offset#0,2
+        <                                                                                         continue_looping%1#0
+        v-store continue_looping%1#0
+        v-load continue_looping%1#0                                                               continue_looping%1#0
+        bz test_implicit_conversion_abi_call_after_for@7 ; b test_implicit_conversion_abi_call_for_body@6 
+
+    test_implicit_conversion_abi_call_for_body@6:
+        v-load new_head_and_tail#0                                                                new_head_and_tail#0
+        v-load head_offset#0                                                                      new_head_and_tail#0,head_offset#0
+        extract_uint16                                                                            item_offset#0
+        v-store item_offset#0
+        v-load item_offset#0                                                                      item_offset#0
+        itob                                                                                      tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                           tmp%11#0
+        extract 6 2                                                                               tmp%12#0
+        v-store tmp%12#0
+        v-load new_head#0                                                                         new_head#0
+        v-load tmp%12#0                                                                           new_head#0,tmp%12#0
+        concat                                                                                    new_head#0
+        v-store new_head#0
+        v-load head_offset#0                                                                      head_offset#0
+        int 2                                                                                     head_offset#0,2
+        +                                                                                         head_offset#0
+        v-store head_offset#0
+        b test_implicit_conversion_abi_call_for_header@5
+
+    test_implicit_conversion_abi_call_after_for@7:
+        byte 0x0001                                                                               0x0001
+        v-load new_head#0                                                                         0x0001,new_head#0
+        concat                                                                                    tmp%17#0
+        v-store tmp%17#0
+        v-load new_head_and_tail#0                                                                new_head_and_tail#0
+        extract 2 0                                                                               tmp%23#0
+        v-store tmp%23#0
+        v-load tmp%17#0                                                                           tmp%17#0
+        v-load tmp%23#0                                                                           tmp%17#0,tmp%23#0
+        concat                                                                                    nested_arr#1
         v-store nested_arr#1
         // array/unused_opt_allowed.py:22
         // arc4.abi_call("dont_call(uint64[][])uint64", nested_arr, app_id=app)
@@ -246,33 +196,6 @@ subroutine test_implicit_conversion_abi_call:
         int 0                                                                                     0
         itxn_field Fee
         itxn_submit
-        // array/unused_opt_allowed.py:25
-        // indirect_nested_arr.append(MyTuple(foo=arr, bar=arr.length))
-        v-load arr#0                                                                              arr#0
-        int 0                                                                                     arr#0,0
-        extract_uint16                                                                            aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
-        itob                                                                                      aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
-        byte 0x000a                                                                               0x000a
-        v-load aggregate%val_as_bytes%0#0                                                         0x000a,aggregate%val_as_bytes%0#0
-        concat                                                                                    aggregate%head%2#0
-        v-store aggregate%head%2#0
-        v-load aggregate%head%2#0                                                                 aggregate%head%2#0
-        v-load arr#0                                                                              aggregate%head%2#0,arr#0
-        concat                                                                                    aggregate%concat%1#0
-        v-store aggregate%concat%1#0
-        byte 0x0002                                                                               0x0002
-        v-load aggregate%concat%1#0                                                               0x0002,aggregate%concat%1#0
-        concat                                                                                    aggregate%concat%2#0
-        v-store aggregate%concat%2#0
-        int 0                                                                                     0
-        byte 0x                                                                                   0,0x
-        int 1                                                                                     0,0x,1
-        v-load aggregate%concat%2#0                                                               0,0x,1,aggregate%concat%2#0
-        callsub dynamic_array_concat_dynamic_element                                              as_Encoded(len+((len+uint64[]),uint64)[])%0#0
-        v-store as_Encoded(len+((len+uint64[]),uint64)[])%0#0
         // array/unused_opt_allowed.py:26
         // arc4.abi_call("dont_call((uint64[],uint64)[])uint64", indirect_nested_arr, app_id=app)
         itxn_begin

@@ -49,7 +49,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         exit 1u
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
-    block@0: // L124
+    block@0: // L129
         let array_length#0: uint64 = (extract_uint16 array#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
         let tmp%2#0: bytes = (itob new_array_length#0)
@@ -61,30 +61,30 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let required_bytes#0: uint64 = (/ tmp%7#0 8u)
         let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
         goto tmp%9#0 ? block@1 : block@2
-    block@1: // if_body_L148
+    block@1: // if_body_L154
         let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%11#0: bytes = (bzero tmp%10#0)
         let result#1: bytes = (concat result#0 tmp%11#0)
         goto block@2
-    block@2: // after_if_else_L147
+    block@2: // after_if_else_L153
         let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@1)
         let read_offset#0: uint64 = 0u
         let write_offset#0: uint64 = (+ array_length#0 16u)
         let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
         goto block@3
-    block@3: // while_top_L153
+    block@3: // while_top_L159
         let write_offset#1: uint64 = φ(write_offset#0 <- block@2, write_offset#2 <- block@4)
         let result#2: bytes = φ(result#4 <- block@2, result#3 <- block@4)
         let read_offset#1: uint64 = φ(read_offset#0 <- block@2, read_offset#2 <- block@4)
         let tmp%15#0: bool = (< write_offset#1 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
-    block@4: // while_body_L154
+    block@4: // while_body_L160
         let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#1)
         let result#3: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let write_offset#2: uint64 = (+ write_offset#1 1u)
         let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
         goto block@3
-    block@5: // after_while_L153
+    block@5: // after_while_L159
         return result#2
 
 subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]() -> void:
@@ -476,8 +476,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let tmp%24#0: bool = (== aggregate%get_bit%3#0 tmp%23#0)
         (assert tmp%24#0) // expected correct value at 1
         let arr2#0: Encoded(bool8[])* = new()
-        let slot_contents%3#0: Encoded(bool8[]) = load(arr#0)
-        store(arr2#0, slot_contents%3#0)
+        store(arr2#0, concat%1#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L154

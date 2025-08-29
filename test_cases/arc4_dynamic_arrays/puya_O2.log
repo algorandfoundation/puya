@@ -281,8 +281,8 @@ debug: Looking for 'new_head_and_tail' in an unsealed block creating an incomple
 debug: Created Phi assignment: let new_head_and_tail#1: bytes = undefined while trying to resolve 'new_head_and_tail' in block@5
 debug: Looking for 'new_head' in an unsealed block creating an incomplete Phi: block@5
 debug: Created Phi assignment: let new_head#3: bytes = undefined while trying to resolve 'new_head' in block@5
-debug: Looking for 'item_offset_adjustment' in an unsealed block creating an incomplete Phi: block@5
-debug: Created Phi assignment: let item_offset_adjustment#3: uint64 = undefined while trying to resolve 'item_offset_adjustment' in block@5
+debug: Looking for 'head_and_tail_length' in an unsealed block creating an incomplete Phi: block@5
+debug: Created Phi assignment: let head_and_tail_length#1: uint64 = undefined while trying to resolve 'head_and_tail_length' in block@5
 debug: Terminated block@6
 debug: Sealing block@7
 debug: Terminated block@7
@@ -302,11 +302,11 @@ debug: Deleting Phi assignment: let new_head_and_tail#1: bytes = φ(new_head_and
 debug: Replaced trivial Phi node: let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@4, new_head_and_tail#1 <- block@7) (new_head_and_tail#1) with new_head_and_tail#0 in current definition for 3 blocks
 debug: Added new_head#1 to Phi node: let new_head#3: bytes = φ(new_head#1 <- block@4) in block@4
 debug: Added new_head#4 to Phi node: let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@7) in block@7
-debug: Added item_offset_adjustment#2 to Phi node: let item_offset_adjustment#3: uint64 = φ(item_offset_adjustment#2 <- block@4) in block@4
-debug: Added item_offset_adjustment#3 to Phi node: let item_offset_adjustment#3: uint64 = φ(item_offset_adjustment#2 <- block@4, item_offset_adjustment#3 <- block@7) in block@7
-debug: Replacing trivial Phi node: let item_offset_adjustment#3: uint64 = φ(item_offset_adjustment#2 <- block@4, item_offset_adjustment#3 <- block@7) (item_offset_adjustment#3) with item_offset_adjustment#2
-debug: Deleting Phi assignment: let item_offset_adjustment#3: uint64 = φ(item_offset_adjustment#2 <- block@4, item_offset_adjustment#3 <- block@7)
-debug: Replaced trivial Phi node: let item_offset_adjustment#3: uint64 = φ(item_offset_adjustment#2 <- block@4, item_offset_adjustment#3 <- block@7) (item_offset_adjustment#3) with item_offset_adjustment#2 in current definition for 3 blocks
+debug: Added head_and_tail_length#0 to Phi node: let head_and_tail_length#1: uint64 = φ(head_and_tail_length#0 <- block@4) in block@4
+debug: Added head_and_tail_length#1 to Phi node: let head_and_tail_length#1: uint64 = φ(head_and_tail_length#0 <- block@4, head_and_tail_length#1 <- block@7) in block@7
+debug: Replacing trivial Phi node: let head_and_tail_length#1: uint64 = φ(head_and_tail_length#0 <- block@4, head_and_tail_length#1 <- block@7) (head_and_tail_length#1) with head_and_tail_length#0
+debug: Deleting Phi assignment: let head_and_tail_length#1: uint64 = φ(head_and_tail_length#0 <- block@4, head_and_tail_length#1 <- block@7)
+debug: Replaced trivial Phi node: let head_and_tail_length#1: uint64 = φ(head_and_tail_length#0 <- block@4, head_and_tail_length#1 <- block@7) (head_and_tail_length#1) with head_and_tail_length#0 in current definition for 3 blocks
 debug: Sealing block@8
 debug: Created Phi assignment: let array_items_count#1: uint64 = undefined while trying to resolve 'array_items_count' in block@5
 debug: Created Phi assignment: let array_items_count#2: uint64 = undefined while trying to resolve 'array_items_count' in block@1
@@ -699,7 +699,7 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%7#0: uint64 = (* length_minus_1#0 2u) with copy of existing registers [Register(source_location=INTERNAL:103:4-24, ir_type=uint64, name='popped_header_offset', version=0)]
+debug: Replacing redundant declaration let tmp%7#0: uint64 = (* length_minus_1#0 2u) with copy of existing registers [Register(source_location=INTERNAL:108:4-24, ir_type=uint64, name='popped_header_offset', version=0)]
 debug: Found equivalence set: popped_header_offset#0, tmp%7#0
 debug: selected popped_header_offset#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -719,8 +719,8 @@ debug: Found equivalence set: tmp%2#0, item_offset#0
 debug: selected item_offset#0 from equivalence set
 debug: Found equivalence set: tmp%6#0, new_head#2
 debug: selected new_head#2 from equivalence set
-debug: Found equivalence set: tmp%7#0, item_offset_adjustment#2
-debug: selected item_offset_adjustment#2 from equivalence set
+debug: Found equivalence set: tmp%7#0, head_and_tail_length#0
+debug: selected head_and_tail_length#0 from equivalence set
 debug: Found equivalence set: tmp%9#0, item_offset#1
 debug: selected item_offset#1 from equivalence set
 debug: Found equivalence set: tmp%13#0, new_head#4
@@ -740,17 +740,14 @@ debug: Merged linear block@7 into block@6
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%8#0: uint64 = (* new_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:202:4-26, ir_type=uint64, name='item_offset_adjustment', version=0)]
-debug: Replacing redundant declaration let tmp%18#0: uint64 = (* array_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:203:33-64, ir_type=uint64, name='tmp%1', version=0)]
-debug: Replacing redundant declaration let tmp%19#0: uint64 = (len array_head_and_tail#0) with copy of existing registers [Register(source_location=INTERNAL:207:4-26, ir_type=uint64, name='item_offset_adjustment', version=2)]
-debug: Replacing redundant declaration let tmp%22#0: uint64 = (* new_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:202:4-26, ir_type=uint64, name='item_offset_adjustment', version=0)]
-debug: Found equivalence set: item_offset_adjustment#0, tmp%8#0, tmp%22#0
+debug: Replacing redundant declaration let tmp%8#0: uint64 = (* new_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:210:4-26, ir_type=uint64, name='item_offset_adjustment', version=0)]
+debug: Replacing redundant declaration let tmp%18#0: uint64 = (* array_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:211:33-64, ir_type=uint64, name='tmp%1', version=0)]
+debug: Replacing redundant declaration let tmp%21#0: uint64 = (* new_items_count#0 2u) with copy of existing registers [Register(source_location=INTERNAL:210:4-26, ir_type=uint64, name='item_offset_adjustment', version=0)]
+debug: Found equivalence set: item_offset_adjustment#0, tmp%8#0, tmp%21#0
 debug: selected item_offset_adjustment#0 from equivalence set
 debug: Found equivalence set: tmp%1#0, tmp%18#0
 debug: selected tmp%1#0 from equivalence set
-debug: Found equivalence set: item_offset_adjustment#2, tmp%19#0
-debug: selected item_offset_adjustment#2 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -861,11 +858,11 @@ debug: Merged linear block@6 into block@5
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%16#0: uint64 = (+ index#0 1u) with copy of existing registers [Register(source_location=INTERNAL:261:60-69, ir_type=uint64, name='tmp%2', version=1)]
+debug: Replacing redundant declaration let tmp%16#0: uint64 = (+ index#0 1u) with copy of existing registers [Register(source_location=INTERNAL:270:60-69, ir_type=uint64, name='tmp%2', version=1)]
 debug: Found equivalence set: tmp%2#1, tmp%16#0
 debug: selected tmp%2#1 from equivalence set
 debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let head_offset#0: uint64 = (* tmp%2#1 2u) with copy of existing registers [Register(source_location=INTERNAL:261:59-74, ir_type=uint64, name='tmp%3', version=1)]
+debug: Replacing redundant declaration let head_offset#0: uint64 = (* tmp%2#1 2u) with copy of existing registers [Register(source_location=INTERNAL:270:59-74, ir_type=uint64, name='tmp%3', version=1)]
 debug: Found equivalence set: tmp%3#1, head_offset#0
 debug: selected head_offset#0 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -920,11 +917,11 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%16#0: uint64 = (+ index#0 1u) with copy of existing registers [Register(source_location=INTERNAL:261:60-69, ir_type=uint64, name='tmp%2', version=0)]
+debug: Replacing redundant declaration let tmp%16#0: uint64 = (+ index#0 1u) with copy of existing registers [Register(source_location=INTERNAL:270:60-69, ir_type=uint64, name='tmp%2', version=0)]
 debug: Found equivalence set: tmp%2#0, tmp%16#0
 debug: selected tmp%2#0 from equivalence set
 debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let head_offset#0: uint64 = (* tmp%2#0 2u) with copy of existing registers [Register(source_location=INTERNAL:261:59-74, ir_type=uint64, name='tmp%3', version=0)]
+debug: Replacing redundant declaration let head_offset#0: uint64 = (* tmp%2#0 2u) with copy of existing registers [Register(source_location=INTERNAL:270:59-74, ir_type=uint64, name='tmp%3', version=0)]
 debug: Found equivalence set: tmp%3#0, head_offset#0
 debug: selected head_offset#0 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -982,9 +979,9 @@ debug: Merged linear block@6 into block@5
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%1#1: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:298:59-78, ir_type=uint64, name='tmp%1', version=0)]
-debug: Replacing redundant declaration let tmp%4#1: uint64 = (* array_length#0 2u) with copy of existing registers [Register(source_location=INTERNAL:326:8-28, ir_type=uint64, name='tmp%0', version=1)]
-debug: Replacing redundant declaration let head_offset#0: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:298:59-78, ir_type=uint64, name='tmp%1', version=0)]
+debug: Replacing redundant declaration let tmp%1#1: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:308:59-78, ir_type=uint64, name='tmp%1', version=0)]
+debug: Replacing redundant declaration let tmp%4#1: uint64 = (* array_length#0 2u) with copy of existing registers [Register(source_location=INTERNAL:337:8-28, ir_type=uint64, name='tmp%0', version=1)]
+debug: Replacing redundant declaration let head_offset#0: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:308:59-78, ir_type=uint64, name='tmp%1', version=0)]
 debug: Found equivalence set: tmp%1#0, tmp%1#1, head_offset#0
 debug: selected head_offset#0 from equivalence set
 debug: Found equivalence set: tmp%0#1, tmp%4#1
@@ -1026,8 +1023,8 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%4#0: uint64 = (* length#0 2u) with copy of existing registers [Register(source_location=INTERNAL:326:8-28, ir_type=uint64, name='tmp%0', version=0)]
-debug: Replacing redundant declaration let head_offset#0: uint64 = (* start_at_index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:327:44-72, ir_type=uint64, name='tmp%1', version=0)]
+debug: Replacing redundant declaration let tmp%4#0: uint64 = (* length#0 2u) with copy of existing registers [Register(source_location=INTERNAL:337:8-28, ir_type=uint64, name='tmp%0', version=0)]
+debug: Replacing redundant declaration let head_offset#0: uint64 = (* start_at_index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:338:44-72, ir_type=uint64, name='tmp%1', version=0)]
 debug: Found equivalence set: tmp%0#0, tmp%4#0
 debug: selected tmp%0#0 from equivalence set
 debug: Found equivalence set: tmp%1#0, head_offset#0
@@ -2451,7 +2448,7 @@ debug: Merged linear block@5 into block@4
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let head_offset#0: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:298:59-78, ir_type=uint64, name='tmp%1', version=1)]
+debug: Replacing redundant declaration let head_offset#0: uint64 = (* index#0 2u) with copy of existing registers [Register(source_location=INTERNAL:308:59-78, ir_type=uint64, name='tmp%1', version=1)]
 debug: Found equivalence set: tmp%1#1, head_offset#0
 debug: selected head_offset#0 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -6678,18 +6675,18 @@ debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[7]: 'l-stor
 debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[9]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
 debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[11]: 'l-store-copy tmp%16#0 0'
 debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[13]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[37]: 'l-store-copy tmp%25#0 0'
-debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[39]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
-debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[21]: 'l-store-copy tmp%20#0 0'
-debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[24]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
-debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[34]: 'l-store-copy tmp%24#0 0'
-debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[37]: 'v-load tmp%24#0' with 'l-load tmp%24#0'
-debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[29]: 'l-store-copy tmp%23#0 0'
-debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[33]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
+debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[37]: 'l-store-copy tmp%24#0 0'
+debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[39]: 'v-load tmp%24#0' with 'l-load tmp%24#0'
+debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[21]: 'l-store-copy tmp%19#0 0'
+debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[24]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
+debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[34]: 'l-store-copy tmp%23#0 0'
+debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[37]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
+debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[29]: 'l-store-copy tmp%22#0 0'
+debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[33]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
 debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[16]: 'l-store-copy tmp%17#0 0'
 debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[24]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
-debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[27]: 'l-store-copy tmp%21#0 0'
-debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[39]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
+debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[27]: 'l-store-copy tmp%20#0 0'
+debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[39]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
 debug: Inserted dynamic_array_replace_dynamic_element_block@0.ops[2]: 'l-store-copy size_b#0 0'
 debug: Replaced dynamic_array_replace_dynamic_element_block@0.ops[4]: 'v-load size_b#0' with 'l-load size_b#0'
 debug: Inserted dynamic_array_replace_dynamic_element_block@0.ops[21]: 'l-store-copy tmp%2#1 0'
@@ -6762,7 +6759,7 @@ debug: Found 4 edge set/s for _puya_lib.arc4.dynamic_array_concat_dynamic_elemen
 debug: Found 2 edge set/s for _puya_lib.arc4.dynamic_array_replace_dynamic_element
 debug: _puya_lib.arc4.dynamic_array_pop_dynamic_element f-stack entry: []
 debug: _puya_lib.arc4.dynamic_array_pop_dynamic_element f-stack on first store: ['length_minus_1#0', 'popped_header_offset#0', 'head_and_tail#0', 'popped_offset#0', 'popped#0', 'new_head#0', 'head_offset#0']
-debug: _puya_lib.arc4.dynamic_array_concat_dynamic_element f-stack entry: ['item_offset_adjustment#2']
+debug: _puya_lib.arc4.dynamic_array_concat_dynamic_element f-stack entry: ['head_and_tail_length#0']
 debug: _puya_lib.arc4.dynamic_array_concat_dynamic_element f-stack on first store: ['new_head#0', 'item_offset_adjustment#0', 'tmp%1#0', 'head_offset#0']
 debug: _puya_lib.arc4.dynamic_array_replace_dynamic_element f-stack entry: []
 debug: _puya_lib.arc4.dynamic_array_replace_dynamic_element f-stack on first store: ['size_b#0', 'head_offset#0', 'original_item_length#0', 'new_item_length#0', 'new_head_and_tail#0', 'tmp%15#0']
@@ -6770,7 +6767,7 @@ debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program(
 debug: optimizing TEAL subroutine ops _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> bytes, bytes:
 debug: optimizing TEAL subroutine ops _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 debug: optimizing TEAL subroutine ops _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-debug: Replaced 'Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('array_head_and_tail#0',)), StackDefine(local_ids=('array_head_and_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4); Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=2), StackExtend(local_ids=('end_offset#0',)), StackDefine(local_ids=('end_offset#0',))), n=2, op_code='uncover', consumes=3, produces=3); Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('end_of_tail#0',)), StackDefine(local_ids=('end_of_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4)' with 'Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=3, op_code='cover', consumes=4, produces=4); Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=1, op_code='cover', consumes=2, produces=2)', reducing by 1 ops by search
+debug: Replaced 'Uncover(source_location=INTERNAL:280:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('array_head_and_tail#0',)), StackDefine(local_ids=('array_head_and_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4); Uncover(source_location=INTERNAL:280:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=2), StackExtend(local_ids=('end_offset#0',)), StackDefine(local_ids=('end_offset#0',))), n=2, op_code='uncover', consumes=3, produces=3); Uncover(source_location=INTERNAL:280:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('end_of_tail#0',)), StackDefine(local_ids=('end_of_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4)' with 'Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=3, op_code='cover', consumes=4, produces=4); Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=1, op_code='cover', consumes=2, produces=2)', reducing by 1 ops by search
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.approval_program() -> uint64:
 debug: inlining single reference block main_block@0 into main
 debug: inlining single reference block main_abi_routing@2 into main
