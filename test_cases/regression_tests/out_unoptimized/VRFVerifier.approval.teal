@@ -16,7 +16,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@6
+    bz main___algopy_default_create@5
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -26,15 +26,12 @@ main_abi_routing@2:
     pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
     uncover 1
     match main_verify_route@3
-    b main_switch_case_default@4
+    b main_switch_case_next@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
+main_switch_case_next@4:
+    b main_after_if_else@6
 
-main_switch_case_next@5:
-    b main_after_if_else@7
-
-main_after_if_else@7:
+main_after_if_else@6:
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     err
@@ -51,9 +48,9 @@ main_verify_route@3:
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
     callsub verify
-    b main_switch_case_next@5
+    b main_switch_case_next@4
 
-main___algopy_default_create@6:
+main___algopy_default_create@5:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -62,12 +59,12 @@ main___algopy_default_create@6:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@9
+    b main_block@8
 
-main_block@9:
-    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create@10
+main_block@8:
+    b main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create@9
 
-main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create@10:
+main_after_inlined_test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create@9:
     intc_1 // 1
     return
 
@@ -87,7 +84,7 @@ ensure_budget_while_top@1:
     global OpcodeBudget
     frame_dig 0
     <
-    bz ensure_budget_after_while@7
+    bz ensure_budget_after_while@6
     b ensure_budget_while_body@2
 
 ensure_budget_while_body@2:
@@ -104,26 +101,23 @@ ensure_budget_while_body@2:
     intc_1 // 1
     frame_dig -1
     match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
-    b ensure_budget_switch_case_default@5
+    b ensure_budget_switch_case_next@5
 
-ensure_budget_switch_case_default@5:
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_switch_case_next@6:
+ensure_budget_switch_case_next@5:
     itxn_submit
     b ensure_budget_while_top@1
 
 ensure_budget_switch_case_1@4:
     global MinTxnFee
     itxn_field Fee
-    b ensure_budget_switch_case_next@6
+    b ensure_budget_switch_case_next@5
 
 ensure_budget_switch_case_0@3:
     intc_0 // 0
     itxn_field Fee
-    b ensure_budget_switch_case_next@6
+    b ensure_budget_switch_case_next@5
 
-ensure_budget_after_while@7:
+ensure_budget_after_while@6:
     retsub
 
 

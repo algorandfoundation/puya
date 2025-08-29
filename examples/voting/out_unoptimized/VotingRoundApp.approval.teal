@@ -36,7 +36,7 @@ ensure_budget_while_top@1:
     global OpcodeBudget
     frame_dig 0
     <
-    bz ensure_budget_after_while@7
+    bz ensure_budget_after_while@6
     b ensure_budget_while_body@2
 
 ensure_budget_while_body@2:
@@ -53,26 +53,23 @@ ensure_budget_while_body@2:
     intc_1 // 1
     frame_dig -1
     match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
-    b ensure_budget_switch_case_default@5
+    b ensure_budget_switch_case_next@5
 
-ensure_budget_switch_case_default@5:
-    b ensure_budget_switch_case_next@6
-
-ensure_budget_switch_case_next@6:
+ensure_budget_switch_case_next@5:
     itxn_submit
     b ensure_budget_while_top@1
 
 ensure_budget_switch_case_1@4:
     global MinTxnFee
     itxn_field Fee
-    b ensure_budget_switch_case_next@6
+    b ensure_budget_switch_case_next@5
 
 ensure_budget_switch_case_0@3:
     intc_0 // 0
     itxn_field Fee
-    b ensure_budget_switch_case_next@6
+    b ensure_budget_switch_case_next@5
 
-ensure_budget_after_while@7:
+ensure_budget_after_while@6:
     retsub
 
 
@@ -1455,7 +1452,7 @@ approval_program_block@1:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@9
+    bz approval_program_create_NoOp@8
     b approval_program_call_NoOp@2
 
 approval_program_call_NoOp@2:
@@ -1468,15 +1465,12 @@ approval_program_call_NoOp@2:
     pushbytes 0x84a53c6e // method "vote(pay,byte[],uint8[])void"
     uncover 4
     match approval_program_bootstrap_route@3 approval_program_close_route@4 approval_program_get_preconditions_route@5 approval_program_vote_route@6
-    b approval_program_switch_case_default@7
+    b approval_program_switch_case_next@7
 
-approval_program_switch_case_default@7:
-    b approval_program_switch_case_next@8
+approval_program_switch_case_next@7:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
+approval_program_after_if_else@11:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     err
@@ -1485,43 +1479,40 @@ approval_program_vote_route@6:
     // voting/voting.py:169
     // @arc4.abimethod
     callsub vote
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
 approval_program_get_preconditions_route@5:
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
     callsub get_preconditions
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
 approval_program_close_route@4:
     // voting/voting.py:110
     // @arc4.abimethod
     callsub close
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
 approval_program_bootstrap_route@3:
     // voting/voting.py:82
     // @arc4.abimethod
     callsub bootstrap
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@7
 
-approval_program_create_NoOp@9:
+approval_program_create_NoOp@8:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     uncover 1
-    match approval_program_create_route@10
-    b approval_program_switch_case_default@11
+    match approval_program_create_route@9
+    b approval_program_switch_case_next@10
 
-approval_program_switch_case_default@11:
-    b approval_program_switch_case_next@12
+approval_program_switch_case_next@10:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@12:
-    b approval_program_after_if_else@13
-
-approval_program_create_route@10:
+approval_program_create_route@9:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
     callsub create
-    b approval_program_switch_case_next@12
+    b approval_program_switch_case_next@10

@@ -2,35 +2,35 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@13
+        goto tmp%0#1 ? block@2 : block@12
     block@2: // abi_routing_L4
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%4#0 ? block@3 : block@12
+        goto tmp%4#0 ? block@3 : block@11
     block@3: // call_NoOp_L4
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "sha256()byte[]" => block@4, method "sha3_256()byte[]" => block@5, method "sha512_256()byte[]" => block@6, method "keccak256()byte[]" => block@7, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@8, * => block@12}
+        switch tmp%6#0 {method "sha256()byte[]" => block@4, method "sha3_256()byte[]" => block@5, method "sha512_256()byte[]" => block@6, method "keccak256()byte[]" => block@7, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@8, * => block@11}
     block@4: // sha256_route_L5
         test_cases.intrinsics.optimizations.Optimizations.sha256[routing]()
-        goto block@12
+        goto block@11
     block@5: // sha3_256_route_L9
         test_cases.intrinsics.optimizations.Optimizations.sha3_256[routing]()
-        goto block@12
+        goto block@11
     block@6: // sha512_256_route_L13
         test_cases.intrinsics.optimizations.Optimizations.sha512_256[routing]()
-        goto block@12
+        goto block@11
     block@7: // keccak256_route_L17
         test_cases.intrinsics.optimizations.Optimizations.keccak256[routing]()
-        goto block@12
+        goto block@11
     block@8: // all_route_L21
         test_cases.intrinsics.optimizations.Optimizations.all[routing]()
-        goto block@12
-    block@12: // after_if_else_L4
+        goto block@11
+    block@11: // after_if_else_L4
         fail
-    block@13: // __algopy_default_create_L1
+    block@12: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)

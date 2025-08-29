@@ -1,10 +1,10 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@6
+        goto tmp%0#1 ? block@2 : block@5
     block@2: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "verify(byte[],byte[],byte[])(byte[],bool)" => block@3, * => block@5}
+        switch tmp%2#0 {method "verify(byte[],byte[],byte[])(byte[],bool)" => block@3, * => block@4}
     block@3: // verify_route_L5
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -17,12 +17,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let proof#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
         let pk#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%2#0)
-        goto block@8
-    block@8: // while_top_L20
+        goto block@7
+    block@7: // while_top_L20
         let tmp%1#3: uint64 = (global OpcodeBudget)
         let tmp%2#1: bool = (> 10010u tmp%1#3)
-        goto tmp%2#1 ? block@9 : block@13
-    block@9: // while_body_L21
+        goto tmp%2#1 ? block@8 : block@12
+    block@8: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
         ((itxn_field OnCompletion) DeleteApplication)
@@ -31,8 +31,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#0: uint64 = (global MinTxnFee)
         ((itxn_field Fee) tmp%3#0)
         itxn_submit
-        goto block@8
-    block@13: // after_while_L20
+        goto block@7
+    block@12: // after_while_L20
         let (tmp%0#3: bytes, tmp%1#2: bool) = ((vrf_verify VrfAlgorand) message#0 proof#0 pk#0)
         let aggregate%length%0#0: uint64 = (len tmp%0#3)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
@@ -44,9 +44,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#1: bytes = (concat 0x151f7c75 aggregate%concat%0#0)
         (log tmp%6#1)
         exit 1u
-    block@5: // switch_case_next_L4
+    block@4: // switch_case_next_L4
         fail
-    block@6: // __algopy_default_create_L1
+    block@5: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (! tmp%8#0)
         let tmp%10#0: uint64 = (txn ApplicationID)

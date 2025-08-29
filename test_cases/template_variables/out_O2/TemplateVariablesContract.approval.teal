@@ -6,7 +6,7 @@ main:
     intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_STRUCT TMPL_TUPLE TMPL_NAMED_TUPLE TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
     txn NumAppArgs
-    bz main_bare_routing@13
+    bz main_bare_routing@12
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -16,7 +16,7 @@ main:
     txna ApplicationArgs 0
     match main_get_bytes_route@4 main_get_big_uint_route@5 main_get_a_named_tuple_route@6 main_get_a_tuple_route@7 main_get_a_struct_route@8
 
-main_after_if_else@19:
+main_after_if_else@17:
     err
 
 main_get_a_struct_route@8:
@@ -75,24 +75,24 @@ main_get_bytes_route@4:
     intc_0 // 1
     return
 
-main_bare_routing@13:
+main_bare_routing@12:
     txn OnCompletion
-    switch main___algopy_default_create@14 main_after_if_else@19 main_after_if_else@19 main_after_if_else@19 main_on_update@15 main_on_delete@16
+    switch main___algopy_default_create@13 main_after_if_else@17 main_after_if_else@17 main_after_if_else@17 main_on_update@14 main_on_delete@15
     err
 
-main_on_delete@16:
+main_on_delete@15:
     txn ApplicationID
     assert // can only call when not creating
     intc_2 // TMPL_DELETABLE
     return
 
-main_on_update@15:
+main_on_update@14:
     txn ApplicationID
     assert // can only call when not creating
     intc_3 // TMPL_UPDATABLE
     return
 
-main___algopy_default_create@14:
+main___algopy_default_create@13:
     txn ApplicationID
     !
     return // on error: can only call when creating

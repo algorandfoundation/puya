@@ -4,7 +4,7 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // L37
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@7
+        goto tmp%1#0 ? block@2 : block@6
     block@2: // abi_routing_L37
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "delete()void" => block@3, method "get_big_bytes_length()uint64" => block@4, * => block@5}
@@ -16,7 +16,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
         (assert tmp%7#0) // OnCompletion must be DeleteApplication && can only call when not creating
         test_cases.compile.apps.LargeProgram.delete[routing]()
-        goto block@6
+        goto block@5
     block@4: // get_big_bytes_length_route_L38
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
@@ -25,26 +25,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
         (assert tmp%12#0) // OnCompletion must be NoOp && can only call when not creating
         test_cases.compile.apps.LargeProgram.get_big_bytes_length[routing]()
-        goto block@6
-    block@5: // switch_case_default_L37
-        goto block@6
-    block@6: // switch_case_next_L37
-        goto block@8
-    block@7: // __algopy_default_create_L1
+        goto block@5
+    block@5: // switch_case_next_L37
+        goto block@7
+    block@6: // __algopy_default_create_L1
         let tmp%13#0: uint64 = (txn OnCompletion)
         let tmp%14#0: bool = (== tmp%13#0 NoOp)
         let tmp%15#0: uint64 = (txn ApplicationID)
         let tmp%16#0: bool = (== tmp%15#0 0u)
         let tmp%17#0: bool = (&& tmp%14#0 tmp%16#0)
         (assert tmp%17#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@9
+    block@9: // L1
         goto block@10
-    block@10: // L1
-        goto block@11
-    block@11: // after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create_L1
+    block@10: // after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create_L1
         exit 1u
-    block@8: // after_if_else_L37
+    block@7: // after_if_else_L37
         exit 0u
-    block@9: // after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router___L1
+    block@8: // after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 

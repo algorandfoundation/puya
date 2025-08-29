@@ -187,12 +187,9 @@ approval_program_block@1:
     pushbytes 0x24378d3c // method "delete()void"
     uncover 1
     match approval_program_delete_route@2
-    b approval_program_switch_case_default@3
+    b approval_program_switch_case_next@3
 
-approval_program_switch_case_default@3:
-    b approval_program_switch_case_next@4
-
-approval_program_switch_case_next@4:
+approval_program_switch_case_next@3:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     txn OnCompletion
@@ -202,55 +199,49 @@ approval_program_switch_case_next@4:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@9
-    b approval_program_call_NoOp@5
+    bz approval_program_create_NoOp@7
+    b approval_program_call_NoOp@4
 
-approval_program_call_NoOp@5:
+approval_program_call_NoOp@4:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x5b0c2375 // method "greet(string)byte[]"
     uncover 1
-    match approval_program_greet_route@6
-    b approval_program_switch_case_default@7
+    match approval_program_greet_route@5
+    b approval_program_switch_case_next@6
 
-approval_program_switch_case_default@7:
-    b approval_program_switch_case_next@8
+approval_program_switch_case_next@6:
+    b approval_program_after_if_else@10
 
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
+approval_program_after_if_else@10:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     err
 
-approval_program_greet_route@6:
+approval_program_greet_route@5:
     // compile/apps.py:91
     // @arc4.abimethod()
     callsub greet
-    b approval_program_switch_case_next@8
+    b approval_program_switch_case_next@6
 
-approval_program_create_NoOp@9:
+approval_program_create_NoOp@7:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd9285a74 // method "create()uint64"
     uncover 1
-    match approval_program_create_route@10
-    b approval_program_switch_case_default@11
+    match approval_program_create_route@8
+    b approval_program_switch_case_next@9
 
-approval_program_switch_case_default@11:
-    b approval_program_switch_case_next@12
+approval_program_switch_case_next@9:
+    b approval_program_after_if_else@10
 
-approval_program_switch_case_next@12:
-    b approval_program_after_if_else@13
-
-approval_program_create_route@10:
+approval_program_create_route@8:
     // compile/apps.py:83
     // @arc4.abimethod(create="require")
     callsub create
-    b approval_program_switch_case_next@12
+    b approval_program_switch_case_next@9
 
 approval_program_delete_route@2:
     // compile/apps.py:87
@@ -264,4 +255,4 @@ approval_program_delete_route@2:
     &&
     assert // OnCompletion must be DeleteApplication && can only call when not creating
     callsub delete
-    b approval_program_switch_case_next@4
+    b approval_program_switch_case_next@3
