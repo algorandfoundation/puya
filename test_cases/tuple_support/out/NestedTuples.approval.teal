@@ -114,41 +114,11 @@ test_nested_singles:
     intc_0 // 1
     ==
     assert
-    frame_dig -2
     // tuple_support/nested_tuples.py:261
     // if reassign:
     frame_dig -1
-    bz test_nested_singles_after_if_else@2
-    // tuple_support/nested_tuples.py:263
-    // (UInt64(3),),
-    pushint 3 // 3
-    // tuple_support/nested_tuples.py:262-266
-    // s = (
-    //     (UInt64(3),),
-    //     (UInt64(4),),
-    //     (UInt64(5),),
-    // )
-    frame_bury 0
-    // tuple_support/nested_tuples.py:264
-    // (UInt64(4),),
-    pushint 4 // 4
-    // tuple_support/nested_tuples.py:262-266
-    // s = (
-    //     (UInt64(3),),
-    //     (UInt64(4),),
-    //     (UInt64(5),),
-    // )
-    frame_bury 2
-    // tuple_support/nested_tuples.py:265
-    // (UInt64(5),),
-    pushint 5 // 5
-    // tuple_support/nested_tuples.py:262-266
-    // s = (
-    //     (UInt64(3),),
-    //     (UInt64(4),),
-    //     (UInt64(5),),
-    // )
-    frame_bury 1
+    bnz test_nested_singles_if_body@1
+    frame_dig -2
 
 test_nested_singles_after_if_else@2:
     // tuple_support/nested_tuples.py:267
@@ -171,9 +141,7 @@ test_nested_singles_after_if_else@2:
     assert
     // tuple_support/nested_tuples.py:273
     // s1 += one
-    frame_dig 2
-    dup
-    cover 2
+    dig 1
     frame_dig -2
     +
     // tuple_support/nested_tuples.py:274
@@ -189,6 +157,30 @@ test_nested_singles_after_if_else@2:
     ==
     assert
     retsub
+
+test_nested_singles_if_body@1:
+    // tuple_support/nested_tuples.py:263
+    // (UInt64(3),),
+    pushint 3 // 3
+    // tuple_support/nested_tuples.py:262-266
+    // s = (
+    //     (UInt64(3),),
+    //     (UInt64(4),),
+    //     (UInt64(5),),
+    // )
+    frame_bury 0
+    // tuple_support/nested_tuples.py:264-265
+    // (UInt64(4),),
+    // (UInt64(5),),
+    pushints 4 5 // 4, 5
+    // tuple_support/nested_tuples.py:262-266
+    // s = (
+    //     (UInt64(3),),
+    //     (UInt64(4),),
+    //     (UInt64(5),),
+    // )
+    frame_bury 1
+    b test_nested_singles_after_if_else@2
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routing]() -> void:

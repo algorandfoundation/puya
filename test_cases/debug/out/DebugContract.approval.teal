@@ -143,8 +143,6 @@ itoa_after_if_else@2:
 test:
     pushint 0 // 0
     dup
-    pushbytes ""
-    dup
     // debug/contract.py:5
     // @arc4.abimethod
     txna ApplicationArgs 1
@@ -212,7 +210,7 @@ test_after_if_else@15:
     dig 1
     dup
     callsub itoa
-    bury 10
+    bury 8
     // debug/contract.py:25
     // c = a + b
     dig 3
@@ -225,76 +223,62 @@ test_after_if_else@15:
     // cea = itoa(c)
     dup
     callsub itoa
-    bury 10
+    bury 8
     // debug/contract.py:28
     // if a < c:
-    dig 1
-    >
-    swap
-    bury 8
+    <
     bz test_after_if_else@17
     // debug/contract.py:29
     // a += c
     dig 2
     dig 1
     +
-    bury 7
+    bury 3
 
 test_after_if_else@17:
-    dig 6
-    dup
-    bury 4
     // debug/contract.py:30
     // if a < b:
-    dup
-    dig 3
+    dig 2
+    dig 2
     <
-    swap
-    bury 8
     bz test_after_if_else@19
     // debug/contract.py:31
     // a += b
     dig 2
     dig 2
     +
-    bury 7
+    bury 3
 
 test_after_if_else@19:
-    dig 6
-    dup
-    bury 4
     // debug/contract.py:32
     // if a < b + c:
-    dig 2
-    dig 2
+    dup2
     +
-    dig 1
+    dig 3
     >
-    swap
-    bury 8
     bz test_after_if_else@21
     // debug/contract.py:33
     // a = a * z
     dig 2
     dig 4
     *
-    bury 7
+    bury 3
 
 test_after_if_else@21:
-    dig 6
     // debug/contract.py:35
     // aye = itoa(a)
+    dig 2
     dup
     callsub itoa
     // debug/contract.py:36
     // log(aye, bee, cea, sep=" ")
     bytec_1 // " "
     concat
-    dig 10
+    dig 8
     concat
     bytec_1 // " "
     concat
-    dig 9
+    dig 7
     concat
     log
     // debug/contract.py:5
@@ -352,20 +336,13 @@ test_else_body@7:
     // debug/contract.py:16
     // elif b > a:
     dig 1
-    dup
-    dig 4
+    dig 3
     >
-    swap
-    bury 7
-    bz test_after_if_else@9
+    bz test_after_if_else@12
     // debug/contract.py:17
     // b = b + a
     dig 1
     dig 3
     +
-    bury 6
-
-test_after_if_else@9:
-    dig 5
     bury 2
     b test_after_if_else@12

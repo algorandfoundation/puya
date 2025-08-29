@@ -8,7 +8,6 @@ main:
     intc_0 // 0
     dup
     pushbytes ""
-    dupn 2
     txn ApplicationID
     bnz main_after_if_else@2
     txn NumAppArgs
@@ -138,7 +137,7 @@ main_test_arr_route@17:
     itob
     concat
     dup
-    bury 7
+    bury 5
     dig 2
     swap
     concat // on error: max array length exceeded
@@ -189,17 +188,17 @@ main_test_arr_route@17:
     ==
     assert // expected arrays to be the same
     intc_0 // 0
-    bury 4
-    bury 5
+    bury 2
+    bury 3
 
 main_for_header@27:
-    dig 2
+    dup
     pushint 3 // 3
     <
     bz main_after_for@29
-    dig 4
+    dig 2
     dup
-    dig 5
+    dig 3
     concat // on error: max array length exceeded
     swap
     intc_0 // 0
@@ -209,15 +208,15 @@ main_for_header@27:
     itob
     extract 6 2
     replace2 0
-    bury 5
-    dig 2
+    bury 3
+    dup
     intc_1 // 1
     +
-    bury 3
+    bury 1
     b main_for_header@27
 
 main_after_for@29:
-    dig 4
+    dig 2
     dup
     intc_0 // 0
     extract_uint16
@@ -274,7 +273,7 @@ main_after_for@29:
     pushbytes "arr"
     dig 1
     app_global_put
-    dig 4
+    dig 2
     len
     intc_2 // 16
     /
@@ -311,12 +310,8 @@ main_calculate_sum_route@16:
     +
     +
     dup
-    bury 3
-    dup
     pushint 100 // 100
     <
-    swap
-    bury 2
     bz main_after_if_else@33
     intc_0 // 0
     bytec_0 // "nested"
@@ -329,14 +324,11 @@ main_calculate_sum_route@16:
     swap
     intc_3 // 8
     extract_uint64
-    dig 3
-    uncover 2
+    cover 2
     +
     +
-    bury 1
 
 main_after_if_else@33:
-    dup
     itob
     bytec_1 // 0x151f7c75
     swap

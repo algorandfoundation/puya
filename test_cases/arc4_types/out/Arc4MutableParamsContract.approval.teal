@@ -299,7 +299,7 @@ mutate_tuple_items_and_reassign:
     // ) -> None:
     proto 5 3
     intc_1 // 0
-    dupn 8
+    dupn 7
     intc_2 // 1
     dupn 2
     // arc4_types/mutable_params.py:140
@@ -425,11 +425,11 @@ mutate_tuple_items_and_reassign:
     frame_dig -1
     bz mutate_tuple_items_and_reassign_after_if_else@20
     intc_1 // 0
+    frame_bury 8
+    intc_1 // 0
     frame_bury 9
     intc_1 // 0
     frame_bury 10
-    intc_1 // 0
-    frame_bury 11
 
 mutate_tuple_items_and_reassign_after_if_else@20:
     // arc4_types/mutable_params.py:156
@@ -450,11 +450,9 @@ mutate_tuple_items_and_reassign_after_if_else@20:
     swap
     replace2 1 // on error: index access is out of bounds
     frame_bury 3
+    frame_dig 8
+    bnz mutate_tuple_items_and_reassign_if_body@21
     frame_dig -5
-    frame_bury 4
-    frame_dig 9
-    bz mutate_tuple_items_and_reassign_after_if_else@22
-    frame_dig 3
     frame_bury 4
 
 mutate_tuple_items_and_reassign_after_if_else@22:
@@ -476,11 +474,9 @@ mutate_tuple_items_and_reassign_after_if_else@22:
     swap
     replace2 1 // on error: index access is out of bounds
     frame_bury 5
+    frame_dig 9
+    bnz mutate_tuple_items_and_reassign_if_body@23
     frame_dig -4
-    frame_bury 6
-    frame_dig 10
-    bz mutate_tuple_items_and_reassign_after_if_else@24
-    frame_dig 5
     frame_bury 6
 
 mutate_tuple_items_and_reassign_after_if_else@24:
@@ -502,12 +498,9 @@ mutate_tuple_items_and_reassign_after_if_else@24:
     swap
     replace2 1 // on error: index access is out of bounds
     frame_bury 7
+    frame_dig 10
+    bnz mutate_tuple_items_and_reassign_if_body@25
     frame_dig -3
-    frame_bury 8
-    frame_dig 11
-    bz mutate_tuple_items_and_reassign_after_if_else@26
-    frame_dig 7
-    frame_bury 8
 
 mutate_tuple_items_and_reassign_after_if_else@26:
     // arc4_types/mutable_params.py:160
@@ -533,8 +526,22 @@ mutate_tuple_items_and_reassign_after_if_else@26:
     assert
     frame_dig 4
     frame_dig 6
-    frame_dig 8
+    uncover 2
     frame_bury 2
     frame_bury 1
     frame_bury 0
     retsub
+
+mutate_tuple_items_and_reassign_if_body@25:
+    frame_dig 7
+    b mutate_tuple_items_and_reassign_after_if_else@26
+
+mutate_tuple_items_and_reassign_if_body@23:
+    frame_dig 5
+    frame_bury 6
+    b mutate_tuple_items_and_reassign_after_if_else@24
+
+mutate_tuple_items_and_reassign_if_body@21:
+    frame_dig 3
+    frame_bury 4
+    b mutate_tuple_items_and_reassign_after_if_else@22

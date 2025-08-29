@@ -6,7 +6,6 @@ main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
     pushbytes ""
-    dup
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "auction_end"
@@ -76,9 +75,7 @@ main_claim_bids_route@10:
     bytec 5 // "claim"
     app_local_get_ex
     swap
-    dup
-    cover 2
-    bury 3
+    bury 2
     assert // check self.claimable_amount exists for account
     txn Sender
     intc_0 // 0
@@ -86,23 +83,13 @@ main_claim_bids_route@10:
     app_global_get_ex
     assert // check self.previous_bidder exists
     ==
-    swap
-    bury 3
-    bz main_after_if_else@18
-    intc_0 // 0
-    bytec_1 // "previous_bid"
-    app_global_get_ex
-    assert // check self.previous_bid exists
-    dig 1
-    swap
-    -
-    bury 2
+    bnz main_if_body@17
+    dup
 
 main_after_if_else@18:
     itxn_begin
     txn Sender
     itxn_field Receiver
-    dig 1
     dup
     itxn_field Amount
     intc_1 // pay
@@ -119,6 +106,16 @@ main_after_if_else@18:
     app_local_put
     intc_1 // 1
     return
+
+main_if_body@17:
+    intc_0 // 0
+    bytec_1 // "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
+    dig 1
+    swap
+    -
+    b main_after_if_else@18
 
 main_bid_route@9:
     txn GroupIndex

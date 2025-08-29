@@ -241,13 +241,9 @@ subroutine test:
         // debug/contract.py:16
         // elif b > a:
         v-load b#0                                                             b#0
-        l-store-copy b#0 0                                                     b#0,b#0 (copy)
-        v-load a#0                                                             b#0,b#0 (copy),a#0
-        >                                                                      b#0,tmp%9#0
-        l-load b#0 1                                                           tmp%9#0,b#0
-        v-store b#10                                                           tmp%9#0
-        l-load tmp%9#0 0                                                       tmp%9#0
-        bz test_after_if_else@9 ; b test_if_body@8
+        v-load a#0                                                             b#0,a#0
+        >                                                                      tmp%9#0
+        bz test_after_if_else@12 ; b test_if_body@8
 
     test_if_body@8:
         // debug/contract.py:17
@@ -255,11 +251,6 @@ subroutine test:
         v-load b#0                                                             b#0
         v-load a#0                                                             b#0,a#0
         +                                                                      b#0
-        v-store b#10
-        b test_after_if_else@9
-
-    test_after_if_else@9:
-        v-load b#10                                                            b#10
         v-store b#0
         b test_after_if_else@12
 
@@ -321,12 +312,9 @@ subroutine test:
         v-store cea#0                                                          a#0,c#0
         // debug/contract.py:28
         // if a < c:
-        l-load-copy a#0 1                                                      a#0,c#0,a#0 (copy)
-        l-load c#0 1                                                           a#0,a#0 (copy),c#0
-        <                                                                      a#0,tmp%20#0
-        l-load a#0 1                                                           tmp%20#0,a#0
-        v-store a#30                                                           tmp%20#0
-        l-load tmp%20#0 0                                                      tmp%20#0
+        l-load a#0 1                                                           c#0,a#0
+        l-load c#0 1                                                           a#0,c#0
+        <                                                                      tmp%20#0
         bz test_after_if_else@17 ; b test_if_body@16
 
     test_if_body@16:
@@ -335,21 +323,15 @@ subroutine test:
         v-load a#0                                                             a#0
         v-load c#0                                                             a#0,c#0
         +                                                                      a#0
-        v-store a#30
+        v-store a#0
         b test_after_if_else@17
 
     test_after_if_else@17:
-        v-load a#30                                                            a#0
-        l-store-copy a#0 0                                                     a#0,a#0 (copy)
-        v-store a#0                                                            a#0
         // debug/contract.py:30
         // if a < b:
-        l-load-copy a#0 0                                                      a#0,a#0 (copy)
-        v-load b#0                                                             a#0,a#0 (copy),b#0
-        <                                                                      a#0,tmp%22#0
-        l-load a#0 1                                                           tmp%22#0,a#0
-        v-store a#30                                                           tmp%22#0
-        l-load tmp%22#0 0                                                      tmp%22#0
+        v-load a#0                                                             a#0
+        v-load b#0                                                             a#0,b#0
+        <                                                                      tmp%22#0
         bz test_after_if_else@19 ; b test_if_body@18
 
     test_if_body@18:
@@ -358,24 +340,18 @@ subroutine test:
         v-load a#0                                                             a#0
         v-load b#0                                                             a#0,b#0
         +                                                                      a#0
-        v-store a#30
+        v-store a#0
         b test_after_if_else@19
 
     test_after_if_else@19:
-        v-load a#30                                                            a#0
-        l-store-copy a#0 0                                                     a#0,a#0 (copy)
-        v-store a#0                                                            a#0
         // debug/contract.py:32
         // if a < b + c:
-        v-load b#0                                                             a#0,b#0
-        v-load c#0                                                             a#0,b#0,c#0
-        +                                                                      a#0,tmp%24#0
-        l-load-copy a#0 1                                                      a#0,tmp%24#0,a#0 (copy)
-        l-load tmp%24#0 1                                                      a#0,a#0 (copy),tmp%24#0
-        <                                                                      a#0,tmp%25#0
-        l-load a#0 1                                                           tmp%25#0,a#0
-        v-store a#30                                                           tmp%25#0
-        l-load tmp%25#0 0                                                      tmp%25#0
+        v-load b#0                                                             b#0
+        v-load c#0                                                             b#0,c#0
+        +                                                                      tmp%24#0
+        v-load a#0                                                             tmp%24#0,a#0
+        l-load tmp%24#0 1                                                      a#0,tmp%24#0
+        <                                                                      tmp%25#0
         bz test_after_if_else@21 ; b test_if_body@20
 
     test_if_body@20:
@@ -384,14 +360,14 @@ subroutine test:
         v-load a#0                                                             a#0
         v-load z#0                                                             a#0,z#0
         *                                                                      a#0
-        v-store a#30
+        v-store a#0
         b test_after_if_else@21
 
     test_after_if_else@21:
-        v-load a#30                                                            a#0
         // debug/contract.py:35
         // aye = itoa(a)
-        l-load-copy a#0 0                                                      a#0,a#0 (copy)
+        v-load a#0                                                             a#0
+        l-store-copy a#0 0                                                     a#0,a#0 (copy)
         callsub itoa                                                           a#0,aye#0
         // debug/contract.py:36
         // log(aye, bee, cea, sep=" ")

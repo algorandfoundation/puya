@@ -30,19 +30,13 @@ subroutine main:
         // bug_load_store_load_store/contract.py:15
         // elif get_bool():  # noqa: SIM102
         callsub get_bool                             tmp%1#0
-        v-load val#0                                 tmp%1#0,val#0
-        v-store val#11                               tmp%1#0
-        l-load tmp%1#0 0                             tmp%1#0
-        bz main_after_if_else@8 ; b main_if_body@5
+        bz main_after_if_else@9 ; b main_if_body@5
 
     main_if_body@5:
         // bug_load_store_load_store/contract.py:16
         // if not get_bool():
         callsub get_bool                             tmp%2#0
-        v-load val#0                                 tmp%2#0,val#0
-        v-store val#11                               tmp%2#0
-        l-load tmp%2#0 0                             tmp%2#0
-        bz main_if_body@6 ; b main_after_if_else@7
+        bz main_if_body@6 ; b main_after_if_else@9
 
     main_if_body@6:
         // bug_load_store_load_store/contract.py:17
@@ -50,14 +44,6 @@ subroutine main:
         v-load val#0                                 val#0
         int 123                                      val#0,123
         +                                            val#0
-        v-store val#11
-        b main_after_if_else@7
-
-    main_after_if_else@7:
-        b main_after_if_else@8
-
-    main_after_if_else@8:
-        v-load val#11                                val#11
         v-store val#0
         b main_after_if_else@9
 
