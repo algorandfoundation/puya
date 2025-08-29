@@ -28,7 +28,7 @@ subroutine main:
         v-load i#0                                                                  i#0
         int 4                                                                       i#0,4
         <                                                                           continue_looping%0#0
-        bz main_after_for@14 ; b main_for_body@2
+        bz main_after_for@13 ; b main_for_body@2
 
     main_for_body@2:
         // inner_transactions/itxn_loop.py:20
@@ -41,6 +41,10 @@ subroutine main:
         l-store-copy i#0 2                                                          i#0,0x4142434445,0,i#0 (copy)
         extract3                                                                    i#0,i_note#0
         v-store i_note#0                                                            i#0
+        v-load app_params%%param_ApplicationArgs_idx_2#0                            i#0,app_params%%param_ApplicationArgs_idx_2#0
+        v-store app_params%%param_ApplicationArgs_idx_2#13                          i#0
+        v-load app_params%%param_ApplicationArgs_idx_1#0                            i#0,app_params%%param_ApplicationArgs_idx_1#0
+        v-store app_params%%param_ApplicationArgs_idx_1#13                          i#0
         // inner_transactions/itxn_loop.py:29-38
         // match i:
         //     case UInt64(1):
@@ -53,7 +57,7 @@ subroutine main:
         //             app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
         //         )
         l-load i#0 0                                                                i#0
-        switch main_switch_case_next@7 main_switch_case_0@3 main_switch_case_1@4 main_switch_case_2@5 ; b main_switch_case_next@7 
+        switch main_switch_case_next@6 main_switch_case_0@3 main_switch_case_1@4 main_switch_case_2@5 ; b main_switch_case_next@6 
 
     main_switch_case_0@3:
         // inner_transactions/itxn_loop.py:31
@@ -64,44 +68,57 @@ subroutine main:
         v-store app_params%%ApplicationArgs_length#0
         v-load i_note#0                                                             i_note#0
         v-store app_params%%param_Note_idx_0#0
-        b main_switch_case_next@7
+        v-load app_params%%param_ApplicationArgs_idx_2#0                            app_params%%param_ApplicationArgs_idx_2#0
+        v-store app_params%%param_ApplicationArgs_idx_2#13
+        v-load app_params%%param_ApplicationArgs_idx_1#0                            app_params%%param_ApplicationArgs_idx_1#0
+        v-store app_params%%param_ApplicationArgs_idx_1#13
+        b main_switch_case_next@6
 
     main_switch_case_1@4:
         // inner_transactions/itxn_loop.py:33
         // app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
         byte 0x32                                                                   0x32
         v-store app_params%%param_ApplicationArgs_idx_0#0
-        byte 0x31                                                                   0x31
-        v-store app_params%%param_ApplicationArgs_idx_1#0
-        int 2                                                                       2
-        v-store app_params%%ApplicationArgs_length#0
-        v-load i_note#0                                                             i_note#0
-        v-store app_params%%param_Note_idx_0#0
-        b main_switch_case_next@7
+        byte 0x31                                                                   app_params%%param_ApplicationArgs_idx_1#0
+        int 2                                                                       app_params%%param_ApplicationArgs_idx_1#0,2
+        v-store app_params%%ApplicationArgs_length#0                                app_params%%param_ApplicationArgs_idx_1#0
+        v-load i_note#0                                                             app_params%%param_ApplicationArgs_idx_1#0,i_note#0
+        v-store app_params%%param_Note_idx_0#0                                      app_params%%param_ApplicationArgs_idx_1#0
+        v-load app_params%%param_ApplicationArgs_idx_2#0                            app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0
+        v-store app_params%%param_ApplicationArgs_idx_2#13                          app_params%%param_ApplicationArgs_idx_1#0
+        l-load app_params%%param_ApplicationArgs_idx_1#0 0                          app_params%%param_ApplicationArgs_idx_1#0
+        v-store app_params%%param_ApplicationArgs_idx_1#13
+        b main_switch_case_next@6
 
     main_switch_case_2@5:
         // inner_transactions/itxn_loop.py:37
         // app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
         byte 0x33                                                                   0x33
         v-store app_params%%param_ApplicationArgs_idx_0#0
-        byte 0x32                                                                   0x32
-        v-store app_params%%param_ApplicationArgs_idx_1#0
-        byte 0x31                                                                   0x31
-        v-store app_params%%param_ApplicationArgs_idx_2#0
-        int 3                                                                       3
-        v-store app_params%%ApplicationArgs_length#0
-        v-load i_note#0                                                             i_note#0
-        v-store app_params%%param_Note_idx_0#0
-        b main_switch_case_next@7
+        byte 0x32                                                                   app_params%%param_ApplicationArgs_idx_1#0
+        byte 0x31                                                                   app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0
+        int 3                                                                       app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0,3
+        v-store app_params%%ApplicationArgs_length#0                                app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0
+        v-load i_note#0                                                             app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0,i_note#0
+        v-store app_params%%param_Note_idx_0#0                                      app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0
+        l-load app_params%%param_ApplicationArgs_idx_2#0 0                          app_params%%param_ApplicationArgs_idx_1#0,app_params%%param_ApplicationArgs_idx_2#0
+        v-store app_params%%param_ApplicationArgs_idx_2#13                          app_params%%param_ApplicationArgs_idx_1#0
+        l-load app_params%%param_ApplicationArgs_idx_1#0 0                          app_params%%param_ApplicationArgs_idx_1#0
+        v-store app_params%%param_ApplicationArgs_idx_1#13
+        b main_switch_case_next@6
 
-    main_switch_case_next@7:
+    main_switch_case_next@6:
+        v-load app_params%%param_ApplicationArgs_idx_2#13                           app_params%%param_ApplicationArgs_idx_2#13
+        v-store app_params%%param_ApplicationArgs_idx_2#0
+        v-load app_params%%param_ApplicationArgs_idx_1#13                           app_params%%param_ApplicationArgs_idx_1#13
+        v-store app_params%%param_ApplicationArgs_idx_1#0
         // inner_transactions/itxn_loop.py:39
         // app_txn = app_params.submit()
         itxn_begin
         v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
-        bz main_next_field@11 ; b main_set_ApplicationArgs_0_to_0@8
+        bz main_next_field@10 ; b main_set_ApplicationArgs_0_to_0@7
 
-    main_set_ApplicationArgs_0_to_0@8:
+    main_set_ApplicationArgs_0_to_0@7:
         v-load app_params%%param_ApplicationArgs_idx_0#0                            app_params%%param_ApplicationArgs_idx_0#0
         itxn_field ApplicationArgs
         v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
@@ -109,9 +126,9 @@ subroutine main:
         >=                                                                          is_ApplicationArgs_count_gte_2%0#0
         // inner_transactions/itxn_loop.py:39
         // app_txn = app_params.submit()
-        bz main_next_field@11 ; b main_set_ApplicationArgs_1_to_1@9
+        bz main_next_field@10 ; b main_set_ApplicationArgs_1_to_1@8
 
-    main_set_ApplicationArgs_1_to_1@9:
+    main_set_ApplicationArgs_1_to_1@8:
         v-load app_params%%param_ApplicationArgs_idx_1#0                            app_params%%param_ApplicationArgs_idx_1#0
         itxn_field ApplicationArgs
         v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
@@ -119,14 +136,14 @@ subroutine main:
         >=                                                                          is_ApplicationArgs_count_gte_3%0#0
         // inner_transactions/itxn_loop.py:39
         // app_txn = app_params.submit()
-        bz main_next_field@11 ; b main_set_ApplicationArgs_2_to_2@10
+        bz main_next_field@10 ; b main_set_ApplicationArgs_2_to_2@9
 
-    main_set_ApplicationArgs_2_to_2@10:
+    main_set_ApplicationArgs_2_to_2@9:
         v-load app_params%%param_ApplicationArgs_idx_2#0                            app_params%%param_ApplicationArgs_idx_2#0
         itxn_field ApplicationArgs
-        b main_next_field@11
+        b main_next_field@10
 
-    main_next_field@11:
+    main_next_field@10:
         v-load app_params%%param_Note_idx_0#0                                       app_params%%param_Note_idx_0#0
         itxn_field Note
         // inner_transactions/itxn_loop.py:24
@@ -169,7 +186,7 @@ subroutine main:
         v-store i#0
         b main_for_header@1
 
-    main_after_for@14:
+    main_after_for@13:
         // inner_transactions/itxn_loop.py:43
         // return True
         int 1                                                                       1

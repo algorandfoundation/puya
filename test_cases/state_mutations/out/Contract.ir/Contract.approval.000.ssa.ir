@@ -218,54 +218,50 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
     block@0: // L22
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@10
+        goto tmp%1#0 ? block@1 : block@9
     block@1: // abi_routing_L22
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@8
+        goto tmp%5#0 ? block@2 : block@7
     block@2: // call_NoOp_L22
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "append()void" => block@3, method "modify()void" => block@4, method "get()(uint64,string)[]" => block@5, * => block@6}
     block@3: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        goto block@7
+        goto block@6
     block@4: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        goto block@7
+        goto block@6
     block@5: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        goto block@7
-    block@6: // switch_case_default_L22
-        goto block@7
-    block@7: // switch_case_next_L22
-        goto block@9
-    block@8: // create_NoOp_L22
-        goto block@9
-    block@9: // after_if_else_L22
-        goto block@15
-    block@10: // bare_routing_L22
+        goto block@6
+    block@6: // switch_case_next_L22
+        goto block@8
+    block@7: // create_NoOp_L22
+        goto block@8
+    block@8: // after_if_else_L22
+        goto block@13
+    block@9: // bare_routing_L22
         let tmp%7#0: uint64 = (txn OnCompletion)
-        switch tmp%7#0 {NoOp => block@11, OptIn => block@12, * => block@13}
-    block@11: // __algopy_default_create_L1
+        switch tmp%7#0 {NoOp => block@10, OptIn => block@11, * => block@12}
+    block@10: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (== tmp%8#0 0u)
         (assert tmp%9#0) // can only call when creating
         test_cases.state_mutations.contract.Contract.__algopy_default_create()
         exit 1u
-    block@12: // opt_in_L29
+    block@11: // opt_in_L29
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.opt_in()
         exit 1u
-    block@13: // switch_case_default_L22
-        goto block@14
-    block@14: // switch_case_next_L22
-        goto block@15
-    block@15: // after_if_else_L22
+    block@12: // switch_case_next_L22
+        goto block@13
+    block@13: // after_if_else_L22
         exit 0u
 
 subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> void:

@@ -11,7 +11,7 @@ subroutine main:
         assert // OnCompletion must be NoOp
         txn ApplicationID                                                                      tmp%2#0
         l-load tmp%2#0 0                                                                       tmp%2#0
-        bz main_create_NoOp@6 ; b main_call_NoOp@2
+        bz main_create_NoOp@5 ; b main_call_NoOp@2
 
     main_call_NoOp@2:
         // merkle/contract.py:9
@@ -19,29 +19,29 @@ subroutine main:
         txna ApplicationArgs 0                                                                 tmp%4#0
         method verify(byte[32][],byte[32])bool                                                 tmp%4#0,Method(verify(byte[32][],byte[32])bool)
         l-load tmp%4#0 1                                                                       Method(verify(byte[32][],byte[32])bool),tmp%4#0
-        match main_verify_route@3 ; b main_after_if_else@10
+        match main_verify_route@3 ; b main_after_if_else@8
 
     main_verify_route@3:
         // merkle/contract.py:14
         // @arc4.abimethod
         callsub verify
-        b main_after_if_else@10
+        b main_after_if_else@8
 
-    main_create_NoOp@6:
+    main_create_NoOp@5:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                                 tmp%5#0
         method create(byte[32])void                                                            tmp%5#0,Method(create(byte[32])void)
         l-load tmp%5#0 1                                                                       Method(create(byte[32])void),tmp%5#0
-        match main_create_route@7 ; b main_after_if_else@10
+        match main_create_route@6 ; b main_after_if_else@8
 
-    main_create_route@7:
+    main_create_route@6:
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
         callsub create
-        b main_after_if_else@10
+        b main_after_if_else@8
 
-    main_after_if_else@10:
+    main_after_if_else@8:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         err

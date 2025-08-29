@@ -13,7 +13,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__(
     block@0: // L41
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@21
+        goto tmp%1#0 ? block@1 : block@19
     block@1: // abi_routing_L41
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "delete()void" => block@2, * => block@3}
@@ -25,61 +25,57 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__(
         let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
         (assert tmp%7#0) // OnCompletion must be DeleteApplication && can only call when not creating
         test_cases.mutable_native_types.abi_call.CallMe.delete[routing]()
-        goto block@4
-    block@3: // switch_case_default_L41
-        goto block@4
-    block@4: // switch_case_next_L41
+        goto block@3
+    block@3: // switch_case_next_L41
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
         (assert tmp%9#0) // OnCompletion must be NoOp
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
-        goto tmp%11#0 ? block@5 : block@19
-    block@5: // call_NoOp_L41
+        goto tmp%11#0 ? block@4 : block@17
+    block@4: // call_NoOp_L41
         let tmp%12#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%12#0 {method "fixed_struct_arg((uint64,uint64))void" => block@6, method "fixed_struct_ret()(uint64,uint64)" => block@7, method "nested_struct_arg(((uint64,uint64),uint64))void" => block@8, method "nested_struct_ret()((uint64,uint64),uint64)" => block@9, method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void" => block@10, method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])" => block@11, method "fixed_arr_arg((uint64,uint64)[3])void" => block@12, method "fixed_arr_ret()(uint64,uint64)[3]" => block@13, method "native_arr_arg((uint64,uint64)[])void" => block@14, method "native_arr_ret()(uint64,uint64)[]" => block@15, method "log_it()void" => block@16, * => block@17}
-    block@6: // fixed_struct_arg_route_L53
+        switch tmp%12#0 {method "fixed_struct_arg((uint64,uint64))void" => block@5, method "fixed_struct_ret()(uint64,uint64)" => block@6, method "nested_struct_arg(((uint64,uint64),uint64))void" => block@7, method "nested_struct_ret()((uint64,uint64),uint64)" => block@8, method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void" => block@9, method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])" => block@10, method "fixed_arr_arg((uint64,uint64)[3])void" => block@11, method "fixed_arr_ret()(uint64,uint64)[3]" => block@12, method "native_arr_arg((uint64,uint64)[])void" => block@13, method "native_arr_ret()(uint64,uint64)[]" => block@14, method "log_it()void" => block@15, * => block@16}
+    block@5: // fixed_struct_arg_route_L53
         test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]()
-        goto block@18
-    block@7: // fixed_struct_ret_route_L57
+        goto block@16
+    block@6: // fixed_struct_ret_route_L57
         test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[routing]()
-        goto block@18
-    block@8: // nested_struct_arg_route_L61
+        goto block@16
+    block@7: // nested_struct_arg_route_L61
         test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]()
-        goto block@18
-    block@9: // nested_struct_ret_route_L65
+        goto block@16
+    block@8: // nested_struct_ret_route_L65
         test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[routing]()
-        goto block@18
-    block@10: // dynamic_struct_arg_route_L69
+        goto block@16
+    block@9: // dynamic_struct_arg_route_L69
         test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]()
-        goto block@18
-    block@11: // dynamic_struct_ret_route_L73
+        goto block@16
+    block@10: // dynamic_struct_ret_route_L73
         test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]()
-        goto block@18
-    block@12: // fixed_arr_arg_route_L77
+        goto block@16
+    block@11: // fixed_arr_arg_route_L77
         test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]()
-        goto block@18
-    block@13: // fixed_arr_ret_route_L81
+        goto block@16
+    block@12: // fixed_arr_ret_route_L81
         test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing]()
-        goto block@18
-    block@14: // native_arr_arg_route_L85
+        goto block@16
+    block@13: // native_arr_arg_route_L85
         test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]()
-        goto block@18
-    block@15: // native_arr_ret_route_L89
+        goto block@16
+    block@14: // native_arr_ret_route_L89
         test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routing]()
-        goto block@18
-    block@16: // log_it_route_L93
+        goto block@16
+    block@15: // log_it_route_L93
         test_cases.mutable_native_types.abi_call.CallMe.log_it[routing]()
+        goto block@16
+    block@16: // switch_case_next_L41
         goto block@18
-    block@17: // switch_case_default_L41
+    block@17: // create_NoOp_L41
         goto block@18
-    block@18: // switch_case_next_L41
+    block@18: // after_if_else_L41
         goto block@20
-    block@19: // create_NoOp_L41
-        goto block@20
-    block@20: // after_if_else_L41
-        goto block@22
-    block@21: // __algopy_default_create_L1
+    block@19: // __algopy_default_create_L1
         let tmp%13#0: uint64 = (txn OnCompletion)
         let tmp%14#0: bool = (== tmp%13#0 NoOp)
         let tmp%15#0: uint64 = (txn ApplicationID)
@@ -88,7 +84,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__(
         (assert tmp%17#0) // OnCompletion must be NoOp && can only call when creating
         test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create()
         exit 1u
-    block@22: // after_if_else_L41
+    block@20: // after_if_else_L41
         exit 0u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.delete[routing]() -> void:

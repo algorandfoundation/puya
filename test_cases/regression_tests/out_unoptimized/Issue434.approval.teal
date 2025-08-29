@@ -15,7 +15,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@6
+    bz main___algopy_default_create@5
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -25,15 +25,12 @@ main_abi_routing@2:
     pushbytes 0xd3ad7a55 // method "method(uint64)void"
     uncover 1
     match main_method_route@3
-    b main_switch_case_default@4
+    b main_switch_case_next@4
 
-main_switch_case_default@4:
-    b main_switch_case_next@5
+main_switch_case_next@4:
+    b main_after_if_else@6
 
-main_switch_case_next@5:
-    b main_after_if_else@7
-
-main_after_if_else@7:
+main_after_if_else@6:
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
     err
@@ -51,9 +48,9 @@ main_method_route@3:
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
     callsub method
-    b main_switch_case_next@5
+    b main_switch_case_next@4
 
-main___algopy_default_create@6:
+main___algopy_default_create@5:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -62,12 +59,12 @@ main___algopy_default_create@6:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@9
+    b main_block@8
 
-main_block@9:
-    b main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__algopy_default_create@10
+main_block@8:
+    b main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__algopy_default_create@9
 
-main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__algopy_default_create@10:
+main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__algopy_default_create@9:
     intc_2 // 1
     return
 

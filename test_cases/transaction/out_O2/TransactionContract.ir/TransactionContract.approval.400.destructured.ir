@@ -4,10 +4,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#0: bool = (! tmp%0#1)
         (assert tmp%1#0) // OnCompletion must be NoOp
         let tmp%2#0: uint64 = (txn ApplicationID)
-        goto tmp%2#0 ? block@2 : block@14
+        goto tmp%2#0 ? block@2 : block@13
     block@2: // call_NoOp_L11
         let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@18}
+        switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@16}
     block@3: // pay_route_L31
         let tmp%0#1: uint64 = (txn GroupIndex)
         let txn#1: uint64 = (- tmp%0#1 1u)
@@ -205,21 +205,21 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert gtxn_type_matches%2#0) // transaction type is appl
         let index#0: uint64 = 0u
         let app#1: uint64 = txn1#0
-        goto block@34
-    block@34: // for_body_L119
+        goto block@32
+    block@32: // for_body_L119
         let tmp%0#1: uint64 = ((gtxns GroupIndex) app#1)
         let tmp%1#0: bool = (== tmp%0#1 index#0)
         (assert tmp%1#0)
-        goto_nth [block@35, block@36][index#0] else goto block@37
-    block@35: // for_header_1_L118
+        goto_nth [block@33, block@34][index#0] else goto block@35
+    block@33: // for_header_1_L118
         let index#0: uint64 = 1u
         let app#1: uint64 = txn2#0
-        goto block@34
-    block@36: // for_header_2_L118
+        goto block@32
+    block@34: // for_header_2_L118
         let index#0: uint64 = 2u
         let app#1: uint64 = txn3#0
-        goto block@34
-    block@37: // after_for_L118
+        goto block@32
+    block@35: // after_for_L118
         exit 1u
     block@10: // any_txn_route_L121
         let tmp%0#1: uint64 = (txn GroupIndex)
@@ -230,20 +230,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let txn3#0: uint64 = (- tmp%2#0 1u)
         let index#0: uint64 = 0u
         let txn#1: uint64 = txn1#0
-        goto block@28
-    block@28: // for_body_L129
+        goto block@26
+    block@26: // for_body_L129
         let tmp%0#1: uint64 = ((gtxns GroupIndex) txn#1)
         let tmp%1#0: bool = (== tmp%0#1 index#0)
         (assert tmp%1#0)
-        goto_nth [block@29, block@30][index#0] else goto block@37
-    block@29: // for_header_1_L128
+        goto_nth [block@27, block@28][index#0] else goto block@35
+    block@27: // for_header_1_L128
         let index#0: uint64 = 1u
         let txn#1: uint64 = txn2#0
-        goto block@28
-    block@30: // for_header_2_L128
+        goto block@26
+    block@28: // for_header_2_L128
         let index#0: uint64 = 2u
         let txn#1: uint64 = txn3#0
-        goto block@28
+        goto block@26
     block@11: // group_init_route_L131
         let tmp%0#1: uint64 = (txn GroupIndex)
         let txn1#0: uint64 = (- tmp%0#1 3u)
@@ -253,32 +253,32 @@ main algopy.arc4.ARC4Contract.approval_program:
         let txn3#0: uint64 = (- tmp%2#0 1u)
         let loop_counter%0#0: uint64 = 0u
         let txn#1: uint64 = txn1#0
-        goto block@22
-    block@22: // for_body_L139
+        goto block@20
+    block@20: // for_body_L139
         let txn_from_index#0: uint64 = ((gtxns GroupIndex) txn#1)
         let tmp%0#3: bytes = ((gtxns TxID) txn#1)
         let tmp%1#2: bytes = ((gtxns TxID) txn_from_index#0)
         let tmp%2#2: bool = (== tmp%0#3 tmp%1#2)
         (assert tmp%2#2)
-        goto_nth [block@23, block@24][loop_counter%0#0] else goto block@25
-    block@23: // for_header_1_L138
+        goto_nth [block@21, block@22][loop_counter%0#0] else goto block@23
+    block@21: // for_header_1_L138
         let loop_counter%0#0: uint64 = 1u
         let txn#1: uint64 = txn2#0
-        goto block@22
-    block@24: // for_header_2_L138
+        goto block@20
+    block@22: // for_header_2_L138
         let loop_counter%0#0: uint64 = 2u
         let txn#1: uint64 = txn3#0
-        goto block@22
-    block@25: // after_for_L138
+        goto block@20
+    block@23: // after_for_L138
         let tmp%3#1: bytes = ((gtxns TxID) txn1#0)
         let tmp%4#0: bytes = ((gtxns TxID) 0u)
         let tmp%5#1: bool = (== tmp%3#1 tmp%4#0)
         (assert tmp%5#1)
         exit 1u
-    block@14: // create_NoOp_L11
+    block@13: // create_NoOp_L11
         let tmp%5#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%5#0 {method "create()void" => block@37, * => block@18}
-    block@18: // after_if_else_L11
+        switch tmp%5#0 {method "create()void" => block@35, * => block@16}
+    block@16: // after_if_else_L11
         fail
 
 subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:

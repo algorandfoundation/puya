@@ -152,7 +152,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_update@15
+    bz approval_program_update@12
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -162,12 +162,9 @@ approval_program_abi_routing@2:
     pushbytes 0x24378d3c // method "delete()void"
     uncover 1
     match approval_program_delete_route@3
-    b approval_program_switch_case_default@4
+    b approval_program_switch_case_next@4
 
-approval_program_switch_case_default@4:
-    b approval_program_switch_case_next@5
-
-approval_program_switch_case_next@5:
+approval_program_switch_case_next@4:
     // compile/apps.py:52
     // class Hello(HelloBase):
     txn OnCompletion
@@ -177,58 +174,52 @@ approval_program_switch_case_next@5:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@10
-    b approval_program_call_NoOp@6
+    bz approval_program_create_NoOp@8
+    b approval_program_call_NoOp@5
 
-approval_program_call_NoOp@6:
+approval_program_call_NoOp@5:
     // compile/apps.py:52
     // class Hello(HelloBase):
     txna ApplicationArgs 0
     pushbytes 0xd0a28200 // method "greet(string)string"
     uncover 1
-    match approval_program_greet_route@7
-    b approval_program_switch_case_default@8
+    match approval_program_greet_route@6
+    b approval_program_switch_case_next@7
 
-approval_program_switch_case_default@8:
-    b approval_program_switch_case_next@9
+approval_program_switch_case_next@7:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@9:
-    b approval_program_after_if_else@14
+approval_program_after_if_else@11:
+    b approval_program_after_if_else@13
 
-approval_program_after_if_else@14:
-    b approval_program_after_if_else@16
-
-approval_program_after_if_else@16:
+approval_program_after_if_else@13:
     // compile/apps.py:52
     // class Hello(HelloBase):
     err
 
-approval_program_greet_route@7:
+approval_program_greet_route@6:
     // compile/apps.py:32
     // @arc4.abimethod()
     callsub greet
-    b approval_program_switch_case_next@9
+    b approval_program_switch_case_next@7
 
-approval_program_create_NoOp@10:
+approval_program_create_NoOp@8:
     // compile/apps.py:52
     // class Hello(HelloBase):
     txna ApplicationArgs 0
     pushbytes 0x20df3a54 // method "create(string)void"
     uncover 1
-    match approval_program_create_route@11
-    b approval_program_switch_case_default@12
+    match approval_program_create_route@9
+    b approval_program_switch_case_next@10
 
-approval_program_switch_case_default@12:
-    b approval_program_switch_case_next@13
+approval_program_switch_case_next@10:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@14
-
-approval_program_create_route@11:
+approval_program_create_route@9:
     // compile/apps.py:53
     // @arc4.abimethod(create="require")
     callsub create
-    b approval_program_switch_case_next@13
+    b approval_program_switch_case_next@10
 
 approval_program_delete_route@3:
     // compile/apps.py:24
@@ -242,9 +233,9 @@ approval_program_delete_route@3:
     &&
     assert // OnCompletion must be DeleteApplication && can only call when not creating
     callsub delete
-    b approval_program_switch_case_next@5
+    b approval_program_switch_case_next@4
 
-approval_program_update@15:
+approval_program_update@12:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn OnCompletion

@@ -218,7 +218,7 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program___algopy_default_create@10
+    bz approval_program___algopy_default_create@9
     b approval_program_abi_routing@2
 
 approval_program_abi_routing@2:
@@ -231,7 +231,7 @@ approval_program_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz approval_program_create_NoOp@8
+    bz approval_program_create_NoOp@7
     b approval_program_call_NoOp@3
 
 approval_program_call_NoOp@3:
@@ -242,18 +242,15 @@ approval_program_call_NoOp@3:
     pushbytes 0x33fb5d48 // method "log_greetings(string)void"
     uncover 2
     match approval_program_bootstrap_route@4 approval_program_log_greetings_route@5
-    b approval_program_switch_case_default@6
+    b approval_program_switch_case_next@6
 
-approval_program_switch_case_default@6:
-    b approval_program_switch_case_next@7
+approval_program_switch_case_next@6:
+    b approval_program_after_if_else@8
 
-approval_program_switch_case_next@7:
-    b approval_program_after_if_else@9
+approval_program_after_if_else@8:
+    b approval_program_after_if_else@12
 
-approval_program_after_if_else@9:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
+approval_program_after_if_else@12:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     err
@@ -262,18 +259,18 @@ approval_program_log_greetings_route@5:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     callsub log_greetings
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
 approval_program_bootstrap_route@4:
     // inner_transactions/c2c.py:10
     // @arc4.abimethod()
     callsub bootstrap
-    b approval_program_switch_case_next@7
+    b approval_program_switch_case_next@6
 
-approval_program_create_NoOp@8:
-    b approval_program_after_if_else@9
+approval_program_create_NoOp@7:
+    b approval_program_after_if_else@8
 
-approval_program___algopy_default_create@10:
+approval_program___algopy_default_create@9:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -282,11 +279,11 @@ approval_program___algopy_default_create@10:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@11
+    b approval_program_block@10
 
-approval_program_block@11:
-    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@12
+approval_program_block@10:
+    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@11
 
-approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@12:
+approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@11:
     intc_1 // 1
     return

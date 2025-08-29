@@ -6,7 +6,7 @@ subroutine main:
         // class AppExpectingEffects(ARC4Contract):
         txn NumAppArgs                                                                  tmp%0#1
         l-load tmp%0#1 0                                                                tmp%0#1
-        bz main___algopy_default_create@10 ; b main_abi_routing@2
+        bz main___algopy_default_create@9 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // group_side_effects/contract.py:4
@@ -23,26 +23,26 @@ subroutine main:
         method create_group(acfg,appl)(uint64,uint64)                                   tmp%6#0,Method(create_group(acfg,appl)(uint64,uint64))
         method log_group(appl)void                                                      tmp%6#0,Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void)
         l-load tmp%6#0 2                                                                Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void),tmp%6#0
-        match main_create_group_route@4 main_log_group_route@5 ; b main_after_if_else@9
+        match main_create_group_route@4 main_log_group_route@5 ; b main_after_if_else@8
 
     main_create_group_route@4:
         // group_side_effects/contract.py:5
         // @arc4.abimethod
         callsub create_group
-        b main_after_if_else@9
+        b main_after_if_else@8
 
     main_log_group_route@5:
         // group_side_effects/contract.py:22
         // @arc4.abimethod
         callsub log_group
-        b main_after_if_else@9
+        b main_after_if_else@8
 
-    main_after_if_else@9:
+    main_after_if_else@8:
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
         err
 
-    main___algopy_default_create@10:
+    main___algopy_default_create@9:
         txn OnCompletion                                                                tmp%7#0
         l-load tmp%7#0 0                                                                tmp%7#0
         !                                                                               tmp%8#0

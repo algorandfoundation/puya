@@ -307,12 +307,9 @@ approval_program_block@1:
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 1
     match approval_program_create_route@2
-    b approval_program_switch_case_default@3
+    b approval_program_switch_case_next@3
 
-approval_program_switch_case_default@3:
-    b approval_program_switch_case_next@4
-
-approval_program_switch_case_next@4:
+approval_program_switch_case_next@3:
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     txn OnCompletion
@@ -322,10 +319,10 @@ approval_program_switch_case_next@4:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz approval_program_create_NoOp@12
-    b approval_program_call_NoOp@5
+    bz approval_program_create_NoOp@10
+    b approval_program_call_NoOp@4
 
-approval_program_call_NoOp@5:
+approval_program_call_NoOp@4:
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     txna ApplicationArgs 0
@@ -334,46 +331,43 @@ approval_program_call_NoOp@5:
     pushbytes 0xd0e289b0 // method "order_of_eval_local()void"
     pushbytes 0x74445702 // method "order_of_eval_box()void"
     uncover 4
-    match approval_program_clear_route@6 approval_program_order_of_eval_global_route@7 approval_program_order_of_eval_local_route@8 approval_program_order_of_eval_box_route@9
-    b approval_program_switch_case_default@10
+    match approval_program_clear_route@5 approval_program_order_of_eval_global_route@6 approval_program_order_of_eval_local_route@7 approval_program_order_of_eval_box_route@8
+    b approval_program_switch_case_next@9
 
-approval_program_switch_case_default@10:
-    b approval_program_switch_case_next@11
+approval_program_switch_case_next@9:
+    b approval_program_after_if_else@11
 
-approval_program_switch_case_next@11:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
+approval_program_after_if_else@11:
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     err
 
-approval_program_order_of_eval_box_route@9:
+approval_program_order_of_eval_box_route@8:
     // state_proxies/contract.py:54
     // @arc4.abimethod()
     callsub order_of_eval_box
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@9
 
-approval_program_order_of_eval_local_route@8:
+approval_program_order_of_eval_local_route@7:
     // state_proxies/contract.py:49
     // @arc4.abimethod()
     callsub order_of_eval_local
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@9
 
-approval_program_order_of_eval_global_route@7:
+approval_program_order_of_eval_global_route@6:
     // state_proxies/contract.py:44
     // @arc4.abimethod()
     callsub order_of_eval_global
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@9
 
-approval_program_clear_route@6:
+approval_program_clear_route@5:
     // state_proxies/contract.py:37
     // @arc4.abimethod()
     callsub clear
-    b approval_program_switch_case_next@11
+    b approval_program_switch_case_next@9
 
-approval_program_create_NoOp@12:
-    b approval_program_after_if_else@13
+approval_program_create_NoOp@10:
+    b approval_program_after_if_else@11
 
 approval_program_create_route@2:
     // state_proxies/contract.py:31
@@ -387,4 +381,4 @@ approval_program_create_route@2:
     &&
     assert // OnCompletion must be OptIn && can only call when creating
     callsub create
-    b approval_program_switch_case_next@4
+    b approval_program_switch_case_next@3

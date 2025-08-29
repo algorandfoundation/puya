@@ -2,10 +2,10 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%0#1 ? block@2 : block@6
+        goto tmp%0#1 ? block@2 : block@5
     block@2: // abi_routing_L10
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create_and_transfer()void" => block@3, * => block@5}
+        switch tmp%2#0 {method "create_and_transfer()void" => block@3, * => block@4}
     block@3: // create_and_transfer_route_L11
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -14,10 +14,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
         (assert tmp%7#0) // OnCompletion must be NoOp && can only call when not creating
         test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]()
-        goto block@5
-    block@5: // switch_case_next_L10
+        goto block@4
+    block@4: // switch_case_next_L10
         fail
-    block@6: // __algopy_default_create_L1
+    block@5: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (! tmp%8#0)
         let tmp%10#0: uint64 = (txn ApplicationID)

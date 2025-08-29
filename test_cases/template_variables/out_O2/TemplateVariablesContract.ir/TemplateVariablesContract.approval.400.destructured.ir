@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@13
+        goto tmp%0#1 ? block@2 : block@12
     block@2: // abi_routing_L17
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,7 +9,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "get_bytes()byte[]" => block@4, method "get_big_uint()uint512" => block@5, method "get_a_named_tuple()(uint64,uint64)" => block@6, method "get_a_tuple()(uint64,uint64)" => block@7, method "get_a_struct()(uint64,uint64)" => block@8, * => block@19}
+        switch tmp%6#0 {method "get_bytes()byte[]" => block@4, method "get_big_uint()uint512" => block@5, method "get_a_named_tuple()(uint64,uint64)" => block@6, method "get_a_tuple()(uint64,uint64)" => block@7, method "get_a_struct()(uint64,uint64)" => block@8, * => block@17}
     block@4: // get_bytes_route_L18
         let value#0: bytes = TemplateVar[bytes](TMPL_SOME_BYTES)
         let aggregate%length%0#0: uint64 = (len value#0)
@@ -44,23 +44,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#3)
         (log tmp%1#1)
         exit 1u
-    block@13: // bare_routing_L17
+    block@12: // bare_routing_L17
         let tmp%7#0: uint64 = (txn OnCompletion)
-        goto_nth [block@14, block@19, block@19, block@19, block@15, block@16][tmp%7#0] else goto block@19
-    block@14: // __algopy_default_create_L1
+        goto_nth [block@13, block@17, block@17, block@17, block@14, block@15][tmp%7#0] else goto block@17
+    block@13: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
         exit 1u
-    block@15: // on_update_L27
+    block@14: // on_update_L27
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0) // can only call when not creating
         (assert TemplateVar[bool](TMPL_UPDATABLE))
         exit 1u
-    block@16: // on_delete_L31
+    block@15: // on_delete_L31
         let tmp%12#0: uint64 = (txn ApplicationID)
         (assert tmp%12#0) // can only call when not creating
         (assert TemplateVar[uint64](TMPL_DELETABLE))
         exit 1u
-    block@19: // after_if_else_L17
+    block@17: // after_if_else_L17
         fail

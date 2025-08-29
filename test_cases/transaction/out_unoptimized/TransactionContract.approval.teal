@@ -19,7 +19,7 @@ main_block@1:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@14
+    bz main_create_NoOp@13
     b main_call_NoOp@2
 
 main_call_NoOp@2:
@@ -37,15 +37,12 @@ main_call_NoOp@2:
     pushbytes 0x96ef9a95 // method "group_init(txn,txn,txn)void"
     uncover 9
     match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
-    b main_switch_case_default@12
+    b main_switch_case_next@12
 
-main_switch_case_default@12:
-    b main_switch_case_next@13
+main_switch_case_next@12:
+    b main_after_if_else@16
 
-main_switch_case_next@13:
-    b main_after_if_else@18
-
-main_after_if_else@18:
+main_after_if_else@16:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     err
@@ -54,76 +51,73 @@ main_group_init_route@11:
     // transaction/contract.py:131
     // @arc4.abimethod
     callsub group_init
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_any_txn_route@10:
     // transaction/contract.py:121
     // @arc4.abimethod
     callsub any_txn
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_multiple_txns_route@9:
     // transaction/contract.py:111
     // @arc4.abimethod
     callsub multiple_txns
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_application_call_route@8:
     // transaction/contract.py:85
     // @arc4.abimethod
     callsub application_call
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_asset_freeze_route@7:
     // transaction/contract.py:77
     // @arc4.abimethod
     callsub asset_freeze
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_asset_transfer_route@6:
     // transaction/contract.py:68
     // @arc4.abimethod
     callsub asset_transfer
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_asset_config_route@5:
     // transaction/contract.py:51
     // @arc4.abimethod
     callsub asset_config
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_key_route@4:
     // transaction/contract.py:40
     // @arc4.abimethod
     callsub key
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
 main_pay_route@3:
     // transaction/contract.py:31
     // @arc4.abimethod
     callsub pay
-    b main_switch_case_next@13
+    b main_switch_case_next@12
 
-main_create_NoOp@14:
+main_create_NoOp@13:
     // transaction/contract.py:11
     // class TransactionContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x4c5c61ba // method "create()void"
     uncover 1
-    match main_create_route@15
-    b main_switch_case_default@16
+    match main_create_route@14
+    b main_switch_case_next@15
 
-main_switch_case_default@16:
-    b main_switch_case_next@17
+main_switch_case_next@15:
+    b main_after_if_else@16
 
-main_switch_case_next@17:
-    b main_after_if_else@18
-
-main_create_route@15:
+main_create_route@14:
     // transaction/contract.py:12
     // @arc4.abimethod(create="require")
     callsub create
-    b main_switch_case_next@17
+    b main_switch_case_next@15
 
 
 // test_cases.transaction.contract.TransactionContract.create[routing]() -> void:

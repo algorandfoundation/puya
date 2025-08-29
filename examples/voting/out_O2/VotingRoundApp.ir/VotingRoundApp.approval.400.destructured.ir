@@ -302,25 +302,25 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
     block@1: // while_top_L20
         let tmp%1#0: uint64 = (global OpcodeBudget)
         let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
-        goto tmp%2#0 ? block@2 : block@7
+        goto tmp%2#0 ? block@2 : block@6
     block@2: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApprovalProgram) 0x068101)
         ((itxn_field ClearStateProgram) 0x068101)
-        goto_nth [block@3, block@4][fee_source#0] else goto block@6
+        goto_nth [block@3, block@4][fee_source#0] else goto block@5
     block@3: // switch_case_0_L28
         ((itxn_field Fee) 0u)
-        goto block@6
+        goto block@5
     block@4: // switch_case_1_L30
         let tmp%3#0: uint64 = (global MinTxnFee)
         ((itxn_field Fee) tmp%3#0)
-        goto block@6
-    block@6: // switch_case_next_L26
+        goto block@5
+    block@5: // switch_case_next_L26
         itxn_submit
         goto block@1
-    block@7: // after_while_L20
+    block@6: // after_while_L20
         return 
 
 subroutine examples.voting.voting.itoa(i: uint64) -> string:

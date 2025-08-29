@@ -16,7 +16,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@13
+    bz main_bare_routing@12
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -29,7 +29,7 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@11
+    bz main_create_NoOp@10
     b main_call_NoOp@3
 
 main_call_NoOp@3:
@@ -43,18 +43,15 @@ main_call_NoOp@3:
     pushbytes 0xb4cefa39 // method "get_a_struct()(uint64,uint64)"
     uncover 5
     match main_get_bytes_route@4 main_get_big_uint_route@5 main_get_a_named_tuple_route@6 main_get_a_tuple_route@7 main_get_a_struct_route@8
-    b main_switch_case_default@9
+    b main_switch_case_next@9
 
-main_switch_case_default@9:
-    b main_switch_case_next@10
+main_switch_case_next@9:
+    b main_after_if_else@11
 
-main_switch_case_next@10:
-    b main_after_if_else@12
+main_after_if_else@11:
+    b main_after_if_else@17
 
-main_after_if_else@12:
-    b main_after_if_else@19
-
-main_after_if_else@19:
+main_after_if_else@17:
     // template_variables/contract.py:17
     // class TemplateVariablesContract(arc4.ARC4Contract):
     err
@@ -63,36 +60,36 @@ main_get_a_struct_route@8:
     // template_variables/contract.py:47
     // @arc4.abimethod
     callsub get_a_struct
-    b main_switch_case_next@10
+    b main_switch_case_next@9
 
 main_get_a_tuple_route@7:
     // template_variables/contract.py:43
     // @arc4.abimethod
     callsub get_a_tuple
-    b main_switch_case_next@10
+    b main_switch_case_next@9
 
 main_get_a_named_tuple_route@6:
     // template_variables/contract.py:39
     // @arc4.abimethod
     callsub get_a_named_tuple
-    b main_switch_case_next@10
+    b main_switch_case_next@9
 
 main_get_big_uint_route@5:
     // template_variables/contract.py:22
     // @arc4.abimethod()
     callsub get_big_uint
-    b main_switch_case_next@10
+    b main_switch_case_next@9
 
 main_get_bytes_route@4:
     // template_variables/contract.py:18
     // @arc4.abimethod()
     callsub get_bytes
-    b main_switch_case_next@10
+    b main_switch_case_next@9
 
-main_create_NoOp@11:
-    b main_after_if_else@12
+main_create_NoOp@10:
+    b main_after_if_else@11
 
-main_bare_routing@13:
+main_bare_routing@12:
     // template_variables/contract.py:17
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -100,16 +97,13 @@ main_bare_routing@13:
     pushint 4 // UpdateApplication
     pushint 5 // DeleteApplication
     uncover 3
-    match main___algopy_default_create@14 main_on_update@15 main_on_delete@16
-    b main_switch_case_default@17
+    match main___algopy_default_create@13 main_on_update@14 main_on_delete@15
+    b main_switch_case_next@16
 
-main_switch_case_default@17:
-    b main_switch_case_next@18
+main_switch_case_next@16:
+    b main_after_if_else@17
 
-main_switch_case_next@18:
-    b main_after_if_else@19
-
-main_on_delete@16:
+main_on_delete@15:
     // template_variables/contract.py:31
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
     txn ApplicationID
@@ -120,7 +114,7 @@ main_on_delete@16:
     intc_1 // 1
     return
 
-main_on_update@15:
+main_on_update@14:
     // template_variables/contract.py:27
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
@@ -131,17 +125,17 @@ main_on_update@15:
     intc_1 // 1
     return
 
-main___algopy_default_create@14:
+main___algopy_default_create@13:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
-    b main_block@21
+    b main_block@19
 
-main_block@21:
-    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@22
+main_block@19:
+    b main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@20
 
-main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@22:
+main_after_inlined_test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create@20:
     intc_1 // 1
     return
 

@@ -16,7 +16,7 @@ main_block@1:
     txn NumAppArgs
     intc_1 // 0
     !=
-    bz main___algopy_default_create@14
+    bz main___algopy_default_create@13
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -29,7 +29,7 @@ main_abi_routing@2:
     txn ApplicationID
     intc_1 // 0
     !=
-    bz main_create_NoOp@12
+    bz main_create_NoOp@11
     b main_call_NoOp@3
 
 main_call_NoOp@3:
@@ -44,18 +44,15 @@ main_call_NoOp@3:
     pushbytes 0x283a186f // method "test_nested_tuple_modification()void"
     uncover 6
     match main_test_static_elements_route@4 main_test_dynamic_elements_route@5 main_test_mixed_single_dynamic_elements_route@6 main_test_mixed_multiple_dynamic_elements_route@7 main_test_nested_struct_replacement_route@8 main_test_nested_tuple_modification_route@9
-    b main_switch_case_default@10
+    b main_switch_case_next@10
 
-main_switch_case_default@10:
-    b main_switch_case_next@11
+main_switch_case_next@10:
+    b main_after_if_else@12
 
-main_switch_case_next@11:
-    b main_after_if_else@13
+main_after_if_else@12:
+    b main_after_if_else@14
 
-main_after_if_else@13:
-    b main_after_if_else@15
-
-main_after_if_else@15:
+main_after_if_else@14:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     err
@@ -64,42 +61,42 @@ main_test_nested_tuple_modification_route@9:
     // arc4_dynamic_arrays/contract.py:141
     // @arc4.abimethod()
     callsub test_nested_tuple_modification
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
 main_test_nested_struct_replacement_route@8:
     // arc4_dynamic_arrays/contract.py:114
     // @arc4.abimethod()
     callsub test_nested_struct_replacement
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
 main_test_mixed_multiple_dynamic_elements_route@7:
     // arc4_dynamic_arrays/contract.py:97
     // @arc4.abimethod()
     callsub test_mixed_multiple_dynamic_elements
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
 main_test_mixed_single_dynamic_elements_route@6:
     // arc4_dynamic_arrays/contract.py:74
     // @arc4.abimethod()
     callsub test_mixed_single_dynamic_elements
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
 main_test_dynamic_elements_route@5:
     // arc4_dynamic_arrays/contract.py:55
     // @arc4.abimethod()
     callsub test_dynamic_elements
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
 main_test_static_elements_route@4:
     // arc4_dynamic_arrays/contract.py:39
     // @arc4.abimethod()
     callsub test_static_elements
-    b main_switch_case_next@11
+    b main_switch_case_next@10
 
-main_create_NoOp@12:
-    b main_after_if_else@13
+main_create_NoOp@11:
+    b main_after_if_else@12
 
-main___algopy_default_create@14:
+main___algopy_default_create@13:
     txn OnCompletion
     intc_1 // NoOp
     ==
@@ -108,12 +105,12 @@ main___algopy_default_create@14:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@17
+    b main_block@16
 
-main_block@17:
-    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@18
+main_block@16:
+    b main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@17
 
-main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@18:
+main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create@17:
     intc_2 // 1
     return
 
