@@ -13,7 +13,7 @@ For top level release notes, leave all the headers commented out.
 -->
 ### Added
 
-- Added an optimisation to eliminate `extract_uint64` when it's consumed only from an `itob`
+- Added an optimisation to eliminate `extract_uint64` when it's consumed only from an `itob`.
 
 <!--
 ### Changed

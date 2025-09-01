@@ -19,7 +19,7 @@ For top level release notes, leave all the headers commented out.
 -->
 ### Changed
 
-- Updated vendored mypy version from v1.13.0 to v1.17.0 
+- Updated vendored mypy version from v1.13.0 to v1.17.0.
 
 <!--
 ### Deprecated
