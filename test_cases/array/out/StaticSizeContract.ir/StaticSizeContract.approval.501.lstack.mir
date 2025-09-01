@@ -1175,100 +1175,97 @@ subroutine test_arc4_bool:
         l-load aggregate%encoded_bool%1#0 1                                                       aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0
         concat // on error: max array length exceeded                                             concat%1#0
         l-load-copy concat%1#0 0                                                                  concat%1#0,concat%1#0 (copy)
-        l-store-copy slot%0 1                                                                     slot%0,concat%1#0,slot%0 (copy)
-        v-store slot%0                                                                            slot%0,concat%1#0
+        v-store slot%0                                                                            concat%1#0
         // array/static_size.py:145
         // dyn_arr.extend(arr)
-        l-load-copy concat%1#0 0                                                                  slot%0,concat%1#0,concat%1#0 (copy)
-        len                                                                                       slot%0,concat%1#0,aggregate%bytes_len%0#0
+        l-load-copy concat%1#0 0                                                                  concat%1#0,concat%1#0 (copy)
+        len                                                                                       concat%1#0,aggregate%bytes_len%0#0
         // array/static_size.py:144
         // dyn_arr = arc4.DynamicArray[arc4.Bool]()
-        byte 0x0000                                                                               slot%0,concat%1#0,aggregate%bytes_len%0#0,0x0000
+        byte 0x0000                                                                               concat%1#0,aggregate%bytes_len%0#0,0x0000
         // array/static_size.py:145
         // dyn_arr.extend(arr)
-        l-load concat%1#0 2                                                                       slot%0,aggregate%bytes_len%0#0,0x0000,concat%1#0
-        l-load aggregate%bytes_len%0#0 2                                                          slot%0,0x0000,concat%1#0,aggregate%bytes_len%0#0
-        int 8                                                                                     slot%0,0x0000,concat%1#0,aggregate%bytes_len%0#0,8
-        callsub dynamic_array_concat_bits                                                         slot%0,dyn_arr#1
-        l-store-copy dyn_arr#1 0                                                                  slot%0,dyn_arr#1,dyn_arr#1 (copy)
-        v-store dyn_arr#1                                                                         slot%0,dyn_arr#1
+        l-load-copy concat%1#0 2                                                                  concat%1#0,aggregate%bytes_len%0#0,0x0000,concat%1#0 (copy)
+        l-load aggregate%bytes_len%0#0 2                                                          concat%1#0,0x0000,concat%1#0 (copy),aggregate%bytes_len%0#0
+        int 8                                                                                     concat%1#0,0x0000,concat%1#0 (copy),aggregate%bytes_len%0#0,8
+        callsub dynamic_array_concat_bits                                                         concat%1#0,dyn_arr#1
+        l-store-copy dyn_arr#1 0                                                                  concat%1#0,dyn_arr#1,dyn_arr#1 (copy)
+        v-store dyn_arr#1                                                                         concat%1#0,dyn_arr#1
         // array/static_size.py:146
         // assert dyn_arr.length == 2, "expected correct length"
-        l-load-copy dyn_arr#1 0                                                                   slot%0,dyn_arr#1,dyn_arr#1 (copy)
-        int 0                                                                                     slot%0,dyn_arr#1,dyn_arr#1 (copy),0
-        extract_uint16                                                                            slot%0,dyn_arr#1,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                                 slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                        slot%0,dyn_arr#1,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                                  slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 2                                                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),2
-        ==                                                                                        slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
-        l-load tmp%12#0 0                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
-        assert // expected correct length                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0
+        l-load-copy dyn_arr#1 0                                                                   concat%1#0,dyn_arr#1,dyn_arr#1 (copy)
+        int 0                                                                                     concat%1#0,dyn_arr#1,dyn_arr#1 (copy),0
+        extract_uint16                                                                            concat%1#0,dyn_arr#1,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                                 concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                  concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 2                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),2
+        ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
+        l-load tmp%12#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
+        assert // expected correct length                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0
         // array/static_size.py:147
         // assert dyn_arr.bytes.length == 3, "expected 3 bytes"
-        l-load-copy dyn_arr#1 1                                                                   slot%0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy)
-        len                                                                                       slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0
-        l-load tmp%13#0 0                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0
-        int 3                                                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0,3
-        ==                                                                                        slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
-        l-load tmp%14#0 0                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
-        assert // expected 3 bytes                                                                slot%0,dyn_arr#1,aggregate%array_length%0#0
+        l-load-copy dyn_arr#1 1                                                                   concat%1#0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy)
+        len                                                                                       concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0
+        l-load tmp%13#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0
+        int 3                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0,3
+        ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
+        l-load tmp%14#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
+        assert // expected 3 bytes                                                                concat%1#0,dyn_arr#1,aggregate%array_length%0#0
         // array/static_size.py:148
         // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
-        l-load-copy aggregate%array_length%0#0 0                                                  slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        assert // index access is out of bounds                                                   slot%0,dyn_arr#1,aggregate%array_length%0#0
-        l-load-copy dyn_arr#1 1                                                                   slot%0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy)
-        int 16                                                                                    slot%0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy),16
-        getbit                                                                                    slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0
-        byte 0x00                                                                                 slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0,0x00
-        int 0                                                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0,0x00,0
-        l-load aggregate%get_bit%0#0 2                                                            slot%0,dyn_arr#1,aggregate%array_length%0#0,0x00,0,aggregate%get_bit%0#0
-        setbit                                                                                    slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0
-        l-load aggregate%encoded_bool%2#0 0                                                       slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0
-        int 0                                                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0,0
-        getbit                                                                                    slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0
-        txn Sender                                                                                slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0
-        txn Receiver                                                                              slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0,tmp%17#0
-        l-load tmp%16#0 1                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%17#0,tmp%16#0
-        l-load tmp%17#0 1                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0,tmp%17#0
-        ==                                                                                        slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%18#0
-        l-load aggregate%get_bit%1#0 1                                                            slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%18#0,aggregate%get_bit%1#0
-        l-load tmp%18#0 1                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%18#0
-        ==                                                                                        slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
-        l-load tmp%19#0 0                                                                         slot%0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
-        assert // expected correct value at 0                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                  concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        assert // index access is out of bounds                                                   concat%1#0,dyn_arr#1,aggregate%array_length%0#0
+        l-load-copy dyn_arr#1 1                                                                   concat%1#0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy)
+        int 16                                                                                    concat%1#0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy),16
+        getbit                                                                                    concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0
+        byte 0x00                                                                                 concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0,0x00
+        int 0                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%0#0,0x00,0
+        l-load aggregate%get_bit%0#0 2                                                            concat%1#0,dyn_arr#1,aggregate%array_length%0#0,0x00,0,aggregate%get_bit%0#0
+        setbit                                                                                    concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0
+        l-load aggregate%encoded_bool%2#0 0                                                       concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0
+        int 0                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%encoded_bool%2#0,0
+        getbit                                                                                    concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0
+        txn Sender                                                                                concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0
+        txn Receiver                                                                              concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0,tmp%17#0
+        l-load tmp%16#0 1                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%17#0,tmp%16#0
+        l-load tmp%17#0 1                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%16#0,tmp%17#0
+        ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%18#0
+        l-load aggregate%get_bit%1#0 1                                                            concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%18#0,aggregate%get_bit%1#0
+        l-load tmp%18#0 1                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%get_bit%1#0,tmp%18#0
+        ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
+        l-load tmp%19#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
+        assert // expected correct value at 0                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0
         // array/static_size.py:149
         // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
-        int 1                                                                                     slot%0,dyn_arr#1,aggregate%array_length%0#0,1
-        l-load aggregate%array_length%0#0 1                                                       slot%0,dyn_arr#1,1,aggregate%array_length%0#0
-        <                                                                                         slot%0,dyn_arr#1,aggregate%lt%1#0
-        l-load aggregate%lt%1#0 0                                                                 slot%0,dyn_arr#1,aggregate%lt%1#0
-        assert // index access is out of bounds                                                   slot%0,dyn_arr#1
-        l-load dyn_arr#1 0                                                                        slot%0,dyn_arr#1
-        int 17                                                                                    slot%0,dyn_arr#1,17
-        getbit                                                                                    slot%0,aggregate%get_bit%2#0
-        byte 0x00                                                                                 slot%0,aggregate%get_bit%2#0,0x00
-        int 0                                                                                     slot%0,aggregate%get_bit%2#0,0x00,0
-        l-load aggregate%get_bit%2#0 2                                                            slot%0,0x00,0,aggregate%get_bit%2#0
-        setbit                                                                                    slot%0,aggregate%encoded_bool%3#0
-        l-load aggregate%encoded_bool%3#0 0                                                       slot%0,aggregate%encoded_bool%3#0
-        int 0                                                                                     slot%0,aggregate%encoded_bool%3#0,0
-        getbit                                                                                    slot%0,aggregate%get_bit%3#0
-        txn Sender                                                                                slot%0,aggregate%get_bit%3#0,tmp%21#0
-        txn Receiver                                                                              slot%0,aggregate%get_bit%3#0,tmp%21#0,tmp%22#0
-        l-load tmp%21#0 1                                                                         slot%0,aggregate%get_bit%3#0,tmp%22#0,tmp%21#0
-        l-load tmp%22#0 1                                                                         slot%0,aggregate%get_bit%3#0,tmp%21#0,tmp%22#0
-        !=                                                                                        slot%0,aggregate%get_bit%3#0,tmp%23#0
-        l-load aggregate%get_bit%3#0 1                                                            slot%0,tmp%23#0,aggregate%get_bit%3#0
-        l-load tmp%23#0 1                                                                         slot%0,aggregate%get_bit%3#0,tmp%23#0
-        ==                                                                                        slot%0,tmp%24#0
-        l-load tmp%24#0 0                                                                         slot%0,tmp%24#0
-        assert // expected correct value at 1                                                     slot%0
-        l-load slot%0 0                                                                           slot%0
+        int 1                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,1
+        l-load aggregate%array_length%0#0 1                                                       concat%1#0,dyn_arr#1,1,aggregate%array_length%0#0
+        <                                                                                         concat%1#0,dyn_arr#1,aggregate%lt%1#0
+        l-load aggregate%lt%1#0 0                                                                 concat%1#0,dyn_arr#1,aggregate%lt%1#0
+        assert // index access is out of bounds                                                   concat%1#0,dyn_arr#1
+        l-load dyn_arr#1 0                                                                        concat%1#0,dyn_arr#1
+        int 17                                                                                    concat%1#0,dyn_arr#1,17
+        getbit                                                                                    concat%1#0,aggregate%get_bit%2#0
+        byte 0x00                                                                                 concat%1#0,aggregate%get_bit%2#0,0x00
+        int 0                                                                                     concat%1#0,aggregate%get_bit%2#0,0x00,0
+        l-load aggregate%get_bit%2#0 2                                                            concat%1#0,0x00,0,aggregate%get_bit%2#0
+        setbit                                                                                    concat%1#0,aggregate%encoded_bool%3#0
+        l-load aggregate%encoded_bool%3#0 0                                                       concat%1#0,aggregate%encoded_bool%3#0
+        int 0                                                                                     concat%1#0,aggregate%encoded_bool%3#0,0
+        getbit                                                                                    concat%1#0,aggregate%get_bit%3#0
+        txn Sender                                                                                concat%1#0,aggregate%get_bit%3#0,tmp%21#0
+        txn Receiver                                                                              concat%1#0,aggregate%get_bit%3#0,tmp%21#0,tmp%22#0
+        l-load tmp%21#0 1                                                                         concat%1#0,aggregate%get_bit%3#0,tmp%22#0,tmp%21#0
+        l-load tmp%22#0 1                                                                         concat%1#0,aggregate%get_bit%3#0,tmp%21#0,tmp%22#0
+        !=                                                                                        concat%1#0,aggregate%get_bit%3#0,tmp%23#0
+        l-load aggregate%get_bit%3#0 1                                                            concat%1#0,tmp%23#0,aggregate%get_bit%3#0
+        l-load tmp%23#0 1                                                                         concat%1#0,aggregate%get_bit%3#0,tmp%23#0
+        ==                                                                                        concat%1#0,tmp%24#0
+        l-load tmp%24#0 0                                                                         concat%1#0,tmp%24#0
+        assert // expected correct value at 1                                                     concat%1#0
         // array/static_size.py:151
         // arr2 = arr.copy()
-        l-store slot_contents%3#0 0                                                               slot_contents%3#0
-        l-load slot_contents%3#0 0                                                                slot_contents%3#0
+        l-load concat%1#0 0                                                                       concat%1#0
         v-store slot%1
         int 0                                                                                     0
         v-store item_index_internal%0#0

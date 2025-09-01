@@ -28,18 +28,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L193
+    block@0: // L200
         let new_head#0: bytes = 0x
         let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
         let tmp%1#0: uint64 = (* array_items_count#0 2u)
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L203
+    block@1: // for_header_L211
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@2)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L204
+    block@2: // for_body_L212
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
         let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
         let tmp%4#0: bytes = (itob tmp%3#0)
@@ -47,34 +47,34 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let new_head#2: bytes = (concat new_head#1 tmp%5#0)
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L203
-        let item_offset_adjustment#2: uint64 = (len array_head_and_tail#0)
+    block@4: // after_for_L211
+        let head_and_tail_length#0: uint64 = (len array_head_and_tail#0)
         let head_offset#3: uint64 = 0u
         goto block@5
-    block@5: // for_header_L208
+    block@5: // for_header_L216
         let head_offset#4: uint64 = φ(head_offset#3 <- block@4, head_offset#5 <- block@6)
         let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@6)
         let continue_looping%1#0: bool = (< head_offset#4 item_offset_adjustment#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L209
+    block@6: // for_body_L217
         let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
-        let tmp%10#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
+        let tmp%10#0: uint64 = (+ head_and_tail_length#0 item_offset#1)
         let tmp%11#0: bytes = (itob tmp%10#0)
         let tmp%12#0: bytes = ((extract 6 2) tmp%11#0)
         let new_head#4: bytes = (concat new_head#3 tmp%12#0)
         let head_offset#5: uint64 = (+ head_offset#4 2u)
         goto block@5
-    block@8: // after_for_L208
+    block@8: // after_for_L216
         let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
         let tmp%17#0: bytes = (concat tmp%16#0 new_head#3)
-        let tmp%20#0: bytes = (substring3 array_head_and_tail#0 tmp%1#0 item_offset_adjustment#2)
-        let tmp%21#0: bytes = (concat tmp%17#0 tmp%20#0)
-        let tmp%23#0: uint64 = (len new_head_and_tail#0)
-        let tmp%24#0: bytes = (substring3 new_head_and_tail#0 item_offset_adjustment#0 tmp%23#0)
-        let tmp%25#0: bytes = (concat tmp%21#0 tmp%24#0)
-        return tmp%25#0
+        let tmp%19#0: bytes = (substring3 array_head_and_tail#0 tmp%1#0 head_and_tail_length#0)
+        let tmp%20#0: bytes = (concat tmp%17#0 tmp%19#0)
+        let tmp%22#0: uint64 = (len new_head_and_tail#0)
+        let tmp%23#0: bytes = (substring3 new_head_and_tail#0 item_offset_adjustment#0 tmp%22#0)
+        let tmp%24#0: bytes = (concat tmp%20#0 tmp%23#0)
+        return tmp%24#0
 
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
     block@0: // L13
@@ -102,12 +102,6 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         ((itxn_field Fee) 0u)
         itxn_submit
         let indirect_nested_arr#0: Encoded(len+((len+uint64[]),uint64)[]) = bytes_encode<(len+((len+uint64[]),uint64)[])>()
-        let tmp%1#0: uint64 = array_len(arr#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 indirect_nested_arr#0 0u)
-        let total_length%1#0: uint64 = (len indirect_nested_arr#0)
-        let extract_to_end%1#0: bytes = ((extract 2 0) indirect_nested_arr#0)
-        let tmp%2#0: Encoded(((len+uint64[]),uint64)[]) = bytes_encode<((len+uint64[]),uint64)[]>(arr#0, tmp%1#0)
-        let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%2#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")
