@@ -4,7 +4,7 @@
 // test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 2 1 8
-    bytecblock "box" "modified" 0x "glob" "loc" "map" "baz"
+    bytecblock "box" 0x "modified" "glob" "loc" "map" "baz"
     b main_block@0
 
 main_block@0:
@@ -24,11 +24,12 @@ main_after_if_else@2:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 4 1
-    bytec_2 // ""
+    bytec_1 // ""
+    bytec_1 // ""
     b dynamic_array_concat_dynamic_element_block@0
 
 dynamic_array_concat_dynamic_element_block@0:
-    bytec_2 // 0x
+    bytec_1 // 0x
     frame_dig -2
     intc_1 // 2
     *
@@ -41,73 +42,73 @@ dynamic_array_concat_dynamic_element_block@0:
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 5
     frame_dig 4
-    frame_dig 3
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
     b dynamic_array_concat_dynamic_element_for_body@2
 
 dynamic_array_concat_dynamic_element_for_body@2:
     frame_dig -3
-    frame_dig 4
+    frame_dig 5
     extract_uint16
-    frame_dig 2
+    frame_dig 3
     +
     itob
     extract 6 2
-    frame_dig 1
+    frame_dig 2
     uncover 1
     concat
-    frame_bury 1
+    frame_bury 2
     b dynamic_array_concat_dynamic_element_for_footer@3
 
 dynamic_array_concat_dynamic_element_for_footer@3:
-    frame_dig 4
+    frame_dig 5
     intc_1 // 2
     +
-    frame_bury 4
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_after_for@4:
     frame_dig -3
     len
-    frame_bury 2
+    frame_bury 0
     frame_dig -2
     intc_1 // 2
     *
-    frame_bury 0
+    frame_bury 1
     intc_1 // 2
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 4
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_for_header@5:
-    frame_dig 4
-    frame_dig 0
+    frame_dig 5
+    frame_dig 1
     <
     bz dynamic_array_concat_dynamic_element_after_for@8
     b dynamic_array_concat_dynamic_element_for_body@6
 
 dynamic_array_concat_dynamic_element_for_body@6:
     frame_dig -1
-    frame_dig 4
+    frame_dig 5
     extract_uint16
-    frame_dig 2
+    frame_dig 0
     +
     itob
     extract 6 2
-    frame_dig 1
+    frame_dig 2
     uncover 1
     concat
-    frame_bury 1
+    frame_bury 2
     b dynamic_array_concat_dynamic_element_for_footer@7
 
 dynamic_array_concat_dynamic_element_for_footer@7:
-    frame_dig 4
+    frame_dig 5
     intc_1 // 2
     +
-    frame_bury 4
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
@@ -116,16 +117,14 @@ dynamic_array_concat_dynamic_element_after_for@8:
     +
     itob
     extract 6 2
-    frame_dig 1
+    frame_dig 2
     concat
     frame_dig -4
     intc_1 // 2
     *
     frame_dig -3
-    len
-    frame_dig -3
-    uncover 2
-    uncover 2
+    uncover 1
+    frame_dig 0
     substring3
     concat
     frame_dig -2
@@ -281,7 +280,7 @@ get_struct_block@0:
     //     bar=arc4.UInt64(1),
     //     baz=arc4.String("baz"),
     // )
-    bytec_2 // 0x
+    bytec_1 // 0x
     // state_mutations/contract.py:67
     // bar=arc4.UInt64(1),
     pushbytes 0x0000000000000001
@@ -425,7 +424,7 @@ test_cases.state_mutations.contract.Contract.append_block@0:
     intc_1 // 2
     itob
     extract 6 2
-    bytec_2 // 0x
+    bytec_1 // 0x
     uncover 1
     concat
     dig 3
@@ -459,7 +458,7 @@ test_cases.state_mutations.contract.Contract.append_block@0:
     intc_1 // 2
     itob
     extract 6 2
-    bytec_2 // 0x
+    bytec_1 // 0x
     uncover 1
     concat
     dig 4
@@ -491,7 +490,7 @@ test_cases.state_mutations.contract.Contract.append_block@0:
     intc_1 // 2
     itob
     extract 6 2
-    bytec_2 // 0x
+    bytec_1 // 0x
     uncover 1
     concat
     dig 3
@@ -529,7 +528,7 @@ test_cases.state_mutations.contract.Contract.append_block@0:
     intc_1 // 2
     itob
     extract 6 2
-    bytec_2 // 0x
+    bytec_1 // 0x
     uncover 1
     concat
     uncover 4
@@ -553,11 +552,11 @@ test_cases.state_mutations.contract.Contract.modify:
 test_cases.state_mutations.contract.Contract.modify_block@0:
     // state_mutations/contract.py:46
     // self.glob.value[0].baz = arc4.String("modified")
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     concat
     intc_0 // 0
     bytec_3 // "glob"
@@ -627,11 +626,11 @@ test_cases.state_mutations.contract.Contract.modify_block@0:
     app_global_put
     // state_mutations/contract.py:47
     // self.loc[Txn.sender][0].baz = arc4.String("modified")
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     concat
     txn Sender
     dup
@@ -704,11 +703,11 @@ test_cases.state_mutations.contract.Contract.modify_block@0:
     app_local_put
     // state_mutations/contract.py:48
     // self.box.value[0].baz = arc4.String("modified")
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     concat
     bytec_0 // "box"
     box_get
@@ -780,11 +779,11 @@ test_cases.state_mutations.contract.Contract.modify_block@0:
     box_put
     // state_mutations/contract.py:49
     // self.map[Txn.sender][0].baz = arc4.String("modified")
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     len
     itob
     extract 6 2
-    bytec_1 // "modified"
+    bytec_2 // "modified"
     concat
     txn Sender
     bytec 5 // "map"
