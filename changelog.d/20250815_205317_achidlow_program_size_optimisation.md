@@ -20,6 +20,7 @@ For top level release notes, leave all the headers commented out.
 ### Changed
 
 - ARC-4 router code generation has been changed to be more program-size efficient.
+- Multiple other improvements to decrease program size have been introduced.
 
 <!--
 ### Deprecated

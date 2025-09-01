@@ -13,7 +13,7 @@ For top level release notes, leave all the headers commented out.
 -->
 ### Added
 
-- Documentation for how to get started with contributing a new front end langauge for the compiler
+- Documentation for how to get started with contributing a new front end langauge for the compiler.
 
 <!--
 ### Changed
