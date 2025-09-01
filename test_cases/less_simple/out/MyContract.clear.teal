@@ -3,7 +3,6 @@
 
 // test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
 main:
-    pushbytes ""
     // less_simple/contract.py:28-29
     // sum_of_squares = UInt64(0)
     // for i in urange(1, 100):
@@ -15,8 +14,6 @@ main_for_header@1:
     dup
     pushint 100 // 100
     <
-    dig 2
-    bury 4
     bz main_after_for@8
     // less_simple/contract.py:30
     // square_root = op.sqrt(i)
@@ -27,34 +24,20 @@ main_for_header@1:
     dup
     *
     ==
-    dig 2
-    bury 4
     bz main_after_if_else@4
     // less_simple/contract.py:32
     // sum_of_squares += i
     dup2
     +
-    bury 3
+    bury 2
 
 main_after_if_else@4:
-    dig 2
-    dup
-    bury 3
     // less_simple/contract.py:33
     // if sum_of_squares > 200:
+    dig 1
     pushint 200 // 200
     >
-    bz main_after_if_else@6
-    dig 1
-    bury 3
-
-main_after_for@8:
-    dig 2
-    // less_simple/contract.py:35
-    // return sum_of_squares
-    return
-
-main_after_if_else@6:
+    bnz main_after_for@8
     // less_simple/contract.py:29
     // for i in urange(1, 100):
     dup
@@ -62,3 +45,9 @@ main_after_if_else@6:
     +
     bury 1
     b main_for_header@1
+
+main_after_for@8:
+    // less_simple/contract.py:35
+    // return sum_of_squares
+    dig 1
+    return

@@ -138,8 +138,10 @@ subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
+        goto tmp%2#0 ? block@2 : block@4
+    block@4: // L82
         let amount#1: uint64 = original_amount#0
-        goto tmp%2#0 ? block@2 : block@3
+        goto block@3
     block@2: // if_body_L88
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bid")
         (assert maybe_exists%2#0) // check self.previous_bid exists

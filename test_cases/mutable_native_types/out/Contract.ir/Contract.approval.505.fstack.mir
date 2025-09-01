@@ -724,56 +724,53 @@ subroutine calculate_sum:
         l-load tmp%0#2 1                                                                                   tmp%0#3,tmp%0#2
         l-load tmp%0#3 1                                                                                   tmp%0#2,tmp%0#3
         +                                                                                                  result#0
-        l-store-copy result#0 0                                                                            result#0,result#0 (copy)
-        f-store result#0                                                                                   (𝕗) result#0 | result#0
+        l-store-copy result#0 0                                                                            result#0,result#0
+        x-store result#0                                                                                   (𝕏) result#0 | result#0
         // mutable_native_types/contract.py:191
         // if result < 100:
-        l-load-copy result#0 0                                                                             (𝕗) result#0 | result#0,result#0 (copy)
-        int 100                                                                                            (𝕗) result#0 | result#0,result#0 (copy),100
-        <                                                                                                  (𝕗) result#0 | result#0,tmp%3#0
-        l-load result#0 1                                                                                  (𝕗) result#0 | tmp%3#0,result#0
-        f-store result#6                                                                                   (𝕗) result#0,result#6 | tmp%3#0
-        l-load tmp%3#0 0                                                                                   (𝕗) result#0,result#6 | tmp%3#0
-        bz calculate_sum_after_if_else@3 ; b calculate_sum_if_body@2                                       (𝕗) result#0,result#6 |
+        l-load result#0 0                                                                                  (𝕏) result#0 | result#0
+        int 100                                                                                            (𝕏) result#0 | result#0,100
+        <                                                                                                  (𝕏) result#0 | tmp%3#0
+        bz calculate_sum_after_if_else@3 ; b calculate_sum_if_body@2                                       (𝕏) result#0 |
 
-    calculate_sum_if_body@2:                                                                               (𝕗) result#0,result#6 |
+    calculate_sum_if_body@2:                                                                               (𝕏) result#0 |
         // mutable_native_types/contract.py:192
         // c, d = self.nested.tup
-        int 0                                                                                              (𝕗) result#0,result#6 | 0
-        byte "nested"                                                                                      (𝕗) result#0,result#6 | 0,"nested"
-        app_global_get_ex                                                                                  (𝕗) result#0,result#6 | maybe_value%2#0,maybe_exists%2#0
-        assert // check self.nested exists                                                                 (𝕗) result#0,result#6 | maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                           (𝕗) result#0,result#6 | maybe_value%2#0
-        extract 32 16                                                                                      (𝕗) result#0,result#6 | aggregate%extract%2#0
-        l-load-copy aggregate%extract%2#0 0                                                                (𝕗) result#0,result#6 | aggregate%extract%2#0,aggregate%extract%2#0 (copy)
-        int 0                                                                                              (𝕗) result#0,result#6 | aggregate%extract%2#0,aggregate%extract%2#0 (copy),0
-        extract_uint64                                                                                     (𝕗) result#0,result#6 | aggregate%extract%2#0,c#0
-        l-load aggregate%extract%2#0 1                                                                     (𝕗) result#0,result#6 | c#0,aggregate%extract%2#0
-        int 8                                                                                              (𝕗) result#0,result#6 | c#0,aggregate%extract%2#0,8
-        extract_uint64                                                                                     (𝕗) result#0,result#6 | c#0,d#0
+        int 0                                                                                              (𝕏) result#0 | 0
+        byte "nested"                                                                                      (𝕏) result#0 | 0,"nested"
+        app_global_get_ex                                                                                  (𝕏) result#0 | maybe_value%2#0,maybe_exists%2#0
+        assert // check self.nested exists                                                                 (𝕏) result#0 | maybe_value%2#0
+        l-load maybe_value%2#0 0                                                                           (𝕏) result#0 | maybe_value%2#0
+        extract 32 16                                                                                      (𝕏) result#0 | aggregate%extract%2#0
+        l-load-copy aggregate%extract%2#0 0                                                                (𝕏) result#0 | aggregate%extract%2#0,aggregate%extract%2#0 (copy)
+        int 0                                                                                              (𝕏) result#0 | aggregate%extract%2#0,aggregate%extract%2#0 (copy),0
+        extract_uint64                                                                                     (𝕏) result#0 | aggregate%extract%2#0,c#0
+        l-load aggregate%extract%2#0 1                                                                     (𝕏) result#0 | c#0,aggregate%extract%2#0
+        int 8                                                                                              (𝕏) result#0 | c#0,aggregate%extract%2#0,8
+        extract_uint64                                                                                     (𝕏) result#0 | c#0,d#0
         // mutable_native_types/contract.py:193
         // result += c
-        f-load result#0                                                                                    (𝕗) result#0,result#6 | c#0,d#0,result#0
-        l-load c#0 2                                                                                       (𝕗) result#0,result#6 | d#0,result#0,c#0
-        +                                                                                                  (𝕗) result#0,result#6 | d#0,result#0
+        x-load result#0                                                                                    c#0,d#0,result#0
+        l-load c#0 2                                                                                       d#0,result#0,c#0
+        +                                                                                                  d#0,result#0
         // mutable_native_types/contract.py:194
         // result += d
-        l-load d#0 1                                                                                       (𝕗) result#0,result#6 | result#0,d#0
-        +                                                                                                  (𝕗) result#0,result#6 | result#0
-        f-store result#6                                                                                   (𝕗) result#0,result#6 |
-        b calculate_sum_after_if_else@3                                                                    (𝕗) result#0,result#6 |
+        l-load d#0 1                                                                                       result#0,d#0
+        +                                                                                                  result#0
+        x-store result#0                                                                                   (𝕏) result#0 |
+        b calculate_sum_after_if_else@3                                                                    (𝕏) result#0 |
 
-    calculate_sum_after_if_else@3:                                                                         (𝕗) result#0,result#6 |
-        f-load result#6                                                                                    (𝕗) result#0,result#6 | result#0
+    calculate_sum_after_if_else@3:                                                                         (𝕏) result#0 |
         // mutable_native_types/contract.py:186
         // @arc4.abimethod()
-        itob                                                                                               (𝕗) result#0,result#6 | aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                                                    (𝕗) result#0,result#6 | aggregate%val_as_bytes%0#0,0x151f7c75
-        l-load aggregate%val_as_bytes%0#0 1                                                                (𝕗) result#0,result#6 | 0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                             (𝕗) result#0,result#6 | tmp%2#0
-        log                                                                                                (𝕗) result#0,result#6 |
-        int 1                                                                                              (𝕗) result#0,result#6 | 1
-        return                                                                                             (𝕗) result#0,result#6 |
+        x-load result#0                                                                                    result#0
+        itob                                                                                               aggregate%val_as_bytes%0#0
+        byte 0x151f7c75                                                                                    aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                                                0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                                             tmp%2#0
+        log
+        int 1                                                                                              1
+        return
 
 
 // test_cases.mutable_native_types.contract.Contract.test_arr[routing]() -> void:

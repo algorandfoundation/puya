@@ -745,8 +745,6 @@ subroutine close:
         int 1                                                                                     question_index#0,aggregate%array_trimmed%0#0,question_index#0 (copy),1
         extract3 // on error: index access is out of bounds                                       question_index#0,question_options#0
         v-store question_options#0                                                                question_index#0
-        v-load note#0                                                                             question_index#0,note#0
-        v-store note#17                                                                           question_index#0
         // voting/voting.py:133
         // if question_index > 0:
         l-load question_index#0 0                                                                 question_index#0
@@ -758,23 +756,15 @@ subroutine close:
         v-load note#0                                                                             note#0
         byte ","                                                                                  note#0,","
         concat                                                                                    note#0
-        l-load note#0 0                                                                           note#0
-        v-store note#17
+        v-store note#0
         b close_after_if_else@5
 
     close_after_if_else@5:
-        v-load note#17                                                                            note#17
-        l-store-copy note#0 0                                                                     note#0,note#0 (copy)
-        v-store note#0                                                                            note#0
         // voting/voting.py:135
         // if question_options > 0:
-        v-load question_options#0                                                                 note#0,question_options#0
-        byte 0x00                                                                                 note#0,question_options#0,0x00
-        b>                                                                                        note#0,tmp%16#0
-        v-load current_index#0                                                                    note#0,tmp%16#0,current_index#0
-        v-store current_index#15                                                                  note#0,tmp%16#0
-        l-load note#0 1                                                                           tmp%16#0,note#0
-        v-store note#17                                                                           tmp%16#0
+        v-load question_options#0                                                                 question_options#0
+        byte 0x00                                                                                 question_options#0,0x00
+        b>                                                                                        tmp%16#0
         l-load tmp%16#0 0                                                                         tmp%16#0
         bz close_after_if_else@13 ; b close_if_body@6
 
@@ -805,8 +795,6 @@ subroutine close:
         bz close_after_for@12 ; b close_for_body@8
 
     close_for_body@8:
-        v-load note#0                                                                             note#0
-        v-store note#17
         // voting/voting.py:138
         // if option_index > 0:
         v-load option_index#0                                                                     option_index#0
@@ -818,27 +806,24 @@ subroutine close:
         v-load note#0                                                                             note#0
         byte ","                                                                                  note#0,","
         concat                                                                                    note#0
-        l-load note#0 0                                                                           note#0
-        v-store note#17
+        v-store note#0
         b close_after_if_else@10
 
     close_after_if_else@10:
-        v-load note#17                                                                            note#17
-        l-store note#0 0                                                                          note#0
         // voting/voting.py:241
         // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
-        byte "V"                                                                                  note#0,"V"
-        v-load current_index#0                                                                    note#0,"V",current_index#0
-        l-store-copy current_index#0 2                                                            current_index#0,note#0,"V",current_index#0 (copy)
-        int 8                                                                                     current_index#0,note#0,"V",current_index#0 (copy),8
-        box_extract                                                                               current_index#0,note#0,tmp%0#1
-        l-load tmp%0#1 0                                                                          current_index#0,note#0,tmp%0#1
-        btoi                                                                                      current_index#0,note#0,votes_for_option#0
+        byte "V"                                                                                  "V"
+        v-load current_index#0                                                                    "V",current_index#0
+        l-store-copy current_index#0 1                                                            current_index#0,"V",current_index#0 (copy)
+        int 8                                                                                     current_index#0,"V",current_index#0 (copy),8
+        box_extract                                                                               current_index#0,tmp%0#1
+        l-load tmp%0#1 0                                                                          current_index#0,tmp%0#1
+        btoi                                                                                      current_index#0,votes_for_option#0
         // voting/voting.py:141
         // note += itoa(votes_for_option)
-        l-load votes_for_option#0 0                                                               current_index#0,note#0,votes_for_option#0
-        callsub itoa                                                                              current_index#0,note#0,tmp%22#0
-        l-load note#0 1                                                                           current_index#0,tmp%22#0,note#0
+        l-load votes_for_option#0 0                                                               current_index#0,votes_for_option#0
+        callsub itoa                                                                              current_index#0,tmp%22#0
+        v-load note#0                                                                             current_index#0,tmp%22#0,note#0
         l-load tmp%22#0 1                                                                         current_index#0,note#0,tmp%22#0
         concat                                                                                    current_index#0,note#0
         v-store note#0                                                                            current_index#0
@@ -862,17 +847,10 @@ subroutine close:
         v-load note#0                                                                             note#0
         byte "]"                                                                                  note#0,"]"
         concat                                                                                    note#0
-        v-load current_index#0                                                                    note#0,current_index#0
-        v-store current_index#15                                                                  note#0
-        l-load note#0 0                                                                           note#0
-        v-store note#17
+        v-store note#0
         b close_after_if_else@13
 
     close_after_if_else@13:
-        v-load current_index#15                                                                   current_index#15
-        v-store current_index#0
-        v-load note#17                                                                            note#17
-        v-store note#0
         v-load question_index#0                                                                   question_index#0
         int 1                                                                                     question_index#0,1
         +                                                                                         item_index_internal%0#0

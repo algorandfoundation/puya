@@ -265,9 +265,6 @@ claim_bids:
     intc_0 // 0
     bytec 5 // "claim"
     app_local_get_ex
-    swap
-    dup
-    uncover 2
     assert // check self.claimable_amount exists for account
     // auction/contract.py:86-87
     // # subtract previous bid if sender is previous bidder
@@ -278,17 +275,8 @@ claim_bids:
     app_global_get_ex
     assert // check self.previous_bidder exists
     ==
-    bz claim_bids_after_if_else@3
-    // auction/contract.py:88
-    // amount -= self.previous_bid
-    intc_0 // 0
-    bytec_1 // "previous_bid"
-    app_global_get_ex
-    assert // check self.previous_bid exists
-    dig 2
-    swap
-    -
-    bury 1
+    bnz claim_bids_if_body@2
+    dup
 
 claim_bids_after_if_else@3:
     // auction/contract.py:90-93
@@ -301,7 +289,7 @@ claim_bids_after_if_else@3:
     // receiver=Txn.sender,
     txn Sender
     itxn_field Receiver
-    dupn 2
+    dup
     itxn_field Amount
     // auction/contract.py:90
     // itxn.Payment(
@@ -317,7 +305,7 @@ claim_bids_after_if_else@3:
     itxn_submit
     // auction/contract.py:95
     // self.claimable_amount[Txn.sender] = original_amount - amount
-    dig 2
+    dig 1
     swap
     -
     txn Sender
@@ -328,6 +316,18 @@ claim_bids_after_if_else@3:
     // @arc4.abimethod
     intc_1 // 1
     return
+
+claim_bids_if_body@2:
+    // auction/contract.py:88
+    // amount -= self.previous_bid
+    intc_0 // 0
+    bytec_1 // "previous_bid"
+    app_global_get_ex
+    assert // check self.previous_bid exists
+    dig 1
+    swap
+    -
+    b claim_bids_after_if_else@3
 
 
 // examples.auction.contract.Auction.claim_asset[routing]() -> void:
