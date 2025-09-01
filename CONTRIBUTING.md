@@ -37,6 +37,14 @@ things manually via `pre-commit run --all-files`.
 
 `poe` is used for running various scripts/commands used in local development.
 
+`poe compile_all_fast` can be run to update all compiler approvals output by running the test_compile suite
+
+Approvals output can often result in conflicts when rebasing or merging branches. 
+Generally the best strategy to resolve this is to accept the original set of changes and then 
+rerun `poe compile_all_fast` to update the approvals with the cumulative changes.
+To assist with this the merge driver for approvals output (defined in `.gitattributes` with `merge=theirs`) 
+can be defined with `git config merge.theirs.driver true` which will config git to automatically accept "theirs" for these files. 
+
 Testing uses `pytest`. You'll need to have a local `algod` node running for most of the tests
 to run, see [algokit-cli](https://github.com/algorandfoundation/algokit-cli).
 
