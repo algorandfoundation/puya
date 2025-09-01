@@ -230,12 +230,17 @@ subroutine test_nested_singles:
         int 1                                                                                     (𝕡) one#0,reassign#0 | one#0 (copy),1
         ==                                                                                        (𝕡) one#0,reassign#0 | tmp%2#0
         assert                                                                                    (𝕡) one#0,reassign#0 |
-        p-load one#0                                                                              (𝕡) one#0,reassign#0 | one#0 (copy)
-        v-store s.1.0#1                                                                           (𝕡) one#0,reassign#0 |
         // tuple_support/nested_tuples.py:261
         // if reassign:
         p-load reassign#0                                                                         (𝕡) one#0,reassign#0 | reassign#0 (copy)
-        bz test_nested_singles_after_if_else@2 ; b test_nested_singles_if_body@1                  (𝕡) one#0,reassign#0 |
+        bz test_nested_singles_block@3 ; b test_nested_singles_if_body@1                          (𝕡) one#0,reassign#0 |
+
+    test_nested_singles_block@3:                                                                  (𝕡) one#0,reassign#0 |
+        p-load one#0                                                                              (𝕡) one#0,reassign#0 | one#0 (copy)
+        x-store s.1.0#1                                                                           (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
+        // tuple_support/nested_tuples.py:261
+        // if reassign:
+        b test_nested_singles_after_if_else@2                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
 
     test_nested_singles_if_body@1:                                                                (𝕡) one#0,reassign#0 |
         // tuple_support/nested_tuples.py:263
@@ -257,42 +262,42 @@ subroutine test_nested_singles:
         //     (UInt64(4),),
         //     (UInt64(5),),
         // )
-        v-store s.1.0#1                                                                           (𝕡) one#0,reassign#0 |
+        x-store s.1.0#1                                                                           (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
         // tuple_support/nested_tuples.py:265
         // (UInt64(5),),
-        int 5                                                                                     (𝕡) one#0,reassign#0 | 5
+        int 5                                                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | 5
         // tuple_support/nested_tuples.py:262-266
         // s = (
         //     (UInt64(3),),
         //     (UInt64(4),),
         //     (UInt64(5),),
         // )
-        v-store s.2.0#0                                                                           (𝕡) one#0,reassign#0 |
-        b test_nested_singles_after_if_else@2                                                     (𝕡) one#0,reassign#0 |
+        v-store s.2.0#0                                                                           (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
+        b test_nested_singles_after_if_else@2                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
 
-    test_nested_singles_after_if_else@2:                                                          (𝕡) one#0,reassign#0 |
+    test_nested_singles_after_if_else@2:                                                          (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
         // tuple_support/nested_tuples.py:267
         // assert s[0][0] == (3 if reassign else 0)
-        p-load reassign#0                                                                         (𝕡) one#0,reassign#0 | reassign#0 (copy)
-        int 3                                                                                     (𝕡) one#0,reassign#0 | reassign#0 (copy),3
-        *                                                                                         (𝕡) one#0,reassign#0 | select%0#0
-        v-load s.0.0#0                                                                            (𝕡) one#0,reassign#0 | select%0#0,s.0.0#0
-        l-load select%0#0 1                                                                       (𝕡) one#0,reassign#0 | s.0.0#0,select%0#0
-        ==                                                                                        (𝕡) one#0,reassign#0 | tmp%6#0
-        assert                                                                                    (𝕡) one#0,reassign#0 |
+        p-load reassign#0                                                                         (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | reassign#0 (copy)
+        int 3                                                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | reassign#0 (copy),3
+        *                                                                                         (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%0#0
+        v-load s.0.0#0                                                                            (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%0#0,s.0.0#0
+        l-load select%0#0 1                                                                       (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | s.0.0#0,select%0#0
+        ==                                                                                        (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | tmp%6#0
+        assert                                                                                    (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 |
         // tuple_support/nested_tuples.py:269
         // assert tmp == (5 if reassign else 2)
-        int 2                                                                                     (𝕡) one#0,reassign#0 | 2
-        int 5                                                                                     (𝕡) one#0,reassign#0 | 2,5
-        p-load reassign#0                                                                         (𝕡) one#0,reassign#0 | 2,5,reassign#0 (copy)
-        select                                                                                    (𝕡) one#0,reassign#0 | select%1#0
-        v-load s.2.0#0                                                                            (𝕡) one#0,reassign#0 | select%1#0,s.2.0#0
-        l-load-copy select%1#0 1                                                                  (𝕡) one#0,reassign#0 | select%1#0,s.2.0#0,select%1#0 (copy)
-        ==                                                                                        (𝕡) one#0,reassign#0 | select%1#0,tmp%7#0
-        assert                                                                                    (𝕡) one#0,reassign#0 | select%1#0
+        int 2                                                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | 2
+        int 5                                                                                     (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | 2,5
+        p-load reassign#0                                                                         (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | 2,5,reassign#0 (copy)
+        select                                                                                    (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%1#0
+        v-load s.2.0#0                                                                            (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%1#0,s.2.0#0
+        l-load-copy select%1#0 1                                                                  (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%1#0,s.2.0#0,select%1#0 (copy)
+        ==                                                                                        (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%1#0,tmp%7#0
+        assert                                                                                    (𝕡) one#0,reassign#0 | (𝕏) s.1.0#1 | select%1#0
         // tuple_support/nested_tuples.py:273
         // s1 += one
-        v-load s.1.0#1                                                                            (𝕡) one#0,reassign#0 | select%1#0,s.1.0#1
+        x-load s.1.0#1                                                                            (𝕡) one#0,reassign#0 | select%1#0,s.1.0#1
         l-store-copy s.1.0#1 1                                                                    (𝕡) one#0,reassign#0 | s.1.0#1,select%1#0,s.1.0#1 (copy)
         p-load one#0                                                                              (𝕡) one#0,reassign#0 | s.1.0#1,select%1#0,s.1.0#1 (copy),one#0 (copy)
         +                                                                                         (𝕡) one#0,reassign#0 | s.1.0#1,select%1#0,s1#1

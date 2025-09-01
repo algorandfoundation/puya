@@ -6,7 +6,7 @@ main:
     intcblock 2 1 8 0 4098 4096 4138
     bytecblock "dynamic_arr_struct" "box" 0x424f585f43 "dynamic_box" 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "0" "many_ints" 0x68656c6c6f 0x00023432 "default" "box_ref" 0x0014 0x068101
     pushbytes ""
-    dupn 9
+    dupn 8
     txn NumAppArgs
     bz main___algopy_default_create@42
     txn OnCompletion
@@ -305,22 +305,22 @@ main_write_dynamic_box_route@31:
 
 main_sum_dynamic_box_route@30:
     intc_3 // 0
-    bury 2
+    bury 1
     bytec_3 // "dynamic_box"
     intc_3 // 0
     intc_0 // 2
     box_extract
     btoi
-    bury 9
+    bury 8
     intc_3 // 0
-    bury 6
+    bury 5
 
 main_for_header@64:
-    dig 5
-    dig 9
+    dig 4
+    dig 8
     <
     bz main_after_for@66
-    dig 5
+    dig 4
     dup
     intc_2 // 8
     *
@@ -331,16 +331,16 @@ main_for_header@64:
     intc_2 // 8
     box_extract
     btoi
-    dig 3
+    dig 2
     +
-    bury 3
+    bury 2
     intc_1 // 1
     +
-    bury 6
+    bury 5
     b main_for_header@64
 
 main_after_for@66:
-    dig 1
+    dup
     itob
     bytec 4 // 0x151f7c75
     swap
@@ -395,14 +395,14 @@ main_append_dynamic_box_route@28:
     txna ApplicationArgs 1
     btoi
     dup
-    bury 4
+    bury 3
     bytec_3 // "dynamic_box"
     intc_3 // 0
     intc_0 // 2
     box_extract
     btoi
     dup
-    bury 12
+    bury 11
     +
     intc_2 // 8
     *
@@ -412,17 +412,17 @@ main_append_dynamic_box_route@28:
     swap
     box_resize
     intc_3 // 0
-    bury 7
+    bury 6
 
 main_for_header@71:
-    dig 6
-    dig 3
+    dig 5
+    dig 2
     <
     bz main_after_for@73
-    dig 6
+    dig 5
     dup
     itob
-    dig 11
+    dig 10
     dup
     cover 2
     intc_2 // 8
@@ -435,14 +435,14 @@ main_for_header@71:
     box_replace
     intc_1 // 1
     +
-    bury 11
+    bury 10
     intc_1 // 1
     +
-    bury 7
+    bury 6
     b main_for_header@71
 
 main_after_for@73:
-    dig 9
+    dig 8
     itob
     dup
     bitlen
@@ -487,24 +487,22 @@ main_create_dynamic_box_route@26:
 main_sum_bools_route@25:
     txna ApplicationArgs 1
     btoi
-    bury 4
+    bury 3
     intc_3 // 0
-    bury 2
+    bury 1
     bytec 10 // "too_many_bools"
     box_len
     bury 1
     assert // check self.too_many_bools exists
     intc_3 // 0
-    bury 6
+    bury 5
 
 main_for_header@80:
-    dig 5
+    dig 4
     pushint 33000 // 33000
     <
-    dig 2
-    bury 2
     bz main_after_for@86
-    dig 5
+    dig 4
     dup
     intc_2 // 8
     /
@@ -517,22 +515,22 @@ main_for_header@80:
     box_extract
     swap
     getbit
-    dig 2
-    bury 2
     bz main_after_if_else@83
-    dig 1
+    dup
     intc_1 // 1
     +
     bury 1
 
 main_after_if_else@83:
-    dupn 2
-    bury 3
-    dig 4
+    dup
+    dig 3
     ==
-    bz main_after_if_else@85
-    dig 1
-    bury 1
+    bnz main_after_for@86
+    dig 4
+    intc_1 // 1
+    +
+    bury 5
+    b main_for_header@80
 
 main_after_for@86:
     dup
@@ -543,13 +541,6 @@ main_after_for@86:
     log
     intc_1 // 1
     return
-
-main_after_if_else@85:
-    dig 5
-    intc_1 // 1
-    +
-    bury 6
-    b main_for_header@80
 
 main_set_bool_route@24:
     txna ApplicationArgs 1
@@ -608,19 +599,19 @@ main_sum_dynamic_arr_struct_route@22:
     ==
     assert // expected 2
     +
-    bury 2
+    bury 1
     bytec_0 // "dynamic_arr_struct"
     pushint 20 // 20
     intc_0 // 2
     box_extract
     btoi
-    bury 9
+    bury 8
     intc_3 // 0
-    bury 6
+    bury 5
 
 main_for_header@93:
-    dig 5
-    dig 9
+    dig 4
+    dig 8
     <
     bz main_after_for@95
     bytec_0 // "dynamic_arr_struct"
@@ -628,7 +619,7 @@ main_for_header@93:
     intc_0 // 2
     box_extract
     btoi
-    dig 6
+    dig 5
     dup
     uncover 2
     <
@@ -643,12 +634,12 @@ main_for_header@93:
     intc_2 // 8
     box_extract
     btoi
-    dig 3
+    dig 2
     +
-    bury 3
+    bury 2
     intc_1 // 1
     +
-    bury 6
+    bury 5
     b main_for_header@93
 
 main_after_for@95:
@@ -662,13 +653,13 @@ main_after_for@95:
     intc_0 // 2
     box_extract
     btoi
-    bury 8
+    bury 7
     intc_3 // 0
-    bury 5
+    bury 4
 
 main_for_header@96:
-    dig 4
-    dig 8
+    dig 3
+    dig 7
     <
     bz main_after_for@98
     bytec_0 // "dynamic_arr_struct"
@@ -678,7 +669,7 @@ main_for_header@96:
     btoi
     intc_0 // 2
     +
-    dig 5
+    dig 4
     dup
     cover 2
     intc_2 // 8
@@ -689,16 +680,16 @@ main_for_header@96:
     intc_2 // 8
     box_extract
     btoi
-    dig 3
+    dig 2
     +
-    bury 3
+    bury 2
     intc_1 // 1
     +
-    bury 5
+    bury 4
     b main_for_header@96
 
 main_after_for@98:
-    dig 1
+    dup
     itob
     bytec 4 // 0x151f7c75
     swap
@@ -1122,7 +1113,7 @@ main_append_dynamic_arr_struct_route@17:
     txna ApplicationArgs 1
     btoi
     dup
-    bury 4
+    bury 3
     bytec_0 // "dynamic_arr_struct"
     pushint 10 // 10
     intc_2 // 8
@@ -1137,7 +1128,7 @@ main_append_dynamic_arr_struct_route@17:
     box_extract
     btoi
     dup
-    bury 12
+    bury 11
     bytec_0 // "dynamic_arr_struct"
     pushint 18 // 18
     intc_0 // 2
@@ -1178,17 +1169,17 @@ main_append_dynamic_arr_struct_route@17:
     uncover 3
     box_splice
     intc_3 // 0
-    bury 7
+    bury 6
 
 main_for_header@109:
-    dig 6
-    dig 3
+    dig 5
+    dig 2
     <
     bz main_after_for@111
-    dig 6
+    dig 5
     dup
     itob
-    dig 11
+    dig 10
     dup
     cover 2
     intc_2 // 8
@@ -1201,14 +1192,14 @@ main_for_header@109:
     box_replace
     intc_1 // 1
     +
-    bury 11
+    bury 10
     intc_1 // 1
     +
-    bury 7
+    bury 6
     b main_for_header@109
 
 main_after_for@111:
-    dig 9
+    dig 8
     dup
     itob
     dup
@@ -1473,20 +1464,20 @@ main_while_top@125:
 
 main_after_while@127:
     intc_3 // 0
-    bury 2
+    bury 1
     bytec 12 // "many_ints"
     box_len
     bury 1
     assert // check self.many_ints exists
     intc_3 // 0
-    bury 6
+    bury 5
 
 main_for_header@128:
-    dig 5
+    dig 4
     pushint 513 // 513
     <
     bz main_after_for@130
-    dig 5
+    dig 4
     dup
     intc_2 // 8
     *
@@ -1495,16 +1486,16 @@ main_for_header@128:
     intc_2 // 8
     box_extract
     btoi
-    dig 3
+    dig 2
     +
-    bury 3
+    bury 2
     intc_1 // 1
     +
-    bury 6
+    bury 5
     b main_for_header@128
 
 main_after_for@130:
-    dig 1
+    dup
     itob
     bytec 4 // 0x151f7c75
     swap

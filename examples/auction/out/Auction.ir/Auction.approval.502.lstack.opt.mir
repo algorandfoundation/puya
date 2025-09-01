@@ -322,24 +322,27 @@ subroutine claim_bids:
         byte "claim"                                                                         tmp%0#0,0,"claim"
         app_local_get_ex                                                                     original_amount#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                           maybe_exists%0#0,original_amount#0
-        l-store-copy original_amount#0 1                                                     original_amount#0,maybe_exists%0#0,original_amount#0 (copy)
-        v-store original_amount#0                                                            original_amount#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                            original_amount#0,maybe_exists%0#0
-        assert // check self.claimable_amount exists for account                             original_amount#0
+        v-store original_amount#0                                                            maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                            maybe_exists%0#0
+        assert // check self.claimable_amount exists for account
         // auction/contract.py:87
         // if Txn.sender == self.previous_bidder:
-        txn Sender                                                                           original_amount#0,tmp%1#0
-        int 0                                                                                original_amount#0,tmp%1#0,0
-        byte "previous_bidder"                                                               original_amount#0,tmp%1#0,0,"previous_bidder"
-        app_global_get_ex                                                                    original_amount#0,tmp%1#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.previous_bidder exists                                          original_amount#0,tmp%1#0,maybe_value%1#0
-        l-load tmp%1#0 1                                                                     original_amount#0,maybe_value%1#0,tmp%1#0
-        l-load maybe_value%1#0 1                                                             original_amount#0,tmp%1#0,maybe_value%1#0
-        ==                                                                                   original_amount#0,tmp%2#0
-        l-load original_amount#0 1                                                           tmp%2#0,original_amount#0
-        v-store amount#1                                                                     tmp%2#0
-        l-load tmp%2#0 0                                                                     tmp%2#0
-        bz claim_bids_after_if_else@3 ; b claim_bids_if_body@2
+        txn Sender                                                                           tmp%1#0
+        int 0                                                                                tmp%1#0,0
+        byte "previous_bidder"                                                               tmp%1#0,0,"previous_bidder"
+        app_global_get_ex                                                                    tmp%1#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.previous_bidder exists                                          tmp%1#0,maybe_value%1#0
+        l-load tmp%1#0 1                                                                     maybe_value%1#0,tmp%1#0
+        l-load maybe_value%1#0 1                                                             tmp%1#0,maybe_value%1#0
+        ==                                                                                   tmp%2#0
+        bz claim_bids_block@4 ; b claim_bids_if_body@2
+
+    claim_bids_block@4:
+        v-load original_amount#0                                                             original_amount#0
+        v-store amount#1
+        // auction/contract.py:87
+        // if Txn.sender == self.previous_bidder:
+        b claim_bids_after_if_else@3
 
     claim_bids_if_body@2:
         // auction/contract.py:88

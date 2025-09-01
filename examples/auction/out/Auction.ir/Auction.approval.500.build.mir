@@ -430,10 +430,15 @@ subroutine claim_bids:
         v-load maybe_value%1#0                                                               tmp%1#0,maybe_value%1#0
         ==                                                                                   tmp%2#0
         v-store tmp%2#0
+        v-load tmp%2#0                                                                       tmp%2#0
+        bz claim_bids_block@4 ; b claim_bids_if_body@2
+
+    claim_bids_block@4:
         v-load original_amount#0                                                             original_amount#0
         v-store amount#1
-        v-load tmp%2#0                                                                       tmp%2#0
-        bz claim_bids_after_if_else@3 ; b claim_bids_if_body@2
+        // auction/contract.py:87
+        // if Txn.sender == self.previous_bidder:
+        b claim_bids_after_if_else@3
 
     claim_bids_if_body@2:
         // auction/contract.py:88
