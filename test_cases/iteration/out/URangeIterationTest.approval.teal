@@ -177,18 +177,18 @@ main_after_for@18:
     // log("test_forwards_with_reverse_index")
     pushbytes "test_forwards_with_reverse_index"
     log
-    // iteration/iterate_urange.py:64
-    // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
+    // iteration/iterate_urange.py:42
+    // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     intc_1 // 2
     bury 8
-    intc_3 // 5
+    intc_0 // 1
     bury 1
 
 main_for_body@22:
-    // iteration/iterate_urange.py:63
+    // iteration/iterate_urange.py:41
     // values = Bytes(b" a b c")
     bytec_0 // 0x206120622063
-    // iteration/iterate_urange.py:65
+    // iteration/iterate_urange.py:43
     // self._log_with_index(idx, values[i])
     dig 1
     dup
@@ -197,21 +197,29 @@ main_for_body@22:
     extract3
     dig 9
     dup
-    uncover 2
+    cover 3
+    swap
     callsub _log_with_index
-    // iteration/iterate_urange.py:67
+    // iteration/iterate_urange.py:44
+    // i += 1
+    dup
+    intc_0 // 1
+    +
+    bury 4
+    // iteration/iterate_urange.py:45
     // idx += 1
+    swap
     intc_0 // 1
     +
     bury 8
-    // iteration/iterate_urange.py:64
-    // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
-    intc_0 // 1
-    >
+    // iteration/iterate_urange.py:42
+    // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
+    intc_3 // 5
+    <
     bz main_after_for@25
     dup
     intc_1 // 2
-    -
+    +
     bury 1
     dig 7
     intc_0 // 1
@@ -220,8 +228,13 @@ main_for_body@22:
     b main_for_body@22
 
 main_after_for@25:
-    // iteration/iterate_urange.py:68-69
-    // # assert i == UInt64(6)
+    // iteration/iterate_urange.py:46
+    // assert i == UInt64(6)
+    dig 1
+    pushint 6 // 6
+    ==
+    assert
+    // iteration/iterate_urange.py:47
     // assert idx == UInt64(1)
     dig 6
     intc_0 // 1
@@ -294,18 +307,18 @@ main_after_for@32:
     // log("test_reverse_with_reverse_index")
     pushbytes "test_reverse_with_reverse_index"
     log
-    // iteration/iterate_urange.py:42
-    // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
+    // iteration/iterate_urange.py:64
+    // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     intc_1 // 2
     bury 8
-    intc_0 // 1
+    intc_3 // 5
     bury 1
 
 main_for_body@36:
-    // iteration/iterate_urange.py:41
+    // iteration/iterate_urange.py:63
     // values = Bytes(b" a b c")
     bytec_0 // 0x206120622063
-    // iteration/iterate_urange.py:43
+    // iteration/iterate_urange.py:65
     // self._log_with_index(idx, values[i])
     dig 1
     dup
@@ -314,21 +327,29 @@ main_for_body@36:
     extract3
     dig 9
     dup
-    uncover 2
+    cover 3
+    swap
     callsub _log_with_index
-    // iteration/iterate_urange.py:45
+    // iteration/iterate_urange.py:66
+    // i += 1
+    dup
+    intc_0 // 1
+    +
+    bury 4
+    // iteration/iterate_urange.py:67
     // idx += 1
+    swap
     intc_0 // 1
     +
     bury 8
-    // iteration/iterate_urange.py:42
-    // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
-    intc_3 // 5
-    <
+    // iteration/iterate_urange.py:64
+    // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
+    intc_0 // 1
+    >
     bz main_after_for@39
     dup
     intc_1 // 2
-    +
+    -
     bury 1
     dig 7
     intc_0 // 1
@@ -337,8 +358,13 @@ main_for_body@36:
     b main_for_body@36
 
 main_after_for@39:
-    // iteration/iterate_urange.py:46-47
-    // # assert i == UInt64(2)
+    // iteration/iterate_urange.py:68
+    // assert i == UInt64(2)
+    dig 1
+    intc_1 // 2
+    ==
+    assert
+    // iteration/iterate_urange.py:69
     // assert idx == UInt64(1)
     dig 6
     intc_0 // 1

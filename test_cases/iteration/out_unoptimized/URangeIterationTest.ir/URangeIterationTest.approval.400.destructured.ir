@@ -109,9 +109,10 @@ subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards
         (assert tmp%3#0)
         return 
 
-subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index() -> void:
+subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index() -> void:
     block@0: // L38
         let idx#0: uint64 = undefined
+        let i#0: uint64 = undefined
         (assert 2u) // Step cannot be zero
         let should_loop%0#0: bool = (< 1u 7u)
         goto should_loop%0#0 ? block@1 : block@5
@@ -124,24 +125,30 @@ subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_
         let i#0: uint64 = 1u
         let idx#0: uint64 = iteration_count_minus_one%0#0
         let idx#1: uint64 = idx#0
+        let i#1: uint64 = i#0
         goto block@2
     block@2: // for_body_L43
-        let extract%0#0: bytes = (extract3 0x206120622063 i#0 1u)
+        let extract%0#0: bytes = (extract3 0x206120622063 i#1 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, extract%0#0)
+        let tmp%0#0: uint64 = (+ i#1 1u)
+        let i#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (+ idx#1 1u)
         let idx#0: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L42
-        let continue_looping%0#0: bool = (< i#0 max_range_item%0#0)
+        let continue_looping%0#0: bool = (< i#1 max_range_item%0#0)
         goto continue_looping%0#0 ? block@4 : block@5
     block@4: // for_increment_L42
-        let i#0: uint64 = (+ i#0 2u)
+        let i#0: uint64 = (+ i#1 2u)
         let idx#0: uint64 = (- idx#1 1u)
         let idx#1: uint64 = idx#0
+        let i#1: uint64 = i#0
         goto block@2
     block@5: // after_for_L42
-        let tmp%2#0: bool = (== idx#0 1u)
+        let tmp%2#0: bool = (== i#0 6u)
         (assert tmp%2#0)
+        let tmp%3#0: bool = (== idx#0 1u)
+        (assert tmp%3#0)
         return 
 
 subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_forwards_index() -> void:
@@ -186,9 +193,10 @@ subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_
         (assert tmp%3#0)
         return 
 
-subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index() -> void:
+subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index() -> void:
     block@0: // L60
         let idx#0: uint64 = undefined
+        let i#0: uint64 = undefined
         (assert 2u) // Step cannot be zero
         let should_loop%0#0: bool = (< 1u 7u)
         goto should_loop%0#0 ? block@1 : block@5
@@ -201,24 +209,30 @@ subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards
         let i#0: uint64 = max_range_item%0#0
         let idx#0: uint64 = iteration_count_minus_one%0#0
         let idx#1: uint64 = idx#0
+        let i#1: uint64 = i#0
         goto block@2
     block@2: // for_body_L65
-        let extract%0#0: bytes = (extract3 0x206120622063 i#0 1u)
+        let extract%0#0: bytes = (extract3 0x206120622063 i#1 1u)
         test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, extract%0#0)
+        let tmp%0#0: uint64 = (+ i#1 1u)
+        let i#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (+ idx#1 1u)
         let idx#0: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L64
-        let continue_looping%0#0: bool = (< 1u i#0)
+        let continue_looping%0#0: bool = (< 1u i#1)
         goto continue_looping%0#0 ? block@4 : block@5
     block@4: // for_increment_L64
-        let i#0: uint64 = (- i#0 2u)
+        let i#0: uint64 = (- i#1 2u)
         let idx#0: uint64 = (- idx#1 1u)
         let idx#1: uint64 = idx#0
+        let i#1: uint64 = i#0
         goto block@2
     block@5: // after_for_L64
-        let tmp%2#0: bool = (== idx#0 1u)
+        let tmp%2#0: bool = (== i#0 2u)
         (assert tmp%2#0)
+        let tmp%3#0: bool = (== idx#0 1u)
+        (assert tmp%3#0)
         return 
 
 subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_empty() -> void:

@@ -37,13 +37,13 @@ class URangeIterationTest(IterationTestBase):
 
     @typing.override
     @subroutine
-    def test_reverse_with_reverse_index(self) -> None:
+    def test_forwards_with_reverse_index(self) -> None:
         values = Bytes(b" a b c")
         for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
-        # assert i == UInt64(2)
+        assert i == UInt64(6)
         assert idx == UInt64(1)
 
     @typing.override
@@ -59,13 +59,13 @@ class URangeIterationTest(IterationTestBase):
 
     @typing.override
     @subroutine
-    def test_forwards_with_reverse_index(self) -> None:
+    def test_reverse_with_reverse_index(self) -> None:
         values = Bytes(b" a b c")
         for idx, i in reversed(uenumerate(urange(1, 7, 2))):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
-        # assert i == UInt64(6)
+        assert i == UInt64(2)
         assert idx == UInt64(1)
 
     @typing.override
