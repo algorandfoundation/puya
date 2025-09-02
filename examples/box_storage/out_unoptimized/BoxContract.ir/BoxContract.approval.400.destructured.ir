@@ -79,11 +79,13 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%17#0: uint64 = (* tmp%16#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%17#0
+        let value_internal%0#0: uint64 = head_offset#0
         goto block@1
     block@1: // for_header_L282
-        let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L283
+        let head_offset#0: uint64 = value_internal%0#0
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tail_offset#0: uint64 = tmp%18#0
         let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -97,7 +99,7 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let new_head_and_tail#0: bytes = tmp%23#0
         goto block@3
     block@3: // for_footer_L282
-        let head_offset#0: uint64 = (+ head_offset#0 2u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 2u)
         goto block@1
     block@4: // after_for_L282
         return new_head_and_tail#0
@@ -876,16 +878,17 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let tmp%7#0: bytes = (bzero tmp%6#0)
         (box_splice "dynamic_arr_struct" tmp%5#0 0u tmp%7#0)
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L217
-        let continue_looping%0#0: bool = (< i#0 times#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 times#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L218
+        let i#1: uint64 = value_internal%0#0
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (box_get "dynamic_arr_struct")
         (assert aggregate%box_get%7#0) // check Box exists
         let storage_value%3#0: bytes = aggregate%box_get%6#0
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#1)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%extract%1#0: bytes = (extract3 storage_value%3#0 20u 32762u)
@@ -900,7 +903,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let arr_len#0: uint64 = tmp%8#0
         goto block@3
     block@3: // for_footer_L217
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L217
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob arr_len#0)
@@ -1698,16 +1701,17 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
         let tmp%3#0: uint64 = (+ 2u tmp%2#0)
         (box_resize "dynamic_box" tmp%3#0)
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L334
-        let continue_looping%0#0: bool = (< i#0 times#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 times#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L335
+        let i#1: uint64 = value_internal%0#0
         let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (box_get "dynamic_box")
         (assert aggregate%box_get%3#0) // check Box exists
         let storage_value%1#0: bytes = aggregate%box_get%2#0
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#1)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let aggregate%extract%1#0: bytes = (extract3 storage_value%1#0 2u 32760u)
@@ -1720,7 +1724,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
         let arr_len#0: uint64 = tmp%4#0
         goto block@3
     block@3: // for_footer_L334
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L334
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob arr_len#0)

@@ -855,14 +855,16 @@ subroutine close:
         getbyte                                                                                   tmp%18#0
         v-store tmp%18#0
         int 0                                                                                     0
-        v-store option_index#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                 value_internal%0#0
+        v-store option_index#1
         b close_for_header@7
 
     close_for_header@7:
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load option_index#0                                                                     option_index#0
-        v-load tmp%18#0                                                                           option_index#0,tmp%18#0
+        v-load option_index#1                                                                     option_index#1
+        v-load tmp%18#0                                                                           option_index#1,tmp%18#0
         <                                                                                         continue_looping%1#0
         v-store continue_looping%1#0
         v-load continue_looping%1#0                                                               continue_looping%1#0
@@ -871,7 +873,7 @@ subroutine close:
     close_for_body@8:
         // voting/voting.py:138
         // if option_index > 0:
-        v-load option_index#0                                                                     option_index#0
+        v-load option_index#1                                                                     option_index#1
         bz close_after_if_else@10 ; b close_if_body@9
 
     close_if_body@9:
@@ -911,10 +913,12 @@ subroutine close:
         v-store current_index#0
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load option_index#0                                                                     option_index#0
-        int 1                                                                                     option_index#0,1
-        +                                                                                         option_index#0
-        v-store option_index#0
+        v-load option_index#1                                                                     option_index#1
+        int 1                                                                                     option_index#1,1
+        +                                                                                         value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                 value_internal%0#0
+        v-store option_index#1
         b close_for_header@7
 
     close_after_for@12:
@@ -1286,14 +1290,16 @@ subroutine vote:
         // voting/voting.py:195
         // for question_index in urange(questions_count):
         int 0                                                                                     0
-        v-store question_index#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                 value_internal%0#0
+        v-store question_index#1
         b vote_for_header@2
 
     vote_for_header@2:
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        v-load question_index#0                                                                   question_index#0
-        v-load questions_count#0                                                                  question_index#0,questions_count#0
+        v-load question_index#1                                                                   question_index#1
+        v-load questions_count#0                                                                  question_index#1,questions_count#0
         <                                                                                         continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                               continue_looping%0#0
@@ -1306,7 +1312,7 @@ subroutine vote:
         extract 2 0                                                                               aggregate%array_trimmed%0#0
         v-store aggregate%array_trimmed%0#0
         v-load aggregate%array_trimmed%0#0                                                        aggregate%array_trimmed%0#0
-        v-load question_index#0                                                                   aggregate%array_trimmed%0#0,question_index#0
+        v-load question_index#1                                                                   aggregate%array_trimmed%0#0,question_index#1
         getbyte                                                                                   answer_option_index#0
         v-store answer_option_index#0
         // voting/voting.py:198
@@ -1322,7 +1328,7 @@ subroutine vote:
         extract 2 0                                                                               aggregate%array_trimmed%1#0
         v-store aggregate%array_trimmed%1#0
         v-load aggregate%array_trimmed%1#0                                                        aggregate%array_trimmed%1#0
-        v-load question_index#0                                                                   aggregate%array_trimmed%1#0,question_index#0
+        v-load question_index#1                                                                   aggregate%array_trimmed%1#0,question_index#1
         getbyte                                                                                   options_count#0
         v-store options_count#0
         // voting/voting.py:199
@@ -1396,10 +1402,12 @@ subroutine vote:
         app_global_put
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        v-load question_index#0                                                                   question_index#0
-        int 1                                                                                     question_index#0,1
-        +                                                                                         question_index#0
-        v-store question_index#0
+        v-load question_index#1                                                                   question_index#1
+        int 1                                                                                     question_index#1,1
+        +                                                                                         value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                 value_internal%0#0
+        v-store question_index#1
         b vote_for_header@2
 
     vote_after_for@5:

@@ -40,6 +40,7 @@ contract URangeIterationTest
       log(values[i])
       i += 1u
     }
+    assert(i == 6u)
   }
   
   subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reversed(): void
@@ -49,6 +50,7 @@ contract URangeIterationTest
       log(values[i])
       i += 1u
     }
+    assert(i == 2u)
   }
   
   subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_forwards_index(): void
@@ -59,9 +61,11 @@ contract URangeIterationTest
       i += 1u
       idx += 1u
     }
+    assert(i == 6u)
+    assert(idx == 3u)
   }
   
-  subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index(): void
+  subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index(): void
   {
     values: bytes = hex<"206120622063">
     for (idx, i) in reversed(enumerate(reversed(range(1u, 7u, 2u)))) {
@@ -69,6 +73,7 @@ contract URangeIterationTest
       i += 1u
       idx += 1u
     }
+    assert(idx == 1u)
   }
   
   subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_forwards_index(): void
@@ -79,9 +84,11 @@ contract URangeIterationTest
       i += 1u
       idx += 1u
     }
+    assert(i == 2u)
+    assert(idx == 3u)
   }
   
-  subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index(): void
+  subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index(): void
   {
     values: bytes = hex<"206120622063">
     for (idx, i) in reversed(enumerate(range(1u, 7u, 2u))) {
@@ -89,6 +96,7 @@ contract URangeIterationTest
       i += 1u
       idx += 1u
     }
+    assert(idx == 1u)
   }
   
   subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_empty(): void
@@ -120,6 +128,7 @@ contract URangeIterationTest
       log(values[i])
       break
     }
+    assert(i == 1u)
   }
   
   subroutine test_cases.iteration.iterate_urange.URangeIterationTest.test_tuple_target(): void
@@ -128,6 +137,7 @@ contract URangeIterationTest
     for tup in enumerate(range(0u, 1u, 1u)) {
       this::_log_with_index(tup[0], values[tup[1]])
     }
+    assert(&&(tup[0] == 0u, tup[1] == 0u))
   }
   
   subroutine test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes): void

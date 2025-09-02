@@ -344,15 +344,15 @@ subroutine create_array:
         stores
         // array/uint64.py:258
         // for i in urange(5):
-        int 0                                                                        0
-        v-store i#0
+        int 0                                                                        value_internal%0#0
+        v-store i#1
         b create_array_for_header@1
 
     create_array_for_header@1:
         // array/uint64.py:258
         // for i in urange(5):
-        v-load i#0                                                                   i#0
-        int 5                                                                        i#0,5
+        v-load i#1                                                                   i#1
+        int 5                                                                        i#1,5
         <                                                                            continue_looping%0#0
         bz create_array_after_for@4 ; b create_array_for_body@2
 
@@ -362,21 +362,21 @@ subroutine create_array:
         v-load arr#0                                                                 arr#0
         l-store-copy arr#0 0                                                         arr#0,arr#0 (copy)
         loads                                                                        arr#0,slot_contents%0#0
-        v-load i#0                                                                   arr#0,slot_contents%0#0,i#0
-        l-store-copy i#0 2                                                           i#0,arr#0,slot_contents%0#0,i#0 (copy)
-        itob                                                                         i#0,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        l-load slot_contents%0#0 1                                                   i#0,arr#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                          i#0,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat // on error: max array length exceeded                                i#0,arr#0,concat%0#0
-        l-load arr#0 1                                                               i#0,concat%0#0,arr#0
-        l-load concat%0#0 1                                                          i#0,arr#0,concat%0#0
-        stores                                                                       i#0
+        v-load i#1                                                                   arr#0,slot_contents%0#0,i#1
+        l-store-copy i#1 2                                                           i#1,arr#0,slot_contents%0#0,i#1 (copy)
+        itob                                                                         i#1,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        l-load slot_contents%0#0 1                                                   i#1,arr#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                          i#1,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        concat // on error: max array length exceeded                                i#1,arr#0,concat%0#0
+        l-load arr#0 1                                                               i#1,concat%0#0,arr#0
+        l-load concat%0#0 1                                                          i#1,arr#0,concat%0#0
+        stores                                                                       i#1
         // array/uint64.py:258
         // for i in urange(5):
-        l-load i#0 0                                                                 i#0
-        int 1                                                                        i#0,1
-        +                                                                            i#0
-        v-store i#0
+        l-load i#1 0                                                                 i#1
+        int 1                                                                        i#1,1
+        +                                                                            value_internal%0#0
+        v-store i#1
         b create_array_for_header@1
 
     create_array_after_for@4:
@@ -414,15 +414,15 @@ subroutine add_x:
     add_x_block@0:                                                                   (𝕡) arr#0,x#0 |
         // array/uint64.py:279
         // for i in urange(x):
-        int 0                                                                        (𝕡) arr#0,x#0 | 0
-        v-store i#0                                                                  (𝕡) arr#0,x#0 |
+        int 0                                                                        (𝕡) arr#0,x#0 | value_internal%0#0
+        v-store i#1                                                                  (𝕡) arr#0,x#0 |
         b add_x_for_header@1                                                         (𝕡) arr#0,x#0 |
 
     add_x_for_header@1:                                                              (𝕡) arr#0,x#0 |
         // array/uint64.py:279
         // for i in urange(x):
-        v-load i#0                                                                   (𝕡) arr#0,x#0 | i#0
-        p-load x#0                                                                   (𝕡) arr#0,x#0 | i#0,x#0 (copy)
+        v-load i#1                                                                   (𝕡) arr#0,x#0 | i#1
+        p-load x#0                                                                   (𝕡) arr#0,x#0 | i#1,x#0 (copy)
         <                                                                            (𝕡) arr#0,x#0 | continue_looping%0#0
         bz add_x_after_for@4 ; b add_x_for_body@2                                    (𝕡) arr#0,x#0 |
 
@@ -431,21 +431,21 @@ subroutine add_x:
         // arr.append(i)
         p-load arr#0                                                                 (𝕡) arr#0,x#0 | arr#0 (copy)
         loads                                                                        (𝕡) arr#0,x#0 | slot_contents%0#0
-        v-load i#0                                                                   (𝕡) arr#0,x#0 | slot_contents%0#0,i#0
-        l-store-copy i#0 1                                                           (𝕡) arr#0,x#0 | i#0,slot_contents%0#0,i#0 (copy)
-        itob                                                                         (𝕡) arr#0,x#0 | i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        l-load slot_contents%0#0 1                                                   (𝕡) arr#0,x#0 | i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                          (𝕡) arr#0,x#0 | i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat // on error: max array length exceeded                                (𝕡) arr#0,x#0 | i#0,concat%0#0
-        p-load arr#0                                                                 (𝕡) arr#0,x#0 | i#0,concat%0#0,arr#0 (copy)
-        l-load concat%0#0 1                                                          (𝕡) arr#0,x#0 | i#0,arr#0 (copy),concat%0#0
-        stores                                                                       (𝕡) arr#0,x#0 | i#0
+        v-load i#1                                                                   (𝕡) arr#0,x#0 | slot_contents%0#0,i#1
+        l-store-copy i#1 1                                                           (𝕡) arr#0,x#0 | i#1,slot_contents%0#0,i#1 (copy)
+        itob                                                                         (𝕡) arr#0,x#0 | i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        l-load slot_contents%0#0 1                                                   (𝕡) arr#0,x#0 | i#1,aggregate%val_as_bytes%0#0,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                          (𝕡) arr#0,x#0 | i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        concat // on error: max array length exceeded                                (𝕡) arr#0,x#0 | i#1,concat%0#0
+        p-load arr#0                                                                 (𝕡) arr#0,x#0 | i#1,concat%0#0,arr#0 (copy)
+        l-load concat%0#0 1                                                          (𝕡) arr#0,x#0 | i#1,arr#0 (copy),concat%0#0
+        stores                                                                       (𝕡) arr#0,x#0 | i#1
         // array/uint64.py:279
         // for i in urange(x):
-        l-load i#0 0                                                                 (𝕡) arr#0,x#0 | i#0
-        int 1                                                                        (𝕡) arr#0,x#0 | i#0,1
-        +                                                                            (𝕡) arr#0,x#0 | i#0
-        v-store i#0                                                                  (𝕡) arr#0,x#0 |
+        l-load i#1 0                                                                 (𝕡) arr#0,x#0 | i#1
+        int 1                                                                        (𝕡) arr#0,x#0 | i#1,1
+        +                                                                            (𝕡) arr#0,x#0 | value_internal%0#0
+        v-store i#1                                                                  (𝕡) arr#0,x#0 |
         b add_x_for_header@1                                                         (𝕡) arr#0,x#0 |
 
     add_x_after_for@4:                                                               (𝕡) arr#0,x#0 |
@@ -527,17 +527,17 @@ subroutine test_array:
         v-store expected#0
         // array/uint64.py:285
         // for _i in urange(x):
-        int 0                                                                        0
-        v-store _i#0
+        int 0                                                                        value_internal%0#0
+        v-store _i#1
         b test_array_for_header@2
 
     test_array_for_header@2:
         // array/uint64.py:285
         // for _i in urange(x):
-        v-load _i#0                                                                  _i#0
+        v-load _i#1                                                                  _i#1
         // array/uint64.py:27
         // pop_x(arr, x=UInt64(3), expected=UInt64(4))
-        int 3                                                                        _i#0,3
+        int 3                                                                        _i#1,3
         // array/uint64.py:285
         // for _i in urange(x):
         <                                                                            continue_looping%0#0
@@ -581,10 +581,10 @@ subroutine test_array:
         v-store expected#0
         // array/uint64.py:285
         // for _i in urange(x):
-        v-load _i#0                                                                  _i#0
-        int 1                                                                        _i#0,1
-        +                                                                            _i#0
-        v-store _i#0
+        v-load _i#1                                                                  _i#1
+        int 1                                                                        _i#1,1
+        +                                                                            value_internal%0#0
+        v-store _i#1
         b test_array_for_header@2
 
     test_array_after_for@4:
@@ -903,15 +903,15 @@ subroutine test_array_too_long:
         v-store slot%0
         // array/uint64.py:78
         // for i in urange(512):
-        int 0                                                                        0
-        v-store i#0
+        int 0                                                                        value_internal%0#0
+        v-store i#1
         b test_array_too_long_for_header@2
 
     test_array_too_long_for_header@2:
         // array/uint64.py:78
         // for i in urange(512):
-        v-load i#0                                                                   i#0
-        int 512                                                                      i#0,512
+        v-load i#1                                                                   i#1
+        int 512                                                                      i#1,512
         <                                                                            continue_looping%0#0
         bz test_array_too_long_after_for@5 ; b test_array_too_long_for_body@3
 
@@ -919,19 +919,19 @@ subroutine test_array_too_long:
         v-load slot%0                                                                slot_contents%0#0
         // array/uint64.py:79
         // array.append(i)
-        v-load i#0                                                                   slot_contents%0#0,i#0
-        l-store-copy i#0 1                                                           i#0,slot_contents%0#0,i#0 (copy)
-        itob                                                                         i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        l-load slot_contents%0#0 1                                                   i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                          i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat // on error: max array length exceeded                                i#0,concat%0#0
-        v-store slot%0                                                               i#0
+        v-load i#1                                                                   slot_contents%0#0,i#1
+        l-store-copy i#1 1                                                           i#1,slot_contents%0#0,i#1 (copy)
+        itob                                                                         i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        l-load slot_contents%0#0 1                                                   i#1,aggregate%val_as_bytes%0#0,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                          i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        concat // on error: max array length exceeded                                i#1,concat%0#0
+        v-store slot%0                                                               i#1
         // array/uint64.py:78
         // for i in urange(512):
-        l-load i#0 0                                                                 i#0
-        int 1                                                                        i#0,1
-        +                                                                            i#0
-        v-store i#0
+        l-load i#1 0                                                                 i#1
+        int 1                                                                        i#1,1
+        +                                                                            value_internal%0#0
+        v-store i#1
         b test_array_too_long_for_header@2
 
     test_array_too_long_after_for@5:
@@ -968,15 +968,15 @@ subroutine test_array_copy_and_extend:
         v-store slot%0
         // array/uint64.py:87
         // for i in urange(5):
-        int 0                                                                        0
-        v-store i#0
+        int 0                                                                        value_internal%0#0
+        v-store i#1
         b test_array_copy_and_extend_for_header@2
 
     test_array_copy_and_extend_for_header@2:
         // array/uint64.py:87
         // for i in urange(5):
-        v-load i#0                                                                   i#0
-        int 5                                                                        i#0,5
+        v-load i#1                                                                   i#1
+        int 5                                                                        i#1,5
         <                                                                            continue_looping%0#0
         bz test_array_copy_and_extend_after_for@5 ; b test_array_copy_and_extend_for_body@3 
 
@@ -984,19 +984,19 @@ subroutine test_array_copy_and_extend:
         v-load slot%0                                                                slot_contents%0#0
         // array/uint64.py:88
         // array.append(i)
-        v-load i#0                                                                   slot_contents%0#0,i#0
-        l-store-copy i#0 1                                                           i#0,slot_contents%0#0,i#0 (copy)
-        itob                                                                         i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        l-load slot_contents%0#0 1                                                   i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                          i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat // on error: max array length exceeded                                i#0,concat%0#0
-        v-store slot%0                                                               i#0
+        v-load i#1                                                                   slot_contents%0#0,i#1
+        l-store-copy i#1 1                                                           i#1,slot_contents%0#0,i#1 (copy)
+        itob                                                                         i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        l-load slot_contents%0#0 1                                                   i#1,aggregate%val_as_bytes%0#0,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                          i#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        concat // on error: max array length exceeded                                i#1,concat%0#0
+        v-store slot%0                                                               i#1
         // array/uint64.py:87
         // for i in urange(5):
-        l-load i#0 0                                                                 i#0
-        int 1                                                                        i#0,1
-        +                                                                            i#0
-        v-store i#0
+        l-load i#1 0                                                                 i#1
+        int 1                                                                        i#1,1
+        +                                                                            value_internal%0#0
+        v-store i#1
         b test_array_copy_and_extend_for_header@2
 
     test_array_copy_and_extend_after_for@5:
@@ -1356,15 +1356,15 @@ subroutine test_allocations:
         v-store num#0
         // array/uint64.py:136
         // for _i in urange(num):
-        int 0                                                                        0
-        v-store _i#0
+        int 0                                                                        value_internal%0#0
+        v-store _i#1
         b test_allocations_for_header@2
 
     test_allocations_for_header@2:
         // array/uint64.py:136
         // for _i in urange(num):
-        v-load _i#0                                                                  _i#0
-        v-load num#0                                                                 _i#0,num#0
+        v-load _i#1                                                                  _i#1
+        v-load num#0                                                                 _i#1,num#0
         <                                                                            continue_looping%0#0
         bz test_allocations_after_for@5 ; b test_allocations_for_body@3
 
@@ -1382,10 +1382,10 @@ subroutine test_allocations:
         callsub add_x
         // array/uint64.py:136
         // for _i in urange(num):
-        v-load _i#0                                                                  _i#0
-        int 1                                                                        _i#0,1
-        +                                                                            _i#0
-        v-store _i#0
+        v-load _i#1                                                                  _i#1
+        int 1                                                                        _i#1,1
+        +                                                                            value_internal%0#0
+        v-store _i#1
         b test_allocations_for_header@2
 
     test_allocations_after_for@5:
@@ -1404,15 +1404,15 @@ subroutine test_iteration:
         v-store slot%0
         // array/uint64.py:143
         // for val in urange(5):
-        int 0                                                                        0
-        v-store val#0
+        int 0                                                                        value_internal%0#0
+        v-store val#1
         b test_iteration_for_header@2
 
     test_iteration_for_header@2:
         // array/uint64.py:143
         // for val in urange(5):
-        v-load val#0                                                                 val#0
-        int 5                                                                        val#0,5
+        v-load val#1                                                                 val#1
+        int 5                                                                        val#1,5
         <                                                                            continue_looping%0#0
         bz test_iteration_after_for@5 ; b test_iteration_for_body@3
 
@@ -1420,19 +1420,19 @@ subroutine test_iteration:
         v-load slot%0                                                                slot_contents%0#0
         // array/uint64.py:144
         // arr.append(val)
-        v-load val#0                                                                 slot_contents%0#0,val#0
-        l-store-copy val#0 1                                                         val#0,slot_contents%0#0,val#0 (copy)
-        itob                                                                         val#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        l-load slot_contents%0#0 1                                                   val#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                          val#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat // on error: max array length exceeded                                val#0,concat%0#0
-        v-store slot%0                                                               val#0
+        v-load val#1                                                                 slot_contents%0#0,val#1
+        l-store-copy val#1 1                                                         val#1,slot_contents%0#0,val#1 (copy)
+        itob                                                                         val#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        l-load slot_contents%0#0 1                                                   val#1,aggregate%val_as_bytes%0#0,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                          val#1,slot_contents%0#0,aggregate%val_as_bytes%0#0
+        concat // on error: max array length exceeded                                val#1,concat%0#0
+        v-store slot%0                                                               val#1
         // array/uint64.py:143
         // for val in urange(5):
-        l-load val#0 0                                                               val#0
-        int 1                                                                        val#0,1
-        +                                                                            val#0
-        v-store val#0
+        l-load val#1 0                                                               val#1
+        int 1                                                                        val#1,1
+        +                                                                            value_internal%0#0
+        v-store val#1
         b test_iteration_for_header@2
 
     test_iteration_after_for@5:
@@ -1584,51 +1584,51 @@ subroutine test_iteration:
         v-store slot%1
         // array/uint64.py:164
         // for i in urange(5):
-        int 0                                                                        0
-        v-store i#0
+        int 0                                                                        value_internal%1#0
+        v-store i#1
         b test_iteration_for_header@18
 
     test_iteration_for_header@18:
         // array/uint64.py:164
         // for i in urange(5):
-        v-load i#0                                                                   i#0
-        int 5                                                                        i#0,5
+        v-load i#1                                                                   i#1
+        int 5                                                                        i#1,5
         <                                                                            continue_looping%4#0
         bz test_iteration_after_for@21 ; b test_iteration_for_body@19
 
     test_iteration_for_body@19:
         // array/uint64.py:165
         // arc4_arr.append(arc4.UInt64(i))
-        v-load i#0                                                                   i#0
-        l-store-copy i#0 0                                                           i#0,i#0 (copy)
-        itob                                                                         i#0,aggregate%val_as_bytes%1#0
-        v-load arc4_arr#0                                                            i#0,aggregate%val_as_bytes%1#0,arc4_arr#0
-        l-store-copy arc4_arr#0 1                                                    i#0,arc4_arr#0,aggregate%val_as_bytes%1#0,arc4_arr#0 (copy)
-        l-load-copy aggregate%val_as_bytes%1#0 1                                     i#0,arc4_arr#0,aggregate%val_as_bytes%1#0,arc4_arr#0 (copy),aggregate%val_as_bytes%1#0 (copy)
-        concat // on error: max array length exceeded                                i#0,arc4_arr#0,aggregate%val_as_bytes%1#0,concat%1#0
-        l-load arc4_arr#0 2                                                          i#0,aggregate%val_as_bytes%1#0,concat%1#0,arc4_arr#0
-        int 0                                                                        i#0,aggregate%val_as_bytes%1#0,concat%1#0,arc4_arr#0,0
-        extract_uint16                                                               i#0,aggregate%val_as_bytes%1#0,concat%1#0,extract_uint16%0#0
-        int 1                                                                        i#0,aggregate%val_as_bytes%1#0,concat%1#0,extract_uint16%0#0,1
-        +                                                                            i#0,aggregate%val_as_bytes%1#0,concat%1#0,add%0#0
-        itob                                                                         i#0,aggregate%val_as_bytes%1#0,concat%1#0,as_bytes%0#0
-        extract 6 2                                                                  i#0,aggregate%val_as_bytes%1#0,concat%1#0,as_u16_bytes%0#0
-        l-load concat%1#0 1                                                          i#0,aggregate%val_as_bytes%1#0,as_u16_bytes%0#0,concat%1#0
-        l-load as_u16_bytes%0#0 1                                                    i#0,aggregate%val_as_bytes%1#0,concat%1#0,as_u16_bytes%0#0
-        replace2 0                                                                   i#0,aggregate%val_as_bytes%1#0,arc4_arr#0
-        v-store arc4_arr#0                                                           i#0,aggregate%val_as_bytes%1#0
-        v-load slot%1                                                                i#0,aggregate%val_as_bytes%1#0,slot_contents%4#0
+        v-load i#1                                                                   i#1
+        l-store-copy i#1 0                                                           i#1,i#1 (copy)
+        itob                                                                         i#1,aggregate%val_as_bytes%1#0
+        v-load arc4_arr#0                                                            i#1,aggregate%val_as_bytes%1#0,arc4_arr#0
+        l-store-copy arc4_arr#0 1                                                    i#1,arc4_arr#0,aggregate%val_as_bytes%1#0,arc4_arr#0 (copy)
+        l-load-copy aggregate%val_as_bytes%1#0 1                                     i#1,arc4_arr#0,aggregate%val_as_bytes%1#0,arc4_arr#0 (copy),aggregate%val_as_bytes%1#0 (copy)
+        concat // on error: max array length exceeded                                i#1,arc4_arr#0,aggregate%val_as_bytes%1#0,concat%1#0
+        l-load arc4_arr#0 2                                                          i#1,aggregate%val_as_bytes%1#0,concat%1#0,arc4_arr#0
+        int 0                                                                        i#1,aggregate%val_as_bytes%1#0,concat%1#0,arc4_arr#0,0
+        extract_uint16                                                               i#1,aggregate%val_as_bytes%1#0,concat%1#0,extract_uint16%0#0
+        int 1                                                                        i#1,aggregate%val_as_bytes%1#0,concat%1#0,extract_uint16%0#0,1
+        +                                                                            i#1,aggregate%val_as_bytes%1#0,concat%1#0,add%0#0
+        itob                                                                         i#1,aggregate%val_as_bytes%1#0,concat%1#0,as_bytes%0#0
+        extract 6 2                                                                  i#1,aggregate%val_as_bytes%1#0,concat%1#0,as_u16_bytes%0#0
+        l-load concat%1#0 1                                                          i#1,aggregate%val_as_bytes%1#0,as_u16_bytes%0#0,concat%1#0
+        l-load as_u16_bytes%0#0 1                                                    i#1,aggregate%val_as_bytes%1#0,concat%1#0,as_u16_bytes%0#0
+        replace2 0                                                                   i#1,aggregate%val_as_bytes%1#0,arc4_arr#0
+        v-store arc4_arr#0                                                           i#1,aggregate%val_as_bytes%1#0
+        v-load slot%1                                                                i#1,aggregate%val_as_bytes%1#0,slot_contents%4#0
         // array/uint64.py:166
         // native_arr.append(arc4.UInt64(i))
-        l-load aggregate%val_as_bytes%1#0 1                                          i#0,slot_contents%4#0,aggregate%val_as_bytes%1#0
-        concat // on error: max array length exceeded                                i#0,concat%2#0
-        v-store slot%1                                                               i#0
+        l-load aggregate%val_as_bytes%1#0 1                                          i#1,slot_contents%4#0,aggregate%val_as_bytes%1#0
+        concat // on error: max array length exceeded                                i#1,concat%2#0
+        v-store slot%1                                                               i#1
         // array/uint64.py:164
         // for i in urange(5):
-        l-load i#0 0                                                                 i#0
-        int 1                                                                        i#0,1
-        +                                                                            i#0
-        v-store i#0
+        l-load i#1 0                                                                 i#1
+        int 1                                                                        i#1,1
+        +                                                                            value_internal%1#0
+        v-store i#1
         b test_iteration_for_header@18
 
     test_iteration_after_for@21:

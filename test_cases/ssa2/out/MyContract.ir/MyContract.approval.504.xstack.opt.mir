@@ -12,15 +12,15 @@ subroutine main:
         v-store b#0
         // ssa2/contract.py:15
         // for i in urange(5):
-        int 0                                   0
-        v-store i#0
+        int 0                                   value_internal%0#0
+        v-store i#1
         b main_for_header@1
 
     main_for_header@1:
         // ssa2/contract.py:15
         // for i in urange(5):
-        v-load i#0                              i#0
-        int 5                                   i#0,5
+        v-load i#1                              i#1
+        int 5                                   i#1,5
         <                                       continue_looping%0#0
         bz main_after_for@4 ; b main_for_body@2
 
@@ -35,16 +35,16 @@ subroutine main:
         // ssa2/contract.py:17
         // a = a + i
         l-load a#0 0                            a#0
-        v-load i#0                              a#0,i#0
-        l-store-copy i#0 1                      i#0,a#0,i#0 (copy)
-        +                                       i#0,a#0
-        v-store a#0                             i#0
+        v-load i#1                              a#0,i#1
+        l-store-copy i#1 1                      i#1,a#0,i#1 (copy)
+        +                                       i#1,a#0
+        v-store a#0                             i#1
         // ssa2/contract.py:15
         // for i in urange(5):
-        l-load i#0 0                            i#0
-        int 1                                   i#0,1
-        +                                       i#0
-        v-store i#0
+        l-load i#1 0                            i#1
+        int 1                                   i#1,1
+        +                                       value_internal%0#0
+        v-store i#1
         b main_for_header@1
 
     main_after_for@4:

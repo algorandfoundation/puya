@@ -78,111 +78,111 @@ subroutine test_implicit_conversion_abi_call:
         f-store new_head_and_tail#0                                                               (𝕗) app#0,new_head_and_tail#0 |
         byte 0x                                                                                   (𝕗) app#0,new_head_and_tail#0 | 0x
         f-store new_head#0                                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0 |
-        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0 | 0
-        f-store head_offset#0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        b test_implicit_conversion_abi_call_for_header@2                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0 | value_internal%0#0
+        f-store head_offset#1                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        b test_implicit_conversion_abi_call_for_header@2                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
 
-    test_implicit_conversion_abi_call_for_header@2:                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        f-load head_offset#0                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,0
-        <                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | continue_looping%0#0
-        bz test_implicit_conversion_abi_call_after_for@4 ; b test_implicit_conversion_abi_call_for_body@3 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 
+    test_implicit_conversion_abi_call_for_header@2:                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        f-load head_offset#1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,0
+        <                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | continue_looping%0#0
+        bz test_implicit_conversion_abi_call_after_for@4 ; b test_implicit_conversion_abi_call_for_body@3 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 
 
-    test_implicit_conversion_abi_call_for_body@3:                                                 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+    test_implicit_conversion_abi_call_for_body@3:                                                 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
         // array/unused_opt_allowed.py:21
         // nested_arr = nested_arr.append(arr)
-        byte 0x                                                                                   (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0x
-        f-load head_offset#0                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0x,head_offset#0
-        l-store-copy head_offset#0 1                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,0x,head_offset#0 (copy)
-        extract_uint16                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,item_offset#0
-        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,item_offset#0,2
-        l-load item_offset#0 1                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,2,item_offset#0
-        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%3#0
-        itob                                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%4#0
-        extract 6 2                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%5#0
-        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%5#0,new_head#0
-        l-load tmp%5#0 1                                                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,new_head#0,tmp%5#0
-        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,new_head#0
-        f-store new_head#0                                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        l-load head_offset#0 0                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,2
-        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        f-store head_offset#0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        b test_implicit_conversion_abi_call_for_header@2                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        byte 0x                                                                                   (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0x
+        f-load head_offset#1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0x,head_offset#1
+        l-store-copy head_offset#1 1                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,0x,head_offset#1 (copy)
+        extract_uint16                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,item_offset#0
+        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,item_offset#0,2
+        l-load item_offset#0 1                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,2,item_offset#0
+        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%3#0
+        itob                                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%4#0
+        extract 6 2                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%5#0
+        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%5#0,new_head#0
+        l-load tmp%5#0 1                                                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,new_head#0,tmp%5#0
+        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,new_head#0
+        f-store new_head#0                                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        l-load head_offset#1 0                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,2
+        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | value_internal%0#0
+        f-store head_offset#1                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        b test_implicit_conversion_abi_call_for_header@2                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
 
-    test_implicit_conversion_abi_call_after_for@4:                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0
-        f-store head_offset#0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        b test_implicit_conversion_abi_call_for_header@5                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+    test_implicit_conversion_abi_call_after_for@4:                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | value_internal%1#0
+        f-store head_offset#1                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        b test_implicit_conversion_abi_call_for_header@5                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
 
-    test_implicit_conversion_abi_call_for_header@5:                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        f-load head_offset#0                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,2
-        <                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | continue_looping%1#0
-        bz test_implicit_conversion_abi_call_after_for@7 ; b test_implicit_conversion_abi_call_for_body@6 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 
+    test_implicit_conversion_abi_call_for_header@5:                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        f-load head_offset#1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,2
+        <                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | continue_looping%1#0
+        bz test_implicit_conversion_abi_call_after_for@7 ; b test_implicit_conversion_abi_call_for_body@6 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 
 
-    test_implicit_conversion_abi_call_for_body@6:                                                 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        f-load new_head_and_tail#0                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | new_head_and_tail#0
-        f-load head_offset#0                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | new_head_and_tail#0,head_offset#0
-        l-store-copy head_offset#0 1                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,new_head_and_tail#0,head_offset#0 (copy)
-        extract_uint16                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,item_offset#0
-        itob                                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%11#0
-        extract 6 2                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%12#0
-        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,tmp%12#0,new_head#0
-        l-load tmp%12#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,new_head#0,tmp%12#0
-        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,new_head#0
-        f-store new_head#0                                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        l-load head_offset#0 0                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0,2
-        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | head_offset#0
-        f-store head_offset#0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        b test_implicit_conversion_abi_call_for_header@5                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+    test_implicit_conversion_abi_call_for_body@6:                                                 (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        f-load new_head_and_tail#0                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | new_head_and_tail#0
+        f-load head_offset#1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | new_head_and_tail#0,head_offset#1
+        l-store-copy head_offset#1 1                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,new_head_and_tail#0,head_offset#1 (copy)
+        extract_uint16                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,item_offset#0
+        itob                                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%11#0
+        extract 6 2                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%12#0
+        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,tmp%12#0,new_head#0
+        l-load tmp%12#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,new_head#0,tmp%12#0
+        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,new_head#0
+        f-store new_head#0                                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        l-load head_offset#1 0                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1
+        int 2                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | head_offset#1,2
+        +                                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | value_internal%1#0
+        f-store head_offset#1                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        b test_implicit_conversion_abi_call_for_header@5                                          (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
 
-    test_implicit_conversion_abi_call_after_for@7:                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        byte 0x0001                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0x0001
-        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0x0001,new_head#0
-        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | tmp%17#0
-        f-load new_head_and_tail#0                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | tmp%17#0,new_head_and_tail#0
-        extract 2 0                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | tmp%17#0,tmp%23#0
-        l-load tmp%17#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | tmp%23#0,tmp%17#0
-        l-load tmp%23#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | tmp%17#0,tmp%23#0
-        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | nested_arr#1
+    test_implicit_conversion_abi_call_after_for@7:                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        byte 0x0001                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0x0001
+        f-load new_head#0                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0x0001,new_head#0
+        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | tmp%17#0
+        f-load new_head_and_tail#0                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | tmp%17#0,new_head_and_tail#0
+        extract 2 0                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | tmp%17#0,tmp%23#0
+        l-load tmp%17#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | tmp%23#0,tmp%17#0
+        l-load tmp%23#0 1                                                                         (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | tmp%17#0,tmp%23#0
+        concat                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | nested_arr#1
         // array/unused_opt_allowed.py:22
         // arc4.abi_call("dont_call(uint64[][])uint64", nested_arr, app_id=app)
-        itxn_begin                                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | nested_arr#1
-        f-load app#0                                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | nested_arr#1,app#0
-        l-store-copy app#0 1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,nested_arr#1,app#0 (copy)
-        itxn_field ApplicationID                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,nested_arr#1
-        method dont_call(uint64[][])uint64                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,nested_arr#1,Method(dont_call(uint64[][])uint64)
-        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,nested_arr#1
-        l-load nested_arr#1 0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,nested_arr#1
-        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
-        int appl                                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,appl
-        itxn_field TypeEnum                                                                       (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
-        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0,0
-        itxn_field Fee                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
-        itxn_submit                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
+        itxn_begin                                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | nested_arr#1
+        f-load app#0                                                                              (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | nested_arr#1,app#0
+        l-store-copy app#0 1                                                                      (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,nested_arr#1,app#0 (copy)
+        itxn_field ApplicationID                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,nested_arr#1
+        method dont_call(uint64[][])uint64                                                        (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,nested_arr#1,Method(dont_call(uint64[][])uint64)
+        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,nested_arr#1
+        l-load nested_arr#1 0                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,nested_arr#1
+        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
+        int appl                                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,appl
+        itxn_field TypeEnum                                                                       (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
+        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0,0
+        itxn_field Fee                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
+        itxn_submit                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
         // array/unused_opt_allowed.py:26
         // arc4.abi_call("dont_call((uint64[],uint64)[])uint64", indirect_nested_arr, app_id=app)
-        itxn_begin                                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
-        l-load app#0 0                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | app#0
-        itxn_field ApplicationID                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        method dont_call((uint64[],uint64)[])uint64                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | Method(dont_call((uint64[],uint64)[])uint64)
-        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        itxn_begin                                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
+        l-load app#0 0                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | app#0
+        itxn_field ApplicationID                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        method dont_call((uint64[],uint64)[])uint64                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | Method(dont_call((uint64[],uint64)[])uint64)
+        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
         // array/unused_opt_allowed.py:24
         // indirect_nested_arr = ImmutableArray[MyTuple]()
-        byte 0x0000                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0x0000
-        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        byte 0x0000                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0x0000
+        itxn_field ApplicationArgs                                                                (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
         // array/unused_opt_allowed.py:26
         // arc4.abi_call("dont_call((uint64[],uint64)[])uint64", indirect_nested_arr, app_id=app)
-        int appl                                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | appl
-        itxn_field TypeEnum                                                                       (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 0
-        itxn_field Fee                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
-        itxn_submit                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        int appl                                                                                  (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | appl
+        itxn_field TypeEnum                                                                       (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        int 0                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 0
+        itxn_field Fee                                                                            (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
+        itxn_submit                                                                               (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
-        int 1                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 | 1
-        return                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#0 |
+        int 1                                                                                     (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 | 1
+        return                                                                                    (𝕗) app#0,new_head_and_tail#0,new_head#0,head_offset#1 |
 
 
