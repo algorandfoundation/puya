@@ -1,0 +1,291 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.conditional_expressions.contract.MyContract.approval_program() -> uint64:
+main:
+    intcblock 0 1 2 42
+    bytecblock ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    b main_block@0
+
+main_block@0:
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    intc_1 // 1
+    // conditional_expressions/contract.py:11
+    // c = a or b
+    intc_0 // 0
+    !=
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    intc_2 // 2
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    intc_1 // 1
+    // conditional_expressions/contract.py:11
+    // c = a or b
+    uncover 2
+    select
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    intc_2 // 2
+    // conditional_expressions/contract.py:12
+    // d = b and a
+    intc_0 // 0
+    ==
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    intc_1 // 1
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    intc_2 // 2
+    // conditional_expressions/contract.py:12
+    // d = b and a
+    uncover 2
+    select
+    // conditional_expressions/contract.py:14
+    // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
+    intc_0 // 0
+    callsub expensive_op
+    dup
+    intc_0 // 0
+    !=
+    bz main_ternary_false@2
+    b main_ternary_true@1
+
+main_ternary_true@1:
+    // conditional_expressions/contract.py:14
+    // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
+    dup
+    bury 8
+    b main_ternary_merge@3
+
+main_ternary_merge@3:
+    // conditional_expressions/contract.py:14
+    // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
+    dig 7
+    bury 12
+    // conditional_expressions/contract.py:15
+    // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
+    pushint 3 // 3
+    callsub expensive_op
+    dup
+    bury 16
+    intc_0 // 0
+    !=
+    bz main_ternary_false@5
+    b main_ternary_true@4
+
+main_ternary_true@4:
+    // conditional_expressions/contract.py:15
+    // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
+    dig 14
+    bury 7
+    b main_ternary_merge@6
+
+main_ternary_merge@6:
+    // conditional_expressions/contract.py:15
+    // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
+    dig 6
+    bury 11
+    // conditional_expressions/contract.py:17
+    // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
+    intc_0 // 0
+    callsub side_effecting_op
+    dup
+    bury 15
+    intc_0 // 0
+    ==
+    bz main_ternary_false@8
+    b main_ternary_true@7
+
+main_ternary_true@7:
+    // conditional_expressions/contract.py:17
+    // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
+    dig 13
+    bury 6
+    b main_ternary_merge@9
+
+main_ternary_merge@9:
+    // conditional_expressions/contract.py:17
+    // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
+    dig 5
+    bury 10
+    // conditional_expressions/contract.py:18
+    // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
+    intc_2 // 2
+    callsub side_effecting_op
+    dup
+    bury 14
+    intc_0 // 0
+    ==
+    bz main_ternary_false@11
+    b main_ternary_true@10
+
+main_ternary_true@10:
+    // conditional_expressions/contract.py:18
+    // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
+    dig 12
+    bury 5
+    b main_ternary_merge@12
+
+main_ternary_merge@12:
+    // conditional_expressions/contract.py:18
+    // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
+    dig 4
+    bury 9
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    intc_2 // 2
+    // conditional_expressions/contract.py:20
+    // i = a if b < c else d + e
+    dig 3
+    <
+    bz main_ternary_false@14
+    b main_ternary_true@13
+
+main_ternary_true@13:
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    intc_1 // 1
+    // conditional_expressions/contract.py:20
+    // i = a if b < c else d + e
+    bury 4
+    b main_ternary_merge@15
+
+main_ternary_merge@15:
+    // conditional_expressions/contract.py:20
+    // i = a if b < c else d + e
+    dig 3
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    intc_1 // 1
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    intc_2 // 2
+    // conditional_expressions/contract.py:22
+    // result = a * b * c * d * f * h - e - g + i
+    *
+    dig 4
+    *
+    dig 3
+    *
+    dig 12
+    *
+    dig 10
+    *
+    dig 13
+    -
+    dig 11
+    -
+    +
+    // conditional_expressions/contract.py:24
+    // log(op.itob(result))
+    dup
+    itob
+    log
+    // conditional_expressions/contract.py:26
+    // return result
+    return
+
+main_ternary_false@14:
+    // conditional_expressions/contract.py:20
+    // i = a if b < c else d + e
+    dig 1
+    dig 12
+    +
+    bury 4
+    b main_ternary_merge@15
+
+main_ternary_false@11:
+    // conditional_expressions/contract.py:18
+    // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
+    pushint 3 // 3
+    callsub expensive_op
+    bury 5
+    b main_ternary_merge@12
+
+main_ternary_false@8:
+    // conditional_expressions/contract.py:17
+    // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
+    intc_3 // 42
+    callsub expensive_op
+    bury 6
+    b main_ternary_merge@9
+
+main_ternary_false@5:
+    // conditional_expressions/contract.py:15
+    // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
+    intc_3 // 42
+    callsub side_effecting_op
+    bury 7
+    b main_ternary_merge@6
+
+main_ternary_false@2:
+    // conditional_expressions/contract.py:14
+    // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
+    intc_1 // 1
+    callsub side_effecting_op
+    bury 8
+    b main_ternary_merge@3
+
+
+// test_cases.conditional_expressions.contract.MyContract.expensive_op(val: uint64) -> uint64:
+expensive_op:
+    // conditional_expressions/contract.py:31-32
+    // @subroutine
+    // def expensive_op(self, val: UInt64) -> UInt64:
+    proto 1 1
+    b expensive_op_block@0
+
+expensive_op_block@0:
+    // conditional_expressions/contract.py:33
+    // assert val != 42, "Can't be 42"
+    frame_dig -1
+    intc_3 // 42
+    !=
+    assert // Can't be 42
+    // conditional_expressions/contract.py:34
+    // log("expensive_op")
+    pushbytes "expensive_op"
+    log
+    // conditional_expressions/contract.py:35
+    // return val
+    frame_dig -1
+    retsub
+
+
+// test_cases.conditional_expressions.contract.MyContract.side_effecting_op(val: uint64) -> uint64:
+side_effecting_op:
+    // conditional_expressions/contract.py:37-38
+    // @subroutine
+    // def side_effecting_op(self, val: UInt64) -> UInt64:
+    proto 1 1
+    b side_effecting_op_block@0
+
+side_effecting_op_block@0:
+    // conditional_expressions/contract.py:39
+    // assert val != 42, "Can't be 42"
+    frame_dig -1
+    intc_3 // 42
+    !=
+    assert // Can't be 42
+    // conditional_expressions/contract.py:40
+    // log("side_effecting_op")
+    pushbytes "side_effecting_op"
+    log
+    // conditional_expressions/contract.py:41
+    // return val
+    frame_dig -1
+    retsub

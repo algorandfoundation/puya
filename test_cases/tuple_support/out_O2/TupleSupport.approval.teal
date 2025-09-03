@@ -1,0 +1,120 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 2 3
+    bytecblock 0x "state"
+    intc_0 // 0
+    bytec_0 // ""
+    txn ApplicationID
+    bnz main_after_if_else@2
+    bytec_1 // "state"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    pushints 101 102 103 // 101, 102, 103
+    callsub add_three_values
+    itob
+    log
+    intc_1 // 1
+    intc_2 // 2
+    addw
+    bytec_1 // "state"
+    dig 1
+    app_global_put
+    dig 1
+    !
+    assert // overflow!
+    pushbytes 0x48656c6c6f2c20776f726c6421
+    log
+    pushint 18446744073709551615 // 18446744073709551615
+    dup
+    addw
+    uncover 2
+    addw
+    uncover 2
+    uncover 3
+    addw
+    uncover 3
+    addw
+    cover 2
+    addw
+    swap
+    !
+    assert // is such a thing even possible? 👽
+    itob
+    log
+    itob
+    log
+    itob
+    log
+    bytec_0 // 0x
+    bury 2
+    intc_0 // 0
+    bury 1
+
+main_for_header@15:
+    dup
+    pushint 5 // 5
+    <
+    bz main_after_for@17
+    dig 1
+    pushbytes 0x6e61
+    concat
+    bury 2
+    dup
+    intc_1 // 1
+    +
+    bury 1
+    b main_for_header@15
+
+main_after_for@17:
+    dig 1
+    log
+    intc_1 // 1
+    intc_2 // 2
+    intc_3 // 3
+    callsub add_three_values
+    pushint 6 // 6
+    ==
+    assert
+    pushbytes "non_empty_tuple called"
+    log
+    pushbytes "not empty"
+    log
+    pushbytes "get_uint_with_side_effect called"
+    log
+    pushbytes "not empty2"
+    log
+    intc_3 // 3
+    return
+
+
+// test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
+add_three_values:
+    proto 3 1
+    intc_0 // 0
+    frame_dig -3
+    intc_0 // 0
+
+add_three_values_for_body@1:
+    frame_dig 0
+    uncover 2
+    +
+    frame_bury 0
+    switch add_three_values_for_header_1@3 add_three_values_for_header_2@4
+    frame_dig 0
+    swap
+    retsub
+
+add_three_values_for_header_2@4:
+    frame_dig -1
+    intc_2 // 2
+    b add_three_values_for_body@1
+
+add_three_values_for_header_1@3:
+    frame_dig -2
+    intc_1 // 1
+    b add_three_values_for_body@1
