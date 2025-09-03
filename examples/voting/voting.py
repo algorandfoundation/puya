@@ -134,7 +134,7 @@ class VotingRoundApp(ARC4Contract):
                 note += ","
             if question_options > 0:
                 note += "["
-                for option_index in urange(question_options.native):
+                for option_index in urange(question_options.as_uint64()):
                     if option_index > 0:
                         note += ","
                     votes_for_option = self.get_vote_from_box(current_index)
@@ -194,8 +194,8 @@ class VotingRoundApp(ARC4Contract):
         cumulative_offset = UInt64(0)
         for question_index in urange(questions_count):
             # Load the user's vote for this question
-            answer_option_index = answer_ids[question_index].native
-            options_count = self.option_counts[question_index].native
+            answer_option_index = answer_ids[question_index].as_uint64()
+            options_count = self.option_counts[question_index].as_uint64()
             assert answer_option_index < options_count, "Answer option index invalid"
             self.increment_vote_in_box(cumulative_offset + answer_option_index)
             cumulative_offset += options_count
@@ -221,7 +221,7 @@ class VotingRoundApp(ARC4Contract):
 
         total_options = UInt64(0)
         for item in option_counts:
-            total_options += item.native
+            total_options += item.as_uint64()
         assert total_options <= 128, "Can't have more than 128 vote options"
 
         self.option_counts = option_counts.copy()

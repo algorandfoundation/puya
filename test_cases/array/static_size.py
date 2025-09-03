@@ -116,7 +116,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
         total = UInt64(0)
         for item in arr:
-            total += item.native
+            total += item.as_uint64()
 
         return total
 
@@ -169,9 +169,9 @@ def path_length(path: ReferenceArray[Point]) -> UInt64:
     for point_idx in urange(1, path.length):
         point = path[point_idx]
         if point.x < last_point.x:
-            dx = last_point.x.native - point.x.native
+            dx = last_point.x.as_uint64() - point.x.as_uint64()
         else:
-            dx = point.x.native - last_point.x.native
+            dx = point.x.as_uint64() - last_point.x.as_uint64()
         if point.y < last_point.y:
             dy = last_point.y - point.y
         else:

@@ -280,6 +280,18 @@ class OpFactory:
         )
         return result
 
+    def extract_uint64(
+        self, a: Value, b: Value | int, temp_desc: str = "extract_uint64"
+    ) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.extract_uint64,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
     def itob(self, value: Value | int, temp_desc: str = "itob") -> Register:
         itob = assign_intrinsic_op(
             self.context,

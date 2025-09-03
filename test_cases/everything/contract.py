@@ -64,7 +64,7 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     @abimethod
     def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
         c = super().calculate(a, b)
-        return arc4_UInt64(c.native * b.native)
+        return arc4_UInt64(c.as_uint64() * b.as_uint64())
 
     @abimethod(allow_actions=["CloseOut"])
     def close_out(self) -> None:

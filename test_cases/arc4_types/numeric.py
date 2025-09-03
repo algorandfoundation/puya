@@ -18,7 +18,7 @@ from algopy.arc4 import (
 
 Decimal: t.TypeAlias = UFixedNxM[t.Literal[64], t.Literal[10]]
 
-ARC4BigUInt: t.TypeAlias = BigUIntN[t.Literal[128]]
+ARC4BigUInt: t.TypeAlias = BigUIntN[t.Literal[512]]
 
 ARC4BiggieSmalls: t.TypeAlias = BigUIntN[t.Literal[32]]
 
@@ -32,16 +32,18 @@ class Arc4NumericTypesContract(Contract):
 
         int8_encoded = UInt8(uint8)
 
-        int8_decoded = int8_encoded.native
+        int8_decoded = int8_encoded.as_uint64()
 
         assert uint8 == int8_decoded
 
         test_bytes = Bytes.from_hex("7FFFFFFFFFFFFFFF00")
-        assert UInt8.from_bytes(test_bytes[:1]).native == 2**8 - 1 - 2**7
-        assert UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).native == 2**24 - 1 - 2**23
-        assert UInt16.from_bytes(test_bytes[:2]).native == 2**16 - 1 - 2**15
-        assert UInt32.from_bytes(test_bytes[:4]).native == 2**32 - 1 - 2**31
-        assert ARC4UInt64.from_bytes(test_bytes[:8]).native == 2**64 - 1 - 2**63
+        assert UInt8.from_bytes(test_bytes[:1]).as_uint64() == 2**8 - 1 - 2**7
+        assert (
+            UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).as_uint64() == 2**24 - 1 - 2**23
+        )
+        assert UInt16.from_bytes(test_bytes[:2]).as_uint64() == 2**16 - 1 - 2**15
+        assert UInt32.from_bytes(test_bytes[:4]).as_uint64() == 2**32 - 1 - 2**31
+        assert ARC4UInt64.from_bytes(test_bytes[:8]).as_uint64() == 2**64 - 1 - 2**63
         assert UInt8(1 if Txn.num_app_args else 2) == 2
         assert UInt512(1 if Txn.num_app_args else 2) == 2
         assert UInt512(Txn.num_app_args) == 0
@@ -97,17 +99,27 @@ class Arc4NumericTypesContract(Contract):
         arc4_biguint_const = ARC4BigUInt(1)
         arc4_biguint_dynamic = ARC4BigUInt(biguint + 1)
 
-        assert biguint == arc4_biguint_const.native
+        assert biguint == arc4_biguint_const.as_biguint()
+        assert biguint == arc4_biguint_const.as_uint64()
 
-        assert arc4_biguint_dynamic.bytes.length == (128 // 8)
+        assert arc4_biguint_dynamic.bytes.length == (512 // 8)
 
         assert really_big_decimal.bytes.length == 64
 
         # check UInt64 sub-types are converted properly
         tup = Tuple((ARC4UInt64(OnCompleteAction.ClearState),))
-        assert tup[0].native == OnCompleteAction.ClearState
+        assert tup[0].as_uint64() == OnCompleteAction.ClearState
 
-        assert ARC4BiggieSmalls(1).native == BigUInt(1)
+        assert ARC4BiggieSmalls(1).as_biguint() == BigUInt(1)
+
+        assert int8_encoded.as_uint64() == UInt64(255)
+        assert int8_encoded.as_biguint() == BigUInt(255)
+
+        uint64_encoded_as_biguint = ARC4BigUInt(
+            0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000FFFFFFFFFFFFFFFF
+        )
+        assert uint64_encoded_as_biguint.as_biguint() == BigUInt(0xFFFFFFFFFFFFFFFF)
+        assert uint64_encoded_as_biguint == UInt64(0xFFFFFFFFFFFFFFFF)
 
         return True
 

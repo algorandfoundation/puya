@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 4
+    intcblock 0 1 16 8
     b main_block@0
 
 main_block@0:
@@ -15,7 +15,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@10
+    bz main___algopy_default_create@11
     b main_abi_routing@2
 
 main_abi_routing@2:
@@ -28,7 +28,7 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@8
+    bz main_create_NoOp@9
     b main_call_NoOp@3
 
 main_call_NoOp@3:
@@ -38,43 +38,50 @@ main_call_NoOp@3:
     pushbytes 0xea71ee7d // method "test_uint8()void"
     pushbytes 0xe31958f9 // method "test_uint16()void"
     pushbytes 0xc7ed8497 // method "test_uint32()void"
-    uncover 3
-    match main_test_uint8_route@4 main_test_uint16_route@5 main_test_uint32_route@6
-    b main_switch_case_next@7
+    pushbytes 0x65117897 // method "test_as_uint64()void"
+    uncover 4
+    match main_test_uint8_route@4 main_test_uint16_route@5 main_test_uint32_route@6 main_test_as_uint64_route@7
+    b main_switch_case_next@8
 
-main_switch_case_next@7:
-    b main_after_if_else@9
+main_switch_case_next@8:
+    b main_after_if_else@10
 
-main_after_if_else@9:
-    b main_after_if_else@11
+main_after_if_else@10:
+    b main_after_if_else@12
 
-main_after_if_else@11:
+main_after_if_else@12:
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     err
+
+main_test_as_uint64_route@7:
+    // arc4_types/uint_overflow.py:20
+    // @arc4.abimethod()
+    callsub test_as_uint64
+    b main_switch_case_next@8
 
 main_test_uint32_route@6:
     // arc4_types/uint_overflow.py:15
     // @arc4.abimethod()
     callsub test_uint32
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
 main_test_uint16_route@5:
     // arc4_types/uint_overflow.py:10
     // @arc4.abimethod()
     callsub test_uint16
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
 main_test_uint8_route@4:
     // arc4_types/uint_overflow.py:5
     // @arc4.abimethod()
     callsub test_uint8
-    b main_switch_case_next@7
+    b main_switch_case_next@8
 
-main_create_NoOp@8:
-    b main_after_if_else@9
+main_create_NoOp@9:
+    b main_after_if_else@10
 
-main___algopy_default_create@10:
+main___algopy_default_create@11:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -83,12 +90,12 @@ main___algopy_default_create@10:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@13
+    b main_block@14
 
-main_block@13:
-    b main_after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@14
+main_block@14:
+    b main_after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@15
 
-main_after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@14:
+main_after_inlined_test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create@15:
     intc_1 // 1
     return
 
@@ -129,6 +136,18 @@ test_uint32_block@0:
     return
 
 
+// test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64[routing]() -> void:
+test_as_uint64:
+    b test_as_uint64_block@0
+
+test_as_uint64_block@0:
+    // arc4_types/uint_overflow.py:20
+    // @arc4.abimethod()
+    callsub test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64
+    intc_1 // 1
+    return
+
+
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8() -> void:
 test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8:
     b test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8_block@0
@@ -142,7 +161,7 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8_block@0:
     itob
     dup
     bitlen
-    pushint 8 // 8
+    intc_3 // 8
     <=
     assert // overflow
     pushint 7 // 7
@@ -169,7 +188,7 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16_block@0:
     itob
     dup
     bitlen
-    pushint 16 // 16
+    intc_2 // 16
     <=
     assert // overflow
     pushint 6 // 6
@@ -199,12 +218,51 @@ test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32_block@0:
     pushint 32 // 32
     <=
     assert // overflow
-    intc_2 // 4
-    intc_2 // 4
+    pushint 4 // 4
+    pushint 4 // 4
     extract3
     // arc4_types/uint_overflow.py:18
     // assert too_big.bytes != b"\x00\x00\x00\x01", "this should not happen"
     pushbytes 0x00000001
+    !=
+    assert // this should not happen
+    retsub
+
+
+// test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64() -> void:
+test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64:
+    b test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64_block@0
+
+test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64_block@0:
+    // arc4_types/uint_overflow.py:22
+    // biguint = BigUInt(2**64) + Txn.num_app_args
+    txn NumAppArgs
+    itob
+    pushbytes 0x010000000000000000
+    b+
+    // arc4_types/uint_overflow.py:23
+    // too_big = arc4.UInt128(biguint).as_uint64()  # should fail here with overflow
+    dup
+    len
+    intc_2 // 16
+    <=
+    assert // overflow
+    intc_2 // 16
+    bzero
+    b|
+    dup
+    bitlen
+    pushint 64 // 64
+    <=
+    assert // overflow
+    dup
+    len
+    intc_3 // 8
+    -
+    extract_uint64
+    // arc4_types/uint_overflow.py:24
+    // assert too_big != 0, "this should not happen"
+    intc_0 // 0
     !=
     assert // this should not happen
     retsub

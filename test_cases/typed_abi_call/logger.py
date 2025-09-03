@@ -127,7 +127,7 @@ class Logger(ARC4Contract):
         (string, arc4_string), (u64, arc4_u64, bytez) = tuple_of_tuples
         return ("echo: " + string, "echo: " + arc4_string), (
             u64 + 1,
-            arc4.UInt64(arc4_u64.native + 1),
+            arc4.UInt64(arc4_u64.as_uint64() + 1),
             b"echo: " + bytez,
         )
 

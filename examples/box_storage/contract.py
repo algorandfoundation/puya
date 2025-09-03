@@ -328,7 +328,7 @@ class BoxContract(arc4.ARC4Contract):
         # TODO: support append using high level array operations
 
         box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
-        arr_len = box.value.length.native
+        arr_len = box.value.length.as_uint64()
 
         self.dynamic_box.ref.resize(2 + (arr_len + times) * 8)
         for i in urange(times):
@@ -343,7 +343,7 @@ class BoxContract(arc4.ARC4Contract):
         # TODO: support pop using high level array operations
 
         box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
-        arr_len = box.value.length.native - times
+        arr_len = box.value.length.as_uint64() - times
         box.value.length = arc4.UInt16(arr_len)
         self.dynamic_box.ref.resize(2 + arr_len * 8)
 

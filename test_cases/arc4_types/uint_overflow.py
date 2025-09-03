@@ -1,4 +1,4 @@
-from algopy import Txn, arc4
+from algopy import BigUInt, Txn, arc4
 
 
 class UIntOverflow(arc4.ARC4Contract):
@@ -16,3 +16,9 @@ class UIntOverflow(arc4.ARC4Contract):
     def test_uint32(self) -> None:
         too_big = arc4.UInt32(Txn.num_app_args + 2**32)  # should fail here with overflow
         assert too_big.bytes != b"\x00\x00\x00\x01", "this should not happen"
+
+    @arc4.abimethod()
+    def test_as_uint64(self) -> None:
+        biguint = BigUInt(2**64) + Txn.num_app_args
+        too_big = arc4.UInt128(biguint).as_uint64()  # should fail here with overflow
+        assert too_big != 0, "this should not happen"

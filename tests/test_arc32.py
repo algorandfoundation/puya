@@ -2042,6 +2042,9 @@ def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account
     with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
         app_client.call("test_uint32")
 
+    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
+        app_client.call("test_as_uint64")
+
 
 def test_group_side_effects(
     algod_client: AlgodClient,

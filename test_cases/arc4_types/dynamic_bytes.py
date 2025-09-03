@@ -14,7 +14,7 @@ class Arc4DynamicBytesContract(Contract):
         assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
 
         for uint8_item in dynamic_bytes:
-            total += uint8_item.native
+            total += uint8_item.as_uint64()
 
         assert total == 6, "Total should be of dynamic_bytes items"
 
@@ -23,14 +23,14 @@ class Arc4DynamicBytesContract(Contract):
         assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
 
         for uint8_item in dynamic_bytes2:
-            total += uint8_item.native
+            total += uint8_item.as_uint64()
 
         dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
         assert dynamic_bytes3.native == b"\x03\x04"
         assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
 
         for uint8_item in dynamic_bytes3:
-            total += uint8_item.native
+            total += uint8_item.as_uint64()
 
         assert total == 20, "Total should now include sum of dynamic_bytes3 items"
 

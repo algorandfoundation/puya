@@ -162,6 +162,12 @@ class UIntN(_UIntN, typing.Generic[_TBitSize]):
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC-4 decoding"""
 
+    def as_uint64(self) -> algopy.UInt64:
+        """Return the UInt64 representation of the value after ARC-4 decoding"""
+
+    def as_biguint(self) -> algopy.BigUInt:
+        """Return the BigUInt representation of the value after ARC-4 decoding"""
+
 class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
     """An ARC-4 UInt consisting of the number of bits specified.
 
@@ -169,6 +175,12 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
 
     @property
     def native(self) -> algopy.BigUInt:
+        """Return the BigUInt representation of the value after ARC-4 decoding"""
+
+    def as_uint64(self) -> algopy.UInt64:
+        """Return the UInt64 representation of the value after ARC-4 decoding"""
+
+    def as_biguint(self) -> algopy.BigUInt:
         """Return the BigUInt representation of the value after ARC-4 decoding"""
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)

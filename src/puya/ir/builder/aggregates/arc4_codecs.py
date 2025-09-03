@@ -359,12 +359,17 @@ class _UInt64Codec(_ScalarCodec):
         loc: SourceLocation,
     ) -> ir.ValueProvider | None:
         match encoding:
-            # note that if bits were > 64, a runtime error would always occur, as btoi
-            # will fail if input is more than 8 bytes.
-            # if the need arose, we could handle the >64 case by asserting the value is in range
-            # and then using extract_uint64
             case encodings.UIntEncoding(n=bits) if bits <= 64:
                 return ir.Intrinsic(op=AVMOp.btoi, args=[value], source_location=loc)
+            case encodings.UIntEncoding(n=bits) if bits > 64:
+                factory = OpFactory(context, loc)
+                bit_len = factory.bitlen(value)
+                is_correct_bit_len = factory.lte(bit_len, 64)
+                factory.assert_value(is_correct_bit_len, error_message="overflow")
+
+                endian_index = factory.sub(factory.len(value), 8)
+                return factory.extract_uint64(value, endian_index)
+
         return None
 
 
