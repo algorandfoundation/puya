@@ -13,6 +13,7 @@ class URangeIterationTest(IterationTestBase):
         for i in urange(1, 7, 2):
             log(values[i])
             i += 1
+        assert i == 6
 
     @typing.override
     @subroutine
@@ -21,6 +22,7 @@ class URangeIterationTest(IterationTestBase):
         for i in reversed(urange(1, 7, 2)):
             log(values[i])
             i += 1
+        assert i == 2
 
     @typing.override
     @subroutine
@@ -30,6 +32,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == 6
+        assert idx == 3
 
     @typing.override
     @subroutine
@@ -39,6 +43,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == 6
+        assert idx == 1
 
     @typing.override
     @subroutine
@@ -48,6 +54,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == 2
+        assert idx == 3
 
     @typing.override
     @subroutine
@@ -57,6 +65,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == 2
+        assert idx == 1
 
     @typing.override
     @subroutine
@@ -81,6 +91,7 @@ class URangeIterationTest(IterationTestBase):
         for i in urange(1, 7, 2):
             log(values[i])
             break
+        assert i == 1
 
     @typing.override
     @subroutine
@@ -88,3 +99,4 @@ class URangeIterationTest(IterationTestBase):
         values = Bytes(b"t")
         for tup in uenumerate(urange(1)):
             self._log_with_index(tup[0], values[tup[1]])
+        assert tup[0] == 0 and tup[1] == 0
