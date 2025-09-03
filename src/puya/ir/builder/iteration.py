@@ -18,6 +18,7 @@ from puya.ir.models import (
     Intrinsic,
     Register,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
 )
@@ -28,7 +29,7 @@ from puya.ir.op_utils import (
     assign_targets,
     convert_constants,
 )
-from puya.ir.types_ import TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
+from puya.ir.types_ import PrimitiveIRType, TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -279,22 +280,32 @@ def _iterate_urange_simple(
         "for_header", "for_footer", "after_for", source_location=statement_loc
     )
 
-    loop_vars = assigner.assign_user_loop_vars(
-        start, UInt64Constant(value=0, source_location=None)
+    # We need two temporary values to act as loop variables to match after-loop
+    # iteration variable behavior.
+    value_internal = assign_temp(
+        context,
+        source=start,
+        temp_description="value_internal",
+        source_location=range_loc,
     )
-    context.block_builder.goto(header)
-    with context.block_builder.activate_open_block(header):
-        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
-        continue_looping = assign_intrinsic_op(
+    if assigner.has_enumerate:
+        index_internal = assign_temp(
             context,
-            target="continue_looping",
-            op=AVMOp.lt,
-            args=[current_range_item, stop],
+            source=UInt64Constant(value=0, source_location=None),
+            temp_description="item_index_internal",
             source_location=range_loc,
         )
+
+    context.block_builder.goto(header)
+    with context.block_builder.activate_open_block(header):
+        value_internal = _refresh_mutated_variable(context, value_internal)
+        if assigner.has_enumerate:
+            index_internal = _refresh_mutated_variable(context, index_internal)
+
+        factory = OpFactory(context, statement_loc)
         context.block_builder.terminate(
             ConditionalBranch(
-                condition=continue_looping,
+                condition=factory.lt(value_internal, stop, "continue_looping"),
                 non_zero=body,
                 zero=next_block,
                 source_location=statement_loc,
@@ -302,6 +313,13 @@ def _iterate_urange_simple(
         )
 
         context.block_builder.activate_block(body)
+
+        assigner.assign_user_loop_vars(
+            value_internal,
+            index_internal
+            if assigner.has_enumerate
+            else Undefined(source_location=None, ir_type=PrimitiveIRType.uint64),
+        )
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(context.visitor)
 
@@ -309,17 +327,17 @@ def _iterate_urange_simple(
         if context.block_builder.try_activate_block(footer):
             _reassign_with_intrinsic_op(
                 context,
-                target=current_range_item,
+                target=value_internal,
                 op=AVMOp.add,
-                args=[current_range_item, step],
+                args=[value_internal, step],
                 source_location=range_loc,
             )
-            if current_range_index:
+            if assigner.has_enumerate:
                 _reassign_with_intrinsic_op(
                     context,
-                    target=current_range_index,
+                    target=index_internal,
                     op=AVMOp.add,
-                    args=[current_range_index, 1],
+                    args=[index_internal, 1],
                     source_location=range_loc,
                 )
             context.block_builder.goto(header)
