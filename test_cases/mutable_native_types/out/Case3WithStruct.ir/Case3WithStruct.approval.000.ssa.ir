@@ -61,13 +61,15 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%17#0: uint64 = (* tmp%16#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%17#0
+        let value_internal%0#0: uint64 = head_offset#0
         goto block@1
     block@1: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L283
+        let head_offset#1: uint64 = value_internal%0#1
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#0: uint64 = tmp%18#0
         let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -81,7 +83,7 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let new_head_and_tail#2: bytes = tmp%23#0
         goto block@3
     block@3: // for_footer_L282
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
     block@4: // after_for_L282
         return new_head_and_tail#1
@@ -117,14 +119,16 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%5#0: uint64 = (* start_at_index#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%5#0
+        let value_internal%0#0: uint64 = head_offset#0
         goto block@1
     block@1: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%4#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L343
+        let head_offset#1: uint64 = value_internal%0#1
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
         let tail_offset_bytes#0: bytes = tmp%7#0
@@ -138,7 +142,7 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let head_offset#2: uint64 = tmp%12#0
         goto block@3
     block@3: // for_footer_L342
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
     block@4: // after_for_L342
         return array_head_and_tail#1
@@ -363,13 +367,15 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L64
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let total#1: uint64 = φ(total#0 <- block@0, total#3 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L65
+        let i#1: uint64 = value_internal%0#1
         let storage_value%1#0: bytes = box_read("tup_bag")
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = extract_value(storage_value%1#0, 1)
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(tuple_item%1#0, i#1)
@@ -384,7 +390,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let total#3: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L64
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L64
         return total#1
@@ -394,17 +400,19 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let tmp%0#0: uint64 = array_len(tups#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L72
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 tmp%0#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L73
+        let i#1: uint64 = value_internal%0#1
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(tups#0, i#1)
         let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
         goto block@3
     block@3: // for_footer_L72
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L72
         return 
@@ -413,17 +421,19 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
     block@0: // L75
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L77
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 3u)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L78
+        let i#1: uint64 = value_internal%0#1
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(tups#0, i#1)
         let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
         goto block@3
     block@3: // for_footer_L77
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L77
         return 
@@ -436,19 +446,21 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L83
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L84
+        let i#1: uint64 = value_internal%0#1
         let storage_value%1#0: bytes = box_read("tup_bag")
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(a#0)
         let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096],bool1) = replace_value(storage_value%1#0, 1, i#1, 0, encoded_value%0#0)
         box_write("tup_bag", updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L83
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L83
         return 
@@ -461,19 +473,21 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L89
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L90
+        let i#1: uint64 = value_internal%0#1
         let storage_value%1#0: bytes = box_read("tup_bag")
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(b#0)
         let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096],bool1) = replace_value(storage_value%1#0, 1, i#1, 1, encoded_value%0#0)
         box_write("tup_bag", updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L89
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L89
         return 
@@ -509,13 +523,15 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L110
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let result#1: Encoded(len+(uint64,uint64)[]) = φ(result#0 <- block@0, result#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L111
+        let i#1: uint64 = value_internal%0#1
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(items#0, i#1)
         let tmp%0#0: Encoded((uint64,uint64)[]) = bytes_encode<(uint64,uint64)[]>(array_item%0#0)
         let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#1 tmp%0#0) // on error: max array length exceeded
@@ -528,7 +544,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let result#2: Encoded(len+(uint64,uint64)[]) = as_Encoded(len+(uint64,uint64)[])%0#0
         goto block@3
     block@3: // for_footer_L110
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L110
         return result#1

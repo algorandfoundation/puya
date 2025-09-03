@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Bytes, log, subroutine, uenumerate, urange
+from algopy import Bytes, UInt64, log, subroutine, uenumerate, urange
 
 from test_cases.iteration.base import IterationTestBase
 
@@ -13,6 +13,7 @@ class URangeIterationTest(IterationTestBase):
         for i in urange(1, 7, 2):
             log(values[i])
             i += 1
+        assert i == UInt64(6)
 
     @typing.override
     @subroutine
@@ -21,6 +22,7 @@ class URangeIterationTest(IterationTestBase):
         for i in reversed(urange(1, 7, 2)):
             log(values[i])
             i += 1
+        assert i == UInt64(2)
 
     @typing.override
     @subroutine
@@ -30,6 +32,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == UInt64(6)
+        assert idx == UInt64(3)
 
     @typing.override
     @subroutine
@@ -39,6 +43,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == UInt64(6)
+        assert idx == UInt64(1)
 
     @typing.override
     @subroutine
@@ -48,6 +54,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == UInt64(2)
+        assert idx == UInt64(3)
 
     @typing.override
     @subroutine
@@ -57,6 +65,8 @@ class URangeIterationTest(IterationTestBase):
             self._log_with_index(idx, values[i])
             i += 1
             idx += 1
+        assert i == UInt64(2)
+        assert idx == UInt64(1)
 
     @typing.override
     @subroutine
@@ -81,6 +91,7 @@ class URangeIterationTest(IterationTestBase):
         for i in urange(1, 7, 2):
             log(values[i])
             break
+        assert i == UInt64(1)
 
     @typing.override
     @subroutine
@@ -88,3 +99,4 @@ class URangeIterationTest(IterationTestBase):
         values = Bytes(b"t")
         for tup in uenumerate(urange(1)):
             self._log_with_index(tup[0], values[tup[1]])
+        assert tup == (UInt64(0), UInt64(0))

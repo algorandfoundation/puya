@@ -282,19 +282,34 @@ def _iterate_urange_simple(
     loop_vars = assigner.assign_user_loop_vars(
         start, UInt64Constant(value=0, source_location=None)
     )
-    context.block_builder.goto(header)
-    with context.block_builder.activate_open_block(header):
-        (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
-        continue_looping = assign_intrinsic_op(
+    (current_range_item,), current_range_index = loop_vars
+
+    # We need two temporary values to act as loop variables to match after-loop
+    # iteration variable behavior.
+    value_internal = assign_temp(
+        context,
+        source=current_range_item,
+        temp_description="value_internal",
+        source_location=range_loc,
+    )
+    if current_range_index:
+        index_internal = assign_temp(
             context,
-            target="continue_looping",
-            op=AVMOp.lt,
-            args=[current_range_item, stop],
+            source=current_range_index,
+            temp_description="item_index_internal",
             source_location=range_loc,
         )
+
+    context.block_builder.goto(header)
+    with context.block_builder.activate_open_block(header):
+        current_value_internal = _refresh_mutated_variable(context, value_internal)
+        if current_range_index:
+            current_index_internal = _refresh_mutated_variable(context, index_internal)
+
+        factory = OpFactory(context, statement_loc)
         context.block_builder.terminate(
             ConditionalBranch(
-                condition=continue_looping,
+                condition=factory.lt(current_value_internal, stop, "continue_looping"),
                 non_zero=body,
                 zero=next_block,
                 source_location=statement_loc,
@@ -302,24 +317,45 @@ def _iterate_urange_simple(
         )
 
         context.block_builder.activate_block(body)
+
+        assign(
+            context,
+            source=current_value_internal,
+            name=current_range_item.name,
+            ir_type=current_range_item.ir_type,
+            register_location=current_range_item.source_location,
+            assignment_location=range_loc,
+        )
+
+        if current_range_index:
+            assign(
+                context,
+                source=current_index_internal,
+                name=current_range_index.name,
+                ir_type=current_range_index.ir_type,
+                register_location=current_range_index.source_location,
+                assignment_location=range_loc,
+            )
+
         with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            (current_range_item,), current_range_index = loop_vars.refresh_assignment(context)
             loop_body.accept(context.visitor)
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
             _reassign_with_intrinsic_op(
                 context,
-                target=current_range_item,
+                target=value_internal,
                 op=AVMOp.add,
-                args=[current_range_item, step],
+                args=[current_value_internal, step],
                 source_location=range_loc,
             )
             if current_range_index:
                 _reassign_with_intrinsic_op(
                     context,
-                    target=current_range_index,
+                    target=index_internal,
                     op=AVMOp.add,
-                    args=[current_range_index, 1],
+                    args=[current_index_internal, 1],
                     source_location=range_loc,
                 )
             context.block_builder.goto(header)

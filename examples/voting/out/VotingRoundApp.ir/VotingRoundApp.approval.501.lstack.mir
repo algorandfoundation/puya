@@ -782,14 +782,16 @@ subroutine close:
         getbyte                                                                                   tmp%18#0
         v-store tmp%18#0
         int 0                                                                                     0
-        v-store option_index#0
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
+        v-store option_index#1
         b close_for_header@7
 
     close_for_header@7:
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load option_index#0                                                                     option_index#0
-        v-load tmp%18#0                                                                           option_index#0,tmp%18#0
+        v-load option_index#1                                                                     option_index#1
+        v-load tmp%18#0                                                                           option_index#1,tmp%18#0
         <                                                                                         continue_looping%1#0
         l-load continue_looping%1#0 0                                                             continue_looping%1#0
         bz close_after_for@12 ; b close_for_body@8
@@ -797,7 +799,7 @@ subroutine close:
     close_for_body@8:
         // voting/voting.py:138
         // if option_index > 0:
-        v-load option_index#0                                                                     option_index#0
+        v-load option_index#1                                                                     option_index#1
         bz close_after_if_else@10 ; b close_if_body@9
 
     close_if_body@9:
@@ -835,10 +837,11 @@ subroutine close:
         v-store current_index#0
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load option_index#0                                                                     option_index#0
-        int 1                                                                                     option_index#0,1
-        +                                                                                         option_index#0
-        v-store option_index#0
+        v-load option_index#1                                                                     option_index#1
+        int 1                                                                                     option_index#1,1
+        +                                                                                         value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
+        v-store option_index#1
         b close_for_header@7
 
     close_after_for@12:
@@ -1166,14 +1169,16 @@ subroutine vote:
         // voting/voting.py:195
         // for question_index in urange(questions_count):
         int 0                                                                                     0
-        v-store question_index#0
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
+        v-store question_index#1
         b vote_for_header@2
 
     vote_for_header@2:
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        v-load question_index#0                                                                   question_index#0
-        v-load questions_count#0                                                                  question_index#0,questions_count#0
+        v-load question_index#1                                                                   question_index#1
+        v-load questions_count#0                                                                  question_index#1,questions_count#0
         <                                                                                         continue_looping%0#0
         l-load continue_looping%0#0 0                                                             continue_looping%0#0
         bz vote_after_for@5 ; b vote_for_body@3
@@ -1185,87 +1190,88 @@ subroutine vote:
         l-store-copy answer_ids#0 0                                                               answer_ids#0,answer_ids#0 (copy)
         extract 2 0                                                                               answer_ids#0,aggregate%array_trimmed%0#0
         l-load aggregate%array_trimmed%0#0 0                                                      answer_ids#0,aggregate%array_trimmed%0#0
-        v-load question_index#0                                                                   answer_ids#0,aggregate%array_trimmed%0#0,question_index#0
-        l-store-copy question_index#0 1                                                           answer_ids#0,question_index#0,aggregate%array_trimmed%0#0,question_index#0 (copy)
-        getbyte                                                                                   answer_ids#0,question_index#0,answer_option_index#0
+        v-load question_index#1                                                                   answer_ids#0,aggregate%array_trimmed%0#0,question_index#1
+        l-store-copy question_index#1 1                                                           answer_ids#0,question_index#1,aggregate%array_trimmed%0#0,question_index#1 (copy)
+        getbyte                                                                                   answer_ids#0,question_index#1,answer_option_index#0
         // voting/voting.py:198
         // options_count = self.option_counts[question_index].native
-        int 0                                                                                     answer_ids#0,question_index#0,answer_option_index#0,0
-        byte "option_counts"                                                                      answer_ids#0,question_index#0,answer_option_index#0,0,"option_counts"
-        app_global_get_ex                                                                         answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                                 answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.option_counts exists                                                 answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                  answer_ids#0,question_index#0,answer_option_index#0,maybe_value%1#0
-        extract 2 0                                                                               answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
-        l-load aggregate%array_trimmed%1#0 0                                                      answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0
-        l-load-copy question_index#0 2                                                            answer_ids#0,question_index#0,answer_option_index#0,aggregate%array_trimmed%1#0,question_index#0 (copy)
-        getbyte                                                                                   answer_ids#0,question_index#0,answer_option_index#0,options_count#0
+        int 0                                                                                     answer_ids#0,question_index#1,answer_option_index#0,0
+        byte "option_counts"                                                                      answer_ids#0,question_index#1,answer_option_index#0,0,"option_counts"
+        app_global_get_ex                                                                         answer_ids#0,question_index#1,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                                 answer_ids#0,question_index#1,answer_option_index#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.option_counts exists                                                 answer_ids#0,question_index#1,answer_option_index#0,maybe_value%1#0
+        l-load maybe_value%1#0 0                                                                  answer_ids#0,question_index#1,answer_option_index#0,maybe_value%1#0
+        extract 2 0                                                                               answer_ids#0,question_index#1,answer_option_index#0,aggregate%array_trimmed%1#0
+        l-load aggregate%array_trimmed%1#0 0                                                      answer_ids#0,question_index#1,answer_option_index#0,aggregate%array_trimmed%1#0
+        l-load-copy question_index#1 2                                                            answer_ids#0,question_index#1,answer_option_index#0,aggregate%array_trimmed%1#0,question_index#1 (copy)
+        getbyte                                                                                   answer_ids#0,question_index#1,answer_option_index#0,options_count#0
         // voting/voting.py:199
         // assert answer_option_index < options_count, "Answer option index invalid"
-        l-load-copy answer_option_index#0 1                                                       answer_ids#0,question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy)
-        l-load-copy options_count#0 1                                                             answer_ids#0,question_index#0,answer_option_index#0,options_count#0,answer_option_index#0 (copy),options_count#0 (copy)
-        <                                                                                         answer_ids#0,question_index#0,answer_option_index#0,options_count#0,tmp%20#0
-        l-load tmp%20#0 0                                                                         answer_ids#0,question_index#0,answer_option_index#0,options_count#0,tmp%20#0
-        assert // Answer option index invalid                                                     answer_ids#0,question_index#0,answer_option_index#0,options_count#0
+        l-load-copy answer_option_index#0 1                                                       answer_ids#0,question_index#1,answer_option_index#0,options_count#0,answer_option_index#0 (copy)
+        l-load-copy options_count#0 1                                                             answer_ids#0,question_index#1,answer_option_index#0,options_count#0,answer_option_index#0 (copy),options_count#0 (copy)
+        <                                                                                         answer_ids#0,question_index#1,answer_option_index#0,options_count#0,tmp%20#0
+        l-load tmp%20#0 0                                                                         answer_ids#0,question_index#1,answer_option_index#0,options_count#0,tmp%20#0
+        assert // Answer option index invalid                                                     answer_ids#0,question_index#1,answer_option_index#0,options_count#0
         // voting/voting.py:200
         // self.increment_vote_in_box(cumulative_offset + answer_option_index)
-        v-load cumulative_offset#0                                                                answer_ids#0,question_index#0,answer_option_index#0,options_count#0,cumulative_offset#0
-        l-store-copy cumulative_offset#0 1                                                        answer_ids#0,question_index#0,answer_option_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy)
-        l-load answer_option_index#0 3                                                            answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy),answer_option_index#0
-        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0
+        v-load cumulative_offset#0                                                                answer_ids#0,question_index#1,answer_option_index#0,options_count#0,cumulative_offset#0
+        l-store-copy cumulative_offset#0 1                                                        answer_ids#0,question_index#1,answer_option_index#0,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy)
+        l-load answer_option_index#0 3                                                            answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,cumulative_offset#0 (copy),answer_option_index#0
+        +                                                                                         answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0
         // voting/voting.py:241
         // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
-        byte "V"                                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V"
-        l-load-copy index#0 1                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy)
-        int 8                                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy),8
-        box_extract                                                                               answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#2
-        l-load tmp%0#2 0                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%0#2
-        btoi                                                                                      answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
+        byte "V"                                                                                  answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,"V"
+        l-load-copy index#0 1                                                                     answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy)
+        int 8                                                                                     answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,"V",index#0 (copy),8
+        box_extract                                                                               answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%0#2
+        l-load tmp%0#2 0                                                                          answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%0#2
+        btoi                                                                                      answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,current_vote#0
         // voting/voting.py:246
         // self.tally_box.replace(index, op.itob(current_vote + 1))
-        l-load current_vote#0 0                                                                   answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0
-        int 1                                                                                     answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,current_vote#0,1
-        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#2
-        l-load tmp%1#2 0                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%1#2
-        itob                                                                                      answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1
-        byte "V"                                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,index#0,tmp%2#1,"V"
-        l-load index#0 2                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,tmp%2#1,"V",index#0
-        l-load tmp%2#1 2                                                                          answer_ids#0,question_index#0,cumulative_offset#0,options_count#0,"V",index#0,tmp%2#1
-        box_replace                                                                               answer_ids#0,question_index#0,cumulative_offset#0,options_count#0
+        l-load current_vote#0 0                                                                   answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,current_vote#0
+        int 1                                                                                     answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,current_vote#0,1
+        +                                                                                         answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%1#2
+        l-load tmp%1#2 0                                                                          answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%1#2
+        itob                                                                                      answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%2#1
+        byte "V"                                                                                  answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,index#0,tmp%2#1,"V"
+        l-load index#0 2                                                                          answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,tmp%2#1,"V",index#0
+        l-load tmp%2#1 2                                                                          answer_ids#0,question_index#1,cumulative_offset#0,options_count#0,"V",index#0,tmp%2#1
+        box_replace                                                                               answer_ids#0,question_index#1,cumulative_offset#0,options_count#0
         // voting/voting.py:201
         // cumulative_offset += options_count
-        l-load cumulative_offset#0 1                                                              answer_ids#0,question_index#0,options_count#0,cumulative_offset#0
-        l-load options_count#0 1                                                                  answer_ids#0,question_index#0,cumulative_offset#0,options_count#0
-        +                                                                                         answer_ids#0,question_index#0,cumulative_offset#0
-        v-store cumulative_offset#0                                                               answer_ids#0,question_index#0
+        l-load cumulative_offset#0 1                                                              answer_ids#0,question_index#1,options_count#0,cumulative_offset#0
+        l-load options_count#0 1                                                                  answer_ids#0,question_index#1,cumulative_offset#0,options_count#0
+        +                                                                                         answer_ids#0,question_index#1,cumulative_offset#0
+        v-store cumulative_offset#0                                                               answer_ids#0,question_index#1
         // voting/voting.py:202
         // self.votes_by_account[Txn.sender] = answer_ids.copy()
-        txn Sender                                                                                answer_ids#0,question_index#0,materialized_values%0#0
-        l-load-copy materialized_values%0#0 0                                                     answer_ids#0,question_index#0,materialized_values%0#0,materialized_values%0#0 (copy)
-        box_del                                                                                   answer_ids#0,question_index#0,materialized_values%0#0,{box_del}
-        pop 1                                                                                     answer_ids#0,question_index#0,materialized_values%0#0
-        l-load materialized_values%0#0 0                                                          answer_ids#0,question_index#0,materialized_values%0#0
-        l-load answer_ids#0 2                                                                     question_index#0,materialized_values%0#0,answer_ids#0
-        box_put                                                                                   question_index#0
+        txn Sender                                                                                answer_ids#0,question_index#1,materialized_values%0#0
+        l-load-copy materialized_values%0#0 0                                                     answer_ids#0,question_index#1,materialized_values%0#0,materialized_values%0#0 (copy)
+        box_del                                                                                   answer_ids#0,question_index#1,materialized_values%0#0,{box_del}
+        pop 1                                                                                     answer_ids#0,question_index#1,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                          answer_ids#0,question_index#1,materialized_values%0#0
+        l-load answer_ids#0 2                                                                     question_index#1,materialized_values%0#0,answer_ids#0
+        box_put                                                                                   question_index#1
         // voting/voting.py:203
         // self.voter_count += 1
-        int 0                                                                                     question_index#0,0
-        byte "voter_count"                                                                        question_index#0,0,"voter_count"
-        app_global_get_ex                                                                         question_index#0,maybe_value%2#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                                 question_index#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.voter_count exists                                                   question_index#0,maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                  question_index#0,maybe_value%2#0
-        int 1                                                                                     question_index#0,maybe_value%2#0,1
-        +                                                                                         question_index#0,tmp%23#0
-        byte "voter_count"                                                                        question_index#0,tmp%23#0,"voter_count"
-        l-load tmp%23#0 1                                                                         question_index#0,"voter_count",tmp%23#0
-        app_global_put                                                                            question_index#0
+        int 0                                                                                     question_index#1,0
+        byte "voter_count"                                                                        question_index#1,0,"voter_count"
+        app_global_get_ex                                                                         question_index#1,maybe_value%2#0,maybe_exists%2#0
+        l-load maybe_exists%2#0 0                                                                 question_index#1,maybe_value%2#0,maybe_exists%2#0
+        assert // check self.voter_count exists                                                   question_index#1,maybe_value%2#0
+        l-load maybe_value%2#0 0                                                                  question_index#1,maybe_value%2#0
+        int 1                                                                                     question_index#1,maybe_value%2#0,1
+        +                                                                                         question_index#1,tmp%23#0
+        byte "voter_count"                                                                        question_index#1,tmp%23#0,"voter_count"
+        l-load tmp%23#0 1                                                                         question_index#1,"voter_count",tmp%23#0
+        app_global_put                                                                            question_index#1
         // voting/voting.py:195
         // for question_index in urange(questions_count):
-        l-load question_index#0 0                                                                 question_index#0
-        int 1                                                                                     question_index#0,1
-        +                                                                                         question_index#0
-        v-store question_index#0
+        l-load question_index#1 0                                                                 question_index#1
+        int 1                                                                                     question_index#1,1
+        +                                                                                         value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
+        v-store question_index#1
         b vote_for_header@2
 
     vote_after_for@5:

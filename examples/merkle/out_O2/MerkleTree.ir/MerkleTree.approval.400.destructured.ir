@@ -14,15 +14,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
         (assert maybe_exists%0#0) // check self.root exists
         let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
-        let idx#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         let computed#1: bytes = leaf#0
+        let idx#1: uint64 = value_internal%0#0
         goto block@10
     block@10: // for_header_L22
-        let continue_looping%0#0: bool = (< idx#0 aggregate%array_length%0#0)
+        let continue_looping%0#0: bool = (< idx#1 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@11 : block@15
     block@11: // for_body_L23
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) proof#0)
-        let aggregate%bytes_offset%0#0: uint64 = (* idx#0 32u)
+        let aggregate%bytes_offset%0#0: uint64 = (* idx#1 32u)
         let b#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 32u) // on error: index access is out of bounds
         let tmp%0#3: bool = (b< computed#1 b#0)
         goto tmp%0#3 ? block@12 : block@13
@@ -34,7 +35,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@14
     block@14: // ternary_merge_L29
         let computed#1: bytes = (sha256 ternary_result%0#0)
-        let idx#0: uint64 = (+ idx#0 1u)
+        let value_internal%0#0: uint64 = (+ idx#1 1u)
+        let idx#1: uint64 = value_internal%0#0
         goto block@10
     block@15: // after_for_L22
         let tmp%0#3: bool = (== maybe_value%0#0 computed#1)

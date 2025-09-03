@@ -107,10 +107,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[rou
         let total#0: uint64 = 0u
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L71
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let total#1: uint64 = φ(total#0 <- block@0, total#3 <- block@3)
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -124,7 +124,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[rou
         let tup.b#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 8u)
         let total#2: uint64 = (+ total#1 tup.a#0)
         let total#3: uint64 = (+ total#2 tup.b#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L71
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob total#1)
@@ -186,10 +186,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[r
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L90
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L91
@@ -204,7 +204,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[r
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%4#0: uint64 = (+ 8u aggregate%bytes_offset%0#0)
         (box_replace "tup_bag" box%offset%4#0 aggregate%head%1#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L90
         exit 1u
@@ -216,10 +216,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[r
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L97
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L98
@@ -234,7 +234,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[r
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%4#0: uint64 = (+ 8u aggregate%bytes_offset%0#0)
         (box_replace "tup_bag" box%offset%4#0 aggregate%head%1#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L97
         exit 1u
@@ -286,10 +286,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%1#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L119
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let result#1: Encoded(len+(uint64,uint64)[]) = φ(result#0 <- block@0, result#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -308,7 +308,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let result#2: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L119
         let tmp%1#0: bytes = (concat 0x151f7c75 result#1)

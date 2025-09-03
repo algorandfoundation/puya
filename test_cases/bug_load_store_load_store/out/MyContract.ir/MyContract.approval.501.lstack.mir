@@ -9,14 +9,16 @@ subroutine main:
         // bug_load_store_load_store/contract.py:12
         // for _idx in urange(2):
         int 0                                        0
-        v-store _idx#0
+        l-store value_internal%0#0 0                 value_internal%0#0
+        l-load value_internal%0#0 0                  value_internal%0#0
+        v-store _idx#1
         b main_for_header@1
 
     main_for_header@1:
         // bug_load_store_load_store/contract.py:12
         // for _idx in urange(2):
-        v-load _idx#0                                _idx#0
-        int 2                                        _idx#0,2
+        v-load _idx#1                                _idx#1
+        int 2                                        _idx#1,2
         <                                            continue_looping%0#0
         l-load continue_looping%0#0 0                continue_looping%0#0
         bz main_after_for@11 ; b main_for_body@2
@@ -54,10 +56,11 @@ subroutine main:
     main_after_if_else@9:
         // bug_load_store_load_store/contract.py:12
         // for _idx in urange(2):
-        v-load _idx#0                                _idx#0
-        int 1                                        _idx#0,1
-        +                                            _idx#0
-        v-store _idx#0
+        v-load _idx#1                                _idx#1
+        int 1                                        _idx#1,1
+        +                                            value_internal%0#0
+        l-load value_internal%0#0 0                  value_internal%0#0
+        v-store _idx#1
         b main_for_header@1
 
     main_after_for@11:

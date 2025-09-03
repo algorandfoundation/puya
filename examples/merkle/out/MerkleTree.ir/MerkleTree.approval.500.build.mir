@@ -95,16 +95,18 @@ subroutine verify:
         extract_uint16                                                                         aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         int 0                                                                                  0
-        v-store idx#0
+        v-store value_internal%0#0
         v-load leaf#0                                                                          leaf#0
         v-store computed#1
+        v-load value_internal%0#0                                                              value_internal%0#0
+        v-store idx#1
         b verify_for_header@2
 
     verify_for_header@2:
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        v-load idx#0                                                                           idx#0
-        v-load aggregate%array_length%0#0                                                      idx#0,aggregate%array_length%0#0
+        v-load idx#1                                                                           idx#1
+        v-load aggregate%array_length%0#0                                                      idx#1,aggregate%array_length%0#0
         <                                                                                      continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                            continue_looping%0#0
@@ -116,8 +118,8 @@ subroutine verify:
         v-load proof#0                                                                         proof#0
         extract 2 0                                                                            aggregate%array_trimmed%0#0
         v-store aggregate%array_trimmed%0#0
-        v-load idx#0                                                                           idx#0
-        int 32                                                                                 idx#0,32
+        v-load idx#1                                                                           idx#1
+        int 32                                                                                 idx#1,32
         *                                                                                      aggregate%bytes_offset%0#0
         v-store aggregate%bytes_offset%0#0
         v-load aggregate%array_trimmed%0#0                                                     aggregate%array_trimmed%0#0
@@ -160,10 +162,12 @@ subroutine verify:
         v-store computed#1
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        v-load idx#0                                                                           idx#0
-        int 1                                                                                  idx#0,1
-        +                                                                                      idx#0
-        v-store idx#0
+        v-load idx#1                                                                           idx#1
+        int 1                                                                                  idx#1,1
+        +                                                                                      value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                              value_internal%0#0
+        v-store idx#1
         b verify_for_header@2
 
     verify_after_for@7:
