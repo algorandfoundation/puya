@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     b main_block@0
 
@@ -15,7 +15,44 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    txn NumAppArgs
+    pushint 0 // 0
+    !=
+    bz main_create@5
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // state_totals/contract.py:6-9
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
+    // ):
+    err
+
+main_create@5:
+    // state_totals/contract.py:14
+    // @arc4.baremethod(create="require")
+    txn OnCompletion
+    pushint 0 // NoOp
+    ==
+    txn ApplicationID
+    pushint 0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    callsub create
+    pushint 1 // 1
     return
 
 
@@ -33,49 +70,3 @@ create:
 
 create_block@0:
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // state_totals/contract.py:6-9
-    // class Contract(
-    //     arc4.ARC4Contract,
-    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
-    // ):
-    txn NumAppArgs
-    pushint 0 // 0
-    !=
-    bz approval_program_create@3
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    b approval_program_after_if_else@4
-
-approval_program_after_if_else@4:
-    // state_totals/contract.py:6-9
-    // class Contract(
-    //     arc4.ARC4Contract,
-    //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
-    // ):
-    err
-
-approval_program_create@3:
-    // state_totals/contract.py:14
-    // @arc4.baremethod(create="require")
-    txn OnCompletion
-    pushint 0 // NoOp
-    ==
-    txn ApplicationID
-    pushint 0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    callsub create
-    pushint 1 // 1
-    return

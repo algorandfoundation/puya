@@ -1,42 +1,46 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.local_state.local_state_contract.LocalStateContract.__algopy_entrypoint_with_init() -> uint64:
+// examples.local_state.local_state_contract.LocalStateContract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 1 0
     bytecblock "local"
-    intc_0 // 0
+    intc_1 // 0
     pushbytes ""
     // local_state/local_state_contract.py:21
     // if Txn.application_id == 0:
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz main_after_if_else@4
     // local_state/local_state_contract.py:22
     // return True
-    intc_1 // 1
+    intc_0 // 1
     return
 
-main_after_if_else@5:
+main_after_if_else@4:
     // local_state/local_state_contract.py:23
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
     bury 2
-    bz main_after_if_else@8
+    bz main_after_if_else@7
     dup
-    intc_1 // OptIn
+    intc_0 // OptIn
     ==
-    bnz main_after_if_else@8
+    bnz main_after_if_else@7
+    // local_state/local_state_contract.py:24
+    // return False
     err
 
-main_after_if_else@8:
+main_after_if_else@7:
     // local_state/local_state_contract.py:25
     // if Txn.num_app_args == 0:
     txn NumAppArgs
-    bnz main_after_if_else@10
+    bnz main_after_if_else@9
+    // local_state/local_state_contract.py:26
+    // return False
     err
 
-main_after_if_else@10:
+main_after_if_else@9:
     // local_state/local_state_contract.py:28
     // method = Txn.application_args(0)
     txna ApplicationArgs 0
@@ -44,21 +48,21 @@ main_after_if_else@10:
     // local_state/local_state_contract.py:29
     // if Txn.num_app_args == 1:
     txn NumAppArgs
-    intc_1 // 1
+    intc_0 // 1
     ==
-    bz main_else_body@21
+    bz main_else_body@20
     // local_state/local_state_contract.py:30
     // if method == b"get_guaranteed_data":
     dig 1
     pushbytes 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@13
+    bz main_else_body@12
     // local_state/local_state_contract.py:31
     // log(self.get_guaranteed_data(Txn.sender))
     txn Sender
     // local_state/local_state_contract.py:56
     // result = self.local[for_account]
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex
     assert // check self.local exists for account
@@ -66,25 +70,25 @@ main_after_if_else@10:
     // log(self.get_guaranteed_data(Txn.sender))
     log
 
-main_after_if_else@20:
+main_after_if_else@19:
     // local_state/local_state_contract.py:39
     // return True
-    intc_1 // 1
+    intc_0 // 1
     return
 
-main_else_body@13:
+main_else_body@12:
     // local_state/local_state_contract.py:32
     // elif method == b"get_data_or_assert":
     dig 1
     pushbytes 0x6765745f646174615f6f725f617373657274
     ==
-    bz main_else_body@15
+    bz main_else_body@14
     // local_state/local_state_contract.py:33
     // log(self.get_data_or_assert(Txn.sender))
     txn Sender
     // local_state/local_state_contract.py:71
     // result, exists = self.local.maybe(for_account)
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex
     // local_state/local_state_contract.py:72
@@ -93,15 +97,15 @@ main_else_body@13:
     // local_state/local_state_contract.py:33
     // log(self.get_data_or_assert(Txn.sender))
     log
-    b main_after_if_else@20
+    b main_after_if_else@19
 
-main_else_body@15:
+main_else_body@14:
     // local_state/local_state_contract.py:34
     // elif method == b"delete_data":
     dig 1
     pushbytes 0x64656c6574655f64617461
     ==
-    bz main_else_body@17
+    bz main_else_body@16
     // local_state/local_state_contract.py:35
     // self.delete_data(Txn.sender)
     txn Sender
@@ -113,27 +117,26 @@ main_else_body@15:
     // log("Deleted")
     pushbytes "Deleted"
     log
-    b main_after_if_else@20
+    b main_after_if_else@19
 
-main_else_body@17:
+main_else_body@16:
     // local_state/local_state_contract.py:38
     // return False
-    intc_0 // 0
-    return
+    err
 
-main_else_body@21:
+main_else_body@20:
     // local_state/local_state_contract.py:40
     // elif Txn.num_app_args == 2:
     txn NumAppArgs
     pushint 2 // 2
     ==
-    bz main_else_body@29
+    bz main_else_body@28
     // local_state/local_state_contract.py:41
     // if method == b"set_data":
     dig 1
     pushbytes 0x7365745f64617461
     ==
-    bz main_else_body@24
+    bz main_else_body@23
     // local_state/local_state_contract.py:42
     // self.set_data(Txn.sender, Txn.application_args(1))
     txn Sender
@@ -147,19 +150,19 @@ main_else_body@21:
     // self.local[for_account] = value
     app_local_put
 
-main_after_if_else@28:
+main_after_if_else@27:
     // local_state/local_state_contract.py:47
     // return True
-    intc_1 // 1
+    intc_0 // 1
     return
 
-main_else_body@24:
+main_else_body@23:
     // local_state/local_state_contract.py:43
     // elif method == b"get_data_with_default":
     dig 1
     pushbytes 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_else_body@26
+    bz main_else_body@25
     // local_state/local_state_contract.py:44
     // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
     txna ApplicationArgs 1
@@ -167,23 +170,21 @@ main_else_body@24:
     // local_state/local_state_contract.py:66-67
     // # offset contract use arguments without kwarg
     // return self.local.get(account=for_account, default=default)
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "local"
     app_local_get_ex
     select
     // local_state/local_state_contract.py:44
     // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
     log
-    b main_after_if_else@28
+    b main_after_if_else@27
 
-main_else_body@26:
+main_else_body@25:
     // local_state/local_state_contract.py:46
     // return False
-    intc_0 // 0
-    return
+    err
 
-main_else_body@29:
+main_else_body@28:
     // local_state/local_state_contract.py:49
     // return False
-    intc_0 // 0
-    return
+    err

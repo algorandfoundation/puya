@@ -1,4 +1,4 @@
-main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -6,8 +6,8 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         (app_global_put "hello_app" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@9
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@4 : block@11
     block@4: // abi_routing_L6
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -15,7 +15,7 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "bootstrap()uint64" => block@6, method "log_greetings(string)void" => block@7, * => block@8}
+        switch tmp%6#0 {method "bootstrap()uint64" => block@6, method "log_greetings(string)void" => block@7, * => block@10}
     block@6: // bootstrap_route_L10
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
         (assert maybe_exists%0#0) // check self.hello_app exists
@@ -27,11 +27,11 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%1#3: uint64 = (itxn CreatedApplicationID)
-        (app_global_put "hello_app" tmp%1#3)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#3)
-        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%2#1)
+        let tmp%1#4: uint64 = (itxn CreatedApplicationID)
+        (app_global_put "hello_app" tmp%1#4)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#4)
+        let tmp%2#2: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%2#2)
         exit 1u
     block@7: // log_greetings_route_L23
         let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
@@ -46,15 +46,15 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
         let tmp%1#2: bytes = ((extract 0 4) hello_call.LastLog#0)
-        let tmp%2#2: bool = (== tmp%1#2 0x151f7c75)
-        (assert tmp%2#2) // application log value is not the result of an ABI return
+        let tmp%2#1: bool = (== tmp%1#2 0x151f7c75)
+        (assert tmp%2#1) // application log value is not the result of an ABI return
         let tmp%4#1: string = ((extract 6 0) hello_call.LastLog#0)
-        let tmp%5#0: bytes = (concat "HelloWorld returned: " tmp%4#1)
-        (log tmp%5#0)
+        let tmp%5#1: bytes = (concat "HelloWorld returned: " tmp%4#1)
+        (log tmp%5#1)
         exit 1u
-    block@8: // after_if_else_L6
+    block@10: // after_if_else_L6
         fail
-    block@9: // __algopy_default_create_L1
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)

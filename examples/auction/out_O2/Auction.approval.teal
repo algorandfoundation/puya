@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
@@ -26,7 +26,7 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@13
+    bz main___algopy_default_create@15
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -83,10 +83,10 @@ main_claim_bids_route@10:
     app_global_get_ex
     assert // check self.previous_bidder exists
     ==
-    bnz main_if_body@17
+    bnz main_if_body@21
     dup
 
-main_after_if_else@18:
+main_after_if_else@22:
     itxn_begin
     txn Sender
     itxn_field Receiver
@@ -107,7 +107,7 @@ main_after_if_else@18:
     intc_1 // 1
     return
 
-main_if_body@17:
+main_if_body@21:
     intc_0 // 0
     bytec_1 // "previous_bid"
     app_global_get_ex
@@ -115,7 +115,7 @@ main_if_body@17:
     dig 1
     swap
     -
-    b main_after_if_else@18
+    b main_after_if_else@22
 
 main_bid_route@9:
     txn GroupIndex
@@ -236,7 +236,7 @@ main_opt_into_asset_route@6:
     intc_1 // 1
     return
 
-main___algopy_default_create@13:
+main___algopy_default_create@15:
     txn OnCompletion
     !
     txn ApplicationID

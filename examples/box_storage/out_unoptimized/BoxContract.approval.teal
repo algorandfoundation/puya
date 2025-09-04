@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8 4096 4098 32762 33000 32760
     bytecblock 0x "dynamic_arr_struct" "box" 0x424f585f43 0x626c6f62 "dynamic_box" 0x151f7c75 "box_d" 0x626f785f6c61726765 0x626f785f61 0x62 0x3432 0x64 0x68656c6c6f 0x00 "many_ints" "too_many_bools" "0" 0x48656c6c6f "box_ref" "Hmmmmm" 0x068101 "default"
@@ -17,7 +17,313 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@44
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@42
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x7d37296e // method "set_boxes(uint64,byte[],string)void"
+    pushbytes 0x33325d3d // method "check_keys()void"
+    pushbytes 0x0199408d // method "create_many_ints()void"
+    pushbytes 0x772059ca // method "set_many_ints(uint64,uint64)void"
+    pushbytes 0x01263df6 // method "sum_many_ints()uint64"
+    pushbytes 0xd566c632 // method "delete_boxes()void"
+    pushbytes 0xfabcb885 // method "indirect_extract_and_replace()void"
+    pushbytes 0xa6174812 // method "read_boxes()(uint64,byte[],string,uint64)"
+    pushbytes 0xf13dd937 // method "boxes_exist()(bool,bool,bool,bool)"
+    pushbytes 0x5ab60f2e // method "create_dynamic_arr_struct()void"
+    pushbytes 0xf07a0064 // method "delete_dynamic_arr_struct()void"
+    pushbytes 0x78f9af3f // method "append_dynamic_arr_struct(uint64)uint64"
+    pushbytes 0x5cbb9dcc // method "pop_dynamic_arr_struct(uint64)uint64"
+    pushbytes 0x996497ae // method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void"
+    pushbytes 0x6cec72ff // method "nested_write(uint64,uint64)void"
+    pushbytes 0x6f9d1075 // method "nested_read(uint64,uint64,uint64)uint64"
+    pushbytes 0x0d22b441 // method "sum_dynamic_arr_struct()uint64"
+    pushbytes 0x59ef3760 // method "create_bools()void"
+    pushbytes 0xaa666b96 // method "set_bool(uint64,bool)void"
+    pushbytes 0xdfbdd636 // method "sum_bools(uint64)uint64"
+    pushbytes 0x41427cd1 // method "create_dynamic_box()void"
+    pushbytes 0x2a141f6c // method "delete_dynamic_box()void"
+    pushbytes 0x7e843744 // method "append_dynamic_box(uint64)uint64"
+    pushbytes 0x25600b57 // method "pop_dynamic_box(uint64)uint64"
+    pushbytes 0x29ea595d // method "sum_dynamic_box()uint64"
+    pushbytes 0x11453152 // method "write_dynamic_box(uint64,uint64)void"
+    pushbytes 0xced1221e // method "write_dynamic_arr_struct(uint64,uint64)void"
+    pushbytes 0x04ef4971 // method "slice_box()void"
+    pushbytes 0x23ecb32c // method "arc4_box()void"
+    pushbytes 0xeef75816 // method "test_box_ref()void"
+    pushbytes 0xb532913a // method "box_map_test()void"
+    pushbytes 0xc29f1669 // method "box_map_set(uint64,string)void"
+    pushbytes 0x9c888c09 // method "box_map_get(uint64)string"
+    pushbytes 0xe6f68506 // method "box_map_del(uint64)void"
+    pushbytes 0x8ee2c364 // method "box_map_exists(uint64)bool"
+    uncover 35
+    match main_set_boxes_route@6 main_check_keys_route@7 main_create_many_ints_route@8 main_set_many_ints_route@9 main_sum_many_ints_route@10 main_delete_boxes_route@11 main_indirect_extract_and_replace_route@12 main_read_boxes_route@13 main_boxes_exist_route@14 main_create_dynamic_arr_struct_route@15 main_delete_dynamic_arr_struct_route@16 main_append_dynamic_arr_struct_route@17 main_pop_dynamic_arr_struct_route@18 main_set_nested_struct_route@19 main_nested_write_route@20 main_nested_read_route@21 main_sum_dynamic_arr_struct_route@22 main_create_bools_route@23 main_set_bool_route@24 main_sum_bools_route@25 main_create_dynamic_box_route@26 main_delete_dynamic_box_route@27 main_append_dynamic_box_route@28 main_pop_dynamic_box_route@29 main_sum_dynamic_box_route@30 main_write_dynamic_box_route@31 main_write_dynamic_arr_struct_route@32 main_slice_box_route@33 main_arc4_box_route@34 main_test_box_ref_route@35 main_box_map_test_route@36 main_box_map_set_route@37 main_box_map_get_route@38 main_box_map_del_route@39 main_box_map_exists_route@40
+    b main_switch_case_next@41
+
+main_switch_case_next@41:
+    b main_after_if_else@43
+
+main_after_if_else@43:
+    b main_after_if_else@45
+
+main_after_if_else@45:
+    // box_storage/contract.py:80
+    // class BoxContract(arc4.ARC4Contract):
+    err
+
+main_box_map_exists_route@40:
+    // box_storage/contract.py:470
+    // @arc4.abimethod
+    callsub box_map_exists
+    b main_switch_case_next@41
+
+main_box_map_del_route@39:
+    // box_storage/contract.py:466
+    // @arc4.abimethod
+    callsub box_map_del
+    b main_switch_case_next@41
+
+main_box_map_get_route@38:
+    // box_storage/contract.py:462
+    // @arc4.abimethod
+    callsub box_map_get
+    b main_switch_case_next@41
+
+main_box_map_set_route@37:
+    // box_storage/contract.py:458
+    // @arc4.abimethod
+    callsub box_map_set
+    b main_switch_case_next@41
+
+main_box_map_test_route@36:
+    // box_storage/contract.py:434
+    // @arc4.abimethod
+    callsub box_map_test
+    b main_switch_case_next@41
+
+main_test_box_ref_route@35:
+    // box_storage/contract.py:386
+    // @arc4.abimethod
+    callsub test_box_ref
+    b main_switch_case_next@41
+
+main_arc4_box_route@34:
+    // box_storage/contract.py:376
+    // @arc4.abimethod
+    callsub arc4_box
+    b main_switch_case_next@41
+
+main_slice_box_route@33:
+    // box_storage/contract.py:367
+    // @arc4.abimethod
+    callsub slice_box
+    b main_switch_case_next@41
+
+main_write_dynamic_arr_struct_route@32:
+    // box_storage/contract.py:363
+    // @arc4.abimethod
+    callsub write_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_write_dynamic_box_route@31:
+    // box_storage/contract.py:359
+    // @arc4.abimethod
+    callsub write_dynamic_box
+    b main_switch_case_next@41
+
+main_sum_dynamic_box_route@30:
+    // box_storage/contract.py:352
+    // @arc4.abimethod
+    callsub sum_dynamic_box
+    b main_switch_case_next@41
+
+main_pop_dynamic_box_route@29:
+    // box_storage/contract.py:341
+    // @arc4.abimethod
+    callsub pop_dynamic_box
+    b main_switch_case_next@41
+
+main_append_dynamic_box_route@28:
+    // box_storage/contract.py:326
+    // @arc4.abimethod
+    callsub append_dynamic_box
+    b main_switch_case_next@41
+
+main_delete_dynamic_box_route@27:
+    // box_storage/contract.py:322
+    // @arc4.abimethod
+    callsub delete_dynamic_box
+    b main_switch_case_next@41
+
+main_create_dynamic_box_route@26:
+    // box_storage/contract.py:318
+    // @arc4.abimethod
+    callsub create_dynamic_box
+    b main_switch_case_next@41
+
+main_sum_bools_route@25:
+    // box_storage/contract.py:308
+    // @arc4.abimethod()
+    callsub sum_bools
+    b main_switch_case_next@41
+
+main_set_bool_route@24:
+    // box_storage/contract.py:304
+    // @arc4.abimethod
+    callsub set_bool
+    b main_switch_case_next@41
+
+main_create_bools_route@23:
+    // box_storage/contract.py:300
+    // @arc4.abimethod
+    callsub create_bools
+    b main_switch_case_next@41
+
+main_sum_dynamic_arr_struct_route@22:
+    // box_storage/contract.py:289
+    // @arc4.abimethod
+    callsub sum_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_nested_read_route@21:
+    // box_storage/contract.py:277
+    // @arc4.abimethod()
+    callsub nested_read
+    b main_switch_case_next@41
+
+main_nested_write_route@20:
+    // box_storage/contract.py:267
+    // @arc4.abimethod()
+    callsub nested_write
+    b main_switch_case_next@41
+
+main_set_nested_struct_route@19:
+    // box_storage/contract.py:253
+    // @arc4.abimethod()
+    callsub set_nested_struct
+    b main_switch_case_next@41
+
+main_pop_dynamic_arr_struct_route@18:
+    // box_storage/contract.py:231
+    // @arc4.abimethod
+    callsub pop_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_append_dynamic_arr_struct_route@17:
+    // box_storage/contract.py:199
+    // @arc4.abimethod
+    callsub append_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_delete_dynamic_arr_struct_route@16:
+    // box_storage/contract.py:195
+    // @arc4.abimethod
+    callsub delete_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_create_dynamic_arr_struct_route@15:
+    // box_storage/contract.py:186
+    // @arc4.abimethod
+    callsub create_dynamic_arr_struct
+    b main_switch_case_next@41
+
+main_boxes_exist_route@14:
+    // box_storage/contract.py:182
+    // @arc4.abimethod
+    callsub boxes_exist
+    b main_switch_case_next@41
+
+main_read_boxes_route@13:
+    // box_storage/contract.py:173
+    // @arc4.abimethod
+    callsub read_boxes
+    b main_switch_case_next@41
+
+main_indirect_extract_and_replace_route@12:
+    // box_storage/contract.py:167
+    // @arc4.abimethod()
+    callsub indirect_extract_and_replace
+    b main_switch_case_next@41
+
+main_delete_boxes_route@11:
+    // box_storage/contract.py:154
+    // @arc4.abimethod
+    callsub delete_boxes
+    b main_switch_case_next@41
+
+main_sum_many_ints_route@10:
+    // box_storage/contract.py:146
+    // @arc4.abimethod()
+    callsub sum_many_ints
+    b main_switch_case_next@41
+
+main_set_many_ints_route@9:
+    // box_storage/contract.py:142
+    // @arc4.abimethod()
+    callsub set_many_ints
+    b main_switch_case_next@41
+
+main_create_many_ints_route@8:
+    // box_storage/contract.py:138
+    // @arc4.abimethod()
+    callsub create_many_ints
+    b main_switch_case_next@41
+
+main_check_keys_route@7:
+    // box_storage/contract.py:131
+    // @arc4.abimethod
+    callsub check_keys
+    b main_switch_case_next@41
+
+main_set_boxes_route@6:
+    // box_storage/contract.py:95
+    // @arc4.abimethod
+    callsub set_boxes
+    b main_switch_case_next@41
+
+main_create_NoOp@42:
+    b main_after_if_else@43
+
+main___algopy_default_create@44:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@47
+
+main_block@47:
+    b main_after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create@48
+
+main_after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create@48:
+    intc_1 // 1
     return
 
 
@@ -5063,318 +5369,3 @@ examples.box_storage.contract.BoxContract.box_map_exists_block@0:
     box_len
     uncover 1
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // box_storage/contract.py:80
-    // class BoxContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@42
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // box_storage/contract.py:80
-    // class BoxContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@40
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // box_storage/contract.py:80
-    // class BoxContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x7d37296e // method "set_boxes(uint64,byte[],string)void"
-    pushbytes 0x33325d3d // method "check_keys()void"
-    pushbytes 0x0199408d // method "create_many_ints()void"
-    pushbytes 0x772059ca // method "set_many_ints(uint64,uint64)void"
-    pushbytes 0x01263df6 // method "sum_many_ints()uint64"
-    pushbytes 0xd566c632 // method "delete_boxes()void"
-    pushbytes 0xfabcb885 // method "indirect_extract_and_replace()void"
-    pushbytes 0xa6174812 // method "read_boxes()(uint64,byte[],string,uint64)"
-    pushbytes 0xf13dd937 // method "boxes_exist()(bool,bool,bool,bool)"
-    pushbytes 0x5ab60f2e // method "create_dynamic_arr_struct()void"
-    pushbytes 0xf07a0064 // method "delete_dynamic_arr_struct()void"
-    pushbytes 0x78f9af3f // method "append_dynamic_arr_struct(uint64)uint64"
-    pushbytes 0x5cbb9dcc // method "pop_dynamic_arr_struct(uint64)uint64"
-    pushbytes 0x996497ae // method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void"
-    pushbytes 0x6cec72ff // method "nested_write(uint64,uint64)void"
-    pushbytes 0x6f9d1075 // method "nested_read(uint64,uint64,uint64)uint64"
-    pushbytes 0x0d22b441 // method "sum_dynamic_arr_struct()uint64"
-    pushbytes 0x59ef3760 // method "create_bools()void"
-    pushbytes 0xaa666b96 // method "set_bool(uint64,bool)void"
-    pushbytes 0xdfbdd636 // method "sum_bools(uint64)uint64"
-    pushbytes 0x41427cd1 // method "create_dynamic_box()void"
-    pushbytes 0x2a141f6c // method "delete_dynamic_box()void"
-    pushbytes 0x7e843744 // method "append_dynamic_box(uint64)uint64"
-    pushbytes 0x25600b57 // method "pop_dynamic_box(uint64)uint64"
-    pushbytes 0x29ea595d // method "sum_dynamic_box()uint64"
-    pushbytes 0x11453152 // method "write_dynamic_box(uint64,uint64)void"
-    pushbytes 0xced1221e // method "write_dynamic_arr_struct(uint64,uint64)void"
-    pushbytes 0x04ef4971 // method "slice_box()void"
-    pushbytes 0x23ecb32c // method "arc4_box()void"
-    pushbytes 0xeef75816 // method "test_box_ref()void"
-    pushbytes 0xb532913a // method "box_map_test()void"
-    pushbytes 0xc29f1669 // method "box_map_set(uint64,string)void"
-    pushbytes 0x9c888c09 // method "box_map_get(uint64)string"
-    pushbytes 0xe6f68506 // method "box_map_del(uint64)void"
-    pushbytes 0x8ee2c364 // method "box_map_exists(uint64)bool"
-    uncover 35
-    match approval_program_set_boxes_route@4 approval_program_check_keys_route@5 approval_program_create_many_ints_route@6 approval_program_set_many_ints_route@7 approval_program_sum_many_ints_route@8 approval_program_delete_boxes_route@9 approval_program_indirect_extract_and_replace_route@10 approval_program_read_boxes_route@11 approval_program_boxes_exist_route@12 approval_program_create_dynamic_arr_struct_route@13 approval_program_delete_dynamic_arr_struct_route@14 approval_program_append_dynamic_arr_struct_route@15 approval_program_pop_dynamic_arr_struct_route@16 approval_program_set_nested_struct_route@17 approval_program_nested_write_route@18 approval_program_nested_read_route@19 approval_program_sum_dynamic_arr_struct_route@20 approval_program_create_bools_route@21 approval_program_set_bool_route@22 approval_program_sum_bools_route@23 approval_program_create_dynamic_box_route@24 approval_program_delete_dynamic_box_route@25 approval_program_append_dynamic_box_route@26 approval_program_pop_dynamic_box_route@27 approval_program_sum_dynamic_box_route@28 approval_program_write_dynamic_box_route@29 approval_program_write_dynamic_arr_struct_route@30 approval_program_slice_box_route@31 approval_program_arc4_box_route@32 approval_program_test_box_ref_route@33 approval_program_box_map_test_route@34 approval_program_box_map_set_route@35 approval_program_box_map_get_route@36 approval_program_box_map_del_route@37 approval_program_box_map_exists_route@38
-    b approval_program_switch_case_next@39
-
-approval_program_switch_case_next@39:
-    b approval_program_after_if_else@41
-
-approval_program_after_if_else@41:
-    b approval_program_after_if_else@45
-
-approval_program_after_if_else@45:
-    // box_storage/contract.py:80
-    // class BoxContract(arc4.ARC4Contract):
-    err
-
-approval_program_box_map_exists_route@38:
-    // box_storage/contract.py:470
-    // @arc4.abimethod
-    callsub box_map_exists
-    b approval_program_switch_case_next@39
-
-approval_program_box_map_del_route@37:
-    // box_storage/contract.py:466
-    // @arc4.abimethod
-    callsub box_map_del
-    b approval_program_switch_case_next@39
-
-approval_program_box_map_get_route@36:
-    // box_storage/contract.py:462
-    // @arc4.abimethod
-    callsub box_map_get
-    b approval_program_switch_case_next@39
-
-approval_program_box_map_set_route@35:
-    // box_storage/contract.py:458
-    // @arc4.abimethod
-    callsub box_map_set
-    b approval_program_switch_case_next@39
-
-approval_program_box_map_test_route@34:
-    // box_storage/contract.py:434
-    // @arc4.abimethod
-    callsub box_map_test
-    b approval_program_switch_case_next@39
-
-approval_program_test_box_ref_route@33:
-    // box_storage/contract.py:386
-    // @arc4.abimethod
-    callsub test_box_ref
-    b approval_program_switch_case_next@39
-
-approval_program_arc4_box_route@32:
-    // box_storage/contract.py:376
-    // @arc4.abimethod
-    callsub arc4_box
-    b approval_program_switch_case_next@39
-
-approval_program_slice_box_route@31:
-    // box_storage/contract.py:367
-    // @arc4.abimethod
-    callsub slice_box
-    b approval_program_switch_case_next@39
-
-approval_program_write_dynamic_arr_struct_route@30:
-    // box_storage/contract.py:363
-    // @arc4.abimethod
-    callsub write_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_write_dynamic_box_route@29:
-    // box_storage/contract.py:359
-    // @arc4.abimethod
-    callsub write_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_sum_dynamic_box_route@28:
-    // box_storage/contract.py:352
-    // @arc4.abimethod
-    callsub sum_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_pop_dynamic_box_route@27:
-    // box_storage/contract.py:341
-    // @arc4.abimethod
-    callsub pop_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_append_dynamic_box_route@26:
-    // box_storage/contract.py:326
-    // @arc4.abimethod
-    callsub append_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_delete_dynamic_box_route@25:
-    // box_storage/contract.py:322
-    // @arc4.abimethod
-    callsub delete_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_create_dynamic_box_route@24:
-    // box_storage/contract.py:318
-    // @arc4.abimethod
-    callsub create_dynamic_box
-    b approval_program_switch_case_next@39
-
-approval_program_sum_bools_route@23:
-    // box_storage/contract.py:308
-    // @arc4.abimethod()
-    callsub sum_bools
-    b approval_program_switch_case_next@39
-
-approval_program_set_bool_route@22:
-    // box_storage/contract.py:304
-    // @arc4.abimethod
-    callsub set_bool
-    b approval_program_switch_case_next@39
-
-approval_program_create_bools_route@21:
-    // box_storage/contract.py:300
-    // @arc4.abimethod
-    callsub create_bools
-    b approval_program_switch_case_next@39
-
-approval_program_sum_dynamic_arr_struct_route@20:
-    // box_storage/contract.py:289
-    // @arc4.abimethod
-    callsub sum_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_nested_read_route@19:
-    // box_storage/contract.py:277
-    // @arc4.abimethod()
-    callsub nested_read
-    b approval_program_switch_case_next@39
-
-approval_program_nested_write_route@18:
-    // box_storage/contract.py:267
-    // @arc4.abimethod()
-    callsub nested_write
-    b approval_program_switch_case_next@39
-
-approval_program_set_nested_struct_route@17:
-    // box_storage/contract.py:253
-    // @arc4.abimethod()
-    callsub set_nested_struct
-    b approval_program_switch_case_next@39
-
-approval_program_pop_dynamic_arr_struct_route@16:
-    // box_storage/contract.py:231
-    // @arc4.abimethod
-    callsub pop_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_append_dynamic_arr_struct_route@15:
-    // box_storage/contract.py:199
-    // @arc4.abimethod
-    callsub append_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_delete_dynamic_arr_struct_route@14:
-    // box_storage/contract.py:195
-    // @arc4.abimethod
-    callsub delete_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_create_dynamic_arr_struct_route@13:
-    // box_storage/contract.py:186
-    // @arc4.abimethod
-    callsub create_dynamic_arr_struct
-    b approval_program_switch_case_next@39
-
-approval_program_boxes_exist_route@12:
-    // box_storage/contract.py:182
-    // @arc4.abimethod
-    callsub boxes_exist
-    b approval_program_switch_case_next@39
-
-approval_program_read_boxes_route@11:
-    // box_storage/contract.py:173
-    // @arc4.abimethod
-    callsub read_boxes
-    b approval_program_switch_case_next@39
-
-approval_program_indirect_extract_and_replace_route@10:
-    // box_storage/contract.py:167
-    // @arc4.abimethod()
-    callsub indirect_extract_and_replace
-    b approval_program_switch_case_next@39
-
-approval_program_delete_boxes_route@9:
-    // box_storage/contract.py:154
-    // @arc4.abimethod
-    callsub delete_boxes
-    b approval_program_switch_case_next@39
-
-approval_program_sum_many_ints_route@8:
-    // box_storage/contract.py:146
-    // @arc4.abimethod()
-    callsub sum_many_ints
-    b approval_program_switch_case_next@39
-
-approval_program_set_many_ints_route@7:
-    // box_storage/contract.py:142
-    // @arc4.abimethod()
-    callsub set_many_ints
-    b approval_program_switch_case_next@39
-
-approval_program_create_many_ints_route@6:
-    // box_storage/contract.py:138
-    // @arc4.abimethod()
-    callsub create_many_ints
-    b approval_program_switch_case_next@39
-
-approval_program_check_keys_route@5:
-    // box_storage/contract.py:131
-    // @arc4.abimethod
-    callsub check_keys
-    b approval_program_switch_case_next@39
-
-approval_program_set_boxes_route@4:
-    // box_storage/contract.py:95
-    // @arc4.abimethod
-    callsub set_boxes
-    b approval_program_switch_case_next@39
-
-approval_program_create_NoOp@40:
-    b approval_program_after_if_else@41
-
-approval_program___algopy_default_create@42:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@43
-
-approval_program_block@43:
-    b approval_program_after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create@44
-
-approval_program_after_inlined_examples.box_storage.contract.BoxContract.__algopy_default_create@44:
-    intc_1 // 1
-    return

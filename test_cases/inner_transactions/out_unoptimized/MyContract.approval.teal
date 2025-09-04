@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
 main:
     intcblock 0 6 5 3 1000
     bytecblock 0x098101 0x09361a00b08101 0x "name" 0x31 0x756e6974 0x32 0x41535431 0x41535432 0x41535433 0x33 0x34 0x35 0x337264 0x77697468206172677320706172616d20736574 0x3432 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136
@@ -17,37 +17,15 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
-    return
-
-
-// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
-__init__:
-    b __init___block@0
-
-__init___block@0:
-    // inner_transactions/contract.py:24
-    // self.name = Bytes(b"")
-    bytec_3 // "name"
-    bytec_2 // 0x
-    app_global_put
-    retsub
-
-
-// test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
     // inner_transactions/contract.py:27
     // if op.Txn.num_app_args:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_after_if_else@7
-    b approval_program_if_body@1
+    bz main_after_if_else@9
+    b main_if_body@3
 
-approval_program_if_body@1:
+main_if_body@3:
     // inner_transactions/contract.py:28
     // match op.Txn.application_args(0):
     txna ApplicationArgs 0
@@ -74,41 +52,54 @@ approval_program_if_body@1:
     //     case Bytes(b"test4"):
     //         self.test4()
     uncover 4
-    match approval_program_switch_case_0@2 approval_program_switch_case_1@3 approval_program_switch_case_2@4 approval_program_switch_case_3@5
-    b approval_program_switch_case_next@6
+    match main_switch_case_0@4 main_switch_case_1@5 main_switch_case_2@6 main_switch_case_3@7
+    b main_switch_case_next@8
 
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@7
+main_switch_case_next@8:
+    b main_after_if_else@9
 
-approval_program_after_if_else@7:
+main_after_if_else@9:
     // inner_transactions/contract.py:37
     // return True
     pushint 1 // 1
-    retsub
+    return
 
-approval_program_switch_case_3@5:
+main_switch_case_3@7:
     // inner_transactions/contract.py:36
     // self.test4()
     callsub test4
-    b approval_program_switch_case_next@6
+    b main_switch_case_next@8
 
-approval_program_switch_case_2@4:
+main_switch_case_2@6:
     // inner_transactions/contract.py:34
     // self.test3()
     callsub test3
-    b approval_program_switch_case_next@6
+    b main_switch_case_next@8
 
-approval_program_switch_case_1@3:
+main_switch_case_1@5:
     // inner_transactions/contract.py:32
     // self.test2()
     callsub test2
-    b approval_program_switch_case_next@6
+    b main_switch_case_next@8
 
-approval_program_switch_case_0@2:
+main_switch_case_0@4:
     // inner_transactions/contract.py:30
     // self.test1()
     callsub test1
-    b approval_program_switch_case_next@6
+    b main_switch_case_next@8
+
+
+// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    // inner_transactions/contract.py:24
+    // self.name = Bytes(b"")
+    bytec_3 // "name"
+    bytec_2 // 0x
+    app_global_put
+    retsub
 
 
 // test_cases.inner_transactions.contract.MyContract.test1() -> void:

@@ -162,26 +162,11 @@ contract MyContract
     ['name']: bytes
   }
   
-  subroutine test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.inner_transactions.contract.MyContract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.inner_transactions.contract.MyContract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.inner_transactions.contract.MyContract.__init__(): void
-  {
-    GlobalState['name']: bytes = hex<"">
-  }
-  
-  subroutine test_cases.inner_transactions.contract.MyContract.approval_program(): bool
-  {
     if (txn<NumAppArgs>() != 0u) {
       switch (txna<ApplicationArgs, 0>()) {
         case hex<"7465737431">: {
@@ -203,6 +188,16 @@ contract MyContract
       }
     }
     return true
+  }
+  
+  subroutine test_cases.inner_transactions.contract.MyContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.inner_transactions.contract.MyContract.__init__(): void
+  {
+    GlobalState['name']: bytes = hex<"">
   }
   
   subroutine test_cases.inner_transactions.contract.MyContract.test1(): void
@@ -335,12 +330,12 @@ contract Greeter
     ['hello_app']: application
   }
   
-  subroutine test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -369,11 +364,6 @@ contract Greeter
   
   baremethod test_cases.inner_transactions.c2c.Greeter.__algopy_default_create(): void
   {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
   }
   
   subroutine algopy._contract.Contract.__init__(): void

@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 16
     bytecblock 0x "nested" 0x151f7c75 "num_payments" "payments" 0x70 0x6c "box" "box_map" "arr"
@@ -19,7 +19,159 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // mutable_native_types/contract.py:71
+    // class Contract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@22
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // mutable_native_types/contract.py:71
+    // class Contract(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@20
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // mutable_native_types/contract.py:71
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x67a5a02d // method "test_imm_fixed_array()void"
+    pushbytes 0xd1276f81 // method "fixed_initialize()void"
+    pushbytes 0x0d2ab4c0 // method "add_payment((address,uint64,uint64))void"
+    pushbytes 0xe8b5d56c // method "increment_payment(uint64,uint64)void"
+    pushbytes 0x875901e5 // method "create_storage(uint64)void"
+    pushbytes 0x4abb70f1 // method "local_struct()(address,uint64,uint64)"
+    pushbytes 0xaf05f48f // method "delete_storage(uint64)void"
+    pushbytes 0xe8d71c8c // method "struct_arg(uint64,(uint64,uint64))void"
+    pushbytes 0x01aaa39c // method "struct_return()(uint64,uint64)"
+    pushbytes 0x8313dee7 // method "tup_return()(uint64,uint64)"
+    pushbytes 0x2ca849c1 // method "calculate_sum()uint64"
+    pushbytes 0x3d8e707d // method "test_arr((uint64,uint64)[])(uint64,uint64)[]"
+    pushbytes 0x5182c757 // method "test_match_struct((uint64,uint64))bool"
+    uncover 13
+    match main_test_imm_fixed_array_route@6 main_fixed_initialize_route@7 main_add_payment_route@8 main_increment_payment_route@9 main_create_storage_route@10 main_local_struct_route@11 main_delete_storage_route@12 main_struct_arg_route@13 main_struct_return_route@14 main_tup_return_route@15 main_calculate_sum_route@16 main_test_arr_route@17 main_test_match_struct_route@18
+    b main_switch_case_next@19
+
+main_switch_case_next@19:
+    b main_after_if_else@21
+
+main_after_if_else@21:
+    b main_after_if_else@23
+
+main_after_if_else@23:
+    // mutable_native_types/contract.py:71
+    // class Contract(arc4.ARC4Contract):
+    err
+
+main_test_match_struct_route@18:
+    // mutable_native_types/contract.py:261
+    // @arc4.abimethod
+    callsub test_match_struct
+    b main_switch_case_next@19
+
+main_test_arr_route@17:
+    // mutable_native_types/contract.py:197
+    // @arc4.abimethod()
+    callsub test_arr
+    b main_switch_case_next@19
+
+main_calculate_sum_route@16:
+    // mutable_native_types/contract.py:186
+    // @arc4.abimethod()
+    callsub calculate_sum
+    b main_switch_case_next@19
+
+main_tup_return_route@15:
+    // mutable_native_types/contract.py:182
+    // @arc4.abimethod()
+    callsub tup_return
+    b main_switch_case_next@19
+
+main_struct_return_route@14:
+    // mutable_native_types/contract.py:178
+    // @arc4.abimethod()
+    callsub struct_return
+    b main_switch_case_next@19
+
+main_struct_arg_route@13:
+    // mutable_native_types/contract.py:168
+    // @arc4.abimethod()
+    callsub struct_arg
+    b main_switch_case_next@19
+
+main_delete_storage_route@12:
+    // mutable_native_types/contract.py:161
+    // @arc4.abimethod()
+    callsub delete_storage
+    b main_switch_case_next@19
+
+main_local_struct_route@11:
+    // mutable_native_types/contract.py:149
+    // @arc4.abimethod()
+    callsub local_struct
+    b main_switch_case_next@19
+
+main_create_storage_route@10:
+    // mutable_native_types/contract.py:142
+    // @arc4.abimethod()
+    callsub create_storage
+    b main_switch_case_next@19
+
+main_increment_payment_route@9:
+    // mutable_native_types/contract.py:137
+    // @arc4.abimethod()
+    callsub increment_payment
+    b main_switch_case_next@19
+
+main_add_payment_route@8:
+    // mutable_native_types/contract.py:131
+    // @arc4.abimethod()
+    callsub add_payment
+    b main_switch_case_next@19
+
+main_fixed_initialize_route@7:
+    // mutable_native_types/contract.py:101
+    // @arc4.abimethod()
+    callsub fixed_initialize
+    b main_switch_case_next@19
+
+main_test_imm_fixed_array_route@6:
+    // mutable_native_types/contract.py:95
+    // @arc4.abimethod()
+    callsub test_imm_fixed_array
+    b main_switch_case_next@19
+
+main_create_NoOp@20:
+    b main_after_if_else@21
+
+main___algopy_default_create@22:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@25
+
+main_block@25:
+    b main_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@26
+
+main_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@26:
+    intc_1 // 1
     return
 
 
@@ -1797,167 +1949,6 @@ test_cases.mutable_native_types.contract.Contract.test_match_struct_switch_case_
     // return True
     intc_1 // 1
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // mutable_native_types/contract.py:71
-    // class Contract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@20
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // mutable_native_types/contract.py:71
-    // class Contract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@18
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // mutable_native_types/contract.py:71
-    // class Contract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x67a5a02d // method "test_imm_fixed_array()void"
-    pushbytes 0xd1276f81 // method "fixed_initialize()void"
-    pushbytes 0x0d2ab4c0 // method "add_payment((address,uint64,uint64))void"
-    pushbytes 0xe8b5d56c // method "increment_payment(uint64,uint64)void"
-    pushbytes 0x875901e5 // method "create_storage(uint64)void"
-    pushbytes 0x4abb70f1 // method "local_struct()(address,uint64,uint64)"
-    pushbytes 0xaf05f48f // method "delete_storage(uint64)void"
-    pushbytes 0xe8d71c8c // method "struct_arg(uint64,(uint64,uint64))void"
-    pushbytes 0x01aaa39c // method "struct_return()(uint64,uint64)"
-    pushbytes 0x8313dee7 // method "tup_return()(uint64,uint64)"
-    pushbytes 0x2ca849c1 // method "calculate_sum()uint64"
-    pushbytes 0x3d8e707d // method "test_arr((uint64,uint64)[])(uint64,uint64)[]"
-    pushbytes 0x5182c757 // method "test_match_struct((uint64,uint64))bool"
-    uncover 13
-    match approval_program_test_imm_fixed_array_route@4 approval_program_fixed_initialize_route@5 approval_program_add_payment_route@6 approval_program_increment_payment_route@7 approval_program_create_storage_route@8 approval_program_local_struct_route@9 approval_program_delete_storage_route@10 approval_program_struct_arg_route@11 approval_program_struct_return_route@12 approval_program_tup_return_route@13 approval_program_calculate_sum_route@14 approval_program_test_arr_route@15 approval_program_test_match_struct_route@16
-    b approval_program_switch_case_next@17
-
-approval_program_switch_case_next@17:
-    b approval_program_after_if_else@19
-
-approval_program_after_if_else@19:
-    b approval_program_after_if_else@23
-
-approval_program_after_if_else@23:
-    // mutable_native_types/contract.py:71
-    // class Contract(arc4.ARC4Contract):
-    err
-
-approval_program_test_match_struct_route@16:
-    // mutable_native_types/contract.py:261
-    // @arc4.abimethod
-    callsub test_match_struct
-    b approval_program_switch_case_next@17
-
-approval_program_test_arr_route@15:
-    // mutable_native_types/contract.py:197
-    // @arc4.abimethod()
-    callsub test_arr
-    b approval_program_switch_case_next@17
-
-approval_program_calculate_sum_route@14:
-    // mutable_native_types/contract.py:186
-    // @arc4.abimethod()
-    callsub calculate_sum
-    b approval_program_switch_case_next@17
-
-approval_program_tup_return_route@13:
-    // mutable_native_types/contract.py:182
-    // @arc4.abimethod()
-    callsub tup_return
-    b approval_program_switch_case_next@17
-
-approval_program_struct_return_route@12:
-    // mutable_native_types/contract.py:178
-    // @arc4.abimethod()
-    callsub struct_return
-    b approval_program_switch_case_next@17
-
-approval_program_struct_arg_route@11:
-    // mutable_native_types/contract.py:168
-    // @arc4.abimethod()
-    callsub struct_arg
-    b approval_program_switch_case_next@17
-
-approval_program_delete_storage_route@10:
-    // mutable_native_types/contract.py:161
-    // @arc4.abimethod()
-    callsub delete_storage
-    b approval_program_switch_case_next@17
-
-approval_program_local_struct_route@9:
-    // mutable_native_types/contract.py:149
-    // @arc4.abimethod()
-    callsub local_struct
-    b approval_program_switch_case_next@17
-
-approval_program_create_storage_route@8:
-    // mutable_native_types/contract.py:142
-    // @arc4.abimethod()
-    callsub create_storage
-    b approval_program_switch_case_next@17
-
-approval_program_increment_payment_route@7:
-    // mutable_native_types/contract.py:137
-    // @arc4.abimethod()
-    callsub increment_payment
-    b approval_program_switch_case_next@17
-
-approval_program_add_payment_route@6:
-    // mutable_native_types/contract.py:131
-    // @arc4.abimethod()
-    callsub add_payment
-    b approval_program_switch_case_next@17
-
-approval_program_fixed_initialize_route@5:
-    // mutable_native_types/contract.py:101
-    // @arc4.abimethod()
-    callsub fixed_initialize
-    b approval_program_switch_case_next@17
-
-approval_program_test_imm_fixed_array_route@4:
-    // mutable_native_types/contract.py:95
-    // @arc4.abimethod()
-    callsub test_imm_fixed_array
-    b approval_program_switch_case_next@17
-
-approval_program_create_NoOp@18:
-    b approval_program_after_if_else@19
-
-approval_program___algopy_default_create@20:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@21
-
-approval_program_block@21:
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@22
-
-approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@22:
-    intc_1 // 1
-    return
 
 
 // _puya_lib.mem.new_slot() -> uint64:

@@ -1,14 +1,14 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 10 2 TMPL_AVM_UINT64
     bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@15
+    bz main_bare_routing@18
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match main_create_route@5
@@ -21,7 +21,7 @@ main:
     txna ApplicationArgs 0
     match struct_arg struct_return errors emitter conditional_emit template_value with_constant_defaults
 
-main_after_if_else@18:
+main_after_if_else@22:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     err
@@ -36,21 +36,21 @@ main_create_route@5:
     &
     return // on error: OnCompletion must be one of NoOp, OptIn
 
-main_bare_routing@15:
+main_bare_routing@18:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn OnCompletion
-    switch main_bare_create@16 main_bare_create@16 main_after_if_else@18 main_after_if_else@18 main_after_if_else@18 main_transient@17
+    switch main_bare_create@19 main_bare_create@19 main_after_if_else@22 main_after_if_else@22 main_after_if_else@22 main_transient@20
     err
 
-main_transient@17:
+main_transient@20:
     // arc_56/contract.py:85
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
     !
     return // on error: can only call when creating
 
-main_bare_create@16:
+main_bare_create@19:
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_0 // 1

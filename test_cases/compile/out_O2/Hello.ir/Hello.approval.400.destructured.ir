@@ -1,4 +1,4 @@
-main test_cases.compile.apps.Hello.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -6,8 +6,8 @@ main test_cases.compile.apps.Hello.__algopy_entrypoint_with_init:
         (app_global_put "greeting" "")
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@12
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@4 : block@14
     block@4: // abi_routing_L52
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "delete()void" => block@5, * => block@6}
@@ -23,35 +23,35 @@ main test_cases.compile.apps.Hello.__algopy_entrypoint_with_init:
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // OnCompletion must be NoOp
         let tmp%10#0: uint64 = (txn ApplicationID)
-        goto tmp%10#0 ? block@7 : block@9
+        goto tmp%10#0 ? block@7 : block@10
     block@7: // call_NoOp_L52
         let tmp%12#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%12#0 {method "greet(string)string" => block@8, * => block@11}
+        switch tmp%12#0 {method "greet(string)string" => block@8, * => block@13}
     block@8: // greet_route_L32
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check self.greeting exists
-        let tmp%0#5: bytes = (concat maybe_value%0#0 " ")
-        let tmp%1#2: bytes = (concat tmp%0#5 name#0)
-        let aggregate%length%0#0: uint64 = (len tmp%1#2)
+        let tmp%0#3: bytes = (concat maybe_value%0#0 " ")
+        let tmp%1#3: bytes = (concat tmp%0#3 name#0)
+        let aggregate%length%0#0: uint64 = (len tmp%1#3)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#2)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#3)
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
         (log tmp%3#1)
         exit 1u
-    block@9: // create_NoOp_L52
+    block@10: // create_NoOp_L52
         let tmp%13#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%13#0 {method "create(string)void" => block@10, * => block@11}
-    block@10: // create_route_L53
+        switch tmp%13#0 {method "create(string)void" => block@11, * => block@13}
+    block@11: // create_route_L53
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let greeting#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         (app_global_put "greeting" greeting#0)
         exit 1u
-    block@11: // after_if_else_L52
+    block@13: // after_if_else_L52
         fail
-    block@12: // update_L28
+    block@14: // update_L28
         let tmp%14#0: uint64 = (txn OnCompletion)
         let tmp%15#0: bool = (== tmp%14#0 UpdateApplication)
         let tmp%16#0: uint64 = (txn ApplicationID)

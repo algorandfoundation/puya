@@ -1,4 +1,4 @@
-main test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -6,7 +6,76 @@ main test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__init__()
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        goto block@3
+    block@3: // L34
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@4 : block@20
+    block@4: // abi_routing_L34
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@5 : block@18
+    block@5: // call_NoOp_L34
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@17}
+    block@6: // create_box_route_L38
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box[routing]()
+        goto block@17
+    block@7: // num_tups_route_L45
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups[routing]()
+        goto block@17
+    block@8: // add_tup_route_L49
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup[routing]()
+        goto block@17
+    block@9: // get_tup_route_L56
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup[routing]()
+        goto block@17
+    block@10: // sum_route_L61
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.sum[routing]()
+        goto block@17
+    block@11: // add_many_tups_route_L70
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups[routing]()
+        goto block@17
+    block@12: // add_fixed_tups_route_L75
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups[routing]()
+        goto block@17
+    block@13: // set_a_route_L80
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a[routing]()
+        goto block@17
+    block@14: // set_b_route_L86
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b[routing]()
+        goto block@17
+    block@15: // get_3_tups_route_L92
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups[routing]()
+        goto block@17
+    block@16: // get_all_tups_route_L105
+        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups[routing]()
+        goto block@17
+    block@17: // switch_case_next_L34
+        goto block@19
+    block@18: // create_NoOp_L34
+        goto block@19
+    block@19: // after_if_else_L34
+        goto block@21
+    block@20: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@23
+    block@23: // L1
+        goto block@24
+    block@24: // after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create_L1
+        exit 1u
+    block@21: // after_if_else_L34
+        exit 0u
+    block@22: // after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router___L1
+        let tmp%1#0: bool = undefined
         return tmp%1#0
 
 subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box[routing]() -> void:
@@ -470,77 +539,3 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let tmp%3#0: bool = (== values%2#0 tmp%2#0)
         (assert tmp%3#0) // this error should be impossible
         return 
-
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        goto block@1
-    block@1: // L34
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@18
-    block@2: // abi_routing_L34
-        let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@16
-    block@3: // call_NoOp_L34
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "create_box()void" => block@4, method "num_tups()uint64" => block@5, method "add_tup((uint64,uint64))void" => block@6, method "get_tup(uint64)(uint64,uint64)" => block@7, method "sum()uint64" => block@8, method "add_many_tups((uint64,uint64)[])void" => block@9, method "add_fixed_tups((uint64,uint64)[3])void" => block@10, method "set_a(uint64)void" => block@11, method "set_b(uint64)void" => block@12, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@13, method "get_all_tups()(uint64,uint64)[]" => block@14, * => block@15}
-    block@4: // create_box_route_L38
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box[routing]()
-        goto block@15
-    block@5: // num_tups_route_L45
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups[routing]()
-        goto block@15
-    block@6: // add_tup_route_L49
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup[routing]()
-        goto block@15
-    block@7: // get_tup_route_L56
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup[routing]()
-        goto block@15
-    block@8: // sum_route_L61
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.sum[routing]()
-        goto block@15
-    block@9: // add_many_tups_route_L70
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups[routing]()
-        goto block@15
-    block@10: // add_fixed_tups_route_L75
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups[routing]()
-        goto block@15
-    block@11: // set_a_route_L80
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a[routing]()
-        goto block@15
-    block@12: // set_b_route_L86
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b[routing]()
-        goto block@15
-    block@13: // get_3_tups_route_L92
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups[routing]()
-        goto block@15
-    block@14: // get_all_tups_route_L105
-        test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups[routing]()
-        goto block@15
-    block@15: // switch_case_next_L34
-        goto block@17
-    block@16: // create_NoOp_L34
-        goto block@17
-    block@17: // after_if_else_L34
-        goto block@21
-    block@18: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
-        goto block@19
-    block@19: // L1
-        goto block@20
-    block@20: // after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create_L1
-        exit 1u
-    block@21: // after_if_else_L34
-        exit 0u
-    block@22: // after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router___L1
-        let tmp%0#0: bool = undefined
-        return tmp%0#0

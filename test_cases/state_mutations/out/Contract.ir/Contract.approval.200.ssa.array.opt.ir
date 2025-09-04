@@ -1,7 +1,7 @@
-main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@9
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@4 : block@12
     block@4: // abi_routing_L22
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,25 +9,25 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "append()void" => block@6, method "modify()void" => block@7, method "get()(uint64,string)[]" => block@8, * => block@12}
+        switch tmp%6#0 {method "append()void" => block@6, method "modify()void" => block@7, method "get()(uint64,string)[]" => block@8, * => block@16}
     block@6: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        goto block@12
+        goto block@16
     block@7: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        goto block@12
+        goto block@16
     block@8: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        goto block@12
-    block@9: // bare_routing_L22
+        goto block@16
+    block@12: // bare_routing_L22
         let tmp%7#0: uint64 = (txn OnCompletion)
-        goto_nth [block@10, block@11][tmp%7#0] else goto block@12
-    block@10: // __algopy_default_create_L1
+        goto_nth [block@13, block@14][tmp%7#0] else goto block@16
+    block@13: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
         exit 1u
-    block@11: // opt_in_L29
+    block@14: // opt_in_L29
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0) // can only call when not creating
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
@@ -35,14 +35,14 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (app_global_put "glob" 0x0000)
         (box_del "box")
         (box_put "box" 0x0000)
-        let tmp%0#3: account = (txn Sender)
-        (app_local_put tmp%0#3 "loc" 0x0000)
+        let tmp%0#2: account = (txn Sender)
+        (app_local_put tmp%0#2 "loc" 0x0000)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 0x0000)
         exit 1u
-    block@12: // after_if_else_L22
+    block@16: // after_if_else_L22
         fail
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:

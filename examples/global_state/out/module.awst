@@ -18,31 +18,11 @@ contract AppStateContract
     ['global_account']: account
   }
   
-  subroutine examples.global_state.contract.AppStateContract.__algopy_entrypoint_with_init(): bool
+  subroutine examples.global_state.contract.AppStateContract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine examples.global_state.contract.AppStateContract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine examples.global_state.contract.AppStateContract.__init__(): void
-  {
-    GlobalState['global_int_full']: uint64 = 55u
-    GlobalState['global_int_simplified']: uint64 = 33u
-    GlobalState['global_bytes_full']: bytes = hex<"48656C6C6F">
-    GlobalState['global_bytes_simplified']: bytes = hex<"48656C6C6F">
-    GlobalState['global_bool_full']: bool = false
-    GlobalState['global_bool_simplified']: bool = true
-  }
-  
-  subroutine examples.global_state.contract.AppStateContract.approval_program(): bool
-  {
     assert(GlobalState['global_int_simplified'] == 33u)
     assert(STATE_EXISTS(GlobalState['global_int_full']))
     assert(GlobalState['global_int_full'] == 55u)
@@ -74,6 +54,21 @@ contract AppStateContract
     assert(GlobalState['global_bool_no_default'])
     assert(examples.global_state.contract.get_global_state_plus_1('global_int_no_default') == 45u)
     return true
+  }
+  
+  subroutine examples.global_state.contract.AppStateContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine examples.global_state.contract.AppStateContract.__init__(): void
+  {
+    GlobalState['global_int_full']: uint64 = 55u
+    GlobalState['global_int_simplified']: uint64 = 33u
+    GlobalState['global_bytes_full']: bytes = hex<"48656C6C6F">
+    GlobalState['global_bytes_simplified']: bytes = hex<"48656C6C6F">
+    GlobalState['global_bool_full']: bool = false
+    GlobalState['global_bool_simplified']: bool = true
   }
   
   subroutine algopy._contract.Contract.__init__(): void

@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 8 0 1 16
     bytecblock 0x 0x6c697374696e6773
@@ -17,7 +17,131 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    !=
+    bz main___algopy_default_create@18
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    bz main_create_NoOp@16
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd98ef6a9 // method "getListingsMbr()uint64"
+    pushbytes 0x6a4e7fca // method "allowAsset(pay,uint64)void"
+    pushbytes 0x12f08c98 // method "firstDeposit(pay,axfer,uint64,uint64)void"
+    pushbytes 0x9b4b8234 // method "deposit(axfer,uint64)void"
+    pushbytes 0x4d8b23d8 // method "setPrice(uint64,uint64,uint64)void"
+    pushbytes 0x52ac5df7 // method "buy(address,uint64,uint64,pay,uint64)void"
+    pushbytes 0xe3aeb25c // method "withdraw(uint64,uint64)void"
+    pushbytes 0x3234b711 // method "bid(address,uint64,uint64,pay,uint64,uint64)void"
+    pushbytes 0xcc826346 // method "acceptBid(uint64,uint64)void"
+    uncover 9
+    match main_getListingsMbr_route@6 main_allowAsset_route@7 main_firstDeposit_route@8 main_deposit_route@9 main_setPrice_route@10 main_buy_route@11 main_withdraw_route@12 main_bid_route@13 main_acceptBid_route@14
+    b main_switch_case_next@15
+
+main_switch_case_next@15:
+    b main_after_if_else@17
+
+main_after_if_else@17:
+    b main_after_if_else@19
+
+main_after_if_else@19:
+    // marketplace_demo/marketplace_with_mutable_struct.py:37
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    err
+
+main_acceptBid_route@14:
+    // marketplace_demo/marketplace_with_mutable_struct.py:236
+    // @arc4.abimethod(name="acceptBid")
+    callsub accept_bid
+    b main_switch_case_next@15
+
+main_bid_route@13:
+    // marketplace_demo/marketplace_with_mutable_struct.py:200
+    // @arc4.abimethod
+    callsub bid
+    b main_switch_case_next@15
+
+main_withdraw_route@12:
+    // marketplace_demo/marketplace_with_mutable_struct.py:181
+    // @arc4.abimethod
+    callsub withdraw
+    b main_switch_case_next@15
+
+main_buy_route@11:
+    // marketplace_demo/marketplace_with_mutable_struct.py:150
+    // @arc4.abimethod
+    callsub buy
+    b main_switch_case_next@15
+
+main_setPrice_route@10:
+    // marketplace_demo/marketplace_with_mutable_struct.py:137
+    // @arc4.abimethod(name="setPrice")
+    callsub set_price
+    b main_switch_case_next@15
+
+main_deposit_route@9:
+    // marketplace_demo/marketplace_with_mutable_struct.py:120
+    // @arc4.abimethod
+    callsub deposit
+    b main_switch_case_next@15
+
+main_firstDeposit_route@8:
+    // marketplace_demo/marketplace_with_mutable_struct.py:93
+    // @arc4.abimethod(name="firstDeposit")
+    callsub first_deposit
+    b main_switch_case_next@15
+
+main_allowAsset_route@7:
+    // marketplace_demo/marketplace_with_mutable_struct.py:82
+    // @arc4.abimethod(name="allowAsset")
+    callsub allow_asset
+    b main_switch_case_next@15
+
+main_getListingsMbr_route@6:
+    // marketplace_demo/marketplace_with_mutable_struct.py:78
+    // @arc4.abimethod(readonly=True, name="getListingsMbr")
+    callsub get_listings_mbr
+    b main_switch_case_next@15
+
+main_create_NoOp@16:
+    b main_after_if_else@17
+
+main___algopy_default_create@18:
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    txn ApplicationID
+    intc_1 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@21
+
+main_block@21:
+    b main_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@22
+
+main_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@22:
+    intc_2 // 1
     return
 
 
@@ -1530,136 +1654,3 @@ test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWi
     btoi
     frame_bury 1
     b test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid_ternary_merge@3
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_1 // 0
-    !=
-    bz approval_program___algopy_default_create@16
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    bz approval_program_create_NoOp@14
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xd98ef6a9 // method "getListingsMbr()uint64"
-    pushbytes 0x6a4e7fca // method "allowAsset(pay,uint64)void"
-    pushbytes 0x12f08c98 // method "firstDeposit(pay,axfer,uint64,uint64)void"
-    pushbytes 0x9b4b8234 // method "deposit(axfer,uint64)void"
-    pushbytes 0x4d8b23d8 // method "setPrice(uint64,uint64,uint64)void"
-    pushbytes 0x52ac5df7 // method "buy(address,uint64,uint64,pay,uint64)void"
-    pushbytes 0xe3aeb25c // method "withdraw(uint64,uint64)void"
-    pushbytes 0x3234b711 // method "bid(address,uint64,uint64,pay,uint64,uint64)void"
-    pushbytes 0xcc826346 // method "acceptBid(uint64,uint64)void"
-    uncover 9
-    match approval_program_getListingsMbr_route@4 approval_program_allowAsset_route@5 approval_program_firstDeposit_route@6 approval_program_deposit_route@7 approval_program_setPrice_route@8 approval_program_buy_route@9 approval_program_withdraw_route@10 approval_program_bid_route@11 approval_program_acceptBid_route@12
-    b approval_program_switch_case_next@13
-
-approval_program_switch_case_next@13:
-    b approval_program_after_if_else@15
-
-approval_program_after_if_else@15:
-    b approval_program_after_if_else@19
-
-approval_program_after_if_else@19:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    err
-
-approval_program_acceptBid_route@12:
-    // marketplace_demo/marketplace_with_mutable_struct.py:236
-    // @arc4.abimethod(name="acceptBid")
-    callsub accept_bid
-    b approval_program_switch_case_next@13
-
-approval_program_bid_route@11:
-    // marketplace_demo/marketplace_with_mutable_struct.py:200
-    // @arc4.abimethod
-    callsub bid
-    b approval_program_switch_case_next@13
-
-approval_program_withdraw_route@10:
-    // marketplace_demo/marketplace_with_mutable_struct.py:181
-    // @arc4.abimethod
-    callsub withdraw
-    b approval_program_switch_case_next@13
-
-approval_program_buy_route@9:
-    // marketplace_demo/marketplace_with_mutable_struct.py:150
-    // @arc4.abimethod
-    callsub buy
-    b approval_program_switch_case_next@13
-
-approval_program_setPrice_route@8:
-    // marketplace_demo/marketplace_with_mutable_struct.py:137
-    // @arc4.abimethod(name="setPrice")
-    callsub set_price
-    b approval_program_switch_case_next@13
-
-approval_program_deposit_route@7:
-    // marketplace_demo/marketplace_with_mutable_struct.py:120
-    // @arc4.abimethod
-    callsub deposit
-    b approval_program_switch_case_next@13
-
-approval_program_firstDeposit_route@6:
-    // marketplace_demo/marketplace_with_mutable_struct.py:93
-    // @arc4.abimethod(name="firstDeposit")
-    callsub first_deposit
-    b approval_program_switch_case_next@13
-
-approval_program_allowAsset_route@5:
-    // marketplace_demo/marketplace_with_mutable_struct.py:82
-    // @arc4.abimethod(name="allowAsset")
-    callsub allow_asset
-    b approval_program_switch_case_next@13
-
-approval_program_getListingsMbr_route@4:
-    // marketplace_demo/marketplace_with_mutable_struct.py:78
-    // @arc4.abimethod(readonly=True, name="getListingsMbr")
-    callsub get_listings_mbr
-    b approval_program_switch_case_next@13
-
-approval_program_create_NoOp@14:
-    b approval_program_after_if_else@15
-
-approval_program___algopy_default_create@16:
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    txn ApplicationID
-    intc_1 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@17
-
-approval_program_block@17:
-    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@18
-
-approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create@18:
-    intc_2 // 1
-    return

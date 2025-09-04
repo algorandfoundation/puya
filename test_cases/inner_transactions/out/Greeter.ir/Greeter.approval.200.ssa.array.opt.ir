@@ -1,4 +1,4 @@
-main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -6,8 +6,8 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         (app_global_put "hello_app" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@9
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@4 : block@11
     block@4: // abi_routing_L6
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -15,16 +15,16 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "bootstrap()uint64" => block@6, method "log_greetings(string)void" => block@7, * => block@8}
+        switch tmp%6#0 {method "bootstrap()uint64" => block@6, method "log_greetings(string)void" => block@7, * => block@10}
     block@6: // bootstrap_route_L10
         test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]()
-        goto block@8
+        goto block@10
     block@7: // log_greetings_route_L23
         test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]()
-        goto block@8
-    block@8: // after_if_else_L6
+        goto block@10
+    block@10: // after_if_else_L6
         fail
-    block@9: // __algopy_default_create_L1
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)

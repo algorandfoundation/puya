@@ -1,5 +1,5 @@
 // Op                                                                                                Stack (out)
-// test_cases.inner_transactions.contract.MyContract.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         txn ApplicationID                                                                            tmp%0#0
@@ -18,16 +18,16 @@ subroutine main:
     main_after_if_else@2:
         // inner_transactions/contract.py:27
         // if op.Txn.num_app_args:
-        txn NumAppArgs                                                                               tmp%0#1
-        v-store tmp%0#1
-        v-load tmp%0#1                                                                               tmp%0#1
-        bz main_after_if_else@10 ; b main_if_body@4
+        txn NumAppArgs                                                                               tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                               tmp%1#0
+        bz main_after_if_else@9 ; b main_if_body@3
 
-    main_if_body@4:
+    main_if_body@3:
         // inner_transactions/contract.py:28
         // match op.Txn.application_args(0):
-        txna ApplicationArgs 0                                                                       tmp%2#0
-        v-store tmp%2#0
+        txna ApplicationArgs 0                                                                       tmp%3#0
+        v-store tmp%3#0
         // inner_transactions/contract.py:29
         // case Bytes(b"test1"):
         byte 0x7465737431                                                                            0x7465737431
@@ -50,10 +50,10 @@ subroutine main:
         //         self.test3()
         //     case Bytes(b"test4"):
         //         self.test4()
-        v-load tmp%2#0                                                                               0x7465737431,0x7465737432,0x7465737433,0x7465737434,tmp%2#0
-        match main_switch_case_0@5 main_switch_case_1@6 main_switch_case_2@7 main_switch_case_3@8 ; b main_after_if_else@10 
+        v-load tmp%3#0                                                                               0x7465737431,0x7465737432,0x7465737433,0x7465737434,tmp%3#0
+        match main_switch_case_0@4 main_switch_case_1@5 main_switch_case_2@6 main_switch_case_3@7 ; b main_after_if_else@9 
 
-    main_switch_case_0@5:
+    main_switch_case_0@4:
         // inner_transactions/contract.py:50
         // manager=op.Global.current_application_address,
         global CurrentApplicationAddress                                                             asset_params%%param_ConfigAssetManager_idx_0#0
@@ -151,9 +151,9 @@ subroutine main:
         // assert asset2_txn.asset_name == b"AST2", "asset2_txn is correct"
         v-load asset2_txn.ConfigAssetName#0                                                          asset2_txn.ConfigAssetName#0
         byte 0x41535432                                                                              asset2_txn.ConfigAssetName#0,0x41535432
-        ==                                                                                           tmp%1#3
-        v-store tmp%1#3
-        v-load tmp%1#3                                                                               tmp%1#3
+        ==                                                                                           tmp%1#2
+        v-store tmp%1#2
+        v-load tmp%1#2                                                                               tmp%1#2
         assert // asset2_txn is correct
         // inner_transactions/contract.py:65
         // assert asset1_txn.created_asset.name == b"AST1", "created asset 1 is correct"
@@ -165,9 +165,9 @@ subroutine main:
         assert // asset exists
         v-load value%0#0                                                                             value%0#0
         byte 0x41535431                                                                              value%0#0,0x41535431
-        ==                                                                                           tmp%2#3
-        v-store tmp%2#3
-        v-load tmp%2#3                                                                               tmp%2#3
+        ==                                                                                           tmp%2#4
+        v-store tmp%2#4
+        v-load tmp%2#4                                                                               tmp%2#4
         assert // created asset 1 is correct
         // inner_transactions/contract.py:66
         // assert asset2_txn.created_asset.name == b"AST2", "created asset 2 is correct"
@@ -179,9 +179,9 @@ subroutine main:
         assert // asset exists
         v-load value%1#0                                                                             value%1#0
         byte 0x41535432                                                                              value%1#0,0x41535432
-        ==                                                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
+        ==                                                                                           tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                               tmp%3#1
         assert // created asset 2 is correct
         // inner_transactions/contract.py:78
         // app_create_txn, asset3_txn = itxn.submit_txns(app_create_params, asset_params)
@@ -309,21 +309,21 @@ subroutine main:
         // inner_transactions/contract.py:86
         // itxn.submit_txns(app_create_params, asset_params)
         itxn_submit
-        b main_after_if_else@10
+        b main_after_if_else@9
 
-    main_switch_case_1@6:
+    main_switch_case_1@5:
         undefined                                                                                    undefined
         v-store create_app_params%%param_ApplicationArgs_idx_2#0
         undefined                                                                                    undefined
         v-store create_app_params%%param_OnCompletion_idx_0#0
         // inner_transactions/contract.py:90
         // if op.Txn.num_app_args:
-        txn NumAppArgs                                                                               tmp%0#1
-        v-store tmp%0#1
-        v-load tmp%0#1                                                                               tmp%0#1
-        bz main_else_body@17 ; b main_if_body@16
+        txn NumAppArgs                                                                               tmp%0#3
+        v-store tmp%0#3
+        v-load tmp%0#3                                                                               tmp%0#3
+        bz main_else_body@33 ; b main_if_body@32
 
-    main_if_body@16:
+    main_if_body@32:
         // inner_transactions/contract.py:91
         // args = Bytes(b"1"), Bytes(b"2")
         byte 0x31                                                                                    0x31
@@ -344,9 +344,9 @@ subroutine main:
         // note=b"with args param set",
         byte 0x77697468206172677320706172616d20736574                                                0x77697468206172677320706172616d20736574
         v-store create_app_params%%param_Note_idx_0#0
-        b main_after_if_else@18
+        b main_after_if_else@34
 
-    main_else_body@17:
+    main_else_body@33:
         // inner_transactions/contract.py:103
         // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
         byte 0x33                                                                                    0x33
@@ -365,23 +365,23 @@ subroutine main:
         // create_app_params = itxn.ApplicationCall(
         int 0                                                                                        0
         v-store create_app_params%%OnCompletion_length#0
-        b main_after_if_else@18
+        b main_after_if_else@34
 
-    main_after_if_else@18:
+    main_after_if_else@34:
         // inner_transactions/contract.py:106
         // create_app_txn = create_app_params.submit()
         itxn_begin
         v-load create_app_params%%param_Note_idx_0#0                                                 create_app_params%%param_Note_idx_0#0
         itxn_field Note
         v-load create_app_params%%OnCompletion_length#0                                              create_app_params%%OnCompletion_length#0
-        bz main_next_field@20 ; b main_set_OnCompletion_0_to_0@19
+        bz main_next_field@36 ; b main_set_OnCompletion_0_to_0@35
 
-    main_set_OnCompletion_0_to_0@19:
+    main_set_OnCompletion_0_to_0@35:
         v-load create_app_params%%param_OnCompletion_idx_0#0                                         create_app_params%%param_OnCompletion_idx_0#0
         itxn_field OnCompletion
-        b main_next_field@20
+        b main_next_field@36
 
-    main_next_field@20:
+    main_next_field@36:
         v-load create_app_params%%param_ApplicationArgs_idx_0#0                                      create_app_params%%param_ApplicationArgs_idx_0#0
         itxn_field ApplicationArgs
         v-load create_app_params%%param_ApplicationArgs_idx_1#0                                      create_app_params%%param_ApplicationArgs_idx_1#0
@@ -393,14 +393,14 @@ subroutine main:
         // inner_transactions/contract.py:106
         // create_app_txn = create_app_params.submit()
         v-load is_ApplicationArgs_count_gte_3%0#0                                                    is_ApplicationArgs_count_gte_3%0#0
-        bz main_next_field@22 ; b main_set_ApplicationArgs_2_to_2@21
+        bz main_next_field@38 ; b main_set_ApplicationArgs_2_to_2@37
 
-    main_set_ApplicationArgs_2_to_2@21:
+    main_set_ApplicationArgs_2_to_2@37:
         v-load create_app_params%%param_ApplicationArgs_idx_2#0                                      create_app_params%%param_ApplicationArgs_idx_2#0
         itxn_field ApplicationArgs
-        b main_next_field@22
+        b main_next_field@38
 
-    main_next_field@22:
+    main_next_field@38:
         // inner_transactions/contract.py:94
         // clear_state_program=ALWAYS_APPROVE,
         byte 0x098101                                                                                0x098101
@@ -422,13 +422,13 @@ subroutine main:
         v-store create_app_txn.Note#0
         // inner_transactions/contract.py:107
         // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
-        itxna ApplicationArgs 0                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                               tmp%2#0
-        byte 0x31                                                                                    tmp%2#0,0x31
-        ==                                                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
+        itxna ApplicationArgs 0                                                                      tmp%2#2
+        v-store tmp%2#2
+        v-load tmp%2#2                                                                               tmp%2#2
+        byte 0x31                                                                                    tmp%2#2,0x31
+        ==                                                                                           tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                               tmp%3#1
         assert // correct args used 1
         // inner_transactions/contract.py:108
         // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
@@ -449,9 +449,9 @@ subroutine main:
         >                                                                                            tmp%7#1
         v-store tmp%7#1
         v-load tmp%7#1                                                                               tmp%7#1
-        bz main_after_if_else@10 ; b main_if_body@23
+        bz main_after_if_else@9 ; b main_if_body@40
 
-    main_if_body@23:
+    main_if_body@40:
         // inner_transactions/contract.py:111-116
         // create_app_txn2 = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
@@ -508,9 +508,9 @@ subroutine main:
         v-store tmp%10#2
         v-load tmp%10#2                                                                              tmp%10#2
         assert
-        b main_after_if_else@10
+        b main_after_if_else@9
 
-    main_switch_case_2@7:
+    main_switch_case_2@6:
         // inner_transactions/contract.py:190-207
         // ) = itxn.submit_txns(
         //     app_p_1,
@@ -958,19 +958,19 @@ subroutine main:
         v-store tmp%0#2
         v-load tmp%0#2                                                                               tmp%0#2
         byte 0x31                                                                                    tmp%0#2,0x31
-        ==                                                                                           tmp%1#3
-        v-store tmp%1#3
-        v-load tmp%1#3                                                                               tmp%1#3
+        ==                                                                                           tmp%1#2
+        v-store tmp%1#2
+        v-load tmp%1#2                                                                               tmp%1#2
         assert
         // inner_transactions/contract.py:210
         // assert app2.logs(0) == b"2"
-        gitxna 1 Logs 0                                                                              tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                               tmp%2#0
-        byte 0x32                                                                                    tmp%2#0,0x32
-        ==                                                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
+        gitxna 1 Logs 0                                                                              tmp%2#2
+        v-store tmp%2#2
+        v-load tmp%2#2                                                                               tmp%2#2
+        byte 0x32                                                                                    tmp%2#2,0x32
+        ==                                                                                           tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                               tmp%3#1
         assert
         // inner_transactions/contract.py:211
         // assert app3.logs(0) == b"3"
@@ -1120,9 +1120,9 @@ subroutine main:
         v-store tmp%32#0
         v-load tmp%32#0                                                                              tmp%32#0
         assert
-        b main_after_if_else@10
+        b main_after_if_else@9
 
-    main_switch_case_3@8:
+    main_switch_case_3@7:
         // inner_transactions/contract.py:232
         // lots_of_bytes = op.bzero(2044)
         int 2044                                                                                     2044
@@ -1141,8 +1141,8 @@ subroutine main:
         // )
         // + lots_of_bytes
         v-load lots_of_bytes#0                                                                       0x80fc0f,lots_of_bytes#0
-        concat                                                                                       tmp%1#2
-        v-store tmp%1#2
+        concat                                                                                       tmp%1#1
+        v-store tmp%1#1
         // inner_transactions/contract.py:235-240
         // Bytes(
         //     b"\x80"  # pushbytes
@@ -1150,10 +1150,10 @@ subroutine main:
         // )
         // + lots_of_bytes
         // + Bytes(b"\x48")  # pop
-        v-load tmp%1#2                                                                               tmp%1#2
+        v-load tmp%1#1                                                                               tmp%1#1
         // inner_transactions/contract.py:240
         // + Bytes(b"\x48")  # pop
-        byte 0x48                                                                                    tmp%1#2,0x48
+        byte 0x48                                                                                    tmp%1#1,0x48
         // inner_transactions/contract.py:235-240
         // Bytes(
         //     b"\x80"  # pushbytes
@@ -1211,9 +1211,9 @@ subroutine main:
         // assert app_1.extra_program_pages == 3, "extra_pages == 3"
         v-load app_1.ExtraProgramPages#0                                                             app_1.ExtraProgramPages#0
         int 3                                                                                        app_1.ExtraProgramPages#0,3
-        ==                                                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
+        ==                                                                                           tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                               tmp%3#1
         assert // extra_pages == 3
         // inner_transactions/contract.py:251
         // assert app_1.num_approval_program_pages == 2, "approval_pages == 2"
@@ -1311,9 +1311,9 @@ subroutine main:
         v-store tmp%16#0
         v-load tmp%16#0                                                                              tmp%16#0
         assert // expected clear_state_pages
-        b main_after_if_else@10
+        b main_after_if_else@9
 
-    main_after_if_else@10:
+    main_after_if_else@9:
         // inner_transactions/contract.py:37
         // return True
         int 1                                                                                        1

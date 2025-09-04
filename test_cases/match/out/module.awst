@@ -7,26 +7,11 @@ contract Counter
     ['counter']: uint64
   }
   
-  subroutine test_cases.match.counter.Counter.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.match.counter.Counter.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.match.counter.Counter.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.match.counter.Counter.__init__(): void
-  {
-    GlobalState['counter']: uint64 = 0u
-  }
-  
-  subroutine test_cases.match.counter.Counter.approval_program(): bool
-  {
     switch (txn<OnCompletion>()) {
       case NoOp: {
         match_case_L11:
@@ -37,6 +22,16 @@ contract Counter
         return false
       }
     }
+  }
+  
+  subroutine test_cases.match.counter.Counter.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.match.counter.Counter.__init__(): void
+  {
+    GlobalState['counter']: uint64 = 0u
   }
   
   subroutine test_cases.match.counter.Counter.increment_counter(): void

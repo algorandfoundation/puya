@@ -8,12 +8,12 @@ contract MinimumARC4
     ['gvalue']: uint64
   }
   
-  subroutine test_cases.abi_routing.minimal.MinimumARC4.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -30,11 +30,6 @@ contract MinimumARC4
   {
   }
   
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
   subroutine algopy._contract.Contract.__init__(): void
   {
   }
@@ -47,12 +42,19 @@ contract CustomApproval
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -64,18 +66,6 @@ contract CustomApproval
   {
     super::__init__()
     assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
-  }
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
-  {
-    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
-      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
-    }
-    result: bool = super::approval_program()
-    if (!(result)) {
-      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
-    }
-    return result
   }
   
   abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
@@ -105,22 +95,17 @@ contract CustomApproval2
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return false
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
   {
     return true
-  }
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.approval_program(): bool
-  {
-    return false
   }
   
   baremethod test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_default_create(): void
@@ -135,6 +120,9 @@ contract CustomApproval2
   
   subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
   {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
     if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
       log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
     }
@@ -214,12 +202,12 @@ contract Reference
     ['local_uint']: uint64
   }
   
-  subroutine test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -352,11 +340,6 @@ contract Reference
   abimethod test_cases.abi_routing.contract.Reference.hello_with_algopy_string(name: string): string
   {
     return 'Hello ' + name + '!'
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
   }
   
   subroutine algopy._contract.Contract.__init__(): void

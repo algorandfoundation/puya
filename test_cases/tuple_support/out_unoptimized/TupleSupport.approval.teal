@@ -1,10 +1,17 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.tuple_support.tuple_support.TupleSupport.approval_program() -> uint64:
 main:
     intcblock 1 2 0 3 18446744073709551615
-    bytecblock 0x 0x32 "state"
+    bytecblock 0x "state" 0x32
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,8 +24,352 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    // tuple_support/tuple_support.py:9
+    // total = add_three_values((UInt64(101), UInt64(102), UInt64(103)))
+    pushint 101 // 101
+    pushint 102 // 102
+    pushint 103 // 103
+    callsub add_three_values
+    // tuple_support/tuple_support.py:10
+    // log(total)
+    itob
+    log
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:12
+    // (did_overflow, self.state) = op.addw(a, b)
+    addw
+    cover 1
+    bytec_1 // "state"
+    uncover 2
+    app_global_put
+    // tuple_support/tuple_support.py:13
+    // assert not did_overflow, "overflow!"
+    intc_2 // 0
+    ==
+    assert // overflow!
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    intc_1 // 2
+    // tuple_support/tuple_support.py:15
+    // assert ab[-1] == ab[1]
+    ==
+    assert
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:16
+    // result = op.addw(a, b)
+    addw
+    bury 4
+    // tuple_support/tuple_support.py:17
+    // assert not result[0], "overflow!"
+    intc_2 // 0
+    ==
+    assert // overflow!
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:20
+    // if a == b:
+    ==
+    bz main_else_body@4
+    b main_if_body@3
+
+main_if_body@3:
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    // tuple_support/tuple_support.py:21
+    // tup = ab2
+    bury 2
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    // tuple_support/tuple_support.py:21
+    // tup = ab2
+    bury 1
+    b main_after_if_else@5
+
+main_after_if_else@5:
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_0 // 1
+    // tuple_support/tuple_support.py:24
+    // assert a2 == a
+    ==
+    assert
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    intc_1 // 2
+    // tuple_support/tuple_support.py:25
+    // assert b2 == b
+    ==
+    assert
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    // tuple_support/tuple_support.py:26
+    // assert cd[0] == tup[0]
+    dig 2
+    ==
+    assert
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    // tuple_support/tuple_support.py:27
+    // assert cd[1] == tup[1]
+    dig 1
+    ==
+    assert
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:29
+    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
+    callsub get_tuple
+    dup
+    cover 2
+    bury 8
+    dup
+    bury 9
+    dup
+    ==
+    dig 1
+    uncover 2
+    ==
+    ||
+    bz main_ternary_false@7
+    b main_ternary_true@6
+
+main_ternary_true@6:
+    // tuple_support/tuple_support.py:29
+    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
+    dig 6
+    bury 5
+    dig 5
+    bury 4
+    b main_ternary_merge@8
+
+main_ternary_merge@8:
+    // tuple_support/tuple_support.py:29
+    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
+    dig 4
+    dig 4
+    cover 1
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    // tuple_support/tuple_support.py:30
+    // assert (m, n) == (a, b)
+    ==
+    cover 1
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    // tuple_support/tuple_support.py:30
+    // assert (m, n) == (a, b)
+    ==
+    &&
+    assert
+    // tuple_support/tuple_support.py:32-34
+    // # assert ab2 == ab # TODO: support ths
+    // # foobar = ((a, b), (c, d)) # TODO: negative test for this
+    // log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
+    pushbytes 0x48656c6c6f2c20
+    pushbytes 0x776f726c6421
+    callsub bytes_combine
+    log
+    // tuple_support/tuple_support.py:35
+    // max_uint64 = UInt64(2**64 - 1)
+    intc 4 // 18446744073709551615
+    intc 4 // 18446744073709551615
+    // tuple_support/tuple_support.py:36
+    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
+    addw
+    cover 1
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:36
+    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
+    addw
+    cover 1
+    uncover 2
+    uncover 3
+    uncover 2
+    uncover 3
+    callsub addw2
+    cover 2
+    cover 2
+    uncover 1
+    cover 2
+    // tuple_support/tuple_support.py:37
+    // log(hi)
+    itob
+    log
+    // tuple_support/tuple_support.py:38
+    // log(mid)
+    itob
+    log
+    // tuple_support/tuple_support.py:39
+    // log(lo)
+    itob
+    log
+    // tuple_support/tuple_support.py:40
+    // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
+    pushbytes 0x6e61
+    pushint 5 // 5
+    callsub bytes_multiply
+    log
+    // tuple_support/tuple_support.py:41
+    // test_tuple_swap(zero=UInt64(0))
+    intc_2 // 0
+    callsub test_tuple_swap
+    // tuple_support/tuple_support.py:44
+    // UInt64(1),
+    intc_0 // 1
+    // tuple_support/tuple_support.py:45
+    // UInt64(2),
+    intc_1 // 2
+    // tuple_support/tuple_support.py:46
+    // UInt64(3),
+    intc_3 // 3
+    // tuple_support/tuple_support.py:47
+    // UInt64(4),
+    pushint 4 // 4
+    // tuple_support/tuple_support.py:48
+    // UInt64(5),
+    pushint 5 // 5
+    // tuple_support/tuple_support.py:49
+    // UInt64(6),
+    pushint 6 // 6
+    // tuple_support/tuple_support.py:50
+    // UInt64(7),
+    pushint 7 // 7
+    // tuple_support/tuple_support.py:51
+    // UInt64(8),
+    pushint 8 // 8
+    // tuple_support/tuple_support.py:42-53
+    // slicing(
+    //     (
+    //         UInt64(1),
+    //         UInt64(2),
+    //         UInt64(3),
+    //         UInt64(4),
+    //         UInt64(5),
+    //         UInt64(6),
+    //         UInt64(7),
+    //         UInt64(8),
+    //     )
+    // )
+    callsub slicing
+    // tuple_support/tuple_support.py:54
+    // bin_ops()
+    callsub bin_ops
+    // tuple_support/tuple_support.py:55
+    // if non_empty_tuple():
+    callsub non_empty_tuple
+    cover 1
+    dup
+    ==
+    dig 1
+    uncover 2
+    ==
+    ||
+    bz main_after_if_else@10
+    b main_if_body@9
+
+main_if_body@9:
+    // tuple_support/tuple_support.py:56
+    // log("not empty")
+    pushbytes "not empty"
+    log
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    // tuple_support/tuple_support.py:57
+    // if (get_uint_with_side_effect(),):  # noqa: F634
+    callsub get_uint_with_side_effect
+    dup
+    ==
+    bz main_after_if_else@12
+    b main_if_body@11
+
+main_if_body@11:
+    // tuple_support/tuple_support.py:58
+    // log("not empty2")
+    pushbytes "not empty2"
+    log
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // tuple_support/tuple_support.py:59
+    // single_tuple()
+    callsub single_tuple
+    // tuple_support/tuple_support.py:61
+    // x = tuple[UInt64, Bytes]((UInt64(), Bytes()))
+    intc_2 // 0
+    // tuple_support/tuple_support.py:62
+    // assert x[0] == 0
+    intc_2 // 0
+    ==
+    assert
+    // tuple_support/tuple_support.py:61
+    // x = tuple[UInt64, Bytes]((UInt64(), Bytes()))
+    bytec_0 // 0x
+    // tuple_support/tuple_support.py:63
+    // assert x[1] == b""
+    bytec_0 // 0x
+    ==
+    assert
+    // tuple_support/tuple_support.py:64
+    // test_empty()
+    callsub test_empty
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_0 // 1
+    intc_1 // 2
+    // tuple_support/tuple_support.py:65
+    // return a + b
+    +
     return
+
+main_ternary_false@7:
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    intc_1 // 2
+    intc_0 // 1
+    // tuple_support/tuple_support.py:29
+    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
+    callsub get_tuple
+    bury 5
+    bury 5
+    b main_ternary_merge@8
+
+main_else_body@4:
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    // tuple_support/tuple_support.py:23
+    // tup = cd
+    bury 2
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    intc_3 // 3
+    // tuple_support/tuple_support.py:23
+    // tup = cd
+    bury 1
+    b main_after_if_else@5
 
 
 // test_cases.tuple_support.tuple_support.get_tuple(a: uint64, b: uint64) -> uint64, uint64:
@@ -171,10 +522,10 @@ bin_ops_block@0:
     assert
     // tuple_support/tuple_support.py:110
     // c = (UInt64(1),) + (Bytes(b"2"), UInt64(3))  # noqa: RUF005
-    bytec_1 // 0x32
+    bytec_2 // 0x32
     // tuple_support/tuple_support.py:112
     // assert c[1] == b"2"
-    bytec_1 // 0x32
+    bytec_2 // 0x32
     ==
     assert
     // tuple_support/tuple_support.py:110
@@ -503,370 +854,7 @@ __init__:
 __init___block@0:
     // tuple_support/tuple_support.py:6
     // self.state = UInt64(0)
-    bytec_2 // "state"
+    bytec_1 // "state"
     intc_2 // 0
     app_global_put
     retsub
-
-
-// test_cases.tuple_support.tuple_support.TupleSupport.approval_program() -> uint64:
-approval_program:
-    // tuple_support/tuple_support.py:8
-    // def approval_program(self) -> UInt64:
-    proto 0 1
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    b approval_program_block@0
-
-approval_program_block@0:
-    // tuple_support/tuple_support.py:9
-    // total = add_three_values((UInt64(101), UInt64(102), UInt64(103)))
-    pushint 101 // 101
-    pushint 102 // 102
-    pushint 103 // 103
-    callsub add_three_values
-    // tuple_support/tuple_support.py:10
-    // log(total)
-    itob
-    log
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:12
-    // (did_overflow, self.state) = op.addw(a, b)
-    addw
-    cover 1
-    bytec_2 // "state"
-    uncover 2
-    app_global_put
-    // tuple_support/tuple_support.py:13
-    // assert not did_overflow, "overflow!"
-    intc_2 // 0
-    ==
-    assert // overflow!
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    intc_1 // 2
-    // tuple_support/tuple_support.py:15
-    // assert ab[-1] == ab[1]
-    ==
-    assert
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:16
-    // result = op.addw(a, b)
-    addw
-    cover 1
-    // tuple_support/tuple_support.py:17
-    // assert not result[0], "overflow!"
-    intc_2 // 0
-    ==
-    assert // overflow!
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:20
-    // if a == b:
-    ==
-    bz approval_program_else_body@2
-    b approval_program_if_body@1
-
-approval_program_if_body@1:
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    // tuple_support/tuple_support.py:21
-    // tup = ab2
-    frame_bury 4
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    // tuple_support/tuple_support.py:21
-    // tup = ab2
-    frame_bury 5
-    b approval_program_after_if_else@3
-
-approval_program_after_if_else@3:
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_0 // 1
-    // tuple_support/tuple_support.py:24
-    // assert a2 == a
-    ==
-    assert
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    intc_1 // 2
-    // tuple_support/tuple_support.py:25
-    // assert b2 == b
-    ==
-    assert
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-    // tuple_support/tuple_support.py:26
-    // assert cd[0] == tup[0]
-    frame_dig 4
-    ==
-    assert
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-    // tuple_support/tuple_support.py:27
-    // assert cd[1] == tup[1]
-    frame_dig 5
-    ==
-    assert
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:29
-    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    callsub get_tuple
-    dup
-    cover 2
-    frame_bury 1
-    dup
-    frame_bury 0
-    dup
-    ==
-    dig 1
-    uncover 2
-    ==
-    ||
-    bz approval_program_ternary_false@5
-    b approval_program_ternary_true@4
-
-approval_program_ternary_true@4:
-    // tuple_support/tuple_support.py:29
-    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    frame_dig 0
-    frame_bury 2
-    frame_dig 1
-    frame_bury 3
-    b approval_program_ternary_merge@6
-
-approval_program_ternary_merge@6:
-    // tuple_support/tuple_support.py:29
-    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    frame_dig 2
-    frame_dig 3
-    cover 1
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    // tuple_support/tuple_support.py:30
-    // assert (m, n) == (a, b)
-    ==
-    cover 1
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    // tuple_support/tuple_support.py:30
-    // assert (m, n) == (a, b)
-    ==
-    &&
-    assert
-    // tuple_support/tuple_support.py:32-34
-    // # assert ab2 == ab # TODO: support ths
-    // # foobar = ((a, b), (c, d)) # TODO: negative test for this
-    // log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
-    pushbytes 0x48656c6c6f2c20
-    pushbytes 0x776f726c6421
-    callsub bytes_combine
-    log
-    // tuple_support/tuple_support.py:35
-    // max_uint64 = UInt64(2**64 - 1)
-    intc 4 // 18446744073709551615
-    intc 4 // 18446744073709551615
-    // tuple_support/tuple_support.py:36
-    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
-    addw
-    cover 1
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:36
-    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
-    addw
-    cover 1
-    uncover 2
-    uncover 3
-    uncover 2
-    uncover 3
-    callsub addw2
-    cover 2
-    cover 2
-    uncover 1
-    cover 2
-    // tuple_support/tuple_support.py:37
-    // log(hi)
-    itob
-    log
-    // tuple_support/tuple_support.py:38
-    // log(mid)
-    itob
-    log
-    // tuple_support/tuple_support.py:39
-    // log(lo)
-    itob
-    log
-    // tuple_support/tuple_support.py:40
-    // log(bytes_multiply((Bytes(b"na"), UInt64(5))))
-    pushbytes 0x6e61
-    pushint 5 // 5
-    callsub bytes_multiply
-    log
-    // tuple_support/tuple_support.py:41
-    // test_tuple_swap(zero=UInt64(0))
-    intc_2 // 0
-    callsub test_tuple_swap
-    // tuple_support/tuple_support.py:44
-    // UInt64(1),
-    intc_0 // 1
-    // tuple_support/tuple_support.py:45
-    // UInt64(2),
-    intc_1 // 2
-    // tuple_support/tuple_support.py:46
-    // UInt64(3),
-    intc_3 // 3
-    // tuple_support/tuple_support.py:47
-    // UInt64(4),
-    pushint 4 // 4
-    // tuple_support/tuple_support.py:48
-    // UInt64(5),
-    pushint 5 // 5
-    // tuple_support/tuple_support.py:49
-    // UInt64(6),
-    pushint 6 // 6
-    // tuple_support/tuple_support.py:50
-    // UInt64(7),
-    pushint 7 // 7
-    // tuple_support/tuple_support.py:51
-    // UInt64(8),
-    pushint 8 // 8
-    // tuple_support/tuple_support.py:42-53
-    // slicing(
-    //     (
-    //         UInt64(1),
-    //         UInt64(2),
-    //         UInt64(3),
-    //         UInt64(4),
-    //         UInt64(5),
-    //         UInt64(6),
-    //         UInt64(7),
-    //         UInt64(8),
-    //     )
-    // )
-    callsub slicing
-    // tuple_support/tuple_support.py:54
-    // bin_ops()
-    callsub bin_ops
-    // tuple_support/tuple_support.py:55
-    // if non_empty_tuple():
-    callsub non_empty_tuple
-    cover 1
-    dup
-    ==
-    dig 1
-    uncover 2
-    ==
-    ||
-    bz approval_program_after_if_else@8
-    b approval_program_if_body@7
-
-approval_program_if_body@7:
-    // tuple_support/tuple_support.py:56
-    // log("not empty")
-    pushbytes "not empty"
-    log
-    b approval_program_after_if_else@8
-
-approval_program_after_if_else@8:
-    // tuple_support/tuple_support.py:57
-    // if (get_uint_with_side_effect(),):  # noqa: F634
-    callsub get_uint_with_side_effect
-    dup
-    ==
-    bz approval_program_after_if_else@10
-    b approval_program_if_body@9
-
-approval_program_if_body@9:
-    // tuple_support/tuple_support.py:58
-    // log("not empty2")
-    pushbytes "not empty2"
-    log
-    b approval_program_after_if_else@10
-
-approval_program_after_if_else@10:
-    // tuple_support/tuple_support.py:59
-    // single_tuple()
-    callsub single_tuple
-    // tuple_support/tuple_support.py:61
-    // x = tuple[UInt64, Bytes]((UInt64(), Bytes()))
-    intc_2 // 0
-    // tuple_support/tuple_support.py:62
-    // assert x[0] == 0
-    intc_2 // 0
-    ==
-    assert
-    // tuple_support/tuple_support.py:61
-    // x = tuple[UInt64, Bytes]((UInt64(), Bytes()))
-    bytec_0 // 0x
-    // tuple_support/tuple_support.py:63
-    // assert x[1] == b""
-    bytec_0 // 0x
-    ==
-    assert
-    // tuple_support/tuple_support.py:64
-    // test_empty()
-    callsub test_empty
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_0 // 1
-    intc_1 // 2
-    // tuple_support/tuple_support.py:65
-    // return a + b
-    +
-    frame_bury 0
-    retsub
-
-approval_program_ternary_false@5:
-    // tuple_support/tuple_support.py:11
-    // (a, b) = (UInt64(1), UInt64(2))
-    intc_1 // 2
-    intc_0 // 1
-    // tuple_support/tuple_support.py:29
-    // (m, n) = get_tuple(a, b) or get_tuple(b, a)
-    callsub get_tuple
-    frame_bury 3
-    frame_bury 2
-    b approval_program_ternary_merge@6
-
-approval_program_else_body@2:
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-    // tuple_support/tuple_support.py:23
-    // tup = cd
-    frame_bury 4
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    intc_3 // 3
-    // tuple_support/tuple_support.py:23
-    // tup = cd
-    frame_bury 5
-    b approval_program_after_if_else@3

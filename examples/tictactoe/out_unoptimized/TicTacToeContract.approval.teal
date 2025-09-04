@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 3 8
     bytecblock "game" "turns" "challenger" "winner" 0x01 0x02 "host"
@@ -17,8 +17,75 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
-    return
+    b main_block@3
+
+main_block@3:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txna ApplicationArgs 0
+    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
+    uncover 1
+    match main_new_game_route@4
+    b main_switch_case_next@5
+
+main_switch_case_next@5:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    bz main_create_NoOp@11
+    b main_call_NoOp@6
+
+main_call_NoOp@6:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x17a079b3 // method "join_game((uint64,uint64))void"
+    pushbytes 0xbb9f1147 // method "whose_turn()uint8"
+    pushbytes 0x9eebf58e // method "play((uint64,uint64))void"
+    uncover 3
+    match main_join_game_route@7 main_whose_turn_route@8 main_play_route@9
+    b main_switch_case_next@10
+
+main_switch_case_next@10:
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    err
+
+main_play_route@9:
+    // tictactoe/tictactoe.py:47
+    // @arc4.abimethod
+    callsub play
+    b main_switch_case_next@10
+
+main_whose_turn_route@8:
+    // tictactoe/tictactoe.py:43
+    // @arc4.abimethod
+    callsub whose_turn
+    b main_switch_case_next@10
+
+main_join_game_route@7:
+    // tictactoe/tictactoe.py:37
+    // @arc4.abimethod
+    callsub join_game
+    b main_switch_case_next@10
+
+main_create_NoOp@11:
+    b main_after_if_else@12
+
+main_new_game_route@4:
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
+    callsub new_game
+    b main_switch_case_next@5
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() -> void:
@@ -813,79 +880,3 @@ did_win_after_if_else@14:
     intc_1 // 0
     frame_bury 0
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txna ApplicationArgs 0
-    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
-    uncover 1
-    match approval_program_new_game_route@2
-    b approval_program_switch_case_next@3
-
-approval_program_switch_case_next@3:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    bz approval_program_create_NoOp@9
-    b approval_program_call_NoOp@4
-
-approval_program_call_NoOp@4:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x17a079b3 // method "join_game((uint64,uint64))void"
-    pushbytes 0xbb9f1147 // method "whose_turn()uint8"
-    pushbytes 0x9eebf58e // method "play((uint64,uint64))void"
-    uncover 3
-    match approval_program_join_game_route@5 approval_program_whose_turn_route@6 approval_program_play_route@7
-    b approval_program_switch_case_next@8
-
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@10
-
-approval_program_after_if_else@10:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    err
-
-approval_program_play_route@7:
-    // tictactoe/tictactoe.py:47
-    // @arc4.abimethod
-    callsub play
-    b approval_program_switch_case_next@8
-
-approval_program_whose_turn_route@6:
-    // tictactoe/tictactoe.py:43
-    // @arc4.abimethod
-    callsub whose_turn
-    b approval_program_switch_case_next@8
-
-approval_program_join_game_route@5:
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    callsub join_game
-    b approval_program_switch_case_next@8
-
-approval_program_create_NoOp@9:
-    b approval_program_after_if_else@10
-
-approval_program_new_game_route@2:
-    // tictactoe/tictactoe.py:20
-    // @arc4.abimethod(create="allow")
-    callsub new_game
-    b approval_program_switch_case_next@3

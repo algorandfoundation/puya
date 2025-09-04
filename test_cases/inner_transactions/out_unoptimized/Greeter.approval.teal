@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
@@ -17,7 +17,82 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@11
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x786b6291 // method "bootstrap()uint64"
+    pushbytes 0x33fb5d48 // method "log_greetings(string)void"
+    uncover 2
+    match main_bootstrap_route@6 main_log_greetings_route@7
+    b main_switch_case_next@8
+
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    err
+
+main_log_greetings_route@7:
+    // inner_transactions/c2c.py:23
+    // @arc4.abimethod()
+    callsub log_greetings
+    b main_switch_case_next@8
+
+main_bootstrap_route@6:
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    callsub bootstrap
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@14
+
+main_block@14:
+    b main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@15
+
+main_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@15:
+    intc_1 // 1
     return
 
 
@@ -203,87 +278,3 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_next_txn@1:
     concat
     log
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@9
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@7
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x786b6291 // method "bootstrap()uint64"
-    pushbytes 0x33fb5d48 // method "log_greetings(string)void"
-    uncover 2
-    match approval_program_bootstrap_route@4 approval_program_log_greetings_route@5
-    b approval_program_switch_case_next@6
-
-approval_program_switch_case_next@6:
-    b approval_program_after_if_else@8
-
-approval_program_after_if_else@8:
-    b approval_program_after_if_else@12
-
-approval_program_after_if_else@12:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    err
-
-approval_program_log_greetings_route@5:
-    // inner_transactions/c2c.py:23
-    // @arc4.abimethod()
-    callsub log_greetings
-    b approval_program_switch_case_next@6
-
-approval_program_bootstrap_route@4:
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    callsub bootstrap
-    b approval_program_switch_case_next@6
-
-approval_program_create_NoOp@7:
-    b approval_program_after_if_else@8
-
-approval_program___algopy_default_create@9:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@10
-
-approval_program_block@10:
-    b approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@11
-
-approval_program_after_inlined_test_cases.inner_transactions.c2c.Greeter.__algopy_default_create@11:
-    intc_1 // 1
-    return

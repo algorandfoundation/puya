@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 16 144 128
     bytecblock 0x "count" 0x151f7c75 0x00
@@ -19,7 +19,117 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@16
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@14
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x28d7c1b8 // method "test_array(uint64,uint64,uint64,uint64)uint64"
+    pushbytes 0xfa9cb973 // method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]"
+    pushbytes 0x6039a240 // method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]"
+    pushbytes 0xf8fd68a7 // method "test_bool_array(uint64)uint64"
+    pushbytes 0x1f028db1 // method "test_arc4_conversion(uint64)uint64[]"
+    pushbytes 0x096b3a59 // method "sum_array(uint64[])uint64"
+    pushbytes 0x8d6e3a25 // method "test_arc4_bool()bool[]"
+    uncover 7
+    match main_test_array_route@6 main_test_extend_from_tuple_route@7 main_test_extend_from_arc4_tuple_route@8 main_test_bool_array_route@9 main_test_arc4_conversion_route@10 main_sum_array_route@11 main_test_arc4_bool_route@12
+    b main_switch_case_next@13
+
+main_switch_case_next@13:
+    b main_after_if_else@15
+
+main_after_if_else@15:
+    b main_after_if_else@17
+
+main_after_if_else@17:
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
+    err
+
+main_test_arc4_bool_route@12:
+    // array/static_size.py:138
+    // @arc4.abimethod()
+    callsub test_arc4_bool
+    b main_switch_case_next@13
+
+main_sum_array_route@11:
+    // array/static_size.py:112
+    // @arc4.abimethod()
+    callsub sum_array
+    b main_switch_case_next@13
+
+main_test_arc4_conversion_route@10:
+    // array/static_size.py:94
+    // @arc4.abimethod()
+    callsub test_arc4_conversion
+    b main_switch_case_next@13
+
+main_test_bool_array_route@9:
+    // array/static_size.py:75
+    // @arc4.abimethod()
+    callsub test_bool_array
+    b main_switch_case_next@13
+
+main_test_extend_from_arc4_tuple_route@8:
+    // array/static_size.py:67
+    // @arc4.abimethod()
+    callsub test_extend_from_arc4_tuple
+    b main_switch_case_next@13
+
+main_test_extend_from_tuple_route@7:
+    // array/static_size.py:57
+    // @arc4.abimethod()
+    callsub test_extend_from_tuple
+    b main_switch_case_next@13
+
+main_test_array_route@6:
+    // array/static_size.py:41
+    // @arc4.abimethod()
+    callsub test_array
+    b main_switch_case_next@13
+
+main_create_NoOp@14:
+    b main_after_if_else@15
+
+main___algopy_default_create@16:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@19
+
+main_block@19:
+    b main_after_inlined_test_cases.array.static_size.StaticSizeContract.__algopy_default_create@20
+
+main_after_inlined_test_cases.array.static_size.StaticSizeContract.__algopy_default_create@20:
+    intc_1 // 1
     return
 
 
@@ -1706,125 +1816,6 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_after_for@4:
     callsub dynamic_array_concat_bits
     frame_bury 0
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@14
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@12
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x28d7c1b8 // method "test_array(uint64,uint64,uint64,uint64)uint64"
-    pushbytes 0xfa9cb973 // method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]"
-    pushbytes 0x6039a240 // method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]"
-    pushbytes 0xf8fd68a7 // method "test_bool_array(uint64)uint64"
-    pushbytes 0x1f028db1 // method "test_arc4_conversion(uint64)uint64[]"
-    pushbytes 0x096b3a59 // method "sum_array(uint64[])uint64"
-    pushbytes 0x8d6e3a25 // method "test_arc4_bool()bool[]"
-    uncover 7
-    match approval_program_test_array_route@4 approval_program_test_extend_from_tuple_route@5 approval_program_test_extend_from_arc4_tuple_route@6 approval_program_test_bool_array_route@7 approval_program_test_arc4_conversion_route@8 approval_program_sum_array_route@9 approval_program_test_arc4_bool_route@10
-    b approval_program_switch_case_next@11
-
-approval_program_switch_case_next@11:
-    b approval_program_after_if_else@13
-
-approval_program_after_if_else@13:
-    b approval_program_after_if_else@17
-
-approval_program_after_if_else@17:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    err
-
-approval_program_test_arc4_bool_route@10:
-    // array/static_size.py:138
-    // @arc4.abimethod()
-    callsub test_arc4_bool
-    b approval_program_switch_case_next@11
-
-approval_program_sum_array_route@9:
-    // array/static_size.py:112
-    // @arc4.abimethod()
-    callsub sum_array
-    b approval_program_switch_case_next@11
-
-approval_program_test_arc4_conversion_route@8:
-    // array/static_size.py:94
-    // @arc4.abimethod()
-    callsub test_arc4_conversion
-    b approval_program_switch_case_next@11
-
-approval_program_test_bool_array_route@7:
-    // array/static_size.py:75
-    // @arc4.abimethod()
-    callsub test_bool_array
-    b approval_program_switch_case_next@11
-
-approval_program_test_extend_from_arc4_tuple_route@6:
-    // array/static_size.py:67
-    // @arc4.abimethod()
-    callsub test_extend_from_arc4_tuple
-    b approval_program_switch_case_next@11
-
-approval_program_test_extend_from_tuple_route@5:
-    // array/static_size.py:57
-    // @arc4.abimethod()
-    callsub test_extend_from_tuple
-    b approval_program_switch_case_next@11
-
-approval_program_test_array_route@4:
-    // array/static_size.py:41
-    // @arc4.abimethod()
-    callsub test_array
-    b approval_program_switch_case_next@11
-
-approval_program_create_NoOp@12:
-    b approval_program_after_if_else@13
-
-approval_program___algopy_default_create@14:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@15
-
-approval_program_block@15:
-    b approval_program_after_inlined_test_cases.array.static_size.StaticSizeContract.__algopy_default_create@16
-
-approval_program_after_inlined_test_cases.array.static_size.StaticSizeContract.__algopy_default_create@16:
-    intc_1 // 1
-    return
 
 
 // _puya_lib.mem.new_slot() -> uint64:

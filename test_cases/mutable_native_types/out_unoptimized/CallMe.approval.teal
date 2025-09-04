@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
@@ -17,7 +17,168 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@22
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x24378d3c // method "delete()void"
+    uncover 1
+    match main_delete_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@20
+    b main_call_NoOp@7
+
+main_call_NoOp@7:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x11b19b95 // method "fixed_struct_arg((uint64,uint64))void"
+    pushbytes 0xd28b964a // method "fixed_struct_ret()(uint64,uint64)"
+    pushbytes 0xea18655f // method "nested_struct_arg(((uint64,uint64),uint64))void"
+    pushbytes 0xbb3bfdb7 // method "nested_struct_ret()((uint64,uint64),uint64)"
+    pushbytes 0x46ec14a0 // method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"
+    pushbytes 0x9b4d0926 // method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])"
+    pushbytes 0x4f0deb50 // method "fixed_arr_arg((uint64,uint64)[3])void"
+    pushbytes 0x59664ab6 // method "fixed_arr_ret()(uint64,uint64)[3]"
+    pushbytes 0x125d1376 // method "native_arr_arg((uint64,uint64)[])void"
+    pushbytes 0x818e4a62 // method "native_arr_ret()(uint64,uint64)[]"
+    pushbytes 0x9bbe1032 // method "log_it()void"
+    uncover 11
+    match main_fixed_struct_arg_route@8 main_fixed_struct_ret_route@9 main_nested_struct_arg_route@10 main_nested_struct_ret_route@11 main_dynamic_struct_arg_route@12 main_dynamic_struct_ret_route@13 main_fixed_arr_arg_route@14 main_fixed_arr_ret_route@15 main_native_arr_arg_route@16 main_native_arr_ret_route@17 main_log_it_route@18
+    b main_switch_case_next@19
+
+main_switch_case_next@19:
+    b main_after_if_else@21
+
+main_after_if_else@21:
+    b main_after_if_else@23
+
+main_after_if_else@23:
+    // mutable_native_types/abi_call.py:41
+    // class CallMe(arc4.ARC4Contract):
+    err
+
+main_log_it_route@18:
+    // mutable_native_types/abi_call.py:93
+    // @arc4.abimethod()
+    callsub log_it
+    b main_switch_case_next@19
+
+main_native_arr_ret_route@17:
+    // mutable_native_types/abi_call.py:89
+    // @arc4.abimethod()
+    callsub native_arr_ret
+    b main_switch_case_next@19
+
+main_native_arr_arg_route@16:
+    // mutable_native_types/abi_call.py:85
+    // @arc4.abimethod()
+    callsub native_arr_arg
+    b main_switch_case_next@19
+
+main_fixed_arr_ret_route@15:
+    // mutable_native_types/abi_call.py:81
+    // @arc4.abimethod()
+    callsub fixed_arr_ret
+    b main_switch_case_next@19
+
+main_fixed_arr_arg_route@14:
+    // mutable_native_types/abi_call.py:77
+    // @arc4.abimethod()
+    callsub fixed_arr_arg
+    b main_switch_case_next@19
+
+main_dynamic_struct_ret_route@13:
+    // mutable_native_types/abi_call.py:73
+    // @arc4.abimethod()
+    callsub dynamic_struct_ret
+    b main_switch_case_next@19
+
+main_dynamic_struct_arg_route@12:
+    // mutable_native_types/abi_call.py:69
+    // @arc4.abimethod()
+    callsub dynamic_struct_arg
+    b main_switch_case_next@19
+
+main_nested_struct_ret_route@11:
+    // mutable_native_types/abi_call.py:65
+    // @arc4.abimethod()
+    callsub nested_struct_ret
+    b main_switch_case_next@19
+
+main_nested_struct_arg_route@10:
+    // mutable_native_types/abi_call.py:61
+    // @arc4.abimethod()
+    callsub nested_struct_arg
+    b main_switch_case_next@19
+
+main_fixed_struct_ret_route@9:
+    // mutable_native_types/abi_call.py:57
+    // @arc4.abimethod()
+    callsub fixed_struct_ret
+    b main_switch_case_next@19
+
+main_fixed_struct_arg_route@8:
+    // mutable_native_types/abi_call.py:53
+    // @arc4.abimethod()
+    callsub fixed_struct_arg
+    b main_switch_case_next@19
+
+main_create_NoOp@20:
+    b main_after_if_else@21
+
+main_delete_route@5:
+    // mutable_native_types/abi_call.py:49
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    callsub delete
+    b main_switch_case_next@6
+
+main___algopy_default_create@22:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@25
+
+main_block@25:
+    b main_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@26
+
+main_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@26:
+    intc_1 // 1
     return
 
 
@@ -402,173 +563,3 @@ test_cases.mutable_native_types.abi_call.CallMe.log_it_block@0:
     assert // check self.native_arr exists
     log
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@20
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x24378d3c // method "delete()void"
-    uncover 1
-    match approval_program_delete_route@3
-    b approval_program_switch_case_next@4
-
-approval_program_switch_case_next@4:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@18
-    b approval_program_call_NoOp@5
-
-approval_program_call_NoOp@5:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x11b19b95 // method "fixed_struct_arg((uint64,uint64))void"
-    pushbytes 0xd28b964a // method "fixed_struct_ret()(uint64,uint64)"
-    pushbytes 0xea18655f // method "nested_struct_arg(((uint64,uint64),uint64))void"
-    pushbytes 0xbb3bfdb7 // method "nested_struct_ret()((uint64,uint64),uint64)"
-    pushbytes 0x46ec14a0 // method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"
-    pushbytes 0x9b4d0926 // method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])"
-    pushbytes 0x4f0deb50 // method "fixed_arr_arg((uint64,uint64)[3])void"
-    pushbytes 0x59664ab6 // method "fixed_arr_ret()(uint64,uint64)[3]"
-    pushbytes 0x125d1376 // method "native_arr_arg((uint64,uint64)[])void"
-    pushbytes 0x818e4a62 // method "native_arr_ret()(uint64,uint64)[]"
-    pushbytes 0x9bbe1032 // method "log_it()void"
-    uncover 11
-    match approval_program_fixed_struct_arg_route@6 approval_program_fixed_struct_ret_route@7 approval_program_nested_struct_arg_route@8 approval_program_nested_struct_ret_route@9 approval_program_dynamic_struct_arg_route@10 approval_program_dynamic_struct_ret_route@11 approval_program_fixed_arr_arg_route@12 approval_program_fixed_arr_ret_route@13 approval_program_native_arr_arg_route@14 approval_program_native_arr_ret_route@15 approval_program_log_it_route@16
-    b approval_program_switch_case_next@17
-
-approval_program_switch_case_next@17:
-    b approval_program_after_if_else@19
-
-approval_program_after_if_else@19:
-    b approval_program_after_if_else@23
-
-approval_program_after_if_else@23:
-    // mutable_native_types/abi_call.py:41
-    // class CallMe(arc4.ARC4Contract):
-    err
-
-approval_program_log_it_route@16:
-    // mutable_native_types/abi_call.py:93
-    // @arc4.abimethod()
-    callsub log_it
-    b approval_program_switch_case_next@17
-
-approval_program_native_arr_ret_route@15:
-    // mutable_native_types/abi_call.py:89
-    // @arc4.abimethod()
-    callsub native_arr_ret
-    b approval_program_switch_case_next@17
-
-approval_program_native_arr_arg_route@14:
-    // mutable_native_types/abi_call.py:85
-    // @arc4.abimethod()
-    callsub native_arr_arg
-    b approval_program_switch_case_next@17
-
-approval_program_fixed_arr_ret_route@13:
-    // mutable_native_types/abi_call.py:81
-    // @arc4.abimethod()
-    callsub fixed_arr_ret
-    b approval_program_switch_case_next@17
-
-approval_program_fixed_arr_arg_route@12:
-    // mutable_native_types/abi_call.py:77
-    // @arc4.abimethod()
-    callsub fixed_arr_arg
-    b approval_program_switch_case_next@17
-
-approval_program_dynamic_struct_ret_route@11:
-    // mutable_native_types/abi_call.py:73
-    // @arc4.abimethod()
-    callsub dynamic_struct_ret
-    b approval_program_switch_case_next@17
-
-approval_program_dynamic_struct_arg_route@10:
-    // mutable_native_types/abi_call.py:69
-    // @arc4.abimethod()
-    callsub dynamic_struct_arg
-    b approval_program_switch_case_next@17
-
-approval_program_nested_struct_ret_route@9:
-    // mutable_native_types/abi_call.py:65
-    // @arc4.abimethod()
-    callsub nested_struct_ret
-    b approval_program_switch_case_next@17
-
-approval_program_nested_struct_arg_route@8:
-    // mutable_native_types/abi_call.py:61
-    // @arc4.abimethod()
-    callsub nested_struct_arg
-    b approval_program_switch_case_next@17
-
-approval_program_fixed_struct_ret_route@7:
-    // mutable_native_types/abi_call.py:57
-    // @arc4.abimethod()
-    callsub fixed_struct_ret
-    b approval_program_switch_case_next@17
-
-approval_program_fixed_struct_arg_route@6:
-    // mutable_native_types/abi_call.py:53
-    // @arc4.abimethod()
-    callsub fixed_struct_arg
-    b approval_program_switch_case_next@17
-
-approval_program_create_NoOp@18:
-    b approval_program_after_if_else@19
-
-approval_program_delete_route@3:
-    // mutable_native_types/abi_call.py:49
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be DeleteApplication && can only call when not creating
-    callsub delete
-    b approval_program_switch_case_next@4
-
-approval_program___algopy_default_create@20:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@21
-
-approval_program_block@21:
-    b approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@22
-
-approval_program_after_inlined_test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create@22:
-    intc_1 // 1
-    return

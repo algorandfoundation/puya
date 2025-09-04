@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 16 128 34176
     bytecblock "tup_bag" 0x151f7c75 0x
@@ -17,7 +17,145 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@20
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@18
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xa67ea2ab // method "create_box()void"
+    pushbytes 0x028840ea // method "num_tups()uint64"
+    pushbytes 0xf75cee9d // method "add_tup((uint64,uint64))void"
+    pushbytes 0x880b5534 // method "get_tup(uint64)(uint64,uint64)"
+    pushbytes 0x53030b41 // method "sum()uint64"
+    pushbytes 0x7d39df51 // method "add_many_tups((uint64,uint64)[])void"
+    pushbytes 0x7a1e7b43 // method "add_fixed_tups((uint64,uint64)[3])void"
+    pushbytes 0x3447847f // method "set_a(uint64)void"
+    pushbytes 0x2ba64852 // method "set_b(uint64)void"
+    pushbytes 0xabc9be78 // method "get_3_tups(uint64)(uint64,uint64)[3]"
+    pushbytes 0x73457a19 // method "get_all_tups()(uint64,uint64)[]"
+    uncover 11
+    match main_create_box_route@6 main_num_tups_route@7 main_add_tup_route@8 main_get_tup_route@9 main_sum_route@10 main_add_many_tups_route@11 main_add_fixed_tups_route@12 main_set_a_route@13 main_set_b_route@14 main_get_3_tups_route@15 main_get_all_tups_route@16
+    b main_switch_case_next@17
+
+main_switch_case_next@17:
+    b main_after_if_else@19
+
+main_after_if_else@19:
+    b main_after_if_else@21
+
+main_after_if_else@21:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    err
+
+main_get_all_tups_route@16:
+    // mutable_native_types/case3_with_mutable_struct.py:105
+    // @arc4.abimethod()
+    callsub get_all_tups
+    b main_switch_case_next@17
+
+main_get_3_tups_route@15:
+    // mutable_native_types/case3_with_mutable_struct.py:92
+    // @arc4.abimethod()
+    callsub get_3_tups
+    b main_switch_case_next@17
+
+main_set_b_route@14:
+    // mutable_native_types/case3_with_mutable_struct.py:86
+    // @arc4.abimethod()
+    callsub set_b
+    b main_switch_case_next@17
+
+main_set_a_route@13:
+    // mutable_native_types/case3_with_mutable_struct.py:80
+    // @arc4.abimethod()
+    callsub set_a
+    b main_switch_case_next@17
+
+main_add_fixed_tups_route@12:
+    // mutable_native_types/case3_with_mutable_struct.py:75
+    // @arc4.abimethod()
+    callsub add_fixed_tups
+    b main_switch_case_next@17
+
+main_add_many_tups_route@11:
+    // mutable_native_types/case3_with_mutable_struct.py:70
+    // @arc4.abimethod()
+    callsub add_many_tups
+    b main_switch_case_next@17
+
+main_sum_route@10:
+    // mutable_native_types/case3_with_mutable_struct.py:61
+    // @arc4.abimethod()
+    callsub sum
+    b main_switch_case_next@17
+
+main_get_tup_route@9:
+    // mutable_native_types/case3_with_mutable_struct.py:56
+    // @arc4.abimethod()
+    callsub get_tup
+    b main_switch_case_next@17
+
+main_add_tup_route@8:
+    // mutable_native_types/case3_with_mutable_struct.py:49
+    // @arc4.abimethod()
+    callsub add_tup
+    b main_switch_case_next@17
+
+main_num_tups_route@7:
+    // mutable_native_types/case3_with_mutable_struct.py:45
+    // @arc4.abimethod()
+    callsub num_tups
+    b main_switch_case_next@17
+
+main_create_box_route@6:
+    // mutable_native_types/case3_with_mutable_struct.py:38
+    // @arc4.abimethod()
+    callsub create_box
+    b main_switch_case_next@17
+
+main_create_NoOp@18:
+    b main_after_if_else@19
+
+main___algopy_default_create@20:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@23
+
+main_block@23:
+    b main_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create@24
+
+main_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create@24:
+    intc_1 // 1
     return
 
 
@@ -967,150 +1105,3 @@ _check_owner_block@0:
     // ), "this error should be impossible"
     assert // this error should be impossible
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // mutable_native_types/case3_with_mutable_struct.py:34
-    // class Case3WithStruct(arc4.ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@18
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // mutable_native_types/case3_with_mutable_struct.py:34
-    // class Case3WithStruct(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@16
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // mutable_native_types/case3_with_mutable_struct.py:34
-    // class Case3WithStruct(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xa67ea2ab // method "create_box()void"
-    pushbytes 0x028840ea // method "num_tups()uint64"
-    pushbytes 0xf75cee9d // method "add_tup((uint64,uint64))void"
-    pushbytes 0x880b5534 // method "get_tup(uint64)(uint64,uint64)"
-    pushbytes 0x53030b41 // method "sum()uint64"
-    pushbytes 0x7d39df51 // method "add_many_tups((uint64,uint64)[])void"
-    pushbytes 0x7a1e7b43 // method "add_fixed_tups((uint64,uint64)[3])void"
-    pushbytes 0x3447847f // method "set_a(uint64)void"
-    pushbytes 0x2ba64852 // method "set_b(uint64)void"
-    pushbytes 0xabc9be78 // method "get_3_tups(uint64)(uint64,uint64)[3]"
-    pushbytes 0x73457a19 // method "get_all_tups()(uint64,uint64)[]"
-    uncover 11
-    match approval_program_create_box_route@4 approval_program_num_tups_route@5 approval_program_add_tup_route@6 approval_program_get_tup_route@7 approval_program_sum_route@8 approval_program_add_many_tups_route@9 approval_program_add_fixed_tups_route@10 approval_program_set_a_route@11 approval_program_set_b_route@12 approval_program_get_3_tups_route@13 approval_program_get_all_tups_route@14
-    b approval_program_switch_case_next@15
-
-approval_program_switch_case_next@15:
-    b approval_program_after_if_else@17
-
-approval_program_after_if_else@17:
-    b approval_program_after_if_else@21
-
-approval_program_after_if_else@21:
-    // mutable_native_types/case3_with_mutable_struct.py:34
-    // class Case3WithStruct(arc4.ARC4Contract):
-    err
-
-approval_program_get_all_tups_route@14:
-    // mutable_native_types/case3_with_mutable_struct.py:105
-    // @arc4.abimethod()
-    callsub get_all_tups
-    b approval_program_switch_case_next@15
-
-approval_program_get_3_tups_route@13:
-    // mutable_native_types/case3_with_mutable_struct.py:92
-    // @arc4.abimethod()
-    callsub get_3_tups
-    b approval_program_switch_case_next@15
-
-approval_program_set_b_route@12:
-    // mutable_native_types/case3_with_mutable_struct.py:86
-    // @arc4.abimethod()
-    callsub set_b
-    b approval_program_switch_case_next@15
-
-approval_program_set_a_route@11:
-    // mutable_native_types/case3_with_mutable_struct.py:80
-    // @arc4.abimethod()
-    callsub set_a
-    b approval_program_switch_case_next@15
-
-approval_program_add_fixed_tups_route@10:
-    // mutable_native_types/case3_with_mutable_struct.py:75
-    // @arc4.abimethod()
-    callsub add_fixed_tups
-    b approval_program_switch_case_next@15
-
-approval_program_add_many_tups_route@9:
-    // mutable_native_types/case3_with_mutable_struct.py:70
-    // @arc4.abimethod()
-    callsub add_many_tups
-    b approval_program_switch_case_next@15
-
-approval_program_sum_route@8:
-    // mutable_native_types/case3_with_mutable_struct.py:61
-    // @arc4.abimethod()
-    callsub sum
-    b approval_program_switch_case_next@15
-
-approval_program_get_tup_route@7:
-    // mutable_native_types/case3_with_mutable_struct.py:56
-    // @arc4.abimethod()
-    callsub get_tup
-    b approval_program_switch_case_next@15
-
-approval_program_add_tup_route@6:
-    // mutable_native_types/case3_with_mutable_struct.py:49
-    // @arc4.abimethod()
-    callsub add_tup
-    b approval_program_switch_case_next@15
-
-approval_program_num_tups_route@5:
-    // mutable_native_types/case3_with_mutable_struct.py:45
-    // @arc4.abimethod()
-    callsub num_tups
-    b approval_program_switch_case_next@15
-
-approval_program_create_box_route@4:
-    // mutable_native_types/case3_with_mutable_struct.py:38
-    // @arc4.abimethod()
-    callsub create_box
-    b approval_program_switch_case_next@15
-
-approval_program_create_NoOp@16:
-    b approval_program_after_if_else@17
-
-approval_program___algopy_default_create@18:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@19
-
-approval_program_block@19:
-    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create@20
-
-approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create@20:
-    intc_1 // 1
-    return

@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.simplish.contract.Simplish.approval_program() -> uint64:
 main:
     intcblock 0 1 100000 2 314159 628318
     bytecblock "counter" 0x30313233343536373839
@@ -17,13 +17,13 @@ main:
 
 main_after_if_else@2:
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz main_after_if_else@4
 
-main_if_body@4:
+main_if_body@3:
     intc_1 // 1
     return
 
-main_after_if_else@5:
+main_after_if_else@4:
     txn OnCompletion
     dup
     bury 4
@@ -31,17 +31,17 @@ main_after_if_else@5:
     bury 7
     pushint 4 // UpdateApplication
     ==
-    bnz main_if_body@7
-    dig 2
-    pushint 5 // DeleteApplication
-    ==
-    bz main_after_if_else@10
-
-main_if_body@7:
+    bnz main_if_body@6
     dig 2
     pushint 5 // DeleteApplication
     ==
     bz main_after_if_else@9
+
+main_if_body@6:
+    dig 2
+    pushint 5 // DeleteApplication
+    ==
+    bz main_after_if_else@8
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
@@ -54,35 +54,35 @@ main_if_body@7:
     concat
     log
 
-main_after_if_else@9:
+main_after_if_else@8:
     global CreatorAddress
     dig 6
     ==
     return
 
-main_after_if_else@10:
+main_after_if_else@9:
     dig 2
     intc_1 // OptIn
     ==
-    bz main_after_if_else@14
+    bz main_after_if_else@13
     txn NumAppArgs
-    bz main_if_body@4
+    bz main_if_body@3
     intc_0 // 0
     pushbytes "name"
     txna ApplicationArgs 0
     app_local_put
-    b main_if_body@4
+    b main_if_body@3
 
-main_after_if_else@14:
+main_after_if_else@13:
     dig 2
-    bz main_after_if_else@16
+    bz main_after_if_else@15
     err
 
-main_after_if_else@16:
+main_after_if_else@15:
     txn NumAppArgs
     dup
     bury 5
-    bz main_else_body@18
+    bz main_else_body@17
     txna ApplicationArgs 0
     dup
     bury 9
@@ -97,7 +97,7 @@ main_after_if_else@16:
     bury 2
     pushbytes 0x636972636c655f61726561
     ==
-    bz main_else_body@31
+    bz main_else_body@29
     dig 1
     intc_3 // 2
     exp
@@ -107,12 +107,12 @@ main_after_if_else@16:
     /
     callsub itoa
 
-main_after_if_else@38:
+main_after_if_else@36:
     dig 1
     swap
     bury 8
 
-main_after_if_else@25:
+main_after_if_else@24:
     dig 7
     log
     pushbytes "Incrementing counter!"
@@ -128,24 +128,24 @@ main_after_if_else@25:
     app_global_put
     return
 
-main_else_body@31:
+main_else_body@29:
     dig 7
     pushbytes 0x636972636c655f63697263756d666572656e6365
     ==
-    bz main_else_body@33
+    bz main_else_body@31
     dig 1
     intc 5 // 628318
     *
     intc_2 // 100000
     /
     callsub itoa
-    b main_after_if_else@38
+    b main_after_if_else@36
 
-main_else_body@33:
+main_else_body@31:
     dig 7
     pushbytes 0x636972636c655f7265706f7274
     ==
-    bz main_else_body@35
+    bz main_else_body@33
     dig 1
     dup
     intc_3 // 2
@@ -174,46 +174,46 @@ main_else_body@33:
     swap
     callsub itoa
     concat
-    b main_after_if_else@38
+    b main_after_if_else@36
 
-main_else_body@35:
+main_else_body@33:
     intc_0 // 0
     bury 1
     pushbytes 0x756e6b6e6f776e206d6574686f64206e616d65
-    b main_after_if_else@38
+    b main_after_if_else@36
 
-main_else_body@18:
+main_else_body@17:
     txn NumAssets
     intc_1 // 1
     ==
-    bz main_else_body@23
+    bz main_else_body@22
     dig 5
     intc_0 // 0
     asset_holding_get AssetBalance
     swap
     bury 6
-    bnz main_else_body@21
+    bnz main_else_body@20
     pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
     bury 7
 
-main_after_if_else@22:
+main_after_if_else@21:
     intc_1 // 1
-    b main_after_if_else@25
+    b main_after_if_else@24
 
-main_else_body@21:
+main_else_body@20:
     dig 4
     callsub itoa
     pushbytes 0x596f7520686176652061737365742062616c616e63653a20
     swap
     concat
     bury 7
-    b main_after_if_else@22
+    b main_after_if_else@21
 
-main_else_body@23:
+main_else_body@22:
     pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
     bury 7
     intc_0 // 0
-    b main_after_if_else@25
+    b main_after_if_else@24
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:

@@ -1,4 +1,4 @@
-main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -11,51 +11,47 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (app_global_put "previous_bidder" tmp%0#2)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#1: bool = examples.auction.contract.Auction.__puya_arc4_router__()
-        return tmp%0#1
-
-subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
-    block@0: // L16
-        let tmp%0#0: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%0#0 ? block@1 : block@12
-    block@1: // abi_routing_L16
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#1: bool = (!= tmp%0#1 0u)
+        goto tmp%0#1 ? block@4 : block@15
+    block@4: // abi_routing_L16
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%4#0 ? block@2 : block@11
-    block@2: // call_NoOp_L16
+        goto tmp%4#0 ? block@5 : block@14
+    block@5: // call_NoOp_L16
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@3, method "start_auction(uint64,uint64,axfer)void" => block@4, method "opt_in()void" => block@5, method "bid(pay)void" => block@6, method "claim_bids()void" => block@7, method "claim_asset(uint64)void" => block@8, * => block@11}
-    block@3: // opt_into_asset_route_L25
+        switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@6, method "start_auction(uint64,uint64,axfer)void" => block@7, method "opt_in()void" => block@8, method "bid(pay)void" => block@9, method "claim_bids()void" => block@10, method "claim_asset(uint64)void" => block@11, * => block@14}
+    block@6: // opt_into_asset_route_L25
         examples.auction.contract.Auction.opt_into_asset[routing]()
-        goto block@11
-    block@4: // start_auction_route_L40
+        goto block@14
+    block@7: // start_auction_route_L40
         examples.auction.contract.Auction.start_auction[routing]()
-        goto block@11
-    block@5: // opt_in_route_L62
+        goto block@14
+    block@8: // opt_in_route_L62
         examples.auction.contract.Auction.opt_in[routing]()
-        goto block@11
-    block@6: // bid_route_L66
+        goto block@14
+    block@9: // bid_route_L66
         examples.auction.contract.Auction.bid[routing]()
-        goto block@11
-    block@7: // claim_bids_route_L82
+        goto block@14
+    block@10: // claim_bids_route_L82
         examples.auction.contract.Auction.claim_bids[routing]()
-        goto block@11
-    block@8: // claim_asset_route_L97
+        goto block@14
+    block@11: // claim_asset_route_L97
         examples.auction.contract.Auction.claim_asset[routing]()
-        goto block@11
-    block@11: // after_if_else_L16
+        goto block@14
+    block@14: // after_if_else_L16
         fail
-    block@12: // __algopy_default_create_L1
+    block@15: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
         let tmp%10#0: bool = (! tmp%9#0)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        examples.auction.contract.Auction.__algopy_default_create()
         exit 1u
 
 subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
@@ -195,3 +191,7 @@ subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         exit 1u
+
+subroutine examples.auction.contract.Auction.__algopy_default_create() -> void:
+    block@0: // L1
+        return 
