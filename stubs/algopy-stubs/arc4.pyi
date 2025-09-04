@@ -2,6 +2,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import algopy
+from typing_extensions import deprecated
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
@@ -159,6 +160,7 @@ class UIntN(_UIntN, typing.Generic[_TBitSize]):
     Max Size: 64 bits"""
 
     @property
+    @deprecated("Use `as_uint64` instead")
     def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC-4 decoding"""
 
@@ -174,6 +176,7 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
     Max size: 512 bits"""
 
     @property
+    @deprecated("Use `as_biguint` instead")
     def native(self) -> algopy.BigUInt:
         """Return the BigUInt representation of the value after ARC-4 decoding"""
 
