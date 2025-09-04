@@ -131,7 +131,7 @@ class BraunSSA:
             )
             logger.debug(f"Added {pred_variable} to Phi node: {phi} in {block_pred}")
         attrs.validate(phi)
-        trivial_replacements = TrivialPhiRemover.try_remove(phi, self._all_blocks)
+        trivial_replacements = _TrivialPhiRemover.try_remove(phi, self._all_blocks)
         if not trivial_replacements:
             return phi.register
         _, result = trivial_replacements[0]
@@ -179,7 +179,7 @@ class BraunSSA:
 
 
 @attrs.define(kw_only=True)
-class TrivialPhiRemover(IRMutator):
+class _TrivialPhiRemover(IRMutator):
     _find: ir.Phi
     _replacement: ir.Register
     collected: list[ir.Phi] = attrs.field(factory=list)

@@ -6,7 +6,6 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import get_definition
-from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.types_ import PrimitiveIRType
 
 logger = log.get_logger(__name__)
@@ -19,11 +18,6 @@ _SWITCH_SPARSENESS_SIMPLIFICATION_RATIO = 0.5
 
 def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     changes = False
-    modified_phis = []
-
-    def remove_target(parent: models.BasicBlock, to_remove: models.BasicBlock) -> None:
-        if to_remove.remove_predecessor(parent):
-            modified_phis.extend(to_remove.phis)
 
     for block in subroutine.body:
         terminator = block.terminator
@@ -45,7 +39,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     source_location=terminator.source_location, target=goto
                 )
                 if other is not goto:
-                    remove_target(block, other)
+                    other.remove_predecessor(block)
             case models.ConditionalBranch(
                 condition=condition,
                 zero=models.BasicBlock(
@@ -65,7 +59,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 )
                 block.terminator = models.Goto(target=non_zero, source_location=source_location)
                 if err_block not in block.successors:
-                    remove_target(block, err_block)
+                    err_block.remove_predecessor(block)
             case models.ConditionalBranch(
                 condition=models.Register() as condition,
                 non_zero=models.BasicBlock(
@@ -103,7 +97,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 )
                 block.terminator = models.Goto(target=zero, source_location=source_location)
                 if err_block not in block.successors:
-                    remove_target(block, err_block)
+                    err_block.remove_predecessor(block)
             case (
                 models.ConditionalBranch(
                     condition=models.Register() as condition,
@@ -155,7 +149,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 )
                 for target in terminator.targets():
                     if target is not goto:
-                        remove_target(block, target)
+                        target.remove_predecessor(block)
             case models.GotoNth(
                 value=value,
                 blocks=[zero],  # the constant here is the size of blocks
@@ -179,8 +173,6 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 continue
         changes = True
         logger.debug(f"simplified terminator of {block} from {terminator} to {block.terminator}")
-    for phi in modified_phis:
-        TrivialPhiRemover.try_remove(phi, subroutine.body)
     return changes
 
 
