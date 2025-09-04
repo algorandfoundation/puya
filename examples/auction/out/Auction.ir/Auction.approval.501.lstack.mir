@@ -1,5 +1,5 @@
 // Op                                                                                        Stack (out)
-// examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         txn ApplicationID                                                                    tmp%0#0
@@ -38,9 +38,9 @@ subroutine main:
     main_after_if_else@2:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn NumAppArgs                                                                       tmp%0#3
-        l-load tmp%0#3 0                                                                     tmp%0#3
-        bz main___algopy_default_create@13 ; b main_abi_routing@4
+        txn NumAppArgs                                                                       tmp%0#1
+        l-load tmp%0#1 0                                                                     tmp%0#1
+        bz main___algopy_default_create@15 ; b main_abi_routing@4
 
     main_abi_routing@4:
         // auction/contract.py:16
@@ -61,19 +61,19 @@ subroutine main:
         method claim_bids()void                                                              tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
         method claim_asset(uint64)void                                                       tmp%6#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void)
         l-load tmp%6#0 6                                                                     Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void),tmp%6#0
-        match main_opt_into_asset_route@6 main_start_auction_route@7 main_opt_in_route@8 main_bid_route@9 main_claim_bids_route@10 main_claim_asset_route@11 ; b main_after_if_else@12 
+        match main_opt_into_asset_route@6 main_start_auction_route@7 main_opt_in_route@8 main_bid_route@9 main_claim_bids_route@10 main_claim_asset_route@11 ; b main_after_if_else@14 
 
     main_opt_into_asset_route@6:
         // auction/contract.py:25
         // @arc4.abimethod
         callsub opt_into_asset
-        b main_after_if_else@12
+        b main_after_if_else@14
 
     main_start_auction_route@7:
         // auction/contract.py:40
         // @arc4.abimethod
         callsub start_auction
-        b main_after_if_else@12
+        b main_after_if_else@14
 
     main_opt_in_route@8:
         // auction/contract.py:62
@@ -85,26 +85,26 @@ subroutine main:
         // auction/contract.py:66
         // @arc4.abimethod
         callsub bid
-        b main_after_if_else@12
+        b main_after_if_else@14
 
     main_claim_bids_route@10:
         // auction/contract.py:82
         // @arc4.abimethod
         callsub claim_bids
-        b main_after_if_else@12
+        b main_after_if_else@14
 
     main_claim_asset_route@11:
         // auction/contract.py:97
         // @arc4.abimethod
         callsub claim_asset
-        b main_after_if_else@12
+        b main_after_if_else@14
 
-    main_after_if_else@12:
+    main_after_if_else@14:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         err
 
-    main___algopy_default_create@13:
+    main___algopy_default_create@15:
         txn OnCompletion                                                                     tmp%7#0
         l-load tmp%7#0 0                                                                     tmp%7#0
         !                                                                                    tmp%8#0

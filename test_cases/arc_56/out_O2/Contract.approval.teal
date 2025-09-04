@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 2 10 TMPL_AVM_UINT64
     bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
@@ -10,7 +10,7 @@ main:
     bytec_0 // ""
     dupn 2
     txn NumAppArgs
-    bz main_bare_routing@15
+    bz main_bare_routing@18
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match main_create_route@5
@@ -23,7 +23,7 @@ main:
     txna ApplicationArgs 0
     match main_struct_arg_route@8 main_struct_return_route@9 main_emits_error_route@10 main_emitter_route@11 main_conditional_emit_route@12 main_template_value_route@13 main_with_constant_defaults_route@14
 
-main_after_if_else@18:
+main_after_if_else@22:
     err
 
 main_with_constant_defaults_route@14:
@@ -70,28 +70,28 @@ main_with_constant_defaults_route@14:
     extract 0 8
     bytec_0 // 0x
     b!=
-    bnz main_bool_true@21
+    bnz main_bool_true@29
     dig 6
     extract 8 8
     bytec_0 // 0x
     b!=
-    bz main_bool_false@22
+    bz main_bool_false@30
 
-main_bool_true@21:
+main_bool_true@29:
     intc_0 // 1
 
-main_bool_merge@23:
+main_bool_merge@31:
     assert
     dig 2
-    bnz main_bool_true@25
+    bnz main_bool_true@33
     dig 5
     len
-    bz main_bool_false@26
+    bz main_bool_false@34
 
-main_bool_true@25:
+main_bool_true@33:
     intc_0 // 1
 
-main_bool_merge@27:
+main_bool_merge@35:
     assert
     dig 4
     dup
@@ -120,13 +120,13 @@ main_bool_merge@27:
     ==
     return
 
-main_bool_false@26:
+main_bool_false@34:
     intc_1 // 0
-    b main_bool_merge@27
+    b main_bool_merge@35
 
-main_bool_false@22:
+main_bool_false@30:
     intc_1 // 0
-    b main_bool_merge@23
+    b main_bool_merge@31
 
 main_template_value_route@13:
     bytec_2 // TMPL_ARC4_UINT8
@@ -171,11 +171,11 @@ main_conditional_emit_route@12:
     txna ApplicationArgs 1
     intc_1 // 0
     getbit
-    bz main_after_if_else@33
+    bz main_after_if_else@41
     pushbytes 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
     log
 
-main_after_if_else@33:
+main_after_if_else@41:
     intc_0 // 1
     return
 
@@ -235,12 +235,12 @@ main_create_route@5:
     &
     return // on error: OnCompletion must be one of NoOp, OptIn
 
-main_bare_routing@15:
+main_bare_routing@18:
     txn OnCompletion
-    switch main_after_if_else@33 main_after_if_else@33 main_after_if_else@18 main_after_if_else@18 main_after_if_else@18 main_transient@17
+    switch main_after_if_else@41 main_after_if_else@41 main_after_if_else@22 main_after_if_else@22 main_after_if_else@22 main_transient@20
     err
 
-main_transient@17:
+main_transient@20:
     txn ApplicationID
     !
     return // on error: can only call when creating

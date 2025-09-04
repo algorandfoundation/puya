@@ -1,9 +1,10 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> uint64:
 main:
     intcblock 0 1
+    pushbytes ""
     b main_block@0
 
 main_block@0:
@@ -16,7 +17,58 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
+    // abi_routing/custom_approval.py:13
+    // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
+    txn NumAppArgs
+    pushint 2 // 2
+    ==
+    bz main_after_if_else@5
+    b main_and_contd@3
+
+main_and_contd@3:
+    // abi_routing/custom_approval.py:13
+    // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
+    txna ApplicationArgs 1
+    pushint 42 // 42
+    itob
+    ==
+    bz main_after_if_else@5
+    b main_if_body@4
+
+main_if_body@4:
+    // abi_routing/custom_approval.py:14
+    // log("🎉🎉🎉")
+    pushbytes "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
+    log
+    b main_after_if_else@5
+
+main_after_if_else@5:
+    // abi_routing/custom_approval.py:15
+    // result = super().approval_program()
     callsub approval_program
+    dup
+    bury 2
+    // abi_routing/custom_approval.py:16
+    // if not result:
+    bnz main_after_if_else@7
+    b main_if_body@6
+
+main_if_body@6:
+    // abi_routing/custom_approval.py:18-19
+    // "this will never be seen unless you're running in simulation mode anyway"
+    // " so I can say whatever I want here"
+    pushbytes "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
+    // abi_routing/custom_approval.py:17-20
+    // log(
+    //     "this will never be seen unless you're running in simulation mode anyway"
+    //     " so I can say whatever I want here"
+    // )
+    log
+    b main_after_if_else@7
+
+main_after_if_else@7:
+    // abi_routing/custom_approval.py:21
+    // return result
     return
 
 
@@ -35,8 +87,7 @@ add_one_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
-    return
+    retsub
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
@@ -53,73 +104,6 @@ __init___block@0:
     intc_0 // 0
     ==
     assert // nonsense assert just to generate an init method
-    retsub
-
-
-// test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> uint64:
-approval_program:
-    // abi_routing/custom_approval.py:11-12
-    // @typing.override
-    // def approval_program(self) -> bool:
-    proto 0 1
-    pushbytes ""
-    b approval_program_block@0
-
-approval_program_block@0:
-    // abi_routing/custom_approval.py:13
-    // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
-    txn NumAppArgs
-    pushint 2 // 2
-    ==
-    bz approval_program_after_if_else@3
-    b approval_program_and_contd@1
-
-approval_program_and_contd@1:
-    // abi_routing/custom_approval.py:13
-    // if Txn.num_app_args == 2 and Txn.application_args(1) == op.itob(42):
-    txna ApplicationArgs 1
-    pushint 42 // 42
-    itob
-    ==
-    bz approval_program_after_if_else@3
-    b approval_program_if_body@2
-
-approval_program_if_body@2:
-    // abi_routing/custom_approval.py:14
-    // log("🎉🎉🎉")
-    pushbytes "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
-    log
-    b approval_program_after_if_else@3
-
-approval_program_after_if_else@3:
-    // abi_routing/custom_approval.py:15
-    // result = super().approval_program()
-    callsub algopy.arc4.ARC4Contract.approval_program
-    dup
-    frame_bury 0
-    // abi_routing/custom_approval.py:16
-    // if not result:
-    bnz approval_program_after_if_else@5
-    b approval_program_if_body@4
-
-approval_program_if_body@4:
-    // abi_routing/custom_approval.py:18-19
-    // "this will never be seen unless you're running in simulation mode anyway"
-    // " so I can say whatever I want here"
-    pushbytes "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
-    // abi_routing/custom_approval.py:17-20
-    // log(
-    //     "this will never be seen unless you're running in simulation mode anyway"
-    //     " so I can say whatever I want here"
-    // )
-    log
-    b approval_program_after_if_else@5
-
-approval_program_after_if_else@5:
-    // abi_routing/custom_approval.py:21
-    // return result
-    frame_dig 0
-    uncover 1
     retsub
 
 
@@ -141,39 +125,49 @@ test_cases.abi_routing.custom_approval.CustomApproval.add_one_block@0:
 
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
-algopy.arc4.ARC4Contract.approval_program:
-    b algopy.arc4.ARC4Contract.approval_program_block@0
+approval_program:
+    proto 0 1
+    pushbytes ""
+    pushbytes ""
+    b approval_program_block@0
 
-algopy.arc4.ARC4Contract.approval_program_block@0:
-    b algopy.arc4.ARC4Contract.approval_program_block@1
+approval_program_block@0:
+    b approval_program_block@1
 
-algopy.arc4.ARC4Contract.approval_program_block@1:
+approval_program_block@1:
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
+    intc_0 // 0
+    frame_bury 0
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz algopy.arc4.ARC4Contract.approval_program___algopy_default_create@5
-    b algopy.arc4.ARC4Contract.approval_program_abi_routing@2
+    bz approval_program___algopy_default_create@5
+    b approval_program_abi_routing@2
 
-algopy.arc4.ARC4Contract.approval_program_abi_routing@2:
+approval_program_abi_routing@2:
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     uncover 1
-    match algopy.arc4.ARC4Contract.approval_program_add_one_route@3
-    b algopy.arc4.ARC4Contract.approval_program_switch_case_next@4
+    match approval_program_add_one_route@3
+    b approval_program_switch_case_next@4
 
-algopy.arc4.ARC4Contract.approval_program_switch_case_next@4:
-    b algopy.arc4.ARC4Contract.approval_program_after_if_else@8
+approval_program_switch_case_next@4:
+    b approval_program_after_if_else@8
 
-algopy.arc4.ARC4Contract.approval_program_after_if_else@8:
-    // abi_routing/custom_approval.py:6
-    // class CustomApproval(ARC4Contract):
-    err
+approval_program_after_if_else@8:
+    frame_dig 0
+    frame_bury 1
+    b approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@9
 
-algopy.arc4.ARC4Contract.approval_program_add_one_route@3:
+approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@9:
+    frame_dig 1
+    frame_bury 0
+    retsub
+
+approval_program_add_one_route@3:
     // abi_routing/custom_approval.py:23
     // @arc4.abimethod
     txn OnCompletion
@@ -185,9 +179,11 @@ algopy.arc4.ARC4Contract.approval_program_add_one_route@3:
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
     callsub add_one
-    b algopy.arc4.ARC4Contract.approval_program_switch_case_next@4
+    intc_1 // 1
+    frame_bury 0
+    b approval_program_switch_case_next@4
 
-algopy.arc4.ARC4Contract.approval_program___algopy_default_create@5:
+approval_program___algopy_default_create@5:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -196,14 +192,15 @@ algopy.arc4.ARC4Contract.approval_program___algopy_default_create@5:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b algopy.arc4.ARC4Contract.approval_program_block@6
+    b approval_program_block@6
 
-algopy.arc4.ARC4Contract.approval_program_block@6:
-    b algopy.arc4.ARC4Contract.approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create@7
+approval_program_block@6:
+    b approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create@7
 
-algopy.arc4.ARC4Contract.approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create@7:
+approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create@7:
     intc_1 // 1
-    return
+    frame_bury 0
+    b approval_program_after_if_else@8
 
 
 // algopy._contract.Contract.__init__() -> void:

@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 8 2
     bytecblock 0x151f7c75 "asa" 0x01040023 0x07 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
@@ -17,7 +17,237 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    !=
+    bz main_bare_abi_config@25
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 0
+    bytec_2 // method "opt_in(uint64,byte[])void"
+    pushbytes 0x3a5353fc // method "all_the_things(uint64)uint8"
+    pushbytes 0xd2f2f53c // method "mixed_oca(uint64)uint8"
+    uncover 3
+    match main_opt_in_route@5 main_all_the_things_route@6 main_mixed_oca_route@7
+    b main_switch_case_next@8
+
+main_switch_case_next@8:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    bz main_create_NoOp@23
+    b main_call_NoOp@9
+
+main_call_NoOp@9:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
+    pushbytes 0xd8f62d9a // method "opt_into_asset(uint64)void"
+    pushbytes 0xb8431119 // method "with_transactions(uint64,uint64,pay,uint64)void"
+    pushbytes 0xc416372d // method "compare_assets(uint64,uint64)void"
+    pushbytes 0x7fad9780 // method "get_address()address"
+    pushbytes 0x2fdf95a4 // method "get_asset()uint64"
+    pushbytes 0x1399826c // method "get_application()uint64"
+    pushbytes 0xa1300821 // method "get_an_int()uint64"
+    pushbytes 0x6137dc37 // method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void"
+    pushbytes 0x5732195a // method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]"
+    pushbytes 0xf6096c82 // method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64"
+    pushbytes 0x9023bb19 // method "hello_with_algopy_string(string)string"
+    uncover 12
+    match main_noop_with_uint64_route@10 main_opt_into_asset_route@11 main_with_transactions_route@12 main_compare_assets_route@13 main_get_address_route@14 main_get_asset_route@15 main_get_application_route@16 main_get_an_int_route@17 main_method_with_default_args_route@18 main_method_with_15_args_route@19 main_method_with_more_than_15_args_route@20 main_hello_with_algopy_string_route@21
+    b main_switch_case_next@22
+
+main_switch_case_next@22:
+    b main_after_if_else@24
+
+main_after_if_else@24:
+    b main_after_if_else@26
+
+main_after_if_else@26:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    err
+
+main_hello_with_algopy_string_route@21:
+    // abi_routing/contract.py:295
+    // @arc4.abimethod
+    callsub hello_with_algopy_string
+    b main_switch_case_next@22
+
+main_method_with_more_than_15_args_route@20:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    callsub method_with_more_than_15_args
+    b main_switch_case_next@22
+
+main_method_with_15_args_route@19:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    callsub method_with_15_args
+    b main_switch_case_next@22
+
+main_method_with_default_args_route@18:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    callsub method_with_default_args
+    b main_switch_case_next@22
+
+main_get_an_int_route@17:
+    // abi_routing/contract.py:138
+    // @arc4.abimethod(readonly=True, name="get_an_int")
+    callsub get_a_int
+    b main_switch_case_next@22
+
+main_get_application_route@16:
+    // abi_routing/contract.py:134
+    // @arc4.abimethod(readonly=True, name="get_application")
+    callsub get_app
+    b main_switch_case_next@22
+
+main_get_asset_route@15:
+    // abi_routing/contract.py:130
+    // @arc4.abimethod(readonly=True)
+    callsub get_asset
+    b main_switch_case_next@22
+
+main_get_address_route@14:
+    // abi_routing/contract.py:126
+    // @arc4.abimethod(readonly=True)
+    callsub get_address
+    b main_switch_case_next@22
+
+main_compare_assets_route@13:
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    callsub compare_assets
+    b main_switch_case_next@22
+
+main_with_transactions_route@12:
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    callsub with_transactions
+    b main_switch_case_next@22
+
+main_opt_into_asset_route@11:
+    // abi_routing/contract.py:92
+    // @arc4.abimethod
+    callsub opt_into_asset
+    b main_switch_case_next@22
+
+main_noop_with_uint64_route@10:
+    // abi_routing/contract.py:40
+    // @arc4.abimethod
+    callsub noop_with_uint64
+    b main_switch_case_next@22
+
+main_create_NoOp@23:
+    b main_after_if_else@24
+
+main_mixed_oca_route@7:
+    // abi_routing/contract.py:66-74
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "CloseOut",
+    //         "DeleteApplication",
+    //     ],
+    //     create="disallow",
+    //     readonly=True,
+    // )
+    txn OnCompletion
+    intc_0 // 1
+    uncover 1
+    shl
+    pushint 37 // 37
+    &
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    &&
+    assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
+    callsub mixed_oca
+    b main_switch_case_next@8
+
+main_all_the_things_route@6:
+    // abi_routing/contract.py:50-61
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         OnCompleteAction.OptIn,
+    //         "CloseOut",
+    //         OnCompleteAction.UpdateApplication,
+    //         OnCompleteAction.DeleteApplication,
+    //     ],
+    //     name="all_the_things",
+    //     create="allow",
+    //     readonly=True,
+    // )
+    callsub full_abi_config
+    b main_switch_case_next@8
+
+main_opt_in_route@5:
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    txn OnCompletion
+    intc_0 // OptIn
+    ==
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    &&
+    assert // OnCompletion must be OptIn && can only call when not creating
+    callsub opt_in
+    b main_switch_case_next@8
+
+main_bare_abi_config@25:
+    // abi_routing/contract.py:79-88
+    // @arc4.baremethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "OptIn",
+    //         "CloseOut",
+    //         "UpdateApplication",
+    //         "DeleteApplication",
+    //     ],
+    //     create="require",
+    // )
+    txn ApplicationID
+    intc_1 // 0
+    ==
+    assert // can only call when creating
+    callsub bare_abi_config
+    intc_0 // 1
     return
 
 
@@ -1684,242 +1914,3 @@ test_cases.abi_routing.contract.Reference.hello_with_algopy_string_block@0:
     pushbytes "!"
     concat
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    txn NumAppArgs
-    intc_1 // 0
-    !=
-    bz approval_program_bare_abi_config@23
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 0
-    bytec_2 // method "opt_in(uint64,byte[])void"
-    pushbytes 0x3a5353fc // method "all_the_things(uint64)uint8"
-    pushbytes 0xd2f2f53c // method "mixed_oca(uint64)uint8"
-    uncover 3
-    match approval_program_opt_in_route@3 approval_program_all_the_things_route@4 approval_program_mixed_oca_route@5
-    b approval_program_switch_case_next@6
-
-approval_program_switch_case_next@6:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    txn OnCompletion
-    intc_1 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    bz approval_program_create_NoOp@21
-    b approval_program_call_NoOp@7
-
-approval_program_call_NoOp@7:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xd78db35b // method "noop_with_uint64(uint64)uint8"
-    pushbytes 0xd8f62d9a // method "opt_into_asset(uint64)void"
-    pushbytes 0xb8431119 // method "with_transactions(uint64,uint64,pay,uint64)void"
-    pushbytes 0xc416372d // method "compare_assets(uint64,uint64)void"
-    pushbytes 0x7fad9780 // method "get_address()address"
-    pushbytes 0x2fdf95a4 // method "get_asset()uint64"
-    pushbytes 0x1399826c // method "get_application()uint64"
-    pushbytes 0xa1300821 // method "get_an_int()uint64"
-    pushbytes 0x6137dc37 // method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void"
-    pushbytes 0x5732195a // method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]"
-    pushbytes 0xf6096c82 // method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64"
-    pushbytes 0x9023bb19 // method "hello_with_algopy_string(string)string"
-    uncover 12
-    match approval_program_noop_with_uint64_route@8 approval_program_opt_into_asset_route@9 approval_program_with_transactions_route@10 approval_program_compare_assets_route@11 approval_program_get_address_route@12 approval_program_get_asset_route@13 approval_program_get_application_route@14 approval_program_get_an_int_route@15 approval_program_method_with_default_args_route@16 approval_program_method_with_15_args_route@17 approval_program_method_with_more_than_15_args_route@18 approval_program_hello_with_algopy_string_route@19
-    b approval_program_switch_case_next@20
-
-approval_program_switch_case_next@20:
-    b approval_program_after_if_else@22
-
-approval_program_after_if_else@22:
-    b approval_program_after_if_else@24
-
-approval_program_after_if_else@24:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    err
-
-approval_program_hello_with_algopy_string_route@19:
-    // abi_routing/contract.py:295
-    // @arc4.abimethod
-    callsub hello_with_algopy_string
-    b approval_program_switch_case_next@20
-
-approval_program_method_with_more_than_15_args_route@18:
-    // abi_routing/contract.py:229
-    // @arc4.abimethod
-    callsub method_with_more_than_15_args
-    b approval_program_switch_case_next@20
-
-approval_program_method_with_15_args_route@17:
-    // abi_routing/contract.py:191
-    // @arc4.abimethod
-    callsub method_with_15_args
-    b approval_program_switch_case_next@20
-
-approval_program_method_with_default_args_route@16:
-    // abi_routing/contract.py:142-158
-    // @arc4.abimethod(
-    //     default_args={
-    //         "asset_from_storage": "asa",
-    //         "asset_from_function": get_asset,
-    //         "account_from_storage": "creator",
-    //         "account_from_function": "get_address",
-    //         "application_from_storage": "app",
-    //         "application_from_function": get_app,
-    //         "bytes_from_storage": "some_bytes",
-    //         "int_from_storage": "an_int",
-    //         "int_from_function": "get_a_int",
-    //         "int_from_const": arc4.UInt32(123),
-    //         "str_from_const": arc4.String("abc"),
-    //         "int_from_local": "local_uint",
-    //         "bytes_from_local": "local_bytes",
-    //     }
-    // )
-    callsub method_with_default_args
-    b approval_program_switch_case_next@20
-
-approval_program_get_an_int_route@15:
-    // abi_routing/contract.py:138
-    // @arc4.abimethod(readonly=True, name="get_an_int")
-    callsub get_a_int
-    b approval_program_switch_case_next@20
-
-approval_program_get_application_route@14:
-    // abi_routing/contract.py:134
-    // @arc4.abimethod(readonly=True, name="get_application")
-    callsub get_app
-    b approval_program_switch_case_next@20
-
-approval_program_get_asset_route@13:
-    // abi_routing/contract.py:130
-    // @arc4.abimethod(readonly=True)
-    callsub get_asset
-    b approval_program_switch_case_next@20
-
-approval_program_get_address_route@12:
-    // abi_routing/contract.py:126
-    // @arc4.abimethod(readonly=True)
-    callsub get_address
-    b approval_program_switch_case_next@20
-
-approval_program_compare_assets_route@11:
-    // abi_routing/contract.py:122
-    // @arc4.abimethod
-    callsub compare_assets
-    b approval_program_switch_case_next@20
-
-approval_program_with_transactions_route@10:
-    // abi_routing/contract.py:109
-    // @arc4.abimethod
-    callsub with_transactions
-    b approval_program_switch_case_next@20
-
-approval_program_opt_into_asset_route@9:
-    // abi_routing/contract.py:92
-    // @arc4.abimethod
-    callsub opt_into_asset
-    b approval_program_switch_case_next@20
-
-approval_program_noop_with_uint64_route@8:
-    // abi_routing/contract.py:40
-    // @arc4.abimethod
-    callsub noop_with_uint64
-    b approval_program_switch_case_next@20
-
-approval_program_create_NoOp@21:
-    b approval_program_after_if_else@22
-
-approval_program_mixed_oca_route@5:
-    // abi_routing/contract.py:66-74
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "CloseOut",
-    //         "DeleteApplication",
-    //     ],
-    //     create="disallow",
-    //     readonly=True,
-    // )
-    txn OnCompletion
-    intc_0 // 1
-    uncover 1
-    shl
-    pushint 37 // 37
-    &
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    &&
-    assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
-    callsub mixed_oca
-    b approval_program_switch_case_next@6
-
-approval_program_all_the_things_route@4:
-    // abi_routing/contract.py:50-61
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         OnCompleteAction.OptIn,
-    //         "CloseOut",
-    //         OnCompleteAction.UpdateApplication,
-    //         OnCompleteAction.DeleteApplication,
-    //     ],
-    //     name="all_the_things",
-    //     create="allow",
-    //     readonly=True,
-    // )
-    callsub full_abi_config
-    b approval_program_switch_case_next@6
-
-approval_program_opt_in_route@3:
-    // abi_routing/contract.py:45
-    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-    txn OnCompletion
-    intc_0 // OptIn
-    ==
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    &&
-    assert // OnCompletion must be OptIn && can only call when not creating
-    callsub opt_in
-    b approval_program_switch_case_next@6
-
-approval_program_bare_abi_config@23:
-    // abi_routing/contract.py:79-88
-    // @arc4.baremethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "OptIn",
-    //         "CloseOut",
-    //         "UpdateApplication",
-    //         "DeleteApplication",
-    //     ],
-    //     create="require",
-    // )
-    txn ApplicationID
-    intc_1 // 0
-    ==
-    assert // can only call when creating
-    callsub bare_abi_config
-    intc_0 // 1
-    return

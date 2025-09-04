@@ -1,23 +1,18 @@
-main test_cases.match.counter.Counter.__algopy_entrypoint_with_init:
-    block@0: // L1
+main test_cases.match.counter.Counter.approval_program:
+    block@0: // L8
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
         (app_global_put "counter" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#1: uint64 = (txn OnCompletion)
-        goto tmp%0#1 ? block@5 : block@4
-    block@4: // switch_case_0_L11
+        let tmp%1#0: uint64 = (txn OnCompletion)
+        goto tmp%1#0 ? block@4 : block@3
+    block@3: // switch_case_0_L11
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let tmp%0#2: uint64 = (+ maybe_value%0#0 1u)
-        (app_global_put "counter" tmp%0#2)
-        let test_cases.match.counter.Counter.approval_program%0#0: bool = 1u
-        goto block@6
-    block@5: // switch_case_default_L15
-        let test_cases.match.counter.Counter.approval_program%0#1: bool = 0u
-        goto block@6
-    block@6: // after_inlined_test_cases.match.counter.Counter.approval_program_L1
-        let tmp%1#0: bool = φ(test_cases.match.counter.Counter.approval_program%0#0 <- block@4, test_cases.match.counter.Counter.approval_program%0#1 <- block@5)
-        return tmp%1#0
+        let tmp%0#1: uint64 = (+ maybe_value%0#0 1u)
+        (app_global_put "counter" tmp%0#1)
+        return 1u
+    block@4: // switch_case_default_L15
+        return 0u

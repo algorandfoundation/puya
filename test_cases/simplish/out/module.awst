@@ -11,21 +11,11 @@ contract Simplish
     ['name']: bytes
   }
   
-  subroutine test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.simplish.contract.Simplish.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.simplish.contract.Simplish.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.simplish.contract.Simplish.approval_program(): bool
-  {
     if (txn<ApplicationID>() == reinterpret_cast<application>(0u)) {
       return true
     }
@@ -66,6 +56,11 @@ contract Simplish
     log(msg)
     this::increment_counter()
     return result
+  }
+  
+  subroutine test_cases.simplish.contract.Simplish.clear_state_program(): bool
+  {
+    return true
   }
   
   subroutine test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64): tuple<bytes,bool>

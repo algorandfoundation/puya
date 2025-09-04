@@ -24,12 +24,12 @@ contract VotingRoundApp
     ['']: account => arc4.dynamic_array<arc4.uint8>
   }
   
-  subroutine examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -164,11 +164,6 @@ contract VotingRoundApp
   {
     current_vote: uint64 = this::get_vote_from_box(index)
     box_replace('V', index, itob(current_vote + 1u))
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
   }
   
   subroutine algopy._contract.Contract.__init__(): void

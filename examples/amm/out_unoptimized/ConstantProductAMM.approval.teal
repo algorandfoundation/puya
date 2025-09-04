@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "" "governor" "ratio"
@@ -17,7 +17,123 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@14
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@12
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xddc4cb4a // method "set_governor(address)void"
+    pushbytes 0x6b59d965 // method "bootstrap(pay,asset,asset)uint64"
+    pushbytes 0x5cbf1e2d // method "mint(axfer,axfer,asset,asset,asset)void"
+    pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
+    pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
+    uncover 5
+    match main_set_governor_route@6 main_bootstrap_route@7 main_mint_route@8 main_burn_route@9 main_swap_route@10
+    b main_switch_case_next@11
+
+main_switch_case_next@11:
+    b main_after_if_else@13
+
+main_after_if_else@13:
+    b main_after_if_else@15
+
+main_after_if_else@15:
+    // amm/contract.py:27
+    // class ConstantProductAMM(ARC4Contract):
+    err
+
+main_swap_route@10:
+    // amm/contract.py:206-212
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    callsub swap
+    b main_switch_case_next@11
+
+main_burn_route@9:
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    callsub burn
+    b main_switch_case_next@11
+
+main_mint_route@8:
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    callsub mint
+    b main_switch_case_next@11
+
+main_bootstrap_route@7:
+    // amm/contract.py:49
+    // @arc4.abimethod(resource_encoding="index")
+    callsub bootstrap
+    b main_switch_case_next@11
+
+main_set_governor_route@6:
+    // amm/contract.py:43
+    // @arc4.abimethod()
+    callsub set_governor
+    b main_switch_case_next@11
+
+main_create_NoOp@12:
+    b main_after_if_else@13
+
+main___algopy_default_create@14:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@17
+
+main_block@17:
+    b main_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@18
+
+main_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@18:
+    intc_1 // 1
     return
 
 
@@ -1312,128 +1428,3 @@ _current_b_balance_block@0:
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@12
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@10
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xddc4cb4a // method "set_governor(address)void"
-    pushbytes 0x6b59d965 // method "bootstrap(pay,asset,asset)uint64"
-    pushbytes 0x5cbf1e2d // method "mint(axfer,axfer,asset,asset,asset)void"
-    pushbytes 0x1436c2ac // method "burn(axfer,asset,asset,asset)void"
-    pushbytes 0x4a88e055 // method "swap(axfer,asset,asset)void"
-    uncover 5
-    match approval_program_set_governor_route@4 approval_program_bootstrap_route@5 approval_program_mint_route@6 approval_program_burn_route@7 approval_program_swap_route@8
-    b approval_program_switch_case_next@9
-
-approval_program_switch_case_next@9:
-    b approval_program_after_if_else@11
-
-approval_program_after_if_else@11:
-    b approval_program_after_if_else@15
-
-approval_program_after_if_else@15:
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
-    err
-
-approval_program_swap_route@8:
-    // amm/contract.py:206-212
-    // @arc4.abimethod(
-    //     default_args={
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    //     resource_encoding="index",
-    // )
-    callsub swap
-    b approval_program_switch_case_next@9
-
-approval_program_burn_route@7:
-    // amm/contract.py:148-155
-    // @arc4.abimethod(
-    //     default_args={
-    //         "pool_asset": "pool_token",
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    //     resource_encoding="index",
-    // )
-    callsub burn
-    b approval_program_switch_case_next@9
-
-approval_program_mint_route@6:
-    // amm/contract.py:81-88
-    // @arc4.abimethod(
-    //     default_args={
-    //         "pool_asset": "pool_token",
-    //         "a_asset": "asset_a",
-    //         "b_asset": "asset_b",
-    //     },
-    //     resource_encoding="index",
-    // )
-    callsub mint
-    b approval_program_switch_case_next@9
-
-approval_program_bootstrap_route@5:
-    // amm/contract.py:49
-    // @arc4.abimethod(resource_encoding="index")
-    callsub bootstrap
-    b approval_program_switch_case_next@9
-
-approval_program_set_governor_route@4:
-    // amm/contract.py:43
-    // @arc4.abimethod()
-    callsub set_governor
-    b approval_program_switch_case_next@9
-
-approval_program_create_NoOp@10:
-    b approval_program_after_if_else@11
-
-approval_program___algopy_default_create@12:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@13
-
-approval_program_block@13:
-    b approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@14
-
-approval_program_after_inlined_examples.amm.contract.ConstantProductAMM.__algopy_default_create@14:
-    intc_1 // 1
-    return

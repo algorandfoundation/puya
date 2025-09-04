@@ -1,23 +1,23 @@
 // Op                                                                                   Stack (out)
-// test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0                                                          tmp%0#2
-        v-store tmp%0#2
+        txna ApplicationArgs 0                                                          tmp%0#1
+        v-store tmp%0#1
         method register(string)void                                                     Method(register(string)void)
         method close_out()void                                                          Method(register(string)void),Method(close_out()void)
-        v-load tmp%0#2                                                                  Method(register(string)void),Method(close_out()void),tmp%0#2
+        v-load tmp%0#1                                                                  Method(register(string)void),Method(close_out()void),tmp%0#1
         match main_register_route@4 main_close_out_route@5 ; b main_switch_case_next@6
 
     main_register_route@4:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txn OnCompletion                                                                tmp%1#0
-        v-store tmp%1#0
+        txn OnCompletion                                                                tmp%1#1
+        v-store tmp%1#1
         int 1                                                                           1
-        v-load tmp%1#0                                                                  1,tmp%1#0
+        v-load tmp%1#1                                                                  1,tmp%1#1
         shl                                                                             tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                  tmp%2#0
@@ -68,7 +68,7 @@ subroutine main:
         txn ApplicationID                                                               tmp%14#0
         v-store tmp%14#0
         v-load tmp%14#0                                                                 tmp%14#0
-        bz main_create_NoOp@10 ; b main_call_NoOp@7
+        bz main_create_NoOp@11 ; b main_call_NoOp@7
 
     main_call_NoOp@7:
         // everything/contract.py:37
@@ -78,36 +78,36 @@ subroutine main:
         method say_hello()string                                                        Method(say_hello()string)
         method calculate(uint64,uint64)uint64                                           Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
         v-load tmp%16#0                                                                 Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%16#0
-        match main_say_hello_route@8 main_calculate_route@9 ; b main_after_if_else@12
+        match main_say_hello_route@8 main_calculate_route@9 ; b main_after_if_else@14
 
     main_say_hello_route@8:
         // everything/contract.py:56
         // @abimethod
         callsub say_hello
-        b main_after_if_else@12
+        b main_after_if_else@14
 
     main_calculate_route@9:
         // everything/contract.py:64
         // @abimethod
         callsub calculate
-        b main_after_if_else@12
+        b main_after_if_else@14
 
-    main_create_NoOp@10:
+    main_create_NoOp@11:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         txna ApplicationArgs 0                                                          tmp%17#0
         v-store tmp%17#0
         method create()void                                                             Method(create()void)
         v-load tmp%17#0                                                                 Method(create()void),tmp%17#0
-        match main_create_route@11 ; b main_after_if_else@12
+        match main_create_route@12 ; b main_after_if_else@14
 
-    main_create_route@11:
+    main_create_route@12:
         // everything/contract.py:41
         // @abimethod(create="require")
         callsub create
-        b main_after_if_else@12
+        b main_after_if_else@14
 
-    main_after_if_else@12:
+    main_after_if_else@14:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         err

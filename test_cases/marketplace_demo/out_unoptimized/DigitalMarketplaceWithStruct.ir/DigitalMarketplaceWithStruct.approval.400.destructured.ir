@@ -1,4 +1,4 @@
-main test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entrypoint_with_init:
+main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
@@ -6,7 +6,70 @@ main test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketpl
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__init__()
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        goto block@3
+    block@3: // L37
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@4 : block@18
+    block@4: // abi_routing_L37
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@5 : block@16
+    block@5: // call_NoOp_L37
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "getListingsMbr()uint64" => block@6, method "allowAsset(pay,uint64)void" => block@7, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@8, method "deposit(axfer,uint64)void" => block@9, method "setPrice(uint64,uint64,uint64)void" => block@10, method "buy(address,uint64,uint64,pay,uint64)void" => block@11, method "withdraw(uint64,uint64)void" => block@12, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@13, method "acceptBid(uint64,uint64)void" => block@14, * => block@15}
+    block@6: // getListingsMbr_route_L78
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]()
+        goto block@15
+    block@7: // allowAsset_route_L82
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
+        goto block@15
+    block@8: // firstDeposit_route_L93
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]()
+        goto block@15
+    block@9: // deposit_route_L120
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]()
+        goto block@15
+    block@10: // setPrice_route_L137
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]()
+        goto block@15
+    block@11: // buy_route_L150
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]()
+        goto block@15
+    block@12: // withdraw_route_L181
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]()
+        goto block@15
+    block@13: // bid_route_L200
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]()
+        goto block@15
+    block@14: // acceptBid_route_L236
+        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]()
+        goto block@15
+    block@15: // switch_case_next_L37
+        goto block@17
+    block@16: // create_NoOp_L37
+        goto block@17
+    block@17: // after_if_else_L37
+        goto block@19
+    block@18: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        goto block@21
+    block@21: // L1
+        goto block@22
+    block@22: // after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create_L1
+        exit 1u
+    block@19: // after_if_else_L37
+        exit 0u
+    block@20: // after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router___L1
+        let tmp%1#0: bool = undefined
         return tmp%1#0
 
 subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]() -> void:
@@ -743,71 +806,3 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         let box_prefixed_key%1#0: bytes = (concat 0x6c697374696e6773 key#0)
         (box_put box_prefixed_key%1#0 tmp%8#0)
         return 
-
-subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
-    block@0: // L1
-        goto block@1
-    block@1: // L37
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@16
-    block@2: // abi_routing_L37
-        let tmp%2#0: uint64 = (txn OnCompletion)
-        let tmp%3#0: bool = (== tmp%2#0 NoOp)
-        (assert tmp%3#0) // OnCompletion must be NoOp
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@3 : block@14
-    block@3: // call_NoOp_L37
-        let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "getListingsMbr()uint64" => block@4, method "allowAsset(pay,uint64)void" => block@5, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@6, method "deposit(axfer,uint64)void" => block@7, method "setPrice(uint64,uint64,uint64)void" => block@8, method "buy(address,uint64,uint64,pay,uint64)void" => block@9, method "withdraw(uint64,uint64)void" => block@10, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@11, method "acceptBid(uint64,uint64)void" => block@12, * => block@13}
-    block@4: // getListingsMbr_route_L78
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]()
-        goto block@13
-    block@5: // allowAsset_route_L82
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
-        goto block@13
-    block@6: // firstDeposit_route_L93
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]()
-        goto block@13
-    block@7: // deposit_route_L120
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]()
-        goto block@13
-    block@8: // setPrice_route_L137
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]()
-        goto block@13
-    block@9: // buy_route_L150
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]()
-        goto block@13
-    block@10: // withdraw_route_L181
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]()
-        goto block@13
-    block@11: // bid_route_L200
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]()
-        goto block@13
-    block@12: // acceptBid_route_L236
-        test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]()
-        goto block@13
-    block@13: // switch_case_next_L37
-        goto block@15
-    block@14: // create_NoOp_L37
-        goto block@15
-    block@15: // after_if_else_L37
-        goto block@19
-    block@16: // __algopy_default_create_L1
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 NoOp)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (== tmp%9#0 0u)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
-        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
-        goto block@17
-    block@17: // L1
-        goto block@18
-    block@18: // after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create_L1
-        exit 1u
-    block@19: // after_if_else_L37
-        exit 0u
-    block@20: // after_inlined_test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router___L1
-        let tmp%0#0: bool = undefined
-        return tmp%0#0

@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.match.counter.Counter.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.match.counter.Counter.approval_program() -> uint64:
 main:
     intcblock 0 1
     bytecblock "counter"
@@ -17,28 +17,6 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
-    return
-
-
-// test_cases.match.counter.Counter.__init__() -> void:
-__init__:
-    b __init___block@0
-
-__init___block@0:
-    // match/counter.py:6
-    // self.counter = algopy.UInt64(0)
-    bytec_0 // "counter"
-    intc_0 // 0
-    app_global_put
-    retsub
-
-
-// test_cases.match.counter.Counter.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
     // match/counter.py:9
     // match algopy.Txn.on_completion:
     txn OnCompletion
@@ -54,23 +32,35 @@ approval_program_block@0:
     //         # reject all OnCompletionAction's other than NoOp
     //         return False
     uncover 1
-    match approval_program_switch_case_0@1
-    b approval_program_switch_case_default@2
+    match main_switch_case_0@3
+    b main_switch_case_default@4
 
-approval_program_switch_case_default@2:
+main_switch_case_default@4:
     // match/counter.py:14-15
     // # reject all OnCompletionAction's other than NoOp
     // return False
-    intc_0 // 0
-    retsub
+    err
 
-approval_program_switch_case_0@1:
+main_switch_case_0@3:
     // match/counter.py:11
     // self.increment_counter()
     callsub increment_counter
     // match/counter.py:12
     // return True
     intc_1 // 1
+    return
+
+
+// test_cases.match.counter.Counter.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    // match/counter.py:6
+    // self.counter = algopy.UInt64(0)
+    bytec_0 // "counter"
+    intc_0 // 0
+    app_global_put
     retsub
 
 

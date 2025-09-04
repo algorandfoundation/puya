@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 1000 4 10000000000
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
@@ -27,7 +27,7 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main___algopy_default_create@12
+    bz main___algopy_default_create@14
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
@@ -86,10 +86,10 @@ main_swap_route@10:
     assert // sender invalid
     uncover 2
     gtxns XferAsset
-    match main_switch_case_0@14 main_switch_case_1@15
+    match main_switch_case_0@18 main_switch_case_1@19
     err // asset id incorrect
 
-main_switch_case_1@15:
+main_switch_case_1@19:
     callsub _current_a_balance
     bury 3
     callsub _current_b_balance
@@ -100,7 +100,7 @@ main_switch_case_1@15:
     bury 4
     assert // check self.asset_b exists
 
-main_switch_case_next@17:
+main_switch_case_next@21:
     dig 3
     dig 5
     dup
@@ -129,7 +129,7 @@ main_switch_case_next@17:
     intc_1 // 1
     return
 
-main_switch_case_0@14:
+main_switch_case_0@18:
     callsub _current_b_balance
     bury 3
     callsub _current_a_balance
@@ -139,7 +139,7 @@ main_switch_case_0@14:
     swap
     bury 4
     assert // check self.asset_a exists
-    b main_switch_case_next@17
+    b main_switch_case_next@21
 
 main_burn_route@9:
     txn GroupIndex
@@ -337,15 +337,15 @@ main_mint_route@8:
     callsub _current_b_balance
     bury 8
     ==
-    bz main_bool_false@24
+    bz main_bool_false@27
     dig 5
     dig 7
     ==
-    bz main_bool_false@24
+    bz main_bool_false@27
     intc_1 // 1
 
-main_bool_merge@25:
-    bz main_after_if_else@27
+main_bool_merge@28:
+    bz main_after_if_else@30
     dig 9
     dig 7
     *
@@ -353,7 +353,7 @@ main_bool_merge@25:
     intc_2 // 1000
     -
 
-main_after_inlined_examples.amm.contract.tokens_to_mint@30:
+main_after_inlined_examples.amm.contract.tokens_to_mint@33:
     dup
     assert // send amount too low
     txn Sender
@@ -367,7 +367,7 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@30:
     intc_1 // 1
     return
 
-main_after_if_else@27:
+main_after_if_else@30:
     intc 4 // 10000000000
     dig 1
     -
@@ -394,23 +394,23 @@ main_after_if_else@27:
     dup
     bury 8
     <
-    bz main_else_body@29
+    bz main_else_body@32
     dig 8
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@33
 
-main_else_body@29:
+main_else_body@32:
     dig 5
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@30
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@33
 
-main_bool_false@24:
+main_bool_false@27:
     intc_0 // 0
-    b main_bool_merge@25
+    b main_bool_merge@28
 
 main_bootstrap_route@7:
     txn GroupIndex
@@ -529,7 +529,7 @@ main_set_governor_route@6:
     intc_1 // 1
     return
 
-main___algopy_default_create@12:
+main___algopy_default_create@14:
     txn OnCompletion
     !
     txn ApplicationID

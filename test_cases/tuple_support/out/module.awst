@@ -7,26 +7,11 @@ contract TupleSupport
     ['state']: uint64
   }
   
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__algopy_entrypoint_with_init(): uint64
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.approval_program(): uint64
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program(): uint64
-  {
-    return 0u
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__init__(): void
-  {
-    GlobalState['state']: uint64 = 0u
-  }
-  
-  subroutine test_cases.tuple_support.tuple_support.TupleSupport.approval_program(): uint64
-  {
     total: uint64 = test_cases.tuple_support.tuple_support.add_three_values((101u, 102u, 103u))
     log(itob(total))
     (a, b): tuple<uint64,uint64> = (1u, 2u)
@@ -72,6 +57,16 @@ contract TupleSupport
     assert(x[1] == hex<"">)
     test_cases.tuple_support.tuple_support.test_empty()
     return a + b
+  }
+  
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.clear_state_program(): uint64
+  {
+    return 0u
+  }
+  
+  subroutine test_cases.tuple_support.tuple_support.TupleSupport.__init__(): void
+  {
+    GlobalState['state']: uint64 = 0u
   }
   
   subroutine algopy._contract.Contract.__init__(): void
@@ -209,12 +204,12 @@ contract NestedTuplesStorage
     ['box']: test_cases.tuple_support.tuple_storage.TupleWithMutable
   }
   
-  subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -257,11 +252,6 @@ contract NestedTuplesStorage
   
   baremethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create(): void
   {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
   }
   
   subroutine algopy._contract.Contract.__init__(): void
@@ -336,12 +326,12 @@ contract NestedTuples
     ['box']: test_cases.tuple_support.nested_tuples.SimpleTup => test_cases.tuple_support.nested_tuples.SimpleTup
   }
   
-  subroutine test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    return arc4_router()
   }
   
   subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
@@ -474,11 +464,6 @@ contract NestedTuples
   
   baremethod test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_default_create(): void
   {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
   }
   
   subroutine algopy._contract.Contract.__init__(): void

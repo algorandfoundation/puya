@@ -1,5 +1,5 @@
 // Op                                                                                             Stack (out)
-// test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         txn ApplicationID                                                                         tmp%0#0
@@ -31,16 +31,16 @@ subroutine main:
     main_after_if_else@2:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 0                                                                    tmp%0#2
-        method delete()void                                                                       tmp%0#2,Method(delete()void)
-        l-load tmp%0#2 1                                                                          Method(delete()void),tmp%0#2
+        txna ApplicationArgs 0                                                                    tmp%0#1
+        method delete()void                                                                       tmp%0#1,Method(delete()void)
+        l-load tmp%0#1 1                                                                          Method(delete()void),tmp%0#1
         match main_delete_route@4 ; b main_switch_case_next@5
 
     main_delete_route@4:
         // compile/apps.py:87
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                                          tmp%1#0
-        int DeleteApplication                                                                     tmp%1#0,DeleteApplication
+        txn OnCompletion                                                                          tmp%1#1
+        int DeleteApplication                                                                     tmp%1#1,DeleteApplication
         ==                                                                                        tmp%2#0
         txn ApplicationID                                                                         tmp%2#0,tmp%3#0
         l-load tmp%2#0 1                                                                          tmp%3#0,tmp%2#0
@@ -57,7 +57,7 @@ subroutine main:
         !                                                                                         tmp%7#0
         assert // OnCompletion must be NoOp
         txn ApplicationID                                                                         tmp%8#0
-        bz main_create_NoOp@8 ; b main_call_NoOp@6
+        bz main_create_NoOp@9 ; b main_call_NoOp@6
 
     main_call_NoOp@6:
         // compile/apps.py:76
@@ -65,23 +65,23 @@ subroutine main:
         txna ApplicationArgs 0                                                                    tmp%10#0
         method greet(string)byte[]                                                                tmp%10#0,Method(greet(string)byte[])
         l-load tmp%10#0 1                                                                         Method(greet(string)byte[]),tmp%10#0
-        match main_greet_route@7 ; b main_after_if_else@10
+        match main_greet_route@7 ; b main_after_if_else@12
 
     main_greet_route@7:
         // compile/apps.py:91
         // @arc4.abimethod()
         callsub greet
-        b main_after_if_else@10
+        b main_after_if_else@12
 
-    main_create_NoOp@8:
+    main_create_NoOp@9:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
         txna ApplicationArgs 0                                                                    tmp%11#0
         method create()uint64                                                                     tmp%11#0,Method(create()uint64)
         l-load tmp%11#0 1                                                                         Method(create()uint64),tmp%11#0
-        match main_create_route@9 ; b main_after_if_else@10
+        match main_create_route@10 ; b main_after_if_else@12
 
-    main_create_route@9:
+    main_create_route@10:
         // compile/apps.py:83
         // @arc4.abimethod(create="require")
         byte 0x151f7c750000000000000001                                                           0x151f7c750000000000000001
@@ -89,7 +89,7 @@ subroutine main:
         int 1                                                                                     1
         return
 
-    main_after_if_else@10:
+    main_after_if_else@12:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
         err

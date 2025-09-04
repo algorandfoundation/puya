@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
     bytecblock 0x "is_bootstrapped" "voter_count" "vote_id" "option_counts" 0x30313233343536373839 "V" "close_time" 0x068101 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
@@ -17,8 +17,82 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
-    return
+    b main_block@3
+
+main_block@3:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@10
+    b main_call_NoOp@4
+
+main_call_NoOp@4:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xa4e8d164 // method "bootstrap(pay)void"
+    pushbytes 0x9656047a // method "close()void"
+    pushbytes 0xbcb15896 // method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
+    pushbytes 0x84a53c6e // method "vote(pay,byte[],uint8[])void"
+    uncover 4
+    match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+    b main_switch_case_next@9
+
+main_switch_case_next@9:
+    b main_after_if_else@13
+
+main_after_if_else@13:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    err
+
+main_vote_route@8:
+    // voting/voting.py:169
+    // @arc4.abimethod
+    callsub vote
+    b main_switch_case_next@9
+
+main_get_preconditions_route@7:
+    // voting/voting.py:160
+    // @arc4.abimethod(readonly=True)
+    callsub get_preconditions
+    b main_switch_case_next@9
+
+main_close_route@6:
+    // voting/voting.py:110
+    // @arc4.abimethod
+    callsub close
+    b main_switch_case_next@9
+
+main_bootstrap_route@5:
+    // voting/voting.py:82
+    // @arc4.abimethod
+    callsub bootstrap
+    b main_switch_case_next@9
+
+main_create_NoOp@10:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+    uncover 1
+    match main_create_route@11
+    b main_switch_case_next@12
+
+main_switch_case_next@12:
+    b main_after_if_else@13
+
+main_create_route@11:
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
+    callsub create
+    b main_switch_case_next@12
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -1428,86 +1502,3 @@ increment_vote_in_box_block@0:
     uncover 2
     box_replace
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@8
-    b approval_program_call_NoOp@2
-
-approval_program_call_NoOp@2:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xa4e8d164 // method "bootstrap(pay)void"
-    pushbytes 0x9656047a // method "close()void"
-    pushbytes 0xbcb15896 // method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
-    pushbytes 0x84a53c6e // method "vote(pay,byte[],uint8[])void"
-    uncover 4
-    match approval_program_bootstrap_route@3 approval_program_close_route@4 approval_program_get_preconditions_route@5 approval_program_vote_route@6
-    b approval_program_switch_case_next@7
-
-approval_program_switch_case_next@7:
-    b approval_program_after_if_else@11
-
-approval_program_after_if_else@11:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    err
-
-approval_program_vote_route@6:
-    // voting/voting.py:169
-    // @arc4.abimethod
-    callsub vote
-    b approval_program_switch_case_next@7
-
-approval_program_get_preconditions_route@5:
-    // voting/voting.py:160
-    // @arc4.abimethod(readonly=True)
-    callsub get_preconditions
-    b approval_program_switch_case_next@7
-
-approval_program_close_route@4:
-    // voting/voting.py:110
-    // @arc4.abimethod
-    callsub close
-    b approval_program_switch_case_next@7
-
-approval_program_bootstrap_route@3:
-    // voting/voting.py:82
-    // @arc4.abimethod
-    callsub bootstrap
-    b approval_program_switch_case_next@7
-
-approval_program_create_NoOp@8:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
-    uncover 1
-    match approval_program_create_route@9
-    b approval_program_switch_case_next@10
-
-approval_program_switch_case_next@10:
-    b approval_program_after_if_else@11
-
-approval_program_create_route@9:
-    // voting/voting.py:58
-    // @arc4.abimethod(create="require")
-    callsub create
-    b approval_program_switch_case_next@10

@@ -1,5 +1,5 @@
 // Op                                                                                     Stack (out)
-// test_cases.asset.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.asset.contract.Reference.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         txn ApplicationID                                                                 tmp%0#0
@@ -17,33 +17,33 @@ subroutine main:
     main_after_if_else@2:
         // asset/contract.py:22
         // if Txn.num_app_args == 1:
-        txn NumAppArgs                                                                    tmp%3#0
-        l-load tmp%3#0 0                                                                  tmp%3#0
-        int 1                                                                             tmp%3#0,1
-        ==                                                                                tmp%4#0
+        txn NumAppArgs                                                                    tmp%4#0
         l-load tmp%4#0 0                                                                  tmp%4#0
-        bz main_after_if_else@11 ; b main_if_body@4
+        int 1                                                                             tmp%4#0,1
+        ==                                                                                tmp%5#0
+        l-load tmp%5#0 0                                                                  tmp%5#0
+        bz main_after_if_else@10 ; b main_if_body@3
 
-    main_if_body@4:
+    main_if_body@3:
         // asset/contract.py:23
         // if Txn.application_args(0) == b"opt_in":
-        txna ApplicationArgs 0                                                            tmp%5#0
-        l-load tmp%5#0 0                                                                  tmp%5#0
-        byte 0x6f70745f696e                                                               tmp%5#0,0x6f70745f696e
-        ==                                                                                tmp%6#0
+        txna ApplicationArgs 0                                                            tmp%6#0
         l-load tmp%6#0 0                                                                  tmp%6#0
-        bz main_else_body@6 ; b main_if_body@5
+        byte 0x6f70745f696e                                                               tmp%6#0,0x6f70745f696e
+        ==                                                                                tmp%7#0
+        l-load tmp%7#0 0                                                                  tmp%7#0
+        bz main_else_body@5 ; b main_if_body@4
 
-    main_if_body@5:
+    main_if_body@4:
         // asset/contract.py:24
         // asset = Txn.assets(0)
         txna Assets 0                                                                     asset#0
         // asset/contract.py:39
         // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
-        txn Sender                                                                        asset#0,tmp%0#3
-        global CreatorAddress                                                             asset#0,tmp%0#3,tmp%1#3
-        l-load tmp%0#3 1                                                                  asset#0,tmp%1#3,tmp%0#3
-        l-load tmp%1#3 1                                                                  asset#0,tmp%0#3,tmp%1#3
+        txn Sender                                                                        asset#0,tmp%0#2
+        global CreatorAddress                                                             asset#0,tmp%0#2,tmp%1#2
+        l-load tmp%0#2 1                                                                  asset#0,tmp%1#2,tmp%0#2
+        l-load tmp%1#2 1                                                                  asset#0,tmp%0#2,tmp%1#2
         ==                                                                                asset#0,tmp%2#1
         l-load tmp%2#1 0                                                                  asset#0,tmp%2#1
         assert // Only creator can opt in to ASA                                          asset#0
@@ -86,16 +86,16 @@ subroutine main:
         // asset/contract.py:51
         // ITxnCreate.submit()
         itxn_submit
-        b main_after_if_else@11
+        b main_after_if_else@10
 
-    main_else_body@6:
+    main_else_body@5:
         // asset/contract.py:26
         // elif Txn.application_args(0) == b"is_opted_in":
-        txna ApplicationArgs 0                                                            tmp%8#0
-        l-load tmp%8#0 0                                                                  tmp%8#0
-        byte 0x69735f6f707465645f696e                                                     tmp%8#0,0x69735f6f707465645f696e
-        ==                                                                                tmp%9#0
+        txna ApplicationArgs 0                                                            tmp%9#0
         l-load tmp%9#0 0                                                                  tmp%9#0
+        byte 0x69735f6f707465645f696e                                                     tmp%9#0,0x69735f6f707465645f696e
+        ==                                                                                tmp%10#0
+        l-load tmp%10#0 0                                                                 tmp%10#0
         assert // Expected opt_in or is_opted_in
         // asset/contract.py:27
         // asset = Txn.assets(0)
@@ -120,8 +120,8 @@ subroutine main:
         assert // asset exists                                                            asset#0,value%0#0
         l-load value%0#0 0                                                                asset#0,value%0#0
         int 10000000                                                                      asset#0,value%0#0,10000000
-        ==                                                                                asset#0,tmp%1#2
-        l-load tmp%1#2 0                                                                  asset#0,tmp%1#2
+        ==                                                                                asset#0,tmp%1#1
+        l-load tmp%1#1 0                                                                  asset#0,tmp%1#1
         assert // total                                                                   asset#0
         // asset/contract.py:57
         // assert asset.decimals == 0, "decimals"
@@ -151,8 +151,8 @@ subroutine main:
         assert // asset exists                                                            asset#0,value%3#0
         l-load value%3#0 0                                                                asset#0,value%3#0
         byte 0x61                                                                         asset#0,value%3#0,0x61
-        ==                                                                                asset#0,tmp%4#0
-        l-load tmp%4#0 0                                                                  asset#0,tmp%4#0
+        ==                                                                                asset#0,tmp%4#1
+        l-load tmp%4#1 0                                                                  asset#0,tmp%4#1
         assert // unit_name                                                               asset#0
         // asset/contract.py:60
         // assert asset.name == b"asset a", "name"
@@ -162,8 +162,8 @@ subroutine main:
         assert // asset exists                                                            asset#0,value%4#0
         l-load value%4#0 0                                                                asset#0,value%4#0
         byte 0x61737365742061                                                             asset#0,value%4#0,0x61737365742061
-        ==                                                                                asset#0,tmp%5#1
-        l-load tmp%5#1 0                                                                  asset#0,tmp%5#1
+        ==                                                                                asset#0,tmp%5#0
+        l-load tmp%5#0 0                                                                  asset#0,tmp%5#0
         assert // name                                                                    asset#0
         // asset/contract.py:61
         // assert asset.url == b"", "URL"
@@ -173,8 +173,8 @@ subroutine main:
         assert // asset exists                                                            asset#0,value%5#0
         l-load value%5#0 0                                                                asset#0,value%5#0
         byte 0x                                                                           asset#0,value%5#0,0x
-        ==                                                                                asset#0,tmp%6#0
-        l-load tmp%6#0 0                                                                  asset#0,tmp%6#0
+        ==                                                                                asset#0,tmp%6#1
+        l-load tmp%6#1 0                                                                  asset#0,tmp%6#1
         assert // URL                                                                     asset#0
         // asset/contract.py:62
         // assert asset.metadata_hash == bzero(32), "hash"
@@ -183,9 +183,9 @@ subroutine main:
         l-load check%6#0 0                                                                asset#0,value%6#0,check%6#0
         assert // asset exists                                                            asset#0,value%6#0
         int 32                                                                            asset#0,value%6#0,32
-        bzero                                                                             asset#0,value%6#0,tmp%7#0
-        l-load value%6#0 1                                                                asset#0,tmp%7#0,value%6#0
-        l-load tmp%7#0 1                                                                  asset#0,value%6#0,tmp%7#0
+        bzero                                                                             asset#0,value%6#0,tmp%7#1
+        l-load value%6#0 1                                                                asset#0,tmp%7#1,value%6#0
+        l-load tmp%7#1 1                                                                  asset#0,value%6#0,tmp%7#1
         ==                                                                                asset#0,tmp%8#1
         l-load tmp%8#1 0                                                                  asset#0,tmp%8#1
         assert // hash                                                                    asset#0
@@ -207,9 +207,9 @@ subroutine main:
         asset_params_get AssetReserve                                                     asset#0,value%8#0,check%8#0
         l-load check%8#0 0                                                                asset#0,value%8#0,check%8#0
         assert // asset exists                                                            asset#0,value%8#0
-        global ZeroAddress                                                                asset#0,value%8#0,tmp%11#0
-        l-load value%8#0 1                                                                asset#0,tmp%11#0,value%8#0
-        l-load tmp%11#0 1                                                                 asset#0,value%8#0,tmp%11#0
+        global ZeroAddress                                                                asset#0,value%8#0,tmp%11#1
+        l-load value%8#0 1                                                                asset#0,tmp%11#1,value%8#0
+        l-load tmp%11#1 1                                                                 asset#0,value%8#0,tmp%11#1
         ==                                                                                asset#0,tmp%12#0
         l-load tmp%12#0 0                                                                 asset#0,tmp%12#0
         assert // reserve                                                                 asset#0
@@ -259,9 +259,9 @@ subroutine main:
         v-store tmp%20#0                                                                  tmp%21#0
         l-load tmp%21#0 0                                                                 tmp%21#0
         assert // asset opted in
-        b main_after_if_else@11
+        b main_after_if_else@10
 
-    main_after_if_else@11:
+    main_after_if_else@10:
         // asset/contract.py:31
         // return True
         int 1                                                                             1

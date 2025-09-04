@@ -1,8 +1,10 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.abi_routing.custom_approval.CustomApproval.approval_program() -> uint64:
 main:
+    pushbytes ""
+    dup
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/custom_approval.py:9
@@ -17,28 +19,54 @@ main_after_if_else@2:
     txn NumAppArgs
     pushint 2 // 2
     ==
-    bz main_after_if_else@6
+    bz main_after_if_else@5
     txna ApplicationArgs 1
     pushint 42 // 42
     itob
     ==
-    bz main_after_if_else@6
+    bz main_after_if_else@5
     // abi_routing/custom_approval.py:14
     // log("🎉🎉🎉")
     pushbytes "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89"
     log
 
-main_after_if_else@6:
+main_after_if_else@5:
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
+    pushint 0 // 0
+    bury 2
     txn NumAppArgs
-    bz main___algopy_default_create@13
+    bz main___algopy_default_create@12
     pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     txna ApplicationArgs 0
-    match main_add_one_route@11
-    err
+    match main_add_one_route@10
 
-main_add_one_route@11:
+main_switch_case_next@11:
+    dig 1
+    bury 1
+
+main_after_if_else@13:
+    // abi_routing/custom_approval.py:16
+    // if not result:
+    dup
+    bnz main_after_if_else@7
+    // abi_routing/custom_approval.py:18-19
+    // "this will never be seen unless you're running in simulation mode anyway"
+    // " so I can say whatever I want here"
+    pushbytes "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here"
+    // abi_routing/custom_approval.py:17-20
+    // log(
+    //     "this will never be seen unless you're running in simulation mode anyway"
+    //     " so I can say whatever I want here"
+    // )
+    log
+
+main_after_if_else@7:
+    // abi_routing/custom_approval.py:21
+    // return result
+    return
+
+main_add_one_route@10:
     // abi_routing/custom_approval.py:23
     // @arc4.abimethod
     txn OnCompletion
@@ -46,15 +74,21 @@ main_add_one_route@11:
     txn ApplicationID
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
-    b add_one
+    callsub add_one
+    pushint 1 // 1
+    bury 2
+    b main_switch_case_next@11
 
-main___algopy_default_create@13:
+main___algopy_default_create@12:
     txn OnCompletion
     !
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    pushint 1 // 1
+    bury 1
+    b main_after_if_else@13
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.add_one[routing]() -> void:
@@ -74,5 +108,4 @@ add_one:
     swap
     concat
     log
-    pushint 1 // 1
-    return
+    retsub

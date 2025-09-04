@@ -18,12 +18,20 @@ contract Reference
     ['bytes_l4']: bytes
   }
   
-  subroutine test_cases.application.contract.Reference.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.application.contract.Reference.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
+    assert(reinterpret_cast<uint64>(reinterpret_cast<application>(1u)) != 0u == reinterpret_cast<uint64>(reinterpret_cast<application>(2u)) != 0u)
+    if (txn<NumAppArgs>() == 1u) {
+      if (txna<ApplicationArgs, 0>() == hex<"76616C6964617465">) {
+        this::validate_asset(global<CurrentApplicationID>())
+      } else {
+        assert(false, comment="Expected validate")
+      }
+    }
+    return true
   }
   
   subroutine test_cases.application.contract.Reference.clear_state_program(): bool
@@ -36,19 +44,6 @@ contract Reference
     GlobalState['int_1']: uint64 = 0u
     GlobalState['bytes_1']: bytes = hex<"">
     GlobalState['bytes_2']: bytes = hex<"">
-  }
-  
-  subroutine test_cases.application.contract.Reference.approval_program(): bool
-  {
-    assert(reinterpret_cast<uint64>(reinterpret_cast<application>(1u)) != 0u == reinterpret_cast<uint64>(reinterpret_cast<application>(2u)) != 0u)
-    if (txn<NumAppArgs>() == 1u) {
-      if (txna<ApplicationArgs, 0>() == hex<"76616C6964617465">) {
-        this::validate_asset(global<CurrentApplicationID>())
-      } else {
-        assert(false, comment="Expected validate")
-      }
-    }
-    return true
   }
   
   subroutine test_cases.application.contract.Reference.validate_asset(app: application): void

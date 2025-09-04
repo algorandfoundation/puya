@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2
     bytecblock "counter" "name" 0x151f7c75 "Howdy stranger!" "Hello, "
@@ -17,8 +17,109 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
-    return
+    b main_block@3
+
+main_block@3:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txna ApplicationArgs 0
+    pushbytes 0xbd6099e5 // method "register(string)void"
+    pushbytes 0x1658aa2f // method "close_out()void"
+    uncover 2
+    match main_register_route@4 main_close_out_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@11
+    b main_call_NoOp@7
+
+main_call_NoOp@7:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txna ApplicationArgs 0
+    pushbytes 0x5d5c84c7 // method "say_hello()string"
+    pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
+    uncover 2
+    match main_say_hello_route@8 main_calculate_route@9
+    b main_switch_case_next@10
+
+main_switch_case_next@10:
+    b main_after_if_else@14
+
+main_after_if_else@14:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    err
+
+main_calculate_route@9:
+    // everything/contract.py:64
+    // @abimethod
+    callsub calculate
+    b main_switch_case_next@10
+
+main_say_hello_route@8:
+    // everything/contract.py:56
+    // @abimethod
+    callsub say_hello
+    b main_switch_case_next@10
+
+main_create_NoOp@11:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txna ApplicationArgs 0
+    pushbytes 0x4c5c61ba // method "create()void"
+    uncover 1
+    match main_create_route@12
+    b main_switch_case_next@13
+
+main_switch_case_next@13:
+    b main_after_if_else@14
+
+main_create_route@12:
+    // everything/contract.py:41
+    // @abimethod(create="require")
+    callsub create
+    b main_switch_case_next@13
+
+main_close_out_route@5:
+    // everything/contract.py:69
+    // @abimethod(allow_actions=["CloseOut"])
+    txn OnCompletion
+    intc_2 // CloseOut
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert // OnCompletion must be CloseOut && can only call when not creating
+    callsub close_out
+    b main_switch_case_next@6
+
+main_register_route@4:
+    // everything/contract.py:47
+    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    txn OnCompletion
+    intc_1 // 1
+    uncover 1
+    shl
+    pushint 3 // 3
+    &
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
+    callsub register
+    b main_switch_case_next@6
 
 
 // test_cases.everything.my_base.multiplicative_identity() -> uint64:
@@ -383,116 +484,6 @@ _remove_sender_block@0:
     uncover 1
     app_global_put
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 0
-    pushbytes 0xbd6099e5 // method "register(string)void"
-    pushbytes 0x1658aa2f // method "close_out()void"
-    uncover 2
-    match approval_program_register_route@2 approval_program_close_out_route@3
-    b approval_program_switch_case_next@4
-
-approval_program_switch_case_next@4:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@9
-    b approval_program_call_NoOp@5
-
-approval_program_call_NoOp@5:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 0
-    pushbytes 0x5d5c84c7 // method "say_hello()string"
-    pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
-    uncover 2
-    match approval_program_say_hello_route@6 approval_program_calculate_route@7
-    b approval_program_switch_case_next@8
-
-approval_program_switch_case_next@8:
-    b approval_program_after_if_else@12
-
-approval_program_after_if_else@12:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    err
-
-approval_program_calculate_route@7:
-    // everything/contract.py:64
-    // @abimethod
-    callsub calculate
-    b approval_program_switch_case_next@8
-
-approval_program_say_hello_route@6:
-    // everything/contract.py:56
-    // @abimethod
-    callsub say_hello
-    b approval_program_switch_case_next@8
-
-approval_program_create_NoOp@9:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 0
-    pushbytes 0x4c5c61ba // method "create()void"
-    uncover 1
-    match approval_program_create_route@10
-    b approval_program_switch_case_next@11
-
-approval_program_switch_case_next@11:
-    b approval_program_after_if_else@12
-
-approval_program_create_route@10:
-    // everything/contract.py:41
-    // @abimethod(create="require")
-    callsub create
-    b approval_program_switch_case_next@11
-
-approval_program_close_out_route@3:
-    // everything/contract.py:69
-    // @abimethod(allow_actions=["CloseOut"])
-    txn OnCompletion
-    intc_2 // CloseOut
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be CloseOut && can only call when not creating
-    callsub close_out
-    b approval_program_switch_case_next@4
-
-approval_program_register_route@2:
-    // everything/contract.py:47
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
-    txn OnCompletion
-    intc_1 // 1
-    uncover 1
-    shl
-    pushint 3 // 3
-    &
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
-    callsub register
-    b approval_program_switch_case_next@4
 
 
 // test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:

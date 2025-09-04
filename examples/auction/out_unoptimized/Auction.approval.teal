@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
@@ -17,7 +17,110 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    b main_block@3
+
+main_block@3:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@15
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@13
+    b main_call_NoOp@5
+
+main_call_NoOp@5:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd8f62d9a // method "opt_into_asset(uint64)void"
+    pushbytes 0xf0aa7023 // method "start_auction(uint64,uint64,axfer)void"
+    pushbytes 0x30c6d58a // method "opt_in()void"
+    pushbytes 0xdb7fe843 // method "bid(pay)void"
+    pushbytes 0xe654625b // method "claim_bids()void"
+    pushbytes 0x59b2ab26 // method "claim_asset(uint64)void"
+    uncover 6
+    match main_opt_into_asset_route@6 main_start_auction_route@7 main_opt_in_route@8 main_bid_route@9 main_claim_bids_route@10 main_claim_asset_route@11
+    b main_switch_case_next@12
+
+main_switch_case_next@12:
+    b main_after_if_else@14
+
+main_after_if_else@14:
+    b main_after_if_else@16
+
+main_after_if_else@16:
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
+    err
+
+main_claim_asset_route@11:
+    // auction/contract.py:97
+    // @arc4.abimethod
+    callsub claim_asset
+    b main_switch_case_next@12
+
+main_claim_bids_route@10:
+    // auction/contract.py:82
+    // @arc4.abimethod
+    callsub claim_bids
+    b main_switch_case_next@12
+
+main_bid_route@9:
+    // auction/contract.py:66
+    // @arc4.abimethod
+    callsub bid
+    b main_switch_case_next@12
+
+main_opt_in_route@8:
+    // auction/contract.py:62
+    // @arc4.abimethod
+    callsub opt_in
+    b main_switch_case_next@12
+
+main_start_auction_route@7:
+    // auction/contract.py:40
+    // @arc4.abimethod
+    callsub start_auction
+    b main_switch_case_next@12
+
+main_opt_into_asset_route@6:
+    // auction/contract.py:25
+    // @arc4.abimethod
+    callsub opt_into_asset
+    b main_switch_case_next@12
+
+main_create_NoOp@13:
+    b main_after_if_else@14
+
+main___algopy_default_create@15:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@18
+
+main_block@18:
+    b main_after_inlined_examples.auction.contract.Auction.__algopy_default_create@19
+
+main_after_inlined_examples.auction.contract.Auction.__algopy_default_create@19:
+    intc_1 // 1
     return
 
 
@@ -515,115 +618,3 @@ examples.auction.contract.Auction.claim_asset_next_txn@1:
     // ).submit()
     itxn_submit
     retsub
-
-
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
-approval_program:
-    b approval_program_block@0
-
-approval_program_block@0:
-    b approval_program_block@1
-
-approval_program_block@1:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program___algopy_default_create@13
-    b approval_program_abi_routing@2
-
-approval_program_abi_routing@2:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion must be NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    bz approval_program_create_NoOp@11
-    b approval_program_call_NoOp@3
-
-approval_program_call_NoOp@3:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0xd8f62d9a // method "opt_into_asset(uint64)void"
-    pushbytes 0xf0aa7023 // method "start_auction(uint64,uint64,axfer)void"
-    pushbytes 0x30c6d58a // method "opt_in()void"
-    pushbytes 0xdb7fe843 // method "bid(pay)void"
-    pushbytes 0xe654625b // method "claim_bids()void"
-    pushbytes 0x59b2ab26 // method "claim_asset(uint64)void"
-    uncover 6
-    match approval_program_opt_into_asset_route@4 approval_program_start_auction_route@5 approval_program_opt_in_route@6 approval_program_bid_route@7 approval_program_claim_bids_route@8 approval_program_claim_asset_route@9
-    b approval_program_switch_case_next@10
-
-approval_program_switch_case_next@10:
-    b approval_program_after_if_else@12
-
-approval_program_after_if_else@12:
-    b approval_program_after_if_else@16
-
-approval_program_after_if_else@16:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    err
-
-approval_program_claim_asset_route@9:
-    // auction/contract.py:97
-    // @arc4.abimethod
-    callsub claim_asset
-    b approval_program_switch_case_next@10
-
-approval_program_claim_bids_route@8:
-    // auction/contract.py:82
-    // @arc4.abimethod
-    callsub claim_bids
-    b approval_program_switch_case_next@10
-
-approval_program_bid_route@7:
-    // auction/contract.py:66
-    // @arc4.abimethod
-    callsub bid
-    b approval_program_switch_case_next@10
-
-approval_program_opt_in_route@6:
-    // auction/contract.py:62
-    // @arc4.abimethod
-    callsub opt_in
-    b approval_program_switch_case_next@10
-
-approval_program_start_auction_route@5:
-    // auction/contract.py:40
-    // @arc4.abimethod
-    callsub start_auction
-    b approval_program_switch_case_next@10
-
-approval_program_opt_into_asset_route@4:
-    // auction/contract.py:25
-    // @arc4.abimethod
-    callsub opt_into_asset
-    b approval_program_switch_case_next@10
-
-approval_program_create_NoOp@11:
-    b approval_program_after_if_else@12
-
-approval_program___algopy_default_create@13:
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    b approval_program_block@14
-
-approval_program_block@14:
-    b approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@15
-
-approval_program_after_inlined_examples.auction.contract.Auction.__algopy_default_create@15:
-    intc_1 // 1
-    return

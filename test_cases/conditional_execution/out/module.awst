@@ -8,27 +8,11 @@ contract ConditionalExecutionContract
     ['did_execute_b']: bool
   }
   
-  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__(): void
-  {
-    GlobalState['did_execute_a']: bool = false
-    GlobalState['did_execute_b']: bool = false
-  }
-  
-  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program(): bool
-  {
     this::func_a(true) or this::func_b(true)
     this::assert_and_reset(GlobalState['did_execute_a'] and !(GlobalState['did_execute_b']))
     this::func_a(false) or this::func_b(true)
@@ -44,6 +28,17 @@ contract ConditionalExecutionContract
     (this::func_c(false)) ? (this::func_a(true)) : (this::func_b(true))
     this::assert_and_reset(!(GlobalState['did_execute_a']) and GlobalState['did_execute_b'])
     return true
+  }
+  
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__(): void
+  {
+    GlobalState['did_execute_a']: bool = false
+    GlobalState['did_execute_b']: bool = false
   }
   
   subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition: bool): void

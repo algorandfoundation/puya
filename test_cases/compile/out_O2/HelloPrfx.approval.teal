@@ -1,7 +1,7 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     bytecblock "greeting" PRFX_GREETING
     txn ApplicationID
@@ -12,7 +12,7 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_update@12
+    bz main_update@14
     pushbytes 0x24378d3c // method "delete()void"
     txna ApplicationArgs 0
     match main_delete_route@5
@@ -20,7 +20,7 @@ main_after_if_else@2:
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
-    bz main_create_NoOp@9
+    bz main_create_NoOp@10
     pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
     match main_greet_route@8
@@ -50,13 +50,13 @@ main_greet_route@8:
     pushint 1 // 1
     return
 
-main_create_NoOp@9:
+main_create_NoOp@10:
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
-    match main_create_route@10
+    match main_create_route@11
     err
 
-main_create_route@10:
+main_create_route@11:
     pushint 1 // 1
     return
 
@@ -68,7 +68,7 @@ main_delete_route@5:
     &&
     return // on error: OnCompletion must be DeleteApplication && can only call when not creating
 
-main_update@12:
+main_update@14:
     txn OnCompletion
     pushint 4 // UpdateApplication
     ==

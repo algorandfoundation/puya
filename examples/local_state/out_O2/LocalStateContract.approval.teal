@@ -1,99 +1,98 @@
 #pragma version 10
 #pragma typetrack false
 
-// examples.local_state.local_state_contract.LocalStateContract.__algopy_entrypoint_with_init() -> uint64:
+// examples.local_state.local_state_contract.LocalStateContract.approval_program() -> uint64:
 main:
     intcblock 0 1
     bytecblock "local"
     intc_0 // 0
     pushbytes ""
     txn ApplicationID
-    bnz main_after_if_else@5
+    bnz main_after_if_else@4
 
-main_if_body@4:
+main_if_body@3:
     intc_1 // 1
     return
 
-main_after_if_else@5:
+main_after_if_else@4:
     txn OnCompletion
     dup
     bury 2
-    bz main_after_if_else@8
+    bz main_after_if_else@7
     dup
     intc_1 // OptIn
     ==
-    bnz main_after_if_else@8
+    bnz main_after_if_else@7
 
-main_if_body@7:
-    intc_0 // 0
-    return
+main_if_body@6:
+    err
 
-main_after_if_else@8:
+main_after_if_else@7:
     txn NumAppArgs
-    bz main_if_body@7
+    bz main_if_body@6
     txna ApplicationArgs 0
     bury 2
     txn NumAppArgs
     intc_1 // 1
     ==
-    bz main_else_body@21
+    bz main_else_body@20
     dig 1
     pushbytes 0x6765745f67756172616e746565645f64617461
     ==
-    bz main_else_body@13
+    bz main_else_body@12
     txn Sender
     intc_0 // 0
     bytec_0 // "local"
     app_local_get_ex
     assert // check self.local exists for account
     log
-    b main_if_body@4
+    b main_if_body@3
 
-main_else_body@13:
+main_else_body@12:
     dig 1
     pushbytes 0x6765745f646174615f6f725f617373657274
     ==
-    bz main_else_body@15
+    bz main_else_body@14
     txn Sender
     intc_0 // 0
     bytec_0 // "local"
     app_local_get_ex
     assert // no data for account
     log
-    b main_if_body@4
+    b main_if_body@3
 
-main_else_body@15:
+main_else_body@14:
     dig 1
     pushbytes 0x64656c6574655f64617461
     ==
-    bz main_if_body@7
+    bz main_if_body@6
     txn Sender
     bytec_0 // "local"
     app_local_del
     pushbytes "Deleted"
     log
-    b main_if_body@4
+    b main_if_body@3
 
-main_else_body@21:
+main_else_body@20:
     txn NumAppArgs
     pushint 2 // 2
     ==
-    bz main_if_body@7
+    bz main_if_body@6
     dig 1
     pushbytes 0x7365745f64617461
     ==
-    bz main_else_body@24
+    bz main_else_body@23
     txn Sender
     bytec_0 // "local"
     txna ApplicationArgs 1
     app_local_put
-    b main_if_body@4
+    b main_if_body@3
 
-main_else_body@24:
+main_else_body@23:
     dig 1
     pushbytes 0x6765745f646174615f776974685f64656661756c74
     ==
-    bz main_if_body@7
+    bz main_if_body@6
     txna ApplicationArgs 1
     txn Sender
     intc_0 // 0
@@ -101,4 +100,4 @@ main_else_body@24:
     app_local_get_ex
     select
     log
-    b main_if_body@4
+    b main_if_body@3

@@ -1,10 +1,16 @@
 #pragma version 10
 #pragma typetrack false
 
-// test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.simplish.contract.Simplish.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 314159 100000
+    intcblock 0 1 2 5 314159 100000
     bytecblock "" "counter" 0x30313233343536373839
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b main_block@0
 
 main_block@0:
@@ -17,8 +23,235 @@ main_call___init__@1:
     b main_after_if_else@2
 
 main_after_if_else@2:
-    callsub approval_program
+    // simplish/contract.py:31
+    // if Txn.application_id == 0:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    bz main_after_if_else@4
+    b main_if_body@3
+
+main_if_body@3:
+    // simplish/contract.py:32
+    // return True
+    intc_1 // 1
     return
+
+main_after_if_else@4:
+    // simplish/contract.py:33
+    // oca = Txn.on_completion
+    txn OnCompletion
+    dup
+    bury 3
+    // simplish/contract.py:34
+    // sender = Txn.sender
+    txn Sender
+    bury 6
+    // simplish/contract.py:36
+    // OnCompleteAction.UpdateApplication,
+    pushint 4 // UpdateApplication
+    // simplish/contract.py:35-38
+    // if oca in (
+    //     OnCompleteAction.UpdateApplication,
+    //     OnCompleteAction.DeleteApplication,
+    // ):
+    ==
+    bnz main_if_body@6
+    b main_or_contd@5
+
+main_or_contd@5:
+    // simplish/contract.py:35-38
+    // if oca in (
+    //     OnCompleteAction.UpdateApplication,
+    //     OnCompleteAction.DeleteApplication,
+    // ):
+    dig 1
+    // simplish/contract.py:37
+    // OnCompleteAction.DeleteApplication,
+    intc_3 // DeleteApplication
+    // simplish/contract.py:35-38
+    // if oca in (
+    //     OnCompleteAction.UpdateApplication,
+    //     OnCompleteAction.DeleteApplication,
+    // ):
+    ==
+    bz main_after_if_else@9
+    b main_if_body@6
+
+main_if_body@6:
+    // simplish/contract.py:39
+    // if oca == OnCompleteAction.DeleteApplication:
+    dig 1
+    intc_3 // DeleteApplication
+    ==
+    bz main_after_if_else@8
+    b main_if_body@7
+
+main_if_body@7:
+    // simplish/contract.py:40
+    // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
+    intc_0 // 0
+    bytec_1 // "counter"
+    app_global_get_ex
+    assert // check self.counter exists
+    callsub itoa
+    pushbytes 0x4920776173207573656420
+    uncover 1
+    concat
+    pushbytes 0x2074696d65287329206265666f726520492064696564
+    concat
+    log
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    // simplish/contract.py:41
+    // return Global.creator_address == sender
+    global CreatorAddress
+    dig 5
+    ==
+    return
+
+main_after_if_else@9:
+    // simplish/contract.py:43
+    // if oca == OnCompleteAction.OptIn:
+    dig 1
+    intc_1 // OptIn
+    ==
+    bz main_after_if_else@13
+    b main_if_body@10
+
+main_if_body@10:
+    // simplish/contract.py:44
+    // if Txn.num_app_args > 0:
+    txn NumAppArgs
+    intc_0 // 0
+    >
+    bz main_after_if_else@12
+    b main_if_body@11
+
+main_if_body@11:
+    // simplish/contract.py:45
+    // self.set_sender_nickname(Txn.application_args(0))
+    txna ApplicationArgs 0
+    callsub set_sender_nickname
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // simplish/contract.py:46
+    // return True
+    intc_1 // 1
+    return
+
+main_after_if_else@13:
+    // simplish/contract.py:47
+    // if oca != OnCompleteAction.NoOp:
+    dig 1
+    intc_0 // NoOp
+    !=
+    bz main_after_if_else@15
+    b main_if_body@14
+
+main_if_body@14:
+    // simplish/contract.py:48
+    // return False
+    err
+
+main_after_if_else@15:
+    // simplish/contract.py:50
+    // if (num_app_args := Txn.num_app_args) > 0:
+    txn NumAppArgs
+    dup
+    bury 4
+    intc_0 // 0
+    >
+    bz main_else_body@17
+    b main_if_body@16
+
+main_if_body@16:
+    // simplish/contract.py:51
+    // method_name = Txn.application_args(0)
+    txna ApplicationArgs 0
+    // simplish/contract.py:52
+    // msg, result = self.call(method_name, num_app_args)
+    dig 3
+    callsub call
+    cover 1
+    bury 7
+    bury 1
+    b main_after_if_else@24
+
+main_after_if_else@24:
+    // simplish/contract.py:63
+    // log(msg)
+    dig 5
+    log
+    // simplish/contract.py:64
+    // self.increment_counter()
+    callsub increment_counter
+    // simplish/contract.py:65
+    // return result
+    return
+
+main_else_body@17:
+    // simplish/contract.py:53
+    // elif Txn.num_assets == 1:
+    txn NumAssets
+    intc_1 // 1
+    ==
+    bz main_else_body@22
+    b main_if_body@18
+
+main_if_body@18:
+    // simplish/contract.py:54
+    // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
+    dig 4
+    intc_0 // 0
+    asset_holding_get AssetBalance
+    cover 1
+    bury 5
+    // simplish/contract.py:55
+    // if not asset_exists:
+    bnz main_else_body@20
+    b main_if_body@19
+
+main_if_body@19:
+    // simplish/contract.py:56
+    // msg = Bytes(b"You do not have any of the asset")
+    pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
+    bury 6
+    b main_after_if_else@21
+
+main_after_if_else@21:
+    // simplish/contract.py:59
+    // result = True
+    intc_1 // 1
+    bury 1
+    b main_after_if_else@23
+
+main_after_if_else@23:
+    b main_after_if_else@24
+
+main_else_body@20:
+    // simplish/contract.py:58
+    // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
+    dig 3
+    callsub itoa
+    pushbytes 0x596f7520686176652061737365742062616c616e63653a20
+    uncover 1
+    concat
+    bury 6
+    b main_after_if_else@21
+
+main_else_body@22:
+    // simplish/contract.py:61
+    // msg = Bytes(b"not enough app args or foreign assets")
+    pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
+    bury 6
+    // simplish/contract.py:62
+    // result = False
+    intc_0 // 0
+    bury 1
+    b main_after_if_else@23
 
 
 // test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
@@ -34,13 +267,13 @@ circle_circumference_block@0:
     // # PI * 2r
     // two_pi = UInt64(2) * SCALED_PI
     intc_2 // 2
-    intc_3 // 314159
+    intc 4 // 314159
     *
     // simplish/contract.py:107
     // return radius * two_pi // SCALE
     frame_dig -1
     *
-    intc 4 // 100000
+    intc 5 // 100000
     /
     retsub
 
@@ -60,9 +293,9 @@ circle_area_block@0:
     frame_dig -1
     intc_2 // 2
     exp
-    intc_3 // 314159
+    intc 4 // 314159
     *
-    intc 4 // 100000
+    intc 5 // 100000
     /
     // simplish/contract.py:114
     // return result
@@ -128,258 +361,6 @@ itoa_after_if_else@2:
     concat
     uncover 1
     retsub
-
-
-// test_cases.simplish.contract.Simplish.approval_program() -> uint64:
-approval_program:
-    // simplish/contract.py:30
-    // def approval_program(self) -> bool:
-    proto 0 1
-    intc_0 // 0
-    intc_0 // 0
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
-    b approval_program_block@0
-
-approval_program_block@0:
-    // simplish/contract.py:31
-    // if Txn.application_id == 0:
-    txn ApplicationID
-    intc_0 // 0
-    ==
-    bz approval_program_after_if_else@2
-    b approval_program_if_body@1
-
-approval_program_if_body@1:
-    // simplish/contract.py:32
-    // return True
-    intc_1 // 1
-    frame_bury 0
-    retsub
-
-approval_program_after_if_else@2:
-    // simplish/contract.py:33
-    // oca = Txn.on_completion
-    txn OnCompletion
-    dup
-    frame_bury 4
-    // simplish/contract.py:34
-    // sender = Txn.sender
-    txn Sender
-    frame_bury 1
-    // simplish/contract.py:36
-    // OnCompleteAction.UpdateApplication,
-    pushint 4 // UpdateApplication
-    // simplish/contract.py:35-38
-    // if oca in (
-    //     OnCompleteAction.UpdateApplication,
-    //     OnCompleteAction.DeleteApplication,
-    // ):
-    ==
-    bnz approval_program_if_body@4
-    b approval_program_or_contd@3
-
-approval_program_or_contd@3:
-    // simplish/contract.py:35-38
-    // if oca in (
-    //     OnCompleteAction.UpdateApplication,
-    //     OnCompleteAction.DeleteApplication,
-    // ):
-    frame_dig 4
-    // simplish/contract.py:37
-    // OnCompleteAction.DeleteApplication,
-    pushint 5 // DeleteApplication
-    // simplish/contract.py:35-38
-    // if oca in (
-    //     OnCompleteAction.UpdateApplication,
-    //     OnCompleteAction.DeleteApplication,
-    // ):
-    ==
-    bz approval_program_after_if_else@7
-    b approval_program_if_body@4
-
-approval_program_if_body@4:
-    // simplish/contract.py:39
-    // if oca == OnCompleteAction.DeleteApplication:
-    frame_dig 4
-    pushint 5 // DeleteApplication
-    ==
-    bz approval_program_after_if_else@6
-    b approval_program_if_body@5
-
-approval_program_if_body@5:
-    // simplish/contract.py:40
-    // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
-    intc_0 // 0
-    bytec_1 // "counter"
-    app_global_get_ex
-    assert // check self.counter exists
-    callsub itoa
-    pushbytes 0x4920776173207573656420
-    uncover 1
-    concat
-    pushbytes 0x2074696d65287329206265666f726520492064696564
-    concat
-    log
-    b approval_program_after_if_else@6
-
-approval_program_after_if_else@6:
-    // simplish/contract.py:41
-    // return Global.creator_address == sender
-    global CreatorAddress
-    frame_dig 1
-    ==
-    frame_bury 0
-    retsub
-
-approval_program_after_if_else@7:
-    // simplish/contract.py:43
-    // if oca == OnCompleteAction.OptIn:
-    frame_dig 4
-    intc_1 // OptIn
-    ==
-    bz approval_program_after_if_else@11
-    b approval_program_if_body@8
-
-approval_program_if_body@8:
-    // simplish/contract.py:44
-    // if Txn.num_app_args > 0:
-    txn NumAppArgs
-    intc_0 // 0
-    >
-    bz approval_program_after_if_else@10
-    b approval_program_if_body@9
-
-approval_program_if_body@9:
-    // simplish/contract.py:45
-    // self.set_sender_nickname(Txn.application_args(0))
-    txna ApplicationArgs 0
-    callsub set_sender_nickname
-    b approval_program_after_if_else@10
-
-approval_program_after_if_else@10:
-    // simplish/contract.py:46
-    // return True
-    intc_1 // 1
-    frame_bury 0
-    retsub
-
-approval_program_after_if_else@11:
-    // simplish/contract.py:47
-    // if oca != OnCompleteAction.NoOp:
-    frame_dig 4
-    intc_0 // NoOp
-    !=
-    bz approval_program_after_if_else@13
-    b approval_program_if_body@12
-
-approval_program_if_body@12:
-    // simplish/contract.py:48
-    // return False
-    intc_0 // 0
-    frame_bury 0
-    retsub
-
-approval_program_after_if_else@13:
-    // simplish/contract.py:50
-    // if (num_app_args := Txn.num_app_args) > 0:
-    txn NumAppArgs
-    dup
-    frame_bury 3
-    intc_0 // 0
-    >
-    bz approval_program_else_body@15
-    b approval_program_if_body@14
-
-approval_program_if_body@14:
-    // simplish/contract.py:51
-    // method_name = Txn.application_args(0)
-    txna ApplicationArgs 0
-    // simplish/contract.py:52
-    // msg, result = self.call(method_name, num_app_args)
-    frame_dig 3
-    callsub call
-    cover 1
-    frame_bury 0
-    frame_bury 5
-    b approval_program_after_if_else@22
-
-approval_program_after_if_else@22:
-    // simplish/contract.py:63
-    // log(msg)
-    frame_dig 0
-    log
-    // simplish/contract.py:64
-    // self.increment_counter()
-    callsub increment_counter
-    // simplish/contract.py:65
-    // return result
-    frame_dig 5
-    frame_bury 0
-    retsub
-
-approval_program_else_body@15:
-    // simplish/contract.py:53
-    // elif Txn.num_assets == 1:
-    txn NumAssets
-    intc_1 // 1
-    ==
-    bz approval_program_else_body@20
-    b approval_program_if_body@16
-
-approval_program_if_body@16:
-    // simplish/contract.py:54
-    // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
-    frame_dig 1
-    intc_0 // 0
-    asset_holding_get AssetBalance
-    cover 1
-    frame_bury 2
-    // simplish/contract.py:55
-    // if not asset_exists:
-    bnz approval_program_else_body@18
-    b approval_program_if_body@17
-
-approval_program_if_body@17:
-    // simplish/contract.py:56
-    // msg = Bytes(b"You do not have any of the asset")
-    pushbytes 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
-    frame_bury 0
-    b approval_program_after_if_else@19
-
-approval_program_after_if_else@19:
-    // simplish/contract.py:59
-    // result = True
-    intc_1 // 1
-    frame_bury 5
-    b approval_program_after_if_else@21
-
-approval_program_after_if_else@21:
-    b approval_program_after_if_else@22
-
-approval_program_else_body@18:
-    // simplish/contract.py:58
-    // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
-    frame_dig 2
-    callsub itoa
-    pushbytes 0x596f7520686176652061737365742062616c616e63653a20
-    uncover 1
-    concat
-    frame_bury 0
-    b approval_program_after_if_else@19
-
-approval_program_else_body@20:
-    // simplish/contract.py:61
-    // msg = Bytes(b"not enough app args or foreign assets")
-    pushbytes 0x6e6f7420656e6f756768206170702061726773206f7220666f726569676e20617373657473
-    frame_bury 0
-    // simplish/contract.py:62
-    // result = False
-    intc_0 // 0
-    frame_bury 5
-    b approval_program_after_if_else@21
 
 
 // test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> bytes, uint64:

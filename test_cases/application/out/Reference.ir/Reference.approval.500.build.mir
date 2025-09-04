@@ -1,5 +1,5 @@
 // Op                                                                                        Stack (out)
-// test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.application.contract.Reference.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         txn ApplicationID                                                                    tmp%0#0
@@ -28,25 +28,25 @@ subroutine main:
     main_after_if_else@2:
         // application/contract.py:28
         // if op.Txn.num_app_args == 1:
-        txn NumAppArgs                                                                       tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                       tmp%3#0
-        int 1                                                                                tmp%3#0,1
-        ==                                                                                   tmp%4#0
+        txn NumAppArgs                                                                       tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                       tmp%4#0
-        bz main_after_if_else@8 ; b main_if_body@4
-
-    main_if_body@4:
-        // application/contract.py:29
-        // if op.Txn.application_args(0) == b"validate":
-        txna ApplicationArgs 0                                                               tmp%5#0
+        int 1                                                                                tmp%4#0,1
+        ==                                                                                   tmp%5#0
         v-store tmp%5#0
         v-load tmp%5#0                                                                       tmp%5#0
-        byte 0x76616c6964617465                                                              tmp%5#0,0x76616c6964617465
-        ==                                                                                   tmp%6#0
+        bz main_after_if_else@7 ; b main_if_body@3
+
+    main_if_body@3:
+        // application/contract.py:29
+        // if op.Txn.application_args(0) == b"validate":
+        txna ApplicationArgs 0                                                               tmp%6#0
         v-store tmp%6#0
         v-load tmp%6#0                                                                       tmp%6#0
+        byte 0x76616c6964617465                                                              tmp%6#0,0x76616c6964617465
+        ==                                                                                   tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                       tmp%7#0
         assert // Expected validate
         // application/contract.py:30
         // self.validate_asset(op.Global.current_application_id)
@@ -54,13 +54,13 @@ subroutine main:
         v-store app#0
         // application/contract.py:40
         // assert not Txn.sender.is_opted_in(app), "app opted in"
-        txn Sender                                                                           tmp%0#2
-        v-store tmp%0#2
-        v-load tmp%0#2                                                                       tmp%0#2
-        v-load app#0                                                                         tmp%0#2,app#0
-        app_opted_in                                                                         tmp%1#2
-        v-store tmp%1#2
-        v-load tmp%1#2                                                                       tmp%1#2
+        txn Sender                                                                           tmp%0#1
+        v-store tmp%0#1
+        v-load tmp%0#1                                                                       tmp%0#1
+        v-load app#0                                                                         tmp%0#1,app#0
+        app_opted_in                                                                         tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                       tmp%1#1
         !                                                                                    tmp%2#1
         v-store tmp%2#1
         v-load tmp%2#1                                                                       tmp%2#1
@@ -77,9 +77,9 @@ subroutine main:
         v-store tmp%3#1
         v-load value%0#0                                                                     value%0#0
         v-load tmp%3#1                                                                       value%0#0,tmp%3#1
-        ==                                                                                   tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                       tmp%4#0
+        ==                                                                                   tmp%4#1
+        v-store tmp%4#1
+        v-load tmp%4#1                                                                       tmp%4#1
         assert // expected creator
         // application/contract.py:42
         // assert app.global_num_uint == 1, "expected global_num_uint"
@@ -91,9 +91,9 @@ subroutine main:
         assert // application exists
         v-load value%1#0                                                                     value%1#0
         int 1                                                                                value%1#0,1
-        ==                                                                                   tmp%5#1
-        v-store tmp%5#1
-        v-load tmp%5#1                                                                       tmp%5#1
+        ==                                                                                   tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                       tmp%5#0
         assert // expected global_num_uint
         // application/contract.py:43
         // assert app.global_num_bytes == 2, "expected global_num_bytes"
@@ -105,9 +105,9 @@ subroutine main:
         assert // application exists
         v-load value%2#0                                                                     value%2#0
         int 2                                                                                value%2#0,2
-        ==                                                                                   tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                       tmp%6#0
+        ==                                                                                   tmp%6#1
+        v-store tmp%6#1
+        v-load tmp%6#1                                                                       tmp%6#1
         assert // expected global_num_bytes
         // application/contract.py:44
         // assert app.local_num_uint == 3, "expected local_num_uint"
@@ -119,9 +119,9 @@ subroutine main:
         assert // application exists
         v-load value%3#0                                                                     value%3#0
         int 3                                                                                value%3#0,3
-        ==                                                                                   tmp%7#1
-        v-store tmp%7#1
-        v-load tmp%7#1                                                                       tmp%7#1
+        ==                                                                                   tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                       tmp%7#0
         assert // expected local_num_uint
         // application/contract.py:45
         // assert app.local_num_bytes == 4, "expected local_num_bytes"
@@ -133,9 +133,9 @@ subroutine main:
         assert // application exists
         v-load value%4#0                                                                     value%4#0
         int 4                                                                                value%4#0,4
-        ==                                                                                   tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                                       tmp%8#0
+        ==                                                                                   tmp%8#1
+        v-store tmp%8#1
+        v-load tmp%8#1                                                                       tmp%8#1
         assert // expected local_num_bytes
         // application/contract.py:46
         // assert app.approval_program, "expected approval_program"
@@ -193,9 +193,9 @@ subroutine main:
         // ), "expected current_application_address"
         v-load tmp%16#0                                                                      tmp%16#0
         assert // expected current_application_address
-        b main_after_if_else@8
+        b main_after_if_else@7
 
-    main_after_if_else@8:
+    main_after_if_else@7:
         // application/contract.py:33
         // return True
         int 1                                                                                1

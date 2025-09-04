@@ -13,28 +13,11 @@ contract Augmented
     ['my_bytes']: bytes
   }
   
-  subroutine test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with_init(): bool
+  subroutine test_cases.augmented_assignment.contract.Augmented.approval_program(): bool
   {
     if (!(txn<ApplicationID>())) {
       this::__init__()
     }
-    return this::approval_program()
-  }
-  
-  subroutine test_cases.augmented_assignment.contract.Augmented.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.augmented_assignment.contract.Augmented.__init__(): void
-  {
-    GlobalState['counter']: uint64 = 0u
-    GlobalState['global_uint']: uint64 = 0u
-    GlobalState['global_bytes']: bytes = hex<"">
-  }
-  
-  subroutine test_cases.augmented_assignment.contract.Augmented.approval_program(): bool
-  {
     me: account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
       LocalState['my_uint', me]: uint64 = 0u
@@ -55,6 +38,18 @@ contract Augmented
       assert(GlobalState['counter'] == 2u, comment="this should not error")
     }
     return true
+  }
+  
+  subroutine test_cases.augmented_assignment.contract.Augmented.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.augmented_assignment.contract.Augmented.__init__(): void
+  {
+    GlobalState['counter']: uint64 = 0u
+    GlobalState['global_uint']: uint64 = 0u
+    GlobalState['global_bytes']: bytes = hex<"">
   }
   
   subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect(): account
