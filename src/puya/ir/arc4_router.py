@@ -127,9 +127,23 @@ def _on_completion(location: SourceLocation) -> awst_nodes.Expression:
     return _txn("OnCompletion", wtypes.uint64_wtype, location)
 
 
+def _assign_true_or_approve(
+    match_var: awst_nodes.VarExpression | None, loc: SourceLocation
+) -> awst_nodes.Statement:
+    if match_var is None:
+        return _approve(loc)
+    return awst_nodes.AssignmentStatement(
+        target=match_var,
+        value=awst_nodes.BoolConstant(value=True, source_location=loc),
+        source_location=loc,
+    )
+
+
 def _route_bare_methods(
     location: SourceLocation,
     bare_methods: Mapping[md.ARC4BareMethod, AWSTContractMethodSignature],
+    *,
+    assign_true_on_match: awst_nodes.VarExpression | None,
 ) -> awst_nodes.Block:
     assert bare_methods, "route_bare_methods called with no bare methods"
     if len(bare_methods) == 1:
@@ -140,7 +154,7 @@ def _route_bare_methods(
             sig.target.member_name,
             *_check_allowed_oca_and_create(method),
             awst_nodes.ExpressionStatement(expr=_call(bare_location, sig)),
-            _approve(bare_location),
+            _assign_true_or_approve(assign_true_on_match, bare_location),
         )
 
     bare_blocks = dict[OnCompletionAction, awst_nodes.Block]()
@@ -151,7 +165,7 @@ def _route_bare_methods(
             sig.target.member_name,
             *_assert_create_state(method.create, bare_location),
             awst_nodes.ExpressionStatement(expr=_call(bare_location, sig)),
-            _approve(bare_location),
+            _assign_true_or_approve(assign_true_on_match, bare_location),
         )
         for oca in method.allowed_completion_types:
             if bare_blocks.setdefault(oca, bare_block) is not bare_block:
@@ -445,7 +459,7 @@ def _map_abi_args(
 
 
 def _build_abi_wrapper(
-    method: md.ARC4ABIMethod, sig: AWSTContractMethodSignature
+    method: md.ARC4ABIMethod, sig: AWSTContractMethodSignature, *, exit_success: bool
 ) -> awst_nodes.Subroutine:
     abi_loc = method.config_location
     use_reference_alias = method.resource_encoding == "index"
@@ -466,14 +480,14 @@ def _build_abi_wrapper(
                 source_location=method_result.source_location,
             )
             call_and_maybe_log = _log_arc4_result(abi_loc, arc4_encoded)
+    body: list[awst_nodes.Statement] = [call_and_maybe_log]
+    if exit_success:
+        body.append(_approve(abi_loc))
     qualified_name = ".".join((sig.target.cref, sig.target.member_name))
     wrapper_method = awst_nodes.Subroutine(
         args=[],
         return_type=wtypes.void_wtype,
-        body=awst_nodes.Block(
-            body=[call_and_maybe_log, _approve(abi_loc)],
-            source_location=abi_loc,
-        ),
+        body=awst_nodes.Block(body=body, source_location=abi_loc),
         documentation=awst_nodes.MethodDocumentation(),
         name=sig.target.member_name,
         id=f"{qualified_name}[routing]",
@@ -501,6 +515,7 @@ def _create_abi_switch(
     cases: Iterable[tuple[md.ARC4ABIMethod, awst_nodes.Subroutine]],
     *,
     check_oca_and_create: bool,
+    assign_true_on_match: awst_nodes.VarExpression | None,
 ) -> Sequence[awst_nodes.Switch]:
     case_blocks = dict[awst_nodes.Expression, awst_nodes.Block]()
     for method, method_wrapper in cases:
@@ -508,13 +523,10 @@ def _create_abi_switch(
         method_const = awst_nodes.MethodConstant(
             source_location=router_location, value=method.signature
         )
-        check_stmts = list[awst_nodes.Statement]()
+        stmts = list[awst_nodes.Statement]()
         if check_oca_and_create:
-            check_stmts = list(_check_allowed_oca_and_create(method))
-        call_block = _create_block(
-            abi_loc,
-            f"{method.name}_route",
-            *check_stmts,
+            stmts = list(_check_allowed_oca_and_create(method))
+        stmts.append(
             awst_nodes.ExpressionStatement(
                 awst_nodes.SubroutineCallExpression(
                     target=awst_nodes.SubroutineID(method_wrapper.id),
@@ -522,8 +534,17 @@ def _create_abi_switch(
                     wtype=wtypes.void_wtype,
                     source_location=abi_loc,
                 )
-            ),
+            )
         )
+        if assign_true_on_match is not None:
+            stmts.append(
+                awst_nodes.AssignmentStatement(
+                    target=assign_true_on_match,
+                    value=awst_nodes.BoolConstant(value=True, source_location=abi_loc),
+                    source_location=abi_loc,
+                )
+            )
+        call_block = _create_block(abi_loc, f"{method.name}_route", *stmts)
         case_blocks[method_const] = call_block
     if not case_blocks:
         return ()
@@ -539,6 +560,8 @@ def _create_abi_switch(
 def _route_abi_methods(
     router_location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
+    *,
+    assign_true_on_match: awst_nodes.VarExpression | None,
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     _check_for_duplicates(methods)
 
@@ -546,7 +569,7 @@ def _route_abi_methods(
     no_op_only_routing_methods = {}
     other_routing_methods = {}
     for method, sig in methods.items():
-        wrapper_method = _build_abi_wrapper(method, sig)
+        wrapper_method = _build_abi_wrapper(method, sig, exit_success=assign_true_on_match is None)
         arc4_wrapper_methods.append(wrapper_method)
         match method:
             case md.ARC4ABIMethod(allowed_completion_types=[OnCompletionAction.NoOp]):
@@ -579,6 +602,7 @@ def _route_abi_methods(
                 router_location,
                 no_op_by_create.get(awst_nodes.ARC4CreateOption.allow, []),
                 check_oca_and_create=False,
+                assign_true_on_match=assign_true_on_match,
             ),
             awst_nodes.IfElse(
                 source_location=router_location,
@@ -590,6 +614,7 @@ def _route_abi_methods(
                         router_location,
                         no_op_by_create.get(awst_nodes.ARC4CreateOption.disallow, []),
                         check_oca_and_create=False,
+                        assign_true_on_match=assign_true_on_match,
                     ),
                 ),
                 else_branch=_create_block(
@@ -599,6 +624,7 @@ def _route_abi_methods(
                         router_location,
                         no_op_by_create.get(awst_nodes.ARC4CreateOption.require, []),
                         check_oca_and_create=False,
+                        assign_true_on_match=assign_true_on_match,
                     ),
                 ),
             ),
@@ -611,6 +637,7 @@ def _route_abi_methods(
             router_location,
             other_routing_methods.items(),
             check_oca_and_create=True,
+            assign_true_on_match=assign_true_on_match,
         ),
         *no_op_routing,
     )
@@ -620,6 +647,8 @@ def _route_abi_methods(
 def create_abi_router(
     contract: awst_nodes.Contract,
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
+    *,
+    can_exit_early: bool,
 ) -> tuple[awst_nodes.ContractMethod, Sequence[awst_nodes.Subroutine]]:
     router_location = contract.source_location
     abi_methods = {}
@@ -630,12 +659,25 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    abi_routing, abi_wrapper_methods = _route_abi_methods(router_location, abi_methods)
+    match_var = awst_nodes.VarExpression(
+        name="%did_match_routing",
+        wtype=wtypes.bool_wtype,
+        source_location=router_location,
+    )
+    abi_routing, abi_wrapper_methods = _route_abi_methods(
+        router_location,
+        abi_methods,
+        assign_true_on_match=None if can_exit_early else match_var,
+    )
     router: list[awst_nodes.Statement]
     if not bare_methods:
         router = [*abi_routing.body]
     else:
-        bare_routing = _route_bare_methods(router_location, bare_methods)
+        bare_routing = _route_bare_methods(
+            router_location,
+            bare_methods,
+            assign_true_on_match=None if can_exit_early else match_var,
+        )
         value = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
         router = [
             awst_nodes.IfElse(
@@ -645,13 +687,28 @@ def create_abi_router(
                 source_location=router_location,
             )
         ]
+    if can_exit_early:
+        router.append(_reject(router_location))
+    else:
+        router = [
+            awst_nodes.AssignmentStatement(
+                target=match_var,
+                value=awst_nodes.BoolConstant(value=False, source_location=router_location),
+                source_location=router_location,
+            ),
+            *router,
+            awst_nodes.ReturnStatement(
+                value=match_var,
+                source_location=router_location,
+            ),
+        ]
     approval_program = awst_nodes.ContractMethod(
         cref=contract.id,
         member_name="__puya_arc4_router__",
         source_location=router_location,
         args=[],
         return_type=wtypes.bool_wtype,
-        body=_create_block(router_location, None, *router, _reject(router_location)),
+        body=_create_block(router_location, None, *router),
         documentation=awst_nodes.MethodDocumentation(),
         arc4_method_config=None,
         inline=True,

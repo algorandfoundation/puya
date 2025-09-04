@@ -39,11 +39,7 @@ from puya.ir.optimize.slot_elimination import slot_elimination
 from puya.ir.to_text_visitor import render_program
 from puya.ir.types_ import wtype_to_ir_type
 from puya.ir.validation.main import validate_module_artifact
-from puya.program_refs import (
-    ContractReference,
-    LogicSigReference,
-    ProgramKind,
-)
+from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 from puya.utils import StableSet, attrs_extend, coalesce, set_add, set_remove
 
 logger = log.get_logger(__name__)
@@ -257,23 +253,31 @@ def _lower_aggregate_ir(
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     metadata, arc4_methods = build_contract_metadata(ctx, contract)
-    routing_data = {
-        md: AWSTContractMethodSignature(
-            target=awst_nodes.ContractMethodTarget(cref=cm.cref, member_name=cm.member_name),
-            return_type=cm.return_type,
-            parameter_types=[a.wtype for a in cm.args],
+    if arc4_methods:
+        routing_data = {
+            md: AWSTContractMethodSignature(
+                target=awst_nodes.ContractMethodTarget(cref=cm.cref, member_name=cm.member_name),
+                return_type=cm.return_type,
+                parameter_types=[a.wtype for a in cm.args],
+            )
+            for cm, md in arc4_methods.items()
+        }
+        router_can_exit_early = _CanExitAfterRouterApproval.analyse(contract)
+        arc4_router_awst, wrapper_funcs = arc4_router.create_abi_router(
+            contract,
+            routing_data,
+            can_exit_early=router_can_exit_early,
         )
-        for cm, md in arc4_methods.items()
-    }
-    arc4_router_awst, wrapper_funcs = arc4_router.create_abi_router(contract, routing_data)
-    ctx = attrs.evolve(ctx, awst=[*ctx.awst, *wrapper_funcs])
-    ctx.routers[contract.id] = ctx.subroutines[arc4_router_awst] = make_subroutine(
-        arc4_router_awst, allow_implicits=False
-    )
-    for wf in wrapper_funcs:
-        wrapper_sub = make_subroutine(wf, allow_implicits=False)
-        wrapper_sub.is_routing_wrapper = True
-        ctx.subroutines[wf] = wrapper_sub
+        ctx = attrs.evolve(ctx, awst=[*ctx.awst, *wrapper_funcs])
+
+        ctx.routers[contract.id] = ctx.subroutines[arc4_router_awst] = make_subroutine(
+            arc4_router_awst, allow_implicits=False
+        )
+
+        for wf in wrapper_funcs:
+            wrapper_sub = make_subroutine(wf, allow_implicits=False)
+            wrapper_sub.is_routing_wrapper = True
+            ctx.subroutines[wf] = wrapper_sub
 
     # Build callees list, excluding calls from router.
     # Used to if a function should implicitly return mutable reference parameters.
@@ -318,6 +322,52 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         metadata=metadata,
         source_location=contract.source_location,
     )
+
+
+@attrs.define
+class _CanExitAfterRouterApproval(FunctionTraverser):
+    has_router_return: bool = attrs.field(default=False, init=False)
+
+    class _HasRouterCallOutsideReturn(Exception):  # noqa: N818
+        pass
+
+    @classmethod
+    def analyse(cls, contract: awst_nodes.Contract) -> bool:
+        approval_returns_router = False
+        for method in contract.all_methods:
+            traverser = cls()
+            try:
+                method.body.accept(traverser)
+            except cls._HasRouterCallOutsideReturn:
+                return False
+            if traverser.has_router_return:
+                if method == contract.approval_program:
+                    approval_returns_router = True
+                else:
+                    return False
+        if not approval_returns_router:
+            # Ff there was a non-return call to router before this, or a return call to the router
+            # from a method other than approval_program itself, we would have exited early.
+            # Thus, if we get here, there are no usages of ARC4Router anywhere.
+            # The most likely cause in puyapy for example would be overriding the approval-program
+            # but not calling the super/base method
+            logger.warning(
+                f"contract {contract.id} has routable methods but does not have a router",
+                location=contract.approval_program.source_location,
+            )
+        return True
+
+    @typing.override
+    def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> None:
+        raise self._HasRouterCallOutsideReturn
+
+    @typing.override
+    def visit_return_statement(self, statement: awst_nodes.ReturnStatement) -> None:
+        match statement.value:
+            case awst_nodes.ARC4Router():
+                self.has_router_return = True
+            case value if value is not None:
+                value.accept(self)
 
 
 def _make_program(
