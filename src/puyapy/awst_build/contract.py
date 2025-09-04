@@ -196,9 +196,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     # optimisation, particularly in subroutine inlining
                     pass
                 case _:
-                    approval_program = _insert_init_call_on_create(
-                        current_contract=self.fragment.id,
-                        approval_method_return_type=approval_program.return_type,
+                    approval_method.implementation = approval_program = (
+                        _insert_init_call_on_create(approval_program=approval_program)
                     )
 
         clear_method = self.fragment.resolve_method(constants.CLEAR_STATE_METHOD)
@@ -581,7 +580,7 @@ class _ContractFragment(_UserContractBase):
 
 
 def _insert_init_call_on_create(
-    current_contract: ContractReference, *, approval_method_return_type: wtypes.WType
+    *, approval_program: awst_nodes.ContractMethod
 ) -> awst_nodes.ContractMethod:
     call_init = awst_nodes.Block(
         comment="call __init__",
@@ -606,31 +605,11 @@ def _insert_init_call_on_create(
         else_branch=None,
         source_location=_SYNTHETIC_LOCATION,
     )
-    return awst_nodes.ContractMethod(
-        cref=current_contract,
-        member_name="__algopy_entrypoint_with_init",
-        args=[],
-        arc4_method_config=None,
-        return_type=approval_method_return_type,
-        documentation=awst_nodes.MethodDocumentation(),
-        body=awst_nodes.Block(
-            body=[
-                call_init_on_create,
-                awst_nodes.ReturnStatement(
-                    value=awst_nodes.SubroutineCallExpression(
-                        target=awst_nodes.InstanceMethodTarget(
-                            member_name=constants.APPROVAL_METHOD,
-                        ),
-                        args=[],
-                        wtype=approval_method_return_type,
-                        source_location=_SYNTHETIC_LOCATION,
-                    ),
-                    source_location=_SYNTHETIC_LOCATION,
-                ),
-            ],
-            source_location=_SYNTHETIC_LOCATION,
+    return attrs.evolve(
+        approval_program,
+        body=attrs.evolve(
+            approval_program.body, body=(call_init_on_create, *approval_program.body.body)
         ),
-        source_location=_SYNTHETIC_LOCATION,
     )
 
 
