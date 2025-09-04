@@ -909,141 +909,142 @@ subroutine test_arr:
         assert // expected arrays to be the same                                                           (𝕗) fixed_struct#0 | arr8#0
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
-        int 0                                                                                              (𝕗) fixed_struct#0 | arr8#0,0
-        f-store _i#0                                                                                       (𝕗) fixed_struct#0,_i#0 | arr8#0
-        l-load arr8#0 0                                                                                    (𝕗) fixed_struct#0,_i#0 | arr8#0
-        f-store arr2#1                                                                                     (𝕗) fixed_struct#0,_i#0,arr2#1 |
-        b test_arr_for_header@4                                                                            (𝕗) fixed_struct#0,_i#0,arr2#1 |
+        int 0                                                                                              (𝕗) fixed_struct#0 | arr8#0,value_internal%0#0
+        l-load arr8#0 1                                                                                    (𝕗) fixed_struct#0 | value_internal%0#0,arr8#0
+        f-store arr2#1                                                                                     (𝕗) fixed_struct#0,arr2#1 | value_internal%0#0
+        l-load value_internal%0#0 0                                                                        (𝕗) fixed_struct#0,arr2#1 | value_internal%0#0
+        f-store _i#1                                                                                       (𝕗) fixed_struct#0,arr2#1,_i#1 |
+        b test_arr_for_header@4                                                                            (𝕗) fixed_struct#0,arr2#1,_i#1 |
 
-    test_arr_for_header@4:                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 |
+    test_arr_for_header@4:                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 |
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
-        f-load _i#0                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | _i#0
-        int 3                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | _i#0,3
-        <                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | continue_looping%0#0
-        bz test_arr_after_for@7 ; b test_arr_for_body@5                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 |
+        f-load _i#1                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | _i#1
+        int 3                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | _i#1,3
+        <                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | continue_looping%0#0
+        bz test_arr_after_for@7 ; b test_arr_for_body@5                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 |
 
-    test_arr_for_body@5:                                                                                   (𝕗) fixed_struct#0,_i#0,arr2#1 |
+    test_arr_for_body@5:                                                                                   (𝕗) fixed_struct#0,arr2#1,_i#1 |
         // mutable_native_types/contract.py:237
         // arr2.append(fixed_struct)
-        f-load arr2#1                                                                                      (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1
-        l-store-copy arr2#1 0                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,arr2#1 (copy)
-        f-load fixed_struct#0                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,arr2#1 (copy),fixed_struct#0
-        concat // on error: max array length exceeded                                                      (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,concat%3#0
-        l-load arr2#1 1                                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,arr2#1
-        int 0                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,arr2#1,0
-        extract_uint16                                                                                     (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,extract_uint16%1#0
-        int 1                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,extract_uint16%1#0,1
-        +                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,add%1#0
-        itob                                                                                               (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,as_bytes%3#0
-        extract 6 2                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,as_u16_bytes%3#0
-        l-load concat%3#0 1                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 | as_u16_bytes%3#0,concat%3#0
-        l-load as_u16_bytes%3#0 1                                                                          (𝕗) fixed_struct#0,_i#0,arr2#1 | concat%3#0,as_u16_bytes%3#0
-        replace2 0                                                                                         (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1
-        f-store arr2#1                                                                                     (𝕗) fixed_struct#0,_i#0,arr2#1 |
+        f-load arr2#1                                                                                      (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1
+        l-store-copy arr2#1 0                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,arr2#1 (copy)
+        f-load fixed_struct#0                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,arr2#1 (copy),fixed_struct#0
+        concat // on error: max array length exceeded                                                      (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,concat%3#0
+        l-load arr2#1 1                                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,arr2#1
+        int 0                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,arr2#1,0
+        extract_uint16                                                                                     (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,extract_uint16%1#0
+        int 1                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,extract_uint16%1#0,1
+        +                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,add%1#0
+        itob                                                                                               (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,as_bytes%3#0
+        extract 6 2                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,as_u16_bytes%3#0
+        l-load concat%3#0 1                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 | as_u16_bytes%3#0,concat%3#0
+        l-load as_u16_bytes%3#0 1                                                                          (𝕗) fixed_struct#0,arr2#1,_i#1 | concat%3#0,as_u16_bytes%3#0
+        replace2 0                                                                                         (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1
+        f-store arr2#1                                                                                     (𝕗) fixed_struct#0,arr2#1,_i#1 |
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
-        f-load _i#0                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | _i#0
-        int 1                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | _i#0,1
-        +                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | _i#0
-        f-store _i#0                                                                                       (𝕗) fixed_struct#0,_i#0,arr2#1 |
-        b test_arr_for_header@4                                                                            (𝕗) fixed_struct#0,_i#0,arr2#1 |
+        f-load _i#1                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | _i#1
+        int 1                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | _i#1,1
+        +                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | value_internal%0#0
+        f-store _i#1                                                                                       (𝕗) fixed_struct#0,arr2#1,_i#1 |
+        b test_arr_for_header@4                                                                            (𝕗) fixed_struct#0,arr2#1,_i#1 |
 
-    test_arr_after_for@7:                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 |
+    test_arr_after_for@7:                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 |
         // mutable_native_types/contract.py:239
         // assert arr2.length == 3, "expected 3 elements"
-        f-load arr2#1                                                                                      (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1
-        l-store-copy arr2#1 0                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,arr2#1 (copy)
-        int 0                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,arr2#1 (copy),0
-        extract_uint16                                                                                     (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0
-        l-load-copy array_length#0 0                                                                       (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,array_length#0 (copy)
-        int 3                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,array_length#0 (copy),3
-        ==                                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,tmp%32#0
-        assert // expected 3 elements                                                                      (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0
+        f-load arr2#1                                                                                      (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1
+        l-store-copy arr2#1 0                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,arr2#1 (copy)
+        int 0                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,arr2#1 (copy),0
+        extract_uint16                                                                                     (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0
+        l-load-copy array_length#0 0                                                                       (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,array_length#0 (copy)
+        int 3                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,array_length#0 (copy),3
+        ==                                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,tmp%32#0
+        assert // expected 3 elements                                                                      (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0
         // mutable_native_types/contract.py:242
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
-        l-load-copy arr2#1 1                                                                               (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,arr2#1 (copy)
-        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,tmp%34#0
-        int 21                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,tmp%34#0,21
-        ==                                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,tmp%35#0
-        assert // expected sum to be 21                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0
-        l-load array_length#0 0                                                                            (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0
-        int 1                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,array_length#0,1
-        -                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,length_minus_1#0
-        itob                                                                                               (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,tmp%2#1
-        extract 6 0                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,tmp%3#1
-        l-load-copy arr2#1 1                                                                               (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,tmp%3#1,arr2#1 (copy)
-        l-load tmp%3#1 1                                                                                   (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,arr2#1 (copy),tmp%3#1
-        replace2 0                                                                                         (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0
-        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0,result#0 (copy)
-        len                                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0,tmp%5#1
+        l-load-copy arr2#1 1                                                                               (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,arr2#1 (copy)
+        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,tmp%34#0
+        int 21                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,tmp%34#0,21
+        ==                                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,tmp%35#0
+        assert // expected sum to be 21                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0
+        l-load array_length#0 0                                                                            (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0
+        int 1                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,array_length#0,1
+        -                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,length_minus_1#0
+        itob                                                                                               (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,tmp%2#1
+        extract 6 0                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,tmp%3#1
+        l-load-copy arr2#1 1                                                                               (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,tmp%3#1,arr2#1 (copy)
+        l-load tmp%3#1 1                                                                                   (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,arr2#1 (copy),tmp%3#1
+        replace2 0                                                                                         (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0
+        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0,result#0 (copy)
+        len                                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0,tmp%5#1
         // mutable_native_types/contract.py:244
         // arr2.pop()
-        int 16                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0,tmp%5#1,16
-        -                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0,item_location#0
-        l-load result#0 1                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,item_location#0,result#0
-        int 0                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,item_location#0,result#0,0
-        l-load item_location#0 2                                                                           (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0,0,item_location#0
-        substring3                                                                                         (𝕗) fixed_struct#0,_i#0,arr2#1 | arr2#1,result#0
+        int 16                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0,tmp%5#1,16
+        -                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0,item_location#0
+        l-load result#0 1                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,item_location#0,result#0
+        int 0                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,item_location#0,result#0,0
+        l-load item_location#0 2                                                                           (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0,0,item_location#0
+        substring3                                                                                         (𝕗) fixed_struct#0,arr2#1,_i#1 | arr2#1,result#0
         // mutable_native_types/contract.py:246
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
-        l-load arr2#1 1                                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,arr2#1
-        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%39#0
-        int 21                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%39#0,21
-        ==                                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%40#0
-        assert // expected sum to be 21                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0
+        l-load arr2#1 1                                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,arr2#1
+        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%39#0
+        int 21                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%39#0,21
+        ==                                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%40#0
+        assert // expected sum to be 21                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0
         // mutable_native_types/contract.py:247
         // assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
-        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,result#0 (copy)
-        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%41#0
-        int 14                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%41#0,14
-        ==                                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%42#0
-        assert // expected sum to be 14                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0
+        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,result#0 (copy)
+        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%41#0
+        int 14                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%41#0,14
+        ==                                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%42#0
+        assert // expected sum to be 14                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0
         // mutable_native_types/contract.py:248
         // frozen2 += frozen2
-        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,result#0 (copy)
-        extract 2 0                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,extract_to_end%3#0
-        l-load-copy result#0 1                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,extract_to_end%3#0,result#0 (copy)
-        l-load extract_to_end%3#0 1                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,result#0 (copy),extract_to_end%3#0
-        concat // on error: max array length exceeded                                                      (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0
-        l-load-copy concat%4#0 0                                                                           (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,concat%4#0 (copy)
-        extract 2 0                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,extract_to_end%4#0
-        len                                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,len%1#0
-        int 16                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,len%1#0,16
-        /                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,div_floor%1#0
-        itob                                                                                               (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,as_bytes%4#0
-        extract 6 2                                                                                        (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,as_u16_bytes%4#0
-        l-load concat%4#0 1                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,as_u16_bytes%4#0,concat%4#0
-        l-load as_u16_bytes%4#0 1                                                                          (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,concat%4#0,as_u16_bytes%4#0
-        replace2 0                                                                                         (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,frozen2#1
+        l-load-copy result#0 0                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,result#0 (copy)
+        extract 2 0                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,extract_to_end%3#0
+        l-load-copy result#0 1                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,extract_to_end%3#0,result#0 (copy)
+        l-load extract_to_end%3#0 1                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,result#0 (copy),extract_to_end%3#0
+        concat // on error: max array length exceeded                                                      (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0
+        l-load-copy concat%4#0 0                                                                           (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,concat%4#0 (copy)
+        extract 2 0                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,extract_to_end%4#0
+        len                                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,len%1#0
+        int 16                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,len%1#0,16
+        /                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,div_floor%1#0
+        itob                                                                                               (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,as_bytes%4#0
+        extract 6 2                                                                                        (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,as_u16_bytes%4#0
+        l-load concat%4#0 1                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,as_u16_bytes%4#0,concat%4#0
+        l-load as_u16_bytes%4#0 1                                                                          (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,concat%4#0,as_u16_bytes%4#0
+        replace2 0                                                                                         (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,frozen2#1
         // mutable_native_types/contract.py:249
         // assert sum_frozen_arr(frozen2) == 28, "and the sum shall be 41"
-        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%43#0
-        int 28                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%43#0,28
-        ==                                                                                                 (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,tmp%44#0
-        assert // and the sum shall be 41                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0
+        callsub sum_frozen_arr                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%43#0
+        int 28                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%43#0,28
+        ==                                                                                                 (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,tmp%44#0
+        assert // and the sum shall be 41                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0
         // mutable_native_types/contract.py:251
         // self.arr = arr2.copy()
-        byte "arr"                                                                                         (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,"arr"
-        l-load-copy result#0 1                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,"arr",result#0 (copy)
-        app_global_put                                                                                     (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0
+        byte "arr"                                                                                         (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,"arr"
+        l-load-copy result#0 1                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,"arr",result#0 (copy)
+        app_global_put                                                                                     (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0
         // mutable_native_types/contract.py:256
         // arr11.append(fixed_struct)
-        f-load fixed_struct#0                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,fixed_struct#0
+        f-load fixed_struct#0                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,fixed_struct#0
         // mutable_native_types/contract.py:257
         // assert arr11
-        len                                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,aggregate%bytes_len%3#0
-        int 16                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,aggregate%bytes_len%3#0,16
-        /                                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,aggregate%array_len%3#0
-        assert                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0
+        len                                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,aggregate%bytes_len%3#0
+        int 16                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,aggregate%bytes_len%3#0,16
+        /                                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,aggregate%array_len%3#0
+        assert                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0
         // mutable_native_types/contract.py:197
         // @arc4.abimethod()
-        byte 0x151f7c75                                                                                    (𝕗) fixed_struct#0,_i#0,arr2#1 | result#0,0x151f7c75
-        l-load result#0 1                                                                                  (𝕗) fixed_struct#0,_i#0,arr2#1 | 0x151f7c75,result#0
-        concat                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 | tmp%1#0
-        log                                                                                                (𝕗) fixed_struct#0,_i#0,arr2#1 |
-        int 1                                                                                              (𝕗) fixed_struct#0,_i#0,arr2#1 | 1
-        return                                                                                             (𝕗) fixed_struct#0,_i#0,arr2#1 |
+        byte 0x151f7c75                                                                                    (𝕗) fixed_struct#0,arr2#1,_i#1 | result#0,0x151f7c75
+        l-load result#0 1                                                                                  (𝕗) fixed_struct#0,arr2#1,_i#1 | 0x151f7c75,result#0
+        concat                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 | tmp%1#0
+        log                                                                                                (𝕗) fixed_struct#0,arr2#1,_i#1 |
+        int 1                                                                                              (𝕗) fixed_struct#0,arr2#1,_i#1 | 1
+        return                                                                                             (𝕗) fixed_struct#0,arr2#1,_i#1 |
 
 
 // test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]() -> void:

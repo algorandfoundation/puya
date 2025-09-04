@@ -181,11 +181,14 @@ path_length_for_header@1:
     b path_length_for_body@2
 
 path_length_for_body@2:
+    // array/static_size.py:169
+    // for point_idx in urange(1, path.length):
+    frame_dig 8
     // array/static_size.py:170
     // point = path[point_idx]
     frame_dig -1
     loads
-    frame_dig 8
+    cover 1
     intc 4 // 144
     *
     intc 4 // 144
@@ -618,16 +621,21 @@ test_cases.array.static_size.StaticSizeContract.test_array_for_header@1:
     b test_cases.array.static_size.StaticSizeContract.test_array_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_array_for_body@2:
+    // array/static_size.py:49
+    // for i in urange(3):
+    frame_dig 1
     // array/static_size.py:50
     // assert path[i].other.b == i + 1
     frame_dig 0
     dup
-    loads
-    frame_dig 1
-    dup
     cover 2
+    loads
+    cover 1
+    dup
     intc 4 // 144
     *
+    uncover 2
+    uncover 1
     intc 4 // 144
     extract3 // on error: index access is out of bounds
     intc_3 // 16
@@ -912,9 +920,11 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_for_header@1:
     b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@2:
+    // array/static_size.py:80
+    // for i in urange(1, length + 1):
+    frame_dig 6
     // array/static_size.py:81
     // arr.append(i % 2 == 0)
-    frame_dig 6
     pushint 2 // 2
     %
     intc_0 // 0
@@ -1108,9 +1118,11 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_header@
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@2
 
 test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@2:
+    // array/static_size.py:99
+    // for i in urange(1, length + 1):
+    frame_dig 6
     // array/static_size.py:100
     // arr.append(arc4.UInt64(i))
-    frame_dig 6
     itob
     frame_dig 4
     dup

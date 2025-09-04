@@ -9,14 +9,16 @@ subroutine main:
         // less_simple/contract.py:29
         // for i in urange(1, 100):
         int 1                                        1
-        v-store i#0
+        l-store value_internal%0#0 0                 value_internal%0#0
+        l-load value_internal%0#0 0                  value_internal%0#0
+        v-store i#1
         b main_for_header@1
 
     main_for_header@1:
         // less_simple/contract.py:29
         // for i in urange(1, 100):
-        v-load i#0                                   i#0
-        int 100                                      i#0,100
+        v-load i#1                                   i#1
+        int 100                                      i#1,100
         <                                            continue_looping%0#0
         l-load continue_looping%0#0 0                continue_looping%0#0
         bz main_after_for@8 ; b main_for_body@2
@@ -24,16 +26,16 @@ subroutine main:
     main_for_body@2:
         // less_simple/contract.py:30
         // square_root = op.sqrt(i)
-        v-load i#0                                   i#0
-        l-store-copy i#0 0                           i#0,i#0 (copy)
-        sqrt                                         i#0,square_root#0
+        v-load i#1                                   i#1
+        l-store-copy i#1 0                           i#1,i#1 (copy)
+        sqrt                                         i#1,square_root#0
         // less_simple/contract.py:31
         // if square_root * square_root == i:
-        l-load-copy square_root#0 0                  i#0,square_root#0,square_root#0 (copy)
-        l-load square_root#0 1                       i#0,square_root#0 (copy),square_root#0
-        *                                            i#0,tmp%1#0
-        l-load tmp%1#0 0                             i#0,tmp%1#0
-        l-load i#0 1                                 tmp%1#0,i#0
+        l-load-copy square_root#0 0                  i#1,square_root#0,square_root#0 (copy)
+        l-load square_root#0 1                       i#1,square_root#0 (copy),square_root#0
+        *                                            i#1,tmp%1#0
+        l-load tmp%1#0 0                             i#1,tmp%1#0
+        l-load i#1 1                                 tmp%1#0,i#1
         ==                                           tmp%2#0
         l-load tmp%2#0 0                             tmp%2#0
         bz main_after_if_else@4 ; b main_if_body@3
@@ -42,7 +44,7 @@ subroutine main:
         // less_simple/contract.py:32
         // sum_of_squares += i
         v-load sum_of_squares#0                      sum_of_squares#0
-        v-load i#0                                   sum_of_squares#0,i#0
+        v-load i#1                                   sum_of_squares#0,i#1
         +                                            sum_of_squares#0
         v-store sum_of_squares#0
         b main_after_if_else@4
@@ -59,10 +61,11 @@ subroutine main:
     main_after_if_else@6:
         // less_simple/contract.py:29
         // for i in urange(1, 100):
-        v-load i#0                                   i#0
-        int 1                                        i#0,1
-        +                                            i#0
-        v-store i#0
+        v-load i#1                                   i#1
+        int 1                                        i#1,1
+        +                                            value_internal%0#0
+        l-load value_internal%0#0 0                  value_internal%0#0
+        v-store i#1
         b main_for_header@1
 
     main_after_for@8:

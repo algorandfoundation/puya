@@ -538,12 +538,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let twm.arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = i#0
         goto block@1
     block@1: // for_header_L107
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 3u)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
+        let i#1: uint64 = value_internal%0#1
         let array_item%0#0: Encoded(uint64) = extract_value(twm.arr#2, i#1)
         let reinterpret_biguint%0#0: biguint = array_item%0#0
         let tmp%2#0: biguint = (itob i#1)
@@ -551,7 +553,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         (assert tmp%3#0)
         goto block@3
     block@3: // for_footer_L107
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L107
         return twm.arr#2 twm.child.a#0 twm.child.b#0 twm.child.c#0

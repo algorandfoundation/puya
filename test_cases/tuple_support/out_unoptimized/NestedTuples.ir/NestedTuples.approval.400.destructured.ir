@@ -943,24 +943,25 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
         let twm.arr#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L107
-        let continue_looping%0#0: bool = (< i#0 3u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
+        let i#1: uint64 = value_internal%0#0
         let aggregate%total_length%0#0: uint64 = (len twm.arr#0)
         let aggregate%array_trimmed%0#0: bytes = (substring3 twm.arr#0 2u aggregate%total_length%0#0)
-        let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#1 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#0
         let reinterpret_biguint%0#0: biguint = array_item%0#0
-        let tmp%2#0: biguint = (itob i#0)
+        let tmp%2#0: biguint = (itob i#1)
         let tmp%3#0: bool = (b== reinterpret_biguint%0#0 tmp%2#0)
         (assert tmp%3#0)
         goto block@3
     block@3: // for_footer_L107
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L107
         return twm.arr#0 0u 0x ""
