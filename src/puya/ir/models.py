@@ -938,15 +938,33 @@ class BasicBlock(Context):
     def remove_predecessor(self, predecessor: "BasicBlock") -> bool:
         if not self.discard_predecessor(predecessor):
             return False
-        for phi in self.phis:
-            for arg_idx, phi_arg in enumerate(phi.args):
-                if phi_arg.through == predecessor:
-                    phi.args.pop(arg_idx)
-                    break
-            else:
-                raise InternalError(
-                    "inconsistency between phi operands and predecessors", self.source_location
-                )
+        if self.phis:
+            for phi in self.phis:
+                for arg_idx, phi_arg in enumerate(phi.args):
+                    if phi_arg.through == predecessor:
+                        phi.args.pop(arg_idx)
+                        break
+                else:
+                    raise InternalError(
+                        "inconsistency between phi operands and predecessors", self.source_location
+                    )
+            if len(self.predecessors) == 1:
+                targets = []
+                source_values = []
+                for phi in self.phis:
+                    targets.append(phi.register)
+                    (phi_arg,) = phi.args
+                    source_values.append(phi_arg.value)
+                loc = None  # phis have no location
+                # phi nodes execute in parallel, so construct a single assignment
+                source: ValueProvider
+                try:
+                    (source,) = source_values
+                except ValueError:
+                    source = ValueTuple(values=source_values, source_location=loc)
+                copies = Assignment(targets=targets, source=source, source_location=loc)
+                self.ops.insert(0, copies)
+                self.phis.clear()
         return True
 
     def replace_predecessor(self, *, old: "BasicBlock", new: "BasicBlock") -> None:
@@ -1334,9 +1352,7 @@ def _get_used_registers(blocks: Sequence[BasicBlock]) -> Set[Register]:
     from puya.ir.register_read_collector import RegisterReadCollector
 
     collector = RegisterReadCollector()
-    for block in blocks:
-        for op in block.all_ops:
-            op.accept(collector)
+    collector.visit_all_blocks(blocks)
     return collector.used_registers
 
 

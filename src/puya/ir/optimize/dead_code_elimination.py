@@ -8,7 +8,6 @@ from puya.context import CompileContext
 from puya.ir import models, visitor
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
-from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
@@ -312,7 +311,6 @@ def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subro
         return False
 
     reachable_blocks = [subroutine.body[0]]
-    modified_blocks = dict[models.BasicBlock, None]()
     for block in subroutine.body[1:]:
         if block in reachable_set:
             reachable_blocks.append(block)
@@ -322,10 +320,6 @@ def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subro
                 if succ in reachable_set:
                     did_remove = succ.remove_predecessor(block)
                     assert did_remove
-                    modified_blocks[succ] = None
 
-    for block in modified_blocks:
-        for phi in block.phis:
-            TrivialPhiRemover.try_remove(phi, reachable_blocks)
     subroutine.body[:] = reachable_blocks
     return True
