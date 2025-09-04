@@ -363,8 +363,9 @@ dynamic_array_pop_dynamic_element_for_header@1:
     b dynamic_array_pop_dynamic_element_for_body@2
 
 dynamic_array_pop_dynamic_element_for_body@2:
-    frame_dig 2
     frame_dig 7
+    frame_dig 2
+    uncover 1
     extract_uint16
     intc_2 // 2
     -
@@ -557,6 +558,7 @@ dynamic_array_concat_dynamic_element:
     proto 4 1
     bytec_0 // ""
     bytec_0 // ""
+    bytec_0 // ""
     b dynamic_array_concat_dynamic_element_block@0
 
 dynamic_array_concat_dynamic_element_block@0:
@@ -573,31 +575,32 @@ dynamic_array_concat_dynamic_element_block@0:
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 6
     frame_dig 5
-    frame_dig 4
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
     b dynamic_array_concat_dynamic_element_for_body@2
 
 dynamic_array_concat_dynamic_element_for_body@2:
+    frame_dig 6
     frame_dig -3
-    frame_dig 5
+    uncover 1
     extract_uint16
-    frame_dig 3
+    frame_dig 4
     +
     itob
     extract 6 2
-    frame_dig 2
+    frame_dig 3
     uncover 1
     concat
-    frame_bury 2
+    frame_bury 3
     b dynamic_array_concat_dynamic_element_for_footer@3
 
 dynamic_array_concat_dynamic_element_for_footer@3:
-    frame_dig 5
+    frame_dig 6
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 6
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_after_for@4:
@@ -611,35 +614,36 @@ dynamic_array_concat_dynamic_element_after_for@4:
     intc_2 // 2
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 5
+    frame_bury 2
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_for_header@5:
-    frame_dig 5
+    frame_dig 2
     frame_dig 1
     <
     bz dynamic_array_concat_dynamic_element_after_for@8
     b dynamic_array_concat_dynamic_element_for_body@6
 
 dynamic_array_concat_dynamic_element_for_body@6:
+    frame_dig 2
     frame_dig -1
-    frame_dig 5
+    uncover 1
     extract_uint16
     frame_dig 0
     +
     itob
     extract 6 2
-    frame_dig 2
+    frame_dig 3
     uncover 1
     concat
-    frame_bury 2
+    frame_bury 3
     b dynamic_array_concat_dynamic_element_for_footer@7
 
 dynamic_array_concat_dynamic_element_for_footer@7:
-    frame_dig 5
+    frame_dig 2
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 2
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
@@ -648,7 +652,7 @@ dynamic_array_concat_dynamic_element_after_for@8:
     +
     itob
     extract 6 2
-    frame_dig 2
+    frame_dig 3
     concat
     frame_dig -4
     intc_2 // 2
@@ -707,12 +711,14 @@ recalculate_head_for_elements_with_byte_length_head_for_header@1:
     b recalculate_head_for_elements_with_byte_length_head_for_body@2
 
 recalculate_head_for_elements_with_byte_length_head_for_body@2:
+    frame_dig 2
     frame_dig 0
     dup
+    cover 2
     itob
     extract 6 2
     frame_dig -3
-    frame_dig 2
+    uncover 2
     uncover 2
     replace3
     dup
@@ -883,9 +889,11 @@ add_x_for_header@1:
     b add_x_for_body@2
 
 add_x_for_body@2:
+    // array/immutable.py:498
+    // for i in urange(x):
+    frame_dig 0
     // array/immutable.py:499
     // arr = arr.append(i)
-    frame_dig 0
     itob
     bytec_0 // 0x
     uncover 1
@@ -1004,9 +1012,11 @@ add_xb_for_header@1:
     b add_xb_for_body@2
 
 add_xb_for_body@2:
+    // array/immutable.py:512
+    // for i in urange(x):
+    frame_dig 0
     // array/immutable.py:513
     // arr = arr.append(BigUInt(i))
-    frame_dig 0
     itob
     dup
     len
@@ -2202,10 +2212,12 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_for_header@1:
     b test_cases.array.immutable.ImmutableArrayContract.test_bool_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_bool_array_for_body@2:
+    // array/immutable.py:160
+    // for i in urange(length):
+    frame_dig 2
     // array/immutable.py:161
     // arr = arr.append(i == Txn.num_app_args)
     txn NumAppArgs
-    frame_dig 2
     ==
     bytec_2 // 0x00
     intc_0 // 0
@@ -2425,9 +2437,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_fo
     b test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_for_body@2:
+    // array/immutable.py:184
+    // for i in urange(5):
+    frame_dig 2
     // array/immutable.py:185
     // arr = arr.append((i + 1, i + 2))
-    frame_dig 2
     dup
     intc_1 // 1
     +
@@ -2682,9 +2696,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_ar
     b test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_array_for_body@2:
+    // array/immutable.py:202
+    // for i in urange(5):
+    frame_dig 1
     // array/immutable.py:203
     // arr = arr.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i * 3 % 2 == 0))
-    frame_dig 1
     dup
     intc_2 // 2
     %
@@ -2810,6 +2826,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     // def test_dynamic_sized_tuple_array(self) -> None:
     proto 0 0
     intc_0 // 0
+    bytec_0 // ""
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_block@0
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_block@0:
@@ -2836,23 +2853,25 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_header@1:
     // array/immutable.py:217
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 3
     pushint 5 // 5
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_after_for@4
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_body@2:
+    // array/immutable.py:217
+    // for i in urange(5):
+    frame_dig 3
     // array/immutable.py:218
     // arr = arr.append((i + 1, op.bzero(i)))
-    frame_dig 2
     dup
     intc_1 // 1
     +
     cover 1
     bzero
     cover 1
-    frame_dig 1
+    frame_dig 2
     dup
     intc_0 // 0
     extract_uint16
@@ -2896,22 +2915,22 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    frame_bury 1
+    frame_bury 2
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_footer@3
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_footer@3:
     // array/immutable.py:217
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_header@1
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_after_for@4:
     // array/immutable.py:220
     // assert arr.length == 5
-    frame_dig 1
+    frame_dig 2
     intc_0 // 0
     extract_uint16
     pushint 5 // 5
@@ -2922,22 +2941,25 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 2
+    frame_bury 1
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_header@5
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_header@5:
     // array/immutable.py:221
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 1
     pushint 5 // 5
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_after_for@8
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_body@6
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_body@6:
+    // array/immutable.py:221
+    // for i in urange(5):
+    frame_dig 1
     // array/immutable.py:222
     // assert arr[i][0] == i + 1, "expected 1st element to be correct"
-    frame_dig 1
+    frame_dig 2
     dup
     len
     cover 1
@@ -2949,88 +2971,86 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     dup
     intc_0 // 0
     extract_uint16
-    cover 1
-    frame_dig 2
-    dup
+    cover 2
+    dig 3
     intc_2 // 2
     *
-    dig 4
+    dig 2
     uncover 1
     extract_uint16
     cover 3
-    dup
+    dig 4
     intc_1 // 1
     +
     uncover 3
     dig 1
     - // on error: index access is out of bounds
     cover 2
-    dig 5
+    dig 3
     len
     cover 2
     intc_2 // 2
     *
-    dig 6
+    dig 4
     uncover 1
     extract_uint16
     uncover 2
     uncover 1
     uncover 3
     select
-    uncover 4
-    uncover 4
+    uncover 2
+    uncover 3
     uncover 2
     substring3
     intc_0 // 0
     intc_3 // 8
     extract3
     btoi
-    dig 1
+    dig 2
     intc_1 // 1
     +
     ==
     assert // expected 1st element to be correct
     // array/immutable.py:223
     // assert arr[i][1].length == i, "expected 2nd element to be correct"
-    dig 1
+    dup
     len
     cover 1
-    dig 2
+    dup
     intc_2 // 2
     uncover 3
     substring3
     cover 1
-    uncover 2
     intc_0 // 0
     extract_uint16
     cover 1
-    dup
+    dig 2
     intc_2 // 2
     *
-    dig 3
+    dig 1
     uncover 1
     extract_uint16
     cover 3
-    dup
+    dig 2
     intc_1 // 1
     +
     uncover 2
     dig 1
     - // on error: index access is out of bounds
     cover 2
-    dig 3
+    dig 1
     len
     cover 2
     intc_2 // 2
     *
-    dig 4
+    dig 1
     uncover 1
     extract_uint16
     uncover 2
     uncover 1
     uncover 3
     select
-    uncover 2
+    uncover 1
     uncover 3
     uncover 2
     substring3
@@ -3053,16 +3073,16 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_footer@7:
     // array/immutable.py:221
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 1
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 1
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_for_header@5
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array_after_for@8:
     // array/immutable.py:225
     // arr = arr.pop()
-    frame_dig 1
+    frame_dig 2
     callsub dynamic_array_pop_dynamic_element
     cover 1
     frame_bury 0
@@ -3235,6 +3255,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     // def test_dynamic_sized_named_tuple_array(self) -> None:
     proto 0 0
     intc_0 // 0
+    bytec_0 // ""
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_block@0
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_block@0:
@@ -3261,23 +3282,25 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_header@1:
     // array/immutable.py:236
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 3
     pushint 5 // 5
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_after_for@4
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_body@2:
+    // array/immutable.py:236
+    // for i in urange(5):
+    frame_dig 3
     // array/immutable.py:237
     // arr = arr.append(MyDynamicSizedTuple(foo=i + 1, bar=times(i)))
-    frame_dig 2
     dup
     intc_1 // 1
     +
     cover 1
     callsub times
     cover 1
-    frame_dig 1
+    frame_dig 2
     dup
     intc_0 // 0
     extract_uint16
@@ -3321,22 +3344,22 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    frame_bury 1
+    frame_bury 2
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_footer@3
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_footer@3:
     // array/immutable.py:236
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_header@1
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_after_for@4:
     // array/immutable.py:239
     // assert arr.length == 5
-    frame_dig 1
+    frame_dig 2
     intc_0 // 0
     extract_uint16
     pushint 5 // 5
@@ -3347,22 +3370,25 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 2
+    frame_bury 1
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_header@5
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_header@5:
     // array/immutable.py:240
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 1
     pushint 5 // 5
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_after_for@8
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_body@6
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_body@6:
+    // array/immutable.py:240
+    // for i in urange(5):
+    frame_dig 1
     // array/immutable.py:241
     // assert arr[i][0] == i + 1, "expected 1st element to be correct"
-    frame_dig 1
+    frame_dig 2
     dup
     len
     cover 1
@@ -3374,88 +3400,86 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     dup
     intc_0 // 0
     extract_uint16
-    cover 1
-    frame_dig 2
-    dup
+    cover 2
+    dig 3
     intc_2 // 2
     *
-    dig 4
+    dig 2
     uncover 1
     extract_uint16
     cover 3
-    dup
+    dig 4
     intc_1 // 1
     +
     uncover 3
     dig 1
     - // on error: index access is out of bounds
     cover 2
-    dig 5
+    dig 3
     len
     cover 2
     intc_2 // 2
     *
-    dig 6
+    dig 4
     uncover 1
     extract_uint16
     uncover 2
     uncover 1
     uncover 3
     select
-    uncover 4
-    uncover 4
+    uncover 2
+    uncover 3
     uncover 2
     substring3
     intc_0 // 0
     intc_3 // 8
     extract3
     btoi
-    dig 1
+    dig 2
     intc_1 // 1
     +
     ==
     assert // expected 1st element to be correct
     // array/immutable.py:242
     // assert arr[i][1] == times(i), "expected 2nd element to be correct"
-    dig 1
+    dup
     len
     cover 1
-    dig 2
+    dup
     intc_2 // 2
     uncover 3
     substring3
     cover 1
-    uncover 2
     intc_0 // 0
     extract_uint16
     cover 1
-    dup
+    dig 2
     intc_2 // 2
     *
-    dig 3
+    dig 1
     uncover 1
     extract_uint16
     cover 3
-    dup
+    dig 2
     intc_1 // 1
     +
     uncover 2
     dig 1
     - // on error: index access is out of bounds
     cover 2
-    dig 3
+    dig 1
     len
     cover 2
     intc_2 // 2
     *
-    dig 4
+    dig 1
     uncover 1
     extract_uint16
     uncover 2
     uncover 1
     uncover 3
     select
-    uncover 2
+    uncover 1
     uncover 3
     uncover 2
     substring3
@@ -3479,16 +3503,16 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_footer@7:
     // array/immutable.py:240
     // for i in urange(5):
-    frame_dig 2
+    frame_dig 1
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 1
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_for_header@5
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple_array_after_for@8:
     // array/immutable.py:244
     // arr = arr.pop()
-    frame_dig 1
+    frame_dig 2
     callsub dynamic_array_pop_dynamic_element
     cover 1
     frame_bury 0
@@ -3707,6 +3731,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array:
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
+    bytec_0 // ""
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_block@0
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_block@0:
@@ -3722,13 +3747,18 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@1
     // array/immutable.py:262-263
     // # add n new arrays
     // for i in urange(arr_to_add):
-    frame_dig 5
+    frame_dig 6
     frame_dig -2
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@8
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@2:
+    // array/immutable.py:262-263
+    // # add n new arrays
+    // for i in urange(arr_to_add):
+    frame_dig 6
+    frame_bury 3
     // array/immutable.py:264
     // extra_arr = ImmutableArray[UInt64]()
     intc_0 // 0
@@ -3740,22 +3770,24 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@2:
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 4
+    frame_bury 5
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@3
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@3:
     // array/immutable.py:265
     // for j in urange(i):
-    frame_dig 4
     frame_dig 5
+    frame_dig 3
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@6
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@4
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@4:
+    // array/immutable.py:265
+    // for j in urange(i):
+    frame_dig 5
     // array/immutable.py:266
     // extra_arr = extra_arr.append(j)
-    frame_dig 4
     itob
     bytec_0 // 0x
     uncover 1
@@ -3782,10 +3814,10 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@4:
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_footer@5:
     // array/immutable.py:265
     // for j in urange(i):
-    frame_dig 4
+    frame_dig 5
     intc_1 // 1
     +
-    frame_bury 4
+    frame_bury 5
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@3
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@6:
@@ -3820,10 +3852,10 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_footer@7
     // array/immutable.py:262-263
     // # add n new arrays
     // for i in urange(arr_to_add):
-    frame_dig 5
+    frame_dig 6
     intc_1 // 1
     +
-    frame_bury 5
+    frame_bury 6
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@1
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@8:
@@ -3841,13 +3873,13 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@8:
     extract_uint16
     frame_bury 2
     intc_0 // 0
-    frame_bury 3
+    frame_bury 4
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@9
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@9:
     // array/immutable.py:271
     // for inner_arr in arr:
-    frame_dig 3
+    frame_dig 4
     frame_dig 2
     <
     bz test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@12
@@ -3862,7 +3894,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@10:
     intc_2 // 2
     uncover 2
     substring3
-    frame_dig 3
+    frame_dig 4
     intc_2 // 2
     *
     dig 1
@@ -3905,10 +3937,10 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_body@10:
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_footer@11
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_footer@11:
-    frame_dig 3
+    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 3
+    frame_bury 4
     b test_cases.array.immutable.ImmutableArrayContract.test_nested_array_for_header@9
 
 test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@12:
@@ -4003,9 +4035,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_for_hea
     b test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_for_body@2:
+    // array/immutable.py:287
+    // for i in urange(5):
+    frame_dig 4
     // array/immutable.py:288
     // arr2 = arr2.append(TwoBoolTuple(a=i == 0, b=i == 1))
-    frame_dig 4
     dup
     intc_0 // 0
     ==
@@ -4879,9 +4913,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_return_for_header@
     b test_cases.array.immutable.ImmutableArrayContract.test_uint64_return_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_uint64_return_for_body@2:
+    // array/immutable.py:371
+    // for i in urange(append):
+    frame_dig 1
     // array/immutable.py:372
     // arr = arr.append(i)
-    frame_dig 1
     itob
     bytec_0 // 0x
     uncover 1
@@ -4968,9 +5004,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_return_for_header@1:
     b test_cases.array.immutable.ImmutableArrayContract.test_bool_return_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_bool_return_for_body@2:
+    // array/immutable.py:378
+    // for i in urange(append):
+    frame_dig 1
     // array/immutable.py:379
     // arr = arr.append(i % 2 == 0)
-    frame_dig 1
     intc_2 // 2
     %
     intc_0 // 0
@@ -5050,9 +5088,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_tuple_return_for_header@1
     b test_cases.array.immutable.ImmutableArrayContract.test_tuple_return_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_tuple_return_for_body@2:
+    // array/immutable.py:385
+    // for i in urange(append):
+    frame_dig 1
     // array/immutable.py:386
     // arr = arr.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
-    frame_dig 1
     dup
     intc_2 // 2
     %
@@ -5172,9 +5212,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return_for_
     b test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return_for_body@2:
+    // array/immutable.py:392
+    // for i in urange(append):
+    frame_dig 1
     // array/immutable.py:393
     // arr = arr.append(MyDynamicSizedTuple(i, times(i)))
-    frame_dig 1
     dup
     callsub times
     cover 1
@@ -5286,9 +5328,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back
     b test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back_for_body@2:
+    // array/immutable.py:402
+    // for i in urange(append):
+    frame_dig 1
     // array/immutable.py:403
     // mutable.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
-    frame_dig 1
     dup
     intc_2 // 2
     %
@@ -5733,9 +5777,11 @@ test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr_for_header@
     b test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr_for_body@2
 
 test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr_for_body@2:
+    // array/immutable.py:459
+    // for i in urange(3):
+    frame_dig 4
     // array/immutable.py:460
     // arr1 = arr1.replace(i, struct12)
-    frame_dig 4
     pushint 16 // 16
     *
     frame_dig 1

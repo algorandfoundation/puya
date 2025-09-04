@@ -78,7 +78,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         let tail_offset#0: uint64 = (select tmp%0#2 tmp%2#0 index#0)
         goto block@2
     block@2: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#1 <- block@0, array_head_and_tail#3 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%0#2)
@@ -90,7 +90,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         let tmp%9#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
         let tmp%10#1: uint64 = (+ tmp%9#1 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#1)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#1 2u)
         goto block@2
     block@4: // after_for_L342
         let tmp%4#0: bytes = (concat size_b#0 array_head_and_tail#2)
@@ -119,7 +119,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%15#0: uint64 = (* array_length#0 2u)
         goto block@2
     block@2: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
@@ -130,7 +130,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%21#0: bytes = (itob tail_offset#2)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%21#0)
         let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#1 2u)
         goto block@2
     block@5: // after_for_L282
         let tmp%4#0: bytes = (concat size_b#0 new_head_and_tail#1)
@@ -156,7 +156,7 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%15#0: uint64 = (* array_length#0 2u)
         goto block@1
     block@1: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@2)
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -167,7 +167,7 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%21#0: bytes = (itob tail_offset#2)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%21#0)
         let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#1 2u)
         goto block@1
     block@4: // after_for_L282
         return new_head_and_tail#1
@@ -191,7 +191,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         let tail_offset#0: uint64 = (select tmp%0#1 tmp%2#1 index#0)
         goto block@2
     block@2: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#1 <- block@0, array_head_and_tail#3 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%0#1)
@@ -203,7 +203,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         let tmp%9#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
         let tmp%10#1: uint64 = (+ tmp%9#1 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#1)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#1 2u)
         goto block@2
     block@5: // after_for_L342
         return array_head_and_tail#2
@@ -216,7 +216,7 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
         goto block@1
     block@1: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@2)
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, value_internal%0#2 <- block@2)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@2)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@2)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%0#0)
@@ -228,7 +228,7 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%9#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
         let tmp%10#0: uint64 = (+ tmp%9#0 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#0)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#1 2u)
         goto block@1
     block@4: // after_for_L342
         return array_head_and_tail#1
@@ -332,10 +332,10 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
         let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L258
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L259
@@ -343,7 +343,7 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L258
         return arr#0
@@ -361,10 +361,10 @@ subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) 
 
 subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> void:
     block@0: // L277
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L279
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L280
@@ -372,7 +372,7 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L279
         return 
@@ -420,10 +420,10 @@ subroutine test_cases.array.uint64.Contract.test_array[routing]() -> void:
         let tmp%12#0: bool = (== values%1#0 4u)
         (assert tmp%12#0)
         let expected#0: uint64 = 4u
-        let _i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L285
-        let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
+        let _i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let expected#1: uint64 = φ(expected#0 <- block@0, expected#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
@@ -438,7 +438,7 @@ subroutine test_cases.array.uint64.Contract.test_array[routing]() -> void:
         let tmp%1#1: bool = (== popped#0 expected#1)
         (assert tmp%1#1)
         let expected#2: uint64 = (- expected#1 1u)
-        let _i#2: uint64 = (+ _i#1 1u)
+        let value_internal%0#2: uint64 = (+ _i#1 1u)
         goto block@2
     block@4: // after_for_L285
         let tmp%13#0: uint64 = array_len(arr#0)
@@ -592,10 +592,10 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long[routing]() -> vo
         let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let array#0: Encoded(uint64[])* = new()
         store(array#0, encoded_array%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L78
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 512u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L79
@@ -603,7 +603,7 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long[routing]() -> vo
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(array#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L78
         let tmp%1#0: uint64 = array_len(array#0)
@@ -620,10 +620,10 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend[routing](
         let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let array#0: Encoded(uint64[])* = new()
         store(array#0, encoded_array%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L87
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L88
@@ -631,7 +631,7 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend[routing](
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(array#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L87
         let array2#0: Encoded(uint64[])* = new()
@@ -808,10 +808,10 @@ subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
     block@0: // L134
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let num#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let _i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L136
-        let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
+        let _i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 num#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L137
@@ -819,7 +819,7 @@ subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
         let alloc_test#0: Encoded(uint64[])* = new()
         store(alloc_test#0, encoded_array%0#0)
         test_cases.array.uint64.add_x(alloc_test#0, 1u)
-        let _i#2: uint64 = (+ _i#1 1u)
+        let value_internal%0#2: uint64 = (+ _i#1 1u)
         goto block@2
     block@5: // after_for_L136
         exit 1u
@@ -829,10 +829,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
-        let val#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L143
-        let val#1: uint64 = φ(val#0 <- block@0, val#2 <- block@3)
+        let val#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< val#1 5u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L144
@@ -840,7 +840,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
-        let val#2: uint64 = (+ val#1 1u)
+        let value_internal%0#2: uint64 = (+ val#1 1u)
         goto block@2
     block@5: // after_for_L143
         let tmp%1#0: uint64 = array_len(arr#0)
@@ -898,10 +898,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let arc4_arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
         let native_arr#0: Encoded(uint64[])* = new()
         store(native_arr#0, encoded_array%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%1#0: uint64 = 0u
         goto block@18
     block@18: // for_header_L164
-        let i#1: uint64 = φ(i#0 <- block@17, i#2 <- block@19)
+        let i#1: uint64 = φ(value_internal%1#0 <- block@17, value_internal%1#2 <- block@19)
         let arc4_arr#1: Encoded(len+uint64[]) = φ(arc4_arr#0 <- block@17, arc4_arr#2 <- block@19)
         let continue_looping%4#0: bool = (< i#1 5u)
         goto continue_looping%4#0 ? block@19 : block@21
@@ -917,7 +917,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let slot_contents%4#0: Encoded(uint64[]) = load(native_arr#0)
         let concat%2#0: Encoded(uint64[]) = (concat slot_contents%4#0 tmp%7#0) // on error: max array length exceeded
         store(native_arr#0, concat%2#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%1#2: uint64 = (+ i#1 1u)
         goto block@18
     block@21: // after_for_L164
         let slot_contents%5#0: Encoded(uint64[]) = load(native_arr#0)

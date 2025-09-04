@@ -241,10 +241,10 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let as_bytes%1#0: bytes[8] = (itob add%1#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let twm.arr#2: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L107
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let continue_looping%0#0: bool = (< i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L108
@@ -252,7 +252,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let tmp%2#1: biguint = (itob i#1)
         let tmp%3#1: bool = (b== array_item%0#0 tmp%2#1)
         (assert tmp%3#1)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#1 1u)
         goto block@2
     block@5: // after_for_L107
         let tmp%4#0: Encoded((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[]))) = bytes_encode<((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[])))>(twm.arr#2, 0u, 0x, "")

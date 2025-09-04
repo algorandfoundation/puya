@@ -108,14 +108,16 @@ subroutine umm:
         callsub hmm_uint64                                                 tmp%0#1
         v-store tmp%0#1
         int 0                                                              0
-        v-store _i#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                          value_internal%0#0
+        v-store _i#1
         b umm_for_header@4
 
     umm_for_header@4:
         // regression_tests/leftover_branch.py:9
         // for _i in urange(hmm_uint64()):
-        v-load _i#0                                                        _i#0
-        v-load tmp%0#1                                                     _i#0,tmp%0#1
+        v-load _i#1                                                        _i#1
+        v-load tmp%0#1                                                     _i#1,tmp%0#1
         <                                                                  continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                        continue_looping%0#0
@@ -159,10 +161,12 @@ subroutine umm:
     umm_after_if_else@11:
         // regression_tests/leftover_branch.py:9
         // for _i in urange(hmm_uint64()):
-        v-load _i#0                                                        _i#0
-        int 1                                                              _i#0,1
-        +                                                                  _i#0
-        v-store _i#0
+        v-load _i#1                                                        _i#1
+        int 1                                                              _i#1,1
+        +                                                                  value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                          value_internal%0#0
+        v-store _i#1
         b umm_for_header@4
 
     umm_after_for@13:
@@ -272,14 +276,16 @@ subroutine calculate:
         extract_uint16                                                     aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         int 0                                                              0
-        v-store i#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                          value_internal%0#0
+        v-store i#1
         b calculate_for_header@2
 
     calculate_for_header@2:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
-        v-load i#0                                                         i#0
-        v-load aggregate%array_length%0#0                                  i#0,aggregate%array_length%0#0
+        v-load i#1                                                         i#1
+        v-load aggregate%array_length%0#0                                  i#1,aggregate%array_length%0#0
         <                                                                  continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                        continue_looping%0#0
@@ -293,8 +299,8 @@ subroutine calculate:
         v-store aggregate%array_head_and_tail%0#0
         v-load continue_looping%0#0                                        continue_looping%0#0
         assert // index access is out of bounds
-        v-load i#0                                                         i#0
-        int 2                                                              i#0,2
+        v-load i#1                                                         i#1
+        int 2                                                              i#1,2
         *                                                                  aggregate%item_offset_offset%0#0
         v-store aggregate%item_offset_offset%0#0
         v-load aggregate%array_head_and_tail%0#0                           aggregate%array_head_and_tail%0#0
@@ -331,14 +337,16 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         int 0                                                              0
-        v-store j#0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                          value_internal%1#0
+        v-store j#1
         b calculate_for_header@4
 
     calculate_for_header@4:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
-        v-load j#0                                                         j#0
-        v-load aggregate%array_length%2#0                                  j#0,aggregate%array_length%2#0
+        v-load j#1                                                         j#1
+        v-load aggregate%array_length%2#0                                  j#1,aggregate%array_length%2#0
         <                                                                  continue_looping%1#0
         v-store continue_looping%1#0
         v-load continue_looping%1#0                                        continue_looping%1#0
@@ -350,8 +358,8 @@ subroutine calculate:
         v-load inner_list#0                                                inner_list#0
         extract 2 0                                                        aggregate%array_trimmed%0#0
         v-store aggregate%array_trimmed%0#0
-        v-load j#0                                                         j#0
-        int 8                                                              j#0,8
+        v-load j#1                                                         j#1
+        int 8                                                              j#1,8
         *                                                                  aggregate%bytes_offset%0#0
         v-store aggregate%bytes_offset%0#0
         v-load aggregate%array_trimmed%0#0                                 aggregate%array_trimmed%0#0
@@ -371,8 +379,8 @@ subroutine calculate:
     calculate_if_body@6:
         // regression_tests/leftover_branch.py:44
         // has_next = j < last_inner_list_index
-        v-load j#0                                                         j#0
-        v-load last_inner_list_index#0                                     j#0,last_inner_list_index#0
+        v-load j#1                                                         j#1
+        v-load last_inner_list_index#0                                     j#1,last_inner_list_index#0
         <                                                                  has_next#0
         v-store has_next#0
         // regression_tests/leftover_branch.py:45
@@ -389,8 +397,8 @@ subroutine calculate:
         v-store total#0
         // regression_tests/leftover_branch.py:47
         // next_value = inner_list[j + 1]
-        v-load j#0                                                         j#0
-        int 1                                                              j#0,1
+        v-load j#1                                                         j#1
+        int 1                                                              j#1,1
         +                                                                  tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                     tmp%7#0
@@ -429,19 +437,23 @@ subroutine calculate:
     calculate_after_if_else@11:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
-        v-load j#0                                                         j#0
-        int 1                                                              j#0,1
-        +                                                                  j#0
-        v-store j#0
+        v-load j#1                                                         j#1
+        int 1                                                              j#1,1
+        +                                                                  value_internal%1#0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                          value_internal%1#0
+        v-store j#1
         b calculate_for_header@4
 
     calculate_after_for@13:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
-        v-load i#0                                                         i#0
-        int 1                                                              i#0,1
-        +                                                                  i#0
-        v-store i#0
+        v-load i#1                                                         i#1
+        int 1                                                              i#1,1
+        +                                                                  value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                          value_internal%0#0
+        v-store i#1
         b calculate_for_header@2
 
     calculate_after_for@15:
