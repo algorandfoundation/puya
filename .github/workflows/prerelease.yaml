@@ -39,7 +39,7 @@ jobs:
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
         with:
-          poetry_install_args: "--with cicd"
+          uv_sync_args: "--group cicd"
 
       - name: Set git user as GitHub Actions
         run: |
@@ -59,7 +59,7 @@ jobs:
           echo "version_number=$(semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
 
       - name: Create puyapy wheel
-        run: poetry build --format wheel
+        run: uv build --wheel
 
       - uses: actions/upload-artifact@v4
         with:
@@ -70,7 +70,7 @@ jobs:
     needs: prepare-release
     uses: ./.github/workflows/build-binaries.yaml
     with:
-      python_version: "3.12"
+      python_version: "3.13"
       package_prefix: "puya-${{ needs.prepare-release.outputs.version_number }}"
       allow_signing: ${{ github.ref_name == 'main' }}
       git_ref: ${{ needs.prepare-release.outputs.version_tag }}
@@ -107,7 +107,7 @@ jobs:
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
         with:
-          poetry_install_args: "--with cicd"
+          uv_sync_args: "--group cicd"
 
       - name: Publish to GitHub
         run: semantic-release $SEMANTIC_RELEASE_DRY_RUN publish --tag $VERSION_TAG

@@ -40,13 +40,11 @@ runs:
             # --preview: link in ~/.local/bin
             # --default: also create default alias: ie link python, not just python3
             uv python install $PYTHON_VERSION --preview --default
-            # Turtles all the way down...
-            uv tool install poetry
             # Install project dependencies
             cd /src
-            poetry install --no-interaction --without=dev --with=cicd
+            uv sync --no-dev --group cicd
             # Build the binary
-            poetry run pyinstaller \
+            uv run pyinstaller \
               --clean \
               --onedir \
               --name puya \

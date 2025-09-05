@@ -84,7 +84,7 @@ jobs:
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
         with:
-          poetry_install_args: "--with cicd --with doc"
+          uv_sync_args: "--group cicd --group doc"
 
       - name: Check pre-commits
         run: pre-commit run --all-files && git diff --exit-code
@@ -96,10 +96,10 @@ jobs:
         run: poe docs
 
       - name: Check compiler wheel can be built
-        run: poetry build --format wheel
+        run: uv build --wheel
 
       - name: Check stubs wheel can be built
-        run: poetry build --format wheel
+        run: uv build --wheel
         working-directory: stubs
 
   tests:
@@ -116,7 +116,7 @@ jobs:
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
         with:
-          poetry_install_args: "--with cicd"
+          uv_sync_args: "--group cicd"
 
       - name: Start LocalNet
         if: ${{ matrix.module == 'localnet' }}
@@ -153,7 +153,7 @@ jobs:
         with:
           app-id: ${{ secrets.BOT_ID }}
           private-key: ${{ secrets.BOT_SK }}
-      # uv is fast...
+
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v5
 
@@ -260,6 +260,8 @@ jobs:
 
       - name: Setup Python venv
         uses: ./.github/actions/setup-python-venv
+        with:
+          python_version: '3.12.11'
 
       - name: Compile AMM via compile_all
         run: poe compile_all examples/amm
