@@ -16,26 +16,26 @@ The fragment file is deleted by the CD pipeline once it is integrated into [CHAN
 
 ## Getting Started
 
-1. Clone the repository locally. PyCharm is the recommended IDE, though VSCode has been reported to work
-1. Ensure dependencies are installed: Python (>3.12), Poetry (>2), algokit-cli
-1. Ensure your IDE is configured to use an interpreter (Poetry environment)
-1. Run `poetry install` in a terminal (you may need to open a new terminal after to pick up dev dependencies)
+1. Ensure [uv](https://docs.astral.sh/uv/getting-started/installation/) is installed.
+1. Clone the repository locally.
+1. You can create the virtual env and install dependencies with `uv sync` in a terminal, or use the IDE integration.
+1. For more on using the virtual env from the command line see the [uv docs](https://docs.astral.sh/uv/pip/environments/#using-a-virtual-environment)
 1. Optionally debug individual tests
    1. Run `algokit localnet start`
    1. Use your IDEs built-in run/debug setup to run tests (via pytest)
 
 ## Local development tips
 
-`poetry` is used for virtual environment and dependency management.
+`uv` is used for virtual environment and dependency management.
 
 Dependencies for building docs are in a separate `docs` dependency group, this is only required
 if you want to build the documentation locally to see the effects of any edits you made.
 
+`poe` is used for running various scripts/commands used in local development.
+
 `ruff` is used for linting and formatting, `mypy` is used for static analysis. `pre-commit` is
 configured, so you will want to either install the hooks with `pre-commit install` or you can run
-things manually via `pre-commit run --all-files`.
-
-`poe` is used for running various scripts/commands used in local development.
+things manually via `poe lint`.
 
 `poe compile_all_fast` can be run to update all compiler approvals output by running the test_compile suite
 

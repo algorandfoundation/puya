@@ -100,7 +100,7 @@ def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> Compilatio
             elif prev_out_file.suffix != ".log":
                 prev_out_file.unlink()
     cmd = [
-        "poetry",
+        "uv",
         "run",
         "puyapy",
         *flags,

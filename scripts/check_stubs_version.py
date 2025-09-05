@@ -18,7 +18,12 @@ def check_cmd(*cmd: str) -> str:
 
 def extract_pyproject_version(file_contents: str) -> str:
     """Extract version from pyproject.toml content."""
-    version = tomllib.loads(file_contents)["tool"]["poetry"]["version"]
+    toml_data = tomllib.loads(file_contents)
+    try:
+        version = toml_data["project"]["version"]
+    except KeyError:
+        # TODO: remove this fallback once a release is done without poetry
+        version = toml_data["tool"]["poetry"]["version"]
     assert isinstance(version, str), "expected str"
     return version
 

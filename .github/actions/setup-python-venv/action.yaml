@@ -1,34 +1,25 @@
 name: "Setup Python venv"
-description: "Setup Python, install poetry, install dependencies, and activate venv"
+description: "Setup Python, install uv, install dependencies, and activate venv"
 inputs:
   python_version:
     description: "The Python version to use"
-    default: "3.12"
+    default: "3.13"
     required: false
-  poetry_install_args:
-    description: "Additional args to pass to poetry install command"
+  uv_sync_args:
+    description: "Additional args to pass to uv install command"
     default: ""
     required: false
 
 runs:
   using: "composite"
   steps:
-    - name: Install poetry
-      shell: bash
-      run: pipx install poetry
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v6
       with:
+        enable-cache: true
         python-version: ${{ inputs.python_version }}
-        cache: "poetry"
+        activate-environment: true
 
     - name: Install dependencies
       shell: bash
-      run: poetry install --no-interaction ${{ inputs.poetry_install_args }}
-
-    - name: Activate virtual environment
-      shell: bash
-      run: |
-        echo "VIRTUAL_ENV=$(poetry env info --path)" >> $GITHUB_ENV
-        echo "$(dirname $(poetry env info --executable))" >> $GITHUB_PATH
+      run: uv sync ${{ inputs.uv_sync_args }}

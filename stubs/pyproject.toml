@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "algorand-python"
 # This version represents the version of the stub API's and should follow semver semantics.
 # When updating this value, if it is a major/minor change, make sure to update:
@@ -6,25 +6,31 @@ name = "algorand-python"
 # For more info see stubs/README.md#versioning
 version = "3.0.0"
 description = "API for writing Algorand Python Smart contracts"
-authors = ["Algorand Foundation <contact@algorand.foundation>"]
+authors = [{ name = "Algorand Foundation", email = "contact@algorand.foundation" }]
 readme = "README.md"
-packages = [
-    { include = "algopy.py" },
-    { include = "algopy-stubs" },
-]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Typing :: Stubs Only",
 ]
 license = "AGPL-3.0-or-later"
+requires-python = "~=3.12.0"
 
-[tool.poetry.dependencies]
-python = "^3.12"
+[tool.hatch.build.targets.sdist]
+include = [
+    "algopy.py",
+    "algopy-stubs",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "algopy.py",
+    "algopy-stubs",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.black]
+[tool.ruff]
 line-length = 99
