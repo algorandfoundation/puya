@@ -31,6 +31,8 @@ packaging = "^24.0"
 colorama = { version = "^0.4.6", markers = "sys_platform == 'win32'" }
 cattrs = "^25"
 networkx = "^3.4.2"
+pygls = "^2.0.0a2"
+cyclopts = "^3.23.1"
 # vendored mypy dependencies
 mypy_extensions = "^1.0.0"
 pathspec = ">=0.9"
@@ -45,11 +47,12 @@ poethepoet = "^0.30.0"
 scriv = "^1.6.2"
 
 [tool.poetry.group.testing.dependencies]
-pytest = "^7.4.0"
+pytest = "^8.0.0"
 pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
 py-algorand-sdk = "^2.4.0"
 algokit-utils = "^2.3.2"
 pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.26.0"
 prettytable = "^3.9.0"
 
 [tool.poetry.group.doc]
@@ -77,7 +80,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-puya = "puya.__main__:cli"
+puya = "puya.__main__:app"
 puyapy = "puyapy.__main__:main"
 puyapy-clientgen = "puyapy.client_gen:main"
 
@@ -104,12 +107,13 @@ xfail_strict = true
 pythonpath = [
     "src/puyapy/_vendor",
 ]
+asyncio_mode = "auto" # this makes pytest_asyncio automatically handle any async test method/fixture
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 untyped_calls_exclude = [
-    "algosdk",
+    "algosdk", "pygls"
 ]
 exclude = [
     "src/puyapy/_typeshed",
@@ -127,6 +131,7 @@ disallow_any_explicit = true
 [[tool.mypy.overrides]]
 module = ["algosdk", "algosdk.*"]
 disallow_untyped_calls = false
+
 
 [tool.ruff]
 target-version = "py312"
