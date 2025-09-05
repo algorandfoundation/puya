@@ -12,7 +12,7 @@ class MyBase(Contract, ABC):
 class MyMiddleBase(MyBase, ABC):
     @subroutine
     def calculate(self, a: arc4.UInt64, b: arc4.UInt64) -> arc4.UInt64:
-        return arc4.UInt64(a.native + b.native)
+        return arc4.UInt64(a.as_uint64() + b.as_uint64())
 
 
 @subroutine

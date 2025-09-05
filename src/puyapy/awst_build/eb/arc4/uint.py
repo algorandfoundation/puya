@@ -17,7 +17,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -102,6 +102,10 @@ class UIntNExpressionBuilder(
                     source_location=location,
                 )
                 return builder_for_instance(self.pytype.native_type, result_expr)
+            case "as_uint64":
+                return _AsUint64Builder(self.resolve(), location)
+            case "as_biguint":
+                return _AsBigUintBuilder(self.resolve(), location)
             case _:
                 return super().member_access(name, location)
 
@@ -146,3 +150,45 @@ class UIntNExpressionBuilder(
             wtype=wtypes.biguint_wtype,
             source_location=self.source_location,
         )
+
+
+class _AsUint64Builder(FunctionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        result_expr = ARC4Decode(
+            value=self.expr,
+            wtype=pytypes.UInt64Type.wtype,
+            source_location=location,
+        )
+        return builder_for_instance(pytypes.UInt64Type, result_expr)
+
+
+class _AsBigUintBuilder(FunctionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        result_expr = ARC4Decode(
+            value=self.expr,
+            wtype=pytypes.BigUIntType.wtype,
+            source_location=location,
+        )
+        return builder_for_instance(pytypes.BigUIntType, result_expr)

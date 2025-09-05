@@ -204,8 +204,8 @@ class Greeter(ARC4Contract):
         s, b, u, bu = result1.native
         assert s.native == "echo: s1"
         assert b.native == b"echo: b1"
-        assert u.native == 2
-        assert bu.native == 3
+        assert u.as_uint64() == 2
+        assert bu.as_biguint() == 3
 
         # test again using native types in arguments
         result2, txn = arc4.abi_call[
@@ -244,8 +244,8 @@ class Greeter(ARC4Contract):
         )
         assert result1.native[0].native == result_native[0]
         assert result1.native[1].native == result_native[1]
-        assert result1.native[2].native == result_native[2]
-        assert result1.native[3].native == result_native[3]
+        assert result1.native[2].as_uint64() == result_native[2]
+        assert result1.native[3].as_biguint() == result_native[3]
 
     @arc4.abimethod()
     def test_native_tuple_method_ref(self, app: Application) -> None:

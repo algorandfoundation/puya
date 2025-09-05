@@ -283,7 +283,7 @@ subroutine noop_with_uint64:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                     a#0
         // abi_routing/contract.py:42
-        // result = 1 + a.native
+        // result = 1 + a.as_uint64()
         l-load a#0 0                                                                               a#0
         btoi                                                                                       tmp%0#1
         int 1                                                                                      tmp%0#1,1
@@ -362,7 +362,7 @@ subroutine full_abi_config:
         // )
         txna ApplicationArgs 1                                                                     a#0
         // abi_routing/contract.py:63
-        // result = UInt64(1) + a.native
+        // result = UInt64(1) + a.as_uint64()
         l-load a#0 0                                                                               a#0
         btoi                                                                                       tmp%0#1
         int 1                                                                                      tmp%0#1,1
@@ -418,7 +418,7 @@ subroutine mixed_oca:
         // )
         txna ApplicationArgs 1                                                                     a#0
         // abi_routing/contract.py:76
-        // result = UInt64(1) + a.native
+        // result = UInt64(1) + a.as_uint64()
         l-load a#0 0                                                                               a#0
         btoi                                                                                       tmp%0#1
         int 1                                                                                      tmp%0#1,1
@@ -552,7 +552,7 @@ subroutine with_transactions:
         l-load tmp%0#1 0                                                                           an_int#0,pay#0,another_int#0,tmp%0#1
         assert // is correct asset                                                                 an_int#0,pay#0,another_int#0
         // abi_routing/contract.py:118
-        // assert an_int.native == 1, "is correct int"
+        // assert an_int.as_uint64() == 1, "is correct int"
         l-load an_int#0 2                                                                          pay#0,another_int#0,an_int#0
         btoi                                                                                       pay#0,another_int#0,tmp%1#0
         l-load tmp%1#0 0                                                                           pay#0,another_int#0,tmp%1#0
@@ -571,7 +571,7 @@ subroutine with_transactions:
         l-load tmp%5#0 0                                                                           another_int#0,tmp%5#0
         assert // is payment to app                                                                another_int#0
         // abi_routing/contract.py:120
-        // assert another_int.native == 2, "is correct int"
+        // assert another_int.as_uint64() == 2, "is correct int"
         l-load another_int#0 0                                                                     another_int#0
         btoi                                                                                       tmp%6#0
         l-load tmp%6#0 0                                                                           tmp%6#0
@@ -727,7 +727,7 @@ subroutine method_with_default_args:
         l-load tmp%10#0 0                                                                          int_from_storage#0,int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%10#0
         assert // wrong 2nd byte from storage                                                      int_from_storage#0,int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0
         // abi_routing/contract.py:184
-        // assert int_from_storage.native == 2, "wrong int from storage"
+        // assert int_from_storage.as_uint64() == 2, "wrong int from storage"
         l-load int_from_storage#0 5                                                                int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,int_from_storage#0
         btoi                                                                                       int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%11#0
         l-load tmp%11#0 0                                                                          int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%11#0
@@ -736,7 +736,7 @@ subroutine method_with_default_args:
         l-load tmp%12#0 0                                                                          int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%12#0
         assert // wrong int from storage                                                           int_from_function#0,int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0
         // abi_routing/contract.py:185
-        // assert int_from_function.native == 3, "wrong int from function"
+        // assert int_from_function.as_uint64() == 3, "wrong int from function"
         l-load int_from_function#0 4                                                               int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,int_from_function#0
         btoi                                                                                       int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%13#0
         l-load tmp%13#0 0                                                                          int_from_const#0,str_from_const#0,int_from_local#0,bytes_from_local#0,tmp%13#0
@@ -1168,414 +1168,414 @@ subroutine method_with_more_than_15_args:
         l-load tmp%8#1 0                                                                           a#0,b#0,c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%8#1
         log                                                                                        a#0,b#0,c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0
         // abi_routing/contract.py:273
-        // a.native
+        // a.as_uint64()
         l-load a#0 19                                                                              b#0,c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,a#0
         btoi                                                                                       b#0,c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%9#1
         // abi_routing/contract.py:274
-        // + b.native
+        // + b.as_uint64()
         l-load b#0 19                                                                              c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%9#1,b#0
         btoi                                                                                       c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%9#1,tmp%10#0
         // abi_routing/contract.py:273-274
-        // a.native
-        // + b.native
+        // a.as_uint64()
+        // + b.as_uint64()
         l-load tmp%9#1 1                                                                           c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%10#0,tmp%9#1
         l-load tmp%10#0 1                                                                          c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%9#1,tmp%10#0
         +                                                                                          c#0,d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%11#0
         // abi_routing/contract.py:275
-        // + c.native
+        // + c.as_uint64()
         l-load c#0 18                                                                              d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%11#0,c#0
         btoi                                                                                       d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%11#0,tmp%12#0
         // abi_routing/contract.py:273-275
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         l-load tmp%11#0 1                                                                          d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%12#0,tmp%11#0
         l-load tmp%12#0 1                                                                          d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%11#0,tmp%12#0
         +                                                                                          d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%13#0
         // abi_routing/contract.py:273-276
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
         l-load tmp%13#0 0                                                                          d#0,e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%13#0
         l-load d#0 17                                                                              e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%13#0,d#0
         +                                                                                          e#0,f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%14#0
         // abi_routing/contract.py:277
-        // + e.native
+        // + e.as_uint64()
         l-load e#0 16                                                                              f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%14#0,e#0
         btoi                                                                                       f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%14#0,tmp%15#0
         // abi_routing/contract.py:273-277
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
+        // + e.as_uint64()
         l-load tmp%14#0 1                                                                          f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%15#0,tmp%14#0
         l-load tmp%15#0 1                                                                          f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%14#0,tmp%15#0
         +                                                                                          f#0,g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%16#0
         // abi_routing/contract.py:278
-        // + f.native
+        // + f.as_uint64()
         l-load f#0 15                                                                              g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%16#0,f#0
         btoi                                                                                       g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%16#0,tmp%17#0
         // abi_routing/contract.py:273-278
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
+        // + e.as_uint64()
+        // + f.as_uint64()
         l-load tmp%16#0 1                                                                          g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%17#0,tmp%16#0
         l-load tmp%17#0 1                                                                          g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%16#0,tmp%17#0
         +                                                                                          g#0,h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%18#0
         // abi_routing/contract.py:279
-        // + g.native
+        // + g.as_uint64()
         l-load g#0 14                                                                              h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%18#0,g#0
         btoi                                                                                       h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%18#0,tmp%19#0
         // abi_routing/contract.py:273-279
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
         l-load tmp%18#0 1                                                                          h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%19#0,tmp%18#0
         l-load tmp%19#0 1                                                                          h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%18#0,tmp%19#0
         +                                                                                          h#0,i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%20#0
         // abi_routing/contract.py:280
-        // + h.native
+        // + h.as_uint64()
         l-load h#0 13                                                                              i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%20#0,h#0
         btoi                                                                                       i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%20#0,tmp%21#0
         // abi_routing/contract.py:273-280
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
         l-load tmp%20#0 1                                                                          i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%21#0,tmp%20#0
         l-load tmp%21#0 1                                                                          i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%20#0,tmp%21#0
         +                                                                                          i#0,j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%22#0
         // abi_routing/contract.py:281
-        // + i.native
+        // + i.as_uint64()
         l-load i#0 12                                                                              j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%22#0,i#0
         btoi                                                                                       j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%22#0,tmp%23#0
         // abi_routing/contract.py:273-281
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
         l-load tmp%22#0 1                                                                          j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%23#0,tmp%22#0
         l-load tmp%23#0 1                                                                          j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%22#0,tmp%23#0
         +                                                                                          j#0,k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%24#0
         // abi_routing/contract.py:282
-        // + j.native
+        // + j.as_uint64()
         l-load j#0 11                                                                              k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%24#0,j#0
         btoi                                                                                       k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%24#0,tmp%25#0
         // abi_routing/contract.py:273-282
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
         l-load tmp%24#0 1                                                                          k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%25#0,tmp%24#0
         l-load tmp%25#0 1                                                                          k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%24#0,tmp%25#0
         +                                                                                          k#0,l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%26#0
         // abi_routing/contract.py:283
-        // + k.native
+        // + k.as_uint64()
         l-load k#0 10                                                                              l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%26#0,k#0
         btoi                                                                                       l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%26#0,tmp%27#0
         // abi_routing/contract.py:273-283
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
         l-load tmp%26#0 1                                                                          l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%27#0,tmp%26#0
         l-load tmp%27#0 1                                                                          l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%26#0,tmp%27#0
         +                                                                                          l#0,m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%28#0
         // abi_routing/contract.py:284
-        // + l.native
+        // + l.as_uint64()
         l-load l#0 9                                                                               m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%28#0,l#0
         btoi                                                                                       m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%28#0,tmp%29#0
         // abi_routing/contract.py:273-284
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
         l-load tmp%28#0 1                                                                          m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%29#0,tmp%28#0
         l-load tmp%29#0 1                                                                          m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%28#0,tmp%29#0
         +                                                                                          m#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%30#0
         // abi_routing/contract.py:285
-        // + m.native
+        // + m.as_uint64()
         l-load m#0 8                                                                               reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%30#0,m#0
         btoi                                                                                       reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%30#0,tmp%31#0
         // abi_routing/contract.py:273-285
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
         l-load tmp%30#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%31#0,tmp%30#0
         l-load tmp%31#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%30#0,tmp%31#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%32#0
         // abi_routing/contract.py:286
-        // + n.native
+        // + n.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0 7 reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%32#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 0                                                                                      reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%32#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0,0
         // abi_routing/contract.py:286
-        // + n.native
+        // + n.as_uint64()
         extract_uint64                                                                             reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%32#0,tmp%33#0
         // abi_routing/contract.py:273-286
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
         l-load tmp%32#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%33#0,tmp%32#0
         l-load tmp%33#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%32#0,tmp%33#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%34#0
         // abi_routing/contract.py:287
-        // + o.native
+        // + o.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0 6 p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%34#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 8                                                                                      p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%34#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0,8
         // abi_routing/contract.py:287
-        // + o.native
+        // + o.as_uint64()
         extract_uint64                                                                             p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%34#0,tmp%35#0
         // abi_routing/contract.py:273-287
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         l-load tmp%34#0 1                                                                          p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%35#0,tmp%34#0
         l-load tmp%35#0 1                                                                          p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%34#0,tmp%35#0
         +                                                                                          p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%36#0
         // abi_routing/contract.py:273-288
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         // + p
         l-load tmp%36#0 0                                                                          p#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%36#0
         l-load p#0 5                                                                               reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%36#0,p#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%37#0
         // abi_routing/contract.py:289
-        // + q.native
+        // + q.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0 4 reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%37#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 24                                                                                     reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%37#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0,24
         // abi_routing/contract.py:289
-        // + q.native
+        // + q.as_uint64()
         extract_uint64                                                                             reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%37#0,tmp%38#0
         // abi_routing/contract.py:273-289
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         // + p
-        // + q.native
+        // + q.as_uint64()
         l-load tmp%37#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%38#0,tmp%37#0
         l-load tmp%38#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%37#0,tmp%38#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%39#0
         // abi_routing/contract.py:290
-        // + r.native
+        // + r.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0 3 reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%39#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 32                                                                                     reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%39#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0,32
         // abi_routing/contract.py:290
-        // + r.native
+        // + r.as_uint64()
         extract_uint64                                                                             reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%39#0,tmp%40#0
         // abi_routing/contract.py:273-290
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         // + p
-        // + q.native
-        // + r.native
+        // + q.as_uint64()
+        // + r.as_uint64()
         l-load tmp%39#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%40#0,tmp%39#0
         l-load tmp%40#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%39#0,tmp%40#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%41#0
         // abi_routing/contract.py:291
-        // + u.native
+        // + u.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0 2 reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%41#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 52                                                                                     reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%41#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0,52
         // abi_routing/contract.py:291
-        // + u.native
+        // + u.as_uint64()
         extract_uint64                                                                             reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%41#0,tmp%42#0
         // abi_routing/contract.py:273-291
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         // + p
-        // + q.native
-        // + r.native
-        // + u.native
+        // + q.as_uint64()
+        // + r.as_uint64()
+        // + u.as_uint64()
         l-load tmp%41#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%42#0,tmp%41#0
         l-load tmp%42#0 1                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%41#0,tmp%42#0
         +                                                                                          reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,tmp%43#0
         // abi_routing/contract.py:292
-        // + v.native
+        // + v.as_uint64()
         l-load reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0 1 tmp%43#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0
         // abi_routing/contract.py:229
         // @arc4.abimethod
         int 60                                                                                     tmp%43#0,reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0,60
         // abi_routing/contract.py:292
-        // + v.native
+        // + v.as_uint64()
         extract_uint64                                                                             tmp%43#0,tmp%44#0
         // abi_routing/contract.py:273-292
-        // a.native
-        // + b.native
-        // + c.native
+        // a.as_uint64()
+        // + b.as_uint64()
+        // + c.as_uint64()
         // + d
-        // + e.native
-        // + f.native
-        // + g.native
-        // + h.native
-        // + i.native
-        // + j.native
-        // + k.native
-        // + l.native
-        // + m.native
-        // + n.native
-        // + o.native
+        // + e.as_uint64()
+        // + f.as_uint64()
+        // + g.as_uint64()
+        // + h.as_uint64()
+        // + i.as_uint64()
+        // + j.as_uint64()
+        // + k.as_uint64()
+        // + l.as_uint64()
+        // + m.as_uint64()
+        // + n.as_uint64()
+        // + o.as_uint64()
         // + p
-        // + q.native
-        // + r.native
-        // + u.native
-        // + v.native
+        // + q.as_uint64()
+        // + r.as_uint64()
+        // + u.as_uint64()
+        // + v.as_uint64()
         l-load tmp%43#0 1                                                                          tmp%44#0,tmp%43#0
         l-load tmp%44#0 1                                                                          tmp%43#0,tmp%44#0
         +                                                                                          tmp%45#0
         // abi_routing/contract.py:272-293
         // return arc4.UInt64(
-        //     a.native
-        //     + b.native
-        //     + c.native
+        //     a.as_uint64()
+        //     + b.as_uint64()
+        //     + c.as_uint64()
         //     + d
-        //     + e.native
-        //     + f.native
-        //     + g.native
-        //     + h.native
-        //     + i.native
-        //     + j.native
-        //     + k.native
-        //     + l.native
-        //     + m.native
-        //     + n.native
-        //     + o.native
+        //     + e.as_uint64()
+        //     + f.as_uint64()
+        //     + g.as_uint64()
+        //     + h.as_uint64()
+        //     + i.as_uint64()
+        //     + j.as_uint64()
+        //     + k.as_uint64()
+        //     + l.as_uint64()
+        //     + m.as_uint64()
+        //     + n.as_uint64()
+        //     + o.as_uint64()
         //     + p
-        //     + q.native
-        //     + r.native
-        //     + u.native
-        //     + v.native
+        //     + q.as_uint64()
+        //     + r.as_uint64()
+        //     + u.as_uint64()
+        //     + v.as_uint64()
         // )
         l-load tmp%45#0 0                                                                          tmp%45#0
         itob                                                                                       aggregate%val_as_bytes%0#0

@@ -39,7 +39,7 @@ class Reference(ARC4Contract):
 
     @arc4.abimethod
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = 1 + a.native
+        result = 1 + a.as_uint64()
         return arc4.UInt8(result)
 
     @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
@@ -60,7 +60,7 @@ class Reference(ARC4Contract):
         readonly=True,
     )
     def full_abi_config(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = UInt64(1) + a.native
+        result = UInt64(1) + a.as_uint64()
         return arc4.UInt8(result)
 
     @arc4.abimethod(
@@ -73,7 +73,7 @@ class Reference(ARC4Contract):
         readonly=True,
     )
     def mixed_oca(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = UInt64(1) + a.native
+        result = UInt64(1) + a.as_uint64()
         return arc4.UInt8(result)
 
     @arc4.baremethod(
@@ -115,9 +115,9 @@ class Reference(ARC4Contract):
         another_int: arc4.UInt64,
     ) -> None:
         assert self.asa == asset, "is correct asset"
-        assert an_int.native == 1, "is correct int"
+        assert an_int.as_uint64() == 1, "is correct int"
         assert pay.receiver == op.Global.current_application_address, "is payment to app"
-        assert another_int.native == 2, "is correct int"
+        assert another_int.as_uint64() == 2, "is correct int"
 
     @arc4.abimethod
     def compare_assets(self, asset_a: Asset, asset_b: Asset) -> None:
@@ -181,8 +181,8 @@ class Reference(ARC4Contract):
         assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
         assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
         assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
-        assert int_from_storage.native == 2, "wrong int from storage"
-        assert int_from_function.native == 3, "wrong int from function"
+        assert int_from_storage.as_uint64() == 2, "wrong int from storage"
+        assert int_from_function.as_uint64() == 3, "wrong int from function"
         assert int_from_const == 123
         assert str_from_const == "abc"
         assert int_from_local == self.local_uint[Txn.sender]
@@ -270,26 +270,26 @@ class Reference(ARC4Contract):
         log(s + t)
 
         return arc4.UInt64(
-            a.native
-            + b.native
-            + c.native
+            a.as_uint64()
+            + b.as_uint64()
+            + c.as_uint64()
             + d
-            + e.native
-            + f.native
-            + g.native
-            + h.native
-            + i.native
-            + j.native
-            + k.native
-            + l.native
-            + m.native
-            + n.native
-            + o.native
+            + e.as_uint64()
+            + f.as_uint64()
+            + g.as_uint64()
+            + h.as_uint64()
+            + i.as_uint64()
+            + j.as_uint64()
+            + k.as_uint64()
+            + l.as_uint64()
+            + m.as_uint64()
+            + n.as_uint64()
+            + o.as_uint64()
             + p
-            + q.native
-            + r.native
-            + u.native
-            + v.native
+            + q.as_uint64()
+            + r.as_uint64()
+            + u.as_uint64()
+            + v.as_uint64()
         )
 
     @arc4.abimethod

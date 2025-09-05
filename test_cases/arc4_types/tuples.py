@@ -35,10 +35,10 @@ class Arc4TuplesTypeContract(Contract):
         assert boolean_packing.bytes == Bytes.from_hex("04BD8010")
         a, b, c, d, e, f, g, h, i, j, k = boolean_packing.native
         assert boolean_packing[10] == k
-        assert a.native == 4, "a is 4"
+        assert a.as_uint64() == 4, "a is 4"
         assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
         assert not (c or h), "c and h are false"
-        assert k.native == 16, "k is 16"
+        assert k.as_uint64() == 16, "k is 16"
 
         assert boolean_packing == TestBooleanPacking(boolean_packing.native)
 
@@ -61,7 +61,7 @@ class Arc4TuplesTypeContract(Contract):
         assert test_tuple[-1] == e
         assert test_tuple[-2] == d
 
-        total = a.native + b.native + e.native
+        total = a.as_uint64() + b.as_uint64() + e.as_uint64()
         text = c.native + " " + d.native
 
         return total, String(text)

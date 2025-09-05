@@ -3,21 +3,22 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 16 8
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@10
+    bz main___algopy_default_create@11
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0xea71ee7d 0xe31958f9 0xc7ed8497 // method "test_uint8()void", method "test_uint16()void", method "test_uint32()void"
+    pushbytess 0xea71ee7d 0xe31958f9 0xc7ed8497 0x65117897 // method "test_uint8()void", method "test_uint16()void", method "test_uint32()void", method "test_as_uint64()void"
     txna ApplicationArgs 0
-    match test_uint8 test_uint16 test_uint32
+    match test_uint8 test_uint16 test_uint32 test_as_uint64
     err
 
-main___algopy_default_create@10:
+main___algopy_default_create@11:
     txn OnCompletion
     !
     txn ApplicationID
@@ -36,7 +37,7 @@ test_uint8:
     itob
     dup
     bitlen
-    pushint 8 // 8
+    intc_1 // 8
     <=
     assert // overflow
     extract 7 1
@@ -59,7 +60,7 @@ test_uint16:
     itob
     dup
     bitlen
-    pushint 16 // 16
+    intc_0 // 16
     <=
     assert // overflow
     extract 6 2
@@ -91,5 +92,38 @@ test_uint32:
     pushbytes 0x00000001
     !=
     // arc4_types/uint_overflow.py:15
+    // @arc4.abimethod()
+    return // on error: this should not happen
+
+
+// test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64[routing]() -> void:
+test_as_uint64:
+    // arc4_types/uint_overflow.py:22
+    // biguint = BigUInt(2**64) + Txn.num_app_args
+    txn NumAppArgs
+    itob
+    pushbytes 0x010000000000000000
+    b+
+    // arc4_types/uint_overflow.py:23
+    // too_big = arc4.UInt128(biguint).as_uint64()  # should fail here with overflow
+    dup
+    len
+    intc_0 // 16
+    <=
+    assert // overflow
+    intc_0 // 16
+    bzero
+    b|
+    dup
+    bitlen
+    pushint 64 // 64
+    <=
+    assert // overflow
+    dup
+    len
+    intc_1 // 8
+    -
+    extract_uint64
+    // arc4_types/uint_overflow.py:20
     // @arc4.abimethod()
     return // on error: this should not happen

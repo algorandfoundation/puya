@@ -33,6 +33,13 @@ contract UIntOverflow
     assert(reinterpret_cast<bytes>(too_big) != hex<"00000001">, comment="this should not happen")
   }
   
+  abimethod test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64(): void
+  {
+    biguint: biguint = 18446744073709551616n b+ itob(txn<NumAppArgs>())
+    too_big: uint64 = arc4_decode(arc4_encode(biguint, arc4.uint128), uint64)
+    assert(too_big != 0u, comment="this should not happen")
+  }
+  
   baremethod test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create(): void
   {
   }
@@ -281,14 +288,20 @@ contract Arc4NumericTypesContract
     really_big_decimal: arc4.ufixed512x2 = reinterpret_cast<arc4.ufixed512x2>(reinterpret_cast<bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
     assert((txn<NumAppArgs>() != 0u) ? (1844674407.3709551615arc4u64x10) : (0E-10arc4u64x10) == 0E-10arc4u64x10)
     biguint: biguint = 1n
-    arc4_biguint_const: arc4.uint128 = 1_arc4u128
-    arc4_biguint_dynamic: arc4.uint128 = arc4_encode(biguint b+ 1n, arc4.uint128)
+    arc4_biguint_const: arc4.uint512 = 1_arc4u512
+    arc4_biguint_dynamic: arc4.uint512 = arc4_encode(biguint b+ 1n, arc4.uint512)
     assert(biguint == arc4_decode(arc4_biguint_const, biguint))
-    assert(len(reinterpret_cast<bytes>(arc4_biguint_dynamic)) == 16u)
+    assert(biguint == itob(arc4_decode(arc4_biguint_const, uint64)))
+    assert(len(reinterpret_cast<bytes>(arc4_biguint_dynamic)) == 64u)
     assert(len(reinterpret_cast<bytes>(really_big_decimal)) == 64u)
     tup: arc4.tuple<arc4.uint64> = arc4_encode((arc4_encode(ClearState, arc4.uint64)), arc4.tuple<arc4.uint64>)
     assert(arc4_decode(tup[0], uint64) == ClearState)
     assert(arc4_decode(1_arc4u32, biguint) == 1n)
+    assert(arc4_decode(int8_encoded, uint64) == 255u)
+    assert(arc4_decode(int8_encoded, biguint) == 255n)
+    uint64_encoded_as_biguint: arc4.uint512 = 18446744073709551615_arc4u512
+    assert(arc4_decode(uint64_encoded_as_biguint, biguint) == 18446744073709551615n)
+    assert(reinterpret_cast<biguint>(uint64_encoded_as_biguint) == itob(18446744073709551615u))
     return true
   }
   

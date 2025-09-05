@@ -7,7 +7,7 @@ subroutine main:
         txn NumAppArgs                                                                       tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                       tmp%0#1
-        bz main___algopy_default_create@10 ; b main_abi_routing@2
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // arc4_types/uint_overflow.py:4
@@ -28,33 +28,40 @@ subroutine main:
         method test_uint8()void                                                              Method(test_uint8()void)
         method test_uint16()void                                                             Method(test_uint8()void),Method(test_uint16()void)
         method test_uint32()void                                                             Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void)
-        v-load tmp%6#0                                                                       Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%6#0
-        match main_test_uint8_route@4 main_test_uint16_route@5 main_test_uint32_route@6 ; b main_after_if_else@9 
+        method test_as_uint64()void                                                          Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),Method(test_as_uint64()void)
+        v-load tmp%6#0                                                                       Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),Method(test_as_uint64()void),tmp%6#0
+        match main_test_uint8_route@4 main_test_uint16_route@5 main_test_uint32_route@6 main_test_as_uint64_route@7 ; b main_after_if_else@10 
 
     main_test_uint8_route@4:
         // arc4_types/uint_overflow.py:5
         // @arc4.abimethod()
         callsub test_uint8
-        b main_after_if_else@9
+        b main_after_if_else@10
 
     main_test_uint16_route@5:
         // arc4_types/uint_overflow.py:10
         // @arc4.abimethod()
         callsub test_uint16
-        b main_after_if_else@9
+        b main_after_if_else@10
 
     main_test_uint32_route@6:
         // arc4_types/uint_overflow.py:15
         // @arc4.abimethod()
         callsub test_uint32
-        b main_after_if_else@9
+        b main_after_if_else@10
 
-    main_after_if_else@9:
+    main_test_as_uint64_route@7:
+        // arc4_types/uint_overflow.py:20
+        // @arc4.abimethod()
+        callsub test_as_uint64
+        b main_after_if_else@10
+
+    main_after_if_else@10:
         // arc4_types/uint_overflow.py:4
         // class UIntOverflow(arc4.ARC4Contract):
         err
 
-    main___algopy_default_create@10:
+    main___algopy_default_create@11:
         txn OnCompletion                                                                     tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                       tmp%7#0
@@ -190,6 +197,68 @@ subroutine test_uint32:
         v-load tmp%3#0                                                                       tmp%3#0
         assert // this should not happen
         // arc4_types/uint_overflow.py:15
+        // @arc4.abimethod()
+        int 1                                                                                1
+        return
+
+
+// test_cases.arc4_types.uint_overflow.UIntOverflow.test_as_uint64[routing]() -> void:
+subroutine test_as_uint64:
+    test_as_uint64_block@0:
+        // arc4_types/uint_overflow.py:22
+        // biguint = BigUInt(2**64) + Txn.num_app_args
+        txn NumAppArgs                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                       tmp%0#0
+        itob                                                                                 tmp%1#0
+        v-store tmp%1#0
+        byte 0x010000000000000000                                                            0x010000000000000000
+        v-load tmp%1#0                                                                       0x010000000000000000,tmp%1#0
+        b+                                                                                   biguint#0
+        v-store biguint#0
+        // arc4_types/uint_overflow.py:23
+        // too_big = arc4.UInt128(biguint).as_uint64()  # should fail here with overflow
+        v-load biguint#0                                                                     biguint#0
+        len                                                                                  aggregate%value_len%0#0
+        v-store aggregate%value_len%0#0
+        v-load aggregate%value_len%0#0                                                       aggregate%value_len%0#0
+        int 16                                                                               aggregate%value_len%0#0,16
+        <=                                                                                   aggregate%len_ok%0#0
+        v-store aggregate%len_ok%0#0
+        v-load aggregate%len_ok%0#0                                                          aggregate%len_ok%0#0
+        assert // overflow
+        int 16                                                                               16
+        bzero                                                                                aggregate%bzero%0#0
+        v-store aggregate%bzero%0#0
+        v-load biguint#0                                                                     biguint#0
+        v-load aggregate%bzero%0#0                                                           biguint#0,aggregate%bzero%0#0
+        b|                                                                                   aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
+        v-load aggregate%arc4_encoded%0#0                                                    aggregate%arc4_encoded%0#0
+        bitlen                                                                               aggregate%bitlen%0#0
+        v-store aggregate%bitlen%0#0
+        v-load aggregate%bitlen%0#0                                                          aggregate%bitlen%0#0
+        int 64                                                                               aggregate%bitlen%0#0,64
+        <=                                                                                   aggregate%lte%0#0
+        v-store aggregate%lte%0#0
+        v-load aggregate%lte%0#0                                                             aggregate%lte%0#0
+        assert // overflow
+        v-load aggregate%arc4_encoded%0#0                                                    aggregate%arc4_encoded%0#0
+        len                                                                                  aggregate%len%0#0
+        v-store aggregate%len%0#0
+        v-load aggregate%len%0#0                                                             aggregate%len%0#0
+        int 8                                                                                aggregate%len%0#0,8
+        -                                                                                    aggregate%sub%0#0
+        v-store aggregate%sub%0#0
+        v-load aggregate%arc4_encoded%0#0                                                    aggregate%arc4_encoded%0#0
+        v-load aggregate%sub%0#0                                                             aggregate%arc4_encoded%0#0,aggregate%sub%0#0
+        extract_uint64                                                                       too_big#0
+        v-store too_big#0
+        // arc4_types/uint_overflow.py:24
+        // assert too_big != 0, "this should not happen"
+        v-load too_big#0                                                                     too_big#0
+        assert // this should not happen
+        // arc4_types/uint_overflow.py:20
         // @arc4.abimethod()
         int 1                                                                                1
         return

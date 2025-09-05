@@ -25,12 +25,12 @@ class Arc4ArraysContract(Contract):
         dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
         total = UInt64(0)
         for uint8_item in dynamic_uint8_array:
-            total += uint8_item.native
+            total += uint8_item.as_uint64()
 
         assert total == 3, "Total should be sum of dynamic_uint8_array items"
         aliased_dynamic = AliasedDynamicArray(UInt16(1))
         for uint16_item in aliased_dynamic:
-            total += uint16_item.native
+            total += uint16_item.as_uint64()
         assert total == 4, "Total should now include sum of aliased_dynamic items"
         dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
         assert dynamic_string_array.length == 2
@@ -47,7 +47,7 @@ class Arc4ArraysContract(Contract):
         static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
 
         for uint32_item in static_uint32_array:
-            total += uint32_item.native
+            total += uint32_item.as_uint64()
 
         assert total == 4 + 1 + 10 + 255 + 128
 
@@ -55,7 +55,7 @@ class Arc4ArraysContract(Contract):
 
         index = UInt64(0)
 
-        assert (aliased_static[0].native + aliased_static[index].native) == 202
+        assert (aliased_static[0].as_uint64() + aliased_static[index].as_uint64()) == 202
 
         static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
 
