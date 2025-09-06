@@ -1,10 +1,10 @@
-import argparse
 import json
 import typing
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import attrs
+import cyclopts
 from cattrs.preconf.json import make_converter
 
 from puya import (
@@ -21,31 +21,28 @@ logger = log.get_logger(__name__)
 ARC32_OCA_MAPPING = {v: k for k, v in OCA_ARC32_MAPPING.items()}
 
 
-@attrs.define(kw_only=True)
-class PuyaGenOptions:
-    paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
-    log_level: log.LogLevel = log.LogLevel.info
-    out_dir: Path | None = None
+app = cyclopts.App(name="puyapy-clientgen", help_on_error=True)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog="puyapy-clientgen",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="Output algopy contract client for typed ARC-4 ABI calls from an "
-        "ARC-32 or ARC-56 application spec",
-    )
-    parser.add_argument(
-        "--out-dir",
-        type=Path,
-        help="Path for outputting client, defaults to app spec folder",
-        default=False,
-    )
-    parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
-    options = PuyaGenOptions()
-    parser.parse_args(namespace=options)
-    log.configure_logging(min_log_level=options.log_level)
-    output_stubs(options.paths, options.out_dir)
+@app.default
+def main(
+    paths: typing.Annotated[list[cyclopts.types.ExistingPath], cyclopts.Parameter(negative=())],
+    /,
+    *,
+    log_level: log.LogLevel = log.LogLevel.info,
+    out_dir: Path | None = None,
+) -> None:
+    """
+    Output algopy contract client for typed ARC-4 ABI calls from an ARC-32 or ARC-56
+    application spec
+
+    Parameters:
+        paths: Paths to ARC-56 or ARC-32 app specifications.
+        log_level: The minimum log level to configure logging for.
+        out_dir: Path for outputting client, defaults to app spec folder
+    """
+    log.configure_logging(min_log_level=log_level)
+    output_stubs(paths, out_dir)
 
 
 def output_stubs(paths: Sequence[Path], out_dir: Path | None) -> None:
@@ -228,4 +225,4 @@ def _parse_structs(
 
 
 if __name__ == "__main__":
-    main()
+    app()

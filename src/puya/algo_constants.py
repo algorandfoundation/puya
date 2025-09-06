@@ -1,3 +1,5 @@
+import typing
+
 ZERO_ADDRESS = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"
 ENCODED_ADDRESS_LENGTH = 58
 PUBLIC_KEY_HASH_LENGTH = 32
@@ -19,6 +21,6 @@ HASH_PREFIX_PROGRAM = b"Program"
 # Which language versions does this version of puya support targeting
 # This will typically just be the current mainnet version and potentially the vNext if it doesn't
 # contain breaking changes
-SUPPORTED_AVM_VERSIONS = [10, 11, 12]
+SUPPORTED_AVM_VERSIONS: typing.Final = (10, 11, 12)
 # Which language version is currently deployed to mainnet
-MAINNET_AVM_VERSION = 10
+MAINNET_AVM_VERSION: typing.Final = 10

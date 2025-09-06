@@ -1,56 +1,45 @@
-import argparse
 import gzip
 from importlib.metadata import version
 from multiprocessing import freeze_support
 from pathlib import Path
 
-import attrs
+import cyclopts
 
-from puya.log import LogFormat, LogLevel, configure_logging
+from puya.log import LogFormat, LogLevel, configure_logging, get_logger
 from puya.main import main
 
 # Required to support multiprocessing in pyinstaller binaries
 freeze_support()
+logger = get_logger(__name__)
+
+app = cyclopts.App(version=f"puya {version("puyapy")}", help_on_error=True)
 
 
-@attrs.define(kw_only=True)
-class _PuyaCLIArgs:
-    options: Path | None = None
-    awst: Path | None = None
-    source_annotations: Path | None = None
-    log_level: LogLevel = LogLevel.info
-    log_format: LogFormat = LogFormat.default
+@app.default()
+def puya(
+    *,
+    awst: cyclopts.types.ExistingFile,
+    options: cyclopts.types.ExistingFile,
+    source_annotations: cyclopts.types.ExistingFile | None = None,
+    log_level: LogLevel = LogLevel.info,
+    log_format: LogFormat = LogFormat.default,
+) -> None:
+    """
+    Compiles AWST
 
-
-def cli() -> None:
-    parser = argparse.ArgumentParser(
-        prog="puya", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
-    # TODO: use version of puya instead once package is split
-    parser.add_argument("--version", action="version", version=f"%(prog)s {version('puyapy')}")
-    parser.add_argument(
-        "--log-level", type=LogLevel.__getitem__, choices=list(LogLevel), default=LogLevel.info
-    )
-    parser.add_argument(
-        "--log-format",
-        type=LogFormat,
-        choices=list(LogFormat),
-        default=LogFormat.default,
-    )
-    parser.add_argument("--options", type=Path, required=True)
-    parser.add_argument("--awst", type=Path, required=True)
-    parser.add_argument("--source-annotations", type=Path)
-    parsed_args = _PuyaCLIArgs()
-    parser.parse_args(namespace=parsed_args)
-    configure_logging(min_log_level=parsed_args.log_level, log_format=parsed_args.log_format)
-
-    assert parsed_args.options
-    options_json = parsed_args.options.read_text("utf8")
-    assert parsed_args.awst
-    awst_json = _read_text_from_maybe_compressed_file(parsed_args.awst)
+    Arguments:
+        awst: Path to the AWST JSON file. The file may be compressed.
+        optionsPath to the options JSON file.
+        source_annotations: Optional path to a source annotations JSON file.
+        log_level: The minimum log level to be used for logging.
+        log_format: The format in which log messages will be output.
+    """
+    configure_logging(min_log_level=log_level, log_format=log_format)
+    awst_json = _read_text_from_maybe_compressed_file(awst)
+    options_json = options.read_text("utf8")
     source_annotations_json = None
-    if parsed_args.source_annotations:
-        source_annotations_json = parsed_args.source_annotations.read_text("utf8")
+    if source_annotations:
+        source_annotations_json = source_annotations.read_text("utf8")
     main(
         options_json=options_json,
         awst_json=awst_json,
@@ -67,4 +56,4 @@ def _read_text_from_maybe_compressed_file(path: Path) -> str:
 
 
 if __name__ == "__main__":
-    cli()
+    app()
