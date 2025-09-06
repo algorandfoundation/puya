@@ -24,12 +24,19 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
         [
             puyapy,
             # we don't want to overwrite outputs, just check the CLI works,
-            "--no-output-teal",
-            "--no-output-bytecode",
-            "--no-output-source-map",
-            "--no-output-client",
-            "--no-output-arc32",
-            "--no-output-arc56",
+            # so omit outputs unless explicitly passed as args
+            *(
+                f"--no-output-{output_type}"
+                for output_type in (
+                    "teal",
+                    "bytecode",
+                    "source-map",
+                    "client",
+                    "arc32",
+                    "arc56",
+                )
+                if f"--output-{output_type}" not in args
+            ),
             *map(str, args),
         ],
         check=check,
@@ -81,7 +88,7 @@ def _run(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[
 
 def test_run_no_args() -> None:
     result = run_puyapy([], check=False)
-    assert result.returncode == 2
+    assert result.returncode == 1
 
 
 def test_run_version() -> None:
