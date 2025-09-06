@@ -1,3 +1,4 @@
+import sys
 import typing
 from collections.abc import Sequence
 from importlib.metadata import version
@@ -11,10 +12,10 @@ from puyapy.compile import compile_to_teal
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value
 
-app = cyclopts.App(help_on_error=True, version=f"puyapy {version('puyapy')}")
+_app = cyclopts.App(help_on_error=True, version=f"puyapy {version('puyapy')}")
 
 
-@app.default
+@_app.default
 def puyapy(
     paths: typing.Annotated[
         Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="PATH", negative=())
@@ -97,6 +98,17 @@ def puyapy(
     )
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
+
+
+def _convert_argparse_style_flags(token: str) -> str:
+    if len(token) == 3 and token.startswith(("-O", "-g")):
+        _, flag, value = iter(token)
+        return f"-{flag}={value}"
+    return token
+
+
+def app() -> None:
+    _app(map(_convert_argparse_style_flags, sys.argv[1:]))
 
 
 if __name__ == "__main__":
