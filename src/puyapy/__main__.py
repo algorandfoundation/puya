@@ -1,8 +1,8 @@
-import argparse
 import typing
 from collections.abc import Sequence
 from importlib.metadata import version
-from pathlib import Path
+
+import cyclopts
 
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
 from puya.log import LogLevel, configure_logging
@@ -11,227 +11,93 @@ from puyapy.compile import compile_to_teal
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value
 
+app = cyclopts.App(help_on_error=True, version=f"puyapy {version('puyapy')}")
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog="puyapy",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {version('puyapy')}")
-    parser.add_argument(
-        "-O",
-        "--optimization-level",
-        type=int,
-        choices=[0, 1, 2],
-        default=1,
-        help="Set optimization level of output TEAL / AVM bytecode",
-    )
-    parser.add_argument(
-        "--output-teal",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Output TEAL code",
-    )
-    parser.add_argument(
-        "--output-source-map",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Output debug source maps",
-    )
-    parser.add_argument(
-        "--output-arc32",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Output {contract}.arc32.json ARC-32 app spec file",
-    )
-    parser.add_argument(
-        "--output-arc56",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Output {contract}.arc56.json ARC-56 app spec file",
-    )
-    parser.add_argument(
-        "--output-client",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output Algorand Python contract client for typed ARC-4 ABI calls",
-    )
-    parser.add_argument(
-        "--out-dir", type=Path, help="Path for outputting artefacts", default=False
-    )
-    parser.add_argument(
-        "--log-level",
-        type=LogLevel.__getitem__,
-        choices=list(LogLevel),
-        default=LogLevel.info,
-        help="Minimum level to log to console",
-    )
-    parser.add_argument(
-        "-g",  # -g chosen because it is the same option for debug in gcc
-        "--debug-level",
-        type=int,
-        choices=[0, 1, 2],
-        default=1,
-        help="Output debug information level, 0 = none, 1 = debug, 2 = reserved for future use",
-    )
-    parser.add_argument(
-        "--output-awst",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output parsed result of AWST",
-    )
-    parser.add_argument(
-        "--output-awst-json",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output parsed result of AWST as JSON",
-    )
-    parser.add_argument(
-        "--output-source-annotations-json",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output source annotations result of AWST parse as JSON",
-    )
-    parser.add_argument(
-        "--output-ssa-ir",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output IR (in SSA form) before optimisations",
-    )
-    parser.add_argument(
-        "--output-optimization-ir",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output IR after each optimization",
-    )
-    parser.add_argument(
-        "--output-destructured-ir",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output IR after SSA destructuring and before MIR",
-    )
-    parser.add_argument(
-        "--output-memory-ir",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output MIR before lowering to TealOps",
-    )
-    parser.add_argument(
-        "--output-teal-intermediates",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output TEAL before peephole optimisation and before block optimisation",
-    )
-    parser.add_argument(
-        "--output-bytecode",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output AVM bytecode",
-    )
-    parser.add_argument(
-        "--output-op-statistics",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Output statistics about ops used for each program compiled",
-    )
-    parser.add_argument(
-        "--match-algod-bytecode",
-        action=_EmitDeprecated,
-        dest=argparse.SUPPRESS,
-        nargs=0,
-        help="Deprecated: When outputting bytecode, ensure bytecode matches algod output",
-    )
-    parser.add_argument(
-        "-T",
-        "--template-var",
-        dest="cli_template_definitions",
-        metavar="VAR=VALUE",
-        action=_ParseAndStoreTemplateVar,
-        default={},
-        nargs="+",
-        help="Define template vars for use when assembling via --output-bytecode"
-        " should be specified without the prefix (see --template-vars-prefix), e.g."
-        ' -T SOME_INT=1234 SOME_BYTES=0x1A2B SOME_BOOL=True SOME_STR=\\"hello\\"',
-    )
-    parser.add_argument(
-        "--template-vars-prefix",
-        help="Define the prefix to use with --template-var",
-        default="TMPL_",
-    )
-    parser.add_argument(
-        "--target-avm-version",
-        type=int,
-        choices=SUPPORTED_AVM_VERSIONS,
-        default=MAINNET_AVM_VERSION,
-    )
-    parser.add_argument(
-        "--locals-coalescing-strategy",
-        type=LocalsCoalescingStrategy,
-        choices=list(LocalsCoalescingStrategy),
-        default=LocalsCoalescingStrategy.root_operand,
-        help=(
-            "Strategy choice for out-of-ssa local variable coalescing. "
-            "The best choice for your app is best determined through experimentation"
-        ),
-    )
-    parser.add_argument(
-        "--resource-encoding",
-        type=str,
-        choices=["index", "value"],
-        default="value",
-        help="""
-             If "index", then resource types (Application, Asset, Account) in ABI methods
-             should be passed as an index into their appropriate foreign array.
-             The default option "value", as of PuyaPy 5.0, means these values will be
-             passed directly.
-             """,
-    )
 
-    parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
+@app.default
+def puyapy(
+    paths: typing.Annotated[
+        Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="PATH", negative=())
+    ],
+    /,
+    *,
+    out_dir: cyclopts.types.Directory | None = None,
+    output_awst: bool = False,
+    output_awst_json: bool = False,
+    output_source_annotations_json: bool = False,
+    output_client: bool = False,
+    output_ssa_ir: bool = False,
+    output_optimization_ir: bool = False,
+    output_destructured_ir: bool = False,
+    output_memory_ir: bool = False,
+    output_teal_intermediates: bool = False,
+    output_teal: bool = True,
+    output_source_map: bool = True,
+    output_bytecode: bool = False,
+    output_arc32: bool = True,
+    output_arc56: bool = True,
+    output_op_statistics: bool = False,
+    optimization_level: typing.Annotated[
+        typing.Literal[0, 1, 2], cyclopts.Parameter(alias="-O")
+    ] = 1,
+    debug_level: typing.Annotated[typing.Literal[0, 1, 2], cyclopts.Parameter(alias="-g")] = 1,
+    target_avm_version: typing.Literal[*SUPPORTED_AVM_VERSIONS] = MAINNET_AVM_VERSION,  # type: ignore[valid-type]
+    template_vars_prefix: str = "TMPL_",
+    template_var: typing.Annotated[Sequence[str], cyclopts.Parameter(alias="-T")] = (),
+    locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand,
+    resource_encoding: typing.Literal["index", "value"] = "value",
+    log_level: LogLevel = LogLevel.info,
+) -> None:
+    """
+    PuyaPy compiler for compiling Algorand Python to TEAL
 
-    namespace = parser.parse_args()
-    options = PuyaPyOptions(**vars(namespace))
+    Parameters:
+        paths: Files or directories to compile
+        output_teal: Output TEAL code
+        output_source_map: Output debug source maps
+        output_arc32: Output {contract}.arc32.json ARC-32 app spec file
+        output_arc56: Output {contract}.arc56.json ARC-56 app spec file
+        output_client: Output Algorand Python contract client for typed ARC-4 ABI calls
+        output_awst: Output parsed result of AWST
+        output_awst_json: Output parsed result of AWST as JSON
+        output_source_annotations_json: Output source annotations result of AWST parse as JSON
+        output_ssa_ir: Output IR (in SSA form) before optimizations
+        output_optimization_ir: Output IR after each optimization
+        output_destructured_ir: Output IR after SSA destructuring and before MIR
+        output_memory_ir: Output MIR before lowering to TEAL
+        output_bytecode: Output AVM bytecode
+        output_teal_intermediates: Output TEAL before peephole optimization and before
+                                block optimization
+        output_op_statistics: Output statistics about ops used for each program compiled
+                optimization_level: Set optimization level of output TEAL / AVM bytecode
+        optimization_level: Set optimization level of output TEAL / AVM bytecode
+        debug_level: Output debug information level, 0 = none,
+                     1 = debug, 2 = reserved for future use
+        target_avm_version: Target AVM version
+        template_var: Define template vars for use when assembling via --output-bytecode.
+                      Should be specified without the prefix (see --template-vars-prefix), e.g.
+                      -T SOME_INT=1234 SOME_BYTES=0x1A2B SOME_BOOL=True -T SOME_STR="hello"
+        template_vars_prefix: Define the prefix to use with --template-var
+        locals_coalescing_strategy: Strategy choice for out-of-ssa local variable coalescing.
+                                    The best choice for your app is best determined through
+                                    experimentation
+        resource_encoding: If "index", then resource types (Application, Asset, Account) in ABI
+                           methods should be passed as an index into their
+                           appropriate foreign array.
+                           The default option "value", as of PuyaPy 5.0, means these values will be
+                           passed directly.
+        out_dir: Path for outputting artefacts
+        log_level: Minimum level to log to console
+    """
+    args = locals()
+    args.pop("template_var")
+    options = PuyaPyOptions(
+        **args,
+        cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
+    )
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
 
 
-class _EmitDeprecated(argparse.Action):
-    @typing.override
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,
-        values: str | Sequence[typing.Any] | None,
-        option_string: str | None = None,
-    ) -> None:
-        print(f"warning: {option_string} is deprecated and no longer does anything")  # noqa: T201
-
-
-class _ParseAndStoreTemplateVar(argparse.Action):
-    @typing.override
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,
-        values: str | Sequence[typing.Any] | None,
-        option_string: str | None = None,
-    ) -> None:
-        mapping: dict[str, int | bytes] = dict(getattr(namespace, self.dest, {}))
-        lst = []
-        if isinstance(values, str):
-            lst = [values]
-        elif values:
-            for value in values:
-                assert isinstance(value, str)
-                lst.append(value)
-        for kv in lst:
-            try:
-                name, value = parse_template_key_value(kv)
-            except Exception as ex:
-                parser.error(str(ex))
-            mapping[name] = value
-        setattr(namespace, self.dest, mapping)
-
-
 if __name__ == "__main__":
-    main()
+    app()
