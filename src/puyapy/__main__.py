@@ -1,7 +1,7 @@
 import sys
-import typing
 from collections.abc import Sequence
 from importlib.metadata import version
+from typing import Annotated, Literal
 
 import cyclopts
 
@@ -14,40 +14,84 @@ from puyapy.template import parse_template_key_value
 
 _app = cyclopts.App(help_on_error=True, version=f"puyapy {version('puyapy')}")
 
+_outputs_group = cyclopts.Group(
+    name="Outputs",
+    help="Options for controlling what is output and where",
+    sort_key=10,
+)
+_compilation_group = cyclopts.Group(
+    name="Compilation",
+    help="Options that affect the compilation process, such as optimisation options etc.",
+    sort_key=20,
+)
+_templating_group = cyclopts.Group(
+    name="Templating",
+    help="Options for controlling the generation of TEAL template files",
+    sort_key=30,
+)
+_additional_outputs_group = cyclopts.Group(
+    name="Additional outputs",
+    help="Controls additional compiler outputs that may be useful to compiler developers.",
+    sort_key=100,
+)
+
+_OutputToggle = Annotated[bool, cyclopts.Parameter(group=_outputs_group)]
+_InternalOutputToggle = Annotated[
+    bool, cyclopts.Parameter(group=_additional_outputs_group, negative=())
+]
+
 
 @_app.default
 def puyapy(
-    paths: typing.Annotated[
+    paths: Annotated[
         Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="PATH", negative=())
     ],
     /,
     *,
-    out_dir: cyclopts.types.Directory | None = None,
-    output_awst: bool = False,
-    output_awst_json: bool = False,
-    output_source_annotations_json: bool = False,
-    output_client: bool = False,
-    output_ssa_ir: bool = False,
-    output_optimization_ir: bool = False,
-    output_destructured_ir: bool = False,
-    output_memory_ir: bool = False,
-    output_teal_intermediates: bool = False,
-    output_teal: bool = True,
-    output_source_map: bool = True,
-    output_bytecode: bool = False,
-    output_arc32: bool = True,
-    output_arc56: bool = True,
-    output_op_statistics: bool = False,
-    optimization_level: typing.Annotated[
-        typing.Literal[0, 1, 2], cyclopts.Parameter(alias="-O")
+    # outputs
+    out_dir: Annotated[
+        cyclopts.types.Directory | None, cyclopts.Parameter(group=_outputs_group)
+    ] = None,
+    log_level: Annotated[LogLevel, cyclopts.Parameter(group=_outputs_group)] = LogLevel.info,
+    output_teal: _OutputToggle = True,
+    output_source_map: _OutputToggle = True,
+    output_arc56: _OutputToggle = True,
+    output_arc32: _OutputToggle = True,
+    output_bytecode: _OutputToggle = False,
+    output_client: _OutputToggle = False,
+    debug_level: Annotated[
+        Literal[0, 1, 2], cyclopts.Parameter(alias="-g", group=_outputs_group)
     ] = 1,
-    debug_level: typing.Annotated[typing.Literal[0, 1, 2], cyclopts.Parameter(alias="-g")] = 1,
-    target_avm_version: typing.Literal[*SUPPORTED_AVM_VERSIONS] = MAINNET_AVM_VERSION,  # type: ignore[valid-type]
-    template_vars_prefix: str = "TMPL_",
-    template_var: typing.Annotated[Sequence[str], cyclopts.Parameter(alias="-T")] = (),
-    locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand,
-    resource_encoding: typing.Literal["index", "value"] = "value",
-    log_level: LogLevel = LogLevel.info,
+    # compilation
+    optimization_level: Annotated[
+        Literal[0, 1, 2], cyclopts.Parameter(alias="-O", group=_compilation_group)
+    ] = 1,
+    target_avm_version: Annotated[  # type: ignore[valid-type]
+        Literal[*SUPPORTED_AVM_VERSIONS],
+        cyclopts.Parameter(group=_compilation_group),
+    ] = MAINNET_AVM_VERSION,
+    resource_encoding: Annotated[
+        Literal["index", "value"], cyclopts.Parameter(group=_compilation_group)
+    ] = "value",
+    locals_coalescing_strategy: Annotated[
+        LocalsCoalescingStrategy, cyclopts.Parameter(group=_compilation_group)
+    ] = LocalsCoalescingStrategy.root_operand,
+    # templating
+    template_var: Annotated[
+        Sequence[str],
+        cyclopts.Parameter(alias="-T", group=_templating_group, show_default=False, negative=()),
+    ] = (),
+    template_vars_prefix: Annotated[str, cyclopts.Parameter(group=_templating_group)] = "TMPL_",
+    # internal outputs
+    output_awst: _InternalOutputToggle = False,
+    output_awst_json: _InternalOutputToggle = False,
+    output_source_annotations_json: _InternalOutputToggle = False,
+    output_ssa_ir: _InternalOutputToggle = False,
+    output_optimization_ir: _InternalOutputToggle = False,
+    output_destructured_ir: _InternalOutputToggle = False,
+    output_memory_ir: _InternalOutputToggle = False,
+    output_teal_intermediates: _InternalOutputToggle = False,
+    output_op_statistics: _InternalOutputToggle = False,
 ) -> None:
     """
     PuyaPy compiler for compiling Algorand Python to TEAL
