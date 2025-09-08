@@ -4,7 +4,6 @@ from collections.abc import Callable, Iterable
 
 import attrs
 import mypy.nodes
-import mypy.visitor
 
 from puya import log
 from puya.avm import TransactionType

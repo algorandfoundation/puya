@@ -6,10 +6,8 @@ import warnings
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from itertools import zip_longest
 
-import mypy.build
 import mypy.nodes
 import mypy.types
-from mypy.types import get_proper_type, is_named_instance
 
 from puya import log
 from puya.errors import CodeError, InternalError
@@ -27,7 +25,7 @@ logger = log.get_logger(__name__)
 def refers_to_fullname(ref_expr: mypy.nodes.RefExpr, *fullnames: str) -> bool:
     """Is node a name or member expression with the given full name?"""
     if isinstance(ref_expr.node, mypy.nodes.TypeAlias):
-        return is_named_instance(ref_expr.node.target, fullnames)
+        return mypy.types.is_named_instance(ref_expr.node.target, fullnames)
     else:
         return ref_expr.fullname in fullnames
 
@@ -41,7 +39,7 @@ def get_unaliased_fullname(ref_expr: mypy.nodes.RefExpr) -> str:
 
 def get_aliased_instance(ref_expr: mypy.nodes.RefExpr) -> mypy.types.Instance | None:
     if isinstance(ref_expr.node, mypy.nodes.TypeAlias):
-        t = get_proper_type(ref_expr.node.target)
+        t = mypy.types.get_proper_type(ref_expr.node.target)
         if isinstance(t, mypy.types.Instance):
             return t
         if (
