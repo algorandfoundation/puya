@@ -1,10 +1,12 @@
 import gzip
+import sys
 from importlib.metadata import version
 from multiprocessing import freeze_support
 from pathlib import Path
 
 import cyclopts
 
+from puya.errors import PuyaExitError
 from puya.log import LogFormat, LogLevel, configure_logging, get_logger
 from puya.main import main
 
@@ -40,11 +42,14 @@ def puya(
     source_annotations_json = None
     if source_annotations:
         source_annotations_json = source_annotations.read_text("utf8")
-    main(
-        options_json=options_json,
-        awst_json=awst_json,
-        source_annotations_json=source_annotations_json,
-    )
+    try:
+        main(
+            options_json=options_json,
+            awst_json=awst_json,
+            source_annotations_json=source_annotations_json,
+        )
+    except PuyaExitError as ex:
+        sys.exit(ex.exit_code)
 
 
 def _read_text_from_maybe_compressed_file(path: Path) -> str:
