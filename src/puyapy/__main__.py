@@ -57,7 +57,7 @@ def puyapy(
     output_teal: _OutputToggle = True,
     output_source_map: _OutputToggle = True,
     output_arc56: _OutputToggle = True,
-    output_arc32: _OutputToggle = True,
+    output_arc32: _OutputToggle = False,
     output_bytecode: _OutputToggle = False,
     output_client: _OutputToggle = False,
     debug_level: Annotated[

@@ -103,7 +103,7 @@ def _compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
         output_teal=True,
         output_bytecode=True,
         output_source_map=True,
-        output_arc32=True,
+        output_arc32=False,
         output_arc56=True,
         output_awst=True,
         output_ssa_ir=True,
