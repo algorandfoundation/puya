@@ -31,12 +31,12 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             log_ctx.sources_by_path = parse_result.sources_by_path
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result, puyapy_options)
-        except mypy.errors.CompileError:
+        except mypy.errors.CompileError as err:
             # the placement of this catch is probably overly conservative,
             # but in parse_with_mypy there is a piece copied from mypyc, around setting
             # the location during mypy callbacks in case errors are produced.
             # also this error should have already been logged
-            assert log_ctx.num_errors > 0, "expected mypy errors to be logged"
+            logger.error(err)  # noqa: TRY400
         log_ctx.exit_if_errors()
         output_inputs(awst, parse_result, puyapy_options)
         awst_lookup = {n.id: n for n in awst}
