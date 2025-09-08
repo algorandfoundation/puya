@@ -136,18 +136,16 @@ def puyapy(
     """
     args = locals()
     args.pop("template_var")
-    options = PuyaPyOptions(
-        **args,
-        cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
-    )
+    cli_template_definitions = dict(parse_template_key_value(t) for t in template_var)
+    options = PuyaPyOptions(**args, cli_template_definitions=cli_template_definitions)
     configure_logging(min_log_level=options.log_level)
     compile_to_teal(options)
 
 
 def _convert_argparse_style_flags(token: str) -> str:
-    if len(token) == 3 and token.startswith(("-O", "-g")):
-        _, flag, value = iter(token)
-        return f"-{flag}={value}"
+    match [*token]:
+        case "-", "O" | "g" as flag, value:
+            return f"-{flag}={value}"
     return token
 
 
