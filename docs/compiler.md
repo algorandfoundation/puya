@@ -71,34 +71,89 @@ The MyPy config that PuyaPy uses is in [compile.py](https://github.com/algorandf
 The options available for the compile can be seen by executing `puyapy -h` or `algokit compile py -h`:
 
 ```
-puyapy [-h] [--version] [-O {0,1,2}]
-    [--output-teal | --no-output-teal] [--output-arc32 | --no-output-arc32] [--output-arc56 | --no-output-arc56]
-    [--output-client | --no-output-client] [--out-dir OUT_DIR]
-    [--log-level {notset,debug,info,warning,error,critical}] [-g {0,1,2}] [--output-awst | --no-output-awst]
-    [--output-ssa-ir | --no-output-ssa-ir] [--output-optimization-ir | --no-output-optimization-ir]
-    [--output-destructured-ir | --no-output-destructured-ir] [--output-memory-ir | --no-output-memory-ir]
-    [--target-avm-version {10}]
-    [--locals-coalescing-strategy {root_operand,root_operand_excluding_args,aggressive}]
-    PATH [PATH ...]
+Usage: puyapy [ARGS] [OPTIONS]
+
+PuyaPy compiler for compiling Algorand Python to TEAL
+
+╭─ Commands ─────────────────────────────────────────────────────────────────────────────╮
+│ --help -h  Display this message and exit.                                              │
+│ --version  Display application version.                                                │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ────────────────────────────────────────────────────────────────────────────╮
+│ *  PATH  Files or directories to compile [required]                                    │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Outputs ──────────────────────────────────────────────────────────────────────────────╮
+│ Options for controlling what is output and where                                       │
+│                                                                                        │
+│ --out-dir                             Path for outputting artefacts                    │
+│ --log-level                           Minimum level to log to console [choices:        │
+│                                       notset, debug, info, warning, error, critical]   │
+│                                       [default: info]                                  │
+│ --output-teal --no-output-teal        Output TEAL code [default: True]                 │
+│ --output-source-map                   Output debug source maps [default: True]         │
+│   --no-output-source-map                                                               │
+│ --output-arc56 --no-output-arc56      Output {contract}.arc56.json ARC-56 app spec     │
+│                                       file [default: True]                             │
+│ --output-arc32 --no-output-arc32      Output {contract}.arc32.json ARC-32 app spec     │
+│                                       file [default: True]                             │
+│ --output-bytecode                     Output AVM bytecode [default: False]             │
+│   --no-output-bytecode                                                                 │
+│ --output-client                       Output Algorand Python contract client for typed │
+│   --no-output-client                  ARC-4 ABI calls [default: False]                 │
+│ --debug-level                     -g  Output debug information level, 0 = none, 1 =    │
+│                                       debug, 2 = reserved for future use [choices: 0,  │
+│                                       1, 2] [default: 1]                               │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Compilation ──────────────────────────────────────────────────────────────────────────╮
+│ Options that affect the compilation process, such as optimisation options etc.         │
+│                                                                                        │
+│ --optimization-level          -O  Set optimization level of output TEAL / AVM bytecode │
+│                                   [choices: 0, 1, 2] [default: 1]                      │
+│ --target-avm-version              Target AVM version [choices: 10, 11, 12] [default:   │
+│                                   10]                                                  │
+│ --resource-encoding               If "index", then resource types (Application, Asset, │
+│                                   Account) in ABI methods should be passed as an index │
+│                                   into their appropriate foreign array. The default    │
+│                                   option "value", as of PuyaPy 5.0, means these values │
+│                                   will be passed directly. [choices: index, value]     │
+│                                   [default: value]                                     │
+│ --locals-coalescing-strategy      Strategy choice for out-of-ssa local variable        │
+│                                   coalescing. The best choice for your app is best     │
+│                                   determined through experimentation [choices:         │
+│                                   root-operand, root-operand-excluding-args,           │
+│                                   aggressive] [default: root-operand]                  │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Templating ───────────────────────────────────────────────────────────────────────────╮
+│ Options for controlling the generation of TEAL template files                          │
+│                                                                                        │
+│ --template-var          -T  Define template vars for use when assembling via           │
+│                             --output-bytecode. Should be specified without the prefix  │
+│                             (see --template-vars-prefix), e.g. -T SOME_INT=1234        │
+│                             SOME_BYTES=0x1A2B SOME_BOOL=True -T SOME_STR="hello"       │
+│ --template-vars-prefix      Define the prefix to use with --template-var [default:     │
+│                             TMPL_]                                                     │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Additional outputs ───────────────────────────────────────────────────────────────────╮
+│ Controls additional compiler outputs that may be useful to compiler developers.        │
+│                                                                                        │
+│ --output-awst                     Output parsed result of AWST [default: False]        │
+│ --output-awst-json                Output parsed result of AWST as JSON [default:       │
+│                                   False]                                               │
+│ --output-source-annotations-json  Output source annotations result of AWST parse as    │
+│                                   JSON [default: False]                                │
+│ --output-ssa-ir                   Output IR (in SSA form) before optimizations         │
+│                                   [default: False]                                     │
+│ --output-optimization-ir          Output IR after each optimization [default: False]   │
+│ --output-destructured-ir          Output IR after SSA destructuring and before MIR     │
+│                                   [default: False]                                     │
+│ --output-memory-ir                Output MIR before lowering to TEAL [default: False]  │
+│ --output-teal-intermediates       Output TEAL before peephole optimization and before  │
+│                                   block optimization [default: False]                  │
+│ --output-op-statistics            Output statistics about ops used for each program    │
+│                                   compiled optimization_level: Set optimization level  │
+│                                   of output TEAL / AVM bytecode [default: False]       │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
 ```
-
-### Options
-
-| Option                                                   | Description                                                                                                                                                           | Default                 |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| `-h`, `--help`                                           | Show the help message and exit                                                                                                                                        | N/A                     |
-| `--version`                                              | Show program's version number and exit                                                                                                                                | N/A                     |
-| `-O {0,1,2}` <br />`--optimization-level {0,1,2}`        | Set optimization level of output TEAL / AVM bytecode                                                                                                                  | `1`                     |
-| `--output-teal`, `--no-output-teal`                      | Output TEAL                                                                                                                                                           | `True`                  |
-| `--output-arc32`, `--no-output-arc32`                    | Output {contract}.arc32.json ARC-32 app spec file if the contract is an ARC-4 contract                                                                                | `True`                  |
-| `--output-arc56`, `--no-output-arc56`                    | Output {contract}.arc56.json ARC-56 app spec file if the contract is an ARC-4 contract                                                                                | `True`                  |
-| `--output-client`, `--no-output-client`                  | Output Algorand Python contract client for typed ARC-4 ABI calls                                                                                                      | `False`                 |
-| `--output-bytecode`, `--no-output-bytecode`              | Output AVM bytecode                                                                                                                                                   | `False`                 |
-| `--out-dir OUT_DIR`                                      | The path for outputting artefacts                                                                                                                                     | Same folder as contract |
-| `--log-level {notset,debug,info,warning,error,critical}` | Minimum level to log to console                                                                                                                                       | `info`                  |
-| `-g {0,1,2}`, `--debug-level {0,1,2}`                    | Output debug information level<br /> `0` = No debug annotations <br /> `1` = Output debug annotations <br /> `2` = Reserved for future use, currently the same as `1` | `1`                     |
-| `--template-var`                                         | Allows specifying template values. Can be used multiple times, see below for examples                                                                                 | N/A                     |
-| `--template-vars-prefix`                                 | Prefix to use for template variables                                                                                                                                  | "TMPL\_"                |
 
 ### Defining template values
 
@@ -117,20 +172,6 @@ The table below illustrates how different variables and values can be defined:
 
 All template values specified via the command line are prefixed with "TMPL\_" by default.
 The default prefix can be modified using the `--template-vars-prefix` option.
-
-### Advanced options
-
-There are additional compiler options that allow you to tweak the behaviour in more advanced ways or tweak the output to receive intermediate representations from the compiler pipeline. Most users won't need to use these options unless exploring the inner workings of the compiler or performing more advanced optimisations.
-
-| Option                                                                               | Description                                                                                                                       | Default        |
-| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| `--output-awst`, `--no-output-awst`                                                  | Output parsed result of Puya Abstract Syntax Tree (AWST)                                                                          | `False`        |
-| `--output-ssa-ir`, `--no-output-ssa-ir`                                              | Output the Intermediate Representation (IR) in Single Static Assignment (SSA) form before optimisations form                      | `False`        |
-| `--output-optimization-ir`, `--no-output-optimization-ir`                            | Output the IR after each optimization step                                                                                        | `False`        |
-| `--output-destructured-ir`, `--no-output-destructured-ir`                            | Output the IR after SSA destructuring and before Memory IR (MIR)                                                                  | `False`        |
-| `--output-memory-ir`, `--no-output-memory-ir`                                        | Output Memory IR (MIR) before lowering to TealOps IR                                                                              |                |
-| `--target-avm-version {10}`                                                          | Target AVM version for the output                                                                                                 | `10`           |
-| `--locals-coalescing-strategy {root_operand,root_operand_excluding_args,aggressive}` | Strategy choice for out-of-ssa local variable coalescing. The best choice for your app is best determined through experimentation | `root_operand` |
 
 ## Sample `pyproject.toml`
 
