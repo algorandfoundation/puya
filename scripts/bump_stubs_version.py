@@ -3,11 +3,13 @@
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 VCS_ROOT = Path(__file__).parent.parent
-STUBS_PYPROJECT = VCS_ROOT / "stubs" / "pyproject.toml"
+STUBS_DIR = VCS_ROOT / "stubs"
+STUBS_PYPROJECT = STUBS_DIR / "pyproject.toml"
 PARSE_PY = VCS_ROOT / "src" / "puyapy" / "parse.py"
 
 
@@ -46,6 +48,7 @@ def main() -> int:
         search_pattern="^MAX_SUPPORTED_ALGOPY_VERSION_EX =.*$",
         replacement=f'MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("{next_minor_version}")',
     )
+    subprocess.run(["uv", "lock"], cwd=STUBS_DIR, check=True)
     print(f"Updated version to {new_version}")
 
     return 0
