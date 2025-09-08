@@ -96,7 +96,17 @@ jobs:
 
       - name: Update version
         if: inputs.bump_version
-        run: semantic-release $SEMANTIC_RELEASE_DRY_RUN --strict version --no-changelog
+        run: |
+          # need to run uv lock when bumping version
+          # see https://python-semantic-release.readthedocs.io/en/latest/configuration/configuration-guides/uv_integration.html#updating-the-uv-lock
+          
+          # bump version
+          semantic-release $SEMANTIC_RELEASE_DRY_RUN -v --strict version --skip-build --no-commit --no-tag --no-changelog
+          # update lock
+          uv lock --upgrade-package puyapy
+          git add uv.lock
+          # commit and tag
+          semantic-release $SEMANTIC_RELEASE_DRY_RUN -v --strict version --no-changelog
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
