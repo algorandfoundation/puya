@@ -287,6 +287,7 @@ def configure_logging(
     min_log_level: LogLevel = LogLevel.notset,
     cache_logger: bool = True,
     log_format: LogFormat = LogFormat.default,
+    file: typing.TextIO | None = None,
     reconfigure_stdio: bool = True,
 ) -> None:
     if reconfigure_stdio:
@@ -333,7 +334,7 @@ def configure_logging(
     structlog.configure(
         processors=processors,
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(file=file),
         cache_logger_on_first_use=cache_logger,
     )
 
