@@ -30,9 +30,9 @@ def puya(
     """
     Compiles AWST
 
-    Arguments:
+    Parameters:
         awst: Path to the AWST JSON file. The file may be compressed.
-        optionsPath to the options JSON file.
+        options: Path to the options JSON file.
         source_annotations: Optional path to a source annotations JSON file.
         log_level: The minimum log level to be used for logging.
         log_format: The format in which log messages will be output.
@@ -58,7 +58,7 @@ def serve(*, log_level: LogLevel = LogLevel.info) -> None:
     """
     Run in service mode, for use by Puya Language Servers
 
-    Arguments:
+    Parameters:
         log_level: The minimum log level to be used for logging.
     """
     start_puya_service(log_level=log_level)
