@@ -76,10 +76,12 @@ class LoggingContext:
         self._logs.append(log)
 
     def exit_if_errors(self) -> None:
+        from puya.errors import ErrorExitCode, PuyaExitError
+
         if self._criticals:
-            sys.exit(2)
+            raise PuyaExitError(ErrorExitCode.internal)
         if self._errors:
-            sys.exit(1)
+            raise PuyaExitError(ErrorExitCode.code)
 
 
 _current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")

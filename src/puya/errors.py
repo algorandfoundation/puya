@@ -1,7 +1,7 @@
 import contextlib
 import enum
-import sys
 import traceback
+import typing
 from collections.abc import Iterator
 
 from puya import log
@@ -22,6 +22,11 @@ class PuyaError(Exception):
         self.location = location
 
 
+class PuyaExitError(Exception):
+    def __init__(self, exit_code: ErrorExitCode):
+        self.exit_code = exit_code
+
+
 class InternalError(PuyaError):
     """Base class for all exceptions that indicate a fault in the compiler."""
 
@@ -34,6 +39,10 @@ class CodeError(PuyaError):
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:
         yield
+    except* PuyaExitError as ex_exit:
+        # should only be one exit code generally...
+        exit_code = max(typing.cast(PuyaExitError, e).exit_code for e in ex_exit.exceptions)
+        raise PuyaExitError(exit_code) from None
     except* CodeError as code_errors:
         for code_error in code_errors.exceptions:
             assert isinstance(code_error, CodeError)
@@ -46,4 +55,4 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
                 logger.critical(ex.msg, location=ex.location or fallback_location)
             else:
                 logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
-        sys.exit(ErrorExitCode.internal)
+        raise PuyaExitError(ErrorExitCode.internal) from ex_group

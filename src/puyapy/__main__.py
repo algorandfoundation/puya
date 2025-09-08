@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 import cyclopts
 
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
+from puya.errors import PuyaExitError
 from puya.log import LogLevel, configure_logging
 from puya.options import LocalsCoalescingStrategy
 from puyapy.compile import compile_to_teal
@@ -139,7 +140,10 @@ def puyapy(
     cli_template_definitions = dict(parse_template_key_value(t) for t in template_var)
     options = PuyaPyOptions(**args, cli_template_definitions=cli_template_definitions)
     configure_logging(min_log_level=options.log_level)
-    compile_to_teal(options)
+    try:
+        compile_to_teal(options)
+    except PuyaExitError as ex:
+        sys.exit(ex.exit_code)
 
 
 def _convert_argparse_style_flags(token: str) -> str:
