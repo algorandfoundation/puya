@@ -9,6 +9,7 @@ import cyclopts
 from puya.errors import PuyaExitError
 from puya.log import LogFormat, LogLevel, configure_logging, get_logger
 from puya.main import main
+from puya.service import start_puya_service
 
 # Required to support multiprocessing in pyinstaller binaries
 freeze_support()
@@ -50,6 +51,17 @@ def puya(
         )
     except PuyaExitError as ex:
         sys.exit(ex.exit_code)
+
+
+@app.command
+def serve(*, log_level: LogLevel = LogLevel.info) -> None:
+    """
+    Run in service mode, for use by Puya Language Servers
+
+    Arguments:
+        log_level: The minimum log level to be used for logging.
+    """
+    start_puya_service(log_level=log_level)
 
 
 def _read_text_from_maybe_compressed_file(path: Path) -> str:
