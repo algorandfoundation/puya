@@ -122,7 +122,7 @@ class Box(typing.Generic[_TValue]):
         """
 
 @typing.final
-@deprecated("Methods in BoxRef are now directly available on Box and BoxMap")
+@deprecated("Methods in BoxRef are now directly available on Box")
 class BoxRef:
     """
     BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
