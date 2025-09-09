@@ -4,6 +4,7 @@
 // test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
 main:
     pushbytes ""
+    pushbytes ""
     b main_block@0
 
 main_block@0:
@@ -29,9 +30,13 @@ main_for_header@1:
     b main_for_body@2
 
 main_for_body@2:
+    // less_simple/contract.py:29
+    // for i in urange(1, 100):
+    dupn 2
+    bury 5
     // less_simple/contract.py:30
     // square_root = op.sqrt(i)
-    dupn 2
+    dup
     sqrt
     // less_simple/contract.py:31
     // if square_root * square_root == i:
@@ -46,7 +51,8 @@ main_for_body@2:
 main_if_body@3:
     // less_simple/contract.py:32
     // sum_of_squares += i
-    dup2
+    dig 1
+    dig 4
     +
     bury 3
     b main_after_if_else@4

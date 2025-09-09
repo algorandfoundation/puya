@@ -2,21 +2,22 @@ main test_cases.less_simple.contract.MyContract.clear_state_program:
     block@0: // L27
         let sum_of_squares#0: uint64 = 0u
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 1u
+        let value_internal%0#0: uint64 = 1u
         goto block@1
     block@1: // for_header_L29
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@7)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@7)
         let sum_of_squares#1: uint64 = φ(sum_of_squares#0 <- block@0, sum_of_squares#3 <- block@7)
-        let continue_looping%0#0: bool = (< i#1 100u)
+        let continue_looping%0#0: bool = (< value_internal%0#1 100u)
         goto continue_looping%0#0 ? block@2 : block@8
     block@2: // for_body_L30
-        let tmp%0#0: uint64 = (sqrt i#1)
+        let i#0: uint64 = value_internal%0#1
+        let tmp%0#0: uint64 = (sqrt i#0)
         let square_root#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (* square_root#0 square_root#0)
-        let tmp%2#0: bool = (== tmp%1#0 i#1)
+        let tmp%2#0: bool = (== tmp%1#0 i#0)
         goto tmp%2#0 ? block@3 : block@4
     block@3: // if_body_L32
-        let tmp%3#0: uint64 = (+ sum_of_squares#1 i#1)
+        let tmp%3#0: uint64 = (+ sum_of_squares#1 i#0)
         let sum_of_squares#2: uint64 = tmp%3#0
         goto block@4
     block@4: // after_if_else_L31
@@ -28,7 +29,7 @@ main test_cases.less_simple.contract.MyContract.clear_state_program:
     block@6: // after_if_else_L33
         goto block@7
     block@7: // for_footer_L29
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@8: // after_for_L29
         let sum_of_squares#4: uint64 = φ(sum_of_squares#1 <- block@1, sum_of_squares#3 <- block@5)

@@ -298,6 +298,8 @@ subroutine dynamic_array_pop_dynamic_element:
         byte 0x                                                                             (𝕡) array#0 | 0x
         v-store new_head#0                                                                  (𝕡) array#0 |
         int 0                                                                               (𝕡) array#0 | 0
+        v-store value_internal%0#0                                                          (𝕡) array#0 |
+        v-load value_internal%0#0                                                           (𝕡) array#0 | value_internal%0#0
         v-store head_offset#0                                                               (𝕡) array#0 |
         b dynamic_array_pop_dynamic_element_for_header@1                                    (𝕡) array#0 |
 
@@ -330,7 +332,9 @@ subroutine dynamic_array_pop_dynamic_element:
         v-store new_head#0                                                                  (𝕡) array#0 |
         v-load head_offset#0                                                                (𝕡) array#0 | head_offset#0
         int 2                                                                               (𝕡) array#0 | head_offset#0,2
-        +                                                                                   (𝕡) array#0 | head_offset#0
+        +                                                                                   (𝕡) array#0 | value_internal%0#0
+        v-store value_internal%0#0                                                          (𝕡) array#0 |
+        v-load value_internal%0#0                                                           (𝕡) array#0 | value_internal%0#0
         v-store head_offset#0                                                               (𝕡) array#0 |
         b dynamic_array_pop_dynamic_element_for_header@1                                    (𝕡) array#0 |
 
@@ -529,9 +533,11 @@ subroutine dynamic_array_concat_byte_length_head:
         *                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tail_offset#0
         v-store tail_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         int 0                                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 | 0
-        v-store head_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
+        v-store tmp%1#0                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load tail_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tail_offset#0
         v-store tail_offset#1                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
+        v-load tmp%1#0                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%1#0
+        v-store head_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         b dynamic_array_concat_byte_length_head_for_header@2                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
 
     dynamic_array_concat_byte_length_head_for_header@2:                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
@@ -568,7 +574,9 @@ subroutine dynamic_array_concat_byte_length_head:
         v-store tail_offset#1                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load head_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0
         int 2                                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0,2
-        +                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0
+        +                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | value_internal%0#2
+        v-store value_internal%0#2                                                          (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
+        v-load value_internal%0#2                                                           (𝕡) array#0,new_items_bytes#0,new_items_count#0 | value_internal%0#2
         v-store head_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         b dynamic_array_concat_byte_length_head_for_header@2                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
 
@@ -595,6 +603,8 @@ subroutine dynamic_array_concat_dynamic_element:
         *                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | tmp%1#0
         v-store tmp%1#0                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         int 0                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0
+        v-store value_internal%0#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        v-load value_internal%0#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%0#0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         b dynamic_array_concat_dynamic_element_for_header@1                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
@@ -627,7 +637,9 @@ subroutine dynamic_array_concat_dynamic_element:
         v-store new_head#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         v-load head_offset#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
         int 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,2
-        +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
+        +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%0#0
+        v-store value_internal%0#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        v-load value_internal%0#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%0#0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         b dynamic_array_concat_dynamic_element_for_header@1                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
@@ -636,6 +648,8 @@ subroutine dynamic_array_concat_dynamic_element:
         len                                                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_and_tail_length#0
         v-store head_and_tail_length#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         int 0                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | 0
+        v-store value_internal%1#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        v-load value_internal%1#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%1#0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         b dynamic_array_concat_dynamic_element_for_header@5                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
@@ -668,7 +682,9 @@ subroutine dynamic_array_concat_dynamic_element:
         v-store new_head#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         v-load head_offset#0                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
         int 2                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0,2
-        +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | head_offset#0
+        +                                                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%1#0
+        v-store value_internal%1#0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
+        v-load value_internal%1#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | value_internal%1#0
         v-store head_offset#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
         b dynamic_array_concat_dynamic_element_for_header@5                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 |
 
@@ -794,6 +810,8 @@ subroutine times:
         // array/immutable.py:491
         // for _i in urange(n):
         int 0                                                                               (𝕡) n#0 | 0
+        v-store value_internal%0#0                                                          (𝕡) n#0 |
+        v-load value_internal%0#0                                                           (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                        (𝕡) n#0 |
         b times_for_header@1                                                                (𝕡) n#0 |
 
@@ -818,7 +836,9 @@ subroutine times:
         // for _i in urange(n):
         v-load _i#0                                                                         (𝕡) n#0 | _i#0
         int 1                                                                               (𝕡) n#0 | _i#0,1
-        +                                                                                   (𝕡) n#0 | _i#0
+        +                                                                                   (𝕡) n#0 | value_internal%0#0
+        v-store value_internal%0#0                                                          (𝕡) n#0 |
+        v-load value_internal%0#0                                                           (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                        (𝕡) n#0 |
         b times_for_header@1                                                                (𝕡) n#0 |
 
@@ -835,6 +855,8 @@ subroutine add_x:
         // array/immutable.py:498
         // for i in urange(x):
         int 0                                                                               (𝕡) arr#0,x#0 | 0
+        v-store value_internal%0#0                                                          (𝕡) arr#0,x#0 |
+        v-load value_internal%0#0                                                           (𝕡) arr#0,x#0 | value_internal%0#0
         v-store i#0                                                                         (𝕡) arr#0,x#0 |
         b add_x_for_header@1                                                                (𝕡) arr#0,x#0 |
 
@@ -880,7 +902,9 @@ subroutine add_x:
         // for i in urange(x):
         v-load i#0                                                                          (𝕡) arr#0,x#0 | i#0
         int 1                                                                               (𝕡) arr#0,x#0 | i#0,1
-        +                                                                                   (𝕡) arr#0,x#0 | i#0
+        +                                                                                   (𝕡) arr#0,x#0 | value_internal%0#0
+        v-store value_internal%0#0                                                          (𝕡) arr#0,x#0 |
+        v-load value_internal%0#0                                                           (𝕡) arr#0,x#0 | value_internal%0#0
         v-store i#0                                                                         (𝕡) arr#0,x#0 |
         b add_x_for_header@1                                                                (𝕡) arr#0,x#0 |
 
@@ -1010,6 +1034,8 @@ subroutine test_uint64_array:
         // array/immutable.py:505
         // for _i in urange(x):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store _i#0
         b test_uint64_array_for_header@2
 
@@ -1039,7 +1065,9 @@ subroutine test_uint64_array:
         // for _i in urange(x):
         v-load _i#0                                                                         _i#0
         int 1                                                                               _i#0,1
-        +                                                                                   _i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store _i#0
         b test_uint64_array_for_header@2
 
@@ -1294,6 +1322,8 @@ subroutine test_biguint_array:
         // array/immutable.py:512
         // for i in urange(x):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_biguint_array_for_header@2
 
@@ -1347,7 +1377,9 @@ subroutine test_biguint_array:
         // for i in urange(x):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_biguint_array_for_header@2
 
@@ -1575,6 +1607,8 @@ subroutine test_bool_array:
         // array/immutable.py:160
         // for i in urange(length):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_bool_array_for_header@2
 
@@ -1612,7 +1646,9 @@ subroutine test_bool_array:
         // for i in urange(length):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_bool_array_for_header@2
 
@@ -1832,6 +1868,8 @@ subroutine test_fixed_size_tuple_array:
         // array/immutable.py:184
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_fixed_size_tuple_array_for_header@2
 
@@ -1850,13 +1888,13 @@ subroutine test_fixed_size_tuple_array:
         // arr = arr.append((i + 1, i + 2))
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   tmp%2#0
+        v-store tmp%2#0
         v-load i#0                                                                          i#0
         int 2                                                                               i#0,2
         +                                                                                   tmp%3#0
         v-store tmp%3#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         itob                                                                                aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         v-load tmp%3#0                                                                      tmp%3#0
@@ -1888,7 +1926,7 @@ subroutine test_fixed_size_tuple_array:
         v-load as_u16_bytes%0#0                                                             concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                          arr#0
         v-store arr#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         v-store i#0
         b test_fixed_size_tuple_array_for_header@2
 
@@ -2079,6 +2117,8 @@ subroutine test_fixed_size_named_tuple_array:
         // array/immutable.py:202
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_fixed_size_named_tuple_array_for_header@2
 
@@ -2156,7 +2196,9 @@ subroutine test_fixed_size_named_tuple_array:
         // for i in urange(5):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_fixed_size_named_tuple_array_for_header@2
 
@@ -2226,6 +2268,8 @@ subroutine test_dynamic_sized_tuple_array:
         // array/immutable.py:217
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_dynamic_sized_tuple_array_for_header@2
 
@@ -2244,8 +2288,8 @@ subroutine test_dynamic_sized_tuple_array:
         // arr = arr.append((i + 1, op.bzero(i)))
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   tmp%2#0
+        v-store tmp%2#0
         v-load i#0                                                                          i#0
         bzero                                                                               tmp%3#0
         v-store tmp%3#0
@@ -2256,7 +2300,7 @@ subroutine test_dynamic_sized_tuple_array:
         v-load arr#0                                                                        arr#0
         extract 2 0                                                                         extract_to_end%0#0
         v-store extract_to_end%0#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         itob                                                                                aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         v-load tmp%3#0                                                                      tmp%3#0
@@ -2290,7 +2334,7 @@ subroutine test_dynamic_sized_tuple_array:
         v-load aggregate%concat%1#0                                                         extract_uint16%0#0,extract_to_end%0#0,1,aggregate%concat%1#0
         callsub dynamic_array_concat_dynamic_element                                        arr#0
         v-store arr#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         v-store i#0
         b test_dynamic_sized_tuple_array_for_header@2
 
@@ -2310,6 +2354,8 @@ subroutine test_dynamic_sized_tuple_array:
         // array/immutable.py:221
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                                           value_internal%1#0
         v-store i#0
         b test_dynamic_sized_tuple_array_for_header@6
 
@@ -2339,17 +2385,17 @@ subroutine test_dynamic_sized_tuple_array:
         v-store aggregate%item_offset%0#0
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   aggregate%next_index%0#0
+        v-store aggregate%next_index%0#0
         v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
-        v-load i#2                                                                          aggregate%array_length%1#0,i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%array_length%1#0,aggregate%next_index%0#0
         - // on error: index access is out of bounds                                        aggregate%has_next%0#0
         v-store aggregate%has_next%0#0
         v-load aggregate%array_head_and_tail%0#0                                            aggregate%array_head_and_tail%0#0
         len                                                                                 aggregate%end_of_array%0#0
         v-store aggregate%end_of_array%0#0
-        v-load i#2                                                                          i#2
-        int 2                                                                               i#2,2
+        v-load aggregate%next_index%0#0                                                     aggregate%next_index%0#0
+        int 2                                                                               aggregate%next_index%0#0,2
         *                                                                                   aggregate%next_item_offset_offset%0#0
         v-store aggregate%next_item_offset_offset%0#0
         v-load aggregate%array_head_and_tail%0#0                                            aggregate%array_head_and_tail%0#0
@@ -2386,7 +2432,7 @@ subroutine test_dynamic_sized_tuple_array:
         extract 2 0                                                                         aggregate%item1%0#0
         v-store aggregate%item1%0#0
         v-load aggregate%item0%0#0                                                          aggregate%item0%0#0
-        v-load i#2                                                                          aggregate%item0%0#0,i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%item0%0#0,aggregate%next_index%0#0
         ==                                                                                  tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                                      tmp%8#0
@@ -2402,7 +2448,7 @@ subroutine test_dynamic_sized_tuple_array:
         v-store tmp%10#0
         v-load tmp%10#0                                                                     tmp%10#0
         assert // expected 2nd element to be correct
-        v-load i#2                                                                          i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%next_index%0#0
         v-store i#0
         b test_dynamic_sized_tuple_array_for_header@6
 
@@ -2584,6 +2630,8 @@ subroutine test_dynamic_sized_named_tuple_array:
         // array/immutable.py:236
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_dynamic_sized_named_tuple_array_for_header@2
 
@@ -2602,8 +2650,8 @@ subroutine test_dynamic_sized_named_tuple_array:
         // arr = arr.append(MyDynamicSizedTuple(foo=i + 1, bar=times(i)))
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   tmp%2#0
+        v-store tmp%2#0
         v-load i#0                                                                          i#0
         callsub times                                                                       tmp%3#0
         v-store tmp%3#0
@@ -2614,7 +2662,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-load arr#0                                                                        arr#0
         extract 2 0                                                                         extract_to_end%0#0
         v-store extract_to_end%0#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         itob                                                                                aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         v-load tmp%3#0                                                                      tmp%3#0
@@ -2648,7 +2696,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-load aggregate%concat%1#0                                                         extract_uint16%0#0,extract_to_end%0#0,1,aggregate%concat%1#0
         callsub dynamic_array_concat_dynamic_element                                        arr#0
         v-store arr#0
-        v-load i#2                                                                          i#2
+        v-load tmp%2#0                                                                      tmp%2#0
         v-store i#0
         b test_dynamic_sized_named_tuple_array_for_header@2
 
@@ -2668,6 +2716,8 @@ subroutine test_dynamic_sized_named_tuple_array:
         // array/immutable.py:240
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                                           value_internal%1#0
         v-store i#0
         b test_dynamic_sized_named_tuple_array_for_header@6
 
@@ -2697,17 +2747,17 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-store aggregate%item_offset%0#0
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   aggregate%next_index%0#0
+        v-store aggregate%next_index%0#0
         v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
-        v-load i#2                                                                          aggregate%array_length%1#0,i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%array_length%1#0,aggregate%next_index%0#0
         - // on error: index access is out of bounds                                        aggregate%has_next%0#0
         v-store aggregate%has_next%0#0
         v-load aggregate%array_head_and_tail%0#0                                            aggregate%array_head_and_tail%0#0
         len                                                                                 aggregate%end_of_array%0#0
         v-store aggregate%end_of_array%0#0
-        v-load i#2                                                                          i#2
-        int 2                                                                               i#2,2
+        v-load aggregate%next_index%0#0                                                     aggregate%next_index%0#0
+        int 2                                                                               aggregate%next_index%0#0,2
         *                                                                                   aggregate%next_item_offset_offset%0#0
         v-store aggregate%next_item_offset_offset%0#0
         v-load aggregate%array_head_and_tail%0#0                                            aggregate%array_head_and_tail%0#0
@@ -2744,7 +2794,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         extract 2 0                                                                         aggregate%item1%0#0
         v-store aggregate%item1%0#0
         v-load aggregate%item0%0#0                                                          aggregate%item0%0#0
-        v-load i#2                                                                          aggregate%item0%0#0,i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%item0%0#0,aggregate%next_index%0#0
         ==                                                                                  tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                                      tmp%8#0
@@ -2760,7 +2810,7 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-store tmp%10#0
         v-load tmp%10#0                                                                     tmp%10#0
         assert // expected 2nd element to be correct
-        v-load i#2                                                                          i#2
+        v-load aggregate%next_index%0#0                                                     aggregate%next_index%0#0
         v-store i#0
         b test_dynamic_sized_named_tuple_array_for_header@6
 
@@ -2979,6 +3029,8 @@ subroutine test_nested_array:
         // array/immutable.py:263
         // for i in urange(arr_to_add):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_nested_array_for_header@2
 
@@ -3000,6 +3052,8 @@ subroutine test_nested_array:
         // array/immutable.py:265
         // for j in urange(i):
         int 0                                                                               0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                                           value_internal%1#0
         v-store j#0
         b test_nested_array_for_header@4
 
@@ -3045,7 +3099,9 @@ subroutine test_nested_array:
         // for j in urange(i):
         v-load j#0                                                                          j#0
         int 1                                                                               j#0,1
-        +                                                                                   j#0
+        +                                                                                   value_internal%1#0
+        v-store value_internal%1#0
+        v-load value_internal%1#0                                                           value_internal%1#0
         v-store j#0
         b test_nested_array_for_header@4
 
@@ -3073,7 +3129,9 @@ subroutine test_nested_array:
         // for i in urange(arr_to_add):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_nested_array_for_header@2
 
@@ -3252,6 +3310,8 @@ subroutine test_bit_packed_tuples:
         // array/immutable.py:287
         // for i in urange(5):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_bit_packed_tuples_for_header@2
 
@@ -3341,8 +3401,8 @@ subroutine test_bit_packed_tuples:
         // bar=i + 1,
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#2
-        v-store i#2
+        +                                                                                   tmp%18#0
+        v-store tmp%18#0
         // array/immutable.py:289-301
         // arr7 = arr7.append(
         //     SevenBoolTuple(
@@ -3389,7 +3449,7 @@ subroutine test_bit_packed_tuples:
         v-load aggregate%set_bit%6#0                                                        aggregate%val_as_bytes%0#0,aggregate%set_bit%6#0
         concat                                                                              aggregate%head%3#0
         v-store aggregate%head%3#0
-        v-load i#2                                                                          i#2
+        v-load tmp%18#0                                                                     tmp%18#0
         itob                                                                                aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%head%3#0                                                           aggregate%head%3#0
@@ -3531,7 +3591,7 @@ subroutine test_bit_packed_tuples:
         v-load as_u16_bytes%3#0                                                             concat%3#0,as_u16_bytes%3#0
         replace2 0                                                                          arr9#0
         v-store arr9#0
-        v-load i#2                                                                          i#2
+        v-load tmp%18#0                                                                     tmp%18#0
         v-store i#0
         b test_bit_packed_tuples_for_header@2
 
@@ -3988,6 +4048,8 @@ subroutine test_uint64_return:
         // array/immutable.py:371
         // for i in urange(append):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_uint64_return_for_header@2
 
@@ -4033,7 +4095,9 @@ subroutine test_uint64_return:
         // for i in urange(append):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_uint64_return_for_header@2
 
@@ -4067,6 +4131,8 @@ subroutine test_bool_return:
         // array/immutable.py:378
         // for i in urange(append):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_bool_return_for_header@2
 
@@ -4105,7 +4171,9 @@ subroutine test_bool_return:
         // for i in urange(append):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_bool_return_for_header@2
 
@@ -4139,6 +4207,8 @@ subroutine test_tuple_return:
         // array/immutable.py:385
         // for i in urange(append):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_tuple_return_for_header@2
 
@@ -4212,7 +4282,9 @@ subroutine test_tuple_return:
         // for i in urange(append):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_tuple_return_for_header@2
 
@@ -4246,6 +4318,8 @@ subroutine test_dynamic_tuple_return:
         // array/immutable.py:392
         // for i in urange(append):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_dynamic_tuple_return_for_header@2
 
@@ -4310,7 +4384,9 @@ subroutine test_dynamic_tuple_return:
         // for i in urange(append):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_dynamic_tuple_return_for_header@2
 
@@ -4349,6 +4425,8 @@ subroutine test_convert_to_array_and_back:
         // array/immutable.py:402
         // for i in urange(append):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_convert_to_array_and_back_for_header@2
 
@@ -4408,7 +4486,9 @@ subroutine test_convert_to_array_and_back:
         // for i in urange(append):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_convert_to_array_and_back_for_header@2
 
@@ -4769,6 +4849,8 @@ subroutine test_imm_fixed_arr:
         // array/immutable.py:459
         // for i in urange(3):
         int 0                                                                               0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_imm_fixed_arr_for_header@2
 
@@ -4798,7 +4880,9 @@ subroutine test_imm_fixed_arr:
         // for i in urange(3):
         v-load i#0                                                                          i#0
         int 1                                                                               i#0,1
-        +                                                                                   i#0
+        +                                                                                   value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                           value_internal%0#0
         v-store i#0
         b test_imm_fixed_arr_for_header@2
 

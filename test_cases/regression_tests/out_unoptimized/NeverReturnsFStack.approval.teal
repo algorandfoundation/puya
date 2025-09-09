@@ -128,51 +128,52 @@ test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_if_els
     // regression_tests/never_returns.py:29
     // one = UInt64(0)
     intc_0 // 0
-    frame_bury 1
+    frame_bury 0
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
     txn NumAppArgs
-    frame_bury 3
+    frame_bury 2
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
-    frame_bury 0
+    frame_bury 3
     b test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_header@4
 
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_header@4:
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
-    frame_dig 0
     frame_dig 3
+    frame_dig 2
     <
     bz test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_for@9
     b test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_body@5
 
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_body@5:
+    // regression_tests/never_returns.py:30
+    // for idx in urange(Txn.num_app_args):
+    frame_dig 3
     // regression_tests/never_returns.py:31
     // x += idx
     frame_dig 4
-    frame_dig 0
-    dup
-    cover 2
+    dig 1
     +
     frame_bury 4
     // regression_tests/never_returns.py:32
     // if idx == 0:
     intc_0 // 0
     ==
-    frame_dig 1
-    frame_bury 2
+    frame_dig 0
+    frame_bury 1
     bz test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_if_else@7
     b test_cases.regression_tests.never_returns.NeverReturnsFStack.method_if_body@6
 
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_if_body@6:
     // regression_tests/never_returns.py:33
     // one += 1
-    frame_dig 1
+    frame_dig 0
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 1
     b test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_if_else@7
 
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_if_else@7:
@@ -181,12 +182,12 @@ test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_if_els
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_footer@8:
     // regression_tests/never_returns.py:30
     // for idx in urange(Txn.num_app_args):
-    frame_dig 0
+    frame_dig 3
     intc_1 // 1
     +
+    frame_bury 3
+    frame_dig 1
     frame_bury 0
-    frame_dig 2
-    frame_bury 1
     b test_cases.regression_tests.never_returns.NeverReturnsFStack.method_for_header@4
 
 test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_for@9:
@@ -195,7 +196,7 @@ test_cases.regression_tests.never_returns.NeverReturnsFStack.method_after_for@9:
     pushbytes "you won't see this"
     bytec_0 // ""
     concat
-    frame_dig 1
+    frame_dig 0
     itob
     concat
     log

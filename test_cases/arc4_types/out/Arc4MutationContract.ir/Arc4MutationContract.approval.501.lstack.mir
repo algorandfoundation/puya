@@ -686,17 +686,17 @@ subroutine recalculate_head_for_elements_with_byte_length_head:
         v-store tmp%0#0                                                                                    (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0
         p-load start_at_index#0                                                                            (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,start_at_index#0 (copy)
         int 2                                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,start_at_index#0 (copy),2
-        *                                                                                                  (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,head_offset#0
-        l-store-copy head_offset#0 0                                                                       (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,head_offset#0,head_offset#0 (copy)
-        v-store head_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,head_offset#0
-        p-load array_head_and_tail#0                                                                       (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,head_offset#0,array_head_and_tail#0 (copy)
-        l-load head_offset#0 1                                                                             (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,array_head_and_tail#0 (copy),head_offset#0
-        extract_uint16                                                                                     (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%2#0
-        l-load tmp%0#0 1                                                                                   (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%2#0,tmp%0#0
-        l-load tmp%2#0 1                                                                                   (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%2#0
-        p-load start_at_index#0                                                                            (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%2#0,start_at_index#0 (copy)
-        select                                                                                             (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tail_offset#0
-        v-store tail_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
+        *                                                                                                  (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%1#0
+        p-load array_head_and_tail#0                                                                       (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%1#0,array_head_and_tail#0 (copy)
+        l-load-copy tmp%1#0 1                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%1#0,array_head_and_tail#0 (copy),tmp%1#0 (copy)
+        extract_uint16                                                                                     (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%0#0,tmp%1#0,tmp%2#0
+        l-load tmp%0#0 2                                                                                   (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0,tmp%2#0,tmp%0#0
+        l-load tmp%2#0 1                                                                                   (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0,tmp%0#0,tmp%2#0
+        p-load start_at_index#0                                                                            (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0,tmp%0#0,tmp%2#0,start_at_index#0 (copy)
+        select                                                                                             (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0,tail_offset#0
+        v-store tail_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0
+        l-load tmp%1#0 0                                                                                   (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | tmp%1#0
+        v-store head_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
         b recalculate_head_for_elements_with_byte_length_head_for_header@1                                 (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
 
     recalculate_head_for_elements_with_byte_length_head_for_header@1:                                      (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
@@ -730,7 +730,8 @@ subroutine recalculate_head_for_elements_with_byte_length_head:
         v-store tail_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | head_offset#0
         l-load head_offset#0 0                                                                             (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | head_offset#0
         int 2                                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | head_offset#0,2
-        +                                                                                                  (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | head_offset#0
+        +                                                                                                  (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | value_internal%0#2
+        l-load value_internal%0#2 0                                                                        (𝕡) array_head_and_tail#0,length#0,start_at_index#0 | value_internal%0#2
         v-store head_offset#0                                                                              (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
         b recalculate_head_for_elements_with_byte_length_head_for_header@1                                 (𝕡) array_head_and_tail#0,length#0,start_at_index#0 |
 

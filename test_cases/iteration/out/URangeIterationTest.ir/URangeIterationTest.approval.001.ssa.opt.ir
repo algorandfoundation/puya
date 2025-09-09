@@ -1,16 +1,16 @@
 main test_cases.iteration.base.IterationTestBase.approval_program:
     block@0: // L7
         (log "test_forwards")
-        let i#0: uint64 = 1u
+        let value_internal%0#0: uint64 = 1u
         goto block@2
     block@2: // for_header_L13
-        let i#1: uint64 = φ(i#0 <- block@0, i#3 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 7u)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 7u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L14
-        let extract%0#0: bytes = (extract3 0x206120622063 i#1 1u)
+        let extract%0#0: bytes = (extract3 0x206120622063 i#0 1u)
         (log extract%0#0)
-        let i#3: uint64 = (+ i#1 2u)
+        let value_internal%0#2: uint64 = (+ i#0 2u)
         goto block@2
     block@5: // after_for_L13
         (log "test_reversed")
@@ -19,53 +19,53 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let range_length_minus_one%0#0: uint64 = 5u
         let iteration_count_minus_one%0#0: uint64 = 2u
         let range_delta%0#0: uint64 = 4u
-        let i#4: uint64 = 5u
+        let i#2: uint64 = 5u
         goto block@9
     block@9: // for_body_L22
-        let i#5: uint64 = φ(i#4 <- block@5, i#7 <- block@11)
-        let extract%0#1: bytes = (extract3 0x206120622063 i#5 1u)
+        let i#3: uint64 = φ(i#2 <- block@5, i#5 <- block@11)
+        let extract%0#1: bytes = (extract3 0x206120622063 i#3 1u)
         (log extract%0#1)
-        let continue_looping%0#1: bool = (< 1u i#5)
+        let continue_looping%0#1: bool = (< 1u i#3)
         goto continue_looping%0#1 ? block@11 : block@12
     block@11: // for_increment_L21
-        let i#7: uint64 = (- i#5 2u)
+        let i#5: uint64 = (- i#3 2u)
         goto block@9
     block@12: // after_for_L21
         (log "test_forwards_with_forwards_index")
-        let i#8: uint64 = 1u
-        let idx#0: uint64 = 0u
+        let value_internal%0#3: uint64 = 1u
+        let item_index_internal%0#0: uint64 = 0u
         goto block@15
     block@15: // for_header_L29
-        let i#9: uint64 = φ(i#8 <- block@12, i#11 <- block@16)
-        let idx#1: uint64 = φ(idx#0 <- block@12, idx#3 <- block@16)
-        let continue_looping%0#2: bool = (< i#9 7u)
+        let i#6: uint64 = φ(value_internal%0#3 <- block@12, value_internal%0#5 <- block@16)
+        let idx#0: uint64 = φ(item_index_internal%0#0 <- block@12, item_index_internal%0#2 <- block@16)
+        let continue_looping%0#2: bool = (< i#6 7u)
         goto continue_looping%0#2 ? block@16 : block@18
     block@16: // for_body_L30
-        let extract%0#2: bytes = (extract3 0x206120622063 i#9 1u)
-        test_cases.iteration.base.IterationTestBase._log_with_index(idx#1, extract%0#2)
-        let i#11: uint64 = (+ i#9 2u)
-        let idx#3: uint64 = (+ idx#1 1u)
+        let extract%0#2: bytes = (extract3 0x206120622063 i#6 1u)
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#0, extract%0#2)
+        let value_internal%0#5: uint64 = (+ i#6 2u)
+        let item_index_internal%0#2: uint64 = (+ idx#0 1u)
         goto block@15
     block@18: // after_for_L29
         (log "test_forwards_with_reverse_index")
         let should_loop%0#1: bool = 1u
         let range_length%0#1: uint64 = 6u
         let range_length_minus_one%0#1: uint64 = 5u
-        let idx#4: uint64 = 2u
+        let idx#2: uint64 = 2u
         let range_delta%0#1: uint64 = 4u
         let max_range_item%0#1: uint64 = 5u
-        let i#12: uint64 = 1u
+        let i#8: uint64 = 1u
         goto block@22
     block@22: // for_body_L39
-        let i#13: uint64 = φ(i#12 <- block@18, i#15 <- block@24)
-        let idx#5: uint64 = φ(idx#4 <- block@18, idx#7 <- block@24)
-        let extract%0#3: bytes = (extract3 0x206120622063 i#13 1u)
-        test_cases.iteration.base.IterationTestBase._log_with_index(idx#5, extract%0#3)
-        let continue_looping%0#3: bool = (< i#13 5u)
+        let i#9: uint64 = φ(i#8 <- block@18, i#11 <- block@24)
+        let idx#3: uint64 = φ(idx#2 <- block@18, idx#5 <- block@24)
+        let extract%0#3: bytes = (extract3 0x206120622063 i#9 1u)
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#3, extract%0#3)
+        let continue_looping%0#3: bool = (< i#9 5u)
         goto continue_looping%0#3 ? block@24 : block@25
     block@24: // for_increment_L38
-        let i#15: uint64 = (+ i#13 2u)
-        let idx#7: uint64 = (- idx#5 1u)
+        let i#11: uint64 = (+ i#9 2u)
+        let idx#5: uint64 = (- idx#3 1u)
         goto block@22
     block@25: // after_for_L38
         (log "test_reverse_with_forwards_index")
@@ -74,73 +74,73 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let range_length_minus_one%0#2: uint64 = 5u
         let iteration_count_minus_one%0#2: uint64 = 2u
         let range_delta%0#2: uint64 = 4u
-        let i#16: uint64 = 5u
-        let idx#8: uint64 = 0u
+        let i#12: uint64 = 5u
+        let idx#6: uint64 = 0u
         goto block@29
     block@29: // for_body_L48
-        let i#17: uint64 = φ(i#16 <- block@25, i#19 <- block@31)
-        let idx#9: uint64 = φ(idx#8 <- block@25, idx#11 <- block@31)
-        let extract%0#4: bytes = (extract3 0x206120622063 i#17 1u)
-        test_cases.iteration.base.IterationTestBase._log_with_index(idx#9, extract%0#4)
-        let continue_looping%0#4: bool = (< 1u i#17)
+        let i#13: uint64 = φ(i#12 <- block@25, i#15 <- block@31)
+        let idx#7: uint64 = φ(idx#6 <- block@25, idx#9 <- block@31)
+        let extract%0#4: bytes = (extract3 0x206120622063 i#13 1u)
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#7, extract%0#4)
+        let continue_looping%0#4: bool = (< 1u i#13)
         goto continue_looping%0#4 ? block@31 : block@32
     block@31: // for_increment_L47
-        let i#19: uint64 = (- i#17 2u)
-        let idx#11: uint64 = (+ idx#9 1u)
+        let i#15: uint64 = (- i#13 2u)
+        let idx#9: uint64 = (+ idx#7 1u)
         goto block@29
     block@32: // after_for_L47
         (log "test_reverse_with_reverse_index")
         let should_loop%0#3: bool = 1u
         let range_length%0#3: uint64 = 6u
         let range_length_minus_one%0#3: uint64 = 5u
-        let idx#12: uint64 = 2u
+        let idx#10: uint64 = 2u
         let range_delta%0#3: uint64 = 4u
-        let i#20: uint64 = 5u
+        let i#16: uint64 = 5u
         goto block@36
     block@36: // for_body_L57
-        let i#21: uint64 = φ(i#20 <- block@32, i#23 <- block@38)
-        let idx#13: uint64 = φ(idx#12 <- block@32, idx#15 <- block@38)
-        let extract%0#5: bytes = (extract3 0x206120622063 i#21 1u)
-        test_cases.iteration.base.IterationTestBase._log_with_index(idx#13, extract%0#5)
-        let continue_looping%0#5: bool = (< 1u i#21)
+        let i#17: uint64 = φ(i#16 <- block@32, i#19 <- block@38)
+        let idx#11: uint64 = φ(idx#10 <- block@32, idx#13 <- block@38)
+        let extract%0#5: bytes = (extract3 0x206120622063 i#17 1u)
+        test_cases.iteration.base.IterationTestBase._log_with_index(idx#11, extract%0#5)
+        let continue_looping%0#5: bool = (< 1u i#17)
         goto continue_looping%0#5 ? block@38 : block@39
     block@38: // for_increment_L56
-        let i#23: uint64 = (- i#21 2u)
-        let idx#15: uint64 = (- idx#13 1u)
+        let i#19: uint64 = (- i#17 2u)
+        let idx#13: uint64 = (- idx#11 1u)
         goto block@36
     block@39: // after_for_L56
         (log "test_empty")
-        let i#24: uint64 = 0u
+        let value_internal%0#6: uint64 = 0u
         goto block@42
     block@42: // for_header_L64
-        let i#25: uint64 = φ(i#24 <- block@39, i#26 <- block@43)
-        let continue_looping%0#6: bool = (< i#25 0u)
+        let i#20: uint64 = φ(value_internal%0#6 <- block@39, value_internal%0#8 <- block@43)
+        let continue_looping%0#6: bool = (< i#20 0u)
         goto continue_looping%0#6 ? block@43 : block@45
     block@43: // for_body_L65
-        let tmp%0#6: bytes = (itob i#25)
+        let tmp%0#6: bytes = (itob i#20)
         (log tmp%0#6)
-        let i#26: uint64 = (+ i#25 1u)
+        let value_internal%0#8: uint64 = (+ i#20 1u)
         goto block@42
     block@45: // after_for_L64
         let should_loop%0#4: bool = 0u
         goto block@50
     block@50: // after_for_L66
-        let i#30: uint64 = 0u
-        let idx#16: uint64 = 0u
+        let value_internal%1#0: uint64 = 0u
+        let item_index_internal%0#3: uint64 = 0u
         goto block@51
     block@51: // for_header_L68
-        let i#31: uint64 = φ(i#30 <- block@50, i#32 <- block@52)
-        let idx#17: uint64 = φ(idx#16 <- block@50, idx#18 <- block@52)
-        let continue_looping%2#0: bool = (< i#31 0u)
+        let i#24: uint64 = φ(value_internal%1#0 <- block@50, value_internal%1#2 <- block@52)
+        let idx#14: uint64 = φ(item_index_internal%0#3 <- block@50, item_index_internal%0#5 <- block@52)
+        let continue_looping%2#0: bool = (< i#24 0u)
         goto continue_looping%2#0 ? block@52 : block@54
     block@52: // for_body_L69
-        let tmp%2#0: bytes = (itob idx#17)
+        let tmp%2#0: bytes = (itob idx#14)
         let tmp%3#0: bytes = tmp%2#0
-        let tmp%4#0: bytes = (itob i#31)
+        let tmp%4#0: bytes = (itob i#24)
         let tmp%5#0: bytes = (concat tmp%2#0 tmp%4#0)
         (log tmp%5#0)
-        let i#32: uint64 = (+ i#31 1u)
-        let idx#18: uint64 = (+ idx#17 1u)
+        let value_internal%1#2: uint64 = (+ i#24 1u)
+        let item_index_internal%0#5: uint64 = (+ idx#14 1u)
         goto block@51
     block@54: // after_for_L68
         let should_loop%1#0: bool = 0u
@@ -157,19 +157,19 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let extract%0#6: bytes = 0x61
         (log 0x61)
         (log "test_tuple_target")
-        let tup.1#0: uint64 = 0u
-        let tup.0#0: uint64 = 0u
+        let value_internal%0#10: uint64 = 0u
+        let item_index_internal%0#6: uint64 = 0u
         goto block@77
     block@77: // for_header_L89
-        let tup.1#1: uint64 = φ(tup.1#0 <- block@69, tup.1#2 <- block@78)
-        let tup.0#1: uint64 = φ(tup.0#0 <- block@69, tup.0#2 <- block@78)
-        let continue_looping%0#8: bool = (< tup.1#1 1u)
+        let tup.1#0: uint64 = φ(value_internal%0#10 <- block@69, value_internal%0#12 <- block@78)
+        let tup.0#0: uint64 = φ(item_index_internal%0#6 <- block@69, item_index_internal%0#8 <- block@78)
+        let continue_looping%0#8: bool = (< tup.1#0 1u)
         goto continue_looping%0#8 ? block@78 : block@80
     block@78: // for_body_L90
-        let extract%0#7: bytes = (extract3 0x74 tup.1#1 1u)
-        test_cases.iteration.base.IterationTestBase._log_with_index(tup.0#1, extract%0#7)
-        let tup.1#2: uint64 = (+ tup.1#1 1u)
-        let tup.0#2: uint64 = (+ tup.0#1 1u)
+        let extract%0#7: bytes = (extract3 0x74 tup.1#0 1u)
+        test_cases.iteration.base.IterationTestBase._log_with_index(tup.0#0, extract%0#7)
+        let value_internal%0#12: uint64 = (+ tup.1#0 1u)
+        let item_index_internal%0#8: uint64 = (+ tup.0#0 1u)
         goto block@77
     block@80: // after_for_L89
         return 1u

@@ -28,12 +28,13 @@ main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
         let secret_index#0: uint64 = arg_idx#0
         let tmp%5#0: uint64 = (txn NumAccounts)
         (assert 1u) // Step cannot be zero
-        let account_index#0: uint64 = 0u
+        let value_internal%1#0: uint64 = 0u
         goto block@9
     block@9: // for_header_L17
-        let continue_looping%1#0: bool = (< account_index#0 tmp%5#0)
+        let continue_looping%1#0: bool = (< value_internal%1#0 tmp%5#0)
         goto continue_looping%1#0 ? block@10 : block@14
     block@10: // for_body_L18
+        let account_index#0: uint64 = value_internal%1#0
         let tmp%6#0: account = ((txnas Accounts) account_index#0)
         let account#0: account = tmp%6#0
         let tmp%7#0: account = (global ZeroAddress)
@@ -44,7 +45,7 @@ main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
     block@12: // after_if_else_L19
         goto block@13
     block@13: // for_footer_L17
-        let account_index#0: uint64 = (+ account_index#0 1u)
+        let value_internal%1#0: uint64 = (+ value_internal%1#0 1u)
         goto block@9
     block@14: // after_for_L17
         fail // access denied, missing secret account

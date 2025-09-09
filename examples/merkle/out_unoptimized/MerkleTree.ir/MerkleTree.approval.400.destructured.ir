@@ -36,12 +36,13 @@ subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[3
         let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
         let tmp%0#0: uint64 = aggregate%array_length%0#0
         (assert 1u) // Step cannot be zero
-        let idx#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L22
-        let continue_looping%0#0: bool = (< idx#0 tmp%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L23
+        let idx#0: uint64 = value_internal%0#0
         let aggregate%total_length%0#0: uint64 = (len proof#0)
         let aggregate%array_trimmed%0#0: bytes = (substring3 proof#0 2u aggregate%total_length%0#0)
         let aggregate%bytes_offset%0#0: uint64 = (* idx#0 32u)
@@ -51,7 +52,7 @@ subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[3
         let computed#0: bytes = tmp%1#0
         goto block@3
     block@3: // for_footer_L22
-        let idx#0: uint64 = (+ idx#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L22
         return computed#0 proof#0

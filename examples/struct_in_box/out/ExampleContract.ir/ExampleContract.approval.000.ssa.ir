@@ -54,15 +54,16 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%16#0: uint64 = (+ index#0 1u)
         let tmp%17#0: uint64 = (* tmp%16#0 2u)
         (assert 2u) // Step cannot be zero
-        let head_offset#0: uint64 = tmp%17#0
+        let value_internal%0#0: uint64 = tmp%17#0
         goto block@1
     block@1: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L283
-        let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
+        let head_offset#0: uint64 = value_internal%0#1
+        let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)
         let tail_offset#0: uint64 = tmp%18#0
         let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#1: uint64 = tmp%19#0
@@ -71,11 +72,11 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%21#0: bytes = (itob tail_offset#2)
         let tmp%22#0: bytes = ((extract 6 2) tmp%21#0)
         let tail_offset_bytes#0: bytes = tmp%22#0
-        let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
         let new_head_and_tail#2: bytes = tmp%23#0
         goto block@3
     block@3: // for_footer_L282
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
     block@4: // after_for_L282
         return new_head_and_tail#1
@@ -110,29 +111,30 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%4#0: uint64 = (* length#0 2u)
         let tmp%5#0: uint64 = (* start_at_index#0 2u)
         (assert 2u) // Step cannot be zero
-        let head_offset#0: uint64 = tmp%5#0
+        let value_internal%0#0: uint64 = tmp%5#0
         goto block@1
     block@1: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%4#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L343
+        let head_offset#0: uint64 = value_internal%0#1
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
         let tail_offset_bytes#0: bytes = tmp%7#0
-        let tmp%8#0: bytes = (replace3 array_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let tmp%8#0: bytes = (replace3 array_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
         let array_head_and_tail#2: bytes = tmp%8#0
         let tmp%9#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
         let tmp%10#0: uint64 = (+ tmp%9#0 2u)
         let tmp%11#0: uint64 = (+ tail_offset#1 tmp%10#0)
         let tail_offset#2: uint64 = tmp%11#0
-        let tmp%12#0: uint64 = (+ head_offset#1 2u)
-        let head_offset#2: uint64 = tmp%12#0
+        let tmp%12#0: uint64 = (+ head_offset#0 2u)
+        let head_offset#1: uint64 = tmp%12#0
         goto block@3
     block@3: // for_footer_L342
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
     block@4: // after_for_L342
         return array_head_and_tail#1

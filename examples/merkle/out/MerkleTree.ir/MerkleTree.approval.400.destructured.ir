@@ -33,8 +33,9 @@ subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
         (assert maybe_exists%0#0) // check self.root exists
         let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
-        let idx#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         let computed#1: bytes = leaf#0
+        let idx#0: uint64 = value_internal%0#0
         goto block@2
     block@2: // for_header_L22
         let continue_looping%0#0: bool = (< idx#0 aggregate%array_length%0#0)
@@ -53,7 +54,8 @@ subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
         goto block@6
     block@6: // ternary_merge_L29
         let computed#1: bytes = (sha256 ternary_result%0#0)
-        let idx#0: uint64 = (+ idx#0 1u)
+        let value_internal%0#0: uint64 = (+ idx#0 1u)
+        let idx#0: uint64 = value_internal%0#0
         goto block@2
     block@7: // after_for_L22
         let tmp%0#1: bool = (== maybe_value%0#0 computed#1)

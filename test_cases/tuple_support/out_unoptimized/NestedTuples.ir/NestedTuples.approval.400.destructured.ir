@@ -1021,12 +1021,13 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
         let twm.arr#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L107
-        let continue_looping%0#0: bool = (< i#0 3u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
+        let i#0: uint64 = value_internal%0#0
         let aggregate%total_length%0#0: uint64 = (len twm.arr#0)
         let aggregate%array_trimmed%0#0: bytes = (substring3 twm.arr#0 2u aggregate%total_length%0#0)
         let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u)
@@ -1038,7 +1039,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         (assert tmp%3#0)
         goto block@3
     block@3: // for_footer_L107
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L107
         return twm.arr#0 0u 0x ""

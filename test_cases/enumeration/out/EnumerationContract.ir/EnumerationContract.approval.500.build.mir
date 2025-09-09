@@ -19,6 +19,8 @@ subroutine main:
         int 10                                                                                        10
         // enumeration/contract.py:38
         // for item in urange(start, stop, step):
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                     value_internal%0#0
         v-store item#0
         b main_for_header@2
 
@@ -57,7 +59,9 @@ subroutine main:
         int 5                                                                                         item#0,5
         // enumeration/contract.py:38
         // for item in urange(start, stop, step):
-        +                                                                                             item#0
+        +                                                                                             value_internal%0#0
+        v-store value_internal%0#0
+        v-load value_internal%0#0                                                                     value_internal%0#0
         v-store item#0
         b main_for_header@2
 
@@ -67,9 +71,13 @@ subroutine main:
         int 10                                                                                        10
         // enumeration/contract.py:42
         // for index, item in uenumerate(urange(start, stop, step)):
-        v-store item#0
+        v-store value_internal%1#0
         int 0                                                                                         0
+        v-store item_index_internal%0#0
+        v-load item_index_internal%0#0                                                                item_index_internal%0#0
         v-store index#0
+        v-load value_internal%1#0                                                                     value_internal%1#0
+        v-store item#0
         b main_for_header@6
 
     main_for_header@6:
@@ -113,12 +121,16 @@ subroutine main:
         int 5                                                                                         item#0,5
         // enumeration/contract.py:42
         // for index, item in uenumerate(urange(start, stop, step)):
-        +                                                                                             item#0
-        v-store item#0
+        +                                                                                             value_internal%1#0
+        v-store value_internal%1#0
         v-load index#0                                                                                index#0
         int 1                                                                                         index#0,1
-        +                                                                                             index#0
+        +                                                                                             item_index_internal%0#0
+        v-store item_index_internal%0#0
+        v-load item_index_internal%0#0                                                                item_index_internal%0#0
         v-store index#0
+        v-load value_internal%1#0                                                                     value_internal%1#0
+        v-store item#0
         b main_for_header@6
 
     main_after_for@9:
@@ -165,7 +177,7 @@ subroutine main:
         byte 0x486f77                                                                                 0x486f77
         // enumeration/contract.py:56
         // for item in tup:
-        v-store item#6
+        v-store item#2
         b main_for_body@12
 
     main_for_body@12:
@@ -178,7 +190,7 @@ subroutine main:
         // enumeration/contract.py:58
         // item_concat += item
         v-load item_concat#2                                                                          item_concat#2
-        v-load item#6                                                                                 item_concat#2,item#6
+        v-load item#2                                                                                 item_concat#2,item#2
         concat                                                                                        item_concat#2
         v-store item_concat#2
         // enumeration/contract.py:56
@@ -194,7 +206,7 @@ subroutine main:
         byte 0x4e6f77                                                                                 0x4e6f77
         // enumeration/contract.py:56
         // for item in tup:
-        v-store item#6
+        v-store item#2
         b main_for_body@12
 
     main_for_header_2@15:
@@ -205,7 +217,7 @@ subroutine main:
         byte 0x42726f776e                                                                             0x42726f776e
         // enumeration/contract.py:56
         // for item in tup:
-        v-store item#6
+        v-store item#2
         b main_for_body@12
 
     main_for_header_3@16:
@@ -216,7 +228,7 @@ subroutine main:
         byte 0x436f77                                                                                 0x436f77
         // enumeration/contract.py:56
         // for item in tup:
-        v-store item#6
+        v-store item#2
         b main_for_body@12
 
     main_after_for@17:
@@ -225,7 +237,7 @@ subroutine main:
         byte 0x486f77                                                                                 0x486f77
         // enumeration/contract.py:59
         // for index, item in uenumerate(tup):
-        v-store item#6
+        v-store item#2
         int 0                                                                                         0
         v-store index#0
         b main_for_body@18
@@ -240,7 +252,7 @@ subroutine main:
         // enumeration/contract.py:61
         // item_concat += item
         v-load item_concat#2                                                                          item_concat#2
-        v-load item#6                                                                                 item_concat#2,item#6
+        v-load item#2                                                                                 item_concat#2,item#2
         concat                                                                                        item_concat#2
         v-store item_concat#2
         // enumeration/contract.py:62
@@ -260,7 +272,7 @@ subroutine main:
         byte 0x4e6f77                                                                                 0x4e6f77
         // enumeration/contract.py:59
         // for index, item in uenumerate(tup):
-        v-store item#6
+        v-store item#2
         int 1                                                                                         1
         v-store index#0
         b main_for_body@18
@@ -271,7 +283,7 @@ subroutine main:
         byte 0x42726f776e                                                                             0x42726f776e
         // enumeration/contract.py:59
         // for index, item in uenumerate(tup):
-        v-store item#6
+        v-store item#2
         int 2                                                                                         2
         v-store index#0
         b main_for_body@18
@@ -282,7 +294,7 @@ subroutine main:
         byte 0x436f77                                                                                 0x436f77
         // enumeration/contract.py:59
         // for index, item in uenumerate(tup):
-        v-store item#6
+        v-store item#2
         int 3                                                                                         3
         v-store index#0
         b main_for_body@18
@@ -346,8 +358,8 @@ subroutine main:
         // for item in bytes_:
         v-load item_index_internal%0#0                                                                0x61626364656667,item_index_internal%0#0
         int 1                                                                                         0x61626364656667,item_index_internal%0#0,1
-        extract3                                                                                      item#6
-        v-store item#6
+        extract3                                                                                      item#2
+        v-store item#2
         // enumeration/contract.py:74
         // iteration_count += 1
         v-load iteration_count#3                                                                      iteration_count#3
@@ -357,7 +369,7 @@ subroutine main:
         // enumeration/contract.py:75
         // item_concat += item
         v-load item_concat#2                                                                          item_concat#2
-        v-load item#6                                                                                 item_concat#2,item#6
+        v-load item#2                                                                                 item_concat#2,item#2
         concat                                                                                        item_concat#2
         v-store item_concat#2
         v-load item_index_internal%0#0                                                                item_index_internal%0#0
@@ -391,8 +403,8 @@ subroutine main:
         // for index, item in uenumerate(bytes_):
         v-load index#0                                                                                0x61626364656667,index#0
         int 1                                                                                         0x61626364656667,index#0,1
-        extract3                                                                                      item#6
-        v-store item#6
+        extract3                                                                                      item#2
+        v-store item#2
         // enumeration/contract.py:77
         // iteration_count += 1
         v-load iteration_count#3                                                                      iteration_count#3
@@ -402,7 +414,7 @@ subroutine main:
         // enumeration/contract.py:78
         // item_concat += item
         v-load item_concat#2                                                                          item_concat#2
-        v-load item#6                                                                                 item_concat#2,item#6
+        v-load item#2                                                                                 item_concat#2,item#2
         concat                                                                                        item_concat#2
         v-store item_concat#2
         // enumeration/contract.py:79

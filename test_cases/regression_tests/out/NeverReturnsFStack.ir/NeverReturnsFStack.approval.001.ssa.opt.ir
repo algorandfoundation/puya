@@ -40,24 +40,24 @@ subroutine test_cases.regression_tests.never_returns.invoke_with_fstack() -> uin
         let x#4: uint64 = φ(x#0 <- block@0, x#1 <- block@1)
         let one#0: uint64 = 0u
         let tmp%2#0: uint64 = (txn NumAppArgs)
-        let idx#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@3
     block@3: // for_header_L30
-        let idx#1: uint64 = φ(idx#0 <- block@2, idx#2 <- block@6)
+        let idx#0: uint64 = φ(value_internal%0#0 <- block@2, value_internal%0#2 <- block@6)
         let x#2: uint64 = φ(x#4 <- block@2, x#3 <- block@6)
         let one#1: uint64 = φ(one#0 <- block@2, one#3 <- block@6)
-        let continue_looping%0#0: bool = (< idx#1 tmp%2#0)
+        let continue_looping%0#0: bool = (< idx#0 tmp%2#0)
         goto continue_looping%0#0 ? block@4 : block@8
     block@4: // for_body_L31
-        let x#3: uint64 = (+ x#2 idx#1)
-        let tmp%4#0: bool = (! idx#1)
-        goto idx#1 ? block@6 : block@5
+        let x#3: uint64 = (+ x#2 idx#0)
+        let tmp%4#0: bool = (! idx#0)
+        goto idx#0 ? block@6 : block@5
     block@5: // if_body_L33
         let one#2: uint64 = (+ one#1 1u)
         goto block@6
     block@6: // after_if_else_L32
         let one#3: uint64 = φ(one#1 <- block@4, one#2 <- block@5)
-        let idx#2: uint64 = (+ idx#1 1u)
+        let value_internal%0#2: uint64 = (+ idx#0 1u)
         goto block@3
     block@8: // after_for_L30
         let tmp%6#0: bytes = "you won't see this"
