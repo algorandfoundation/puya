@@ -86,8 +86,8 @@ class _LogReporter(ErrorFormatter):
             resolved_path = Path(error.file_path).resolve()
             location = SourceLocation(
                 file=resolved_path,
-                line=error.line,
-                column=error.column,
+                line=max(error.line, 1),
+                column=error.column if error.column >= 0 else None,
             )
             message = error.message
             if error.errorcode and (
