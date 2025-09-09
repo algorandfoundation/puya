@@ -294,12 +294,13 @@ subroutine main:
         byte "Ping Pong"                                                                      result#0,"Ping Pong"
         ==                                                                                    tmp%32#0
         assert
-        int 2                                                                                 2
+        int 2                                                                                 tmp%1#0
+        byte 0x0004000a000450696e67000450696e67                                               tmp%1#0,0x0004000a000450696e67000450696e67
+        v-store array_head_and_tail#1                                                         tmp%1#0
+        int 10                                                                                tmp%1#0,10
+        v-store tail_offset#0                                                                 tmp%1#0
+        l-load tmp%1#0 0                                                                      tmp%1#0
         v-store head_offset#0
-        byte 0x0004000a000450696e67000450696e67                                               0x0004000a000450696e67000450696e67
-        v-store array_head_and_tail#1
-        int 10                                                                                10
-        v-store tail_offset#0
         b main_for_header@32
 
     main_for_header@32:
@@ -331,7 +332,7 @@ subroutine main:
         v-store tail_offset#0                                                                 head_offset#0
         l-load head_offset#0 0                                                                head_offset#0
         int 2                                                                                 head_offset#0,2
-        +                                                                                     head_offset#0
+        +                                                                                     value_internal%0#2
         v-store head_offset#0
         b main_for_header@32
 

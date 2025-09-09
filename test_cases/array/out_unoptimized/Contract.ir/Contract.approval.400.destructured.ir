@@ -224,12 +224,13 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
         store(slot%0#0, 0x)
         let arr#0: Encoded(uint64[])* = slot%0#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L258
-        let continue_looping%0#0: bool = (< i#0 5u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L259
+        let i#0: uint64 = value_internal%0#0
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
@@ -240,7 +241,7 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
         store(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L258
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L258
         return arr#0
@@ -284,12 +285,13 @@ subroutine test_cases.array.uint64.return_ref(arr: Encoded(uint64[])*, arr2: Enc
 subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> void:
     block@0: // L277
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L279
-        let continue_looping%0#0: bool = (< i#0 x#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L280
+        let i#0: uint64 = value_internal%0#0
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
@@ -300,7 +302,7 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
         store(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L279
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L279
         return 
@@ -308,10 +310,10 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
 subroutine test_cases.array.uint64.pop_x(arr: Encoded(uint64[])*, x: uint64, expected: uint64) -> void:
     block@0: // L283
         (assert 1u) // Step cannot be zero
-        let _i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L285
-        let continue_looping%0#0: bool = (< _i#0 x#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L286
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
@@ -329,7 +331,7 @@ subroutine test_cases.array.uint64.pop_x(arr: Encoded(uint64[])*, x: uint64, exp
         let expected#0: uint64 = tmp%2#0
         goto block@3
     block@3: // for_footer_L285
-        let _i#0: uint64 = (+ _i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L285
         return 
@@ -712,12 +714,13 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long() -> void:
         store(slot%0#0, 0x)
         let array#0: Encoded(uint64[])* = slot%0#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L78
-        let continue_looping%0#0: bool = (< i#0 512u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 512u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L79
+        let i#0: uint64 = value_internal%0#0
         let slot_contents%0#0: Encoded(uint64[]) = load(array#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
@@ -728,7 +731,7 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long() -> void:
         store(array#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L78
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L78
         let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(array#0)
@@ -753,12 +756,13 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         store(slot%0#0, 0x)
         let array#0: Encoded(uint64[])* = slot%0#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L87
-        let continue_looping%0#0: bool = (< i#0 5u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L88
+        let i#0: uint64 = value_internal%0#0
         let slot_contents%0#0: Encoded(uint64[]) = load(array#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
@@ -769,7 +773,7 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         store(array#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L87
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L87
         let slot%1#0: Encoded(uint64[])* = new()
@@ -1039,10 +1043,10 @@ subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursag
 subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
     block@0: // L134
         (assert 1u) // Step cannot be zero
-        let _i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L136
-        let continue_looping%0#0: bool = (< _i#0 num#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 num#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L137
         let slot%0#0: Encoded(uint64[])* = new()
@@ -1051,7 +1055,7 @@ subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> voi
         test_cases.array.uint64.add_x(alloc_test#0, 1u)
         goto block@3
     block@3: // for_footer_L136
-        let _i#0: uint64 = (+ _i#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L136
         return 
@@ -1062,12 +1066,13 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         store(slot%0#0, 0x)
         let arr#0: Encoded(uint64[])* = slot%0#0
         (assert 1u) // Step cannot be zero
-        let val#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L143
-        let continue_looping%0#0: bool = (< val#0 5u)
+        let continue_looping%0#0: bool = (< value_internal%0#0 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L144
+        let val#0: uint64 = value_internal%0#0
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob val#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
@@ -1078,7 +1083,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         store(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L143
-        let val#0: uint64 = (+ val#0 1u)
+        let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L143
         let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
@@ -1169,12 +1174,13 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         store(slot%1#0, 0x)
         let native_arr#0: Encoded(uint64[])* = slot%1#0
         (assert 1u) // Step cannot be zero
-        let i#0: uint64 = 0u
+        let value_internal%1#0: uint64 = 0u
         goto block@17
     block@17: // for_header_L164
-        let continue_looping%4#0: bool = (< i#0 5u)
+        let continue_looping%4#0: bool = (< value_internal%1#0 5u)
         goto continue_looping%4#0 ? block@18 : block@20
     block@18: // for_body_L165
+        let i#0: uint64 = value_internal%1#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
         let tmp%6#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%1#0
@@ -1200,7 +1206,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         store(native_arr#0, concat%2#0)
         goto block@19
     block@19: // for_footer_L164
-        let i#0: uint64 = (+ i#0 1u)
+        let value_internal%1#0: uint64 = (+ value_internal%1#0 1u)
         goto block@17
     block@20: // after_for_L164
         let slot_contents%5#0: Encoded(uint64[]) = load(native_arr#0)

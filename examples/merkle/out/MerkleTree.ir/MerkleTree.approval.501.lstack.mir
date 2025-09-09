@@ -89,9 +89,11 @@ subroutine verify:
         extract_uint16                                                                         leaf#0,aggregate%array_length%0#0
         v-store aggregate%array_length%0#0                                                     leaf#0
         int 0                                                                                  leaf#0,0
-        v-store idx#0                                                                          leaf#0
-        l-load leaf#0 0                                                                        leaf#0
-        v-store computed#1
+        l-store value_internal%0#0 0                                                           leaf#0,value_internal%0#0
+        l-load leaf#0 1                                                                        value_internal%0#0,leaf#0
+        v-store computed#1                                                                     value_internal%0#0
+        l-load value_internal%0#0 0                                                            value_internal%0#0
+        v-store idx#0
         b verify_for_header@2
 
     verify_for_header@2:
@@ -153,7 +155,8 @@ subroutine verify:
         // for idx in urange(proof.length):
         v-load idx#0                                                                           idx#0
         int 1                                                                                  idx#0,1
-        +                                                                                      idx#0
+        +                                                                                      value_internal%0#0
+        l-load value_internal%0#0 0                                                            value_internal%0#0
         v-store idx#0
         b verify_for_header@2
 

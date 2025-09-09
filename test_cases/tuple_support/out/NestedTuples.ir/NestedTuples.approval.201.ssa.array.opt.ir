@@ -238,19 +238,19 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]() -> void:
     block@0: // L95
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L107
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 3u)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L108
-        let aggregate%bytes_offset%0#0: uint64 = (* i#1 8u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 0x000000000000000000000000000000010000000000000002 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%2#1: biguint = (itob i#1)
+        let tmp%2#1: biguint = (itob i#0)
         let tmp%3#1: bool = (b== aggregate%encoded_element%0#0 tmp%2#1)
         (assert tmp%3#1)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L107
         (log 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000)

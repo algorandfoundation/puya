@@ -98,16 +98,16 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let (last_point.x#0: Encoded(uint64), last_point.y#0: uint64, last_point.other.a#0: uint64, last_point.other.b#0: uint64, last_point.other.c#0: account, last_point.other.d#0: Encoded(uint64,uint64), last_point.other.e#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%0#0)
         let length#0: uint64 = 0u
         let tmp%0#0: uint64 = array_len(path#0)
-        let point_idx#0: uint64 = 1u
+        let value_internal%0#0: uint64 = 1u
         goto block@1
     block@1: // for_header_L169
-        let point_idx#1: uint64 = φ(point_idx#0 <- block@0, point_idx#2 <- block@8)
+        let point_idx#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@8)
         let length#3: uint64 = φ(length#0 <- block@0, length#4 <- block@8)
-        let continue_looping%0#0: bool = (< point_idx#1 tmp%0#0)
+        let continue_looping%0#0: bool = (< point_idx#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@10
     block@2: // for_body_L170
         let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
-        let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#0, point_idx#1)
+        let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#0, point_idx#0)
         let (point.x#0: Encoded(uint64), point.y#0: uint64, point.other.a#0: uint64, point.other.b#0: uint64, point.other.c#0: account, point.other.d#0: Encoded(uint64,uint64), point.other.e#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%1#0)
         let tmp%1#0: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#0 ? block@3 : block@4
@@ -138,7 +138,7 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let tmp%13#0: uint64 = (+ tmp%11#0 tmp%12#0)
         let tmp%14#0: uint64 = (sqrt tmp%13#0)
         let length#4: uint64 = (+ length#3 tmp%14#0)
-        let point_idx#2: uint64 = (+ point_idx#1 1u)
+        let value_internal%0#2: uint64 = (+ point_idx#0 1u)
         goto block@1
     block@10: // after_for_L169
         return length#3
@@ -158,32 +158,32 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let encoded_array%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = bytes_encode<(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]>(0x0000000000000000, 0u, tmp%0#1, tmp%1#1, tmp%2#1, tmp%3#1, tmp%4#1, x1#0, y1#0, tmp%5#0, tmp%6#0, tmp%7#0, tmp%8#0, tmp%9#0, x2#0, y2#0, tmp%10#0, tmp%11#0, tmp%12#0, tmp%13#0, tmp%14#0)
         let path#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[])* = new()
         store(path#0, encoded_array%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L49
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 3u)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, tmp%15#0 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L50
         let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
-        let array_item%0#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%0#0, i#1)
+        let array_item%0#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%0#0, i#0)
         let (values%0#0: Encoded(uint64), values%1#0: uint64, values%2#0: uint64, values%3#0: uint64, values%4#0: account, values%5#0: Encoded(uint64,uint64), values%6#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%0#0)
-        let i#2: uint64 = (+ i#1 1u)
-        let tmp%16#0: bool = (== values%3#0 i#2)
+        let tmp%15#0: uint64 = (+ i#0 1u)
+        let tmp%16#0: bool = (== values%3#0 tmp%15#0)
         (assert tmp%16#0)
         let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
-        let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#0, i#1)
+        let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#0, i#0)
         let (values%7#0: Encoded(uint64), values%8#0: uint64, values%9#0: uint64, values%10#0: uint64, values%11#0: account, values%12#0: Encoded(uint64,uint64), values%13#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%1#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(values%12#0, 0)
-        let tmp%17#0: uint64 = (+ i#1 2u)
+        let tmp%17#0: uint64 = (+ i#0 2u)
         let tmp%18#0: biguint = (itob tmp%17#0)
         let tmp%19#0: bool = (b== tuple_item%0#0 tmp%18#0)
         (assert tmp%19#0)
         let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
-        let array_item%2#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%2#0, i#1)
+        let array_item%2#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%2#0, i#0)
         let (values%14#0: Encoded(uint64), values%15#0: uint64, values%16#0: uint64, values%17#0: uint64, values%18#0: account, values%19#0: Encoded(uint64,uint64), values%20#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%2#0)
         let tuple_item%1#0: Encoded(uint64) = extract_value(values%19#0, 1)
-        let tmp%22#0: uint64 = (* i#2 i#2)
+        let tmp%22#0: uint64 = (* tmp%15#0 tmp%15#0)
         let tmp%23#0: biguint = (itob tmp%22#0)
         let tmp%24#0: bool = (b== tuple_item%1#0 tmp%23#0)
         (assert tmp%24#0)
@@ -261,20 +261,20 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array[routi
         let tmp%1#1: bool = (! tmp%0#1)
         (assert tmp%1#1)
         let tmp%2#1: uint64 = (+ length#0 1u)
-        let i#0: uint64 = 1u
+        let value_internal%0#0: uint64 = 1u
         goto block@2
     block@2: // for_header_L80
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 tmp%2#1)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 tmp%2#1)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L81
-        let tmp%3#1: uint64 = (% i#1 2u)
+        let tmp%3#1: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#1)
         let slot_contents%0#0: Encoded(bool8[]) = load(arr#0)
         let tmp%5#0: Encoded(bool8[]) = bytes_encode<bool8[]>(tmp%4#0)
         let concat%0#0: Encoded(bool8[]) = (concat slot_contents%0#0 tmp%5#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L80
         let tmp%6#0: uint64 = array_len(arr#0)
@@ -329,19 +329,19 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[
         let tmp%1#1: bool = (! tmp%0#1)
         (assert tmp%1#1)
         let tmp%2#1: uint64 = (+ length#0 1u)
-        let i#0: uint64 = 1u
+        let value_internal%0#0: uint64 = 1u
         goto block@2
     block@2: // for_header_L99
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 tmp%2#1)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 tmp%2#1)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L100
-        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(i#1)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(i#0)
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let tmp%4#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%3#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%4#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L99
         let tmp%5#0: uint64 = array_len(arr#0)

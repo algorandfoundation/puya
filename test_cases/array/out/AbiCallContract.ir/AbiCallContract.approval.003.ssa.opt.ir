@@ -42,37 +42,37 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let new_head_and_tail#0: bytes = bytes_encode<(len+uint64[])[]>(arr#0)
         let new_head#0: bytes = 0x
         let tmp%1#0: uint64 = (* array_items_count#0 2u)
-        let head_offset#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L211
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let head_offset#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%1#0)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L212
-        let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
+        let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let tmp%3#0: uint64 = (+ 2u item_offset#0)
         let tmp%4#0: bytes = (itob tmp%3#0)
         let tmp%5#0: bytes = ((extract 6 2) tmp%4#0)
         let new_head#2: bytes = (concat new_head#1 tmp%5#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@2
     block@4: // after_for_L211
         let head_and_tail_length#0: uint64 = (len array_head_and_tail#0)
-        let head_offset#3: uint64 = 0u
+        let value_internal%1#0: uint64 = 0u
         goto block@5
     block@5: // for_header_L216
-        let head_offset#4: uint64 = φ(head_offset#3 <- block@4, head_offset#5 <- block@6)
+        let head_offset#1: uint64 = φ(value_internal%1#0 <- block@4, value_internal%1#2 <- block@6)
         let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@6)
-        let continue_looping%1#0: bool = (< head_offset#4 2u)
+        let continue_looping%1#0: bool = (< head_offset#1 2u)
         goto continue_looping%1#0 ? block@6 : block@7
     block@6: // for_body_L217
-        let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
+        let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#1)
         let tmp%10#0: uint64 = (+ head_and_tail_length#0 item_offset#1)
         let tmp%11#0: bytes = (itob tmp%10#0)
         let tmp%12#0: bytes = ((extract 6 2) tmp%11#0)
         let new_head#4: bytes = (concat new_head#3 tmp%12#0)
-        let head_offset#5: uint64 = (+ head_offset#4 2u)
+        let value_internal%1#2: uint64 = (+ head_offset#1 2u)
         goto block@5
     block@7: // after_for_L216
         let tmp%14#0: uint64 = (+ array_items_count#0 1u)

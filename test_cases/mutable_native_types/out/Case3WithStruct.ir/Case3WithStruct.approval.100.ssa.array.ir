@@ -61,8 +61,8 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         let array_head_and_tail#0: bytes = ((extract 2 0) array#0)
         let tmp%0#1: bool = (< index#0 array_length#0)
         (assert tmp%0#1) // Index out of bounds
-        let head_offset#0: uint64 = (* index#0 2u)
-        let offset_for_index#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%1#1: uint64 = (* index#0 2u)
+        let offset_for_index#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#1)
         let old_item_length#0: uint64 = (extract_uint16 array_head_and_tail#0 offset_for_index#0)
         let tmp%4#1: uint64 = (+ offset_for_index#0 old_item_length#0)
         let old_item_end#0: uint64 = (+ tmp%4#1 2u)
@@ -72,23 +72,23 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         let tmp%9#0: bytes = (substring3 array_head_and_tail#0 old_item_end#0 tmp%8#0)
         let array_head_and_tail#1: bytes = (concat tmp%7#0 tmp%9#0)
         let tmp%0#2: uint64 = (* array_length#0 2u)
-        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#1 head_offset#0)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#1 tmp%1#1)
         let tail_offset#0: uint64 = (select tmp%0#2 tmp%2#0 index#0)
         goto block@2
     block@2: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%1#1 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#1 <- block@0, array_head_and_tail#3 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%0#2)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#2)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L343
         let tmp%6#1: bytes = (itob tail_offset#1)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%6#1)
-        let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#1 tail_offset_bytes#0)
+        let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#0 tail_offset_bytes#0)
         let tmp%9#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
         let tmp%10#1: uint64 = (+ tmp%9#1 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#1)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@2
     block@4: // after_for_L342
         let tmp%4#0: bytes = (concat size_b#0 array_head_and_tail#2)
@@ -102,8 +102,8 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%0#1: uint64 = (* index#0 2u)
         let original_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#1)
         let tmp%2#1: uint64 = (+ index#0 1u)
-        let head_offset#0: uint64 = (* tmp%2#1 2u)
-        let next_item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%3#1: uint64 = (* tmp%2#1 2u)
+        let next_item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%3#1)
         let end_of_tail#0: uint64 = (len array_head_and_tail#0)
         let tmp%6#0: uint64 = (- array_length#0 index#0)
         let is_before_end#0: uint64 = (- tmp%6#0 1u)
@@ -117,18 +117,18 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%15#0: uint64 = (* array_length#0 2u)
         goto block@2
     block@2: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%3#1 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L283
-        let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
+        let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)
         let tail_offset#1: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#2: uint64 = (- tail_offset#1 original_item_length#0)
         let tmp%21#0: bytes = (itob tail_offset#2)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%21#0)
-        let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@2
     block@5: // after_for_L282
         let tmp%4#0: bytes = (concat size_b#0 new_head_and_tail#1)
@@ -139,8 +139,8 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%0#0: uint64 = (* index#0 2u)
         let original_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let tmp%2#0: uint64 = (+ index#0 1u)
-        let head_offset#0: uint64 = (* tmp%2#0 2u)
-        let next_item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%3#0: uint64 = (* tmp%2#0 2u)
+        let next_item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%3#0)
         let end_of_tail#0: uint64 = (len array_head_and_tail#0)
         let tmp%6#0: uint64 = (- array_length#0 index#0)
         let is_before_end#0: uint64 = (- tmp%6#0 1u)
@@ -154,18 +154,18 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%15#0: uint64 = (* array_length#0 2u)
         goto block@1
     block@1: // for_header_L282
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%3#0 <- block@0, value_internal%0#2 <- block@2)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L283
-        let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
+        let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)
         let tail_offset#1: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#2: uint64 = (- tail_offset#1 original_item_length#0)
         let tmp%21#0: bytes = (itob tail_offset#2)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%21#0)
-        let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@1
     block@4: // after_for_L282
         return new_head_and_tail#1
@@ -174,8 +174,8 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
     block@0: // L291
         let tmp%0#0: bool = (< index#0 array_length#0)
         (assert tmp%0#0) // Index out of bounds
-        let head_offset#0: uint64 = (* index#0 2u)
-        let offset_for_index#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%1#0: uint64 = (* index#0 2u)
+        let offset_for_index#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let old_item_length#0: uint64 = (extract_uint16 array_head_and_tail#0 offset_for_index#0)
         let tmp%4#0: uint64 = (+ offset_for_index#0 old_item_length#0)
         let old_item_end#0: uint64 = (+ tmp%4#0 2u)
@@ -185,23 +185,23 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         let tmp%9#0: bytes = (substring3 array_head_and_tail#0 old_item_end#0 tmp%8#0)
         let array_head_and_tail#1: bytes = (concat tmp%7#0 tmp%9#0)
         let tmp%0#1: uint64 = (* array_length#0 2u)
-        let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#1 head_offset#0)
+        let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#1 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#1 tmp%2#1 index#0)
         goto block@2
     block@2: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let head_offset#0: uint64 = φ(tmp%1#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#1 <- block@0, array_head_and_tail#3 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%0#1)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#1)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L343
         let tmp%6#1: bytes = (itob tail_offset#1)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%6#1)
-        let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#1 tail_offset_bytes#0)
+        let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#0 tail_offset_bytes#0)
         let tmp%9#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
         let tmp%10#1: uint64 = (+ tmp%9#1 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#1)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@2
     block@5: // after_for_L342
         return array_head_and_tail#2
@@ -209,24 +209,24 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
 subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
     block@0: // L320
         let tmp%0#0: uint64 = (* length#0 2u)
-        let head_offset#0: uint64 = (* start_at_index#0 2u)
-        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%1#0: uint64 = (* start_at_index#0 2u)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
         goto block@1
     block@1: // for_header_L342
-        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@2)
+        let head_offset#0: uint64 = φ(tmp%1#0 <- block@0, value_internal%0#2 <- block@2)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@2)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%0#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L343
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%6#0)
-        let array_head_and_tail#2: bytes = (replace3 array_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let array_head_and_tail#2: bytes = (replace3 array_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
         let tmp%9#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
         let tmp%10#0: uint64 = (+ tmp%9#0 2u)
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%10#0)
-        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@1
     block@4: // after_for_L342
         return array_head_and_tail#1
@@ -291,29 +291,29 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let total#0: uint64 = 0u
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L64
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let total#1: uint64 = φ(total#0 <- block@0, total#3 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L65
         let box%box_extract%3#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
-        let aggregate%bytes_offset%0#0: uint64 = (* i#1 16u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%3#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let aggregate%extract%0#0: bytes = (extract3 aggregate%encoded_element%0#0 0u 8u)
         let tuple_item%2#0: Encoded(uint64) = aggregate%extract%0#0
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let total#2: uint64 = (+ total#1 values%1#0)
         let box%box_extract%4#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
-        let aggregate%bytes_offset%1#0: uint64 = (* i#1 16u)
+        let aggregate%bytes_offset%1#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%1#0: bytes = (extract3 box%box_extract%4#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let aggregate%extract%1#0: bytes = (extract3 aggregate%encoded_element%1#0 8u 8u)
         let tuple_item%3#0: Encoded(uint64) = aggregate%extract%1#0
         let values%2#0: uint64 = (btoi tuple_item%3#0)
         let total#3: uint64 = (+ total#2 values%2#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L64
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob total#1)
@@ -328,20 +328,20 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let tups#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
         let tmp%0#0: uint64 = aggregate%array_length%0#0
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L72
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 tmp%0#0)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 tmp%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L73
         let aggregate%total_length%0#0: uint64 = (len tups#0)
         let aggregate%array_trimmed%0#0: bytes = (substring3 tups#0 2u aggregate%total_length%0#0)
-        let aggregate%bytes_offset%0#0: uint64 = (* i#1 16u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L72
         exit 1u
@@ -349,18 +349,18 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
 subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups[routing]() -> void:
     block@0: // L75
         let tups#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L77
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 3u)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L78
-        let aggregate%bytes_offset%0#0: uint64 = (* i#1 16u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 tups#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L77
         exit 1u
@@ -371,19 +371,19 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L83
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L84
-        let box%index_ok%0#0: bool = (< i#1 8u)
+        let box%index_ok%0#0: bool = (< i#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
-        let box%element_offset%0#0: uint64 = (* i#1 16u)
+        let box%element_offset%0#0: uint64 = (* i#0 16u)
         let box%offset%2#0: uint64 = (+ 8u box%element_offset%0#0)
         (box_replace "tup_bag" box%offset%2#0 reinterpret_Encoded(uint64)%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L83
         exit 1u
@@ -394,19 +394,19 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L89
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L90
-        let box%index_ok%0#0: bool = (< i#1 8u)
+        let box%index_ok%0#0: bool = (< i#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
-        let box%element_offset%0#0: uint64 = (* i#1 16u)
+        let box%element_offset%0#0: uint64 = (* i#0 16u)
         let box%offset%3#0: uint64 = (+ box%element_offset%0#0 16u)
         (box_replace "tup_bag" box%offset%3#0 reinterpret_Encoded(uint64)%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L89
         exit 1u
@@ -451,16 +451,16 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let result#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%0#0
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%1#0)
-        let i#0: uint64 = 0u
+        let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L110
-        let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@3)
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let result#1: Encoded(len+(uint64,uint64)[]) = φ(result#0 <- block@0, result#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L111
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
-        let aggregate%bytes_offset%0#0: uint64 = (* i#1 16u)
+        let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let aggregate%head%0#0: bytes = (concat 0x array_item%0#0)
@@ -472,7 +472,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let result#2: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let i#2: uint64 = (+ i#1 1u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2
     block@5: // after_for_L110
         let tmp%1#0: bytes = (concat 0x151f7c75 result#1)

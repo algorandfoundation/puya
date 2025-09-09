@@ -349,6 +349,8 @@ subroutine test_array:
         // array/static_size.py:49
         // for i in urange(3):
         int 0                                                                                     0
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store i#0
         b test_array_for_header@2
 
@@ -381,43 +383,43 @@ subroutine test_array:
         extract_uint64                                                                            i#0,aggregate%extract%2#0,aggregate%item1%1#0
         l-load-copy i#0 2                                                                         i#0,aggregate%extract%2#0,aggregate%item1%1#0,i#0 (copy)
         int 1                                                                                     i#0,aggregate%extract%2#0,aggregate%item1%1#0,i#0 (copy),1
-        +                                                                                         i#0,aggregate%extract%2#0,aggregate%item1%1#0,i#2
-        l-load aggregate%item1%1#0 1                                                              i#0,aggregate%extract%2#0,i#2,aggregate%item1%1#0
-        l-load-copy i#2 1                                                                         i#0,aggregate%extract%2#0,i#2,aggregate%item1%1#0,i#2 (copy)
-        ==                                                                                        i#0,aggregate%extract%2#0,i#2,tmp%16#0
-        l-load tmp%16#0 0                                                                         i#0,aggregate%extract%2#0,i#2,tmp%16#0
-        assert                                                                                    i#0,aggregate%extract%2#0,i#2
+        +                                                                                         i#0,aggregate%extract%2#0,aggregate%item1%1#0,tmp%15#0
+        l-load aggregate%item1%1#0 1                                                              i#0,aggregate%extract%2#0,tmp%15#0,aggregate%item1%1#0
+        l-load-copy tmp%15#0 1                                                                    i#0,aggregate%extract%2#0,tmp%15#0,aggregate%item1%1#0,tmp%15#0 (copy)
+        ==                                                                                        i#0,aggregate%extract%2#0,tmp%15#0,tmp%16#0
+        l-load tmp%16#0 0                                                                         i#0,aggregate%extract%2#0,tmp%15#0,tmp%16#0
+        assert                                                                                    i#0,aggregate%extract%2#0,tmp%15#0
         // array/static_size.py:51
         // assert path[i].other.d.foo == i + 2
-        l-load aggregate%extract%2#0 1                                                            i#0,i#2,aggregate%extract%2#0
-        extract 48 16                                                                             i#0,i#2,aggregate%extract%14#0
-        l-load-copy aggregate%extract%14#0 0                                                      i#0,i#2,aggregate%extract%14#0,aggregate%extract%14#0 (copy)
-        extract 0 8                                                                               i#0,i#2,aggregate%extract%14#0,aggregate%extract%16#0
-        l-load i#0 3                                                                              i#2,aggregate%extract%14#0,aggregate%extract%16#0,i#0
-        int 2                                                                                     i#2,aggregate%extract%14#0,aggregate%extract%16#0,i#0,2
-        +                                                                                         i#2,aggregate%extract%14#0,aggregate%extract%16#0,tmp%17#0
-        l-load tmp%17#0 0                                                                         i#2,aggregate%extract%14#0,aggregate%extract%16#0,tmp%17#0
-        itob                                                                                      i#2,aggregate%extract%14#0,aggregate%extract%16#0,tmp%18#0
-        l-load aggregate%extract%16#0 1                                                           i#2,aggregate%extract%14#0,tmp%18#0,aggregate%extract%16#0
-        l-load tmp%18#0 1                                                                         i#2,aggregate%extract%14#0,aggregate%extract%16#0,tmp%18#0
-        b==                                                                                       i#2,aggregate%extract%14#0,tmp%19#0
-        l-load tmp%19#0 0                                                                         i#2,aggregate%extract%14#0,tmp%19#0
-        assert                                                                                    i#2,aggregate%extract%14#0
+        l-load aggregate%extract%2#0 1                                                            i#0,tmp%15#0,aggregate%extract%2#0
+        extract 48 16                                                                             i#0,tmp%15#0,aggregate%extract%14#0
+        l-load-copy aggregate%extract%14#0 0                                                      i#0,tmp%15#0,aggregate%extract%14#0,aggregate%extract%14#0 (copy)
+        extract 0 8                                                                               i#0,tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0
+        l-load i#0 3                                                                              tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,i#0
+        int 2                                                                                     tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,i#0,2
+        +                                                                                         tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,tmp%17#0
+        l-load tmp%17#0 0                                                                         tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,tmp%17#0
+        itob                                                                                      tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,tmp%18#0
+        l-load aggregate%extract%16#0 1                                                           tmp%15#0,aggregate%extract%14#0,tmp%18#0,aggregate%extract%16#0
+        l-load tmp%18#0 1                                                                         tmp%15#0,aggregate%extract%14#0,aggregate%extract%16#0,tmp%18#0
+        b==                                                                                       tmp%15#0,aggregate%extract%14#0,tmp%19#0
+        l-load tmp%19#0 0                                                                         tmp%15#0,aggregate%extract%14#0,tmp%19#0
+        assert                                                                                    tmp%15#0,aggregate%extract%14#0
         // array/static_size.py:52
         // assert path[i].other.d.bar == (i + 1) * (i + 1)
-        l-load aggregate%extract%14#0 0                                                           i#2,aggregate%extract%14#0
-        extract 8 8                                                                               i#2,aggregate%extract%25#0
-        l-load-copy i#2 1                                                                         i#2,aggregate%extract%25#0,i#2 (copy)
-        l-load-copy i#2 2                                                                         i#2,aggregate%extract%25#0,i#2 (copy),i#2 (copy)
-        *                                                                                         i#2,aggregate%extract%25#0,tmp%22#0
-        l-load tmp%22#0 0                                                                         i#2,aggregate%extract%25#0,tmp%22#0
-        itob                                                                                      i#2,aggregate%extract%25#0,tmp%23#0
-        l-load aggregate%extract%25#0 1                                                           i#2,tmp%23#0,aggregate%extract%25#0
-        l-load tmp%23#0 1                                                                         i#2,aggregate%extract%25#0,tmp%23#0
-        b==                                                                                       i#2,tmp%24#0
-        l-load tmp%24#0 0                                                                         i#2,tmp%24#0
-        assert                                                                                    i#2
-        l-load i#2 0                                                                              i#2
+        l-load aggregate%extract%14#0 0                                                           tmp%15#0,aggregate%extract%14#0
+        extract 8 8                                                                               tmp%15#0,aggregate%extract%25#0
+        l-load-copy tmp%15#0 1                                                                    tmp%15#0,aggregate%extract%25#0,tmp%15#0 (copy)
+        l-load-copy tmp%15#0 2                                                                    tmp%15#0,aggregate%extract%25#0,tmp%15#0 (copy),tmp%15#0 (copy)
+        *                                                                                         tmp%15#0,aggregate%extract%25#0,tmp%22#0
+        l-load tmp%22#0 0                                                                         tmp%15#0,aggregate%extract%25#0,tmp%22#0
+        itob                                                                                      tmp%15#0,aggregate%extract%25#0,tmp%23#0
+        l-load aggregate%extract%25#0 1                                                           tmp%15#0,tmp%23#0,aggregate%extract%25#0
+        l-load tmp%23#0 1                                                                         tmp%15#0,aggregate%extract%25#0,tmp%23#0
+        b==                                                                                       tmp%15#0,tmp%24#0
+        l-load tmp%24#0 0                                                                         tmp%15#0,tmp%24#0
+        assert                                                                                    tmp%15#0
+        l-load tmp%15#0 0                                                                         tmp%15#0
         v-store i#0
         b test_array_for_header@2
 
@@ -466,6 +468,8 @@ subroutine test_array:
         // array/static_size.py:169
         // for point_idx in urange(1, path.length):
         int 1                                                                                     1
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store point_idx#0
         b test_array_for_header@7
 
@@ -603,7 +607,8 @@ subroutine test_array:
         // for point_idx in urange(1, path.length):
         v-load point_idx#0                                                                        point_idx#0
         int 1                                                                                     point_idx#0,1
-        +                                                                                         point_idx#0
+        +                                                                                         value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store point_idx#0
         b test_array_for_header@7
 
@@ -760,6 +765,8 @@ subroutine test_bool_array:
         +                                                                                         tmp%2#1
         v-store tmp%2#1
         int 1                                                                                     1
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store i#0
         b test_bool_array_for_header@2
 
@@ -796,7 +803,8 @@ subroutine test_bool_array:
         // for i in urange(1, length + 1):
         l-load i#0 0                                                                              i#0
         int 1                                                                                     i#0,1
-        +                                                                                         i#0
+        +                                                                                         value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store i#0
         b test_bool_array_for_header@2
 
@@ -931,6 +939,8 @@ subroutine test_arc4_conversion:
         +                                                                                         tmp%2#1
         v-store tmp%2#1
         int 1                                                                                     1
+        l-store value_internal%0#0 0                                                              value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store i#0
         b test_arc4_conversion_for_header@2
 
@@ -960,7 +970,8 @@ subroutine test_arc4_conversion:
         // for i in urange(1, length + 1):
         l-load i#0 0                                                                              i#0
         int 1                                                                                     i#0,1
-        +                                                                                         i#0
+        +                                                                                         value_internal%0#0
+        l-load value_internal%0#0 0                                                               value_internal%0#0
         v-store i#0
         b test_arc4_conversion_for_header@2
 
