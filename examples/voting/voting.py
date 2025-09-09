@@ -4,8 +4,8 @@ import typing
 from algopy import (
     Account,
     ARC4Contract,
+    Box,
     BoxMap,
-    BoxRef,
     Bytes,
     Global,
     GlobalState,
@@ -52,7 +52,7 @@ class VotingRoundApp(ARC4Contract):
         # The minimum number of voters who have voted
         self.voter_count = UInt64(0)
         self.close_time = GlobalState(UInt64)
-        self.tally_box = BoxRef(key="V")
+        self.tally_box = Box(Bytes, key="V")
         self.votes_by_account = BoxMap(Account, VoteIndexArray, key_prefix="")
 
     @arc4.abimethod(create="require")

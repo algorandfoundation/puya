@@ -4,7 +4,6 @@ from algopy import (
     ARC4Contract,
     Box,
     BoxMap,
-    BoxRef,
     Bytes,
     GlobalState,
     LocalState,
@@ -71,8 +70,8 @@ class Contract(ARC4Contract):
         self.box_map_uint64 = BoxMap(UInt64, SharedStruct, key_prefix=b"bmu")
         self.box_map_address = BoxMap(arc4.Address, SharedStruct, key_prefix=b"bma")
 
-        self.box_ref = BoxRef()
-        self.box_ref2 = BoxRef(key=b"br")
+        self.box_ref = Box(Bytes)
+        self.box_ref2 = Box(Bytes, key=b"br")
 
     @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     def bare_create(self) -> None:

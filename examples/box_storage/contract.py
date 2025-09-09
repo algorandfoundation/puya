@@ -4,7 +4,6 @@ from algopy import (
     Array,
     Box,
     BoxMap,
-    BoxRef,
     Bytes,
     FixedArray,
     Global,
@@ -84,7 +83,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_c = Box(arc4.String, key=b"BOX_C")
         self.box_d = Box(Bytes)
         self.box_map = BoxMap(UInt64, String, key_prefix="")
-        self.box_ref = BoxRef()
+        self.box_ref = Box(Bytes)
         self.box_large = Box(LargeStruct)
         self.many_ints = Box(ManyInts)
         assert size_of(ManyInts) > 4096, "expected ManyInts to exceed max bytes size"
@@ -386,17 +385,17 @@ class BoxContract(arc4.ARC4Contract):
     @arc4.abimethod
     def test_box_ref(self) -> None:
         # init ref, with valid key types
-        box_ref = BoxRef(key="blob")
+        box_ref = Box(Bytes, key="blob")
         assert not box_ref, "no data"
-        box_ref = BoxRef(key=b"blob")
+        box_ref = Box(Bytes, key=b"blob")
         assert not box_ref, "no data"
-        box_ref = BoxRef(key=Bytes(b"blob"))
+        box_ref = Box(Bytes, key=Bytes(b"blob"))
         assert not box_ref, "no data"
-        box_ref = BoxRef(key=String("blob"))
+        box_ref = Box(Bytes, key=String("blob"))
         assert not box_ref, "no data"
 
         # create
-        assert box_ref.create(size=32)
+        assert box_ref.create(size=UInt64(32))
         assert box_ref, "has data"
 
         # manipulate data
@@ -411,7 +410,7 @@ class BoxContract(arc4.ARC4Contract):
         assert prefix == app_address + sender_bytes + value_3
 
         # delete
-        assert box_ref.delete()
+        del box_ref.value
         assert box_ref.key == b"blob"
 
         # query
@@ -421,7 +420,7 @@ class BoxContract(arc4.ARC4Contract):
         assert box_ref.get(default=sender_bytes) == sender_bytes
 
         # update
-        box_ref.put(sender_bytes + app_address)
+        box_ref.value = sender_bytes + app_address
         assert box_ref, "Blob exists"
         assert box_ref.length == 64
         assert get_box_ref_length(box_ref) == 64
@@ -429,7 +428,7 @@ class BoxContract(arc4.ARC4Contract):
         # instance box ref
         self.box_ref.create(size=UInt64(32))
         assert self.box_ref, "has data"
-        self.box_ref.delete()
+        del self.box_ref.value
 
     @arc4.abimethod
     def box_map_test(self) -> None:
@@ -478,7 +477,7 @@ def get_box_value_plus_1(box: Box[UInt64]) -> UInt64:
 
 
 @subroutine
-def get_box_ref_length(ref: BoxRef) -> UInt64:
+def get_box_ref_length(ref: Box[Bytes]) -> UInt64:
     return ref.length
 
 

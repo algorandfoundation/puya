@@ -332,19 +332,19 @@ contract BoxContract
     box_replace(box_ref, 64u, value_3)
     prefix: bytes = box_extract(box_ref, 0u, 64u + len(value_3))
     assert(prefix == app_address + sender_bytes + value_3)
-    assert(box_del(box_ref))
+    STATE_DELETE(Box[box_ref])
     assert(reinterpret_cast<bytes>(box_ref) == hex<"626C6F62">)
     (value, exists): tuple<bytes,bool> = STATE_GET_EX(Box[box_ref])
     assert(!(exists))
     assert(value == hex<"">)
     assert(STATE_GET(Box[box_ref], default=sender_bytes) == sender_bytes)
-    box_put(box_ref, sender_bytes + app_address)
+    Box[box_ref]: bytes = sender_bytes + app_address
     assert(STATE_EXISTS(Box[box_ref]), comment="Blob exists")
     assert(checked_maybe(box_len(box_ref)) == 64u)
     assert(examples.box_storage.contract.get_box_ref_length(box_ref) == 64u)
     box_create('box_ref', 32u)
     assert(STATE_EXISTS(Box['box_ref']), comment="has data")
-    box_del('box_ref')
+    STATE_DELETE(Box['box_ref'])
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_test(): void
