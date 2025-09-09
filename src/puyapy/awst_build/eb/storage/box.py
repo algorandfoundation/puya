@@ -40,7 +40,7 @@ from puyapy.awst_build.eb.storage._storage import (
     parse_storage_proxy_constructor_args,
 )
 from puyapy.awst_build.eb.storage._util import box_length_checked
-from puyapy.awst_build.eb.storage.box_ref import BoxRefProxyExpressionBuilder
+from puyapy.awst_build.eb.storage.box_ref import BoxRefProxyExpressionBuilder, _IntrinsicMethod
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
@@ -172,6 +172,42 @@ class BoxProxyExpressionBuilder(
                 )
             case "ref":
                 return BoxRefProxyExpressionBuilder(self.resolve())
+            case "extract":
+                return _IntrinsicMethod(
+                    location,
+                    box_proxy=self.resolve(),
+                    op_code="box_extract",
+                    args={"start_index": pytypes.UInt64Type, "length": pytypes.UInt64Type},
+                    return_type=pytypes.BytesType,
+                )
+            case "resize":
+                return _IntrinsicMethod(
+                    location,
+                    box_proxy=self.resolve(),
+                    op_code="box_resize",
+                    args={"new_size": pytypes.UInt64Type},
+                    return_type=pytypes.NoneType,
+                )
+            case "replace":
+                return _IntrinsicMethod(
+                    location,
+                    box_proxy=self.resolve(),
+                    op_code="box_replace",
+                    args={"start_index": pytypes.UInt64Type, "value": pytypes.BytesType},
+                    return_type=pytypes.NoneType,
+                )
+            case "splice":
+                return _IntrinsicMethod(
+                    location,
+                    box_proxy=self.resolve(),
+                    op_code="box_splice",
+                    args={
+                        "start_index": pytypes.UInt64Type,
+                        "length": pytypes.UInt64Type,
+                        "value": pytypes.BytesType,
+                    },
+                    return_type=pytypes.NoneType,
+                )
         return super().member_access(name, location)
 
     @typing.override

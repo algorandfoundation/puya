@@ -100,7 +100,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_d.value = b.native
         self.box_large.create()
         self.box_large.value.e = UInt64(42)
-        self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+        self.box_large.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
 
         b_value = self.box_b.value.copy()
         assert self.box_b.value.length == b_value.length, "direct reference should match copy"
@@ -205,11 +205,11 @@ class BoxContract(arc4.ARC4Contract):
         arr2_len = self.dynamic_arr_struct.value.arr2.length
 
         # expand box
-        self.dynamic_arr_struct.ref.resize(
+        self.dynamic_arr_struct.resize(
             get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
         )
         # splice in zero bytes so existing data is in correct location
-        self.dynamic_arr_struct.ref.splice(
+        self.dynamic_arr_struct.splice(
             get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         )
         # update using a box typed as a FixedArray
@@ -241,12 +241,12 @@ class BoxContract(arc4.ARC4Contract):
         box.value.arr.length = arc4.UInt16(arr_len)
         box.value.arr2_offset = arc4.UInt16(arr2_offset)
         index = get_dynamic_arr_struct_byte_index(arr_len)
-        box.ref.splice(index, times * size_of(UInt64), b"")
+        box.splice(index, times * size_of(UInt64), b"")
         # truncate box
         # Note: this is currently the same as index, but could be different if there
         #       were multiple dynamic arrays
         size = get_dynamic_arr2_struct_byte_index(arr_len, arr2_len)
-        self.dynamic_arr_struct.ref.resize(size)
+        self.dynamic_arr_struct.resize(size)
 
         return self.dynamic_arr_struct.value.arr.length
 
@@ -260,9 +260,9 @@ class BoxContract(arc4.ARC4Contract):
         # initialize box to zero
         box.create(size=tail_offset + struct_size)
         # set correct offset for dynamic portion
-        box.ref.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
+        box.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
         # set dynamic data
-        box.ref.replace(tail_offset, struct_bytes)
+        box.replace(tail_offset, struct_bytes)
 
     @arc4.abimethod()
     def nested_write(self, index: UInt64, value: UInt64) -> None:
@@ -330,7 +330,7 @@ class BoxContract(arc4.ARC4Contract):
         box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
         arr_len = box.value.length.as_uint64()
 
-        self.dynamic_box.ref.resize(2 + (arr_len + times) * 8)
+        self.dynamic_box.resize(2 + (arr_len + times) * 8)
         for i in urange(times):
             box.value.arr[arr_len] = i
             arr_len += 1
@@ -345,7 +345,7 @@ class BoxContract(arc4.ARC4Contract):
         box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
         arr_len = box.value.length.as_uint64() - times
         box.value.length = arc4.UInt16(arr_len)
-        self.dynamic_box.ref.resize(2 + arr_len * 8)
+        self.dynamic_box.resize(2 + arr_len * 8)
 
         return self.dynamic_box.value.length
 

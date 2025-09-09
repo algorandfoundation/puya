@@ -1,6 +1,8 @@
 import typing
 
-from algopy import Bytes, UInt64, String
+from typing_extensions import deprecated
+
+from algopy import Bytes, String, UInt64
 
 _TKey = typing.TypeVar("_TKey")
 _TValue = typing.TypeVar("_TValue")
@@ -72,10 +74,55 @@ class Box(typing.Generic[_TValue]):
         """
 
     @property
+    @deprecated("Box methods previously accessed via `.ref` are now directly available")
     def ref(self) -> BoxRef:
         """Provides a BoxRef for this box"""
 
+    def extract(self, start_index: UInt64 | int, length: UInt64 | int) -> Bytes:
+        """
+        Extract a slice of bytes from the box.
+
+        Fails if the box does not exist, or if `start_index + length > len(box)`
+
+        :arg start_index: The offset to start extracting bytes from
+        :arg length: The number of bytes to extract
+        """
+
+    def resize(self, new_size: UInt64 | int) -> None:
+        """
+        Resizes the box the specified `new_size`. Truncating existing data if the new value is
+        shorter or padding with zero bytes if it is longer.
+
+        :arg new_size: The new size of the box
+        """
+
+    def replace(self, start_index: UInt64 | int, value: Bytes | bytes) -> None:
+        """
+        Write `value` to the box starting at `start_index`. Fails if the box does not exist,
+        or if `start_index + len(value) > len(box)`
+
+        :arg start_index: The offset to start writing bytes from
+        :arg value: The bytes to be written
+        """
+
+    def splice(
+        self, start_index: UInt64 | int, length: UInt64 | int, value: Bytes | bytes
+    ) -> None:
+        """
+        set box to contain its previous bytes up to index `start_index`, followed by `bytes`,
+        followed by the original bytes of the box that began at index `start_index + length`
+
+        **Important: This op does not resize the box**
+        If the new value is longer than the box size, it will be truncated.
+        If the new value is shorter than the box size, it will be padded with zero bytes
+
+        :arg start_index: The index to start inserting `value`
+        :arg length: The number of bytes after `start_index` to omit from the new value
+        :arg value: The `value` to be inserted.
+        """
+
 @typing.final
+@deprecated("Methods in BoxRef are now directly available on Box and BoxMap")
 class BoxRef:
     """
     BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is

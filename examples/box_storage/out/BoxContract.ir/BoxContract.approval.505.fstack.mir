@@ -368,7 +368,7 @@ subroutine set_boxes:
         l-load aggregate%val_as_bytes%0#0 2                                                            b#0,c#0,tmp%0#1,"box_large",4096,aggregate%val_as_bytes%0#0
         box_replace                                                                                    b#0,c#0,tmp%0#1
         // box_storage/contract.py:103
-        // self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+        // self.box_large.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
         byte "box_large"                                                                               b#0,c#0,tmp%0#1,"box_large"
         int 4096                                                                                       b#0,c#0,tmp%0#1,"box_large",4096
         byte 0x000000000000002a                                                                        b#0,c#0,tmp%0#1,"box_large",4096,0x000000000000002a
@@ -1130,10 +1130,10 @@ subroutine append_dynamic_arr_struct:
         l-load dyn_arr2_index#1 1                                                                      (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,dyn_arr2_index#1
         +                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#2
         // box_storage/contract.py:208
-        // self.dynamic_arr_struct.ref.resize(
+        // self.dynamic_arr_struct.resize(
         byte "dynamic_arr_struct"                                                                      (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#2,"dynamic_arr_struct"
         // box_storage/contract.py:208-210
-        // self.dynamic_arr_struct.ref.resize(
+        // self.dynamic_arr_struct.resize(
         //     get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
         // )
         l-load tmp%3#2 1                                                                               (𝕗) times#0,arr_len#0 | times#0,arr_len#0,"dynamic_arr_struct",tmp%3#2
@@ -1155,10 +1155,10 @@ subroutine append_dynamic_arr_struct:
         *                                                                                              (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%6#0
         bzero                                                                                          (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%7#0
         // box_storage/contract.py:212
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         byte "dynamic_arr_struct"                                                                      (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%7#0,"dynamic_arr_struct"
         // box_storage/contract.py:212-214
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
         l-load tmp%5#1 2                                                                               (𝕗) times#0,arr_len#0 | tmp%7#0,"dynamic_arr_struct",tmp%5#1
@@ -1166,7 +1166,7 @@ subroutine append_dynamic_arr_struct:
         // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         int 0                                                                                          (𝕗) times#0,arr_len#0 | tmp%7#0,"dynamic_arr_struct",tmp%5#1,0
         // box_storage/contract.py:212-214
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
         l-load tmp%7#0 3                                                                               (𝕗) times#0,arr_len#0 | "dynamic_arr_struct",tmp%5#1,0,tmp%7#0
@@ -1402,7 +1402,7 @@ subroutine pop_dynamic_arr_struct:
         l-load aggregate%uint16%1#0 2                                                                  times#0,arr2_len#0,head_and_dyn_arr#0,"dynamic_arr_struct",18,aggregate%uint16%1#0
         box_replace                                                                                    times#0,arr2_len#0,head_and_dyn_arr#0
         // box_storage/contract.py:244
-        // box.ref.splice(index, times * size_of(UInt64), b"")
+        // box.splice(index, times * size_of(UInt64), b"")
         l-load times#0 2                                                                               arr2_len#0,head_and_dyn_arr#0,times#0
         int 8                                                                                          arr2_len#0,head_and_dyn_arr#0,times#0,8
         *                                                                                              arr2_len#0,head_and_dyn_arr#0,tmp%8#0
@@ -1410,7 +1410,7 @@ subroutine pop_dynamic_arr_struct:
         // box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
         byte "dynamic_arr_struct"                                                                      arr2_len#0,head_and_dyn_arr#0,tmp%8#0,"dynamic_arr_struct"
         // box_storage/contract.py:244
-        // box.ref.splice(index, times * size_of(UInt64), b"")
+        // box.splice(index, times * size_of(UInt64), b"")
         l-load-copy head_and_dyn_arr#0 2                                                               arr2_len#0,head_and_dyn_arr#0,tmp%8#0,"dynamic_arr_struct",head_and_dyn_arr#0 (copy)
         l-load tmp%8#0 2                                                                               arr2_len#0,head_and_dyn_arr#0,"dynamic_arr_struct",head_and_dyn_arr#0 (copy),tmp%8#0
         byte 0x                                                                                        arr2_len#0,head_and_dyn_arr#0,"dynamic_arr_struct",head_and_dyn_arr#0 (copy),tmp%8#0,0x
@@ -1429,7 +1429,7 @@ subroutine pop_dynamic_arr_struct:
         l-load dyn_arr2_index#1 1                                                                      head_and_dyn_arr#0,dyn_arr2_index#1
         +                                                                                              size#0
         // box_storage/contract.py:249
-        // self.dynamic_arr_struct.ref.resize(size)
+        // self.dynamic_arr_struct.resize(size)
         byte "dynamic_arr_struct"                                                                      size#0,"dynamic_arr_struct"
         l-load size#0 1                                                                                "dynamic_arr_struct",size#0
         box_resize
@@ -1488,7 +1488,7 @@ subroutine set_nested_struct:
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     struct_bytes#0,"box"
         // box_storage/contract.py:263
-        // box.ref.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
+        // box.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
         int 4096                                                                                       struct_bytes#0,"box",4096
         byte 0x1002                                                                                    struct_bytes#0,"box",4096,0x1002
         box_replace                                                                                    struct_bytes#0
@@ -1499,7 +1499,7 @@ subroutine set_nested_struct:
         // tail_offset = UInt64(4096 + 2)
         int 4098                                                                                       struct_bytes#0,"box",4098
         // box_storage/contract.py:265
-        // box.ref.replace(tail_offset, struct_bytes)
+        // box.replace(tail_offset, struct_bytes)
         l-load struct_bytes#0 2                                                                        "box",4098,struct_bytes#0
         box_replace
         // box_storage/contract.py:253
@@ -2320,7 +2320,7 @@ subroutine append_dynamic_box:
         l-store-copy arr_len#0 0                                                                       (𝕗) times#0 | times#0,arr_len#0,arr_len#0 (copy)
         f-store arr_len#0                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0
         // box_storage/contract.py:333
-        // self.dynamic_box.ref.resize(2 + (arr_len + times) * 8)
+        // self.dynamic_box.resize(2 + (arr_len + times) * 8)
         l-load arr_len#0 0                                                                             (𝕗) times#0,arr_len#0 | times#0,arr_len#0
         l-load times#0 1                                                                               (𝕗) times#0,arr_len#0 | arr_len#0,times#0
         +                                                                                              (𝕗) times#0,arr_len#0 | tmp%1#1
@@ -2457,7 +2457,7 @@ subroutine pop_dynamic_box:
         l-load aggregate%uint16%0#0 2                                                                  arr_len#0,"dynamic_box",0,aggregate%uint16%0#0
         box_replace                                                                                    arr_len#0
         // box_storage/contract.py:348
-        // self.dynamic_box.ref.resize(2 + arr_len * 8)
+        // self.dynamic_box.resize(2 + arr_len * 8)
         l-load arr_len#0 0                                                                             arr_len#0
         int 8                                                                                          arr_len#0,8
         *                                                                                              tmp%3#1

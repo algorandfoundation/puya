@@ -393,7 +393,7 @@ subroutine set_boxes:
         v-load aggregate%val_as_bytes%0#0                                                              "box_large",4096,aggregate%val_as_bytes%0#0
         box_replace
         // box_storage/contract.py:103
-        // self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
+        // self.box_large.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
         byte "box_large"                                                                               "box_large"
         int 4096                                                                                       "box_large",4096
         byte 0x000000000000002a                                                                        "box_large",4096,0x000000000000002a
@@ -1378,10 +1378,10 @@ subroutine append_dynamic_arr_struct:
         +                                                                                              tmp%3#2
         v-store tmp%3#2
         // box_storage/contract.py:208
-        // self.dynamic_arr_struct.ref.resize(
+        // self.dynamic_arr_struct.resize(
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
         // box_storage/contract.py:208-210
-        // self.dynamic_arr_struct.ref.resize(
+        // self.dynamic_arr_struct.resize(
         //     get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
         // )
         v-load tmp%3#2                                                                                 "dynamic_arr_struct",tmp%3#2
@@ -1413,10 +1413,10 @@ subroutine append_dynamic_arr_struct:
         bzero                                                                                          tmp%7#0
         v-store tmp%7#0
         // box_storage/contract.py:212
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
         // box_storage/contract.py:212-214
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
         v-load tmp%5#1                                                                                 "dynamic_arr_struct",tmp%5#1
@@ -1424,7 +1424,7 @@ subroutine append_dynamic_arr_struct:
         // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         int 0                                                                                          "dynamic_arr_struct",tmp%5#1,0
         // box_storage/contract.py:212-214
-        // self.dynamic_arr_struct.ref.splice(
+        // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
         v-load tmp%7#0                                                                                 "dynamic_arr_struct",tmp%5#1,0,tmp%7#0
@@ -1730,7 +1730,7 @@ subroutine pop_dynamic_arr_struct:
         v-load aggregate%uint16%1#0                                                                    "dynamic_arr_struct",18,aggregate%uint16%1#0
         box_replace
         // box_storage/contract.py:244
-        // box.ref.splice(index, times * size_of(UInt64), b"")
+        // box.splice(index, times * size_of(UInt64), b"")
         v-load times#0                                                                                 times#0
         int 8                                                                                          times#0,8
         *                                                                                              tmp%8#0
@@ -1739,7 +1739,7 @@ subroutine pop_dynamic_arr_struct:
         // box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
         // box_storage/contract.py:244
-        // box.ref.splice(index, times * size_of(UInt64), b"")
+        // box.splice(index, times * size_of(UInt64), b"")
         v-load head_and_dyn_arr#0                                                                      "dynamic_arr_struct",head_and_dyn_arr#0
         v-load tmp%8#0                                                                                 "dynamic_arr_struct",head_and_dyn_arr#0,tmp%8#0
         byte 0x                                                                                        "dynamic_arr_struct",head_and_dyn_arr#0,tmp%8#0,0x
@@ -1761,7 +1761,7 @@ subroutine pop_dynamic_arr_struct:
         +                                                                                              size#0
         v-store size#0
         // box_storage/contract.py:249
-        // self.dynamic_arr_struct.ref.resize(size)
+        // self.dynamic_arr_struct.resize(size)
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
         v-load size#0                                                                                  "dynamic_arr_struct",size#0
         box_resize
@@ -1834,7 +1834,7 @@ subroutine set_nested_struct:
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     "box"
         // box_storage/contract.py:263
-        // box.ref.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
+        // box.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
         int 4096                                                                                       "box",4096
         byte 0x1002                                                                                    "box",4096,0x1002
         box_replace
@@ -1845,7 +1845,7 @@ subroutine set_nested_struct:
         // tail_offset = UInt64(4096 + 2)
         int 4098                                                                                       "box",4098
         // box_storage/contract.py:265
-        // box.ref.replace(tail_offset, struct_bytes)
+        // box.replace(tail_offset, struct_bytes)
         v-load struct_bytes#0                                                                          "box",4098,struct_bytes#0
         box_replace
         // box_storage/contract.py:253
@@ -2906,7 +2906,7 @@ subroutine append_dynamic_box:
         btoi                                                                                           arr_len#0
         v-store arr_len#0
         // box_storage/contract.py:333
-        // self.dynamic_box.ref.resize(2 + (arr_len + times) * 8)
+        // self.dynamic_box.resize(2 + (arr_len + times) * 8)
         v-load arr_len#0                                                                               arr_len#0
         v-load times#0                                                                                 arr_len#0,times#0
         +                                                                                              tmp%1#1
@@ -3077,7 +3077,7 @@ subroutine pop_dynamic_box:
         v-load aggregate%uint16%0#0                                                                    "dynamic_box",0,aggregate%uint16%0#0
         box_replace
         // box_storage/contract.py:348
-        // self.dynamic_box.ref.resize(2 + arr_len * 8)
+        // self.dynamic_box.resize(2 + arr_len * 8)
         v-load arr_len#0                                                                               arr_len#0
         int 8                                                                                          arr_len#0,8
         *                                                                                              tmp%3#1
