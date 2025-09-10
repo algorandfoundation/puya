@@ -12,14 +12,20 @@ import attrs
 import pytest
 import pytest_asyncio
 from lsprotocol.types import ResponseError
-from pygls.client import JsonRPCClient
 from pygls.exceptions import JsonRpcException, PyglsError
 from pygls.protocol.json_rpc import RPCError
 
 from puya.awst import nodes as awst_nodes
-from puya.awst.serialize import awst_from_json, get_converter
+from puya.awst.serialize import awst_from_json
 from puya.main import PuyaOptionsWithCompilationSet
-from puya.service import AnalyseParams, AnalyseResult, CompileParams, CompileResult, PuyaProtocol
+from puya.service import (
+    AnalyseParams,
+    AnalyseResult,
+    CompileParams,
+    CompileResult,
+    PuyaClient,
+    PuyaProtocol,
+)
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache, log_to_str
 
@@ -52,7 +58,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
 
 
 async def test_analyse(
-    client: JsonRPCClient,
+    client: PuyaClient,
     test_case_path: Path,
     params: Path,
     expected_output: list[str],
@@ -65,7 +71,7 @@ async def test_analyse(
     assert logs == expected_output, "analyse output different than expected"
 
 
-async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> None:
+async def test_compile_hello_world(client: PuyaClient, tmp_path: Path) -> None:
     path = _HELLO_WORLD_PATH
     awst = _create_analyse_params(path).awst
     compile_params = CompileParams(
@@ -95,7 +101,7 @@ async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> Non
 
 
 @pytest_asyncio.fixture(loop_scope="module", scope="module")
-async def client() -> AsyncGenerator[JsonRPCClient]:
+async def client() -> AsyncGenerator[PuyaClient]:
     client = await _start_client("serve", "--log-level=info")
     try:
         # yield client for test to use
@@ -118,7 +124,7 @@ class _PuyaProtocol(PuyaProtocol):
         return super().structure_message(data)
 
 
-class _PuyaRPCClient(JsonRPCClient):
+class _PuyaRPCClient(PuyaClient):
     @typing.override
     async def start_io(self, cmd: str, *args: object, **kwargs: object) -> None:
         await super().start_io(cmd, *args, **kwargs)
@@ -182,7 +188,7 @@ async def _start_client(*args: str) -> _PuyaRPCClient:
     # Find the puya executable path
     puya_path = shutil.which("puya")
     assert puya_path is not None, "could not find puya executable"
-    client = _PuyaRPCClient(_PuyaProtocol, get_converter)
+    client = _PuyaRPCClient()
     # start the server
     await client.start_io(puya_path, *args)
     return client

@@ -1,10 +1,12 @@
 import contextlib
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
+from cattrs import Converter
 from immutabledict import immutabledict
+from pygls.client import JsonRPCClient
 from pygls.protocol.json_rpc import JsonRPCProtocol
 from pygls.server import JsonRPCServer
 
@@ -96,6 +98,28 @@ class PuyaProtocol(JsonRPCProtocol):
             return _REQUEST_TYPES[method][1]
         except KeyError:
             return None
+
+
+class PuyaClient(JsonRPCClient):
+    def __init__(
+        self,
+        protocol: type[PuyaProtocol] = PuyaProtocol,
+        converter: Callable[[], Converter] = get_converter,
+    ):
+        super().__init__(protocol, converter)
+
+    async def shutdown_async(self) -> None:
+        await self.protocol.send_request_async("shutdown")
+
+    async def analyse_async(self, params: AnalyseParams) -> AnalyseResult:
+        result = await self.protocol.send_request_async("analyse", params)
+        assert isinstance(result, AnalyseResult)
+        return result
+
+    async def compile_async(self, params: CompileParams) -> CompileResult:
+        result = await self.protocol.send_request_async("compile", params)
+        assert isinstance(result, CompileResult)
+        return result
 
 
 def create_server(max_workers: int | None) -> JsonRPCServer:
