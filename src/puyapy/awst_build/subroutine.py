@@ -84,6 +84,7 @@ from puyapy.awst_build.utils import (
     maybe_resolve_literal,
     require_callable_type,
 )
+from puyapy.lsp import code_fixes
 from puyapy.models import ContractFragmentBase
 
 logger = log.get_logger(__name__)
@@ -244,8 +245,10 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     location,
                 )
             case "range":
+                code_fixes.suggest_fix(code_fixes.ReplaceWithSymbol("algopy.urange"), location)
                 raise CodeError("range() is not supported - use algopy.urange() instead", location)
             case "enumerate":
+                code_fixes.suggest_fix(code_fixes.ReplaceWithSymbol("algopy.uenumerate"), location)
                 raise CodeError(
                     "enumerate() is not supported - use algopy.uenumerate() instead", location
                 )

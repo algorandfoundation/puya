@@ -24,6 +24,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puyapy.awst_build.utils import get_decorators_by_fullname, get_subroutine_decorator_inline_arg
+from puyapy.lsp import code_fixes
 from puyapy.models import (
     ARC4BareMethodData,
     ARC4MethodData,
@@ -297,7 +298,19 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         invalid_dec,
                     )
         else:
-            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) != 1:
+            if (
+                num_dec := len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))
+            ) != 1:
+                if num_dec == 0:
+                    code_fixes.suggest_fix(
+                        code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS), func_loc
+                    )
+                    code_fixes.suggest_fix(
+                        code_fixes.DecorateFunction(constants.ABIMETHOD_DECORATOR_ALIAS), func_loc
+                    )
+                    code_fixes.suggest_fix(
+                        code_fixes.DecorateFunction(constants.BAREMETHOD_DECORATOR_ALIAS), func_loc
+                    )
                 logger.error(
                     f"ARC-4 contract member functions"
                     f" (other than __init__ or approval / clear program methods)"

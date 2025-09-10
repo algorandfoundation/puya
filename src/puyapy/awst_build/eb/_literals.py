@@ -22,6 +22,7 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.utils import fold_binary_expr, fold_unary_expr
+from puyapy.lsp import code_fixes
 from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
@@ -57,6 +58,7 @@ class LiteralBuilderImpl(LiteralBuilder):
     def resolve(self) -> Expression:
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
+        _suggest_invalid_literal_fix(self.pytype.name, self.source_location)
         raise CodeError("a Python literal is not valid at this location", self.source_location)
 
     @typing.override
@@ -148,7 +150,8 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def iterate(self) -> typing.Never:
-        raise CodeError("cannot iterate literal")
+        _suggest_invalid_literal_fix(self.pytype.name, self.source_location)
+        raise CodeError("cannot iterate literal", self.source_location)
 
     @typing.override
     def iterable_item_type(self) -> typing.Never:
@@ -210,3 +213,16 @@ class LiteralBuilderImpl(LiteralBuilder):
     @typing.override
     def single_eval(self) -> InstanceBuilder:
         return self
+
+
+_INVALID_LITERALS = {
+    "builtins.int": code_fixes.WrapWithSymbol("algopy.UInt64"),
+    "builtins.bytes": code_fixes.WrapWithSymbol("algopy.Bytes"),
+    "builtins.str": code_fixes.WrapWithSymbol("algopy.String"),
+}
+
+
+def _suggest_invalid_literal_fix(typ: str, loc: SourceLocation) -> None:
+    fix = _INVALID_LITERALS.get(typ)
+    if fix:
+        code_fixes.suggest_fix(fix, loc)
