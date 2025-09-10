@@ -15,6 +15,7 @@ from puya.errors import PuyaExitError, log_exceptions
 from puya.log import Log, LogLevel, configure_logging, configure_stdio, get_logger, logging_context
 from puya.main import PuyaOptionsWithCompilationSet, match_compilation_set
 from puya.options import PuyaOptions
+from puya.parse import DictSourceProvider
 from puya.utils import pushd
 
 logger = get_logger(__name__)
@@ -136,7 +137,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 log_ctx,
                 options,
                 compilation_set,
-                {},
+                DictSourceProvider(),
                 awst,
             )
 
@@ -161,7 +162,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 log_ctx,
                 options,
                 compilation_set,
-                params.source_annotations,
+                DictSourceProvider(params.source_annotations),
                 awst,
             )
 

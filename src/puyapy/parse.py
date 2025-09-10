@@ -32,7 +32,7 @@ from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.typestate import reset_global_state, type_state
-from mypy.util import find_python_encoding, read_py_file
+from mypy.util import find_python_encoding, hash_digest, read_py_file
 from mypy.version import __version__ as mypy_version
 from packaging import version
 
@@ -65,6 +65,18 @@ class SourceModule:
     is_typeshed_file: bool
 
 
+class SourceProvider(typing.Protocol):
+    def get_source(self, path: Path) -> Sequence[str] | None: ...
+
+
+class DictSourceProvider:
+    def __init__(self, sources_by_path: Mapping[Path, Sequence[str] | None]):
+        self._sources_by_path = sources_by_path
+
+    def get_source(self, path: Path) -> Sequence[str] | None:
+        return self._sources_by_path.get(path)
+
+
 @attrs.frozen
 class ParseResult:
     mypy_options: MypyOptions
@@ -74,8 +86,8 @@ class ParseResult:
     roots (nodes on which no other nodes depend)."""
 
     @cached_property
-    def sources_by_path(self) -> Mapping[Path, Sequence[str] | None]:
-        return {s.path: s.lines for s in self.ordered_modules.values()}
+    def source_provider(self) -> SourceProvider:
+        return DictSourceProvider({s.path: s.lines for s in self.ordered_modules.values()})
 
     @cached_property
     def explicit_source_paths(self) -> Set[Path]:
@@ -91,8 +103,7 @@ def parse_python(
     *,
     python_executable: Path | typing.Literal["infer", "current"] = "current",
     exclude: Sequence[str] | None = None,
-    # equivalent to a module-level singleton default, but at least it's self-contained here
-    fs_cache: FileSystemCache = FileSystemCache(),  # noqa: B008
+    source_provider: SourceProvider | None = None,
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
@@ -102,6 +113,7 @@ def parse_python(
 
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
+    fs_cache = _FileSystemCache(source_provider) if source_provider else FileSystemCache()
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = create_source_list(
         paths=[str(p) for p in resolved_input_paths],
@@ -244,6 +256,22 @@ def _infer_python_executable() -> str:
     result = sys.executable
     logger.info(f"using python executable from current interpreter: {result}")
     return result
+
+
+class _FileSystemCache(FileSystemCache):
+    def __init__(self, source_provider: SourceProvider) -> None:
+        super().__init__()
+        self._source_provider = source_provider
+
+    def read(self, fn: str) -> bytes:
+        # attempt to read from source provider first
+        lines = self._source_provider.get_source(Path(fn))
+        if lines is not None:
+            data = "\n".join(lines).encode("utf-8")
+            self.stat_or_none(fn)
+            self.read_cache[fn] = data
+            self.hash_cache[fn] = hash_digest(data)
+        return super().read(fn)
 
 
 def _check_encoding(mypy_fscache: FileSystemCache, module_path: Path) -> None:

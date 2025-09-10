@@ -17,7 +17,7 @@ from pathlib import Path
 import attrs
 import structlog
 
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, SourceProvider
 from puya.utils import get_cwd
 
 
@@ -56,7 +56,7 @@ class Log:
 @attrs.define
 class LoggingContext:
     _logs: list[Log] = attrs.field(factory=list)
-    sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
+    source_provider: SourceProvider | None = None
     _errors: int = 0
     _criticals: int = 0
 
@@ -421,10 +421,10 @@ class _Logger:
             level >= LogLevel.error
             and location
             and log_ctx
-            and log_ctx.sources_by_path
+            and log_ctx.source_provider
             and location.file
         ):
-            file_source = log_ctx.sources_by_path.get(location.file)
+            file_source = log_ctx.source_provider.get_source(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)
         self._logger.log(level, event, *args, location=location, **kwargs)

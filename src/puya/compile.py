@@ -37,7 +37,7 @@ from puya.ir.to_text_visitor import render_program
 from puya.log import LoggingContext
 from puya.mir.main import program_ir_to_mir
 from puya.options import PuyaOptions
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, SourceProvider
 from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram
@@ -52,7 +52,7 @@ def awst_to_teal(
     log_ctx: LoggingContext,
     options: PuyaOptions,
     compilation_set: Mapping[ContractReference | LogicSigReference, Path],
-    sources_by_path: Mapping[Path, Sequence[str] | None],
+    source_provider: SourceProvider,
     awst: AWST,
     *,
     write: bool = True,
@@ -62,7 +62,7 @@ def awst_to_teal(
     context = CompileContext(
         options=options,
         compilation_set=compilation_set,
-        sources_by_path=sources_by_path,
+        source_provider=source_provider,
     )
     log_ctx.exit_if_errors()
     ir = list(awst_to_ir(context, awst))
