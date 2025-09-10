@@ -47,7 +47,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference
-from puyapy import models
+from puyapy import code_fixes, models
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyExpressionVisitor, BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
@@ -244,10 +244,16 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     location,
                 )
             case "range":
-                raise CodeError("range() is not supported - use algopy.urange() instead", location)
+                raise code_fixes.FixableCodeError(
+                    "range() is not supported - use algopy.urange() instead",
+                    location,
+                    code_fixes.ReplaceWithSymbol("algopy.urange"),
+                )
             case "enumerate":
-                raise CodeError(
-                    "enumerate() is not supported - use algopy.uenumerate() instead", location
+                raise code_fixes.FixableCodeError(
+                    "enumerate() is not supported - use algopy.uenumerate() instead",
+                    location,
+                    code_fixes.ReplaceWithSymbol("algopy.uenumerate"),
                 )
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)

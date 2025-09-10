@@ -12,6 +12,7 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+from puyapy import code_fixes
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -57,7 +58,11 @@ class LiteralBuilderImpl(LiteralBuilder):
     def resolve(self) -> Expression:
         if isinstance(self.value, bool):
             return BoolConstant(value=self.value, source_location=self.source_location)
-        raise CodeError("a Python literal is not valid at this location", self.source_location)
+        fix = _INVALID_LITERAL_FIXES.get(self.pytype.name)
+        msg = "a Python literal is not valid at this location"
+        if fix:
+            raise code_fixes.FixableCodeError(msg, self.source_location, fix)
+        raise CodeError(msg, self.source_location)
 
     @typing.override
     def resolve_literal(self, converter: TypeBuilder) -> InstanceBuilder:
@@ -148,7 +153,11 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def iterate(self) -> typing.Never:
-        raise CodeError("cannot iterate literal")
+        fix = _INVALID_ITERABLE_LITERAL_FIXES.get(self.pytype.name)
+        msg = "cannot iterate literal"
+        if fix:
+            raise code_fixes.FixableCodeError(msg, self.source_location, fix)
+        raise CodeError(msg, self.source_location)
 
     @typing.override
     def iterable_item_type(self) -> typing.Never:
@@ -210,3 +219,14 @@ class LiteralBuilderImpl(LiteralBuilder):
     @typing.override
     def single_eval(self) -> InstanceBuilder:
         return self
+
+
+_INVALID_ITERABLE_LITERAL_FIXES = {
+    "builtins.bytes": code_fixes.WrapWithSymbol("algopy.Bytes"),
+    "builtins.str": code_fixes.WrapWithSymbol("algopy.String"),
+}
+
+_INVALID_LITERAL_FIXES = {
+    **_INVALID_ITERABLE_LITERAL_FIXES,
+    "builtins.int": code_fixes.WrapWithSymbol("algopy.UInt64"),
+}

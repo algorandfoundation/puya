@@ -16,6 +16,7 @@ from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import attrs_extend, coalesce, unique
 from puyapy.awst_build import pytypes
+from puyapy.code_fixes import FixableCodeError
 from puyapy.models import ConstantValue, ContractFragmentBase
 from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
@@ -135,8 +136,18 @@ class ASTConversionModuleContext(ASTConversionContext):
     def log_exceptions(
         self, fallback_location: mypy.nodes.Context | SourceLocation
     ) -> Iterator[None]:
-        with log_exceptions(self._maybe_convert_location(fallback_location)):
-            yield
+        loc = self._maybe_convert_location(fallback_location)
+        with log_exceptions(loc):
+            try:
+                yield
+            except* FixableCodeError as fix_errors:
+                for code_error in fix_errors.exceptions:
+                    assert isinstance(code_error, FixableCodeError)
+                    logger.error(  # noqa: TRY400
+                        code_error.msg,
+                        location=code_error.location or loc,
+                        edits=code_error.edits,
+                    )
 
     def type_to_pytype(
         self,

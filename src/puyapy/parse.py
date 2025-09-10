@@ -231,7 +231,7 @@ def _infer_sys_path() -> list[str]:
         python_exe = shutil.which(python, path=venv_scripts)
         if python_exe:
             logger.debug(f"using python search path from interpreter: {python_exe}")
-            return _get_sys_path(python_exe)
+            return get_sys_path(python_exe)
     if venv_scripts:
         raise ConfigurationError(
             "found an active python virtual env, but could not find an expected python interpreter"
@@ -402,7 +402,7 @@ def _typeshed_paths() -> tuple[str, str]:
     return str(typeshed_dir), str(mypy_extensions_dir)
 
 
-def _get_sys_path(python_executable: str) -> list[str]:
+def get_sys_path(python_executable: str) -> list[str]:
     # Use subprocess to get the package directory of given Python
     # executable
     env = os.environ.copy() | {"PYTHONSAFEPATH": "1"}
