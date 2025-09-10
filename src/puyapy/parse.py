@@ -23,7 +23,7 @@ from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.typestate import reset_global_state, type_state
-from mypy.util import find_python_encoding, read_py_file
+from mypy.util import find_python_encoding, hash_digest, read_py_file
 from mypy.version import __version__ as mypy_version
 from packaging import version
 
@@ -82,9 +82,8 @@ def parse_python(
     paths: Sequence[Path],
     *,
     package_search_paths: Sequence[str] | typing.Literal["infer", "current"] = "current",
+    file_contents: Mapping[Path, str] | None = None,
     excluded_subdir_names: Sequence[str] | None = None,
-    # equivalent to a module-level singleton default, but at least it's self-contained here
-    fs_cache: FileSystemCache = FileSystemCache(),  # noqa: B008
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
@@ -108,6 +107,16 @@ def parse_python(
         for module_name, bs in sorted(sources_by_module_name.items(), key=itemgetter(0))
     ]
     mypy_options = _get_mypy_options()
+    fs_cache = FileSystemCache()
+    # prime the cache with supplied content overrides, so that mypy reads from our data instead
+    if file_contents:
+        for content_path, content in file_contents.items():
+            fn = str(content_path)
+            data = content.encode("utf-8")
+            fs_cache.stat_or_none(fn)
+            fs_cache.read_cache[fn] = data
+            fs_cache.hash_cache[fn] = hash_digest(data)
+
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
