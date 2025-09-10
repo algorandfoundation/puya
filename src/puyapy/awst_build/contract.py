@@ -18,6 +18,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import StableSet, set_add, unique
+from puyapy import code_fixes
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
 from puyapy.awst_build.arc4_decorators import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -297,7 +298,16 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         invalid_dec,
                     )
         else:
-            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) != 1:
+            if (
+                num_dec := len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))
+            ) != 1:
+                edits = None
+                if num_dec == 0:
+                    edits = [
+                        code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS),
+                        code_fixes.DecorateFunction(constants.ABIMETHOD_DECORATOR_ALIAS),
+                        code_fixes.DecorateFunction(constants.BAREMETHOD_DECORATOR_ALIAS),
+                    ]
                 logger.error(
                     f"ARC-4 contract member functions"
                     f" (other than __init__ or approval / clear program methods)"
@@ -306,6 +316,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
                     f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
                     location=func_loc,
+                    edits=edits,
                 )
 
             if abimethod_dec:

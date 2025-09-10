@@ -12,6 +12,7 @@ from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.program_refs import LogicSigReference
 from puya.utils import coalesce
+from puyapy import code_fixes
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.arc4_client import ARC4ClientASTVisitor
 from puyapy.awst_build.base_mypy_visitor import (
@@ -117,9 +118,11 @@ class ModuleASTConverter(
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
         internal_pure_dec = dec_by_fullname.pop(constants.PURE_HINT, None)
         if subroutine_dec is None:
-            self._error(
+            loc = self._location(func_def)
+            logger.error(
                 f"free functions must be annotated with @{constants.SUBROUTINE_HINT_ALIAS}",
-                func_def,
+                location=loc,
+                edits=code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS),
             )
             inline = None
         else:
