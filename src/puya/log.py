@@ -55,6 +55,7 @@ class Log:
 
 @attrs.define
 class LoggingContext:
+    output_log: bool = True
     _logs: list[Log] = attrs.field(factory=list)
     source_provider: SourceProvider | None = None
     _errors: int = 0
@@ -427,13 +428,17 @@ class _Logger:
             file_source = log_ctx.source_provider.get_source(location.file)
             if file_source is not None:
                 kwargs["related_lines"] = _get_pretty_source(file_source, location)
-        self._logger.log(level, event, *args, location=location, **kwargs)
+
+        output_log = True
         if log_ctx:
             if isinstance(event, str) and args:
                 message = event % args
             else:
                 message = str(event)
             log_ctx.append_log(Log(level, message, location))
+            output_log = log_ctx.output_log
+        if output_log:
+            self._logger.log(level, event, *args, location=location, **kwargs)
 
 
 def _get_pretty_source(
@@ -464,8 +469,8 @@ def get_logger(name: str, **initial_values: typing.Any) -> _Logger:
 
 
 @contextlib.contextmanager
-def logging_context() -> Iterator[LoggingContext]:
-    ctx = LoggingContext()
+def logging_context(*, output_log: bool = True) -> Iterator[LoggingContext]:
+    ctx = LoggingContext(output_log=output_log)
     restore = _current_ctx.set(ctx)
     try:
         yield ctx
