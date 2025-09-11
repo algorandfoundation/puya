@@ -1,3 +1,4 @@
+import sys
 from collections.abc import Mapping
 
 import pytest
@@ -11,10 +12,11 @@ _STUB_SUFFIX = ".pyi"
 def stub_class_names_and_predefined_aliases() -> list[str]:
     from mypy import build, find_sources, fscache, nodes
 
-    from puyapy.parse import get_mypy_options
+    from puyapy.parse import _get_mypy_options
 
     stubs_dir = (VCS_ROOT / "stubs" / "algopy-stubs").resolve()
-    mypy_options = get_mypy_options()
+    mypy_options = _get_mypy_options()
+    mypy_options.python_executable = sys.executable
     fs_cache = fscache.FileSystemCache()
     mypy_build_sources = find_sources.create_source_list(
         paths=[str(stubs_dir)], options=mypy_options, fscache=fs_cache

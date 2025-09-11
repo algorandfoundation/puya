@@ -1,19 +1,16 @@
 # type: ignore
 # ruff: noqa
 import inspect
+import sys
 import typing
 from textwrap import dedent
 
 import mypy.build
-import mypy.find_sources
-import mypy.fscache
 import mypy.nodes
-import mypy.options
 import mypy.types
 import pytest
-from mypy.nodes import RevealExpr
 
-from puyapy.parse import get_mypy_options
+from puyapy.parse import _get_mypy_options
 
 
 def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.Var:
@@ -44,8 +41,9 @@ TEST_MODULE = "__test__"
 
 def mypy_parse_and_type_check(source: str | typing.Callable) -> mypy.build.BuildResult:
     code = source if isinstance(source, str) else decompile(source)
-    options = get_mypy_options()
+    options = _get_mypy_options()
     options.export_types = True
+    options.python_executable = sys.executable
 
     sources = [mypy.build.BuildSource(None, TEST_MODULE, text=dedent(code))]
 
@@ -64,7 +62,7 @@ def get_revealed_types(
     types = []
 
     class MyVisitor(mypy.traverser.TraverserVisitor):
-        def visit_reveal_expr(self, o: RevealExpr) -> None:
+        def visit_reveal_expr(self, o: mypy.nodes.RevealExpr) -> None:
             types.append(br.types.get(o.expr, mypy.types.UninhabitedType()))
 
     visitor = MyVisitor()
