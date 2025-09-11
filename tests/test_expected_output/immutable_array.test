@@ -5,6 +5,21 @@
 ## case: no_arg_ctor_requires_type_params
 from algopy import *
 
+ImmutableArrayUInt64 = ImmutableArray[UInt64]
+
+@subroutine
+def invalid_arg_element_types(tup: tuple[String, String, String]) -> ImmutableArrayUInt64:
+    return ImmutableArrayUInt64(tup) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+@subroutine
+def copy() -> None:
+    arr = ImmutableArray(Bytes()) ## E: unsupported collection type
+
+@subroutine
+def copy2() -> None:
+    bites = Bytes()
+    arr2 = ImmutableArray[Bytes](bites) ## E: unsupported collection type    
+
 @subroutine
 def bad() -> None:
     foo = ImmutableArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated

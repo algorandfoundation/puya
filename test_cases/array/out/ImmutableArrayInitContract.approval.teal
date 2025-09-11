@@ -1,0 +1,272 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 3 1 0
+    bytecblock 0x000000000000000100000000000000020000000000000003
+    // array/immutable-init.py:10
+    // class ImmutableArrayInitContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert // OnCompletion must be NoOp
+    txn ApplicationID
+    assert
+    pushbytess 0x8434ba2a 0x63aabba0 0xdbaf034e 0xa9d14554 // method "test_immutable_array_init()void", method "test_immutable_array_init_without_type_generic()void", method "test_reference_array_init()void", method "test_reference_array_init_without_type_generic()void"
+    txna ApplicationArgs 0
+    match test_immutable_array_init test_immutable_array_init_without_type_generic test_reference_array_init test_reference_array_init_without_type_generic
+    err
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init[routing]() -> void:
+test_immutable_array_init:
+    // array/immutable-init.py:21
+    // a3 = ImmutableArray[UInt64](ReferenceArray((UInt64(1), UInt64(2), UInt64(3))))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    // array/immutable-init.py:11
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init_without_type_generic[routing]() -> void:
+test_immutable_array_init_without_type_generic:
+    // array/immutable-init.py:43
+    // a3 = ImmutableArray(ReferenceArray((UInt64(1), UInt64(2), UInt64(3))))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    // array/immutable-init.py:33
+    // @arc4.abimethod()
+    intc_2 // 1
+    return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init[routing]() -> void:
+test_reference_array_init:
+    // array/immutable-init.py:57
+    // a1 = ReferenceArray[UInt64]((UInt64(1), UInt64(2), UInt64(3)))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    // array/immutable-init.py:59
+    // a2 = ReferenceArray[UInt64](FixedArray((UInt64(1), UInt64(2), UInt64(3))))
+    dup
+    pop
+    dupn 2
+    // array/immutable-init.py:60
+    // assert a1.length == a2.length
+    len
+    intc_0 // 8
+    /
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:61
+    // assert a1[0] == a2[0]
+    dup
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:62
+    // assert a1[1] == a2[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:63
+    // assert a1[2] == a2[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:65
+    // a3 = ReferenceArray[UInt64](ImmutableArray((UInt64(1), UInt64(2), UInt64(3))))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    dupn 2
+    // array/immutable-init.py:67
+    // assert a1[0] == a3[0]
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:68
+    // assert a1[1] == a3[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:69
+    // assert a1[2] == a3[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:57
+    // a1 = ReferenceArray[UInt64]((UInt64(1), UInt64(2), UInt64(3)))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    // array/immutable-init.py:72
+    // assert a1.length == a4.length
+    dup
+    len
+    intc_0 // 8
+    /
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:73
+    // assert a1[0] == a4[0]
+    dup
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:74
+    // assert a1[1] == a4[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:75
+    // assert a1[2] == a4[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    // array/immutable-init.py:55
+    // @arc4.abimethod()
+    return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init_without_type_generic[routing]() -> void:
+test_reference_array_init_without_type_generic:
+    // array/immutable-init.py:79
+    // a1 = ReferenceArray((UInt64(1), UInt64(2), UInt64(3)))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    // array/immutable-init.py:81
+    // a2 = ReferenceArray(FixedArray((UInt64(1), UInt64(2), UInt64(3))))
+    dup
+    pop
+    dupn 2
+    // array/immutable-init.py:82
+    // assert a1.length == a2.length
+    len
+    intc_0 // 8
+    /
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:83
+    // assert a1[0] == a2[0]
+    dup
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:84
+    // assert a1[1] == a2[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:85
+    // assert a1[2] == a2[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:87
+    // a3 = ReferenceArray(ImmutableArray((UInt64(1), UInt64(2), UInt64(3))))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    dupn 2
+    // array/immutable-init.py:89
+    // assert a1[0] == a3[0]
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:90
+    // assert a1[1] == a3[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:91
+    // assert a1[2] == a3[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:79
+    // a1 = ReferenceArray((UInt64(1), UInt64(2), UInt64(3)))
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    bytec_0 // 0x000000000000000100000000000000020000000000000003
+    pop
+    // array/immutable-init.py:94
+    // assert a1.length == a4.length
+    dup
+    len
+    intc_0 // 8
+    /
+    intc_1 // 3
+    ==
+    assert
+    // array/immutable-init.py:95
+    // assert a1[0] == a4[0]
+    dup
+    intc_3 // 0
+    extract_uint64
+    intc_2 // 1
+    ==
+    assert
+    // array/immutable-init.py:96
+    // assert a1[1] == a4[1]
+    dup
+    intc_0 // 8
+    extract_uint64
+    pushint 2 // 2
+    ==
+    assert
+    // array/immutable-init.py:97
+    // assert a1[2] == a4[2]
+    pushint 16 // 16
+    extract_uint64
+    intc_1 // 3
+    ==
+    // array/immutable-init.py:77
+    // @arc4.abimethod()
+    return

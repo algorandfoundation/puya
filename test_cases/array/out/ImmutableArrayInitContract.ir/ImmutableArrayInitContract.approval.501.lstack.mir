@@ -1,0 +1,394 @@
+// Op                                                                                     Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // array/immutable-init.py:10
+        // class ImmutableArrayInitContract(arc4.ARC4Contract):
+        txn NumAppArgs                                                                    tmp%0#1
+        l-load tmp%0#1 0                                                                  tmp%0#1
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // array/immutable-init.py:10
+        // class ImmutableArrayInitContract(arc4.ARC4Contract):
+        txn OnCompletion                                                                  tmp%2#0
+        l-load tmp%2#0 0                                                                  tmp%2#0
+        !                                                                                 tmp%3#0
+        l-load tmp%3#0 0                                                                  tmp%3#0
+        assert // OnCompletion must be NoOp
+        txn ApplicationID                                                                 tmp%4#0
+        l-load tmp%4#0 0                                                                  tmp%4#0
+        assert
+        txna ApplicationArgs 0                                                            tmp%6#0
+        method test_immutable_array_init()void                                            tmp%6#0,Method(test_immutable_array_init()void)
+        method test_immutable_array_init_without_type_generic()void                       tmp%6#0,Method(test_immutable_array_init()void),Method(test_immutable_array_init_without_type_generic()void)
+        method test_reference_array_init()void                                            tmp%6#0,Method(test_immutable_array_init()void),Method(test_immutable_array_init_without_type_generic()void),Method(test_reference_array_init()void)
+        method test_reference_array_init_without_type_generic()void                       tmp%6#0,Method(test_immutable_array_init()void),Method(test_immutable_array_init_without_type_generic()void),Method(test_reference_array_init()void),Method(test_reference_array_init_without_type_generic()void)
+        l-load tmp%6#0 4                                                                  Method(test_immutable_array_init()void),Method(test_immutable_array_init_without_type_generic()void),Method(test_reference_array_init()void),Method(test_reference_array_init_without_type_generic()void),tmp%6#0
+        match main_test_immutable_array_init_route@4 main_test_immutable_array_init_without_type_generic_route@5 main_test_reference_array_init_route@6 main_test_reference_array_init_without_type_generic_route@7 ; b main_after_if_else@10 
+
+    main_test_immutable_array_init_route@4:
+        // array/immutable-init.py:11
+        // @arc4.abimethod()
+        callsub test_immutable_array_init
+        b main_after_if_else@10
+
+    main_test_immutable_array_init_without_type_generic_route@5:
+        // array/immutable-init.py:33
+        // @arc4.abimethod()
+        callsub test_immutable_array_init_without_type_generic
+        b main_after_if_else@10
+
+    main_test_reference_array_init_route@6:
+        // array/immutable-init.py:55
+        // @arc4.abimethod()
+        callsub test_reference_array_init
+        b main_after_if_else@10
+
+    main_test_reference_array_init_without_type_generic_route@7:
+        // array/immutable-init.py:77
+        // @arc4.abimethod()
+        callsub test_reference_array_init_without_type_generic
+        b main_after_if_else@10
+
+    main_after_if_else@10:
+        // array/immutable-init.py:10
+        // class ImmutableArrayInitContract(arc4.ARC4Contract):
+        err
+
+    main___algopy_default_create@11:
+        txn OnCompletion                                                                  tmp%7#0
+        l-load tmp%7#0 0                                                                  tmp%7#0
+        !                                                                                 tmp%8#0
+        txn ApplicationID                                                                 tmp%8#0,tmp%9#0
+        l-load tmp%9#0 0                                                                  tmp%8#0,tmp%9#0
+        !                                                                                 tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                                  tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                                 tmp%8#0,tmp%10#0
+        &&                                                                                tmp%11#0
+        l-load tmp%11#0 0                                                                 tmp%11#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                             1
+        return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init[routing]() -> void:
+subroutine test_immutable_array_init:
+    test_immutable_array_init_block@0:
+        // array/immutable-init.py:21
+        // a3 = ImmutableArray[UInt64](ReferenceArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           0x000000000000000100000000000000020000000000000003
+        v-store slot%0
+        // array/immutable-init.py:11
+        // @arc4.abimethod()
+        int 1                                                                             1
+        return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init_without_type_generic[routing]() -> void:
+subroutine test_immutable_array_init_without_type_generic:
+    test_immutable_array_init_without_type_generic_block@0:
+        // array/immutable-init.py:43
+        // a3 = ImmutableArray(ReferenceArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           0x000000000000000100000000000000020000000000000003
+        v-store slot%0
+        // array/immutable-init.py:33
+        // @arc4.abimethod()
+        int 1                                                                             1
+        return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init[routing]() -> void:
+subroutine test_reference_array_init:
+    test_reference_array_init_block@0:
+        // array/immutable-init.py:57
+        // a1 = ReferenceArray[UInt64]((UInt64(1), UInt64(2), UInt64(3)))
+        byte 0x000000000000000100000000000000020000000000000003                           0x000000000000000100000000000000020000000000000003
+        l-store slot%0 0                                                                  slot%0
+        // array/immutable-init.py:59
+        // a2 = ReferenceArray[UInt64](FixedArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%1                                                                    slot%0
+        l-load-copy slot%0 0                                                              slot%0,slot%0 (copy)
+        // array/immutable-init.py:60
+        // assert a1.length == a2.length
+        l-store aggregate%slot_contents%0#0 0                                             slot%0,aggregate%slot_contents%0#0
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        len                                                                               slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0
+        l-load aggregate%bytes_len%0#0 0                                                  slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0
+        int 8                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0,8
+        /                                                                                 slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0
+        l-load aggregate%array_len%0#0 0                                                  slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0
+        int 3                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0,3
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%3#0
+        l-load tmp%3#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%3#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:61
+        // assert a1[0] == a2[0]
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        int 0                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy),0
+        extract_uint64                                                                    slot%0,aggregate%slot_contents%0#0,values%0#0
+        l-load values%0#0 0                                                               slot%0,aggregate%slot_contents%0#0,values%0#0
+        int 1                                                                             slot%0,aggregate%slot_contents%0#0,values%0#0,1
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%4#0
+        l-load tmp%4#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%4#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:62
+        // assert a1[1] == a2[1]
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        int 8                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy),8
+        extract_uint64                                                                    slot%0,aggregate%slot_contents%0#0,values%2#0
+        l-load values%2#0 0                                                               slot%0,aggregate%slot_contents%0#0,values%2#0
+        int 2                                                                             slot%0,aggregate%slot_contents%0#0,values%2#0,2
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%5#0
+        l-load tmp%5#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%5#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:63
+        // assert a1[2] == a2[2]
+        l-load aggregate%slot_contents%0#0 0                                              slot%0,aggregate%slot_contents%0#0
+        int 16                                                                            slot%0,aggregate%slot_contents%0#0,16
+        extract_uint64                                                                    slot%0,values%4#0
+        l-load values%4#0 0                                                               slot%0,values%4#0
+        int 3                                                                             slot%0,values%4#0,3
+        ==                                                                                slot%0,tmp%6#0
+        l-load tmp%6#0 0                                                                  slot%0,tmp%6#0
+        assert                                                                            slot%0
+        // array/immutable-init.py:65
+        // a3 = ReferenceArray[UInt64](ImmutableArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%2                                                                    slot%0
+        l-load-copy slot%0 0                                                              slot%0,slot%0 (copy)
+        // array/immutable-init.py:67
+        // assert a1[0] == a3[0]
+        l-store slot_contents%6#0 0                                                       slot%0,slot_contents%6#0
+        l-load-copy slot_contents%6#0 0                                                   slot%0,slot_contents%6#0,slot_contents%6#0 (copy)
+        int 0                                                                             slot%0,slot_contents%6#0,slot_contents%6#0 (copy),0
+        extract_uint64                                                                    slot%0,slot_contents%6#0,values%6#0
+        l-load values%6#0 0                                                               slot%0,slot_contents%6#0,values%6#0
+        int 1                                                                             slot%0,slot_contents%6#0,values%6#0,1
+        ==                                                                                slot%0,slot_contents%6#0,tmp%10#0
+        l-load tmp%10#0 0                                                                 slot%0,slot_contents%6#0,tmp%10#0
+        assert                                                                            slot%0,slot_contents%6#0
+        // array/immutable-init.py:68
+        // assert a1[1] == a3[1]
+        l-load-copy slot_contents%6#0 0                                                   slot%0,slot_contents%6#0,slot_contents%6#0 (copy)
+        int 8                                                                             slot%0,slot_contents%6#0,slot_contents%6#0 (copy),8
+        extract_uint64                                                                    slot%0,slot_contents%6#0,values%8#0
+        l-load values%8#0 0                                                               slot%0,slot_contents%6#0,values%8#0
+        int 2                                                                             slot%0,slot_contents%6#0,values%8#0,2
+        ==                                                                                slot%0,slot_contents%6#0,tmp%11#0
+        l-load tmp%11#0 0                                                                 slot%0,slot_contents%6#0,tmp%11#0
+        assert                                                                            slot%0,slot_contents%6#0
+        // array/immutable-init.py:69
+        // assert a1[2] == a3[2]
+        l-load slot_contents%6#0 0                                                        slot%0,slot_contents%6#0
+        int 16                                                                            slot%0,slot_contents%6#0,16
+        extract_uint64                                                                    slot%0,values%10#0
+        l-load values%10#0 0                                                              slot%0,values%10#0
+        int 3                                                                             slot%0,values%10#0,3
+        ==                                                                                slot%0,tmp%12#0
+        l-load tmp%12#0 0                                                                 slot%0,tmp%12#0
+        assert                                                                            slot%0
+        // array/immutable-init.py:57
+        // a1 = ReferenceArray[UInt64]((UInt64(1), UInt64(2), UInt64(3)))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%3                                                                    slot%0
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%4                                                                    slot%0
+        l-load slot%0 0                                                                   slot%0
+        // array/immutable-init.py:72
+        // assert a1.length == a4.length
+        l-store aggregate%slot_contents%3#0 0                                             aggregate%slot_contents%3#0
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        len                                                                               aggregate%slot_contents%3#0,aggregate%bytes_len%3#0
+        l-load aggregate%bytes_len%3#0 0                                                  aggregate%slot_contents%3#0,aggregate%bytes_len%3#0
+        int 8                                                                             aggregate%slot_contents%3#0,aggregate%bytes_len%3#0,8
+        /                                                                                 aggregate%slot_contents%3#0,aggregate%array_len%3#0
+        l-load aggregate%array_len%3#0 0                                                  aggregate%slot_contents%3#0,aggregate%array_len%3#0
+        int 3                                                                             aggregate%slot_contents%3#0,aggregate%array_len%3#0,3
+        ==                                                                                aggregate%slot_contents%3#0,tmp%15#0
+        l-load tmp%15#0 0                                                                 aggregate%slot_contents%3#0,tmp%15#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:73
+        // assert a1[0] == a4[0]
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        int 0                                                                             aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy),0
+        extract_uint64                                                                    aggregate%slot_contents%3#0,values%12#0
+        l-load values%12#0 0                                                              aggregate%slot_contents%3#0,values%12#0
+        int 1                                                                             aggregate%slot_contents%3#0,values%12#0,1
+        ==                                                                                aggregate%slot_contents%3#0,tmp%16#0
+        l-load tmp%16#0 0                                                                 aggregate%slot_contents%3#0,tmp%16#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:74
+        // assert a1[1] == a4[1]
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        int 8                                                                             aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy),8
+        extract_uint64                                                                    aggregate%slot_contents%3#0,values%14#0
+        l-load values%14#0 0                                                              aggregate%slot_contents%3#0,values%14#0
+        int 2                                                                             aggregate%slot_contents%3#0,values%14#0,2
+        ==                                                                                aggregate%slot_contents%3#0,tmp%17#0
+        l-load tmp%17#0 0                                                                 aggregate%slot_contents%3#0,tmp%17#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:75
+        // assert a1[2] == a4[2]
+        l-load aggregate%slot_contents%3#0 0                                              aggregate%slot_contents%3#0
+        int 16                                                                            aggregate%slot_contents%3#0,16
+        extract_uint64                                                                    values%16#0
+        l-load values%16#0 0                                                              values%16#0
+        int 3                                                                             values%16#0,3
+        ==                                                                                tmp%18#0
+        l-load tmp%18#0 0                                                                 tmp%18#0
+        assert
+        // array/immutable-init.py:55
+        // @arc4.abimethod()
+        int 1                                                                             1
+        return
+
+
+// test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init_without_type_generic[routing]() -> void:
+subroutine test_reference_array_init_without_type_generic:
+    test_reference_array_init_without_type_generic_block@0:
+        // array/immutable-init.py:79
+        // a1 = ReferenceArray((UInt64(1), UInt64(2), UInt64(3)))
+        byte 0x000000000000000100000000000000020000000000000003                           0x000000000000000100000000000000020000000000000003
+        l-store slot%0 0                                                                  slot%0
+        // array/immutable-init.py:81
+        // a2 = ReferenceArray(FixedArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%1                                                                    slot%0
+        l-load-copy slot%0 0                                                              slot%0,slot%0 (copy)
+        // array/immutable-init.py:82
+        // assert a1.length == a2.length
+        l-store aggregate%slot_contents%0#0 0                                             slot%0,aggregate%slot_contents%0#0
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        len                                                                               slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0
+        l-load aggregate%bytes_len%0#0 0                                                  slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0
+        int 8                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%bytes_len%0#0,8
+        /                                                                                 slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0
+        l-load aggregate%array_len%0#0 0                                                  slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0
+        int 3                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%array_len%0#0,3
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%3#0
+        l-load tmp%3#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%3#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:83
+        // assert a1[0] == a2[0]
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        int 0                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy),0
+        extract_uint64                                                                    slot%0,aggregate%slot_contents%0#0,values%0#0
+        l-load values%0#0 0                                                               slot%0,aggregate%slot_contents%0#0,values%0#0
+        int 1                                                                             slot%0,aggregate%slot_contents%0#0,values%0#0,1
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%4#0
+        l-load tmp%4#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%4#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:84
+        // assert a1[1] == a2[1]
+        l-load-copy aggregate%slot_contents%0#0 0                                         slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
+        int 8                                                                             slot%0,aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy),8
+        extract_uint64                                                                    slot%0,aggregate%slot_contents%0#0,values%2#0
+        l-load values%2#0 0                                                               slot%0,aggregate%slot_contents%0#0,values%2#0
+        int 2                                                                             slot%0,aggregate%slot_contents%0#0,values%2#0,2
+        ==                                                                                slot%0,aggregate%slot_contents%0#0,tmp%5#0
+        l-load tmp%5#0 0                                                                  slot%0,aggregate%slot_contents%0#0,tmp%5#0
+        assert                                                                            slot%0,aggregate%slot_contents%0#0
+        // array/immutable-init.py:85
+        // assert a1[2] == a2[2]
+        l-load aggregate%slot_contents%0#0 0                                              slot%0,aggregate%slot_contents%0#0
+        int 16                                                                            slot%0,aggregate%slot_contents%0#0,16
+        extract_uint64                                                                    slot%0,values%4#0
+        l-load values%4#0 0                                                               slot%0,values%4#0
+        int 3                                                                             slot%0,values%4#0,3
+        ==                                                                                slot%0,tmp%6#0
+        l-load tmp%6#0 0                                                                  slot%0,tmp%6#0
+        assert                                                                            slot%0
+        // array/immutable-init.py:87
+        // a3 = ReferenceArray(ImmutableArray((UInt64(1), UInt64(2), UInt64(3))))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%2                                                                    slot%0
+        l-load-copy slot%0 0                                                              slot%0,slot%0 (copy)
+        // array/immutable-init.py:89
+        // assert a1[0] == a3[0]
+        l-store slot_contents%6#0 0                                                       slot%0,slot_contents%6#0
+        l-load-copy slot_contents%6#0 0                                                   slot%0,slot_contents%6#0,slot_contents%6#0 (copy)
+        int 0                                                                             slot%0,slot_contents%6#0,slot_contents%6#0 (copy),0
+        extract_uint64                                                                    slot%0,slot_contents%6#0,values%6#0
+        l-load values%6#0 0                                                               slot%0,slot_contents%6#0,values%6#0
+        int 1                                                                             slot%0,slot_contents%6#0,values%6#0,1
+        ==                                                                                slot%0,slot_contents%6#0,tmp%10#0
+        l-load tmp%10#0 0                                                                 slot%0,slot_contents%6#0,tmp%10#0
+        assert                                                                            slot%0,slot_contents%6#0
+        // array/immutable-init.py:90
+        // assert a1[1] == a3[1]
+        l-load-copy slot_contents%6#0 0                                                   slot%0,slot_contents%6#0,slot_contents%6#0 (copy)
+        int 8                                                                             slot%0,slot_contents%6#0,slot_contents%6#0 (copy),8
+        extract_uint64                                                                    slot%0,slot_contents%6#0,values%8#0
+        l-load values%8#0 0                                                               slot%0,slot_contents%6#0,values%8#0
+        int 2                                                                             slot%0,slot_contents%6#0,values%8#0,2
+        ==                                                                                slot%0,slot_contents%6#0,tmp%11#0
+        l-load tmp%11#0 0                                                                 slot%0,slot_contents%6#0,tmp%11#0
+        assert                                                                            slot%0,slot_contents%6#0
+        // array/immutable-init.py:91
+        // assert a1[2] == a3[2]
+        l-load slot_contents%6#0 0                                                        slot%0,slot_contents%6#0
+        int 16                                                                            slot%0,slot_contents%6#0,16
+        extract_uint64                                                                    slot%0,values%10#0
+        l-load values%10#0 0                                                              slot%0,values%10#0
+        int 3                                                                             slot%0,values%10#0,3
+        ==                                                                                slot%0,tmp%12#0
+        l-load tmp%12#0 0                                                                 slot%0,tmp%12#0
+        assert                                                                            slot%0
+        // array/immutable-init.py:79
+        // a1 = ReferenceArray((UInt64(1), UInt64(2), UInt64(3)))
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%3                                                                    slot%0
+        byte 0x000000000000000100000000000000020000000000000003                           slot%0,0x000000000000000100000000000000020000000000000003
+        v-store slot%4                                                                    slot%0
+        l-load slot%0 0                                                                   slot%0
+        // array/immutable-init.py:94
+        // assert a1.length == a4.length
+        l-store aggregate%slot_contents%3#0 0                                             aggregate%slot_contents%3#0
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        len                                                                               aggregate%slot_contents%3#0,aggregate%bytes_len%3#0
+        l-load aggregate%bytes_len%3#0 0                                                  aggregate%slot_contents%3#0,aggregate%bytes_len%3#0
+        int 8                                                                             aggregate%slot_contents%3#0,aggregate%bytes_len%3#0,8
+        /                                                                                 aggregate%slot_contents%3#0,aggregate%array_len%3#0
+        l-load aggregate%array_len%3#0 0                                                  aggregate%slot_contents%3#0,aggregate%array_len%3#0
+        int 3                                                                             aggregate%slot_contents%3#0,aggregate%array_len%3#0,3
+        ==                                                                                aggregate%slot_contents%3#0,tmp%15#0
+        l-load tmp%15#0 0                                                                 aggregate%slot_contents%3#0,tmp%15#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:95
+        // assert a1[0] == a4[0]
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        int 0                                                                             aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy),0
+        extract_uint64                                                                    aggregate%slot_contents%3#0,values%12#0
+        l-load values%12#0 0                                                              aggregate%slot_contents%3#0,values%12#0
+        int 1                                                                             aggregate%slot_contents%3#0,values%12#0,1
+        ==                                                                                aggregate%slot_contents%3#0,tmp%16#0
+        l-load tmp%16#0 0                                                                 aggregate%slot_contents%3#0,tmp%16#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:96
+        // assert a1[1] == a4[1]
+        l-load-copy aggregate%slot_contents%3#0 0                                         aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy)
+        int 8                                                                             aggregate%slot_contents%3#0,aggregate%slot_contents%3#0 (copy),8
+        extract_uint64                                                                    aggregate%slot_contents%3#0,values%14#0
+        l-load values%14#0 0                                                              aggregate%slot_contents%3#0,values%14#0
+        int 2                                                                             aggregate%slot_contents%3#0,values%14#0,2
+        ==                                                                                aggregate%slot_contents%3#0,tmp%17#0
+        l-load tmp%17#0 0                                                                 aggregate%slot_contents%3#0,tmp%17#0
+        assert                                                                            aggregate%slot_contents%3#0
+        // array/immutable-init.py:97
+        // assert a1[2] == a4[2]
+        l-load aggregate%slot_contents%3#0 0                                              aggregate%slot_contents%3#0
+        int 16                                                                            aggregate%slot_contents%3#0,16
+        extract_uint64                                                                    values%16#0
+        l-load values%16#0 0                                                              values%16#0
+        int 3                                                                             values%16#0,3
+        ==                                                                                tmp%18#0
+        l-load tmp%18#0 0                                                                 tmp%18#0
+        assert
+        // array/immutable-init.py:77
+        // @arc4.abimethod()
+        int 1                                                                             1
+        return
+
+

@@ -509,6 +509,112 @@ subroutine path_length(path: ref_array<test_cases.array.static_size.Point>): uin
   return length
 }
 
+contract ImmutableArrayInitContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init(): void
+  {
+    a1: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(1u, 2u, 3u)
+    a2: arc4.dynamic_array<uint64> = convert_array<arc4.dynamic_array<uint64>>(new arc4.static_array<uint64, 3>(1u, 2u, 3u))
+    assert(a1.length == a2.length)
+    assert(a1[0u] == a2[0u])
+    assert(a1[1u] == a2[1u])
+    assert(a1[2u] == a2[2u])
+    a3: arc4.dynamic_array<uint64> = convert_array<arc4.dynamic_array<uint64>>(new ref_array<uint64>(1u, 2u, 3u))
+    assert(a3.length == 3u)
+    assert(a1[0u] == a3[0u])
+    assert(a1[1u] == a3[1u])
+    assert(a1[2u] == a3[2u])
+    a4: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(1u, 2u, 3u).copy()
+    assert(a1.length == a4.length)
+    assert(a1[0u] == a4[0u])
+    assert(a1[1u] == a4[1u])
+    assert(a1[2u] == a4[2u])
+  }
+  
+  abimethod test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init_without_type_generic(): void
+  {
+    a1: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(1u, 2u, 3u)
+    a2: arc4.dynamic_array<uint64> = convert_array<arc4.dynamic_array<uint64>>(new arc4.static_array<uint64, 3>(1u, 2u, 3u))
+    assert(a1.length == a2.length)
+    assert(a1[0u] == a2[0u])
+    assert(a1[1u] == a2[1u])
+    assert(a1[2u] == a2[2u])
+    a3: arc4.dynamic_array<uint64> = convert_array<arc4.dynamic_array<uint64>>(new ref_array<uint64>(1u, 2u, 3u))
+    assert(a3.length == 3u)
+    assert(a1[0u] == a3[0u])
+    assert(a1[1u] == a3[1u])
+    assert(a1[2u] == a3[2u])
+    a4: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(1u, 2u, 3u).copy()
+    assert(a1.length == a4.length)
+    assert(a1[0u] == a4[0u])
+    assert(a1[1u] == a4[1u])
+    assert(a1[2u] == a4[2u])
+  }
+  
+  abimethod test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init(): void
+  {
+    a1: ref_array<uint64> = new ref_array<uint64>(1u, 2u, 3u)
+    a2: ref_array<uint64> = convert_array<ref_array<uint64>>(new arc4.static_array<uint64, 3>(1u, 2u, 3u))
+    assert(a1.length == a2.length)
+    assert(a1[0u] == a2[0u])
+    assert(a1[1u] == a2[1u])
+    assert(a1[2u] == a2[2u])
+    a3: ref_array<uint64> = convert_array<ref_array<uint64>>(new arc4.dynamic_array<uint64>(1u, 2u, 3u))
+    assert(a3.length == 3u)
+    assert(a1[0u] == a3[0u])
+    assert(a1[1u] == a3[1u])
+    assert(a1[2u] == a3[2u])
+    a4: ref_array<uint64> = new ref_array<uint64>(1u, 2u, 3u).copy()
+    assert(a1.length == a4.length)
+    assert(a1[0u] == a4[0u])
+    assert(a1[1u] == a4[1u])
+    assert(a1[2u] == a4[2u])
+  }
+  
+  abimethod test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init_without_type_generic(): void
+  {
+    a1: ref_array<uint64> = new ref_array<uint64>(1u, 2u, 3u)
+    a2: ref_array<uint64> = convert_array<ref_array<uint64>>(new arc4.static_array<uint64, 3>(1u, 2u, 3u))
+    assert(a1.length == a2.length)
+    assert(a1[0u] == a2[0u])
+    assert(a1[1u] == a2[1u])
+    assert(a1[2u] == a2[2u])
+    a3: ref_array<uint64> = convert_array<ref_array<uint64>>(new arc4.dynamic_array<uint64>(1u, 2u, 3u))
+    assert(a3.length == 3u)
+    assert(a1[0u] == a3[0u])
+    assert(a1[1u] == a3[1u])
+    assert(a1[2u] == a3[2u])
+    a4: ref_array<uint64> = new ref_array<uint64>(1u, 2u, 3u).copy()
+    assert(a1.length == a4.length)
+    assert(a1[0u] == a4[0u])
+    assert(a1[1u] == a4[1u])
+    assert(a1[2u] == a4[2u])
+  }
+  
+  baremethod test_cases.array.immutable-init.ImmutableArrayInitContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract ImmutableArrayContract
 {
   method_resolution_order: (
