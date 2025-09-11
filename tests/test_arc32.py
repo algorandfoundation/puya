@@ -2299,6 +2299,21 @@ def test_array_static_size(
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1])
+def test_immutable_array_init(
+    algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
+) -> None:
+    immutable_array_app = _get_immutable_array_init_app(algod_client, optimization_level, account)
+
+    simulate_call(immutable_array_app, "test_immutable_array_init")
+
+    simulate_call(immutable_array_app, "test_immutable_array_init_without_type_generic")
+
+    simulate_call(immutable_array_app, "test_reference_array_init")
+
+    simulate_call(immutable_array_app, "test_immutable_array_init_without_type_generic")
+
+
+@pytest.mark.parametrize("optimization_level", [0, 1])
 def test_immutable_array(
     algod_client: AlgodClient, optimization_level: int, account: algokit_utils.Account
 ) -> None:
@@ -2860,7 +2875,24 @@ def _get_immutable_array_app(
     account: algokit_utils.Account,
 ) -> ApplicationClient:
     example = TEST_CASES_DIR / "array" / "immutable.py"
+    return _get_app_client(example, algod_client, optimization_level, account)
 
+
+def _get_immutable_array_init_app(
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> ApplicationClient:
+    example = TEST_CASES_DIR / "array" / "immutable-init.py"
+    return _get_app_client(example, algod_client, optimization_level, account)
+
+
+def _get_app_client(
+    example: Path,
+    algod_client: AlgodClient,
+    optimization_level: int,
+    account: algokit_utils.Account,
+) -> ApplicationClient:
     app_spec = _get_app_spec(example, optimization_level)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create(transaction_parameters={"note": random.randbytes(8)})
