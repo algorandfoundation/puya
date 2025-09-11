@@ -9,6 +9,7 @@ from puya.awst.nodes import (
     ArrayLength,
     ArrayPop,
     ConvertArray,
+    Copy,
     Expression,
     IndexExpression,
     NewArray,
@@ -26,7 +27,12 @@ from puyapy.awst_build.eb._base import (
 )
 from puyapy.awst_build.eb._utils import CopyBuilder, dummy_value, resolve_negative_literal_index
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
+from puyapy.awst_build.eb.interface import (
+    InstanceBuilder,
+    NodeBuilder,
+    StaticSizedCollectionBuilder,
+    TypeBuilder,
+)
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -42,13 +48,30 @@ class ReferenceArrayGenericTypeBuilder(GenericTypeBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not args:
+        arg = expect.at_most_one_arg(args, location)
+        if not arg:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
-        typ = pytypes.GenericReferenceArrayType.parameterise([element_type], location)
-        return ReferenceArrayTypeBuilder(typ, self.source_location).call(
-            args, arg_kinds, arg_names, location
-        )
+
+        arg_item_type = arg.iterable_item_type()
+        typ = pytypes.GenericReferenceArrayType.parameterise([arg_item_type], location)
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ReferenceArray)
+
+        if arg.pytype.wtype == wtype:
+            new_array: Expression = Copy(value=arg.resolve(), source_location=location)
+        elif isinstance(
+            arg.pytype.wtype,
+            wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
+        ):
+            new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
+        elif isinstance(arg, StaticSizedCollectionBuilder):
+            item_builders = arg.iterate_static()
+            items = [ib.resolve() for ib in item_builders]
+            new_array = NewArray(values=items, wtype=wtype, source_location=location)
+        else:
+            logger.error("unsupported collection type", location=arg.source_location)
+            new_array = Copy(value=dummy_value(typ, location).resolve(), source_location=location)
+        return ReferenceArrayExpressionBuilder(new_array, typ)
 
 
 class ReferenceArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
@@ -69,10 +92,38 @@ class ReferenceArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
-        return ReferenceArrayExpressionBuilder(
-            NewArray(values=values, wtype=self._wtype, source_location=location), typ
-        )
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.ReferenceArray)
+
+        arg = expect.at_most_one_arg(args, location)
+        if not arg:
+            new_array: Expression = NewArray(values=[], wtype=wtype, source_location=location)
+        else:
+            arg_item_type = arg.iterable_item_type()
+            if not (typ.items <= arg_item_type):
+                logger.error(
+                    "iterable element type does not match collection type",
+                    location=arg.source_location,
+                )
+                arg = dummy_value(typ, location)
+            if arg.pytype.wtype == wtype:
+                new_array = Copy(value=arg.resolve(), source_location=location)
+            elif isinstance(
+                arg.pytype.wtype,
+                wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
+            ):
+                new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
+            elif isinstance(arg, StaticSizedCollectionBuilder):
+                item_builders = arg.iterate_static()
+                items = [ib.resolve() for ib in item_builders]
+                new_array = NewArray(values=items, wtype=wtype, source_location=location)
+            else:
+                logger.error("unsupported collection type", location=arg.source_location)
+                new_array = Copy(
+                    value=dummy_value(typ, location).resolve(), source_location=location
+                )
+
+        return ReferenceArrayExpressionBuilder(new_array, self._pytype)
 
 
 class ReferenceArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):

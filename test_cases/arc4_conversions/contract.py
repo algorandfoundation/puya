@@ -103,7 +103,7 @@ class TestContract(arc4.ARC4Contract):
     def test_array_uint64_encoding(self) -> None:
         app = arc4.arc4_create(CheckApp).created_app
 
-        arr = ImmutableArray(Txn.num_app_args, Txn.num_app_args + 1, Txn.num_app_args + 2)
+        arr = ImmutableArray((Txn.num_app_args, Txn.num_app_args + 1, Txn.num_app_args + 2))
         expected_bytes = (
             b"\x00\x03" + op.bzero(7) + b"\x01" + op.bzero(7) + b"\x02" + op.bzero(7) + b"\x03"
         )
@@ -127,7 +127,7 @@ class TestContract(arc4.ARC4Contract):
     def test_array_static_encoding(self) -> None:
         app = arc4.arc4_create(CheckApp).created_app
 
-        arr = ImmutableArray(my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3)))
+        arr = ImmutableArray((my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3))))
         expected_bytes = (
             b"\x00\x03"
             + (op.bzero(7) + b"\x01")
@@ -152,7 +152,7 @@ class TestContract(arc4.ARC4Contract):
         app = arc4.arc4_create(CheckApp).created_app
 
         arr = ImmutableArray(
-            my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))
+            (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3)))
         )
         expected_bytes = arc4.DynamicArray(
             my_dyn_struct_arc4(UInt64(1)),
