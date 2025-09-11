@@ -87,6 +87,7 @@ test_forwards:
     b test_forwards_block@0
 
 test_forwards_block@0:
+    bytec_0 // ""
     // iteration/iterate_urange.py:13
     // for i in urange(1, 7, 2):
     intc_2 // 2
@@ -97,7 +98,7 @@ test_forwards_block@0:
 test_forwards_for_header@1:
     // iteration/iterate_urange.py:13
     // for i in urange(1, 7, 2):
-    frame_dig 0
+    frame_dig 1
     intc_3 // 7
     <
     bz test_forwards_after_for@4
@@ -106,34 +107,45 @@ test_forwards_for_header@1:
 test_forwards_for_body@2:
     // iteration/iterate_urange.py:13
     // for i in urange(1, 7, 2):
-    frame_dig 0
+    frame_dig 1
     // iteration/iterate_urange.py:12
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
     // iteration/iterate_urange.py:14
     // log(values[i])
-    uncover 1
+    dig 1
     intc_0 // 1
     extract3
     log
+    // iteration/iterate_urange.py:15
+    // i += 1
+    intc_0 // 1
+    +
+    frame_bury 0
     b test_forwards_for_footer@3
 
 test_forwards_for_footer@3:
     // iteration/iterate_urange.py:13
     // for i in urange(1, 7, 2):
-    frame_dig 0
+    frame_dig 1
     intc_2 // 2
     +
-    frame_bury 0
+    frame_bury 1
     b test_forwards_for_header@1
 
 test_forwards_after_for@4:
+    // iteration/iterate_urange.py:16
+    // assert i == 6
+    frame_dig 0
+    pushint 6 // 6
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_reversed() -> void:
 test_reversed:
-    // iteration/iterate_urange.py:17-19
+    // iteration/iterate_urange.py:18-20
     // @typing.override
     // @subroutine
     // def test_reversed(self) -> None:
@@ -142,7 +154,8 @@ test_reversed:
     b test_reversed_block@0
 
 test_reversed_block@0:
-    // iteration/iterate_urange.py:21
+    bytec_0 // ""
+    // iteration/iterate_urange.py:22
     // for i in reversed(urange(1, 7, 2)):
     intc_2 // 2
     assert // Step cannot be zero
@@ -153,7 +166,7 @@ test_reversed_block@0:
     b test_reversed_for_header@1
 
 test_reversed_for_header@1:
-    // iteration/iterate_urange.py:21
+    // iteration/iterate_urange.py:22
     // for i in reversed(urange(1, 7, 2)):
     intc_3 // 7
     intc_0 // 1
@@ -170,19 +183,26 @@ test_reversed_for_header@1:
     b test_reversed_for_body@2
 
 test_reversed_for_body@2:
-    // iteration/iterate_urange.py:20
+    // iteration/iterate_urange.py:21
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:22
+    // iteration/iterate_urange.py:23
     // log(values[i])
     frame_dig 0
+    dup
+    cover 2
     intc_0 // 1
     extract3
     log
+    // iteration/iterate_urange.py:24
+    // i += 1
+    intc_0 // 1
+    +
+    frame_bury 1
     b test_reversed_for_footer@3
 
 test_reversed_for_footer@3:
-    // iteration/iterate_urange.py:21
+    // iteration/iterate_urange.py:22
     // for i in reversed(urange(1, 7, 2)):
     intc_0 // 1
     frame_dig 0
@@ -191,7 +211,7 @@ test_reversed_for_footer@3:
     b test_reversed_for_increment@4
 
 test_reversed_for_increment@4:
-    // iteration/iterate_urange.py:21
+    // iteration/iterate_urange.py:22
     // for i in reversed(urange(1, 7, 2)):
     frame_dig 0
     intc_2 // 2
@@ -200,12 +220,18 @@ test_reversed_for_increment@4:
     b test_reversed_for_body@2
 
 test_reversed_after_for@5:
+    // iteration/iterate_urange.py:25
+    // assert i == 2
+    frame_dig 1
+    intc_2 // 2
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_forwards_index() -> void:
 test_forwards_with_forwards_index:
-    // iteration/iterate_urange.py:25-27
+    // iteration/iterate_urange.py:27-29
     // @typing.override
     // @subroutine
     // def test_forwards_with_forwards_index(self) -> None:
@@ -213,7 +239,9 @@ test_forwards_with_forwards_index:
     b test_forwards_with_forwards_index_block@0
 
 test_forwards_with_forwards_index_block@0:
-    // iteration/iterate_urange.py:29
+    bytec_0 // ""
+    bytec_0 // ""
+    // iteration/iterate_urange.py:31
     // for idx, i in uenumerate(urange(1, 7, 2)):
     intc_2 // 2
     assert // Step cannot be zero
@@ -222,51 +250,75 @@ test_forwards_with_forwards_index_block@0:
     b test_forwards_with_forwards_index_for_header@1
 
 test_forwards_with_forwards_index_for_header@1:
-    // iteration/iterate_urange.py:29
+    // iteration/iterate_urange.py:31
     // for idx, i in uenumerate(urange(1, 7, 2)):
-    frame_dig 0
+    frame_dig 2
     intc_3 // 7
     <
     bz test_forwards_with_forwards_index_after_for@4
     b test_forwards_with_forwards_index_for_body@2
 
 test_forwards_with_forwards_index_for_body@2:
-    // iteration/iterate_urange.py:29
+    // iteration/iterate_urange.py:31
     // for idx, i in uenumerate(urange(1, 7, 2)):
-    frame_dig 0
-    frame_dig 1
+    frame_dig 2
+    frame_dig 3
     cover 1
-    // iteration/iterate_urange.py:28
+    // iteration/iterate_urange.py:30
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:30
+    // iteration/iterate_urange.py:32
     // self._log_with_index(idx, values[i])
-    uncover 1
+    dig 1
     intc_0 // 1
     extract3
+    dig 2
+    uncover 1
     callsub _log_with_index
-    b test_forwards_with_forwards_index_for_footer@3
-
-test_forwards_with_forwards_index_for_footer@3:
-    // iteration/iterate_urange.py:29
-    // for idx, i in uenumerate(urange(1, 7, 2)):
-    frame_dig 0
-    intc_2 // 2
-    +
-    frame_bury 0
-    frame_dig 1
+    // iteration/iterate_urange.py:33
+    // i += 1
     intc_0 // 1
     +
     frame_bury 1
+    // iteration/iterate_urange.py:34
+    // idx += 1
+    intc_0 // 1
+    +
+    frame_bury 0
+    b test_forwards_with_forwards_index_for_footer@3
+
+test_forwards_with_forwards_index_for_footer@3:
+    // iteration/iterate_urange.py:31
+    // for idx, i in uenumerate(urange(1, 7, 2)):
+    frame_dig 2
+    intc_2 // 2
+    +
+    frame_bury 2
+    frame_dig 3
+    intc_0 // 1
+    +
+    frame_bury 3
     b test_forwards_with_forwards_index_for_header@1
 
 test_forwards_with_forwards_index_after_for@4:
+    // iteration/iterate_urange.py:35
+    // assert i == 6
+    frame_dig 1
+    pushint 6 // 6
+    ==
+    assert
+    // iteration/iterate_urange.py:36
+    // assert idx == 3
+    frame_dig 0
+    pushint 3 // 3
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_forwards_with_reverse_index() -> void:
 test_forwards_with_reverse_index:
-    // iteration/iterate_urange.py:34-36
+    // iteration/iterate_urange.py:38-40
     // @typing.override
     // @subroutine
     // def test_forwards_with_reverse_index(self) -> None:
@@ -277,7 +329,9 @@ test_forwards_with_reverse_index:
     b test_forwards_with_reverse_index_block@0
 
 test_forwards_with_reverse_index_block@0:
-    // iteration/iterate_urange.py:38
+    bytec_0 // ""
+    bytec_0 // ""
+    // iteration/iterate_urange.py:42
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     intc_2 // 2
     assert // Step cannot be zero
@@ -288,7 +342,7 @@ test_forwards_with_reverse_index_block@0:
     b test_forwards_with_reverse_index_for_header@1
 
 test_forwards_with_reverse_index_for_header@1:
-    // iteration/iterate_urange.py:38
+    // iteration/iterate_urange.py:42
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     intc_3 // 7
     intc_0 // 1
@@ -304,26 +358,41 @@ test_forwards_with_reverse_index_for_header@1:
     +
     frame_bury 2
     intc_0 // 1
-    frame_bury 0
+    uncover 1
     frame_bury 1
+    frame_bury 0
     b test_forwards_with_reverse_index_for_body@2
 
 test_forwards_with_reverse_index_for_body@2:
-    // iteration/iterate_urange.py:37
+    // iteration/iterate_urange.py:41
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:39
+    // iteration/iterate_urange.py:43
     // self._log_with_index(idx, values[i])
     frame_dig 0
+    dup
+    cover 2
     intc_0 // 1
     extract3
     frame_dig 1
+    dup
+    cover 3
     uncover 1
     callsub _log_with_index
+    // iteration/iterate_urange.py:44
+    // i += 1
+    intc_0 // 1
+    +
+    frame_bury 4
+    // iteration/iterate_urange.py:45
+    // idx += 1
+    intc_0 // 1
+    +
+    frame_bury 3
     b test_forwards_with_reverse_index_for_footer@3
 
 test_forwards_with_reverse_index_for_footer@3:
-    // iteration/iterate_urange.py:38
+    // iteration/iterate_urange.py:42
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     frame_dig 0
     frame_dig 2
@@ -332,25 +401,37 @@ test_forwards_with_reverse_index_for_footer@3:
     b test_forwards_with_reverse_index_for_increment@4
 
 test_forwards_with_reverse_index_for_increment@4:
-    // iteration/iterate_urange.py:38
+    // iteration/iterate_urange.py:42
     // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
     frame_dig 0
     intc_2 // 2
     +
-    frame_bury 0
     frame_dig 1
     intc_0 // 1
     -
     frame_bury 1
+    frame_bury 0
     b test_forwards_with_reverse_index_for_body@2
 
 test_forwards_with_reverse_index_after_for@5:
+    // iteration/iterate_urange.py:46
+    // assert i == 6
+    frame_dig 4
+    pushint 6 // 6
+    ==
+    assert
+    // iteration/iterate_urange.py:47
+    // assert idx == 1
+    frame_dig 3
+    intc_0 // 1
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_forwards_index() -> void:
 test_reverse_with_forwards_index:
-    // iteration/iterate_urange.py:43-45
+    // iteration/iterate_urange.py:49-51
     // @typing.override
     // @subroutine
     // def test_reverse_with_forwards_index(self) -> None:
@@ -360,7 +441,9 @@ test_reverse_with_forwards_index:
     b test_reverse_with_forwards_index_block@0
 
 test_reverse_with_forwards_index_block@0:
-    // iteration/iterate_urange.py:47
+    bytec_0 // ""
+    bytec_0 // ""
+    // iteration/iterate_urange.py:53
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     intc_2 // 2
     assert // Step cannot be zero
@@ -371,7 +454,7 @@ test_reverse_with_forwards_index_block@0:
     b test_reverse_with_forwards_index_for_header@1
 
 test_reverse_with_forwards_index_for_header@1:
-    // iteration/iterate_urange.py:47
+    // iteration/iterate_urange.py:53
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     intc_3 // 7
     intc_0 // 1
@@ -384,27 +467,41 @@ test_reverse_with_forwards_index_for_header@1:
     *
     intc_0 // 1
     +
-    frame_bury 0
     intc_1 // 0
     frame_bury 1
+    frame_bury 0
     b test_reverse_with_forwards_index_for_body@2
 
 test_reverse_with_forwards_index_for_body@2:
-    // iteration/iterate_urange.py:46
+    // iteration/iterate_urange.py:52
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:48
+    // iteration/iterate_urange.py:54
     // self._log_with_index(idx, values[i])
     frame_dig 0
+    dup
+    cover 2
     intc_0 // 1
     extract3
     frame_dig 1
+    dup
+    cover 3
     uncover 1
     callsub _log_with_index
+    // iteration/iterate_urange.py:55
+    // i += 1
+    intc_0 // 1
+    +
+    frame_bury 3
+    // iteration/iterate_urange.py:56
+    // idx += 1
+    intc_0 // 1
+    +
+    frame_bury 2
     b test_reverse_with_forwards_index_for_footer@3
 
 test_reverse_with_forwards_index_for_footer@3:
-    // iteration/iterate_urange.py:47
+    // iteration/iterate_urange.py:53
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     intc_0 // 1
     frame_dig 0
@@ -413,25 +510,37 @@ test_reverse_with_forwards_index_for_footer@3:
     b test_reverse_with_forwards_index_for_increment@4
 
 test_reverse_with_forwards_index_for_increment@4:
-    // iteration/iterate_urange.py:47
+    // iteration/iterate_urange.py:53
     // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
     frame_dig 0
     intc_2 // 2
     -
-    frame_bury 0
     frame_dig 1
     intc_0 // 1
     +
     frame_bury 1
+    frame_bury 0
     b test_reverse_with_forwards_index_for_body@2
 
 test_reverse_with_forwards_index_after_for@5:
+    // iteration/iterate_urange.py:57
+    // assert i == 2
+    frame_dig 3
+    intc_2 // 2
+    ==
+    assert
+    // iteration/iterate_urange.py:58
+    // assert idx == 3
+    frame_dig 2
+    pushint 3 // 3
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_reverse_with_reverse_index() -> void:
 test_reverse_with_reverse_index:
-    // iteration/iterate_urange.py:52-54
+    // iteration/iterate_urange.py:60-62
     // @typing.override
     // @subroutine
     // def test_reverse_with_reverse_index(self) -> None:
@@ -441,7 +550,9 @@ test_reverse_with_reverse_index:
     b test_reverse_with_reverse_index_block@0
 
 test_reverse_with_reverse_index_block@0:
-    // iteration/iterate_urange.py:56
+    bytec_0 // ""
+    bytec_0 // ""
+    // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     intc_2 // 2
     assert // Step cannot be zero
@@ -452,7 +563,7 @@ test_reverse_with_reverse_index_block@0:
     b test_reverse_with_reverse_index_for_header@1
 
 test_reverse_with_reverse_index_for_header@1:
-    // iteration/iterate_urange.py:56
+    // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     intc_3 // 7
     intc_0 // 1
@@ -466,26 +577,41 @@ test_reverse_with_reverse_index_for_header@1:
     *
     intc_0 // 1
     +
-    frame_bury 0
+    uncover 1
     frame_bury 1
+    frame_bury 0
     b test_reverse_with_reverse_index_for_body@2
 
 test_reverse_with_reverse_index_for_body@2:
-    // iteration/iterate_urange.py:55
+    // iteration/iterate_urange.py:63
     // values = Bytes(b" a b c")
     bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:57
+    // iteration/iterate_urange.py:65
     // self._log_with_index(idx, values[i])
     frame_dig 0
+    dup
+    cover 2
     intc_0 // 1
     extract3
     frame_dig 1
+    dup
+    cover 3
     uncover 1
     callsub _log_with_index
+    // iteration/iterate_urange.py:66
+    // i += 1
+    intc_0 // 1
+    +
+    frame_bury 3
+    // iteration/iterate_urange.py:67
+    // idx += 1
+    intc_0 // 1
+    +
+    frame_bury 2
     b test_reverse_with_reverse_index_for_footer@3
 
 test_reverse_with_reverse_index_for_footer@3:
-    // iteration/iterate_urange.py:56
+    // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     intc_0 // 1
     frame_dig 0
@@ -494,25 +620,37 @@ test_reverse_with_reverse_index_for_footer@3:
     b test_reverse_with_reverse_index_for_increment@4
 
 test_reverse_with_reverse_index_for_increment@4:
-    // iteration/iterate_urange.py:56
+    // iteration/iterate_urange.py:64
     // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
     frame_dig 0
     intc_2 // 2
     -
-    frame_bury 0
     frame_dig 1
     intc_0 // 1
     -
     frame_bury 1
+    frame_bury 0
     b test_reverse_with_reverse_index_for_body@2
 
 test_reverse_with_reverse_index_after_for@5:
+    // iteration/iterate_urange.py:68
+    // assert i == 2
+    frame_dig 3
+    intc_2 // 2
+    ==
+    assert
+    // iteration/iterate_urange.py:69
+    // assert idx == 1
+    frame_dig 2
+    intc_0 // 1
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_empty() -> void:
 test_empty:
-    // iteration/iterate_urange.py:61-63
+    // iteration/iterate_urange.py:71-73
     // @typing.override
     // @subroutine
     // def test_empty(self) -> None:
@@ -525,7 +663,7 @@ test_empty:
     b test_empty_block@0
 
 test_empty_block@0:
-    // iteration/iterate_urange.py:64
+    // iteration/iterate_urange.py:74
     // for i in urange(0):
     intc_0 // 1
     assert // Step cannot be zero
@@ -533,7 +671,7 @@ test_empty_block@0:
     b test_empty_for_header@1
 
 test_empty_for_header@1:
-    // iteration/iterate_urange.py:64
+    // iteration/iterate_urange.py:74
     // for i in urange(0):
     frame_dig 5
     intc_1 // 0
@@ -542,17 +680,17 @@ test_empty_for_header@1:
     b test_empty_for_body@2
 
 test_empty_for_body@2:
-    // iteration/iterate_urange.py:64
+    // iteration/iterate_urange.py:74
     // for i in urange(0):
     frame_dig 5
-    // iteration/iterate_urange.py:65
+    // iteration/iterate_urange.py:75
     // log(i)
     itob
     log
     b test_empty_for_footer@3
 
 test_empty_for_footer@3:
-    // iteration/iterate_urange.py:64
+    // iteration/iterate_urange.py:74
     // for i in urange(0):
     frame_dig 5
     intc_0 // 1
@@ -561,7 +699,7 @@ test_empty_for_footer@3:
     b test_empty_for_header@1
 
 test_empty_after_for@4:
-    // iteration/iterate_urange.py:66
+    // iteration/iterate_urange.py:76
     // for i in reversed(urange(0)):
     intc_0 // 1
     assert // Step cannot be zero
@@ -572,7 +710,7 @@ test_empty_after_for@4:
     b test_empty_for_header@5
 
 test_empty_for_header@5:
-    // iteration/iterate_urange.py:66
+    // iteration/iterate_urange.py:76
     // for i in reversed(urange(0)):
     intc_1 // 0
     intc_1 // 0
@@ -589,7 +727,7 @@ test_empty_for_header@5:
     b test_empty_for_body@6
 
 test_empty_for_body@6:
-    // iteration/iterate_urange.py:67
+    // iteration/iterate_urange.py:77
     // log(i)
     frame_dig 0
     itob
@@ -597,7 +735,7 @@ test_empty_for_body@6:
     b test_empty_for_footer@7
 
 test_empty_for_footer@7:
-    // iteration/iterate_urange.py:66
+    // iteration/iterate_urange.py:76
     // for i in reversed(urange(0)):
     intc_1 // 0
     frame_dig 0
@@ -606,7 +744,7 @@ test_empty_for_footer@7:
     b test_empty_for_increment@8
 
 test_empty_for_increment@8:
-    // iteration/iterate_urange.py:66
+    // iteration/iterate_urange.py:76
     // for i in reversed(urange(0)):
     frame_dig 0
     intc_0 // 1
@@ -615,7 +753,7 @@ test_empty_for_increment@8:
     b test_empty_for_body@6
 
 test_empty_after_for@9:
-    // iteration/iterate_urange.py:68
+    // iteration/iterate_urange.py:78
     // for idx, i in uenumerate(urange(0)):
     intc_0 // 1
     assert // Step cannot be zero
@@ -626,7 +764,7 @@ test_empty_after_for@9:
     b test_empty_for_header@10
 
 test_empty_for_header@10:
-    // iteration/iterate_urange.py:68
+    // iteration/iterate_urange.py:78
     // for idx, i in uenumerate(urange(0)):
     frame_dig 4
     intc_1 // 0
@@ -635,11 +773,11 @@ test_empty_for_header@10:
     b test_empty_for_body@11
 
 test_empty_for_body@11:
-    // iteration/iterate_urange.py:68
+    // iteration/iterate_urange.py:78
     // for idx, i in uenumerate(urange(0)):
     frame_dig 4
     frame_dig 2
-    // iteration/iterate_urange.py:69
+    // iteration/iterate_urange.py:79
     // log(idx, i)
     itob
     bytec_0 // ""
@@ -651,7 +789,7 @@ test_empty_for_body@11:
     b test_empty_for_footer@12
 
 test_empty_for_footer@12:
-    // iteration/iterate_urange.py:68
+    // iteration/iterate_urange.py:78
     // for idx, i in uenumerate(urange(0)):
     frame_dig 4
     intc_0 // 1
@@ -664,7 +802,7 @@ test_empty_for_footer@12:
     b test_empty_for_header@10
 
 test_empty_after_for@13:
-    // iteration/iterate_urange.py:70
+    // iteration/iterate_urange.py:80
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
     intc_0 // 1
     assert // Step cannot be zero
@@ -675,7 +813,7 @@ test_empty_after_for@13:
     b test_empty_for_header@14
 
 test_empty_for_header@14:
-    // iteration/iterate_urange.py:70
+    // iteration/iterate_urange.py:80
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
     intc_1 // 0
     intc_1 // 0
@@ -696,7 +834,7 @@ test_empty_for_header@14:
     b test_empty_for_body@15
 
 test_empty_for_body@15:
-    // iteration/iterate_urange.py:71
+    // iteration/iterate_urange.py:81
     // log(idx, i)
     frame_dig 1
     itob
@@ -709,7 +847,7 @@ test_empty_for_body@15:
     b test_empty_for_footer@16
 
 test_empty_for_footer@16:
-    // iteration/iterate_urange.py:70
+    // iteration/iterate_urange.py:80
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
     frame_dig 0
     frame_dig 3
@@ -718,7 +856,7 @@ test_empty_for_footer@16:
     b test_empty_for_increment@17
 
 test_empty_for_increment@17:
-    // iteration/iterate_urange.py:70
+    // iteration/iterate_urange.py:80
     // for idx, i in reversed(uenumerate(reversed(urange(0)))):
     frame_dig 0
     intc_0 // 1
@@ -731,7 +869,7 @@ test_empty_for_increment@17:
     b test_empty_for_body@15
 
 test_empty_after_for@18:
-    // iteration/iterate_urange.py:72
+    // iteration/iterate_urange.py:82
     // for idx, i in uenumerate(reversed(urange(0))):
     intc_0 // 1
     assert // Step cannot be zero
@@ -742,7 +880,7 @@ test_empty_after_for@18:
     b test_empty_for_header@19
 
 test_empty_for_header@19:
-    // iteration/iterate_urange.py:72
+    // iteration/iterate_urange.py:82
     // for idx, i in uenumerate(reversed(urange(0))):
     intc_1 // 0
     intc_1 // 0
@@ -761,7 +899,7 @@ test_empty_for_header@19:
     b test_empty_for_body@20
 
 test_empty_for_body@20:
-    // iteration/iterate_urange.py:73
+    // iteration/iterate_urange.py:83
     // log(idx, i)
     frame_dig 1
     itob
@@ -774,7 +912,7 @@ test_empty_for_body@20:
     b test_empty_for_footer@21
 
 test_empty_for_footer@21:
-    // iteration/iterate_urange.py:72
+    // iteration/iterate_urange.py:82
     // for idx, i in uenumerate(reversed(urange(0))):
     intc_1 // 0
     frame_dig 0
@@ -783,7 +921,7 @@ test_empty_for_footer@21:
     b test_empty_for_increment@22
 
 test_empty_for_increment@22:
-    // iteration/iterate_urange.py:72
+    // iteration/iterate_urange.py:82
     // for idx, i in uenumerate(reversed(urange(0))):
     frame_dig 0
     intc_0 // 1
@@ -796,7 +934,7 @@ test_empty_for_increment@22:
     b test_empty_for_body@20
 
 test_empty_after_for@23:
-    // iteration/iterate_urange.py:74
+    // iteration/iterate_urange.py:84
     // for idx, i in reversed(uenumerate(urange(0))):
     intc_0 // 1
     assert // Step cannot be zero
@@ -807,7 +945,7 @@ test_empty_after_for@23:
     b test_empty_for_header@24
 
 test_empty_for_header@24:
-    // iteration/iterate_urange.py:74
+    // iteration/iterate_urange.py:84
     // for idx, i in reversed(uenumerate(urange(0))):
     intc_1 // 0
     intc_1 // 0
@@ -826,7 +964,7 @@ test_empty_for_header@24:
     b test_empty_for_body@25
 
 test_empty_for_body@25:
-    // iteration/iterate_urange.py:75
+    // iteration/iterate_urange.py:85
     // log(idx, i)
     frame_dig 1
     itob
@@ -839,7 +977,7 @@ test_empty_for_body@25:
     b test_empty_for_footer@26
 
 test_empty_for_footer@26:
-    // iteration/iterate_urange.py:74
+    // iteration/iterate_urange.py:84
     // for idx, i in reversed(uenumerate(urange(0))):
     intc_1 // 0
     frame_dig 0
@@ -848,7 +986,7 @@ test_empty_for_footer@26:
     b test_empty_for_increment@27
 
 test_empty_for_increment@27:
-    // iteration/iterate_urange.py:74
+    // iteration/iterate_urange.py:84
     // for idx, i in reversed(uenumerate(urange(0))):
     frame_dig 0
     intc_0 // 1
@@ -866,17 +1004,23 @@ test_empty_after_for@28:
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_break() -> void:
 test_break:
+    // iteration/iterate_urange.py:87-89
+    // @typing.override
+    // @subroutine
+    // def test_break(self) -> None:
+    proto 0 0
     b test_break_block@0
 
 test_break_block@0:
-    // iteration/iterate_urange.py:81
+    bytec_0 // ""
+    // iteration/iterate_urange.py:91
     // for i in urange(1, 7, 2):
     intc_2 // 2
     assert // Step cannot be zero
     b test_break_for_header@1
 
 test_break_for_header@1:
-    // iteration/iterate_urange.py:81
+    // iteration/iterate_urange.py:91
     // for i in urange(1, 7, 2):
     intc_0 // 1
     intc_3 // 7
@@ -885,36 +1029,49 @@ test_break_for_header@1:
     b test_break_for_body@2
 
 test_break_for_body@2:
-    // iteration/iterate_urange.py:80
-    // values = Bytes(b" a b c")
-    bytec_1 // 0x206120622063
-    // iteration/iterate_urange.py:81
+    // iteration/iterate_urange.py:91
     // for i in urange(1, 7, 2):
     intc_0 // 1
-    // iteration/iterate_urange.py:82
+    frame_bury 0
+    // iteration/iterate_urange.py:90
+    // values = Bytes(b" a b c")
+    bytec_1 // 0x206120622063
+    // iteration/iterate_urange.py:91
+    // for i in urange(1, 7, 2):
+    intc_0 // 1
+    // iteration/iterate_urange.py:92
     // log(values[i])
     intc_0 // 1
     extract3
     log
-    // iteration/iterate_urange.py:83
+    // iteration/iterate_urange.py:93
     // break
     b test_break_after_for@3
 
 test_break_after_for@3:
+    // iteration/iterate_urange.py:94
+    // assert i == 1
+    frame_dig 0
+    intc_0 // 1
+    ==
+    assert
     retsub
 
 
 // test_cases.iteration.iterate_urange.URangeIterationTest.test_tuple_target() -> void:
 test_tuple_target:
-    // iteration/iterate_urange.py:85-87
+    // iteration/iterate_urange.py:96-98
     // @typing.override
     // @subroutine
     // def test_tuple_target(self) -> None:
     proto 0 0
+    bytec_0 // ""
     b test_tuple_target_block@0
 
 test_tuple_target_block@0:
-    // iteration/iterate_urange.py:89
+    bytec_0 // ""
+    bytec_0 // ""
+    // iteration/iterate_urange.py:100
     // for tup in uenumerate(urange(1)):
     intc_0 // 1
     assert // Step cannot be zero
@@ -923,24 +1080,28 @@ test_tuple_target_block@0:
     b test_tuple_target_for_header@1
 
 test_tuple_target_for_header@1:
-    // iteration/iterate_urange.py:89
+    // iteration/iterate_urange.py:100
     // for tup in uenumerate(urange(1)):
-    frame_dig 0
+    frame_dig 3
     intc_0 // 1
     <
     bz test_tuple_target_after_for@4
     b test_tuple_target_for_body@2
 
 test_tuple_target_for_body@2:
-    // iteration/iterate_urange.py:89
+    // iteration/iterate_urange.py:100
     // for tup in uenumerate(urange(1)):
-    frame_dig 0
-    frame_dig 1
-    cover 1
-    // iteration/iterate_urange.py:88
+    frame_dig 3
+    dup
+    frame_bury 1
+    frame_dig 4
+    dup
+    cover 2
+    frame_bury 2
+    // iteration/iterate_urange.py:99
     // values = Bytes(b"t")
     pushbytes 0x74
-    // iteration/iterate_urange.py:90
+    // iteration/iterate_urange.py:101
     // self._log_with_index(tup[0], values[tup[1]])
     uncover 1
     intc_0 // 1
@@ -949,20 +1110,52 @@ test_tuple_target_for_body@2:
     b test_tuple_target_for_footer@3
 
 test_tuple_target_for_footer@3:
-    // iteration/iterate_urange.py:89
+    // iteration/iterate_urange.py:100
     // for tup in uenumerate(urange(1)):
-    frame_dig 0
+    frame_dig 3
     intc_0 // 1
     +
-    frame_bury 0
-    frame_dig 1
+    frame_bury 3
+    frame_dig 4
     intc_0 // 1
     +
-    frame_bury 1
+    frame_bury 4
     b test_tuple_target_for_header@1
 
 test_tuple_target_after_for@4:
+    // iteration/iterate_urange.py:102
+    // assert tup[0] == 0 and tup[1] == 0
+    frame_dig 2
+    intc_1 // 0
+    ==
+    bz test_tuple_target_bool_false@7
+    b test_tuple_target_and_contd@5
+
+test_tuple_target_and_contd@5:
+    // iteration/iterate_urange.py:102
+    // assert tup[0] == 0 and tup[1] == 0
+    frame_dig 1
+    intc_1 // 0
+    ==
+    bz test_tuple_target_bool_false@7
+    b test_tuple_target_bool_true@6
+
+test_tuple_target_bool_true@6:
+    intc_0 // 1
+    frame_bury 0
+    b test_tuple_target_bool_merge@8
+
+test_tuple_target_bool_merge@8:
+    // iteration/iterate_urange.py:102
+    // assert tup[0] == 0 and tup[1] == 0
+    frame_dig 0
+    assert
     retsub
+
+test_tuple_target_bool_false@7:
+    intc_1 // 0
+    frame_bury 0
+    b test_tuple_target_bool_merge@8
 
 
 // test_cases.iteration.base.IterationTestBase._log_with_index(idx: uint64, value: bytes) -> void:

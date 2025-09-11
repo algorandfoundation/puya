@@ -6,9 +6,14 @@ subroutine main:
         // log("test_forwards")
         byte "test_forwards"                                              "test_forwards"
         log
+        undefined                                                         i#0
         // iteration/iterate_urange.py:13
         // for i in urange(1, 7, 2):
-        int 1                                                             value_internal%0#0
+        int 1                                                             i#0,value_internal%0#0
+        l-store value_internal%0#0 1                                      value_internal%0#0,i#0
+        l-load i#0 0                                                      value_internal%0#0,i#0
+        v-store i#1                                                       value_internal%0#0
+        l-load value_internal%0#0 0                                       value_internal%0#0
         v-store i#0
         b main_for_header@2
 
@@ -31,6 +36,12 @@ subroutine main:
         int 1                                                             i#0,0x206120622063,i#0 (copy),1
         extract3                                                          i#0,extract%0#0
         log                                                               i#0
+        // iteration/iterate_urange.py:15
+        // i += 1
+        l-load-copy i#0 0                                                 i#0,i#0 (copy)
+        int 1                                                             i#0,i#0 (copy),1
+        +                                                                 i#0,i#1
+        v-store i#1                                                       i#0
         // iteration/iterate_urange.py:13
         // for i in urange(1, 7, 2):
         l-load i#0 0                                                      i#0
@@ -40,28 +51,40 @@ subroutine main:
         b main_for_header@2
 
     main_after_for@5:
+        // iteration/iterate_urange.py:16
+        // assert i == 6
+        v-load i#1                                                        i#1
+        int 6                                                             i#1,6
+        ==                                                                tmp%1#0
+        assert
         // iteration/base.py:10
         // log("test_reversed")
         byte "test_reversed"                                              "test_reversed"
         log
-        // iteration/iterate_urange.py:21
+        // iteration/iterate_urange.py:22
         // for i in reversed(urange(1, 7, 2)):
         int 5                                                             5
         v-store i#0
         b main_for_body@9
 
     main_for_body@9:
-        // iteration/iterate_urange.py:20
+        // iteration/iterate_urange.py:21
         // values = Bytes(b" a b c")
         byte 0x206120622063                                               0x206120622063
-        // iteration/iterate_urange.py:22
+        // iteration/iterate_urange.py:23
         // log(values[i])
         v-load i#0                                                        0x206120622063,i#0
         l-store-copy i#0 1                                                i#0,0x206120622063,i#0 (copy)
         int 1                                                             i#0,0x206120622063,i#0 (copy),1
         extract3                                                          i#0,extract%0#0
         log                                                               i#0
-        // iteration/iterate_urange.py:21
+        // iteration/iterate_urange.py:24
+        // i += 1
+        l-load-copy i#0 0                                                 i#0,i#0 (copy)
+        int 1                                                             i#0,i#0 (copy),1
+        +                                                                 i#0,i#1
+        v-store i#1                                                       i#0
+        // iteration/iterate_urange.py:22
         // for i in reversed(urange(1, 7, 2)):
         int 1                                                             i#0,1
         l-load i#0 1                                                      1,i#0
@@ -69,7 +92,7 @@ subroutine main:
         bz main_after_for@12 ; b main_for_increment@11
 
     main_for_increment@11:
-        // iteration/iterate_urange.py:21
+        // iteration/iterate_urange.py:22
         // for i in reversed(urange(1, 7, 2)):
         v-load i#0                                                        i#0
         int 2                                                             i#0,2
@@ -78,21 +101,36 @@ subroutine main:
         b main_for_body@9
 
     main_after_for@12:
+        // iteration/iterate_urange.py:25
+        // assert i == 2
+        v-load i#1                                                        i#1
+        int 2                                                             i#1,2
+        ==                                                                tmp%1#0
+        assert
         // iteration/base.py:12
         // log("test_forwards_with_forwards_index")
         byte "test_forwards_with_forwards_index"                          "test_forwards_with_forwards_index"
         log
-        // iteration/iterate_urange.py:29
+        undefined                                                         idx#0
+        undefined                                                         idx#0,i#0
+        l-store i#0 1                                                     i#0,idx#0
+        // iteration/iterate_urange.py:31
         // for idx, i in uenumerate(urange(1, 7, 2)):
-        int 1                                                             value_internal%0#0
-        int 0                                                             value_internal%0#0,item_index_internal%0#0
-        v-store idx#0                                                     value_internal%0#0
+        int 1                                                             i#0,idx#0,value_internal%0#0
+        l-store value_internal%0#0 2                                      value_internal%0#0,i#0,idx#0
+        int 0                                                             value_internal%0#0,i#0,idx#0,item_index_internal%0#0
+        l-load idx#0 1                                                    value_internal%0#0,i#0,item_index_internal%0#0,idx#0
+        v-store idx#2                                                     value_internal%0#0,i#0,item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                  value_internal%0#0,i#0,item_index_internal%0#0
+        v-store idx#0                                                     value_internal%0#0,i#0
+        l-load i#0 0                                                      value_internal%0#0,i#0
+        v-store i#1                                                       value_internal%0#0
         l-load value_internal%0#0 0                                       value_internal%0#0
         v-store i#0
         b main_for_header@15
 
     main_for_header@15:
-        // iteration/iterate_urange.py:29
+        // iteration/iterate_urange.py:31
         // for idx, i in uenumerate(urange(1, 7, 2)):
         v-load i#0                                                        i#0
         int 7                                                             i#0,7
@@ -100,10 +138,10 @@ subroutine main:
         bz main_after_for@18 ; b main_for_body@16
 
     main_for_body@16:
-        // iteration/iterate_urange.py:28
+        // iteration/iterate_urange.py:30
         // values = Bytes(b" a b c")
         byte 0x206120622063                                               0x206120622063
-        // iteration/iterate_urange.py:30
+        // iteration/iterate_urange.py:32
         // self._log_with_index(idx, values[i])
         v-load i#0                                                        0x206120622063,i#0
         l-store-copy i#0 1                                                i#0,0x206120622063,i#0 (copy)
@@ -113,25 +151,48 @@ subroutine main:
         l-store-copy idx#0 2                                              idx#0,i#0,extract%0#0,idx#0 (copy)
         l-load extract%0#0 1                                              idx#0,i#0,idx#0 (copy),extract%0#0
         callsub _log_with_index                                           idx#0,i#0
-        // iteration/iterate_urange.py:29
+        // iteration/iterate_urange.py:33
+        // i += 1
+        l-load-copy i#0 0                                                 idx#0,i#0,i#0 (copy)
+        int 1                                                             idx#0,i#0,i#0 (copy),1
+        +                                                                 idx#0,i#0,i#1
+        v-store i#1                                                       idx#0,i#0
+        // iteration/iterate_urange.py:34
+        // idx += 1
+        l-load idx#0 1                                                    i#0,idx#0
+        int 1                                                             i#0,idx#0,1
+        +                                                                 i#0,idx#0
+        l-store-copy idx#0 0                                              i#0,idx#0,idx#0 (copy)
+        v-store idx#0                                                     i#0,idx#0
+        // iteration/iterate_urange.py:31
         // for idx, i in uenumerate(urange(1, 7, 2)):
-        l-load i#0 0                                                      idx#0,i#0
+        l-load i#0 1                                                      idx#0,i#0
         int 2                                                             idx#0,i#0,2
         +                                                                 idx#0,value_internal%0#0
         l-load idx#0 1                                                    value_internal%0#0,idx#0
-        int 1                                                             value_internal%0#0,idx#0,1
-        +                                                                 value_internal%0#0,item_index_internal%0#0
-        v-store idx#0                                                     value_internal%0#0
+        v-store idx#2                                                     value_internal%0#0
         l-load value_internal%0#0 0                                       value_internal%0#0
         v-store i#0
         b main_for_header@15
 
     main_after_for@18:
+        // iteration/iterate_urange.py:35
+        // assert i == 6
+        v-load i#1                                                        i#1
+        int 6                                                             i#1,6
+        ==                                                                tmp%2#0
+        assert
+        // iteration/iterate_urange.py:36
+        // assert idx == 3
+        v-load idx#2                                                      idx#2
+        int 3                                                             idx#2,3
+        ==                                                                tmp%3#0
+        assert
         // iteration/base.py:14
         // log("test_forwards_with_reverse_index")
         byte "test_forwards_with_reverse_index"                           "test_forwards_with_reverse_index"
         log
-        // iteration/iterate_urange.py:38
+        // iteration/iterate_urange.py:42
         // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
         int 2                                                             2
         v-store idx#0
@@ -140,19 +201,32 @@ subroutine main:
         b main_for_body@22
 
     main_for_body@22:
-        // iteration/iterate_urange.py:37
+        // iteration/iterate_urange.py:41
         // values = Bytes(b" a b c")
         byte 0x206120622063                                               0x206120622063
-        // iteration/iterate_urange.py:39
+        // iteration/iterate_urange.py:43
         // self._log_with_index(idx, values[i])
         v-load i#0                                                        0x206120622063,i#0
         l-store-copy i#0 1                                                i#0,0x206120622063,i#0 (copy)
         int 1                                                             i#0,0x206120622063,i#0 (copy),1
         extract3                                                          i#0,extract%0#0
         v-load idx#0                                                      i#0,extract%0#0,idx#0
-        l-load extract%0#0 1                                              i#0,idx#0,extract%0#0
-        callsub _log_with_index                                           i#0
-        // iteration/iterate_urange.py:38
+        l-store-copy idx#0 2                                              idx#0,i#0,extract%0#0,idx#0 (copy)
+        l-load extract%0#0 1                                              idx#0,i#0,idx#0 (copy),extract%0#0
+        callsub _log_with_index                                           idx#0,i#0
+        // iteration/iterate_urange.py:44
+        // i += 1
+        l-load-copy i#0 0                                                 idx#0,i#0,i#0 (copy)
+        int 1                                                             idx#0,i#0,i#0 (copy),1
+        +                                                                 idx#0,i#0,i#1
+        v-store i#1                                                       idx#0,i#0
+        // iteration/iterate_urange.py:45
+        // idx += 1
+        l-load idx#0 1                                                    i#0,idx#0
+        int 1                                                             i#0,idx#0,1
+        +                                                                 i#0,idx#2
+        v-store idx#2                                                     i#0
+        // iteration/iterate_urange.py:42
         // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
         l-load i#0 0                                                      i#0
         int 5                                                             i#0,5
@@ -160,7 +234,7 @@ subroutine main:
         bz main_after_for@25 ; b main_for_increment@24
 
     main_for_increment@24:
-        // iteration/iterate_urange.py:38
+        // iteration/iterate_urange.py:42
         // for idx, i in reversed(uenumerate(reversed(urange(1, 7, 2)))):
         v-load i#0                                                        i#0
         int 2                                                             i#0,2
@@ -173,11 +247,23 @@ subroutine main:
         b main_for_body@22
 
     main_after_for@25:
+        // iteration/iterate_urange.py:46
+        // assert i == 6
+        v-load i#1                                                        i#1
+        int 6                                                             i#1,6
+        ==                                                                tmp%2#0
+        assert
+        // iteration/iterate_urange.py:47
+        // assert idx == 1
+        v-load idx#2                                                      idx#2
+        int 1                                                             idx#2,1
+        ==                                                                tmp%3#0
+        assert
         // iteration/base.py:16
         // log("test_reverse_with_forwards_index")
         byte "test_reverse_with_forwards_index"                           "test_reverse_with_forwards_index"
         log
-        // iteration/iterate_urange.py:47
+        // iteration/iterate_urange.py:53
         // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
         int 5                                                             5
         v-store i#0
@@ -186,19 +272,32 @@ subroutine main:
         b main_for_body@29
 
     main_for_body@29:
-        // iteration/iterate_urange.py:46
+        // iteration/iterate_urange.py:52
         // values = Bytes(b" a b c")
         byte 0x206120622063                                               0x206120622063
-        // iteration/iterate_urange.py:48
+        // iteration/iterate_urange.py:54
         // self._log_with_index(idx, values[i])
         v-load i#0                                                        0x206120622063,i#0
         l-store-copy i#0 1                                                i#0,0x206120622063,i#0 (copy)
         int 1                                                             i#0,0x206120622063,i#0 (copy),1
         extract3                                                          i#0,extract%0#0
         v-load idx#0                                                      i#0,extract%0#0,idx#0
-        l-load extract%0#0 1                                              i#0,idx#0,extract%0#0
-        callsub _log_with_index                                           i#0
-        // iteration/iterate_urange.py:47
+        l-store-copy idx#0 2                                              idx#0,i#0,extract%0#0,idx#0 (copy)
+        l-load extract%0#0 1                                              idx#0,i#0,idx#0 (copy),extract%0#0
+        callsub _log_with_index                                           idx#0,i#0
+        // iteration/iterate_urange.py:55
+        // i += 1
+        l-load-copy i#0 0                                                 idx#0,i#0,i#0 (copy)
+        int 1                                                             idx#0,i#0,i#0 (copy),1
+        +                                                                 idx#0,i#0,i#1
+        v-store i#1                                                       idx#0,i#0
+        // iteration/iterate_urange.py:56
+        // idx += 1
+        l-load idx#0 1                                                    i#0,idx#0
+        int 1                                                             i#0,idx#0,1
+        +                                                                 i#0,idx#0
+        v-store idx#0                                                     i#0
+        // iteration/iterate_urange.py:53
         // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
         int 1                                                             i#0,1
         l-load i#0 1                                                      1,i#0
@@ -206,24 +305,32 @@ subroutine main:
         bz main_after_for@32 ; b main_for_increment@31
 
     main_for_increment@31:
-        // iteration/iterate_urange.py:47
+        // iteration/iterate_urange.py:53
         // for idx, i in uenumerate(reversed(urange(1, 7, 2))):
         v-load i#0                                                        i#0
         int 2                                                             i#0,2
         -                                                                 i#0
         v-store i#0
-        v-load idx#0                                                      idx#0
-        int 1                                                             idx#0,1
-        +                                                                 idx#0
-        v-store idx#0
         b main_for_body@29
 
     main_after_for@32:
+        // iteration/iterate_urange.py:57
+        // assert i == 2
+        v-load i#1                                                        i#1
+        int 2                                                             i#1,2
+        ==                                                                tmp%2#0
+        assert
+        // iteration/iterate_urange.py:58
+        // assert idx == 3
+        v-load idx#0                                                      idx#0
+        int 3                                                             idx#0,3
+        ==                                                                tmp%3#0
+        assert
         // iteration/base.py:18
         // log("test_reverse_with_reverse_index")
         byte "test_reverse_with_reverse_index"                            "test_reverse_with_reverse_index"
         log
-        // iteration/iterate_urange.py:56
+        // iteration/iterate_urange.py:64
         // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
         int 2                                                             2
         v-store idx#0
@@ -232,19 +339,32 @@ subroutine main:
         b main_for_body@36
 
     main_for_body@36:
-        // iteration/iterate_urange.py:55
+        // iteration/iterate_urange.py:63
         // values = Bytes(b" a b c")
         byte 0x206120622063                                               0x206120622063
-        // iteration/iterate_urange.py:57
+        // iteration/iterate_urange.py:65
         // self._log_with_index(idx, values[i])
         v-load i#0                                                        0x206120622063,i#0
         l-store-copy i#0 1                                                i#0,0x206120622063,i#0 (copy)
         int 1                                                             i#0,0x206120622063,i#0 (copy),1
         extract3                                                          i#0,extract%0#0
         v-load idx#0                                                      i#0,extract%0#0,idx#0
-        l-load extract%0#0 1                                              i#0,idx#0,extract%0#0
-        callsub _log_with_index                                           i#0
-        // iteration/iterate_urange.py:56
+        l-store-copy idx#0 2                                              idx#0,i#0,extract%0#0,idx#0 (copy)
+        l-load extract%0#0 1                                              idx#0,i#0,idx#0 (copy),extract%0#0
+        callsub _log_with_index                                           idx#0,i#0
+        // iteration/iterate_urange.py:66
+        // i += 1
+        l-load-copy i#0 0                                                 idx#0,i#0,i#0 (copy)
+        int 1                                                             idx#0,i#0,i#0 (copy),1
+        +                                                                 idx#0,i#0,i#1
+        v-store i#1                                                       idx#0,i#0
+        // iteration/iterate_urange.py:67
+        // idx += 1
+        l-load idx#0 1                                                    i#0,idx#0
+        int 1                                                             i#0,idx#0,1
+        +                                                                 i#0,idx#2
+        v-store idx#2                                                     i#0
+        // iteration/iterate_urange.py:64
         // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
         int 1                                                             i#0,1
         l-load i#0 1                                                      1,i#0
@@ -252,7 +372,7 @@ subroutine main:
         bz main_after_for@39 ; b main_for_increment@38
 
     main_for_increment@38:
-        // iteration/iterate_urange.py:56
+        // iteration/iterate_urange.py:64
         // for idx, i in reversed(uenumerate(urange(1, 7, 2))):
         v-load i#0                                                        i#0
         int 2                                                             i#0,2
@@ -265,18 +385,30 @@ subroutine main:
         b main_for_body@36
 
     main_after_for@39:
+        // iteration/iterate_urange.py:68
+        // assert i == 2
+        v-load i#1                                                        i#1
+        int 2                                                             i#1,2
+        ==                                                                tmp%2#0
+        assert
+        // iteration/iterate_urange.py:69
+        // assert idx == 1
+        v-load idx#2                                                      idx#2
+        int 1                                                             idx#2,1
+        ==                                                                tmp%3#0
+        assert
         // iteration/base.py:20
         // log("test_empty")
         byte "test_empty"                                                 "test_empty"
         log
-        // iteration/iterate_urange.py:64
+        // iteration/iterate_urange.py:74
         // for i in urange(0):
         int 0                                                             value_internal%0#0
         v-store i#0
         b main_for_header@42
 
     main_for_header@42:
-        // iteration/iterate_urange.py:64
+        // iteration/iterate_urange.py:74
         // for i in urange(0):
         v-load i#0                                                        i#0
         int 0                                                             i#0,0
@@ -284,13 +416,13 @@ subroutine main:
         bz main_after_for@45 ; b main_for_body@43
 
     main_for_body@43:
-        // iteration/iterate_urange.py:65
+        // iteration/iterate_urange.py:75
         // log(i)
         v-load i#0                                                        i#0
         l-store-copy i#0 0                                                i#0,i#0 (copy)
         itob                                                              i#0,tmp%0#6
         log                                                               i#0
-        // iteration/iterate_urange.py:64
+        // iteration/iterate_urange.py:74
         // for i in urange(0):
         l-load i#0 0                                                      i#0
         int 1                                                             i#0,1
@@ -299,7 +431,7 @@ subroutine main:
         b main_for_header@42
 
     main_after_for@45:
-        // iteration/iterate_urange.py:68
+        // iteration/iterate_urange.py:78
         // for idx, i in uenumerate(urange(0)):
         int 0                                                             value_internal%1#0
         int 0                                                             value_internal%1#0,item_index_internal%0#0
@@ -309,7 +441,7 @@ subroutine main:
         b main_for_header@51
 
     main_for_header@51:
-        // iteration/iterate_urange.py:68
+        // iteration/iterate_urange.py:78
         // for idx, i in uenumerate(urange(0)):
         v-load i#0                                                        i#0
         int 0                                                             i#0,0
@@ -317,19 +449,19 @@ subroutine main:
         bz main_after_for@54 ; b main_for_body@52
 
     main_for_body@52:
-        // iteration/iterate_urange.py:69
+        // iteration/iterate_urange.py:79
         // log(idx, i)
         v-load idx#0                                                      idx#0
         l-store-copy idx#0 0                                              idx#0,idx#0 (copy)
-        itob                                                              idx#0,tmp%2#0
-        v-load i#0                                                        idx#0,tmp%2#0,i#0
-        l-store-copy i#0 1                                                idx#0,i#0,tmp%2#0,i#0 (copy)
-        itob                                                              idx#0,i#0,tmp%2#0,tmp%4#0
-        l-load tmp%2#0 1                                                  idx#0,i#0,tmp%4#0,tmp%2#0
-        l-load tmp%4#0 1                                                  idx#0,i#0,tmp%2#0,tmp%4#0
+        itob                                                              idx#0,tmp%2#4
+        v-load i#0                                                        idx#0,tmp%2#4,i#0
+        l-store-copy i#0 1                                                idx#0,i#0,tmp%2#4,i#0 (copy)
+        itob                                                              idx#0,i#0,tmp%2#4,tmp%4#0
+        l-load tmp%2#4 1                                                  idx#0,i#0,tmp%4#0,tmp%2#4
+        l-load tmp%4#0 1                                                  idx#0,i#0,tmp%2#4,tmp%4#0
         concat                                                            idx#0,i#0,tmp%5#0
         log                                                               idx#0,i#0
-        // iteration/iterate_urange.py:68
+        // iteration/iterate_urange.py:78
         // for idx, i in uenumerate(urange(0)):
         l-load i#0 0                                                      idx#0,i#0
         int 1                                                             idx#0,i#0,1
@@ -347,7 +479,7 @@ subroutine main:
         // log("test_break")
         byte "test_break"                                                 "test_break"
         log
-        // iteration/iterate_urange.py:82
+        // iteration/iterate_urange.py:92
         // log(values[i])
         byte 0x61                                                         0x61
         log
@@ -355,17 +487,26 @@ subroutine main:
         // log("test_tuple_target")
         byte "test_tuple_target"                                          "test_tuple_target"
         log
-        // iteration/iterate_urange.py:89
+        undefined                                                         tup.1#0
+        undefined                                                         tup.1#0,tup.0#0
+        l-store tup.0#0 1                                                 tup.0#0,tup.1#0
+        // iteration/iterate_urange.py:100
         // for tup in uenumerate(urange(1)):
-        int 0                                                             value_internal%0#0
-        int 0                                                             value_internal%0#0,item_index_internal%0#0
-        v-store tup.0#0                                                   value_internal%0#0
-        l-load value_internal%0#0 0                                       value_internal%0#0
-        v-store tup.1#0
+        int 0                                                             tup.0#0,tup.1#0,value_internal%0#0
+        int 0                                                             tup.0#0,tup.1#0,value_internal%0#0,item_index_internal%0#0
+        l-store item_index_internal%0#0 2                                 tup.0#0,item_index_internal%0#0,tup.1#0,value_internal%0#0
+        l-load tup.1#0 1                                                  tup.0#0,item_index_internal%0#0,value_internal%0#0,tup.1#0
+        v-store tup.1#1                                                   tup.0#0,item_index_internal%0#0,value_internal%0#0
+        l-load value_internal%0#0 0                                       tup.0#0,item_index_internal%0#0,value_internal%0#0
+        v-store tup.1#0                                                   tup.0#0,item_index_internal%0#0
+        l-load tup.0#0 1                                                  item_index_internal%0#0,tup.0#0
+        v-store tup.0#1                                                   item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                  item_index_internal%0#0
+        v-store tup.0#0
         b main_for_header@77
 
     main_for_header@77:
-        // iteration/iterate_urange.py:89
+        // iteration/iterate_urange.py:100
         // for tup in uenumerate(urange(1)):
         v-load tup.1#0                                                    tup.1#0
         int 1                                                             tup.1#0,1
@@ -373,10 +514,10 @@ subroutine main:
         bz main_after_for@80 ; b main_for_body@78
 
     main_for_body@78:
-        // iteration/iterate_urange.py:88
+        // iteration/iterate_urange.py:99
         // values = Bytes(b"t")
         byte 0x74                                                         0x74
-        // iteration/iterate_urange.py:90
+        // iteration/iterate_urange.py:101
         // self._log_with_index(tup[0], values[tup[1]])
         v-load tup.1#0                                                    0x74,tup.1#0
         l-store-copy tup.1#0 1                                            tup.1#0,0x74,tup.1#0 (copy)
@@ -386,20 +527,51 @@ subroutine main:
         l-store-copy tup.0#0 2                                            tup.0#0,tup.1#0,extract%0#0,tup.0#0 (copy)
         l-load extract%0#0 1                                              tup.0#0,tup.1#0,tup.0#0 (copy),extract%0#0
         callsub _log_with_index                                           tup.0#0,tup.1#0
-        // iteration/iterate_urange.py:89
+        // iteration/iterate_urange.py:100
         // for tup in uenumerate(urange(1)):
-        l-load tup.1#0 0                                                  tup.0#0,tup.1#0
-        int 1                                                             tup.0#0,tup.1#0,1
-        +                                                                 tup.0#0,value_internal%0#0
-        l-load tup.0#0 1                                                  value_internal%0#0,tup.0#0
-        int 1                                                             value_internal%0#0,tup.0#0,1
-        +                                                                 value_internal%0#0,item_index_internal%0#0
-        v-store tup.0#0                                                   value_internal%0#0
-        l-load value_internal%0#0 0                                       value_internal%0#0
-        v-store tup.1#0
+        l-load-copy tup.1#0 0                                             tup.0#0,tup.1#0,tup.1#0 (copy)
+        int 1                                                             tup.0#0,tup.1#0,tup.1#0 (copy),1
+        +                                                                 tup.0#0,tup.1#0,value_internal%0#0
+        l-load-copy tup.0#0 2                                             tup.0#0,tup.1#0,value_internal%0#0,tup.0#0 (copy)
+        int 1                                                             tup.0#0,tup.1#0,value_internal%0#0,tup.0#0 (copy),1
+        +                                                                 tup.0#0,tup.1#0,value_internal%0#0,item_index_internal%0#0
+        l-load tup.1#0 2                                                  tup.0#0,value_internal%0#0,item_index_internal%0#0,tup.1#0
+        v-store tup.1#1                                                   tup.0#0,value_internal%0#0,item_index_internal%0#0
+        l-load value_internal%0#0 1                                       tup.0#0,item_index_internal%0#0,value_internal%0#0
+        v-store tup.1#0                                                   tup.0#0,item_index_internal%0#0
+        l-load tup.0#0 1                                                  item_index_internal%0#0,tup.0#0
+        v-store tup.0#1                                                   item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                  item_index_internal%0#0
+        v-store tup.0#0
         b main_for_header@77
 
     main_after_for@80:
+        // iteration/iterate_urange.py:102
+        // assert tup[0] == 0 and tup[1] == 0
+        v-load tup.0#1                                                    tup.0#1
+        bz main_and_contd@81 ; b main_bool_false@83
+
+    main_and_contd@81:
+        // iteration/iterate_urange.py:102
+        // assert tup[0] == 0 and tup[1] == 0
+        v-load tup.1#1                                                    tup.1#1
+        bz main_bool_true@82 ; b main_bool_false@83
+
+    main_bool_true@82:
+        int 1                                                             1
+        x-store and_result%0#0                                            (𝕏) and_result%0#0 |
+        b main_bool_merge@84                                              (𝕏) and_result%0#0 |
+
+    main_bool_false@83:
+        int 0                                                             0
+        x-store and_result%0#0                                            (𝕏) and_result%0#0 |
+        b main_bool_merge@84                                              (𝕏) and_result%0#0 |
+
+    main_bool_merge@84:                                                   (𝕏) and_result%0#0 |
+        // iteration/iterate_urange.py:102
+        // assert tup[0] == 0 and tup[1] == 0
+        x-load and_result%0#0                                             and_result%0#0
+        assert
         // iteration/base.py:26
         // return True
         int 1                                                             1
