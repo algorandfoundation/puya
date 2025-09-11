@@ -17,12 +17,7 @@ from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, output_awst, write_arc4_clients
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import (
-    ParseResult,
-    SourceDiscoveryMechanism,
-    get_mypy_options,
-    parse_and_typecheck,
-)
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
 from puyapy.template import parse_template_key_value
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
@@ -38,9 +33,14 @@ _UNSTABLE_LOG_PREFIXES = {
         "Skipping stdlib stub ",
         "Discovered user module ",
         # ignore platform specific paths
-        "Using python executable: ",
-        "Using python site-packages: ",
-        "Found algopy: ",
+        "using python site-packages: ",
+        "found algopy: ",
+        "found active python virtual env: ",
+        "attempting to locate 'python",
+    ),
+    LogLevel.info: (
+        # ignore platform specific paths
+        "using python executable ",
     ),
 }
 
@@ -66,15 +66,10 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
-        mypy_options = get_mypy_options()
         # explicitly exclude out dirs as they can contain generated clients that get deleted
-        mypy_options.exclude = _get_out_dirs(root_dir)
+        relative_out_dir_list = _get_out_dirs(root_dir)
 
-        _, ordered_modules = parse_and_typecheck([root_dir], mypy_options)
-        parse_result = ParseResult(
-            mypy_options=mypy_options,
-            ordered_modules=ordered_modules,
-        )
+        parse_result = parse_python([root_dir], exclude=relative_out_dir_list)
         awst, compilation_set = transform_ast(parse_result, PuyaPyOptions())
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 

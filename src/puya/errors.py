@@ -35,6 +35,10 @@ class CodeError(PuyaError):
     """Base class for all exceptions that indicate a fault in the code being compiled."""
 
 
+class ConfigurationError(PuyaError):
+    """Indicates a problem with the requested compilation configuration or the puyapy install."""
+
+
 @contextlib.contextmanager
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:

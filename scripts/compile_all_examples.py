@@ -77,9 +77,11 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: Building AWST for ",
                 "debug: Discovered user module ",
                 # ignore platform specific paths
-                "debug: Using python executable: ",
-                "debug: Using python site-packages: ",
-                "debug: Found algopy: ",
+                "info: using python executable ",
+                "debug: using python site-packages: ",
+                "debug: found algopy: ",
+                "debug: found active python virtual env: ",
+                "debug: attempting to locate 'python",
             )
         )
     ]
