@@ -141,20 +141,22 @@ test_array:
     bytec_2 // "count"
     intc_0 // 0
     app_global_put
-    // array/static_size.py:45
+    // array/static_size.py:46
     // Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
     callsub xtra
-    // array/static_size.py:46
+    // array/static_size.py:47
     // Point(x=x1, y=y1, other=self.xtra()),
     callsub xtra
-    // array/static_size.py:47
+    // array/static_size.py:48
     // Point(x=x2, y=y2, other=self.xtra()),
     callsub xtra
-    // array/static_size.py:44-48
+    // array/static_size.py:44-50
     // path = ReferenceArray(
-    //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
-    //     Point(x=x1, y=y1, other=self.xtra()),
-    //     Point(x=x2, y=y2, other=self.xtra()),
+    //     (
+    //         Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
+    //         Point(x=x1, y=y1, other=self.xtra()),
+    //         Point(x=x2, y=y2, other=self.xtra()),
+    //     )
     // )
     uncover 14
     itob
@@ -231,18 +233,18 @@ test_array:
     concat
     concat
     concat
-    // array/static_size.py:49
+    // array/static_size.py:51
     // for i in urange(3):
     intc_0 // 0
 
 test_array_for_header@2:
-    // array/static_size.py:49
+    // array/static_size.py:51
     // for i in urange(3):
     dup
     pushint 3 // 3
     <
     bz test_array_after_for@5
-    // array/static_size.py:50
+    // array/static_size.py:52
     // assert path[i].other.b == i + 1
     dup2
     dup
@@ -262,7 +264,7 @@ test_array_for_header@2:
     dig 1
     ==
     assert
-    // array/static_size.py:51
+    // array/static_size.py:53
     // assert path[i].other.d.foo == i + 2
     swap
     extract 48 16
@@ -274,7 +276,7 @@ test_array_for_header@2:
     itob
     b==
     assert
-    // array/static_size.py:52
+    // array/static_size.py:54
     // assert path[i].other.d.bar == (i + 1) * (i + 1)
     extract 8 8
     dig 1
@@ -288,7 +290,7 @@ test_array_for_header@2:
 
 test_array_after_for@5:
     dig 1
-    // array/static_size.py:54
+    // array/static_size.py:56
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
     dup
     len
@@ -306,7 +308,7 @@ test_array_after_for@5:
     pushbytes "a"
     swap
     box_put
-    // array/static_size.py:167
+    // array/static_size.py:169
     // last_point = path[0]
     extract 0 144 // on error: index access is out of bounds
     dup
@@ -317,24 +319,24 @@ test_array_after_for@5:
     intc_2 // 8
     extract_uint64
     bury 6
-    // array/static_size.py:168
+    // array/static_size.py:170
     // length = UInt64()
     intc_0 // 0
     bury 5
-    // array/static_size.py:169
+    // array/static_size.py:171
     // for point_idx in urange(1, path.length):
     intc_1 // 1
     bury 3
 
 test_array_for_header@7:
-    // array/static_size.py:169
+    // array/static_size.py:171
     // for point_idx in urange(1, path.length):
     dig 2
     dig 8
     <
     bz test_array_after_for@15
     dig 1
-    // array/static_size.py:170
+    // array/static_size.py:172
     // point = path[point_idx]
     dig 3
     intc 4 // 144
@@ -347,45 +349,45 @@ test_array_for_header@7:
     intc_2 // 8
     extract_uint64
     bury 6
-    // array/static_size.py:171
+    // array/static_size.py:173
     // if point.x < last_point.x:
     dig 10
     b<
     bz test_array_else_body@10
-    // array/static_size.py:172
+    // array/static_size.py:174
     // dx = last_point.x.as_uint64() - point.x.as_uint64()
     dig 10
-    // array/static_size.py:167
+    // array/static_size.py:169
     // last_point = path[0]
     intc_0 // 0
-    // array/static_size.py:172
+    // array/static_size.py:174
     // dx = last_point.x.as_uint64() - point.x.as_uint64()
     extract_uint64
     swap
-    // array/static_size.py:170
+    // array/static_size.py:172
     // point = path[point_idx]
     intc_0 // 0
-    // array/static_size.py:172
+    // array/static_size.py:174
     // dx = last_point.x.as_uint64() - point.x.as_uint64()
     extract_uint64
     -
     bury 7
 
 test_array_after_if_else@11:
-    // array/static_size.py:175
+    // array/static_size.py:177
     // if point.y < last_point.y:
     dig 3
     dig 6
     <
     bz test_array_else_body@13
-    // array/static_size.py:176
+    // array/static_size.py:178
     // dy = last_point.y - point.y
     dig 5
     dig 4
     -
 
 test_array_after_if_else@14:
-    // array/static_size.py:179
+    // array/static_size.py:181
     // length += op.sqrt(dx * dx + dy * dy)
     dig 7
     dup
@@ -398,7 +400,7 @@ test_array_after_if_else@14:
     dig 5
     +
     bury 5
-    // array/static_size.py:169
+    // array/static_size.py:171
     // for point_idx in urange(1, path.length):
     dig 2
     intc_1 // 1
@@ -407,7 +409,7 @@ test_array_after_if_else@14:
     b test_array_for_header@7
 
 test_array_else_body@13:
-    // array/static_size.py:178
+    // array/static_size.py:180
     // dy = point.y - last_point.y
     dig 3
     dig 6
@@ -415,17 +417,17 @@ test_array_else_body@13:
     b test_array_after_if_else@14
 
 test_array_else_body@10:
-    // array/static_size.py:170
+    // array/static_size.py:172
     // point = path[point_idx]
     intc_0 // 0
-    // array/static_size.py:174
+    // array/static_size.py:176
     // dx = point.x.as_uint64() - last_point.x.as_uint64()
     extract_uint64
     dig 10
-    // array/static_size.py:167
+    // array/static_size.py:169
     // last_point = path[0]
     intc_0 // 0
-    // array/static_size.py:174
+    // array/static_size.py:176
     // dx = point.x.as_uint64() - last_point.x.as_uint64()
     extract_uint64
     -
@@ -447,19 +449,19 @@ test_array_after_for@15:
 
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple[routing]() -> void:
 test_extend_from_tuple:
-    // array/static_size.py:57
+    // array/static_size.py:59
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
     extract 0 16
     swap
     extract 16 16
-    // array/static_size.py:60
+    // array/static_size.py:62
     // arr.extend(some_more)
     swap
     dig 1
     concat
-    // array/static_size.py:61
+    // array/static_size.py:63
     // last = arr[-1]
     dup
     len
@@ -474,20 +476,20 @@ test_extend_from_tuple:
     swap
     intc_3 // 16
     extract3 // on error: index access is out of bounds
-    // array/static_size.py:62
+    // array/static_size.py:64
     // assert last == some_more[1]
     dup
     uncover 4
     ==
     assert
-    // array/static_size.py:63
+    // array/static_size.py:65
     // result = arr.freeze()
     swap
     itob
     extract 6 2
     uncover 2
     concat
-    // array/static_size.py:64
+    // array/static_size.py:66
     // assert result[-1] == last
     dup
     intc_0 // 0
@@ -504,7 +506,7 @@ test_extend_from_tuple:
     uncover 2
     ==
     assert
-    // array/static_size.py:57
+    // array/static_size.py:59
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
     swap
@@ -516,14 +518,14 @@ test_extend_from_tuple:
 
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple[routing]() -> void:
 test_extend_from_arc4_tuple:
-    // array/static_size.py:67
+    // array/static_size.py:69
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    // array/static_size.py:72
+    // array/static_size.py:74
     // arr.extend(some_more)
     dup
     pop
-    // array/static_size.py:73
+    // array/static_size.py:75
     // return arr.freeze()
     dup
     len
@@ -533,7 +535,7 @@ test_extend_from_arc4_tuple:
     extract 6 2
     swap
     concat
-    // array/static_size.py:67
+    // array/static_size.py:69
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
     swap
@@ -547,29 +549,29 @@ test_extend_from_arc4_tuple:
 test_bool_array:
     bytec_0 // ""
     dupn 2
-    // array/static_size.py:75
+    // array/static_size.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
     btoi
     dup
-    // array/static_size.py:77
+    // array/static_size.py:79
     // arr = ReferenceArray[bool]()
     bytec_0 // 0x
     swap
-    // array/static_size.py:80
+    // array/static_size.py:82
     // for i in urange(1, length + 1):
     intc_1 // 1
     +
     intc_1 // 1
 
 test_bool_array_for_header@2:
-    // array/static_size.py:80
+    // array/static_size.py:82
     // for i in urange(1, length + 1):
     dup
     dig 2
     <
     bz test_bool_array_after_for@5
-    // array/static_size.py:81
+    // array/static_size.py:83
     // arr.append(i % 2 == 0)
     dupn 2
     pushint 2 // 2
@@ -583,7 +585,7 @@ test_bool_array_for_header@2:
     setbit
     concat // on error: max array length exceeded
     bury 4
-    // array/static_size.py:80
+    // array/static_size.py:82
     // for i in urange(1, length + 1):
     intc_1 // 1
     +
@@ -593,7 +595,7 @@ test_bool_array_for_header@2:
 test_bool_array_after_for@5:
     dig 2
     dupn 2
-    // array/static_size.py:82
+    // array/static_size.py:84
     // assert arr.length == length, "expected correct length"
     len
     dig 6
@@ -602,10 +604,10 @@ test_bool_array_after_for@5:
     ==
     assert // expected correct length
     dig 1
-    // array/static_size.py:85
+    // array/static_size.py:87
     // arr2.extend(arr)
     concat // on error: max array length exceeded
-    // array/static_size.py:86
+    // array/static_size.py:88
     // assert arr2.length == length * 2, "expected correct length"
     len
     uncover 2
@@ -613,11 +615,11 @@ test_bool_array_after_for@5:
     *
     ==
     assert // expected correct length
-    // array/static_size.py:88
+    // array/static_size.py:90
     // count = UInt64(0)
     intc_0 // 0
     bury 7
-    // array/static_size.py:89
+    // array/static_size.py:91
     // for val in arr:
     len
     bury 7
@@ -625,7 +627,7 @@ test_bool_array_after_for@5:
     bury 5
 
 test_bool_array_for_header@6:
-    // array/static_size.py:89
+    // array/static_size.py:91
     // for val in arr:
     dig 4
     dig 7
@@ -637,10 +639,10 @@ test_bool_array_for_header@6:
     extract3 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    // array/static_size.py:90
+    // array/static_size.py:92
     // if val:
     bz test_bool_array_after_if_else@9
-    // array/static_size.py:91
+    // array/static_size.py:93
     // count += 1
     dig 5
     intc_1 // 1
@@ -655,7 +657,7 @@ test_bool_array_after_if_else@9:
     b test_bool_array_for_header@6
 
 test_bool_array_after_for@11:
-    // array/static_size.py:75
+    // array/static_size.py:77
     // @arc4.abimethod()
     dig 5
     itob
@@ -671,29 +673,29 @@ test_bool_array_after_for@11:
 test_arc4_conversion:
     bytec_0 // ""
     dupn 2
-    // array/static_size.py:94
+    // array/static_size.py:96
     // @arc4.abimethod()
     txna ApplicationArgs 1
     btoi
     dup
-    // array/static_size.py:96
+    // array/static_size.py:98
     // arr = ReferenceArray[arc4.UInt64]()
     bytec_0 // 0x
     swap
-    // array/static_size.py:99
+    // array/static_size.py:101
     // for i in urange(1, length + 1):
     intc_1 // 1
     +
     intc_1 // 1
 
 test_arc4_conversion_for_header@2:
-    // array/static_size.py:99
+    // array/static_size.py:101
     // for i in urange(1, length + 1):
     dup
     dig 2
     <
     bz test_arc4_conversion_after_for@5
-    // array/static_size.py:100
+    // array/static_size.py:102
     // arr.append(arc4.UInt64(i))
     dupn 2
     itob
@@ -701,7 +703,7 @@ test_arc4_conversion_for_header@2:
     swap
     concat // on error: max array length exceeded
     bury 4
-    // array/static_size.py:99
+    // array/static_size.py:101
     // for i in urange(1, length + 1):
     intc_1 // 1
     +
@@ -710,7 +712,7 @@ test_arc4_conversion_for_header@2:
 
 test_arc4_conversion_after_for@5:
     dig 2
-    // array/static_size.py:101
+    // array/static_size.py:103
     // assert arr.length == length, "expected correct length"
     len
     intc_2 // 8
@@ -720,7 +722,7 @@ test_arc4_conversion_after_for@5:
     dig 4
     ==
     assert // expected correct length
-    // array/static_size.py:102
+    // array/static_size.py:104
     // count = UInt64(0)
     intc_0 // 0
     bury 6
@@ -728,7 +730,7 @@ test_arc4_conversion_after_for@5:
     bury 5
 
 test_arc4_conversion_for_header@6:
-    // array/static_size.py:103
+    // array/static_size.py:105
     // for val in arr:
     dig 4
     dig 7
@@ -740,12 +742,12 @@ test_arc4_conversion_for_header@6:
     *
     intc_2 // 8
     extract3 // on error: index access is out of bounds
-    // array/static_size.py:104
+    // array/static_size.py:106
     // if val:
     bytec_0 // 0x
     b!=
     bz test_arc4_conversion_after_if_else@9
-    // array/static_size.py:105
+    // array/static_size.py:107
     // count += 1
     dig 5
     intc_1 // 1
@@ -760,11 +762,11 @@ test_arc4_conversion_after_if_else@9:
     b test_arc4_conversion_for_header@6
 
 test_arc4_conversion_after_for@11:
-    // array/static_size.py:107
+    // array/static_size.py:109
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
     bytec 4 // 0x0000
     dig 3
-    // array/static_size.py:108
+    // array/static_size.py:110
     // arc4_arr.extend(arr)
     concat // on error: max array length exceeded
     dup
@@ -775,7 +777,7 @@ test_arc4_conversion_after_for@11:
     itob
     extract 6 2
     replace2 0
-    // array/static_size.py:94
+    // array/static_size.py:96
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
     swap
@@ -787,18 +789,18 @@ test_arc4_conversion_after_for@11:
 
 // test_cases.array.static_size.StaticSizeContract.sum_array[routing]() -> void:
 sum_array:
-    // array/static_size.py:112
+    // array/static_size.py:114
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    // array/static_size.py:115
+    // array/static_size.py:117
     // arr.extend(arc4_arr)
     extract 2 0
     dup
-    // array/static_size.py:117
+    // array/static_size.py:119
     // total = UInt64(0)
     intc_0 // 0
     swap
-    // array/static_size.py:118
+    // array/static_size.py:120
     // for item in arr:
     len
     intc_2 // 8
@@ -806,7 +808,7 @@ sum_array:
     intc_0 // 0
 
 sum_array_for_header@2:
-    // array/static_size.py:118
+    // array/static_size.py:120
     // for item in arr:
     dup
     dig 2
@@ -818,7 +820,7 @@ sum_array_for_header@2:
     cover 2
     intc_2 // 8
     *
-    // array/static_size.py:119
+    // array/static_size.py:121
     // total += item.as_uint64()
     extract_uint64
     dig 4
@@ -830,7 +832,7 @@ sum_array_for_header@2:
     b sum_array_for_header@2
 
 sum_array_after_for@5:
-    // array/static_size.py:112
+    // array/static_size.py:114
     // @arc4.abimethod()
     dig 2
     itob
@@ -844,7 +846,7 @@ sum_array_after_for@5:
 
 // test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routing]() -> void:
 test_arc4_bool:
-    // array/static_size.py:141
+    // array/static_size.py:143
     // arr.append(arc4.Bool(Txn.sender == Txn.receiver))
     txn Sender
     txn Receiver
@@ -853,7 +855,7 @@ test_arc4_bool:
     intc_0 // 0
     uncover 2
     setbit
-    // array/static_size.py:142
+    // array/static_size.py:144
     // arr.append(arc4.Bool(Txn.sender != Txn.receiver))
     txn Sender
     txn Receiver
@@ -864,13 +866,13 @@ test_arc4_bool:
     setbit
     concat // on error: max array length exceeded
     dupn 2
-    // array/static_size.py:145
+    // array/static_size.py:147
     // dyn_arr.extend(arr)
     len
-    // array/static_size.py:144
+    // array/static_size.py:146
     // dyn_arr = arc4.DynamicArray[arc4.Bool]()
     bytec 4 // 0x0000
-    // array/static_size.py:145
+    // array/static_size.py:147
     // dyn_arr.extend(arr)
     dig 2
     uncover 2
@@ -878,7 +880,7 @@ test_arc4_bool:
     callsub dynamic_array_concat_bits
     dup
     cover 2
-    // array/static_size.py:146
+    // array/static_size.py:148
     // assert dyn_arr.length == 2, "expected correct length"
     dup
     intc_0 // 0
@@ -889,14 +891,14 @@ test_arc4_bool:
     pushint 2 // 2
     ==
     assert // expected correct length
-    // array/static_size.py:147
+    // array/static_size.py:149
     // assert dyn_arr.bytes.length == 3, "expected 3 bytes"
     dig 1
     len
     pushint 3 // 3
     ==
     assert // expected 3 bytes
-    // array/static_size.py:148
+    // array/static_size.py:150
     // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
     dup
     assert // index access is out of bounds
@@ -914,7 +916,7 @@ test_arc4_bool:
     ==
     ==
     assert // expected correct value at 0
-    // array/static_size.py:149
+    // array/static_size.py:151
     // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
     intc_1 // 1
     >
@@ -935,7 +937,7 @@ test_arc4_bool:
     intc_0 // 0
 
 test_arc4_bool_for_header@2:
-    // array/static_size.py:152-154
+    // array/static_size.py:154-156
     // # note: not supported currently
     // # arr2.extend(dyn_array)
     // for b in dyn_arr:
@@ -954,7 +956,7 @@ test_arc4_bool_for_header@2:
     uncover 2
     setbit
     dig 3
-    // array/static_size.py:155
+    // array/static_size.py:157
     // arr2.append(b)
     swap
     concat // on error: max array length exceeded
@@ -966,14 +968,14 @@ test_arc4_bool_for_header@2:
 
 test_arc4_bool_after_for@5:
     dig 1
-    // array/static_size.py:156
+    // array/static_size.py:158
     // assert arr2.length == 4, "expected correct length"
     dup
     len
     pushint 4 // 4
     ==
     assert // expected correct length
-    // array/static_size.py:157
+    // array/static_size.py:159
     // assert arr2[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
     dup
     extract 0 1 // on error: index access is out of bounds
@@ -984,7 +986,7 @@ test_arc4_bool_after_for@5:
     ==
     ==
     assert // expected correct value at 0
-    // array/static_size.py:158
+    // array/static_size.py:160
     // assert arr2[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
     dup
     extract 1 1 // on error: index access is out of bounds
@@ -995,7 +997,7 @@ test_arc4_bool_after_for@5:
     !=
     ==
     assert // expected correct value at 1
-    // array/static_size.py:159
+    // array/static_size.py:161
     // assert arr2[2] == (Txn.sender == Txn.receiver), "expected correct value at 2"
     dup
     extract 2 1 // on error: index access is out of bounds
@@ -1006,7 +1008,7 @@ test_arc4_bool_after_for@5:
     ==
     ==
     assert // expected correct value at 2
-    // array/static_size.py:160
+    // array/static_size.py:162
     // assert arr2[3] == (Txn.sender != Txn.receiver), "expected correct value at 3"
     extract 3 1 // on error: index access is out of bounds
     intc_0 // 0
@@ -1017,7 +1019,7 @@ test_arc4_bool_after_for@5:
     ==
     assert // expected correct value at 3
     dig 4
-    // array/static_size.py:162
+    // array/static_size.py:164
     // return arr.freeze()
     dup
     len
@@ -1025,7 +1027,7 @@ test_arc4_bool_after_for@5:
     cover 2
     intc_2 // 8
     callsub dynamic_array_concat_bits
-    // array/static_size.py:138
+    // array/static_size.py:140
     // @arc4.abimethod()
     bytec_1 // 0x151f7c75
     swap
@@ -1037,7 +1039,7 @@ test_arc4_bool_after_for@5:
 
 // test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes, bytes:
 xtra:
-    // array/static_size.py:125
+    // array/static_size.py:127
     // self.count += 1
     intc_0 // 0
     bytec_2 // "count"
@@ -1048,23 +1050,23 @@ xtra:
     bytec_2 // "count"
     dig 1
     app_global_put
-    // array/static_size.py:127
+    // array/static_size.py:129
     // a=Txn.num_app_args,
     txn NumAppArgs
-    // array/static_size.py:129
+    // array/static_size.py:131
     // c=Txn.sender,
     txn Sender
-    // array/static_size.py:130
+    // array/static_size.py:132
     // d=self.more(),
     callsub more
-    // array/static_size.py:131
+    // array/static_size.py:133
     // e=BigUInt(self.count),
     intc_0 // 0
     bytec_2 // "count"
     app_global_get_ex
     assert // check self.count exists
     itob
-    // array/static_size.py:126-132
+    // array/static_size.py:128-134
     // return Xtra(
     //     a=Txn.num_app_args,
     //     b=self.count,
@@ -1079,7 +1081,7 @@ xtra:
 
 // test_cases.array.static_size.StaticSizeContract.more() -> bytes:
 more:
-    // array/static_size.py:136
+    // array/static_size.py:138
     // return More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count))
     intc_0 // 0
     bytec_2 // "count"
