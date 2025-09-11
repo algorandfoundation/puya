@@ -99,8 +99,14 @@ def test_run_version() -> None:
 
 def test_run_not_python() -> None:
     result = run_puyapy(["pyproject.toml"], check=False)
-    assert result.returncode == 1
-    assert "error: Invalid syntax" in result.stdout
+    assert result.returncode != 0
+    assert "error: path is not a directory or a .py file" in result.stdout
+
+
+def test_run_non_existent() -> None:
+    result = run_puyapy(["fake_dir/abc.py"], check=False)
+    assert result.returncode != 0
+    assert 'Invalid value "fake_dir/abc.py"' in result.stdout
 
 
 def test_run_single_file() -> None:

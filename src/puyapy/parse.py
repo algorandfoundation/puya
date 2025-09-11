@@ -1,4 +1,3 @@
-import ast
 import codecs
 import enum
 import functools
@@ -11,21 +10,13 @@ import typing
 from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
+from operator import itemgetter
 from pathlib import Path
 
 import attrs
-from mypy import pyinfo
-from mypy.build import (
-    BuildManager,
-    Graph,
-    default_data_dir,
-    load_graph,
-    process_graph,
-    sorted_components,
-)
+from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_components
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
-from mypy.find_sources import create_source_list
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.nodes import MypyFile
@@ -39,7 +30,9 @@ from packaging import version
 from puya import log
 from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd, unique
+from puya.utils import make_path_relative_to_cwd
+from puyapy import interpreter_data
+from puyapy.find_sources import ResolvedSource, create_source_list
 
 logger = log.get_logger(__name__)
 
@@ -50,8 +43,7 @@ MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.
 
 
 class SourceDiscoveryMechanism(enum.Enum):
-    explicit_file = enum.auto()
-    explicit_directory_walk = enum.auto()
+    explicit = enum.auto()
     dependency = enum.auto()
 
 
@@ -89,48 +81,38 @@ class ParseResult:
 def parse_python(
     paths: Sequence[Path],
     *,
-    python_executable: Path | typing.Literal["infer", "current"] = "current",
-    exclude: Sequence[str] | None = None,
+    package_search_paths: Sequence[str] | typing.Literal["infer", "current"] = "current",
+    excluded_subdir_names: Sequence[str] | None = None,
     # equivalent to a module-level singleton default, but at least it's self-contained here
     fs_cache: FileSystemCache = FileSystemCache(),  # noqa: B008
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    mypy_options = _get_mypy_options()
-    if exclude:
-        mypy_options.exclude.extend(exclude)
-
-    # ensure we have the absolute, canonical paths to the files
-    resolved_input_paths = {p.resolve() for p in paths}
-    # creates a list of BuildSource objects from the contract Paths
-    mypy_build_sources = create_source_list(
-        paths=[str(p) for p in resolved_input_paths],
-        options=mypy_options,
-        fscache=fs_cache,
+    sources_by_module_name = _create_and_check_source_list(
+        paths, excluded_subdir_names=excluded_subdir_names
     )
-    # build a set of absolute/resolved paths that were explicitly named (potentially by inclusion
-    # of directories)
-    build_source_paths = {
-        Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
-    }
+    source_roots = [bs.base_dir for bs in sources_by_module_name.values()]
+    source_roots.append(Path.cwd())
 
-    python_path = [source.base_dir for source in mypy_build_sources if source.base_dir]
-    python_path.append(os.getcwd())  # noqa: PTH109
-    python_path = unique(python_path)
-
-    package_paths = _resolve_package_paths(python_executable)
+    python_path = tuple(dict.fromkeys(map(str, source_roots)))
+    package_paths = tuple(_resolve_package_paths(package_search_paths))
     typeshed_paths = _typeshed_paths()
     mypy_search_paths = SearchPaths(
-        python_path=tuple(python_path),
+        python_path=python_path,
         package_path=package_paths,
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
+    mypy_build_sources = [
+        BuildSource(path=str(bs.path), module=module_name, base_dir=str(bs.base_dir))
+        for module_name, bs in sorted(sources_by_module_name.items(), key=itemgetter(0))
+    ]
+    mypy_options = _get_mypy_options()
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-    missing_module_names = {s.module for s in mypy_build_sources} - manager.modules.keys()
+    missing_module_names = sources_by_module_name.keys() - manager.modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
         not missing_module_names
@@ -153,10 +135,8 @@ def parse_python(
             else:
                 _check_encoding(fs_cache, module_path)
                 lines = read_py_file(str(module_path), fs_cache.read)
-                if module_path in resolved_input_paths:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit_file
-                elif module_path in build_source_paths:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit_directory_walk
+                if module_name in sources_by_module_name:
+                    discovery_mechanism = SourceDiscoveryMechanism.explicit
                 else:
                     discovery_mechanism = SourceDiscoveryMechanism.dependency
                 ordered_modules[module_name] = SourceModule(
@@ -171,50 +151,67 @@ def parse_python(
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
 
 
-def _resolve_package_paths(
-    python_executable: Path | typing.Literal["infer", "current"] = "current",
-) -> tuple[str, ...]:
-    resolved_python_executable = _resolve_python_executable(python_executable)
-    sys_path, site_packages = get_search_dirs(resolved_python_executable)
-    logger.debug(f"using python site-packages: {site_packages}")
-    _check_algopy_version(site_packages)
-    return *sys_path, *site_packages
-
-
-def _resolve_python_executable(
-    python_executable: Path | typing.Literal["infer", "current"] = "current",
-) -> str:
-    match python_executable:
-        case Path():
-            return _get_python_executable(python_executable)
-        case "infer":
-            return _infer_python_executable()
-        case "current":
-            return sys.executable
-
-
-def _get_python_executable(python_executable: Path) -> str:
-    try:
-        (name,) = python_executable.parts
-    except ValueError:
-        logger.info(f"using python executable path from options: {python_executable}")
-        return str(python_executable)
-    else:
-        found = shutil.which(name)
-        if not found:
-            raise ConfigurationError(
-                f"unable to locate specified python interpreter on path: {python_executable}"
+def _create_and_check_source_list(
+    paths: Sequence[Path],
+    *,
+    excluded_subdir_names: Sequence[str] | None,
+) -> Mapping[str, ResolvedSource]:
+    build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
+    sources_by_module_name = dict[str, ResolvedSource]()
+    sources_by_path = dict[Path, ResolvedSource]()
+    duplicate_errors = list[ConfigurationError]()
+    for bs in build_sources:
+        existing = sources_by_module_name.setdefault(bs.module, bs)
+        if existing != bs:
+            duplicate_errors.append(
+                ConfigurationError(
+                    f"duplicate modules named in build sources:"
+                    f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
+                    f" as {make_path_relative_to_cwd(existing.path)}"
+                )
             )
-        logger.info(f"using python executable name from options: {found}")
-        return found
+        else:
+            existing = sources_by_path.setdefault(bs.path, bs)
+            if existing != bs:
+                duplicate_errors.append(
+                    ConfigurationError(
+                        f"source path {make_path_relative_to_cwd(bs.path)}"
+                        f" was resolved to multiple module names, ensure each path is only"
+                        f" specified once or add top-level __init__.py files to mark package roots"
+                    )
+                )
+    if duplicate_errors:
+        raise ExceptionGroup("duplicate module errors", duplicate_errors)
+    return sources_by_module_name
 
 
-def _infer_python_executable() -> str:
-    # look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project),
-    # if no venv is active, then fallback to the ambient python prefix
+def _resolve_package_paths(
+    package_search_paths: Sequence[str] | typing.Literal["infer", "current"],
+) -> list[str]:
+    match package_search_paths:
+        case "current":
+            sys_path = interpreter_data.get_sys_path()
+        case "infer":
+            sys_path = _infer_sys_path()
+        case paths:
+            sys_path = [os.path.abspath(p) for p in paths]  # noqa: PTH100
+    logger.info(f"using python search path: {sys_path}")
+    _check_algopy_version(sys_path)
+    return sys_path
+
+
+def _infer_sys_path() -> list[str]:
+    # 1) Look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project).
+    # 2) If no venv is active, then fallback to the python interpreter on the system path.
+    # 3) Failing that, use the current interpreter.
+    # In the future, we might want to make it 1 -> 3 -> error, since searching the system path
+    # for a python executable is just as likely to be incorrect as using the currently running one,
+    # with extra downside that it's less predictable.
+    # To continue to support the current method, we could add a --python-executable=... CLI option.
     try:
         venv = os.environ["VIRTUAL_ENV"]
     except KeyError:
+        logger.debug("no active python virtual env")
         venv_scripts = None
     else:
         logger.debug(f"found active python virtual env: {venv}")
@@ -224,26 +221,14 @@ def _infer_python_executable() -> str:
         logger.debug(f"attempting to locate '{python}' in {venv_scripts or 'system path'}")
         python_exe = shutil.which(python, path=venv_scripts)
         if python_exe:
-            logger.info(
-                f"using python executable from {'venv' if venv_scripts else 'path'}: {python_exe}"
-            )
-            return python_exe
+            logger.debug(f"using python search path from interpreter: {python_exe}")
+            return _get_sys_path(python_exe)
     if venv_scripts:
         raise ConfigurationError(
             "found an active python virtual env, but could not find an expected python interpreter"
         )
-    # TODO: use the below as fallback instead of searching active path if no venv,
-    #       will required adding python-executable option to puyapy CLI to provide a way
-    #       to maintain existing behaviour
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        raise ConfigurationError(
-            "when running from a PyInstaller bundle,"
-            " if there is no active virtual environment"
-            " then the path to the python interpreter must be specified"
-        ) from None
-    result = sys.executable
-    logger.info(f"using python executable from current interpreter: {result}")
-    return result
+    logger.debug("using python search path from current interpreter")
+    return interpreter_data.get_sys_path()
 
 
 def _check_encoding(mypy_fscache: FileSystemCache, module_path: Path) -> None:
@@ -330,7 +315,6 @@ def _mypy_build(
     Makes it so that check errors and parse errors are handled the same (ie with an exception)
     """
 
-    data_dir = default_data_dir()
     source_set = BuildSourceSet(sources)
     cached_read = fscache.read
     errors = Errors(options, read_source=lambda path: read_py_file(path, cached_read))
@@ -344,8 +328,8 @@ def _mypy_build(
     #
     # Ignore current directory prefix in error messages.
     manager = BuildManager(
-        data_dir,
-        search_paths,
+        data_dir=os.devnull,
+        search_paths=search_paths,
         ignore_prefix=os.getcwd(),  # noqa: PTH109
         source_set=source_set,
         reports=None,
@@ -409,24 +393,13 @@ def _typeshed_paths() -> tuple[str, str]:
     return str(typeshed_dir), str(mypy_extensions_dir)
 
 
-@functools.cache
-def get_search_dirs(python_executable: str) -> tuple[list[str], list[str]]:
-    """Find package directories for given python. Guaranteed to return absolute paths.
-
-    This runs a subprocess call, which generates a list of the directories in sys.path.
-    To avoid repeatedly calling a subprocess (which can be slow!) we
-    lru_cache the results.
-    """
-
-    if python_executable == sys.executable:
-        # Use running Python's package dirs
-        return pyinfo.getsearchdirs()
+def _get_sys_path(python_executable: str) -> list[str]:
     # Use subprocess to get the package directory of given Python
     # executable
     env = os.environ.copy() | {"PYTHONSAFEPATH": "1"}
     try:
         pyinfo_result = subprocess.run(  # noqa: S603
-            [python_executable, pyinfo.__file__, "getsearchdirs"],
+            [python_executable, interpreter_data.__file__],
             env=env,
             capture_output=True,
             text=True,
@@ -435,12 +408,15 @@ def get_search_dirs(python_executable: str) -> tuple[list[str], list[str]]:
     except OSError as err:
         assert err.errno is not None
         reason = os.strerror(err.errno)
-        raise InternalError(f"invalid python executable '{python_executable}': {reason}") from err
-    else:
-        if pyinfo_result.returncode != 0:
-            raise InternalError(f"failed to inspect python environment for {python_executable}")
-        sys_path, site_packages = ast.literal_eval(pyinfo_result.stdout)
-        return sys_path, site_packages
+        raise ConfigurationError(
+            f"invalid python executable '{python_executable}': {reason}"
+        ) from err
+    if pyinfo_result.stderr:
+        raise ConfigurationError(pyinfo_result.stderr)
+    if pyinfo_result.returncode != 0:
+        raise InternalError(f"failed to inspect python environment for {python_executable}")
+    sys_path = pyinfo_result.stdout.splitlines()
+    return sys_path
 
 
 _STUBS_PACKAGE_NAME = "algorand-python"

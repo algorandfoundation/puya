@@ -27,7 +27,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puyapy_options)
         try:
-            parse_result = parse_python(puyapy_options.paths, python_executable="infer")
+            parse_result = parse_python(puyapy_options.paths, package_search_paths="infer")
             log_ctx.sources_by_path = parse_result.sources_by_path
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result, puyapy_options)
