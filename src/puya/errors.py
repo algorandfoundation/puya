@@ -47,9 +47,9 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
         # should only be one exit code generally...
         exit_code = max(typing.cast(PuyaExitError, e).exit_code for e in ex_exit.exceptions)
         raise PuyaExitError(exit_code) from None
-    except* CodeError as code_errors:
+    except* (CodeError, ConfigurationError) as code_errors:
         for code_error in code_errors.exceptions:
-            assert isinstance(code_error, CodeError)
+            assert isinstance(code_error, CodeError | ConfigurationError)
             logger.error(code_error.msg, location=code_error.location or fallback_location)  # noqa: TRY400
     except* Exception as ex_group:
         for ex in ex_group.exceptions:

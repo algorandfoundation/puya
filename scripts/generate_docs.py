@@ -11,10 +11,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendo
 
 
 import attrs
+import mypy.build
+import mypy.find_sources
 import mypy.nodes
 from mypy.visitor import NodeVisitor
 
-from puyapy.parse import ParseResult, parse_python
+from puyapy.parse import _get_mypy_options
 
 SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
@@ -33,22 +35,17 @@ class ModuleImports:
 
 def main() -> None:
     configure_stdio()
-    parse_result = parse_python([STUBS_DIR])
-    output_doc_stubs(parse_result)
+    mypy_opts = _get_mypy_options()
+    mypy_opts.python_executable = sys.executable
+    source_list = mypy.find_sources.create_source_list([str(STUBS_DIR)], mypy_opts)
+    result = mypy.build.build(source_list, options=mypy_opts)
+    output_doc_stubs(result.manager)
     run_sphinx()
 
 
-def output_doc_stubs(parse_result: ParseResult) -> None:
-    modules = {
-        module_id: module.node for module_id, module in parse_result.ordered_modules.items()
-    }
-    sources = {str(m.path): m.lines for m in parse_result.ordered_modules.values()}
-
-    def read_source(arg: str) -> list[str] | None:
-        return list(sources.get(arg) or ())
-
+def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
     # parse and output reformatted __init__.pyi
-    stub = DocStub.process_module(modules, read_source, "algopy")
+    stub = DocStub.process_module(manager, "algopy")
     algopy_direct_imports = stub.collected_imports["algopy"]
     # remove any algopy imports that are now defined in __init__.py itself
     output_combined_stub(stub, STUBS_DOC_DIR / "__init__.pyi")
@@ -56,7 +53,7 @@ def output_doc_stubs(parse_result: ParseResult) -> None:
     # remaining imports from algopy are other public modules
     # parse and output them too
     for other_stub_name in algopy_direct_imports.from_imports:
-        stub = DocStub.process_module(modules, read_source, f"algopy.{other_stub_name}")
+        stub = DocStub.process_module(manager, f"algopy.{other_stub_name}")
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
@@ -316,12 +313,10 @@ class DocStub(NodeVisitor[None]):
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     @classmethod
-    def process_module(
-        cls,
-        modules: dict[str, mypy.nodes.MypyFile],
-        read_source: Callable[[str], list[str] | None],
-        module_id: str,
-    ) -> typing.Self:
+    def process_module(cls, manager: mypy.build.BuildManager, module_id: str) -> typing.Self:
+        read_source = manager.errors.read_source
+        assert read_source
+        modules = manager.modules
         module: mypy.nodes.MypyFile = modules[module_id]
         stub = cls(read_source=read_source, file=module, modules=modules)
         module.accept(stub)
