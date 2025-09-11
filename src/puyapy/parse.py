@@ -25,7 +25,6 @@ from mypy.build import (
 )
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
-from mypy.find_sources import create_source_list
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.nodes import MypyFile
@@ -40,6 +39,7 @@ from puya import log
 from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, unique
+from puyapy.find_sources import create_source_list
 
 logger = log.get_logger(__name__)
 
@@ -105,7 +105,7 @@ def parse_python(
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = create_source_list(
         paths=[str(p) for p in resolved_input_paths],
-        options=mypy_options,
+        exclude=exclude,
         fscache=fs_cache,
     )
     # build a set of absolute/resolved paths that were explicitly named (potentially by inclusion
