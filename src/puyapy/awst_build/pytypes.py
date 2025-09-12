@@ -859,16 +859,16 @@ def _make_array_parameterise(
     return parameterise
 
 
-GenericReferenceArrayType: typing.Final = _GenericType(
+GenericReferenceArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy._native.ReferenceArray",
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
-GenericArrayType: typing.Final = _GenericType(
+GenericArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy._native.Array",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
-GenericARC4DynamicArrayType: typing.Final = _GenericType(
+GenericARC4DynamicArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy.arc4.DynamicArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
@@ -901,7 +901,7 @@ def _imm_array_parameterise(
     )
 
 
-GenericImmutableArrayType: typing.Final = _GenericType(
+GenericImmutableArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy._native.ImmutableArray",
     parameterise=_imm_array_parameterise,
 )
