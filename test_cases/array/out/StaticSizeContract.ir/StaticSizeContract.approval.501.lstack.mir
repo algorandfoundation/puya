@@ -50,37 +50,37 @@ subroutine main:
         b main_after_if_else@15
 
     main_test_extend_from_tuple_route@7:
-        // array/static_size.py:57
+        // array/static_size.py:59
         // @arc4.abimethod()
         callsub test_extend_from_tuple
         b main_after_if_else@15
 
     main_test_extend_from_arc4_tuple_route@8:
-        // array/static_size.py:67
+        // array/static_size.py:69
         // @arc4.abimethod()
         callsub test_extend_from_arc4_tuple
         b main_after_if_else@15
 
     main_test_bool_array_route@9:
-        // array/static_size.py:75
+        // array/static_size.py:77
         // @arc4.abimethod()
         callsub test_bool_array
         b main_after_if_else@15
 
     main_test_arc4_conversion_route@10:
-        // array/static_size.py:94
+        // array/static_size.py:96
         // @arc4.abimethod()
         callsub test_arc4_conversion
         b main_after_if_else@15
 
     main_sum_array_route@11:
-        // array/static_size.py:112
+        // array/static_size.py:114
         // @arc4.abimethod()
         callsub sum_array
         b main_after_if_else@15
 
     main_test_arc4_bool_route@12:
-        // array/static_size.py:138
+        // array/static_size.py:140
         // @arc4.abimethod()
         callsub test_arc4_bool
         b main_after_if_else@15
@@ -224,20 +224,22 @@ subroutine test_array:
         byte "count"                                                                              x1#0,y1#0,x2#0,y2#0,"count"
         int 0                                                                                     x1#0,y1#0,x2#0,y2#0,"count",0
         app_global_put                                                                            x1#0,y1#0,x2#0,y2#0
-        // array/static_size.py:45
+        // array/static_size.py:46
         // Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
         callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1
-        // array/static_size.py:46
+        // array/static_size.py:47
         // Point(x=x1, y=y1, other=self.xtra()),
         callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0
-        // array/static_size.py:47
+        // array/static_size.py:48
         // Point(x=x2, y=y2, other=self.xtra()),
         callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0
-        // array/static_size.py:44-48
+        // array/static_size.py:44-50
         // path = ReferenceArray(
-        //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
-        //     Point(x=x1, y=y1, other=self.xtra()),
-        //     Point(x=x2, y=y2, other=self.xtra()),
+        //     (
+        //         Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
+        //         Point(x=x1, y=y1, other=self.xtra()),
+        //         Point(x=x2, y=y2, other=self.xtra()),
+        //     )
         // )
         l-load tmp%0#1 14                                                                         x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,tmp%0#1
         itob                                                                                      x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0
@@ -346,7 +348,7 @@ subroutine test_array:
         concat                                                                                    aggregate%head%26#0
         l-load aggregate%head%26#0 0                                                              aggregate%head%26#0
         v-store slot%0
-        // array/static_size.py:49
+        // array/static_size.py:51
         // for i in urange(3):
         int 0                                                                                     0
         l-store value_internal%0#0 0                                                              value_internal%0#0
@@ -355,7 +357,7 @@ subroutine test_array:
         b test_array_for_header@2
 
     test_array_for_header@2:
-        // array/static_size.py:49
+        // array/static_size.py:51
         // for i in urange(3):
         v-load i#0                                                                                i#0
         int 3                                                                                     i#0,3
@@ -365,7 +367,7 @@ subroutine test_array:
 
     test_array_for_body@3:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:50
+        // array/static_size.py:52
         // assert path[i].other.b == i + 1
         l-store slot_contents%0#0 0                                                               slot_contents%0#0
         v-load i#0                                                                                slot_contents%0#0,i#0
@@ -389,7 +391,7 @@ subroutine test_array:
         ==                                                                                        i#0,aggregate%extract%2#0,tmp%15#0,tmp%16#0
         l-load tmp%16#0 0                                                                         i#0,aggregate%extract%2#0,tmp%15#0,tmp%16#0
         assert                                                                                    i#0,aggregate%extract%2#0,tmp%15#0
-        // array/static_size.py:51
+        // array/static_size.py:53
         // assert path[i].other.d.foo == i + 2
         l-load aggregate%extract%2#0 1                                                            i#0,tmp%15#0,aggregate%extract%2#0
         extract 48 16                                                                             i#0,tmp%15#0,aggregate%extract%14#0
@@ -405,7 +407,7 @@ subroutine test_array:
         b==                                                                                       tmp%15#0,aggregate%extract%14#0,tmp%19#0
         l-load tmp%19#0 0                                                                         tmp%15#0,aggregate%extract%14#0,tmp%19#0
         assert                                                                                    tmp%15#0,aggregate%extract%14#0
-        // array/static_size.py:52
+        // array/static_size.py:54
         // assert path[i].other.d.bar == (i + 1) * (i + 1)
         l-load aggregate%extract%14#0 0                                                           tmp%15#0,aggregate%extract%14#0
         extract 8 8                                                                               tmp%15#0,aggregate%extract%25#0
@@ -425,7 +427,7 @@ subroutine test_array:
 
     test_array_after_for@5:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:54
+        // array/static_size.py:56
         // Box(ImmutableArray[Point], key="a").value = path.freeze()
         l-store slot_contents%3#0 0                                                               slot_contents%3#0
         l-load-copy slot_contents%3#0 0                                                           slot_contents%3#0,slot_contents%3#0 (copy)
@@ -448,7 +450,7 @@ subroutine test_array:
         byte "a"                                                                                  slot_contents%3#0,converted_array%0#0,"a"
         l-load converted_array%0#0 1                                                              slot_contents%3#0,"a",converted_array%0#0
         box_put                                                                                   slot_contents%3#0
-        // array/static_size.py:167
+        // array/static_size.py:169
         // last_point = path[0]
         l-load slot_contents%3#0 0                                                                slot_contents%3#0
         extract 0 144 // on error: index access is out of bounds                                  aggregate%encoded_element%3#0
@@ -461,11 +463,11 @@ subroutine test_array:
         int 8                                                                                     aggregate%encoded_element%3#0,8
         extract_uint64                                                                            last_point.y#0
         v-store last_point.y#0
-        // array/static_size.py:168
+        // array/static_size.py:170
         // length = UInt64()
         int 0                                                                                     0
         v-store length#0
-        // array/static_size.py:169
+        // array/static_size.py:171
         // for point_idx in urange(1, path.length):
         int 1                                                                                     1
         l-store value_internal%0#0 0                                                              value_internal%0#0
@@ -474,7 +476,7 @@ subroutine test_array:
         b test_array_for_header@7
 
     test_array_for_header@7:
-        // array/static_size.py:169
+        // array/static_size.py:171
         // for point_idx in urange(1, path.length):
         v-load point_idx#0                                                                        point_idx#0
         v-load aggregate%array_len%0#0                                                            point_idx#0,aggregate%array_len%0#0
@@ -484,7 +486,7 @@ subroutine test_array:
 
     test_array_for_body@8:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:170
+        // array/static_size.py:172
         // point = path[point_idx]
         l-store slot_contents%1#1 0                                                               slot_contents%1#1
         v-load point_idx#0                                                                        slot_contents%1#1,point_idx#0
@@ -502,7 +504,7 @@ subroutine test_array:
         int 8                                                                                     point.x#0,aggregate%encoded_element%4#0,8
         extract_uint64                                                                            point.x#0,point.y#0
         v-store point.y#0                                                                         point.x#0
-        // array/static_size.py:171
+        // array/static_size.py:173
         // if point.x < last_point.x:
         l-load point.x#0 0                                                                        point.x#0
         v-load last_point.x#0                                                                     point.x#0,last_point.x#0
@@ -511,20 +513,20 @@ subroutine test_array:
         bz test_array_else_body@10 ; b test_array_if_body@9
 
     test_array_if_body@9:
-        // array/static_size.py:172
+        // array/static_size.py:174
         // dx = last_point.x.as_uint64() - point.x.as_uint64()
         v-load aggregate%encoded_element%3#0                                                      aggregate%encoded_element%3#0
-        // array/static_size.py:167
+        // array/static_size.py:169
         // last_point = path[0]
         int 0                                                                                     aggregate%encoded_element%3#0,0
-        // array/static_size.py:172
+        // array/static_size.py:174
         // dx = last_point.x.as_uint64() - point.x.as_uint64()
         extract_uint64                                                                            tmp%2#2
         v-load aggregate%encoded_element%4#0                                                      tmp%2#2,aggregate%encoded_element%4#0
-        // array/static_size.py:170
+        // array/static_size.py:172
         // point = path[point_idx]
         int 0                                                                                     tmp%2#2,aggregate%encoded_element%4#0,0
-        // array/static_size.py:172
+        // array/static_size.py:174
         // dx = last_point.x.as_uint64() - point.x.as_uint64()
         extract_uint64                                                                            tmp%2#2,tmp%3#2
         l-load tmp%2#2 1                                                                          tmp%3#2,tmp%2#2
@@ -534,20 +536,20 @@ subroutine test_array:
         b test_array_after_if_else@11
 
     test_array_else_body@10:
-        // array/static_size.py:174
+        // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
         v-load aggregate%encoded_element%4#0                                                      aggregate%encoded_element%4#0
-        // array/static_size.py:170
+        // array/static_size.py:172
         // point = path[point_idx]
         int 0                                                                                     aggregate%encoded_element%4#0,0
-        // array/static_size.py:174
+        // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
         extract_uint64                                                                            tmp%5#0
         v-load aggregate%encoded_element%3#0                                                      tmp%5#0,aggregate%encoded_element%3#0
-        // array/static_size.py:167
+        // array/static_size.py:169
         // last_point = path[0]
         int 0                                                                                     tmp%5#0,aggregate%encoded_element%3#0,0
-        // array/static_size.py:174
+        // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
         extract_uint64                                                                            tmp%5#0,tmp%6#0
         l-load tmp%5#0 1                                                                          tmp%6#0,tmp%5#0
@@ -557,7 +559,7 @@ subroutine test_array:
         b test_array_after_if_else@11
 
     test_array_after_if_else@11:
-        // array/static_size.py:175
+        // array/static_size.py:177
         // if point.y < last_point.y:
         v-load point.y#0                                                                          point.y#0
         v-load last_point.y#0                                                                     point.y#0,last_point.y#0
@@ -566,7 +568,7 @@ subroutine test_array:
         bz test_array_else_body@13 ; b test_array_if_body@12
 
     test_array_if_body@12:
-        // array/static_size.py:176
+        // array/static_size.py:178
         // dy = last_point.y - point.y
         v-load last_point.y#0                                                                     last_point.y#0
         v-load point.y#0                                                                          last_point.y#0,point.y#0
@@ -575,7 +577,7 @@ subroutine test_array:
         b test_array_after_if_else@14
 
     test_array_else_body@13:
-        // array/static_size.py:178
+        // array/static_size.py:180
         // dy = point.y - last_point.y
         v-load point.y#0                                                                          point.y#0
         v-load last_point.y#0                                                                     point.y#0,last_point.y#0
@@ -584,7 +586,7 @@ subroutine test_array:
         b test_array_after_if_else@14
 
     test_array_after_if_else@14:
-        // array/static_size.py:179
+        // array/static_size.py:181
         // length += op.sqrt(dx * dx + dy * dy)
         v-load dx#0                                                                               dx#0
         l-store-copy dx#0 0                                                                       dx#0,dx#0 (copy)
@@ -603,7 +605,7 @@ subroutine test_array:
         l-load tmp%14#1 1                                                                         length#0,tmp%14#1
         +                                                                                         length#0
         v-store length#0
-        // array/static_size.py:169
+        // array/static_size.py:171
         // for point_idx in urange(1, path.length):
         v-load point_idx#0                                                                        point_idx#0
         int 1                                                                                     point_idx#0,1
@@ -629,21 +631,21 @@ subroutine test_array:
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple[routing]() -> void:
 subroutine test_extend_from_tuple:
     test_extend_from_tuple_block@0:
-        // array/static_size.py:57
+        // array/static_size.py:59
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0
         l-load-copy reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 0                    reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0,reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 (copy)
         extract 0 16                                                                              reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0,some_more.0#0
         l-load reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 1                         some_more.0#0,reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0
         extract 16 16                                                                             some_more.0#0,some_more.1#0
-        // array/static_size.py:60
+        // array/static_size.py:62
         // arr.extend(some_more)
         l-load some_more.0#0 1                                                                    some_more.1#0,some_more.0#0
         l-load-copy some_more.1#0 1                                                               some_more.1#0,some_more.0#0,some_more.1#0 (copy)
         concat                                                                                    some_more.1#0,aggregate%head%1#0
         l-load-copy aggregate%head%1#0 0                                                          some_more.1#0,aggregate%head%1#0,aggregate%head%1#0 (copy)
         v-store slot%0                                                                            some_more.1#0,aggregate%head%1#0
-        // array/static_size.py:61
+        // array/static_size.py:63
         // last = arr[-1]
         l-load-copy aggregate%head%1#0 0                                                          some_more.1#0,aggregate%head%1#0,aggregate%head%1#0 (copy)
         len                                                                                       some_more.1#0,aggregate%head%1#0,aggregate%bytes_len%0#0
@@ -660,14 +662,14 @@ subroutine test_extend_from_tuple:
         l-load aggregate%bytes_offset%0#0 1                                                       some_more.1#0,aggregate%head%1#0,aggregate%array_len%0#0,aggregate%head%1#0 (copy),aggregate%bytes_offset%0#0
         int 16                                                                                    some_more.1#0,aggregate%head%1#0,aggregate%array_len%0#0,aggregate%head%1#0 (copy),aggregate%bytes_offset%0#0,16
         extract3 // on error: index access is out of bounds                                       some_more.1#0,aggregate%head%1#0,aggregate%array_len%0#0,last#0
-        // array/static_size.py:62
+        // array/static_size.py:64
         // assert last == some_more[1]
         l-load-copy last#0 0                                                                      some_more.1#0,aggregate%head%1#0,aggregate%array_len%0#0,last#0,last#0 (copy)
         l-load some_more.1#0 4                                                                    aggregate%head%1#0,aggregate%array_len%0#0,last#0,last#0 (copy),some_more.1#0
         ==                                                                                        aggregate%head%1#0,aggregate%array_len%0#0,last#0,tmp%3#1
         l-load tmp%3#1 0                                                                          aggregate%head%1#0,aggregate%array_len%0#0,last#0,tmp%3#1
         assert                                                                                    aggregate%head%1#0,aggregate%array_len%0#0,last#0
-        // array/static_size.py:63
+        // array/static_size.py:65
         // result = arr.freeze()
         l-load aggregate%array_len%0#0 1                                                          aggregate%head%1#0,last#0,aggregate%array_len%0#0
         itob                                                                                      aggregate%head%1#0,last#0,as_bytes%0#0
@@ -676,7 +678,7 @@ subroutine test_extend_from_tuple:
         l-load as_u16_bytes%0#0 0                                                                 aggregate%head%1#0,last#0,as_u16_bytes%0#0
         l-load aggregate%head%1#0 2                                                               last#0,as_u16_bytes%0#0,aggregate%head%1#0
         concat                                                                                    last#0,result#0
-        // array/static_size.py:64
+        // array/static_size.py:66
         // assert result[-1] == last
         l-load-copy result#0 0                                                                    last#0,result#0,result#0 (copy)
         int 0                                                                                     last#0,result#0,result#0 (copy),0
@@ -698,7 +700,7 @@ subroutine test_extend_from_tuple:
         ==                                                                                        result#0,tmp%7#0
         l-load tmp%7#0 0                                                                          result#0,tmp%7#0
         assert                                                                                    result#0
-        // array/static_size.py:57
+        // array/static_size.py:59
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           result#0,0x151f7c75
         l-load result#0 1                                                                         0x151f7c75,result#0
@@ -712,14 +714,14 @@ subroutine test_extend_from_tuple:
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple[routing]() -> void:
 subroutine test_extend_from_arc4_tuple:
     test_extend_from_arc4_tuple_block@0:
-        // array/static_size.py:67
+        // array/static_size.py:69
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    some_more#0
-        // array/static_size.py:72
+        // array/static_size.py:74
         // arr.extend(some_more)
         l-load-copy some_more#0 0                                                                 some_more#0,some_more#0 (copy)
         v-store slot%0                                                                            some_more#0
-        // array/static_size.py:73
+        // array/static_size.py:75
         // return arr.freeze()
         l-load-copy some_more#0 0                                                                 some_more#0,some_more#0 (copy)
         len                                                                                       some_more#0,aggregate%bytes_len%0#0
@@ -733,7 +735,7 @@ subroutine test_extend_from_arc4_tuple:
         l-load as_u16_bytes%0#0 0                                                                 some_more#0,as_u16_bytes%0#0
         l-load some_more#0 1                                                                      as_u16_bytes%0#0,some_more#0
         concat                                                                                    converted_array%0#0
-        // array/static_size.py:67
+        // array/static_size.py:69
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           converted_array%0#0,0x151f7c75
         l-load converted_array%0#0 1                                                              0x151f7c75,converted_array%0#0
@@ -747,18 +749,18 @@ subroutine test_extend_from_arc4_tuple:
 // test_cases.array.static_size.StaticSizeContract.test_bool_array[routing]() -> void:
 subroutine test_bool_array:
     test_bool_array_block@0:
-        // array/static_size.py:75
+        // array/static_size.py:77
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%0#0
         l-load reinterpret_Encoded(uint64)%0#0 0                                                  reinterpret_Encoded(uint64)%0#0
         btoi                                                                                      length#0
         l-store-copy length#0 0                                                                   length#0,length#0 (copy)
         v-store length#0                                                                          length#0
-        // array/static_size.py:77
+        // array/static_size.py:79
         // arr = ReferenceArray[bool]()
         byte 0x                                                                                   length#0,0x
         v-store slot%0                                                                            length#0
-        // array/static_size.py:80
+        // array/static_size.py:82
         // for i in urange(1, length + 1):
         l-load length#0 0                                                                         length#0
         int 1                                                                                     length#0,1
@@ -771,7 +773,7 @@ subroutine test_bool_array:
         b test_bool_array_for_header@2
 
     test_bool_array_for_header@2:
-        // array/static_size.py:80
+        // array/static_size.py:82
         // for i in urange(1, length + 1):
         v-load i#0                                                                                i#0
         v-load tmp%2#1                                                                            i#0,tmp%2#1
@@ -780,7 +782,7 @@ subroutine test_bool_array:
         bz test_bool_array_after_for@5 ; b test_bool_array_for_body@3
 
     test_bool_array_for_body@3:
-        // array/static_size.py:81
+        // array/static_size.py:83
         // arr.append(i % 2 == 0)
         v-load i#0                                                                                i#0
         l-store-copy i#0 0                                                                        i#0,i#0 (copy)
@@ -799,7 +801,7 @@ subroutine test_bool_array:
         concat // on error: max array length exceeded                                             i#0,concat%0#0
         l-load concat%0#0 0                                                                       i#0,concat%0#0
         v-store slot%0                                                                            i#0
-        // array/static_size.py:80
+        // array/static_size.py:82
         // for i in urange(1, length + 1):
         l-load i#0 0                                                                              i#0
         int 1                                                                                     i#0,1
@@ -811,7 +813,7 @@ subroutine test_bool_array:
     test_bool_array_after_for@5:
         v-load slot%0                                                                             slot%0
         l-store-copy slot%0 0                                                                     slot%0,slot%0 (copy)
-        // array/static_size.py:82
+        // array/static_size.py:84
         // assert arr.length == length, "expected correct length"
         l-store aggregate%slot_contents%1#0 0                                                     slot%0,aggregate%slot_contents%1#0
         l-load-copy aggregate%slot_contents%1#0 0                                                 slot%0,aggregate%slot_contents%1#0,aggregate%slot_contents%1#0 (copy)
@@ -822,12 +824,12 @@ subroutine test_bool_array:
         ==                                                                                        length#0,slot%0,aggregate%slot_contents%1#0,tmp%7#0
         l-load tmp%7#0 0                                                                          length#0,slot%0,aggregate%slot_contents%1#0,tmp%7#0
         assert // expected correct length                                                         length#0,slot%0,aggregate%slot_contents%1#0
-        // array/static_size.py:84
+        // array/static_size.py:86
         // arr2 = arr.copy()
         l-load-copy aggregate%slot_contents%1#0 0                                                 length#0,slot%0,aggregate%slot_contents%1#0,aggregate%slot_contents%1#0 (copy)
         v-store slot%1                                                                            length#0,slot%0,aggregate%slot_contents%1#0
         l-load-copy slot%0 1                                                                      length#0,slot%0,aggregate%slot_contents%1#0,slot%0 (copy)
-        // array/static_size.py:85
+        // array/static_size.py:87
         // arr2.extend(arr)
         l-store slot_contents%2#0 0                                                               length#0,slot%0,aggregate%slot_contents%1#0,slot_contents%2#0
         l-load aggregate%slot_contents%1#0 1                                                      length#0,slot%0,slot_contents%2#0,aggregate%slot_contents%1#0
@@ -835,7 +837,7 @@ subroutine test_bool_array:
         concat // on error: max array length exceeded                                             length#0,slot%0,concat%1#0
         l-load-copy concat%1#0 0                                                                  length#0,slot%0,concat%1#0,concat%1#0 (copy)
         v-store slot%1                                                                            length#0,slot%0,concat%1#0
-        // array/static_size.py:86
+        // array/static_size.py:88
         // assert arr2.length == length * 2, "expected correct length"
         l-load concat%1#0 0                                                                       length#0,slot%0,concat%1#0
         len                                                                                       length#0,slot%0,aggregate%bytes_len%2#0
@@ -847,12 +849,12 @@ subroutine test_bool_array:
         ==                                                                                        slot%0,tmp%10#0
         l-load tmp%10#0 0                                                                         slot%0,tmp%10#0
         assert // expected correct length                                                         slot%0
-        // array/static_size.py:88
+        // array/static_size.py:90
         // count = UInt64(0)
         int 0                                                                                     slot%0,0
         v-store count#0                                                                           slot%0
         l-load slot%0 0                                                                           slot%0
-        // array/static_size.py:89
+        // array/static_size.py:91
         // for val in arr:
         l-store aggregate%slot_contents%3#0 0                                                     aggregate%slot_contents%3#0
         l-load aggregate%slot_contents%3#0 0                                                      aggregate%slot_contents%3#0
@@ -863,7 +865,7 @@ subroutine test_bool_array:
         b test_bool_array_for_header@6
 
     test_bool_array_for_header@6:
-        // array/static_size.py:89
+        // array/static_size.py:91
         // for val in arr:
         v-load item_index_internal%0#0                                                            item_index_internal%0#0
         v-load aggregate%bytes_len%3#0                                                            item_index_internal%0#0,aggregate%bytes_len%3#0
@@ -873,7 +875,7 @@ subroutine test_bool_array:
 
     test_bool_array_for_body@7:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:89
+        // array/static_size.py:91
         // for val in arr:
         l-store slot_contents%4#0 0                                                               slot_contents%4#0
         l-load slot_contents%4#0 0                                                                slot_contents%4#0
@@ -883,13 +885,13 @@ subroutine test_bool_array:
         l-load aggregate%encoded_element%0#0 0                                                    aggregate%encoded_element%0#0
         int 0                                                                                     aggregate%encoded_element%0#0,0
         getbit                                                                                    val#0
-        // array/static_size.py:90
+        // array/static_size.py:92
         // if val:
         l-load val#0 0                                                                            val#0
         bz test_bool_array_after_if_else@9 ; b test_bool_array_if_body@8
 
     test_bool_array_if_body@8:
-        // array/static_size.py:91
+        // array/static_size.py:93
         // count += 1
         v-load count#0                                                                            count#0
         int 1                                                                                     count#0,1
@@ -905,7 +907,7 @@ subroutine test_bool_array:
         b test_bool_array_for_header@6
 
     test_bool_array_after_for@11:
-        // array/static_size.py:75
+        // array/static_size.py:77
         // @arc4.abimethod()
         v-load count#0                                                                            count#0
         itob                                                                                      aggregate%val_as_bytes%0#0
@@ -921,18 +923,18 @@ subroutine test_bool_array:
 // test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[routing]() -> void:
 subroutine test_arc4_conversion:
     test_arc4_conversion_block@0:
-        // array/static_size.py:94
+        // array/static_size.py:96
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%0#0
         l-load reinterpret_Encoded(uint64)%0#0 0                                                  reinterpret_Encoded(uint64)%0#0
         btoi                                                                                      length#0
         l-store-copy length#0 0                                                                   length#0,length#0 (copy)
         v-store length#0                                                                          length#0
-        // array/static_size.py:96
+        // array/static_size.py:98
         // arr = ReferenceArray[arc4.UInt64]()
         byte 0x                                                                                   length#0,0x
         v-store slot%0                                                                            length#0
-        // array/static_size.py:99
+        // array/static_size.py:101
         // for i in urange(1, length + 1):
         l-load length#0 0                                                                         length#0
         int 1                                                                                     length#0,1
@@ -945,7 +947,7 @@ subroutine test_arc4_conversion:
         b test_arc4_conversion_for_header@2
 
     test_arc4_conversion_for_header@2:
-        // array/static_size.py:99
+        // array/static_size.py:101
         // for i in urange(1, length + 1):
         v-load i#0                                                                                i#0
         v-load tmp%2#1                                                                            i#0,tmp%2#1
@@ -954,7 +956,7 @@ subroutine test_arc4_conversion:
         bz test_arc4_conversion_after_for@5 ; b test_arc4_conversion_for_body@3
 
     test_arc4_conversion_for_body@3:
-        // array/static_size.py:100
+        // array/static_size.py:102
         // arr.append(arc4.UInt64(i))
         v-load i#0                                                                                i#0
         l-store-copy i#0 0                                                                        i#0,i#0 (copy)
@@ -966,7 +968,7 @@ subroutine test_arc4_conversion:
         concat // on error: max array length exceeded                                             i#0,concat%0#0
         l-load concat%0#0 0                                                                       i#0,concat%0#0
         v-store slot%0                                                                            i#0
-        // array/static_size.py:99
+        // array/static_size.py:101
         // for i in urange(1, length + 1):
         l-load i#0 0                                                                              i#0
         int 1                                                                                     i#0,1
@@ -977,7 +979,7 @@ subroutine test_arc4_conversion:
 
     test_arc4_conversion_after_for@5:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:101
+        // array/static_size.py:103
         // assert arr.length == length, "expected correct length"
         l-store aggregate%slot_contents%1#0 0                                                     aggregate%slot_contents%1#0
         l-load aggregate%slot_contents%1#0 0                                                      aggregate%slot_contents%1#0
@@ -992,7 +994,7 @@ subroutine test_arc4_conversion:
         ==                                                                                        tmp%6#0
         l-load tmp%6#0 0                                                                          tmp%6#0
         assert // expected correct length
-        // array/static_size.py:102
+        // array/static_size.py:104
         // count = UInt64(0)
         int 0                                                                                     0
         v-store count#0
@@ -1001,7 +1003,7 @@ subroutine test_arc4_conversion:
         b test_arc4_conversion_for_header@6
 
     test_arc4_conversion_for_header@6:
-        // array/static_size.py:103
+        // array/static_size.py:105
         // for val in arr:
         v-load item_index_internal%0#0                                                            item_index_internal%0#0
         v-load aggregate%array_len%1#0                                                            item_index_internal%0#0,aggregate%array_len%1#0
@@ -1011,7 +1013,7 @@ subroutine test_arc4_conversion:
 
     test_arc4_conversion_for_body@7:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:103
+        // array/static_size.py:105
         // for val in arr:
         l-store slot_contents%1#0 0                                                               slot_contents%1#0
         v-load item_index_internal%0#0                                                            slot_contents%1#0,item_index_internal%0#0
@@ -1021,7 +1023,7 @@ subroutine test_arc4_conversion:
         l-load aggregate%bytes_offset%0#0 1                                                       slot_contents%1#0,aggregate%bytes_offset%0#0
         int 8                                                                                     slot_contents%1#0,aggregate%bytes_offset%0#0,8
         extract3 // on error: index access is out of bounds                                       val#0
-        // array/static_size.py:104
+        // array/static_size.py:106
         // if val:
         l-load val#0 0                                                                            val#0
         byte 0x                                                                                   val#0,0x
@@ -1030,7 +1032,7 @@ subroutine test_arc4_conversion:
         bz test_arc4_conversion_after_if_else@9 ; b test_arc4_conversion_if_body@8
 
     test_arc4_conversion_if_body@8:
-        // array/static_size.py:105
+        // array/static_size.py:107
         // count += 1
         v-load count#0                                                                            count#0
         int 1                                                                                     count#0,1
@@ -1047,13 +1049,13 @@ subroutine test_arc4_conversion:
 
     test_arc4_conversion_after_for@11:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:108
+        // array/static_size.py:110
         // arc4_arr.extend(arr)
         l-store slot_contents%2#0 0                                                               slot_contents%2#0
-        // array/static_size.py:107
+        // array/static_size.py:109
         // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
         byte 0x0000                                                                               slot_contents%2#0,0x0000
-        // array/static_size.py:108
+        // array/static_size.py:110
         // arc4_arr.extend(arr)
         l-load slot_contents%2#0 1                                                                0x0000,slot_contents%2#0
         concat // on error: max array length exceeded                                             concat%1#0
@@ -1071,7 +1073,7 @@ subroutine test_arc4_conversion:
         l-load concat%1#0 1                                                                       as_u16_bytes%0#0,concat%1#0
         l-load as_u16_bytes%0#0 1                                                                 concat%1#0,as_u16_bytes%0#0
         replace2 0                                                                                arc4_arr#1
-        // array/static_size.py:94
+        // array/static_size.py:96
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           arc4_arr#1,0x151f7c75
         l-load arc4_arr#1 1                                                                       0x151f7c75,arc4_arr#1
@@ -1085,20 +1087,20 @@ subroutine test_arc4_conversion:
 // test_cases.array.static_size.StaticSizeContract.sum_array[routing]() -> void:
 subroutine sum_array:
     sum_array_block@0:
-        // array/static_size.py:112
+        // array/static_size.py:114
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    arc4_arr#0
-        // array/static_size.py:115
+        // array/static_size.py:117
         // arr.extend(arc4_arr)
         l-load arc4_arr#0 0                                                                       arc4_arr#0
         extract 2 0                                                                               extract_to_end%0#0
         l-load-copy extract_to_end%0#0 0                                                          extract_to_end%0#0,extract_to_end%0#0 (copy)
         v-store slot%0                                                                            extract_to_end%0#0
-        // array/static_size.py:117
+        // array/static_size.py:119
         // total = UInt64(0)
         int 0                                                                                     extract_to_end%0#0,0
         v-store total#0                                                                           extract_to_end%0#0
-        // array/static_size.py:118
+        // array/static_size.py:120
         // for item in arr:
         l-load extract_to_end%0#0 0                                                               extract_to_end%0#0
         len                                                                                       aggregate%bytes_len%0#0
@@ -1111,7 +1113,7 @@ subroutine sum_array:
         b sum_array_for_header@2
 
     sum_array_for_header@2:
-        // array/static_size.py:118
+        // array/static_size.py:120
         // for item in arr:
         v-load item_index_internal%0#0                                                            item_index_internal%0#0
         v-load aggregate%array_len%0#0                                                            item_index_internal%0#0,aggregate%array_len%0#0
@@ -1121,14 +1123,14 @@ subroutine sum_array:
 
     sum_array_for_body@3:
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:118
+        // array/static_size.py:120
         // for item in arr:
         l-store slot_contents%1#0 0                                                               slot_contents%1#0
         v-load item_index_internal%0#0                                                            slot_contents%1#0,item_index_internal%0#0
         l-store-copy item_index_internal%0#0 1                                                    item_index_internal%0#0,slot_contents%1#0,item_index_internal%0#0 (copy)
         int 8                                                                                     item_index_internal%0#0,slot_contents%1#0,item_index_internal%0#0 (copy),8
         *                                                                                         item_index_internal%0#0,slot_contents%1#0,aggregate%bytes_offset%0#0
-        // array/static_size.py:119
+        // array/static_size.py:121
         // total += item.as_uint64()
         l-load slot_contents%1#0 1                                                                item_index_internal%0#0,aggregate%bytes_offset%0#0,slot_contents%1#0
         l-load aggregate%bytes_offset%0#0 1                                                       item_index_internal%0#0,slot_contents%1#0,aggregate%bytes_offset%0#0
@@ -1144,7 +1146,7 @@ subroutine sum_array:
         b sum_array_for_header@2
 
     sum_array_after_for@5:
-        // array/static_size.py:112
+        // array/static_size.py:114
         // @arc4.abimethod()
         v-load total#0                                                                            total#0
         itob                                                                                      aggregate%val_as_bytes%0#0
@@ -1160,7 +1162,7 @@ subroutine sum_array:
 // test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routing]() -> void:
 subroutine test_arc4_bool:
     test_arc4_bool_block@0:
-        // array/static_size.py:141
+        // array/static_size.py:143
         // arr.append(arc4.Bool(Txn.sender == Txn.receiver))
         txn Sender                                                                                tmp%0#1
         txn Receiver                                                                              tmp%0#1,tmp%1#1
@@ -1171,7 +1173,7 @@ subroutine test_arc4_bool:
         int 0                                                                                     tmp%2#0,0x00,0
         l-load tmp%2#0 2                                                                          0x00,0,tmp%2#0
         setbit                                                                                    aggregate%encoded_bool%0#0
-        // array/static_size.py:142
+        // array/static_size.py:144
         // arr.append(arc4.Bool(Txn.sender != Txn.receiver))
         txn Sender                                                                                aggregate%encoded_bool%0#0,tmp%5#0
         txn Receiver                                                                              aggregate%encoded_bool%0#0,tmp%5#0,tmp%6#0
@@ -1187,14 +1189,14 @@ subroutine test_arc4_bool:
         concat // on error: max array length exceeded                                             concat%1#0
         l-load-copy concat%1#0 0                                                                  concat%1#0,concat%1#0 (copy)
         v-store slot%0                                                                            concat%1#0
-        // array/static_size.py:145
+        // array/static_size.py:147
         // dyn_arr.extend(arr)
         l-load-copy concat%1#0 0                                                                  concat%1#0,concat%1#0 (copy)
         len                                                                                       concat%1#0,aggregate%bytes_len%0#0
-        // array/static_size.py:144
+        // array/static_size.py:146
         // dyn_arr = arc4.DynamicArray[arc4.Bool]()
         byte 0x0000                                                                               concat%1#0,aggregate%bytes_len%0#0,0x0000
-        // array/static_size.py:145
+        // array/static_size.py:147
         // dyn_arr.extend(arr)
         l-load-copy concat%1#0 2                                                                  concat%1#0,aggregate%bytes_len%0#0,0x0000,concat%1#0 (copy)
         l-load aggregate%bytes_len%0#0 2                                                          concat%1#0,0x0000,concat%1#0 (copy),aggregate%bytes_len%0#0
@@ -1202,7 +1204,7 @@ subroutine test_arc4_bool:
         callsub dynamic_array_concat_bits                                                         concat%1#0,dyn_arr#1
         l-store-copy dyn_arr#1 0                                                                  concat%1#0,dyn_arr#1,dyn_arr#1 (copy)
         v-store dyn_arr#1                                                                         concat%1#0,dyn_arr#1
-        // array/static_size.py:146
+        // array/static_size.py:148
         // assert dyn_arr.length == 2, "expected correct length"
         l-load-copy dyn_arr#1 0                                                                   concat%1#0,dyn_arr#1,dyn_arr#1 (copy)
         int 0                                                                                     concat%1#0,dyn_arr#1,dyn_arr#1 (copy),0
@@ -1214,7 +1216,7 @@ subroutine test_arc4_bool:
         ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
         l-load tmp%12#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%12#0
         assert // expected correct length                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0
-        // array/static_size.py:147
+        // array/static_size.py:149
         // assert dyn_arr.bytes.length == 3, "expected 3 bytes"
         l-load-copy dyn_arr#1 1                                                                   concat%1#0,dyn_arr#1,aggregate%array_length%0#0,dyn_arr#1 (copy)
         len                                                                                       concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%13#0
@@ -1223,7 +1225,7 @@ subroutine test_arc4_bool:
         ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
         l-load tmp%14#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%14#0
         assert // expected 3 bytes                                                                concat%1#0,dyn_arr#1,aggregate%array_length%0#0
-        // array/static_size.py:148
+        // array/static_size.py:150
         // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
         l-load-copy aggregate%array_length%0#0 0                                                  concat%1#0,dyn_arr#1,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
         assert // index access is out of bounds                                                   concat%1#0,dyn_arr#1,aggregate%array_length%0#0
@@ -1247,7 +1249,7 @@ subroutine test_arc4_bool:
         ==                                                                                        concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
         l-load tmp%19#0 0                                                                         concat%1#0,dyn_arr#1,aggregate%array_length%0#0,tmp%19#0
         assert // expected correct value at 0                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0
-        // array/static_size.py:149
+        // array/static_size.py:151
         // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
         int 1                                                                                     concat%1#0,dyn_arr#1,aggregate%array_length%0#0,1
         l-load aggregate%array_length%0#0 1                                                       concat%1#0,dyn_arr#1,1,aggregate%array_length%0#0
@@ -1274,7 +1276,7 @@ subroutine test_arc4_bool:
         ==                                                                                        concat%1#0,tmp%24#0
         l-load tmp%24#0 0                                                                         concat%1#0,tmp%24#0
         assert // expected correct value at 1                                                     concat%1#0
-        // array/static_size.py:151
+        // array/static_size.py:153
         // arr2 = arr.copy()
         l-load concat%1#0 0                                                                       concat%1#0
         v-store slot%1
@@ -1283,7 +1285,7 @@ subroutine test_arc4_bool:
         b test_arc4_bool_for_header@2
 
     test_arc4_bool_for_header@2:
-        // array/static_size.py:154
+        // array/static_size.py:156
         // for b in dyn_arr:
         v-load item_index_internal%0#0                                                            item_index_internal%0#0
         v-load aggregate%array_length%0#0                                                         item_index_internal%0#0,aggregate%array_length%0#0
@@ -1292,7 +1294,7 @@ subroutine test_arc4_bool:
         bz test_arc4_bool_after_for@5 ; b test_arc4_bool_for_body@3
 
     test_arc4_bool_for_body@3:
-        // array/static_size.py:154
+        // array/static_size.py:156
         // for b in dyn_arr:
         v-load item_index_internal%0#0                                                            item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                    item_index_internal%0#0,item_index_internal%0#0 (copy)
@@ -1306,7 +1308,7 @@ subroutine test_arc4_bool:
         l-load aggregate%get_bit%4#0 2                                                            item_index_internal%0#0,0x00,0,aggregate%get_bit%4#0
         setbit                                                                                    item_index_internal%0#0,b#0
         v-load slot%1                                                                             item_index_internal%0#0,b#0,slot%1
-        // array/static_size.py:155
+        // array/static_size.py:157
         // arr2.append(b)
         l-store slot_contents%4#0 0                                                               item_index_internal%0#0,b#0,slot_contents%4#0
         l-load slot_contents%4#0 0                                                                item_index_internal%0#0,b#0,slot_contents%4#0
@@ -1322,7 +1324,7 @@ subroutine test_arc4_bool:
 
     test_arc4_bool_after_for@5:
         v-load slot%1                                                                             slot%1
-        // array/static_size.py:156
+        // array/static_size.py:158
         // assert arr2.length == 4, "expected correct length"
         l-store aggregate%slot_contents%0#0 0                                                     aggregate%slot_contents%0#0
         l-load-copy aggregate%slot_contents%0#0 0                                                 aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
@@ -1332,7 +1334,7 @@ subroutine test_arc4_bool:
         ==                                                                                        aggregate%slot_contents%0#0,tmp%27#0
         l-load tmp%27#0 0                                                                         aggregate%slot_contents%0#0,tmp%27#0
         assert // expected correct length                                                         aggregate%slot_contents%0#0
-        // array/static_size.py:157
+        // array/static_size.py:159
         // assert arr2[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
         l-load-copy aggregate%slot_contents%0#0 0                                                 aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
         extract 0 1 // on error: index access is out of bounds                                    aggregate%slot_contents%0#0,aggregate%encoded_element%0#0
@@ -1349,7 +1351,7 @@ subroutine test_arc4_bool:
         ==                                                                                        aggregate%slot_contents%0#0,tmp%32#0
         l-load tmp%32#0 0                                                                         aggregate%slot_contents%0#0,tmp%32#0
         assert // expected correct value at 0                                                     aggregate%slot_contents%0#0
-        // array/static_size.py:158
+        // array/static_size.py:160
         // assert arr2[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
         l-load-copy aggregate%slot_contents%0#0 0                                                 aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
         extract 1 1 // on error: index access is out of bounds                                    aggregate%slot_contents%0#0,aggregate%encoded_element%1#0
@@ -1366,7 +1368,7 @@ subroutine test_arc4_bool:
         ==                                                                                        aggregate%slot_contents%0#0,tmp%37#0
         l-load tmp%37#0 0                                                                         aggregate%slot_contents%0#0,tmp%37#0
         assert // expected correct value at 1                                                     aggregate%slot_contents%0#0
-        // array/static_size.py:159
+        // array/static_size.py:161
         // assert arr2[2] == (Txn.sender == Txn.receiver), "expected correct value at 2"
         l-load-copy aggregate%slot_contents%0#0 0                                                 aggregate%slot_contents%0#0,aggregate%slot_contents%0#0 (copy)
         extract 2 1 // on error: index access is out of bounds                                    aggregate%slot_contents%0#0,aggregate%encoded_element%2#0
@@ -1383,7 +1385,7 @@ subroutine test_arc4_bool:
         ==                                                                                        aggregate%slot_contents%0#0,tmp%42#0
         l-load tmp%42#0 0                                                                         aggregate%slot_contents%0#0,tmp%42#0
         assert // expected correct value at 2                                                     aggregate%slot_contents%0#0
-        // array/static_size.py:160
+        // array/static_size.py:162
         // assert arr2[3] == (Txn.sender != Txn.receiver), "expected correct value at 3"
         l-load aggregate%slot_contents%0#0 0                                                      aggregate%slot_contents%0#0
         extract 3 1 // on error: index access is out of bounds                                    aggregate%encoded_element%3#0
@@ -1401,7 +1403,7 @@ subroutine test_arc4_bool:
         l-load tmp%47#0 0                                                                         tmp%47#0
         assert // expected correct value at 3
         v-load slot%0                                                                             slot%0
-        // array/static_size.py:162
+        // array/static_size.py:164
         // return arr.freeze()
         l-store slot_contents%9#0 0                                                               slot_contents%9#0
         l-load-copy slot_contents%9#0 0                                                           slot_contents%9#0,slot_contents%9#0 (copy)
@@ -1411,7 +1413,7 @@ subroutine test_arc4_bool:
         l-load aggregate%bytes_len%2#0 2                                                          0x0000,slot_contents%9#0,aggregate%bytes_len%2#0
         int 8                                                                                     0x0000,slot_contents%9#0,aggregate%bytes_len%2#0,8
         callsub dynamic_array_concat_bits                                                         bit_packed_source%0#0
-        // array/static_size.py:138
+        // array/static_size.py:140
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           bit_packed_source%0#0,0x151f7c75
         l-load bit_packed_source%0#0 1                                                            0x151f7c75,bit_packed_source%0#0
@@ -1425,7 +1427,7 @@ subroutine test_arc4_bool:
 // test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes, bytes:
 subroutine xtra:
     xtra_block@0:
-        // array/static_size.py:125
+        // array/static_size.py:127
         // self.count += 1
         int 0                                                                                     0
         byte "count"                                                                              0,"count"
@@ -1438,16 +1440,16 @@ subroutine xtra:
         byte "count"                                                                              tmp%0#0,"count"
         l-load-copy tmp%0#0 1                                                                     tmp%0#0,"count",tmp%0#0 (copy)
         app_global_put                                                                            tmp%0#0
-        // array/static_size.py:127
+        // array/static_size.py:129
         // a=Txn.num_app_args,
         txn NumAppArgs                                                                            tmp%0#0,tmp%1#0
-        // array/static_size.py:129
+        // array/static_size.py:131
         // c=Txn.sender,
         txn Sender                                                                                tmp%0#0,tmp%1#0,tmp%2#0
-        // array/static_size.py:130
+        // array/static_size.py:132
         // d=self.more(),
         callsub more                                                                              tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0
-        // array/static_size.py:131
+        // array/static_size.py:133
         // e=BigUInt(self.count),
         int 0                                                                                     tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,0
         byte "count"                                                                              tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,0,"count"
@@ -1456,7 +1458,7 @@ subroutine xtra:
         assert // check self.count exists                                                         tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,maybe_value%2#0
         l-load maybe_value%2#0 0                                                                  tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,maybe_value%2#0
         itob                                                                                      tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0,tmp%4#0
-        // array/static_size.py:126-132
+        // array/static_size.py:128-134
         // return Xtra(
         //     a=Txn.num_app_args,
         //     b=self.count,
@@ -1475,7 +1477,7 @@ subroutine xtra:
 // test_cases.array.static_size.StaticSizeContract.more() -> bytes:
 subroutine more:
     more_block@0:
-        // array/static_size.py:136
+        // array/static_size.py:138
         // return More(foo=arc4.UInt64(self.count + 1), bar=arc4.UInt64(self.count * self.count))
         int 0                                                                                     0
         byte "count"                                                                              0,"count"

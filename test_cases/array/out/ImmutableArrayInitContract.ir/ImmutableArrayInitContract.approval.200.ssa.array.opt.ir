@@ -1,0 +1,478 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@11
+    block@2: // abi_routing_L10
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion must be NoOp
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_immutable_array_init()void" => block@4, method "test_immutable_array_init_without_type_generic()void" => block@5, method "test_reference_array_init()void" => block@6, method "test_reference_array_init_without_type_generic()void" => block@7, * => block@10}
+    block@4: // test_immutable_array_init_route_L11
+        test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init[routing]()
+        goto block@10
+    block@5: // test_immutable_array_init_without_type_generic_route_L33
+        test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init_without_type_generic[routing]()
+        goto block@10
+    block@6: // test_reference_array_init_route_L55
+        test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init[routing]()
+        goto block@10
+    block@7: // test_reference_array_init_without_type_generic_route_L77
+        test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init_without_type_generic[routing]()
+        goto block@10
+    block@10: // after_if_else_L10
+        fail
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init[routing]() -> void:
+    block@0: // L11
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
+        let aggregate%len_u16%0#0: bytes = 0x0003
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%0#0: bytes = 0x00030000000000000001
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%1#0: bytes = 0x000300000000000000010000000000000002
+        let a1#0: Encoded(len+uint64[]) = 0x0003000000000000000100000000000000020000000000000003
+        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let as_u16_bytes%0#0: bytes = 0x0003
+        let a2#0: Encoded(len+uint64[]) = 0x0003000000000000000100000000000000020000000000000003
+        let aggregate%array_length%0#0: uint64 = 3u
+        let aggregate%array_length%1#0: uint64 = 3u
+        let tmp%3#0: bool = 1u
+        let aggregate%total_length%0#0: uint64 = 26u
+        let aggregate%array_trimmed%0#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%0#0: uint64 = 0u
+        let aggregate%encoded_element%0#0: bytes = 0x0000000000000001
+        let values%0#0: uint64 = 1u
+        let aggregate%total_length%1#0: uint64 = 26u
+        let aggregate%array_trimmed%1#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%1#0: uint64 = 0u
+        let aggregate%encoded_element%1#0: bytes = 0x0000000000000001
+        let values%1#0: uint64 = 1u
+        let tmp%4#0: bool = 1u
+        let aggregate%total_length%2#0: uint64 = 26u
+        let aggregate%array_trimmed%2#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%2#0: uint64 = 8u
+        let aggregate%encoded_element%2#0: bytes = 0x0000000000000002
+        let values%2#0: uint64 = 2u
+        let aggregate%total_length%3#0: uint64 = 26u
+        let aggregate%array_trimmed%3#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%3#0: uint64 = 8u
+        let aggregate%encoded_element%3#0: bytes = 0x0000000000000002
+        let values%3#0: uint64 = 2u
+        let tmp%5#0: bool = 1u
+        let aggregate%total_length%4#0: uint64 = 26u
+        let aggregate%array_trimmed%4#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%4#0: uint64 = 16u
+        let aggregate%encoded_element%4#0: bytes = 0x0000000000000003
+        let values%4#0: uint64 = 3u
+        let aggregate%total_length%5#0: uint64 = 26u
+        let aggregate%array_trimmed%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%5#0: uint64 = 16u
+        let aggregate%encoded_element%5#0: bytes = 0x0000000000000003
+        let values%5#0: uint64 = 3u
+        let tmp%6#0: bool = 1u
+        let aggregate%head%7#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%8#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let slot%0#0: Encoded(uint64[])* = new()
+        store(slot%0#0, 0x000000000000000100000000000000020000000000000003)
+        let slot_contents%0#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%0#0: uint64 = (len slot_contents%0#0)
+        let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
+        let as_bytes%1#0: bytes[8] = (itob aggregate%array_len%0#0)
+        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let a3#0: Encoded(len+uint64[]) = (concat as_u16_bytes%1#0 slot_contents%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 a3#0 0u)
+        let tmp%9#0: bool = (== aggregate%array_length%2#0 3u)
+        (assert tmp%9#0)
+        let aggregate%total_length%6#0: uint64 = (len a3#0)
+        let aggregate%array_trimmed%6#0: bytes = ((extract 2 0) a3#0)
+        let aggregate%bytes_offset%6#0: uint64 = 0u
+        let aggregate%encoded_element%6#0: bytes = ((extract 2 8) a3#0)
+        let values%7#0: uint64 = (extract_uint64 a3#0 2u)
+        let tmp%10#0: bool = (== 1u values%7#0)
+        (assert tmp%10#0)
+        let aggregate%bytes_offset%7#0: uint64 = 8u
+        let aggregate%encoded_element%7#0: bytes = ((extract 10 8) a3#0)
+        let values%9#0: uint64 = (extract_uint64 a3#0 10u)
+        let tmp%11#0: bool = (== 2u values%9#0)
+        (assert tmp%11#0)
+        let aggregate%bytes_offset%8#0: uint64 = 16u
+        let aggregate%encoded_element%8#0: bytes = ((extract 18 8) a3#0)
+        let values%11#0: uint64 = (extract_uint64 a3#0 18u)
+        let tmp%12#0: bool = (== 3u values%11#0)
+        (assert tmp%12#0)
+        let aggregate%array_length%3#0: uint64 = 3u
+        let aggregate%array_length%4#0: uint64 = 3u
+        let tmp%15#0: bool = 1u
+        exit 1u
+
+subroutine test_cases.array.immutable-init.ImmutableArrayInitContract.test_immutable_array_init_without_type_generic[routing]() -> void:
+    block@0: // L33
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
+        let aggregate%len_u16%0#0: bytes = 0x0003
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%head%0#0: bytes = 0x00030000000000000001
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%1#0: bytes = 0x000300000000000000010000000000000002
+        let a1#0: Encoded(len+uint64[]) = 0x0003000000000000000100000000000000020000000000000003
+        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let as_u16_bytes%0#0: bytes = 0x0003
+        let a2#0: Encoded(len+uint64[]) = 0x0003000000000000000100000000000000020000000000000003
+        let aggregate%array_length%0#0: uint64 = 3u
+        let aggregate%array_length%1#0: uint64 = 3u
+        let tmp%3#0: bool = 1u
+        let aggregate%total_length%0#0: uint64 = 26u
+        let aggregate%array_trimmed%0#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%0#0: uint64 = 0u
+        let aggregate%encoded_element%0#0: bytes = 0x0000000000000001
+        let values%0#0: uint64 = 1u
+        let aggregate%total_length%1#0: uint64 = 26u
+        let aggregate%array_trimmed%1#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%1#0: uint64 = 0u
+        let aggregate%encoded_element%1#0: bytes = 0x0000000000000001
+        let values%1#0: uint64 = 1u
+        let tmp%4#0: bool = 1u
+        let aggregate%total_length%2#0: uint64 = 26u
+        let aggregate%array_trimmed%2#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%2#0: uint64 = 8u
+        let aggregate%encoded_element%2#0: bytes = 0x0000000000000002
+        let values%2#0: uint64 = 2u
+        let aggregate%total_length%3#0: uint64 = 26u
+        let aggregate%array_trimmed%3#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%3#0: uint64 = 8u
+        let aggregate%encoded_element%3#0: bytes = 0x0000000000000002
+        let values%3#0: uint64 = 2u
+        let tmp%5#0: bool = 1u
+        let aggregate%total_length%4#0: uint64 = 26u
+        let aggregate%array_trimmed%4#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%4#0: uint64 = 16u
+        let aggregate%encoded_element%4#0: bytes = 0x0000000000000003
+        let values%4#0: uint64 = 3u
+        let aggregate%total_length%5#0: uint64 = 26u
+        let aggregate%array_trimmed%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%5#0: uint64 = 16u
+        let aggregate%encoded_element%5#0: bytes = 0x0000000000000003
+        let values%5#0: uint64 = 3u
+        let tmp%6#0: bool = 1u
+        let aggregate%head%7#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%8#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let slot%0#0: Encoded(uint64[])* = new()
+        store(slot%0#0, 0x000000000000000100000000000000020000000000000003)
+        let slot_contents%0#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%0#0: uint64 = (len slot_contents%0#0)
+        let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
+        let as_bytes%1#0: bytes[8] = (itob aggregate%array_len%0#0)
+        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let a3#0: Encoded(len+uint64[]) = (concat as_u16_bytes%1#0 slot_contents%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 a3#0 0u)
+        let tmp%9#0: bool = (== aggregate%array_length%2#0 3u)
+        (assert tmp%9#0)
+        let aggregate%total_length%6#0: uint64 = (len a3#0)
+        let aggregate%array_trimmed%6#0: bytes = ((extract 2 0) a3#0)
+        let aggregate%bytes_offset%6#0: uint64 = 0u
+        let aggregate%encoded_element%6#0: bytes = ((extract 2 8) a3#0)
+        let values%7#0: uint64 = (extract_uint64 a3#0 2u)
+        let tmp%10#0: bool = (== 1u values%7#0)
+        (assert tmp%10#0)
+        let aggregate%bytes_offset%7#0: uint64 = 8u
+        let aggregate%encoded_element%7#0: bytes = ((extract 10 8) a3#0)
+        let values%9#0: uint64 = (extract_uint64 a3#0 10u)
+        let tmp%11#0: bool = (== 2u values%9#0)
+        (assert tmp%11#0)
+        let aggregate%bytes_offset%8#0: uint64 = 16u
+        let aggregate%encoded_element%8#0: bytes = ((extract 18 8) a3#0)
+        let values%11#0: uint64 = (extract_uint64 a3#0 18u)
+        let tmp%12#0: bool = (== 3u values%11#0)
+        (assert tmp%12#0)
+        let aggregate%array_length%3#0: uint64 = 3u
+        let aggregate%array_length%4#0: uint64 = 3u
+        let tmp%15#0: bool = 1u
+        exit 1u
+
+subroutine test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init[routing]() -> void:
+    block@0: // L55
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%1#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 3u)
+        let aggregate%head%2#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a1#0: Encoded(uint64[])* = new()
+        store(a1#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a2#0: Encoded(uint64[])* = new()
+        store(a2#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_len%0#0: uint64 = (len aggregate%slot_contents%0#0)
+        let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
+        let aggregate%slot_contents%1#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%1#0: uint64 = (len aggregate%slot_contents%1#0)
+        let aggregate%array_len%1#0: uint64 = (/ aggregate%bytes_len%1#0 8u)
+        let tmp%3#0: bool = (== aggregate%array_len%0#0 aggregate%array_len%1#0)
+        (assert tmp%3#0)
+        let slot_contents%0#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%0#0: uint64 = 0u
+        let aggregate%encoded_element%0#0: bytes = ((extract 0 8) slot_contents%0#0) // on error: index access is out of bounds
+        let values%0#0: uint64 = (extract_uint64 slot_contents%0#0 0u)
+        let slot_contents%1#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%1#0: uint64 = 0u
+        let aggregate%encoded_element%1#0: bytes = ((extract 0 8) slot_contents%1#0) // on error: index access is out of bounds
+        let values%1#0: uint64 = (extract_uint64 slot_contents%1#0 0u)
+        let tmp%4#0: bool = (== values%0#0 values%1#0)
+        (assert tmp%4#0)
+        let slot_contents%2#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%2#0: uint64 = 8u
+        let aggregate%encoded_element%2#0: bytes = ((extract 8 8) slot_contents%2#0) // on error: index access is out of bounds
+        let values%2#0: uint64 = (extract_uint64 slot_contents%2#0 8u)
+        let slot_contents%3#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%3#0: uint64 = 8u
+        let aggregate%encoded_element%3#0: bytes = ((extract 8 8) slot_contents%3#0) // on error: index access is out of bounds
+        let values%3#0: uint64 = (extract_uint64 slot_contents%3#0 8u)
+        let tmp%5#0: bool = (== values%2#0 values%3#0)
+        (assert tmp%5#0)
+        let slot_contents%4#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%4#0: uint64 = 16u
+        let aggregate%encoded_element%4#0: bytes = ((extract 16 8) slot_contents%4#0) // on error: index access is out of bounds
+        let values%4#0: uint64 = (extract_uint64 slot_contents%4#0 16u)
+        let slot_contents%5#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%5#0: uint64 = 16u
+        let aggregate%encoded_element%5#0: bytes = ((extract 16 8) slot_contents%5#0) // on error: index access is out of bounds
+        let values%5#0: uint64 = (extract_uint64 slot_contents%5#0 16u)
+        let tmp%6#0: bool = (== values%4#0 values%5#0)
+        (assert tmp%6#0)
+        let aggregate%len_u16%0#0: bytes = 0x0003
+        let aggregate%head%6#0: bytes = 0x00030000000000000001
+        let aggregate%head%7#0: bytes = 0x000300000000000000010000000000000002
+        let aggregate%head%8#0: bytes = 0x0003000000000000000100000000000000020000000000000003
+        let converted_array%0#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a3#0: Encoded(uint64[])* = new()
+        store(a3#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%slot_contents%2#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%2#0: uint64 = (len aggregate%slot_contents%2#0)
+        let aggregate%array_len%2#0: uint64 = (/ aggregate%bytes_len%2#0 8u)
+        let tmp%9#0: bool = (== aggregate%array_len%2#0 3u)
+        (assert tmp%9#0)
+        let slot_contents%6#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_offset%6#0: uint64 = 0u
+        let aggregate%encoded_element%6#0: bytes = ((extract 0 8) slot_contents%6#0) // on error: index access is out of bounds
+        let values%6#0: uint64 = (extract_uint64 slot_contents%6#0 0u)
+        let slot_contents%7#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%7#0: uint64 = 0u
+        let aggregate%encoded_element%7#0: bytes = ((extract 0 8) slot_contents%7#0) // on error: index access is out of bounds
+        let values%7#0: uint64 = (extract_uint64 slot_contents%7#0 0u)
+        let tmp%10#0: bool = (== values%6#0 values%7#0)
+        (assert tmp%10#0)
+        let slot_contents%8#0: Encoded(uint64[]) = slot_contents%6#0
+        let aggregate%bytes_offset%8#0: uint64 = 8u
+        let aggregate%encoded_element%8#0: bytes = ((extract 8 8) slot_contents%8#0) // on error: index access is out of bounds
+        let values%8#0: uint64 = (extract_uint64 slot_contents%8#0 8u)
+        let slot_contents%9#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%9#0: uint64 = 8u
+        let aggregate%encoded_element%9#0: bytes = ((extract 8 8) slot_contents%9#0) // on error: index access is out of bounds
+        let values%9#0: uint64 = (extract_uint64 slot_contents%9#0 8u)
+        let tmp%11#0: bool = (== values%8#0 values%9#0)
+        (assert tmp%11#0)
+        let slot_contents%10#0: Encoded(uint64[]) = slot_contents%6#0
+        let aggregate%bytes_offset%10#0: uint64 = 16u
+        let aggregate%encoded_element%10#0: bytes = ((extract 16 8) slot_contents%10#0) // on error: index access is out of bounds
+        let values%10#0: uint64 = (extract_uint64 slot_contents%10#0 16u)
+        let slot_contents%11#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%11#0: uint64 = 16u
+        let aggregate%encoded_element%11#0: bytes = ((extract 16 8) slot_contents%11#0) // on error: index access is out of bounds
+        let values%11#0: uint64 = (extract_uint64 slot_contents%11#0 16u)
+        let tmp%12#0: bool = (== values%10#0 values%11#0)
+        (assert tmp%12#0)
+        let slot%3#0: Encoded(uint64[])* = new()
+        store(slot%3#0, 0x000000000000000100000000000000020000000000000003)
+        let a4#0: Encoded(uint64[])* = new()
+        let slot_contents%12#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        store(a4#0, slot_contents%12#0)
+        let aggregate%slot_contents%3#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_len%3#0: uint64 = (len aggregate%slot_contents%3#0)
+        let aggregate%array_len%3#0: uint64 = (/ aggregate%bytes_len%3#0 8u)
+        let aggregate%slot_contents%4#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_len%4#0: uint64 = (len aggregate%slot_contents%4#0)
+        let aggregate%array_len%4#0: uint64 = (/ aggregate%bytes_len%4#0 8u)
+        let tmp%15#0: bool = (== aggregate%array_len%3#0 aggregate%array_len%4#0)
+        (assert tmp%15#0)
+        let slot_contents%13#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%12#0: uint64 = 0u
+        let aggregate%encoded_element%12#0: bytes = ((extract 0 8) slot_contents%13#0) // on error: index access is out of bounds
+        let values%12#0: uint64 = (extract_uint64 slot_contents%13#0 0u)
+        let slot_contents%14#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%13#0: uint64 = 0u
+        let aggregate%encoded_element%13#0: bytes = ((extract 0 8) slot_contents%14#0) // on error: index access is out of bounds
+        let values%13#0: uint64 = (extract_uint64 slot_contents%14#0 0u)
+        let tmp%16#0: bool = (== values%12#0 values%13#0)
+        (assert tmp%16#0)
+        let slot_contents%15#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%14#0: uint64 = 8u
+        let aggregate%encoded_element%14#0: bytes = ((extract 8 8) slot_contents%15#0) // on error: index access is out of bounds
+        let values%14#0: uint64 = (extract_uint64 slot_contents%15#0 8u)
+        let slot_contents%16#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%15#0: uint64 = 8u
+        let aggregate%encoded_element%15#0: bytes = ((extract 8 8) slot_contents%16#0) // on error: index access is out of bounds
+        let values%15#0: uint64 = (extract_uint64 slot_contents%16#0 8u)
+        let tmp%17#0: bool = (== values%14#0 values%15#0)
+        (assert tmp%17#0)
+        let slot_contents%17#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%16#0: uint64 = 16u
+        let aggregate%encoded_element%16#0: bytes = ((extract 16 8) slot_contents%17#0) // on error: index access is out of bounds
+        let values%16#0: uint64 = (extract_uint64 slot_contents%17#0 16u)
+        let slot_contents%18#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%17#0: uint64 = 16u
+        let aggregate%encoded_element%17#0: bytes = ((extract 16 8) slot_contents%18#0) // on error: index access is out of bounds
+        let values%17#0: uint64 = (extract_uint64 slot_contents%18#0 16u)
+        let tmp%18#0: bool = (== values%16#0 values%17#0)
+        (assert tmp%18#0)
+        exit 1u
+
+subroutine test_cases.array.immutable-init.ImmutableArrayInitContract.test_reference_array_init_without_type_generic[routing]() -> void:
+    block@0: // L77
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
+        let aggregate%head%1#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 3u)
+        let aggregate%head%2#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a1#0: Encoded(uint64[])* = new()
+        store(a1#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a2#0: Encoded(uint64[])* = new()
+        store(a2#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_len%0#0: uint64 = (len aggregate%slot_contents%0#0)
+        let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
+        let aggregate%slot_contents%1#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%1#0: uint64 = (len aggregate%slot_contents%1#0)
+        let aggregate%array_len%1#0: uint64 = (/ aggregate%bytes_len%1#0 8u)
+        let tmp%3#0: bool = (== aggregate%array_len%0#0 aggregate%array_len%1#0)
+        (assert tmp%3#0)
+        let slot_contents%0#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%0#0: uint64 = 0u
+        let aggregate%encoded_element%0#0: bytes = ((extract 0 8) slot_contents%0#0) // on error: index access is out of bounds
+        let values%0#0: uint64 = (extract_uint64 slot_contents%0#0 0u)
+        let slot_contents%1#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%1#0: uint64 = 0u
+        let aggregate%encoded_element%1#0: bytes = ((extract 0 8) slot_contents%1#0) // on error: index access is out of bounds
+        let values%1#0: uint64 = (extract_uint64 slot_contents%1#0 0u)
+        let tmp%4#0: bool = (== values%0#0 values%1#0)
+        (assert tmp%4#0)
+        let slot_contents%2#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%2#0: uint64 = 8u
+        let aggregate%encoded_element%2#0: bytes = ((extract 8 8) slot_contents%2#0) // on error: index access is out of bounds
+        let values%2#0: uint64 = (extract_uint64 slot_contents%2#0 8u)
+        let slot_contents%3#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%3#0: uint64 = 8u
+        let aggregate%encoded_element%3#0: bytes = ((extract 8 8) slot_contents%3#0) // on error: index access is out of bounds
+        let values%3#0: uint64 = (extract_uint64 slot_contents%3#0 8u)
+        let tmp%5#0: bool = (== values%2#0 values%3#0)
+        (assert tmp%5#0)
+        let slot_contents%4#0: Encoded(uint64[]) = aggregate%slot_contents%0#0
+        let aggregate%bytes_offset%4#0: uint64 = 16u
+        let aggregate%encoded_element%4#0: bytes = ((extract 16 8) slot_contents%4#0) // on error: index access is out of bounds
+        let values%4#0: uint64 = (extract_uint64 slot_contents%4#0 16u)
+        let slot_contents%5#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%5#0: uint64 = 16u
+        let aggregate%encoded_element%5#0: bytes = ((extract 16 8) slot_contents%5#0) // on error: index access is out of bounds
+        let values%5#0: uint64 = (extract_uint64 slot_contents%5#0 16u)
+        let tmp%6#0: bool = (== values%4#0 values%5#0)
+        (assert tmp%6#0)
+        let aggregate%len_u16%0#0: bytes = 0x0003
+        let aggregate%head%6#0: bytes = 0x00030000000000000001
+        let aggregate%head%7#0: bytes = 0x000300000000000000010000000000000002
+        let aggregate%head%8#0: bytes = 0x0003000000000000000100000000000000020000000000000003
+        let converted_array%0#0: bytes = 0x000000000000000100000000000000020000000000000003
+        let a3#0: Encoded(uint64[])* = new()
+        store(a3#0, 0x000000000000000100000000000000020000000000000003)
+        let aggregate%slot_contents%2#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_len%2#0: uint64 = (len aggregate%slot_contents%2#0)
+        let aggregate%array_len%2#0: uint64 = (/ aggregate%bytes_len%2#0 8u)
+        let tmp%9#0: bool = (== aggregate%array_len%2#0 3u)
+        (assert tmp%9#0)
+        let slot_contents%6#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_offset%6#0: uint64 = 0u
+        let aggregate%encoded_element%6#0: bytes = ((extract 0 8) slot_contents%6#0) // on error: index access is out of bounds
+        let values%6#0: uint64 = (extract_uint64 slot_contents%6#0 0u)
+        let slot_contents%7#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%7#0: uint64 = 0u
+        let aggregate%encoded_element%7#0: bytes = ((extract 0 8) slot_contents%7#0) // on error: index access is out of bounds
+        let values%7#0: uint64 = (extract_uint64 slot_contents%7#0 0u)
+        let tmp%10#0: bool = (== values%6#0 values%7#0)
+        (assert tmp%10#0)
+        let slot_contents%8#0: Encoded(uint64[]) = slot_contents%6#0
+        let aggregate%bytes_offset%8#0: uint64 = 8u
+        let aggregate%encoded_element%8#0: bytes = ((extract 8 8) slot_contents%8#0) // on error: index access is out of bounds
+        let values%8#0: uint64 = (extract_uint64 slot_contents%8#0 8u)
+        let slot_contents%9#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%9#0: uint64 = 8u
+        let aggregate%encoded_element%9#0: bytes = ((extract 8 8) slot_contents%9#0) // on error: index access is out of bounds
+        let values%9#0: uint64 = (extract_uint64 slot_contents%9#0 8u)
+        let tmp%11#0: bool = (== values%8#0 values%9#0)
+        (assert tmp%11#0)
+        let slot_contents%10#0: Encoded(uint64[]) = slot_contents%6#0
+        let aggregate%bytes_offset%10#0: uint64 = 16u
+        let aggregate%encoded_element%10#0: bytes = ((extract 16 8) slot_contents%10#0) // on error: index access is out of bounds
+        let values%10#0: uint64 = (extract_uint64 slot_contents%10#0 16u)
+        let slot_contents%11#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        let aggregate%bytes_offset%11#0: uint64 = 16u
+        let aggregate%encoded_element%11#0: bytes = ((extract 16 8) slot_contents%11#0) // on error: index access is out of bounds
+        let values%11#0: uint64 = (extract_uint64 slot_contents%11#0 16u)
+        let tmp%12#0: bool = (== values%10#0 values%11#0)
+        (assert tmp%12#0)
+        let slot%3#0: Encoded(uint64[])* = new()
+        store(slot%3#0, 0x000000000000000100000000000000020000000000000003)
+        let a4#0: Encoded(uint64[])* = new()
+        let slot_contents%12#0: Encoded(uint64[]) = 0x000000000000000100000000000000020000000000000003
+        store(a4#0, slot_contents%12#0)
+        let aggregate%slot_contents%3#0: Encoded(uint64[]) = load(a1#0)
+        let aggregate%bytes_len%3#0: uint64 = (len aggregate%slot_contents%3#0)
+        let aggregate%array_len%3#0: uint64 = (/ aggregate%bytes_len%3#0 8u)
+        let aggregate%slot_contents%4#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_len%4#0: uint64 = (len aggregate%slot_contents%4#0)
+        let aggregate%array_len%4#0: uint64 = (/ aggregate%bytes_len%4#0 8u)
+        let tmp%15#0: bool = (== aggregate%array_len%3#0 aggregate%array_len%4#0)
+        (assert tmp%15#0)
+        let slot_contents%13#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%12#0: uint64 = 0u
+        let aggregate%encoded_element%12#0: bytes = ((extract 0 8) slot_contents%13#0) // on error: index access is out of bounds
+        let values%12#0: uint64 = (extract_uint64 slot_contents%13#0 0u)
+        let slot_contents%14#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%13#0: uint64 = 0u
+        let aggregate%encoded_element%13#0: bytes = ((extract 0 8) slot_contents%14#0) // on error: index access is out of bounds
+        let values%13#0: uint64 = (extract_uint64 slot_contents%14#0 0u)
+        let tmp%16#0: bool = (== values%12#0 values%13#0)
+        (assert tmp%16#0)
+        let slot_contents%15#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%14#0: uint64 = 8u
+        let aggregate%encoded_element%14#0: bytes = ((extract 8 8) slot_contents%15#0) // on error: index access is out of bounds
+        let values%14#0: uint64 = (extract_uint64 slot_contents%15#0 8u)
+        let slot_contents%16#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%15#0: uint64 = 8u
+        let aggregate%encoded_element%15#0: bytes = ((extract 8 8) slot_contents%16#0) // on error: index access is out of bounds
+        let values%15#0: uint64 = (extract_uint64 slot_contents%16#0 8u)
+        let tmp%17#0: bool = (== values%14#0 values%15#0)
+        (assert tmp%17#0)
+        let slot_contents%17#0: Encoded(uint64[]) = aggregate%slot_contents%3#0
+        let aggregate%bytes_offset%16#0: uint64 = 16u
+        let aggregate%encoded_element%16#0: bytes = ((extract 16 8) slot_contents%17#0) // on error: index access is out of bounds
+        let values%16#0: uint64 = (extract_uint64 slot_contents%17#0 16u)
+        let slot_contents%18#0: Encoded(uint64[]) = slot_contents%12#0
+        let aggregate%bytes_offset%17#0: uint64 = 16u
+        let aggregate%encoded_element%17#0: bytes = ((extract 16 8) slot_contents%18#0) // on error: index access is out of bounds
+        let values%17#0: uint64 = (extract_uint64 slot_contents%18#0 16u)
+        let tmp%18#0: bool = (== values%16#0 values%17#0)
+        (assert tmp%18#0)
+        exit 1u

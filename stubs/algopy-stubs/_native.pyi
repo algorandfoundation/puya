@@ -88,7 +88,10 @@ class ImmutableArray(Reversible[_TArrayItem]):
     ```
     """
 
-    def __init__(self, *items: _TArrayItem):
+    @typing.overload
+    def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, values: Iterable[_TArrayItem]):
         """Initializes a new array with items provided"""
 
     def __iter__(self) -> Iterator[_TArrayItem]:
@@ -130,7 +133,10 @@ class ReferenceArray(Reversible[_TArrayItem]):
     [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) or [`algopy.logicsig`](#algopy.logicsig)
     """
 
-    def __init__(self, *items: _TArrayItem):
+    @typing.overload
+    def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, values: Iterable[_TArrayItem]):
         """Initializes a new array with items provided"""
 
     def __iter__(self) -> Iterator[_TArrayItem]:

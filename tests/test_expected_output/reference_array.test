@@ -5,6 +5,21 @@
 ## case: no_arg_ctor_requires_type_params
 from algopy import *
 
+ReferenceArrayUInt64 = ReferenceArray[UInt64]
+
+@subroutine
+def invalid_arg_element_types(tup: tuple[String, String, String]) -> ReferenceArrayUInt64:
+    return ReferenceArrayUInt64(tup) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+@subroutine
+def copy() -> None:
+    arr = ReferenceArray(Bytes()) ## E: unsupported collection type
+
+@subroutine
+def copy2() -> None:
+    bites = Bytes()
+    arr2 = ReferenceArray[Bytes](bites) ## E: unsupported collection type    
+
 @subroutine
 def bad() -> None:
     foo = ReferenceArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
