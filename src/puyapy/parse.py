@@ -26,7 +26,11 @@ from mypy.build import (
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
+from mypy.modulefinder import (
+    BuildSource as MypyBuildSource,
+    BuildSourceSet,
+    SearchPaths,
+)
 from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
@@ -39,7 +43,7 @@ from puya import log
 from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, unique
-from puyapy.find_sources import create_source_list
+from puyapy.find_sources import BuildSource, create_source_list
 
 logger = log.get_logger(__name__)
 
@@ -50,8 +54,7 @@ MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.
 
 
 class SourceDiscoveryMechanism(enum.Enum):
-    explicit_file = enum.auto()
-    explicit_directory_walk = enum.auto()
+    explicit = enum.auto()
     dependency = enum.auto()
 
 
@@ -90,47 +93,56 @@ def parse_python(
     paths: Sequence[Path],
     *,
     python_executable: Path | typing.Literal["infer", "current"] = "current",
-    exclude: Sequence[str] | None = None,
+    excluded_subdir_names: Sequence[str] | None = None,
     # equivalent to a module-level singleton default, but at least it's self-contained here
     fs_cache: FileSystemCache = FileSystemCache(),  # noqa: B008
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    mypy_options = _get_mypy_options()
-    if exclude:
-        mypy_options.exclude.extend(exclude)
-
-    # ensure we have the absolute, canonical paths to the files
-    resolved_input_paths = {p.resolve() for p in paths}
     # creates a list of BuildSource objects from the contract Paths
-    mypy_build_sources = create_source_list(
-        paths=[str(p) for p in resolved_input_paths],
-        exclude=exclude,
+    build_sources = create_source_list(
+        paths=paths,
+        excluded_subdir_names=excluded_subdir_names,
         fscache=fs_cache,
     )
-    # build a set of absolute/resolved paths that were explicitly named (potentially by inclusion
-    # of directories)
-    build_source_paths = {
-        Path(m.path).resolve() for m in mypy_build_sources if m.path and not m.followed
-    }
+    sources_by_module_name = dict[str, BuildSource]()
+    python_path = []
+    duplicate_errors = list[ConfigurationError]()
+    for bs in build_sources:
+        python_path.append(bs.base_dir)
+        existing = sources_by_module_name.setdefault(bs.module, bs)
+        if existing != bs:
+            duplicate_errors.append(
+                ConfigurationError(
+                    f"duplicate modules named in build sources:"
+                    f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
+                    f" as {make_path_relative_to_cwd(existing.path)}"
+                )
+            )
+    if duplicate_errors:
+        raise ExceptionGroup("duplicate module errors", duplicate_errors)
 
-    python_path = [source.base_dir for source in mypy_build_sources if source.base_dir]
-    python_path.append(os.getcwd())  # noqa: PTH109
+    python_path.append(Path.cwd())
     python_path = unique(python_path)
 
     package_paths = _resolve_package_paths(python_executable)
     typeshed_paths = _typeshed_paths()
     mypy_search_paths = SearchPaths(
-        python_path=tuple(python_path),
+        python_path=tuple(map(str, python_path)),
         package_path=package_paths,
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
+    mypy_build_sources = [
+        MypyBuildSource(path=str(bs.path), module=bs.module, base_dir=str(bs.base_dir))
+        for bs in sources_by_module_name.values()
+    ]
+    mypy_options = _get_mypy_options()
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-    missing_module_names = {s.module for s in mypy_build_sources} - manager.modules.keys()
+    missing_module_names = {s.module for s in build_sources} - manager.modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
         not missing_module_names
@@ -153,10 +165,8 @@ def parse_python(
             else:
                 _check_encoding(fs_cache, module_path)
                 lines = read_py_file(str(module_path), fs_cache.read)
-                if module_path in resolved_input_paths:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit_file
-                elif module_path in build_source_paths:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit_directory_walk
+                if module_name in sources_by_module_name:
+                    discovery_mechanism = SourceDiscoveryMechanism.explicit
                 else:
                     discovery_mechanism = SourceDiscoveryMechanism.dependency
                 ordered_modules[module_name] = SourceModule(
@@ -320,7 +330,7 @@ def _get_mypy_options() -> MypyOptions:
 
 
 def _mypy_build(
-    sources: list[BuildSource],
+    sources: list[MypyBuildSource],
     options: MypyOptions,
     search_paths: SearchPaths,
     fscache: FileSystemCache,

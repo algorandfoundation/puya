@@ -1,100 +1,128 @@
+# ruff: noqa: A002
+
 import functools
-import os
 import typing
 from collections.abc import Sequence
+from pathlib import Path
 
+import attrs
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import (
-    PYTHON_EXTENSIONS,
-    BuildSource,
-    matches_exclude,
-)
 
-PY_EXTENSIONS: typing.Final = tuple(PYTHON_EXTENSIONS)
+from puya import log
+from puya.errors import ConfigurationError
+
+logger = log.get_logger(__name__)
 
 
-class InvalidSourceList(Exception):
-    """Exception indicating a problem in the list of sources given to mypy."""
+@attrs.frozen
+class BuildSource:
+    """A single source file."""
+
+    path: Path
+    """File where it's found (e.g. '/home/user/pkg/module.py')"""
+    module: str
+    """Module name (e.g. 'pkg.module')"""
+    base_dir: Path
+    """Directory where the package is rooted (e.g. '/home/user')"""
 
 
 def create_source_list(
-    paths: Sequence[str],
+    paths: Sequence[Path],
     fscache: FileSystemCache,
     *,
-    exclude: Sequence[str] | None = None,
+    excluded_subdir_names: Sequence[str] | None = None,
 ) -> list[BuildSource]:
-    """From a list of source files/directories, makes a list of BuildSources.
-
-    Raises InvalidSourceList on errors.
-    """
-    finder = SourceFinder(fscache, exclude=exclude or ())
+    finder = SourceFinder(fscache, excluded_subdir_names=excluded_subdir_names or ())
 
     sources = []
     for path in paths:
-        path = os.path.normpath(path)
-        if path.endswith(PY_EXTENSIONS):
-            # Can raise InvalidSourceList if a directory doesn't have a valid module name.
-            name, base_dir = finder.crawl_up(path)
-            sources.append(BuildSource(path, name, None, base_dir))
-        elif fscache.isdir(path):
-            sub_sources = finder.find_sources_in_dir(path)
-            if not sub_sources:
-                raise InvalidSourceList(f"There are no .py[i] files in directory '{path}'")
-            sources.extend(sub_sources)
+        path = path.resolve()
+        if not path.stem.isidentifier():
+            logger.error(f"invalid python module name: {path.stem} at {path}")
+        elif path.suffix == ".py":
+            sources.append(finder.file_source(path))
+        elif not path.is_dir():
+            logger.error(f"path is not a directory or a .py file: {path}")
         else:
-            # TODO: warn, explicitly named file with unrecognised file extension
-            sources.append(BuildSource(path, None, None))
+            module_name, base_dir = finder.find_package_root(path)
+            if not module_name:
+                logger.info(f"treating input path {path} as implicit namespace package root")
+                module_name = path.name
+                base_dir = path.parent
+            sub_sources = finder.find_sources_in_dir(
+                path, dir_module_name=module_name, base_dir=base_dir
+            )
+            if not sub_sources:
+                logger.error(f"there are no .py files in directory '{path}'")
+            else:
+                sources.extend(sub_sources)
     return sources
 
 
-def keyfunc(name: str) -> tuple[bool, int, str]:
+def keyfunc(path: Path) -> tuple[bool, bool, str]:
     """Determines sort order for directory listing.
 
     The desirable properties are:
     1) foo < foo.pyi < foo.py
     2) __init__.py[i] < foo
     """
-    base, suffix = os.path.splitext(name)
-    for i, ext in enumerate(PY_EXTENSIONS):
-        if suffix == ext:
-            return base != "__init__", i, base
-    return base != "__init__", -1, name
+    base = path.stem
+    return base != "__init__", path.suffix == ".py", base
 
 
 class SourceFinder:
-    def __init__(self, fscache: FileSystemCache, *, exclude: Sequence[str]) -> None:
+    def __init__(self, fscache: FileSystemCache, *, excluded_subdir_names: Sequence[str]) -> None:
         self.fscache: typing.Final = fscache
-        self.exclude: typing.Final = list(exclude)
+        self.excluded_subdir_names: typing.Final = frozenset(
+            (
+                *excluded_subdir_names,
+                "__pycache__",
+                "site-packages",
+                "node_modules",
+            )
+        )
 
-    def find_sources_in_dir(self, path: str) -> list[BuildSource]:
+    def find_sources_in_dir(
+        self, dir: Path, *, dir_module_name: str, base_dir: Path
+    ) -> list[BuildSource]:
+        """Given an absolute directory, recursively find all build sources within."""
+
+        assert dir == dir.resolve()
+        assert dir.is_dir()
+
         sources = []
 
         seen = set[str]()
-        names = sorted(self.fscache.listdir(path), key=keyfunc)
-        for name in names:
+        entries = sorted(dir.iterdir(), key=keyfunc)
+        for path in entries:
             # Skip certain names altogether
-            if name in ("__pycache__", "site-packages", "node_modules") or name.startswith("."):
-                continue
-            subpath = os.path.join(path, name)
-
-            if matches_exclude(subpath, self.exclude, self.fscache, verbose=False):
-                continue
-
-            if self.fscache.isdir(subpath):
-                sub_sources = self.find_sources_in_dir(subpath)
-                if sub_sources:
-                    seen.add(name)
-                    sources.extend(sub_sources)
-            else:
-                stem, suffix = os.path.splitext(name)
-                if stem not in seen and suffix in PY_EXTENSIONS:
+            if path.suffix == ".py":
+                stem = path.name.removesuffix(".py")
+                if stem in seen:
+                    logger.warning(
+                        f"python file {path} shadowed by module directory with same name"
+                    )
+                else:
                     seen.add(stem)
-                    module, base_dir = self.crawl_up(subpath)
-                    sources.append(BuildSource(subpath, module, None, base_dir))
+                    if stem == "__init__":
+                        path_module_name = dir_module_name
+                    else:
+                        path_module_name = module_join(dir_module_name, stem)
+                    sources.append(BuildSource(path, path_module_name, base_dir))
+            elif path.name.startswith(".") or path.name in self.excluded_subdir_names:
+                pass  # skip hidden directories and also excluded ones
+            elif path.is_dir():
+                path_module_name = module_join(dir_module_name, path.name)
+                sub_sources = self.find_sources_in_dir(
+                    path, dir_module_name=path_module_name, base_dir=base_dir
+                )
+                if sub_sources:
+                    seen.add(path.name)
+                    sources.extend(sub_sources)
 
         return sources
 
-    def crawl_up(self, path: str) -> tuple[str, str]:
+    def file_source(self, path: Path) -> BuildSource:
         """Given a .py[i] filename, return module and base directory.
 
         For example, given "xxx/yyy/foo/bar.py", we might return something like:
@@ -109,25 +137,26 @@ class SourceFinder:
         We won't crawl past directories with invalid package names.
         The base directory returned is an absolute path.
         """
-        path = os.path.abspath(path)
-        parent, filename = os.path.split(path)
+        assert path == path.resolve()
+        assert path.suffix == ".py"
 
-        module_name = strip_py(filename) or filename
+        parent = path.parent
+        module_name = path.name.removesuffix(".py")
 
-        parent_module, base_dir = self.crawl_up_dir(parent)
+        parent_module, base_dir = self.find_package_root(parent)
         if module_name == "__init__":
-            return parent_module, base_dir
+            return BuildSource(path, parent_module, base_dir)
 
         # Note that module_name might not actually be a valid identifier, but that's okay
         # Ignoring this possibility sidesteps some search path confusion
         module = module_join(parent_module, module_name)
-        return module, base_dir
+        return BuildSource(path, module, base_dir)
 
-    def crawl_up_dir(self, dir: str) -> tuple[str, str]:
-        return self._crawl_up_helper(dir) or ("", dir)
+    def find_package_root(self, dir: Path) -> tuple[str, Path]:
+        return self._find_package_root(dir) or ("", dir)
 
     @functools.lru_cache  # noqa: B019
-    def _crawl_up_helper(self, dir: str) -> tuple[str, str] | None:
+    def _find_package_root(self, dir: Path) -> tuple[str, Path] | None:
         """Given a directory, maybe returns module and base directory.
 
         We return a non-None value if we were able to find something clearly intended as a base
@@ -137,49 +166,27 @@ class SourceFinder:
         This distinction is necessary for namespace packages, so that we know when to treat
         ourselves as a subpackage.
         """
-        parent, name = os.path.split(dir)
-        name = name.removesuffix("-stubs")  # PEP-561 stub-only directory
+        parent = dir.parent
+        if parent == dir:
+            if (dir / "__init__.py").is_file():
+                raise ConfigurationError("root directory cannot be a Python package")
+            return None
 
-        # recurse if there's an __init__.py
-        init_file = self.get_init_file(dir)
-        if init_file is not None:
+        name = dir.name
+        if name.endswith("-stubs"):  # PEP-561 stub-only directory, not supported
+            return None
+        elif (dir / "__init__.py").is_file():
             if not name.isidentifier():
                 # in most cases the directory name is invalid, we'll just stop crawling upwards
                 # but if there's an __init__.py in the directory, something is messed up
-                raise InvalidSourceList(f"{name} is not a valid Python package name")
-            # we're definitely a package, so we always return a non-None value
-            mod_prefix, base_dir = self.crawl_up_dir(parent)
+                raise ConfigurationError(f"{name} is not a valid Python package name")
+            mod_prefix, base_dir = self.find_package_root(parent)
             return module_join(mod_prefix, name), base_dir
-
-        # stop crawling if we're out of path components or our name is an invalid identifier
-        if not name or not parent or not name.isidentifier():
-            return None
-
-        # at this point: namespace packages is on, we don't have an __init__.py and we're not an
-        # explicit base directory
-        result = self._crawl_up_helper(parent)
-        if result is None:
-            # we're not an explicit base directory and we don't have an __init__.py
-            # and none of our parents are either, so return
-            return None
-        # one of our parents was an explicit base directory or had an __init__.py, so we're
-        # definitely a subpackage! chain our name to the module.
-        mod_prefix, base_dir = result
-        return module_join(mod_prefix, name), base_dir
-
-    def get_init_file(self, dir: str) -> str | None:
-        """Check whether a directory contains a file named __init__.py[i].
-
-        If so, return the file's name (with dir prefixed).  If not, return None.
-
-        This prefers .pyi over .py (because of the ordering of PY_EXTENSIONS).
-        """
-        for ext in PY_EXTENSIONS:
-            f = os.path.join(dir, "__init__" + ext)
-            if self.fscache.isfile(f):
-                return f
-            if ext == ".py" and self.fscache.init_under_package_root(f):
-                return f
+        elif name.isidentifier():
+            result = self._find_package_root(parent)
+            if result:
+                mod_prefix, base_dir = result
+                return module_join(mod_prefix, name), base_dir
         return None
 
 
@@ -188,14 +195,3 @@ def module_join(parent: str, child: str) -> str:
     if parent:
         return parent + "." + child
     return child
-
-
-def strip_py(arg: str) -> str | None:
-    """Strip a trailing .py or .pyi suffix.
-
-    Return None if no such suffix is found.
-    """
-    for ext in PY_EXTENSIONS:
-        if arg.endswith(ext):
-            return arg.removesuffix(ext)
-    return None

@@ -67,21 +67,10 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with pushd(root_dir), logging_context() as log_ctx:
         # explicitly exclude out dirs as they can contain generated clients that get deleted
-        relative_out_dir_list = _get_out_dirs(root_dir)
-
-        parse_result = parse_python([root_dir], exclude=relative_out_dir_list)
+        out_dir_names = [f"out{suffix}" for suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2)]
+        parse_result = parse_python([root_dir], excluded_subdir_names=out_dir_names)
         awst, compilation_set = transform_ast(parse_result, PuyaPyOptions())
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
-
-
-def _get_out_dirs(root_dir: Path) -> list[str]:
-    result = []
-    for item in root_dir.iterdir():
-        if item.is_dir():
-            for suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
-                out_dir = item / f"out{suffix}"
-                result.append(str(out_dir.relative_to(root_dir)))
-    return result
 
 
 @attrs.frozen(kw_only=True)
