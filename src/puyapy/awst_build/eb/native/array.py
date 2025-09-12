@@ -10,19 +10,16 @@ from puya.awst.nodes import (
     ArrayLength,
     ArrayPop,
     ConvertArray,
-    Copy,
     Expression,
     ExpressionStatement,
-    NewArray,
     Statement,
     TupleExpression,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
+from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_statement, dummy_value
 from puyapy.awst_build.eb.arc4._base import arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -30,10 +27,12 @@ from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
     NodeBuilder,
-    StaticSizedCollectionBuilder,
-    TypeBuilder,
 )
-from puyapy.awst_build.eb.native._base import _ArrayExpressionBuilder
+from puyapy.awst_build.eb.native._base import (
+    _ArrayExpressionBuilder,
+    _BaseArrayGenericTypeBuilder,
+    _BaseArrayTypeBuilder,
+)
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -46,96 +45,28 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class ArrayGenericTypeBuilder(GenericTypeBuilder):
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        arg = expect.at_most_one_arg(args, location)
-        if not arg:
-            raise CodeError("empty arrays require a type annotation to be instantiated", location)
-
-        arg_item_type = arg.iterable_item_type()
-        typ = pytypes.GenericArrayType.parameterise([arg_item_type], location)
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4DynamicArray)
-
-        if arg.pytype.wtype == wtype:
-            new_array: Expression = Copy(value=arg.resolve(), source_location=location)
-        elif isinstance(
-            arg.pytype.wtype,
-            wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
-        ):
-            new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
-        elif isinstance(arg, StaticSizedCollectionBuilder):
-            item_builders = arg.iterate_static()
-            items = [ib.resolve() for ib in item_builders]
-            new_array = NewArray(values=items, wtype=wtype, source_location=location)
-        else:
-            logger.error("unsupported collection type", location=arg.source_location)
-            new_array = Copy(value=dummy_value(typ, location).resolve(), source_location=location)
-        return ArrayExpressionBuilder(new_array, typ)
+class ArrayGenericTypeBuilder(_BaseArrayGenericTypeBuilder):
+    def __init__(self, location: SourceLocation) -> None:
+        super().__init__(
+            generic_typ=pytypes.GenericArrayType,
+            eb=ArrayExpressionBuilder,
+            expected_wtype_type=wtypes.ARC4DynamicArray,
+            location=location,
+        )
 
 
-class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
+class ArrayTypeBuilder(_BaseArrayTypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.ArrayType)
-        assert typ.generic == pytypes.GenericArrayType
-        assert typ.size is None
-        super().__init__(typ, location)
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        typ = self.produces()
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4DynamicArray)
-
-        arg = expect.at_most_one_arg(args, location)
-        if not arg:
-            new_array: Expression = NewArray(values=[], wtype=wtype, source_location=location)
-        else:
-            arg_item_type = arg.iterable_item_type()
-            if not (typ.items <= arg_item_type):
-                logger.error(
-                    "iterable element type does not match collection type",
-                    location=arg.source_location,
-                )
-                arg = dummy_value(typ, location)
-            if arg.pytype.wtype == wtype:
-                new_array = Copy(value=arg.resolve(), source_location=location)
-            elif isinstance(
-                arg.pytype.wtype,
-                wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
-            ):
-                new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
-            elif isinstance(arg, StaticSizedCollectionBuilder):
-                item_builders = arg.iterate_static()
-                items = [ib.resolve() for ib in item_builders]
-                new_array = NewArray(values=items, wtype=wtype, source_location=location)
-            else:
-                logger.error("unsupported collection type", location=arg.source_location)
-                new_array = Copy(
-                    value=dummy_value(typ, location).resolve(), source_location=location
-                )
-
-        return ArrayExpressionBuilder(new_array, self._pytype)
+        super().__init__(
+            typ=typ,
+            generic_typ=pytypes.GenericArrayType,
+            eb=ArrayExpressionBuilder,
+            expected_wtype_type=wtypes.ARC4DynamicArray,
+            location=location,
+        )
 
 
 class ArrayExpressionBuilder(_ArrayExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.ArrayType)
-        super().__init__(typ, expr)
-
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(
