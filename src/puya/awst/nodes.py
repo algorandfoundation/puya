@@ -974,12 +974,14 @@ class NamedTupleExpression(Expression):
 
     @values.validator
     def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
+        if self.wtype.names is None:
+            raise InternalError("underlying tuple wtype has no field names")
         if values.keys() != self.wtype.fields.keys():
-            raise CodeError("Invalid argument(s)", self.source_location)
+            raise CodeError("invalid argument(s)", self.source_location)
         for field_name, field_value in self.values.items():
             expected_wtype = self.wtype.fields[field_name]
             if field_value.wtype != expected_wtype:
-                raise CodeError("Invalid argument type(s)", self.source_location)
+                raise CodeError("invalid argument type(s)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_named_tuple_expression(self)

@@ -681,9 +681,7 @@ class FunctionIRBuilder(
 
     def visit_named_tuple_expression(self, expr: awst_nodes.NamedTupleExpression) -> TExpression:
         loc = expr.source_location
-
-        tuple_wtype = wtypes.WTuple(types=expr.wtype.types, source_location=None)
-        tuple_ir_type = types.wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+        tuple_ir_type = types.wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
 
         # evaluate fields in order of declaration
         elements_by_name = {
