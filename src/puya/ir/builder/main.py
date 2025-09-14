@@ -679,6 +679,27 @@ class FunctionIRBuilder(
             self.context, tuple_wtype, base, [expr.index], loc
         )
 
+    def visit_named_tuple_expression(self, expr: awst_nodes.NamedTupleExpression) -> TExpression:
+        loc = expr.source_location
+
+        tuple_wtype = wtypes.WTuple(types=expr.wtype.types, source_location=None)
+        tuple_ir_type = types.wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+
+        # evaluate fields in order of declaration
+        elements_by_name = {
+            name: self.visit_and_materialise(value) for name, value in expr.values.items()
+        }
+        # ensure elements end up in the correct order
+        elements = [
+            element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
+        ]
+
+        return ir.ValueTuple(
+            values=elements,
+            ir_type=tuple_ir_type,
+            source_location=loc,
+        )
+
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
         loc = expr.source_location
 

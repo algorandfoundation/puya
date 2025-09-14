@@ -188,6 +188,11 @@ class FunctionTraverser(
             item.accept(self)
 
     @typing.override
+    def visit_named_tuple_expression(self, expr: awst_nodes.NamedTupleExpression) -> None:
+        for element in expr.values.values():
+            element.accept(self)
+
+    @typing.override
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> None:
         expr.base.accept(self)
 

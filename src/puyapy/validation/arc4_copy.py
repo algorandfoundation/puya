@@ -51,6 +51,11 @@ class ARC4CopyValidator(AWSTTraverser):
             for item in expr.items:
                 _check_for_arc4_copy(item, "being passed to a tuple expression")
 
+    def visit_named_tuple_expression(self, expr: awst_nodes.NamedTupleExpression) -> None:
+        super().visit_named_tuple_expression(expr)
+        for item in expr.values.values():
+            _check_for_arc4_copy(item, "being passed to a named tuple expression")
+
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> None:
         # statement.items is immediately checked before entering the for body
         # so don't need to worry about preserving _for_items through multiple loops

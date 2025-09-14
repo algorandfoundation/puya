@@ -2043,6 +2043,20 @@ def test_named_tuples(
         value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key},
     )
 
+    # order of argument evaluation check (with side effects)
+    expected_log = (
+        1,
+        2,
+        3,
+    )
+    expected_return = [2, 3, 1]
+    result = app_client.call(call_abi_method="build_tuple_side_effects")
+    assert result.return_value == expected_return
+
+    result_logs_raw = result.tx_info["logs"]
+    l1, l2, l3, _ = decode_logs(result_logs_raw, len(result_logs_raw) * "i")
+    assert (l1, l2, l3) == expected_log
+
 
 def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_client = algokit_utils.ApplicationClient(
