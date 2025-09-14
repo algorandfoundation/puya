@@ -725,7 +725,8 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
 
     @typing.override
     def visit_named_tuple_expression(
-        self, expr:awst_nodes.NamedTupleExpression) -> list[_SourceAction]:
+        self, expr: awst_nodes.NamedTupleExpression
+    ) -> list[_SourceAction]:
         return [t for val in expr.values.values() for t in val.accept(self)]
 
     @typing.override

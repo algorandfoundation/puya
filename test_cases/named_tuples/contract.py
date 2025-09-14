@@ -1,6 +1,6 @@
 import typing
 
-from algopy import BigUInt, Bytes, String, Txn, UInt64, arc4, subroutine, log
+from algopy import BigUInt, Bytes, String, Txn, UInt64, arc4, log, subroutine
 
 
 class TestTuple(typing.NamedTuple):
@@ -44,6 +44,7 @@ class NamedTuplesContract(arc4.ARC4Contract):
         assert value.b < 2**65
         assert value.c.bytes.length > 1
         assert value.d == Txn.sender.bytes
+
 
 @subroutine
 def echo(value: UInt64) -> UInt64:

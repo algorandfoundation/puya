@@ -968,6 +968,7 @@ class NamedTupleExpression(Expression):
     Defines a new named tuple with the specified elements.
     Elements are evaluated in mapping order.
     """
+
     wtype: wtypes.WTuple
     values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
 

@@ -13,11 +13,11 @@ from puya.awst.nodes import (
     IntegerConstant,
     IntrinsicCall,
     Lvalue,
+    NamedTupleExpression,
     SliceExpression,
     Statement,
     TupleExpression,
     TupleItemExpression,
-    NamedTupleExpression,
     UInt64Constant,
 )
 from puya.errors import CodeError
@@ -136,7 +136,7 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
 
         values = [
             expect.argument_of_type_else_dummy(field_builder, pytype.fields[field_name]).resolve()
-            for field_name, field_builder in field_mapping.items() 
+            for field_name, field_builder in field_mapping.items()
         ]
         expr = NamedTupleExpression(
             wtype=pytype.wtype,
