@@ -2,14 +2,14 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // named_tuples/contract.py:15
+        // named_tuples/contract.py:21
         // class NamedTuplesContract(arc4.ARC4Contract):
         txn NumAppArgs                                                                   tmp%0#1
         l-load tmp%0#1 0                                                                 tmp%0#1
-        bz main___algopy_default_create@9 ; b main_abi_routing@2
+        bz main___algopy_default_create@10 ; b main_abi_routing@2
 
     main_abi_routing@2:
-        // named_tuples/contract.py:15
+        // named_tuples/contract.py:21
         // class NamedTuplesContract(arc4.ARC4Contract):
         txn OnCompletion                                                                 tmp%2#0
         l-load tmp%2#0 0                                                                 tmp%2#0
@@ -21,28 +21,35 @@ subroutine main:
         assert
         txna ApplicationArgs 0                                                           tmp%6#0
         method build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])   tmp%6#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[]))
-        method test_tuple((uint64,uint512,string,byte[]))void                            tmp%6#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(test_tuple((uint64,uint512,string,byte[]))void)
-        l-load tmp%6#0 2                                                                 Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(test_tuple((uint64,uint512,string,byte[]))void),tmp%6#0
-        match main_build_tuple_route@4 main_test_tuple_route@5 ; b main_after_if_else@8
+        method build_tuple_side_effects()(uint64,uint64,uint64)                          tmp%6#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(build_tuple_side_effects()(uint64,uint64,uint64))
+        method test_tuple((uint64,uint512,string,byte[]))void                            tmp%6#0,Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(build_tuple_side_effects()(uint64,uint64,uint64)),Method(test_tuple((uint64,uint512,string,byte[]))void)
+        l-load tmp%6#0 3                                                                 Method(build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])),Method(build_tuple_side_effects()(uint64,uint64,uint64)),Method(test_tuple((uint64,uint512,string,byte[]))void),tmp%6#0
+        match main_build_tuple_route@4 main_build_tuple_side_effects_route@5 main_test_tuple_route@6 ; b main_after_if_else@9 
 
     main_build_tuple_route@4:
-        // named_tuples/contract.py:16
+        // named_tuples/contract.py:22
         // @arc4.abimethod()
         callsub build_tuple
-        b main_after_if_else@8
+        b main_after_if_else@9
 
-    main_test_tuple_route@5:
-        // named_tuples/contract.py:31
+    main_build_tuple_side_effects_route@5:
+        // named_tuples/contract.py:37
+        // @arc4.abimethod()
+        callsub build_tuple_side_effects
+        b main_after_if_else@9
+
+    main_test_tuple_route@6:
+        // named_tuples/contract.py:41
         // @arc4.abimethod()
         callsub test_tuple
-        b main_after_if_else@8
+        b main_after_if_else@9
 
-    main_after_if_else@8:
-        // named_tuples/contract.py:15
+    main_after_if_else@9:
+        // named_tuples/contract.py:21
         // class NamedTuplesContract(arc4.ARC4Contract):
         err
 
-    main___algopy_default_create@9:
+    main___algopy_default_create@10:
         txn OnCompletion                                                                 tmp%7#0
         l-load tmp%7#0 0                                                                 tmp%7#0
         !                                                                                tmp%8#0
@@ -61,7 +68,7 @@ subroutine main:
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
 subroutine build_tuple:
     build_tuple_block@0:
-        // named_tuples/contract.py:16
+        // named_tuples/contract.py:22
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                           reinterpret_Encoded(uint64)%0#0
         l-load reinterpret_Encoded(uint64)%0#0 0                                         reinterpret_Encoded(uint64)%0#0
@@ -138,10 +145,45 @@ subroutine build_tuple:
         return
 
 
+// test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects[routing]() -> void:
+subroutine build_tuple_side_effects:
+    build_tuple_side_effects_block@0:
+        // named_tuples/contract.py:39
+        // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
+        int 1                                                                            1
+        // named_tuples/contract.py:51
+        // log(value)
+        itob                                                                             tmp%0#2
+        l-load tmp%0#2 0                                                                 tmp%0#2
+        log
+        // named_tuples/contract.py:39
+        // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
+        int 2                                                                            2
+        // named_tuples/contract.py:51
+        // log(value)
+        itob                                                                             tmp%0#2
+        l-load tmp%0#2 0                                                                 tmp%0#2
+        log
+        // named_tuples/contract.py:39
+        // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
+        int 3                                                                            3
+        // named_tuples/contract.py:51
+        // log(value)
+        itob                                                                             tmp%0#2
+        l-load tmp%0#2 0                                                                 tmp%0#2
+        log
+        // named_tuples/contract.py:37
+        // @arc4.abimethod()
+        byte 0x151f7c75000000000000000200000000000000030000000000000001                  0x151f7c75000000000000000200000000000000030000000000000001
+        log
+        int 1                                                                            1
+        return
+
+
 // test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
 subroutine test_tuple:
     test_tuple_block@0:
-        // named_tuples/contract.py:31
+        // named_tuples/contract.py:41
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                           reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0
         l-load-copy reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0,reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 (copy)
@@ -169,21 +211,21 @@ subroutine test_tuple:
         substring3                                                                       value.a#0,value.b#0,value.c#0,aggregate%substring3%1#0
         l-load aggregate%substring3%1#0 0                                                value.a#0,value.b#0,value.c#0,aggregate%substring3%1#0
         extract 2 0                                                                      value.a#0,value.b#0,value.c#0,value.d#0
-        // named_tuples/contract.py:33
+        // named_tuples/contract.py:43
         // assert value.a < 1000
         l-load value.a#0 3                                                               value.b#0,value.c#0,value.d#0,value.a#0
         int 1000                                                                         value.b#0,value.c#0,value.d#0,value.a#0,1000
         <                                                                                value.b#0,value.c#0,value.d#0,tmp%0#1
         l-load tmp%0#1 0                                                                 value.b#0,value.c#0,value.d#0,tmp%0#1
         assert                                                                           value.b#0,value.c#0,value.d#0
-        // named_tuples/contract.py:34
+        // named_tuples/contract.py:44
         // assert value.b < 2**65
         l-load value.b#0 2                                                               value.c#0,value.d#0,value.b#0
         byte 0x020000000000000000                                                        value.c#0,value.d#0,value.b#0,0x020000000000000000
         b<                                                                               value.c#0,value.d#0,tmp%1#1
         l-load tmp%1#1 0                                                                 value.c#0,value.d#0,tmp%1#1
         assert                                                                           value.c#0,value.d#0
-        // named_tuples/contract.py:35
+        // named_tuples/contract.py:45
         // assert value.c.bytes.length > 1
         l-load value.c#0 1                                                               value.d#0,value.c#0
         len                                                                              value.d#0,tmp%2#1
@@ -192,7 +234,7 @@ subroutine test_tuple:
         >                                                                                value.d#0,tmp%3#1
         l-load tmp%3#1 0                                                                 value.d#0,tmp%3#1
         assert                                                                           value.d#0
-        // named_tuples/contract.py:36
+        // named_tuples/contract.py:46
         // assert value.d == Txn.sender.bytes
         txn Sender                                                                       value.d#0,tmp%4#0
         l-load value.d#0 1                                                               tmp%4#0,value.d#0
@@ -200,7 +242,7 @@ subroutine test_tuple:
         ==                                                                               tmp%5#0
         l-load tmp%5#0 0                                                                 tmp%5#0
         assert
-        // named_tuples/contract.py:31
+        // named_tuples/contract.py:41
         // @arc4.abimethod()
         int 1                                                                            1
         return

@@ -134,13 +134,16 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         if any_missing:
             return dummy_value(pytype, location)
 
-        values = [
-            expect.argument_of_type_else_dummy(field_builder, pytype.fields[field_name]).resolve()
+        values = {
+            field_name: expect.argument_of_type_else_dummy(
+                field_builder, pytype.fields[field_name]
+            ).resolve()
             for field_name, field_builder in field_mapping.items()
-        ]
+        }
+
         expr = NamedTupleExpression(
             wtype=pytype.wtype,
-            values=zip(field_mapping.keys(), values, strict=True),
+            values=values,
             source_location=location,
         )
         return TupleExpressionBuilder(expr, pytype)
