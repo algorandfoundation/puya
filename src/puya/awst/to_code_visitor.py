@@ -503,6 +503,11 @@ class ToCodeVisitor(
         return f"({items})"
 
     @typing.override
+    def visit_named_tuple_expression(self, expr: nodes.NamedTupleExpression) -> str:
+        items = ", ".join([f"{name}={value.accept(self)}" for name, value in expr.values.items()])
+        return f"({items})"
+
+    @typing.override
     def visit_tuple_item_expression(self, expr: nodes.TupleItemExpression) -> str:
         base = expr.base.accept(self)
         return f"{base}[{expr.index}]"

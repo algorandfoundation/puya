@@ -193,6 +193,9 @@ class ExpressionVisitor[T](ABC):
     def visit_tuple_item_expression(self, expr: puya.awst.nodes.TupleItemExpression) -> T: ...
 
     @abstractmethod
+    def visit_named_tuple_expression(self, expr: puya.awst.nodes.NamedTupleExpression) -> T: ...
+
+    @abstractmethod
     def visit_field_expression(self, expr: puya.awst.nodes.FieldExpression) -> T: ...
 
     @abstractmethod
