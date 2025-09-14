@@ -13,6 +13,7 @@ from puya.awst.nodes import (
     IntegerConstant,
     IntrinsicCall,
     Lvalue,
+    NamedTupleExpression,
     SliceExpression,
     Statement,
     TupleExpression,
@@ -133,14 +134,13 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         if any_missing:
             return dummy_value(pytype, location)
 
-        # TODO: need to evaluate values args in field_mapping order
         values = [
-            expect.argument_of_type_else_dummy(field_mapping[field_name], field_type).resolve()
-            for field_name, field_type in pytype.fields.items()
+            expect.argument_of_type_else_dummy(field_builder, pytype.fields[field_name]).resolve()
+            for field_name, field_builder in field_mapping.items()
         ]
-        expr = TupleExpression(
-            items=values,
+        expr = NamedTupleExpression(
             wtype=pytype.wtype,
+            values=zip(field_mapping.keys(), values, strict=True),
             source_location=location,
         )
         return TupleExpressionBuilder(expr, pytype)

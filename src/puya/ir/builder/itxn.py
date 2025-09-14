@@ -724,6 +724,12 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return [t for item in expr.items for t in item.accept(self)]
 
     @typing.override
+    def visit_named_tuple_expression(
+        self, expr: awst_nodes.NamedTupleExpression
+    ) -> list[_SourceAction]:
+        return [t for val in expr.values.values() for t in val.accept(self)]
+
+    @typing.override
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> list[_SourceAction]:
         base_wtype = expr.base.wtype
         if not (isinstance(base_wtype, wtypes.WTuple) and base_wtype.names):
