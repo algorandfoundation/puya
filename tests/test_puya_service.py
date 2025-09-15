@@ -89,8 +89,8 @@ async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> Non
 
     logs = [log_to_str(log, path) for log in response.logs]
     assert logs == [
-        f"info: Writing {approval_path!s}",
-        f"info: Writing {clear_path!s}",
+        f"info: Writing {approval_path.as_posix()}",
+        f"info: Writing {clear_path.as_posix()}",
     ], "compile contained errors"
 
 
