@@ -6,14 +6,16 @@ PuyaPy 5.0 and the accompanying Algorand Python 3.0 `algopy` stubs have some bre
 
 The `algopy.Array` type present in 4.x has been renamed to `algopy.ReferenceArray` to make it clearer how it differs from the other array types.
 If a contract was using this type in 4.x it could encounter one of the following errors after upgrading to 5.0
-* `No overload variant of "Array" matches argument types`
-* `expression is not valid as an assignment target`
-* `unsupported assignment target`
-* `mutable values cannot be passed more than once to a subroutine`
+
+-   `No overload variant of "Array" matches argument types`
+-   `expression is not valid as an assignment target`
+-   `unsupported assignment target`
+-   `mutable values cannot be passed more than once to a subroutine`
 
 A simple way to solve this for existing contracts using the old name is to alias the `ReferenceArray` type as `Array`.
 
 e.g.
+
 ```python
 from algopy import ReferenceArray as Array
 ```
@@ -22,6 +24,7 @@ If you need to use both `algopy.ReferenceArray` and the new `algopy.Array` then 
 `algopy.Array` references to `algopy.ReferenceArray`
 
 e.g. code that was using `algopy.Array` prior to 5.0
+
 ```python
 from algopy import *
 
@@ -30,11 +33,12 @@ def some_method(arr: Array[UInt64]) -> None: ...
 ```
 
 After migrating to 5.0, should use `algopy.ReferenceArray` for existing code, and is free to use `algopy.Array` for new code
+
 ```python
 from algopy import *
 
 @subroutine
-def some_method(arr: ReferenceArray[UInt64]) -> None: ... 
+def some_method(arr: ReferenceArray[UInt64]) -> None: ...
 
 @subroutine
 def a_new_method(arr: Array[UInt64]) -> None:
@@ -46,13 +50,13 @@ The default routing behaviour for resources types `algopy.Account`, `algopy.Asse
 will treat these types as their underlying ARC-4 value type when constructing ABI method signatures. This allows for more efficient resource packing
 when using the `algokit_utils` populate resource functionality.
 
-| Type                 | 4.x (`foreign_index`)  | 5.0 (`value`) |
-|----------------------|------------------------|---------------|
-| `algopy.Account`     | `account`              | `address`     |
-| `algopy.Asset`       | `asset`                | `uint64`      |
-| `algopy.Application` | `application`          | `uint64`      |
+| Type                 | 4.x (`foreign_index`) | 5.0 (`value`) |
+| -------------------- | --------------------- | ------------- |
+| `algopy.Account`     | `account`             | `address`     |
+| `algopy.Asset`       | `asset`               | `uint64`      |
+| `algopy.Application` | `application`         | `uint64`      |
 
-There are two methods to return to the 4.x behaviour for these types: 
+There are two methods to return to the 4.x behaviour for these types:
 
 1.) Use original behaviour for entire compilation by using CLI options
 
@@ -73,4 +77,22 @@ class MyContract(arc4.ARC4Contract):
     def my_abi_method(self, app: Application, asset: Asset, account: Account) -> None:
         ...
         # has an ARC-4 signature of my_abi_method(application,asset,account)void
+```
+
+## Constructor signatures of `ImmutableArray` and `ReferenceArray`
+
+With the introduction of the new Mutable Native Arrays (`Array`, `FixedArray`) to PuyaPy we chose to follow standard Python idioms, in that these arrays can be initialized with an iterable (tuple, another array e.g. `Array((UInt64(1), UInt64(2)))`, `Array(existing_arr)`).
+
+The constructor signatures of `ImmutableArray` and `ReferenceArray` (which is called `Array` prior to 5.0, see [above](#algopyarray-to-algopyreferencearray)) has been changed to be consistent with the new Mutable Native Arrays.
+
+e.g. code that constructs `algopy.ImmutableArray` prior to 5.0
+
+```python
+arr = ImmutableArray(UInt64(1), UInt64(2), UInt64(3))
+```
+
+After migrating to 5.0, construct `algopy.ImmutableArray` using an iterable parameter
+
+```python
+arr = ImmutableArray((UInt64(1), UInt64(2), UInt64(3)))
 ```

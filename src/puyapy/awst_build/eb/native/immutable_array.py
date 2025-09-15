@@ -10,119 +10,61 @@ from puya.awst.nodes import (
     ArrayReplace,
     AssignmentStatement,
     Expression,
-    IndexExpression,
     IntersectionSliceExpression,
-    NewArray,
     Statement,
     TupleExpression,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
-    GenericTypeBuilder,
-    InstanceExpressionBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     dummy_statement,
     dummy_value,
-    resolve_negative_literal_index,
 )
-from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
     NodeBuilder,
-    TypeBuilder,
+)
+from puyapy.awst_build.eb.native._base import (
+    _ArrayExpressionBuilder,
+    _BaseArrayGenericTypeBuilder,
+    _BaseArrayTypeBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 logger = log.get_logger(__name__)
 
 
-class ImmutableArrayGenericTypeBuilder(GenericTypeBuilder):
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        if not args:
-            raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
-        typ = pytypes.GenericImmutableArrayType.parameterise([element_type], location)
-        return ImmutableArrayTypeBuilder(typ, self.source_location).call(
-            args, arg_kinds, arg_names, location
+class ImmutableArrayGenericTypeBuilder(_BaseArrayGenericTypeBuilder):
+    def __init__(self, location: SourceLocation) -> None:
+        super().__init__(
+            generic_typ=pytypes.GenericImmutableArrayType,
+            eb=ImmutableArrayExpressionBuilder,
+            expected_wtype_type=wtypes.ARC4DynamicArray,
+            location=location,
         )
 
 
-class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
+class ImmutableArrayTypeBuilder(_BaseArrayTypeBuilder):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
-        assert isinstance(typ, pytypes.ArrayType)
-        assert typ.generic == pytypes.GenericImmutableArrayType
-        wtype = typ.wtype
-        assert isinstance(wtype, wtypes.ARC4DynamicArray)
-        self._wtype = wtype
-        super().__init__(typ, location)
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        typ = self.produces()
-        values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
-        return ImmutableArrayExpressionBuilder(
-            NewArray(values=values, wtype=self._wtype, source_location=location), self._pytype
+        super().__init__(
+            typ=typ,
+            generic_typ=pytypes.GenericImmutableArrayType,
+            eb=ImmutableArrayExpressionBuilder,
+            expected_wtype_type=wtypes.ARC4DynamicArray,
+            location=location,
         )
 
 
-class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
-    def __init__(self, expr: Expression, typ: pytypes.PyType):
-        assert isinstance(typ, pytypes.ArrayType)
-        super().__init__(typ, expr)
-
-    @typing.override
-    def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        logger.error("item containment with arrays is currently unsupported", location=location)
-        return dummy_value(pytypes.BoolType, location)
-
+class ImmutableArrayExpressionBuilder(_ArrayExpressionBuilder):
     @typing.override
     def iterate(self) -> Expression:
         return self.resolve()
-
-    @typing.override
-    def iterable_item_type(self) -> pytypes.PyType:
-        return self.pytype.items
-
-    @typing.override
-    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        array_length = self.length(index.source_location)
-        index = resolve_negative_literal_index(index, array_length, location)
-        result_expr = IndexExpression(
-            base=self.resolve(),
-            index=index.resolve(),
-            source_location=location,
-        )
-        return builder_for_instance(self.pytype.items, result_expr)
-
-    @typing.override
-    def slice_index(
-        self,
-        begin_index: InstanceBuilder | None,
-        end_index: InstanceBuilder | None,
-        stride: InstanceBuilder | None,
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        raise CodeError("slicing arrays is currently unsupported", location)
 
     @typing.override
     @typing.final
