@@ -47,6 +47,7 @@ jobs:
           mode: upsert
           message: ⚠️ No changelog fragment detected
           github-token: ${{ steps.app_token.outputs.token }}
+
   summarize-size:
     runs-on: ubuntu-latest
     steps:
@@ -75,6 +76,7 @@ jobs:
           mode: upsert
           file-path: sizes.md
           github-token: ${{ steps.app_token.outputs.token }}
+
   check-python:
     runs-on: "ubuntu-latest"
     steps:
@@ -142,6 +144,32 @@ jobs:
           name: junit${{ matrix.group }}${{ matrix.module }}
           path: pytest-junit.xml
           if-no-files-found: error
+
+  tests-windows:
+    runs-on: "windows-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [ 1, 2 ]
+        # skip localnet tests for now, problems starting Docker containers on Windows:
+        # docker: no matching manifest for windows/amd64 10.0.26100 in the manifest list entries
+        module: [ 'not localnet' ]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          uv_sync_args: "--group cicd"
+
+      - name: Start LocalNet
+        if: ${{ matrix.module == 'localnet' }}
+        run: algokit localnet start
+
+      - name: pytest
+        shell: bash # sets pipefail etc
+        run: pytest --splits 2 -m "${{ matrix.module }}" --group ${{ matrix.group }}
 
   coverage:
     needs: tests
@@ -221,7 +249,6 @@ jobs:
       - name: Show diff
         if: failure()
         run: git diff examples/ test_cases/
-
 
   compile-all-windows:
     runs-on: "windows-latest"

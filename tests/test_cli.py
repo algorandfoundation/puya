@@ -105,9 +105,10 @@ def test_run_not_python() -> None:
 
 
 def test_run_non_existent() -> None:
-    result = run_puyapy(["fake_dir/abc.py"], check=False)
+    non_existent = Path("fake_dir") / "abc.py"
+    result = run_puyapy([str(non_existent)], check=False)
     assert result.returncode != 0
-    assert 'Invalid value "fake_dir/abc.py"' in result.stdout
+    assert f'Invalid value "{non_existent}"' in result.stdout
 
 
 def test_run_single_file() -> None:
