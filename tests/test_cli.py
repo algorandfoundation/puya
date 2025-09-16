@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 from collections.abc import Iterable
@@ -10,7 +11,7 @@ import pytest
 from cattrs.preconf.json import make_converter
 
 from puya.main import PuyaOptionsWithCompilationSet
-from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
+from tests import EXAMPLES_DIR, NO_INIT_DIR, TEST_CASES_DIR, VCS_ROOT
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
@@ -135,6 +136,14 @@ def test_run_multiple_files() -> None:
 
 def test_run_directory() -> None:
     run_puyapy([TEST_CASES_DIR / "simple"])
+
+
+def test_run_no_init_multiple_files() -> None:
+    result = run_puyapy([NO_INIT_DIR])
+    package_rootless = re.findall(
+        r"warning: cannot determine package root for tests/no-init/(.*\.py)", result.stdout
+    )
+    assert set(package_rootless) == {"arc4/hello_world_arc4.py", "hello_world.py"}
 
 
 @pytest.fixture(scope="session")
