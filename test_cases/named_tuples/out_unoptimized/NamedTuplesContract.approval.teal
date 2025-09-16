@@ -4,22 +4,23 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 64 76
+    bytecblock 0x 0x151f7c75
     b main_block@0
 
 main_block@0:
     b main_block@1
 
 main_block@1:
-    // named_tuples/contract.py:15
+    // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@9
+    bz main___algopy_default_create@10
     b main_abi_routing@2
 
 main_abi_routing@2:
-    // named_tuples/contract.py:15
+    // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // NoOp
@@ -28,46 +29,53 @@ main_abi_routing@2:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@7
+    bz main_create_NoOp@8
     b main_call_NoOp@3
 
 main_call_NoOp@3:
-    // named_tuples/contract.py:15
+    // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x456eeace // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])"
+    pushbytes 0x06931f77 // method "build_tuple_side_effects()(uint64,uint64,uint64)"
     pushbytes 0x6f9f5bf0 // method "test_tuple((uint64,uint512,string,byte[]))void"
-    uncover 2
-    match main_build_tuple_route@4 main_test_tuple_route@5
-    b main_switch_case_next@6
+    uncover 3
+    match main_build_tuple_route@4 main_build_tuple_side_effects_route@5 main_test_tuple_route@6
+    b main_switch_case_next@7
 
-main_switch_case_next@6:
-    b main_after_if_else@8
+main_switch_case_next@7:
+    b main_after_if_else@9
 
-main_after_if_else@8:
-    b main_after_if_else@10
+main_after_if_else@9:
+    b main_after_if_else@11
 
-main_after_if_else@10:
-    // named_tuples/contract.py:15
+main_after_if_else@11:
+    // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     err
 
-main_test_tuple_route@5:
-    // named_tuples/contract.py:31
+main_test_tuple_route@6:
+    // named_tuples/contract.py:41
     // @arc4.abimethod()
     callsub test_tuple
-    b main_switch_case_next@6
+    b main_switch_case_next@7
+
+main_build_tuple_side_effects_route@5:
+    // named_tuples/contract.py:37
+    // @arc4.abimethod()
+    callsub build_tuple_side_effects
+    b main_switch_case_next@7
 
 main_build_tuple_route@4:
-    // named_tuples/contract.py:16
+    // named_tuples/contract.py:22
     // @arc4.abimethod()
     callsub build_tuple
-    b main_switch_case_next@6
+    b main_switch_case_next@7
 
-main_create_NoOp@7:
-    b main_after_if_else@8
+main_create_NoOp@8:
+    b main_after_if_else@9
 
-main___algopy_default_create@9:
+main___algopy_default_create@10:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -76,14 +84,34 @@ main___algopy_default_create@9:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@12
+    b main_block@13
 
-main_block@12:
-    b main_after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create@13
+main_block@13:
+    b main_after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create@14
 
-main_after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create@13:
+main_after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__algopy_default_create@14:
     intc_1 // 1
     return
+
+
+// test_cases.named_tuples.contract.echo(value: uint64) -> uint64:
+echo:
+    // named_tuples/contract.py:49-50
+    // @subroutine
+    // def echo(value: UInt64) -> UInt64:
+    proto 1 1
+    b echo_block@0
+
+echo_block@0:
+    // named_tuples/contract.py:51
+    // log(value)
+    frame_dig -1
+    itob
+    log
+    // named_tuples/contract.py:52
+    // return value
+    frame_dig -1
+    retsub
 
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
@@ -91,7 +119,7 @@ build_tuple:
     b build_tuple_block@0
 
 build_tuple_block@0:
-    // named_tuples/contract.py:16
+    // named_tuples/contract.py:22
     // @arc4.abimethod()
     txna ApplicationArgs 1
     btoi
@@ -109,7 +137,7 @@ build_tuple_block@0:
     cover 2
     cover 1
     itob
-    pushbytes 0x
+    bytec_0 // 0x
     uncover 1
     concat
     cover 1
@@ -155,7 +183,35 @@ build_tuple_block@0:
     concat
     uncover 1
     concat
-    pushbytes 0x151f7c75
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects[routing]() -> void:
+build_tuple_side_effects:
+    b build_tuple_side_effects_block@0
+
+build_tuple_side_effects_block@0:
+    // named_tuples/contract.py:37
+    // @arc4.abimethod()
+    callsub test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects
+    cover 2
+    cover 1
+    itob
+    bytec_0 // 0x
+    uncover 1
+    concat
+    uncover 1
+    itob
+    concat
+    uncover 1
+    itob
+    concat
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
@@ -168,7 +224,7 @@ test_tuple:
     b test_tuple_block@0
 
 test_tuple_block@0:
-    // named_tuples/contract.py:31
+    // named_tuples/contract.py:41
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -222,14 +278,14 @@ test_tuple_block@0:
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: bytes, c: bytes, d: bytes) -> uint64, bytes, bytes, bytes:
 test_cases.named_tuples.contract.NamedTuplesContract.build_tuple:
-    // named_tuples/contract.py:16-17
+    // named_tuples/contract.py:22-23
     // @arc4.abimethod()
     // def build_tuple(self, a: UInt64, b: BigUInt, c: String, d: Bytes) -> TestTuple:
     proto 4 4
     b test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0
 
 test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0:
-    // named_tuples/contract.py:18
+    // named_tuples/contract.py:24
     // t1 = self.build_tuple_by_name(a, b, c, d)
     frame_dig -4
     frame_dig -3
@@ -243,7 +299,7 @@ test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0:
     cover 3
     cover 3
     cover 3
-    // named_tuples/contract.py:19
+    // named_tuples/contract.py:25
     // t2 = self.build_tuple_by_position(a, b, c, d)
     frame_dig -4
     frame_dig -3
@@ -258,7 +314,7 @@ test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0:
     cover 3
     uncover 1
     cover 3
-    // named_tuples/contract.py:20
+    // named_tuples/contract.py:26
     // assert t1 == t2
     dig 4
     ==
@@ -275,7 +331,7 @@ test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0:
     ==
     &&
     assert
-    // named_tuples/contract.py:21
+    // named_tuples/contract.py:27
     // return t1
     uncover 1
     uncover 2
@@ -285,14 +341,14 @@ test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_block@0:
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a: uint64, b: bytes, c: bytes, d: bytes) -> uint64, bytes, bytes, bytes:
 build_tuple_by_name:
-    // named_tuples/contract.py:23-24
+    // named_tuples/contract.py:29-30
     // @subroutine
     // def build_tuple_by_name(self, a: UInt64, b: BigUInt, c: String, d: Bytes) -> TestTuple:
     proto 4 4
     b build_tuple_by_name_block@0
 
 build_tuple_by_name_block@0:
-    // named_tuples/contract.py:25
+    // named_tuples/contract.py:31
     // return TestTuple(a=a, b=b, c=c, d=d)
     frame_dig -4
     frame_dig -3
@@ -303,14 +359,14 @@ build_tuple_by_name_block@0:
 
 // test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a: uint64, b: bytes, c: bytes, d: bytes) -> uint64, bytes, bytes, bytes:
 build_tuple_by_position:
-    // named_tuples/contract.py:27-28
+    // named_tuples/contract.py:33-34
     // @subroutine
     // def build_tuple_by_position(self, a: UInt64, b: BigUInt, c: String, d: Bytes) -> TestTuple:
     proto 4 4
     b build_tuple_by_position_block@0
 
 build_tuple_by_position_block@0:
-    // named_tuples/contract.py:29
+    // named_tuples/contract.py:35
     // return TestTuple(a, b, c, d)
     frame_dig -4
     frame_dig -3
@@ -319,35 +375,52 @@ build_tuple_by_position_block@0:
     retsub
 
 
+// test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects() -> uint64, uint64, uint64:
+test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects:
+    b test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects_block@0
+
+test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects_block@0:
+    // named_tuples/contract.py:39
+    // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
+    intc_1 // 1
+    callsub echo
+    pushint 2 // 2
+    callsub echo
+    pushint 3 // 3
+    callsub echo
+    uncover 2
+    retsub
+
+
 // test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: bytes, value.c: bytes, value.d: bytes) -> void:
 test_cases.named_tuples.contract.NamedTuplesContract.test_tuple:
-    // named_tuples/contract.py:31-32
+    // named_tuples/contract.py:41-42
     // @arc4.abimethod()
     // def test_tuple(self, value: TestTuple) -> None:
     proto 4 0
     b test_cases.named_tuples.contract.NamedTuplesContract.test_tuple_block@0
 
 test_cases.named_tuples.contract.NamedTuplesContract.test_tuple_block@0:
-    // named_tuples/contract.py:33
+    // named_tuples/contract.py:43
     // assert value.a < 1000
     frame_dig -4
     pushint 1000 // 1000
     <
     assert
-    // named_tuples/contract.py:34
+    // named_tuples/contract.py:44
     // assert value.b < 2**65
     frame_dig -3
     pushbytes 0x020000000000000000
     b<
     assert
-    // named_tuples/contract.py:35
+    // named_tuples/contract.py:45
     // assert value.c.bytes.length > 1
     frame_dig -2
     len
     intc_1 // 1
     >
     assert
-    // named_tuples/contract.py:36
+    // named_tuples/contract.py:46
     // assert value.d == Txn.sender.bytes
     txn Sender
     frame_dig -1

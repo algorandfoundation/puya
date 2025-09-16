@@ -33,6 +33,11 @@ contract NamedTuplesContract
     return (a=a, b=b, c=c, d=d)
   }
   
+  abimethod test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects(): test_cases.named_tuples.contract.UIntTestTuple
+  {
+    return (c=test_cases.named_tuples.contract.echo(1u), a=test_cases.named_tuples.contract.echo(2u), b=test_cases.named_tuples.contract.echo(3u))
+  }
+  
   abimethod test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value: test_cases.named_tuples.contract.TestTuple): void
   {
     assert(value.a < 1000u)
@@ -48,4 +53,10 @@ contract NamedTuplesContract
   subroutine algopy._contract.Contract.__init__(): void
   {
   }
+}
+
+subroutine echo(value: uint64): uint64
+{
+  log(itob(value))
+  return value
 }

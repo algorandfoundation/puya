@@ -470,6 +470,18 @@ export class TupleItemExpression extends Expression {
      return visitor.visitTupleItemExpression(this)
    }
 }
+export class NamedTupleExpression extends Expression {
+  constructor(props: Props<NamedTupleExpression>) {
+    super(props)
+    this.wtype = props.wtype
+    this.values = props.values
+  }
+  readonly wtype: wtypes.WTuple
+  readonly values: Map<string, Expression>
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitNamedTupleExpression(this)
+   }
+}
 export class VarExpression extends Expression {
   constructor(props: Props<VarExpression>) {
     super(props)
@@ -1512,6 +1524,7 @@ export const concreteNodes = {
   checkedMaybe: CheckedMaybe,
   tupleExpression: TupleExpression,
   tupleItemExpression: TupleItemExpression,
+  namedTupleExpression: NamedTupleExpression,
   varExpression: VarExpression,
   innerTransactionField: InnerTransactionField,
   setInnerTransactionFields: SetInnerTransactionFields,
@@ -1625,6 +1638,7 @@ export interface ExpressionVisitor<T> {
   visitCheckedMaybe(expression: CheckedMaybe): T
   visitTupleExpression(expression: TupleExpression): T
   visitTupleItemExpression(expression: TupleItemExpression): T
+  visitNamedTupleExpression(expression: NamedTupleExpression): T
   visitVarExpression(expression: VarExpression): T
   visitInnerTransactionField(expression: InnerTransactionField): T
   visitSetInnerTransactionFields(expression: SetInnerTransactionFields): T

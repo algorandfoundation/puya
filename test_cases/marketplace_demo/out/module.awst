@@ -73,14 +73,14 @@ contract DigitalMarketplaceWithTups
     assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
     assert(gtxns<AssetAmount>(xfer) > 0u)
     existing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
-    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=existing.deposited + gtxns<AssetAmount>(xfer), unitaryPrice=existing.unitaryPrice, bidder=existing.bidder, bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, unitaryPrice=existing.unitaryPrice, deposited=existing.deposited + gtxns<AssetAmount>(xfer))
   }
   
   abimethod[name_override=setPrice] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price(asset: asset, nonce: uint64, unitary_price: uint64): void
   {
     key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
     existing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
-    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=existing.deposited, unitaryPrice=unitary_price, bidder=existing.bidder, bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, deposited=existing.deposited, unitaryPrice=unitary_price)
   }
   
   abimethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy(owner: account, asset: asset, nonce: uint64, buy_pay: group_transaction_pay, quantity: uint64): void
@@ -91,7 +91,7 @@ contract DigitalMarketplaceWithTups
     assert(gtxns<Sender>(buy_pay) == txn<Sender>())
     assert(gtxns<Receiver>(buy_pay) == owner)
     assert(gtxns<Amount>(buy_pay) == amount_to_be_paid)
-    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=listing.deposited - quantity, unitaryPrice=listing.unitaryPrice, bidder=listing.bidder, bid=listing.bid, bidUnitaryPrice=listing.bidUnitaryPrice)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (bid=listing.bid, bidUnitaryPrice=listing.bidUnitaryPrice, bidder=listing.bidder, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - quantity)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=quantity))
   }
   
@@ -133,7 +133,7 @@ contract DigitalMarketplaceWithTups
     best_bid_amount: uint64 = this::quantity_price(min_quantity, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=best_bid_amount))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=listing.bidder, AssetAmount=min_quantity))
-    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=listing.deposited - min_quantity, unitaryPrice=listing.unitaryPrice, bidder=listing.bidder, bid=listing.bid - min_quantity, bidUnitaryPrice=listing.bidUnitaryPrice)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (bidder=listing.bidder, bidUnitaryPrice=listing.bidUnitaryPrice, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - min_quantity, bid=listing.bid - min_quantity)
   }
   
   baremethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_default_create(): void

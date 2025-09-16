@@ -5,18 +5,18 @@
 main:
     intcblock 1 64
     txn NumAppArgs
-    bz main___algopy_default_create@9
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
+    pushbytess 0x456eeace 0x06931f77 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "build_tuple_side_effects()(uint64,uint64,uint64)", method "test_tuple((uint64,uint512,string,byte[]))void"
     txna ApplicationArgs 0
-    match main_build_tuple_route@4 main_test_tuple_route@5
+    match main_build_tuple_route@4 main_build_tuple_side_effects_route@5 main_test_tuple_route@6
     err
 
-main_test_tuple_route@5:
+main_test_tuple_route@6:
     txna ApplicationArgs 1
     dup
     pushint 0 // 0
@@ -56,6 +56,21 @@ main_test_tuple_route@5:
     assert
     txn Sender
     ==
+    return
+
+main_build_tuple_side_effects_route@5:
+    intc_0 // 1
+    itob
+    log
+    pushint 2 // 2
+    itob
+    log
+    pushint 3 // 3
+    itob
+    log
+    pushbytes 0x151f7c75000000000000000200000000000000030000000000000001
+    log
+    intc_0 // 1
     return
 
 main_build_tuple_route@4:
@@ -114,7 +129,7 @@ main_build_tuple_route@4:
     intc_0 // 1
     return
 
-main___algopy_default_create@9:
+main___algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID

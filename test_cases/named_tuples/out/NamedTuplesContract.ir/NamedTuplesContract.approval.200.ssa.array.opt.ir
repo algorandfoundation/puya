@@ -1,24 +1,27 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@9
-    block@2: // abi_routing_L15
+        goto tmp%0#1 ? block@2 : block@10
+    block@2: // abi_routing_L21
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion must be NoOp
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@4, method "test_tuple((uint64,uint512,string,byte[]))void" => block@5, * => block@8}
-    block@4: // build_tuple_route_L16
+        switch tmp%6#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@4, method "build_tuple_side_effects()(uint64,uint64,uint64)" => block@5, method "test_tuple((uint64,uint512,string,byte[]))void" => block@6, * => block@9}
+    block@4: // build_tuple_route_L22
         test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]()
-        goto block@8
-    block@5: // test_tuple_route_L31
+        goto block@9
+    block@5: // build_tuple_side_effects_route_L37
+        test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects[routing]()
+        goto block@9
+    block@6: // test_tuple_route_L41
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]()
-        goto block@8
-    block@8: // after_if_else_L15
+        goto block@9
+    block@9: // after_if_else_L21
         fail
-    block@9: // __algopy_default_create_L1
+    block@10: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -28,7 +31,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
-    block@0: // L16
+    block@0: // L22
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let b#0: biguint = (txna ApplicationArgs 2)
@@ -66,8 +69,22 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[rout
         (log tmp%9#0)
         exit 1u
 
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects[routing]() -> void:
+    block@0: // L37
+        let tmp%0#2: bytes = (itob 1u)
+        (log tmp%0#2)
+        let tmp%0#3: bytes = (itob 2u)
+        (log tmp%0#3)
+        let tmp%0#4: bytes = (itob 3u)
+        (log tmp%0#4)
+        let aggregate%head%1#0: bytes = 0x00000000000000020000000000000003
+        let aggregate%head%2#0: bytes = 0x000000000000000200000000000000030000000000000001
+        let tmp%4#0: bytes = 0x151f7c75000000000000000200000000000000030000000000000001
+        (log 0x151f7c75000000000000000200000000000000030000000000000001)
+        exit 1u
+
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
-    block@0: // L31
+    block@0: // L41
         let reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (txna ApplicationArgs 1)
         let aggregate%extract%0#0: bytes = ((extract 0 8) reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
         let value.a#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0u)

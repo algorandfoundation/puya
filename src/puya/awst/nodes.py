@@ -963,6 +963,29 @@ class TupleItemExpression(Expression):
 
 
 @attrs.frozen
+class NamedTupleExpression(Expression):
+    """
+    Defines a new named tuple with the specified elements.
+    Elements are evaluated in mapping order.
+    """
+
+    wtype: wtypes.WTuple
+    values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
+
+    @values.validator
+    def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
+        if values.keys() != self.wtype.fields.keys():
+            raise CodeError("Invalid argument(s)", self.source_location)
+        for field_name, field_value in self.values.items():
+            expected_wtype = self.wtype.fields[field_name]
+            if field_value.wtype != expected_wtype:
+                raise CodeError("Invalid argument type(s)", self.source_location)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_named_tuple_expression(self)
+
+
+@attrs.frozen
 class VarExpression(Expression):
     """
     Defines a local variable (subroutine scoped) which can be assigned to as the target of an

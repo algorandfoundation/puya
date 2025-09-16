@@ -11,6 +11,11 @@ class TestTuple(algopy.arc4.Struct):
     c: algopy.arc4.String
     d: algopy.arc4.DynamicBytes
 
+class UIntTestTuple(algopy.arc4.Struct):
+    a: algopy.arc4.UIntN[typing.Literal[64]]
+    b: algopy.arc4.UIntN[typing.Literal[64]]
+    c: algopy.arc4.UIntN[typing.Literal[64]]
+
 class NamedTuplesContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def build_tuple(
@@ -20,6 +25,11 @@ class NamedTuplesContract(algopy.arc4.ARC4Client, typing.Protocol):
         c: algopy.arc4.String,
         d: algopy.arc4.DynamicBytes,
     ) -> TestTuple: ...
+
+    @algopy.arc4.abimethod
+    def build_tuple_side_effects(
+        self,
+    ) -> UIntTestTuple: ...
 
     @algopy.arc4.abimethod
     def test_tuple(
