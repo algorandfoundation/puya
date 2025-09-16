@@ -158,7 +158,7 @@ class _FixedArrayExpressionBuilder(_ArrayExpressionBuilder, StaticSizedCollectio
         size = typ.size
         assert size is not None
         self._size = size
-        super().__init__(typ, expr)
+        super().__init__(expr, typ)
 
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:

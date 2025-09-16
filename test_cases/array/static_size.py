@@ -42,9 +42,11 @@ class StaticSizeContract(arc4.ARC4Contract):
     def test_array(self, x1: arc4.UInt64, y1: UInt64, x2: arc4.UInt64, y2: UInt64) -> UInt64:
         self.count = UInt64(0)
         path = ReferenceArray(
-            Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
-            Point(x=x1, y=y1, other=self.xtra()),
-            Point(x=x2, y=y2, other=self.xtra()),
+            (
+                Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
+                Point(x=x1, y=y1, other=self.xtra()),
+                Point(x=x2, y=y2, other=self.xtra()),
+            )
         )
         for i in urange(3):
             assert path[i].other.b == i + 1
