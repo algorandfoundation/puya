@@ -278,7 +278,7 @@ def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
 
 def falcon_verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
     """
-    for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey
+    for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey => {0 or 1}
     Min AVM version: 12
 
     Native TEAL opcode: [`falcon_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#falcon_verify)
@@ -467,7 +467,7 @@ def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
 def sumhash512(a: Bytes | bytes, /) -> Bytes:
     """
     sumhash512 of value A, yields [64]byte
-    Min AVM version: 12
+    Min AVM version: 13
 
     Native TEAL opcode: [`sumhash512`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sumhash512)
     """
@@ -811,6 +811,15 @@ class AppParamsGet:
     def app_address(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Address for which this application has authority
+
+        Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
+        """
+
+    @staticmethod
+    def app_version(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
+        """
+        Min AVM version: 12
+        :returns tuple[UInt64, bool]: Version of the app, incremented each time the approval or clear program changes
 
         Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
         """
@@ -1754,7 +1763,7 @@ class GITxn:
     def state_proof_pk(t: int, /) -> Bytes:
         """
         :param int t: transaction group index
-        :returns Bytes: 64 byte state proof public key
+        :returns Bytes: State proof public key
 
         Native TEAL opcode: [`gitxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gitxn)
         """
@@ -1791,6 +1800,16 @@ class GITxn:
         """
         :param int t: transaction group index
         :returns UInt64: Number of ClearState Program pages
+
+        Native TEAL opcode: [`gitxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gitxn)
+        """
+
+    @staticmethod
+    def reject_version(t: int, /) -> UInt64:
+        """
+        Min AVM version: 12
+        :param int t: transaction group index
+        :returns UInt64: Application version for which the txn must reject
 
         Native TEAL opcode: [`gitxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gitxn)
         """
@@ -2307,7 +2326,7 @@ class GTxn:
     @staticmethod
     def state_proof_pk(a: UInt64 | int, /) -> Bytes:
         """
-        64 byte state proof public key
+        State proof public key
 
         Native TEAL opcode: [`gtxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxn), [`gtxns`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxns)
         """
@@ -2340,6 +2359,15 @@ class GTxn:
     def num_clear_state_program_pages(a: UInt64 | int, /) -> UInt64:
         """
         Number of ClearState Program pages
+
+        Native TEAL opcode: [`gtxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxn), [`gtxns`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxns)
+        """
+
+    @staticmethod
+    def reject_version(a: UInt64 | int, /) -> UInt64:
+        """
+        Min AVM version: 12
+        :returns UInt64: Application version for which the txn must reject
 
         Native TEAL opcode: [`gtxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxn), [`gtxns`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxns)
         """
@@ -2985,7 +3013,7 @@ class ITxn:
     @staticmethod
     def state_proof_pk() -> Bytes:
         """
-        64 byte state proof public key
+        State proof public key
 
         Native TEAL opcode: [`itxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn)
         """
@@ -3018,6 +3046,15 @@ class ITxn:
     def num_clear_state_program_pages() -> UInt64:
         """
         Number of ClearState Program pages
+
+        Native TEAL opcode: [`itxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn)
+        """
+
+    @staticmethod
+    def reject_version() -> UInt64:
+        """
+        Min AVM version: 12
+        :returns UInt64: Application version for which the txn must reject
 
         Native TEAL opcode: [`itxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn)
         """
@@ -3441,7 +3478,7 @@ class ITxnCreate:
     @staticmethod
     def set_state_proof_pk(a: Bytes | bytes, /) -> None:
         """
-        :param Bytes | bytes a: 64 byte state proof public key
+        :param Bytes | bytes a: State proof public key
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3458,6 +3495,15 @@ class ITxnCreate:
     def set_clear_state_program_pages(a: Bytes | bytes, /) -> None:
         """
         :param Bytes | bytes a: ClearState Program as an array of pages
+
+        Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
+        """
+
+    @staticmethod
+    def set_reject_version(a: UInt64 | int, /) -> None:
+        """
+        Min AVM version: 12
+        :param UInt64 | int a: Application version for which the txn must reject
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3855,7 +3901,7 @@ class Txn:
 
     state_proof_pk: typing.Final[Bytes] = ...
     """
-    64 byte state proof public key
+    State proof public key
     """
 
     @staticmethod
@@ -3882,6 +3928,12 @@ class Txn:
     num_clear_state_program_pages: typing.Final[UInt64] = ...
     """
     Number of ClearState Program pages
+    """
+
+    reject_version: typing.Final[UInt64] = ...
+    """
+    Application version for which the txn must reject
+    Min AVM version: 12
     """
 
 class VoterParamsGet:

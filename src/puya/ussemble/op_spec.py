@@ -136,6 +136,7 @@ OP_SPECS = {
                     "NumApprovalProgramPages": 65,
                     "ClearStateProgramPages": 66,
                     "NumClearStateProgramPages": 67,
+                    "RejectVersion": 68,
                 }
             )
         ],
@@ -248,6 +249,7 @@ OP_SPECS = {
                     "NumApprovalProgramPages": 65,
                     "ClearStateProgramPages": 66,
                     "NumClearStateProgramPages": 67,
+                    "RejectVersion": 68,
                 }
             ),
         ],
@@ -365,6 +367,7 @@ OP_SPECS = {
                     "NumApprovalProgramPages": 65,
                     "ClearStateProgramPages": 66,
                     "NumClearStateProgramPages": 67,
+                    "RejectVersion": 68,
                 }
             )
         ],
@@ -489,6 +492,7 @@ OP_SPECS = {
                     "AppExtraProgramPages": 6,
                     "AppCreator": 7,
                     "AppAddress": 8,
+                    "AppVersion": 9,
                 }
             )
         ],
@@ -623,6 +627,7 @@ OP_SPECS = {
                     "StateProofPK": 63,
                     "ApprovalProgramPages": 64,
                     "ClearStateProgramPages": 66,
+                    "RejectVersion": 68,
                 }
             )
         ],
@@ -702,6 +707,7 @@ OP_SPECS = {
                     "NumApprovalProgramPages": 65,
                     "ClearStateProgramPages": 66,
                     "NumClearStateProgramPages": 67,
+                    "RejectVersion": 68,
                 }
             )
         ],
@@ -800,6 +806,7 @@ OP_SPECS = {
                     "NumApprovalProgramPages": 65,
                     "ClearStateProgramPages": 66,
                     "NumClearStateProgramPages": 67,
+                    "RejectVersion": 68,
                 }
             ),
         ],

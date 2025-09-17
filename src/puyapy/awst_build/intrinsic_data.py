@@ -1105,6 +1105,19 @@ NAMESPACE_CLASSES: typing.Final[
                 ),
             ],
         ),
+        app_version=OpMappingWithOverloads(
+            result=pytypes.GenericTupleType.parameterise(
+                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
+            ),
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "app_params_get",
+                    immediates=["AppVersion"],
+                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
+                ),
+            ],
+        ),
     ),
     AssetHoldingGet=dict(
         asset_balance=OpMappingWithOverloads(
@@ -2359,6 +2372,17 @@ NAMESPACE_CLASSES: typing.Final[
                 ),
             ],
         ),
+        reject_version=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "gitxn",
+                    immediates=[int, "RejectVersion"],
+                    args=[0],
+                ),
+            ],
+        ),
     ),
     GTxn=dict(
         sender=OpMappingWithOverloads(
@@ -3519,6 +3543,22 @@ NAMESPACE_CLASSES: typing.Final[
                 ),
             ],
         ),
+        reject_version=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "gtxns",
+                    immediates=["RejectVersion"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+                FunctionOpMapping(
+                    "gtxn",
+                    immediates=[int, "RejectVersion"],
+                    args=[0],
+                ),
+            ],
+        ),
     ),
     Global=dict(
         min_txn_fee=PropertyOpMapping(
@@ -4365,6 +4405,16 @@ NAMESPACE_CLASSES: typing.Final[
                 ),
             ],
         ),
+        reject_version=OpMappingWithOverloads(
+            result=pytypes.UInt64Type,
+            arity=0,
+            overloads=[
+                FunctionOpMapping(
+                    "itxn",
+                    immediates=["RejectVersion"],
+                ),
+            ],
+        ),
     ),
     ITxnCreate=dict(
         begin=OpMappingWithOverloads(
@@ -4901,6 +4951,16 @@ NAMESPACE_CLASSES: typing.Final[
                 ),
             ],
         ),
+        set_reject_version=OpMappingWithOverloads(
+            arity=1,
+            overloads=[
+                FunctionOpMapping(
+                    "itxn_field",
+                    immediates=["RejectVersion"],
+                    args=[(pytypes.UInt64Type,)],
+                ),
+            ],
+        ),
     ),
     JsonRef=dict(
         json_string=OpMappingWithOverloads(
@@ -5384,6 +5444,11 @@ NAMESPACE_CLASSES: typing.Final[
         num_clear_state_program_pages=PropertyOpMapping(
             "txn",
             "NumClearStateProgramPages",
+            pytypes.UInt64Type,
+        ),
+        reject_version=PropertyOpMapping(
+            "txn",
+            "RejectVersion",
             pytypes.UInt64Type,
         ),
     ),

@@ -585,6 +585,15 @@ class AVMOp(enum.StrEnum):
                     supported_modes=RunMode.app,
                     min_avm_version=5,
                 ),
+                "AppVersion": Variant(
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64],
+                        returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
+                    ),
+                    enum="AppVersion",
+                    supported_modes=RunMode.app,
+                    min_avm_version=12,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
@@ -2098,7 +2107,7 @@ class AVMOp(enum.StrEnum):
     )
     """
     for (data A, compressed-format signature B, pubkey C) verify the signature of data against the
-    pubkey
+    pubkey => {0 or 1}
     """
 
     gaid = AVMOpData(
@@ -2568,7 +2577,7 @@ class AVMOp(enum.StrEnum):
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
+                    signature=OpSignature(args=[], returns=[SizedBytesType(num_bytes=64)]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
@@ -2596,6 +2605,12 @@ class AVMOp(enum.StrEnum):
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
@@ -3415,7 +3430,7 @@ class AVMOp(enum.StrEnum):
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
+                    signature=OpSignature(args=[], returns=[SizedBytesType(num_bytes=64)]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
@@ -3443,6 +3458,12 @@ class AVMOp(enum.StrEnum):
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
@@ -4101,7 +4122,7 @@ class AVMOp(enum.StrEnum):
                 ),
                 "StateProofPK": Variant(
                     signature=OpSignature(
-                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.bytes]
+                        args=[PrimitiveIRType.uint64], returns=[SizedBytesType(num_bytes=64)]
                     ),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
@@ -4138,6 +4159,14 @@ class AVMOp(enum.StrEnum):
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(
+                        args=[PrimitiveIRType.uint64], returns=[PrimitiveIRType.uint64]
+                    ),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
@@ -4710,7 +4739,7 @@ class AVMOp(enum.StrEnum):
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
+                    signature=OpSignature(args=[], returns=[SizedBytesType(num_bytes=64)]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
@@ -4738,6 +4767,12 @@ class AVMOp(enum.StrEnum):
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
@@ -5066,7 +5101,7 @@ class AVMOp(enum.StrEnum):
                     min_avm_version=5,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
+                    signature=OpSignature(args=[SizedBytesType(num_bytes=64)], returns=[]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
@@ -5082,6 +5117,12 @@ class AVMOp(enum.StrEnum):
                     enum="ClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
@@ -6090,11 +6131,11 @@ class AVMOp(enum.StrEnum):
             ),
             enum=None,
             supported_modes=RunMode.any,
-            min_avm_version=12,
+            min_avm_version=13,
         ),
         immediate_types=(),
         cost=None,
-        min_avm_version=12,
+        min_avm_version=13,
         supported_modes=RunMode.any,
     )
     """
@@ -6485,7 +6526,7 @@ class AVMOp(enum.StrEnum):
                     min_avm_version=6,
                 ),
                 "StateProofPK": Variant(
-                    signature=OpSignature(args=[], returns=[PrimitiveIRType.bytes]),
+                    signature=OpSignature(args=[], returns=[SizedBytesType(num_bytes=64)]),
                     enum="StateProofPK",
                     supported_modes=RunMode.any,
                     min_avm_version=6,
@@ -6513,6 +6554,12 @@ class AVMOp(enum.StrEnum):
                     enum="NumClearStateProgramPages",
                     supported_modes=RunMode.any,
                     min_avm_version=7,
+                ),
+                "RejectVersion": Variant(
+                    signature=OpSignature(args=[], returns=[PrimitiveIRType.uint64]),
+                    enum="RejectVersion",
+                    supported_modes=RunMode.any,
+                    min_avm_version=12,
                 ),
             },
         ),
