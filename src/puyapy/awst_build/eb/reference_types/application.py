@@ -74,6 +74,7 @@ class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
             "extra_program_pages": ("AppExtraProgramPages", pytypes.UInt64Type),
             "creator": ("AppCreator", pytypes.AccountType),
             "address": ("AppAddress", pytypes.AccountType),
+            "version": ("AppVersion", pytypes.UInt64Type),
         }
         field_op_code = "app_params_get"
         field_bool_comment = "application exists"
