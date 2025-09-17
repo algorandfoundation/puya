@@ -1141,6 +1141,27 @@ def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
         assert event_data == b.to_bytes(length=8) + a.to_bytes(length=8)
 
 
+def test_avm_12(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "avm_12", contract_name="Contract")
+        ),
+        signer=account,
+    )
+    app_client.create()
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 4
+
+    app_client.call(
+        "test_reject_version",
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            suggested_params=increased_fee
+        ),
+    )
+
+
 @pytest.fixture
 def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
     v = algosdk.account.generate_account()
