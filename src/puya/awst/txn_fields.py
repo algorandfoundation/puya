@@ -139,3 +139,5 @@ class TxnField(enum.Enum):
     # v7
     ApprovalProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)
     ClearStateProgramPages = _TxnFieldData(wtypes.bytes_wtype, num_values=4)
+    # v12
+    RejectVersion = _TxnFieldData(wtypes.uint64_wtype)

@@ -565,6 +565,7 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        reject_version: algopy.UInt64 | int = ...,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
 
 class _ABICallProtocolType(typing.Protocol):
@@ -587,6 +588,7 @@ class _ABICallProtocolType(typing.Protocol):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        reject_version: algopy.UInt64 | int = ...,
     ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
     def __call__(  # type: ignore[explicit-any]
@@ -607,6 +609,7 @@ class _ABICallProtocolType(typing.Protocol):
         sender: algopy.Account | str = ...,
         note: algopy.Bytes | algopy.String | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
+        reject_version: algopy.UInt64 | int = ...,
     ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
         self, _: type[_TABIResult_co]
@@ -730,6 +733,7 @@ def arc4_update(  # type: ignore[overload-overlap]
     sender: algopy.Account | str = ...,
     note: algopy.Bytes | bytes | str = ...,
     rekey_to: algopy.Account | str = ...,
+    reject_version: algopy.UInt64 | int = ...,
 ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
 @typing.overload
 def arc4_update(
@@ -742,6 +746,7 @@ def arc4_update(
     sender: algopy.Account | str = ...,
     note: algopy.Bytes | bytes | str = ...,
     rekey_to: algopy.Account | str = ...,
+    reject_version: algopy.UInt64 | int = ...,
 ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
     """
     Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction

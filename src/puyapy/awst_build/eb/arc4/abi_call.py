@@ -84,6 +84,7 @@ _ABI_CALL_TRANSACTION_FIELDS = [
     TxnField.Sender,
     TxnField.Note,
     TxnField.RekeyTo,
+    TxnField.RejectVersion,
 ]
 _ARC4_CREATE_TRANSACTION_FIELDS = [
     TxnField.OnCompletion,
@@ -98,6 +99,7 @@ _ARC4_UPDATE_TRANSACTION_FIELDS = [
     TxnField.Sender,
     TxnField.Note,
     TxnField.RekeyTo,
+    TxnField.RejectVersion,
 ]
 _COMPILED_KWARG = "compiled"
 

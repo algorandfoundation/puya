@@ -340,6 +340,11 @@ PYTHON_ITXN_ARGUMENTS = {
         field=TxnField.Applications,
         type=pytypes.ApplicationType,
     ),
+    # reject_version: UInt64 | int = ...,
+    "reject_version": PythonITxnArgument(
+        field=TxnField.RejectVersion,
+        type=pytypes.UInt64Type,
+    ),
     # ## shared
     # sender: Account | str = ...,
     "sender": PythonITxnArgument(

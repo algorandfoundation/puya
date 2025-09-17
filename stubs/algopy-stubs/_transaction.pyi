@@ -256,6 +256,7 @@ class _ApplicationProtocol(typing.Protocol):
     @property
     def num_clear_state_program_pages(self) -> UInt64:
         """Number of Clear State Program pages"""
+
     # TODO: make the following sequences instead?
     def app_args(self, index: UInt64 | int, /) -> Bytes:
         """Arguments passed to the application in the ApplicationCall transaction"""
@@ -274,3 +275,7 @@ class _ApplicationProtocol(typing.Protocol):
 
     def clear_state_program_pages(self, index: UInt64 | int, /) -> Bytes:
         """Clear State Program as an array of pages"""
+
+    @property
+    def reject_version(self) -> UInt64:
+        """Application version for which the txn must reject"""

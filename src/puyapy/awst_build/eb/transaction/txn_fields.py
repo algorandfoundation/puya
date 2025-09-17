@@ -89,4 +89,5 @@ PYTHON_TXN_FIELDS = {
     "clear_state_program_pages": PythonTxnField(
         TxnField.ClearStateProgramPages, pytypes.BytesType
     ),
+    "reject_version": PythonTxnField(TxnField.RejectVersion, pytypes.UInt64Type),
 }
