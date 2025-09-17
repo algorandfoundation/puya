@@ -23,4 +23,4 @@ HASH_PREFIX_PROGRAM = b"Program"
 # contain breaking changes
 SUPPORTED_AVM_VERSIONS: typing.Final = (10, 11, 12, 13)
 # Which language version is currently deployed to mainnet
-MAINNET_AVM_VERSION: typing.Final = 10
+MAINNET_AVM_VERSION: typing.Final = 11
