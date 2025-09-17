@@ -123,6 +123,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
+        reject_version: UInt64 | int = ...,
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
@@ -182,6 +183,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
+        reject_version: UInt64 | int = ...,
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
@@ -374,6 +376,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
+        reject_version: UInt64 | int = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
@@ -395,6 +398,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
+        reject_version: UInt64 | int = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
