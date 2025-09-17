@@ -1,0 +1,30 @@
+#pragma version 13
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // avm_13/contract.py:9
+    // class Contract(ARC4Contract, avm_version=13):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
+    txna ApplicationArgs 0
+    match main_test_new_ops_route@3
+    err
+
+main_test_new_ops_route@3:
+    // avm_13/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when not creating
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

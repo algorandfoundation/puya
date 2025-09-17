@@ -3,26 +3,23 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // avm_12/contract.py:9
+    intcblock 6 0 1
+    bytecblock base64(DIEBQw==)
+    // avm_12/contract.py:4
     // class Contract(ARC4Contract, avm_version=12):
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
-    txna ApplicationArgs 0
-    match main_test_new_ops_route@3
-    err
-
-main_test_new_ops_route@3:
-    // avm_12/contract.py:10
-    // @arc4.abimethod
+    bz main___algopy_default_create@9
     txn OnCompletion
     !
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    b test_new_ops
+    assert
+    pushbytess 0xbe56499c 0xac8aab42 // method "test_falcon_verify()void", method "test_reject_version()void"
+    txna ApplicationArgs 0
+    match test_falcon_verify test_reject_version
+    err
 
-main___algopy_default_create@5:
+main___algopy_default_create@9:
     txn OnCompletion
     !
     txn ApplicationID
@@ -31,10 +28,9 @@ main___algopy_default_create@5:
     return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// test_cases.avm_12.contract.Contract.test_new_ops[routing]() -> void:
-test_new_ops:
-    // avm_12/contract.py:12-13
-    // # op functions
+// test_cases.avm_12.contract.Contract.test_falcon_verify[routing]() -> void:
+test_falcon_verify:
+    // avm_12/contract.py:7
     // assert not op.falcon_verify(b"", b"", op.bzero(1793))
     pushint 1793 // 1793
     bzero
@@ -43,6 +39,121 @@ test_new_ops:
     uncover 2
     falcon_verify
     !
-    // avm_12/contract.py:10
+    // avm_12/contract.py:5
     // @arc4.abimethod
+    return
+
+
+// test_cases.avm_12.contract.Contract.test_reject_version[routing]() -> void:
+test_reject_version:
+    // avm_12/contract.py:11
+    // app_v0_txn = arc4.arc4_create(ContractV0)
+    itxn_begin
+    bytec_0 // base64(DIEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DDEbQQAagASg6BhyNhoAjgEAAQAxGYEEEjEYEERCAAgxGRQxGBQQQzFEgQESQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    // avm_12/contract.py:13
+    // assert app.version == 0, "should be version 0"
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    !
+    assert // should be version 0
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    itxn_begin
+    // avm_12/contract.py:16
+    // ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    bytec_0 // base64(DIEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DDEbQQAagAQkN408NhoAjgEAAQAxGYEFEjEYEERCAAgxGRQxGBQQQzFEgQISQw==)
+    itxn_field ApprovalProgramPages
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    pushint 4 // UpdateApplication
+    itxn_field OnCompletion
+    // avm_12/contract.py:16
+    // ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    intc_2 // 1
+    itxn_field RejectVersion
+    dup
+    itxn_field ApplicationID
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    pushbytes 0xa0e81872 // method "update()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // avm_12/contract.py:18
+    // assert app.version == 1, "should be version 1"
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    intc_2 // 1
+    ==
+    assert // should be version 1
+    // avm_12/contract.py:20-29
+    // itxn.ApplicationCall(
+    //     app_args=(
+    //         arc4.arc4_signature(
+    //             ContractV1.delete,
+    //         ),
+    //     ),
+    //     on_completion=OnCompleteAction.DeleteApplication,
+    //     app_id=app,
+    //     reject_version=2,
+    // ).submit()
+    itxn_begin
+    // avm_12/contract.py:28
+    // reject_version=2,
+    pushint 2 // 2
+    itxn_field RejectVersion
+    itxn_field ApplicationID
+    // avm_12/contract.py:26
+    // on_completion=OnCompleteAction.DeleteApplication,
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    // avm_12/contract.py:22-24
+    // arc4.arc4_signature(
+    //     ContractV1.delete,
+    // ),
+    pushbytes 0x24378d3c // method "delete()void"
+    itxn_field ApplicationArgs
+    // avm_12/contract.py:20
+    // itxn.ApplicationCall(
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // avm_12/contract.py:20-29
+    // itxn.ApplicationCall(
+    //     app_args=(
+    //         arc4.arc4_signature(
+    //             ContractV1.delete,
+    //         ),
+    //     ),
+    //     on_completion=OnCompleteAction.DeleteApplication,
+    //     app_id=app,
+    //     reject_version=2,
+    // ).submit()
+    itxn_submit
+    // avm_12/contract.py:9
+    // @arc4.abimethod
+    intc_2 // 1
     return

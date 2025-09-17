@@ -1,0 +1,44 @@
+#pragma version 12
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // avm_12/contract.py:32
+    // class ContractV0(ARC4Contract, avm_version=12):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xa0e81872 // method "update()void"
+    txna ApplicationArgs 0
+    match main_update_route@3
+    err
+
+main_update_route@3:
+    // avm_12/contract.py:33
+    // @arc4.abimethod(allow_actions=("UpdateApplication",))
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert // OnCompletion must be UpdateApplication && can only call when not creating
+    b update
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.avm_12.contract.ContractV0.update[routing]() -> void:
+update:
+    // avm_12/contract.py:36
+    // Txn.reject_version == 1
+    txn RejectVersion
+    pushint 1 // 1
+    ==
+    // avm_12/contract.py:33
+    // @arc4.abimethod(allow_actions=("UpdateApplication",))
+    return // on error: can only update if caller expects this to be currently be v0

@@ -1,0 +1,98 @@
+#pragma version 12
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // avm_12/contract.py:40
+    // class ContractV1(ARC4Contract, avm_version=12):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // avm_12/contract.py:40
+    // class ContractV1(ARC4Contract, avm_version=12):
+    txna ApplicationArgs 0
+    pushbytes 0x24378d3c // method "delete()void"
+    uncover 1
+    match main_delete_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // avm_12/contract.py:40
+    // class ContractV1(ARC4Contract, avm_version=12):
+    err
+
+main_delete_route@3:
+    // avm_12/contract.py:41
+    // @arc4.abimethod(allow_actions=("DeleteApplication",))
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    callsub delete
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.avm_12.contract.ContractV1.__algopy_default_create@9
+
+main_after_inlined_test_cases.avm_12.contract.ContractV1.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.avm_12.contract.ContractV1.delete[routing]() -> void:
+delete:
+    b delete_block@0
+
+delete_block@0:
+    // avm_12/contract.py:41
+    // @arc4.abimethod(allow_actions=("DeleteApplication",))
+    callsub test_cases.avm_12.contract.ContractV1.delete
+    intc_1 // 1
+    return
+
+
+// test_cases.avm_12.contract.ContractV1.delete() -> void:
+test_cases.avm_12.contract.ContractV1.delete:
+    b test_cases.avm_12.contract.ContractV1.delete_block@0
+
+test_cases.avm_12.contract.ContractV1.delete_block@0:
+    // avm_12/contract.py:44
+    // Txn.reject_version == 2
+    txn RejectVersion
+    pushint 2 // 2
+    ==
+    // avm_12/contract.py:43-45
+    // assert (
+    //     Txn.reject_version == 2
+    // ), "can only update if caller expects this to be currently be v1"
+    assert // can only update if caller expects this to be currently be v1
+    retsub

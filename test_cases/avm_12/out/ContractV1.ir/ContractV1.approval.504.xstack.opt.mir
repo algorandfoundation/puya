@@ -1,0 +1,68 @@
+// Op                                                                          Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // avm_12/contract.py:40
+        // class ContractV1(ARC4Contract, avm_version=12):
+        txn NumAppArgs                                                         tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // avm_12/contract.py:40
+        // class ContractV1(ARC4Contract, avm_version=12):
+        txna ApplicationArgs 0                                                 tmp%2#0
+        method delete()void                                                    tmp%2#0,Method(delete()void)
+        l-load tmp%2#0 1                                                       Method(delete()void),tmp%2#0
+        match main_delete_route@3 ; b main_switch_case_next@4
+
+    main_delete_route@3:
+        // avm_12/contract.py:41
+        // @arc4.abimethod(allow_actions=("DeleteApplication",))
+        txn OnCompletion                                                       tmp%3#0
+        int DeleteApplication                                                  tmp%3#0,DeleteApplication
+        ==                                                                     tmp%4#0
+        txn ApplicationID                                                      tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                       tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                       tmp%4#0,tmp%5#0
+        &&                                                                     tmp%7#0
+        assert // OnCompletion must be DeleteApplication && can only call when not creating 
+        callsub delete
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // avm_12/contract.py:40
+        // class ContractV1(ARC4Contract, avm_version=12):
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                       tmp%8#0
+        !                                                                      tmp%9#0
+        txn ApplicationID                                                      tmp%9#0,tmp%10#0
+        !                                                                      tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                       tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                      tmp%9#0,tmp%11#0
+        &&                                                                     tmp%12#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                  1
+        return
+
+
+// test_cases.avm_12.contract.ContractV1.delete[routing]() -> void:
+subroutine delete:
+    delete_block@0:
+        // avm_12/contract.py:44
+        // Txn.reject_version == 2
+        txn RejectVersion                                                      tmp%0#0
+        int 2                                                                  tmp%0#0,2
+        ==                                                                     tmp%1#0
+        // avm_12/contract.py:43-45
+        // assert (
+        //     Txn.reject_version == 2
+        // ), "can only update if caller expects this to be currently be v1"
+        assert // can only update if caller expects this to be currently be v1
+        // avm_12/contract.py:41
+        // @arc4.abimethod(allow_actions=("DeleteApplication",))
+        int 1                                                                  1
+        return
+
+

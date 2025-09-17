@@ -1,8 +1,3 @@
-logicsig test_cases.avm_12.contract.avm_12_sig
-{
-  return len(sumhash512(hex<"">))
-}
-
 contract Contract
 {
   method_resolution_order: (
@@ -20,13 +15,84 @@ contract Contract
     return true
   }
   
-  abimethod test_cases.avm_12.contract.Contract.test_new_ops(): void
+  abimethod test_cases.avm_12.contract.Contract.test_falcon_verify(): void
   {
     assert(!(falcon_verify(hex<"">, hex<"">, bzero(1793u))))
-    assert(len(sumhash512(hex<"">)) != 0u)
+  }
+  
+  abimethod test_cases.avm_12.contract.Contract.test_reject_version(): void
+  {
+    app_v0_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=compiled_contract(test_cases.avm_12.contract.ContractV0,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=1)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=0).clear_state_program)[0], SINGLE_EVAL(id=2)[1]), ExtraProgramPages=SINGLE_EVAL(id=0).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=0).global_bytes, GlobalNumUint=SINGLE_EVAL(id=0).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=0).local_bytes, LocalNumUint=SINGLE_EVAL(id=0).local_uints))
+    app: application = app_v0_txn.CreatedApplicationID
+    assert(checked_maybe(app_params_get<AppVersion>(app)) == 0u, comment="should be version 0")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("update()void")), ApplicationID=app, RejectVersion=1u, OnCompletion=UpdateApplication, ApprovalProgramPages=(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=compiled_contract(test_cases.avm_12.contract.ContractV1,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=4)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=3).clear_state_program)[0], SINGLE_EVAL(id=5)[1])))
+    assert(checked_maybe(app_params_get<AppVersion>(app)) == 1u, comment="should be version 1")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), OnCompletion=DeleteApplication, ApplicationID=app, RejectVersion=2u))
   }
   
   baremethod test_cases.avm_12.contract.Contract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ContractV0
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.avm_12.contract.ContractV0.update(): void
+  {
+    assert(txn<RejectVersion>() == 1u, comment="can only update if caller expects this to be currently be v0")
+  }
+  
+  baremethod test_cases.avm_12.contract.ContractV0.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ContractV1
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.avm_12.contract.ContractV1.delete(): void
+  {
+    assert(txn<RejectVersion>() == 2u, comment="can only update if caller expects this to be currently be v1")
+  }
+  
+  baremethod test_cases.avm_12.contract.ContractV1.__algopy_default_create(): void
   {
   }
   
