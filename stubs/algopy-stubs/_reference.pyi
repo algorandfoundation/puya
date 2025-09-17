@@ -10,6 +10,7 @@ class Account(BytesBacked):
 
     __match_value__: str
     __match_args__ = ("__match_value__",)
+
     def __init__(self, value: str | Bytes = ..., /):
         """
         If `value` is a string, it should be a 58 character base32 string,
@@ -24,6 +25,7 @@ class Account(BytesBacked):
 
     def __ne__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
+
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero-address"""
@@ -160,6 +162,7 @@ class Asset:
 
     def __ne__(self, other: Asset) -> bool:  # type: ignore[override]
         """Asset equality is determined by the equality of an Asset's id"""
+
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `asset_id` is not `0`"""
@@ -306,6 +309,7 @@ class Application:
 
     def __ne__(self, other: Application) -> bool:  # type: ignore[override]
         """Application equality is determined by the equality of an Application's id"""
+
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `application_id` is not `0`"""
@@ -385,6 +389,15 @@ class Application:
     @property
     def address(self) -> Account:
         """Address for which this application has authority
+
+        ```{note}
+        Application must be an available resource
+        ```
+        """
+
+    @property
+    def version(self) -> UInt64:
+        """Version of the app, incremented each time the approval or clear program changes
 
         ```{note}
         Application must be an available resource
