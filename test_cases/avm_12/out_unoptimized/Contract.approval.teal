@@ -3,53 +3,72 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 6
+    bytecblock 0x base64(DEIAAIEBQw==)
     b main_block@0
 
 main_block@0:
     b main_block@1
 
 main_block@1:
-    // avm_12/contract.py:9
+    // avm_12/contract.py:4
     // class Contract(ARC4Contract, avm_version=12):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@5
+    bz main___algopy_default_create@9
     b main_abi_routing@2
 
 main_abi_routing@2:
-    // avm_12/contract.py:9
+    // avm_12/contract.py:4
     // class Contract(ARC4Contract, avm_version=12):
-    txna ApplicationArgs 0
-    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
-    uncover 1
-    match main_test_new_ops_route@3
-    b main_switch_case_next@4
-
-main_switch_case_next@4:
-    b main_after_if_else@6
-
-main_after_if_else@6:
-    // avm_12/contract.py:9
-    // class Contract(ARC4Contract, avm_version=12):
-    err
-
-main_test_new_ops_route@3:
-    // avm_12/contract.py:10
-    // @arc4.abimethod
     txn OnCompletion
     intc_0 // NoOp
     ==
+    assert // OnCompletion must be NoOp
     txn ApplicationID
     intc_0 // 0
     !=
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    callsub test_new_ops
-    b main_switch_case_next@4
+    bz main_create_NoOp@7
+    b main_call_NoOp@3
 
-main___algopy_default_create@5:
+main_call_NoOp@3:
+    // avm_12/contract.py:4
+    // class Contract(ARC4Contract, avm_version=12):
+    txna ApplicationArgs 0
+    pushbytes 0xbe56499c // method "test_falcon_verify()void"
+    pushbytes 0xac8aab42 // method "test_reject_version()void"
+    uncover 2
+    match main_test_falcon_verify_route@4 main_test_reject_version_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    // avm_12/contract.py:4
+    // class Contract(ARC4Contract, avm_version=12):
+    err
+
+main_test_reject_version_route@5:
+    // avm_12/contract.py:9
+    // @arc4.abimethod
+    callsub test_reject_version
+    b main_switch_case_next@6
+
+main_test_falcon_verify_route@4:
+    // avm_12/contract.py:5
+    // @arc4.abimethod
+    callsub test_falcon_verify
+    b main_switch_case_next@6
+
+main_create_NoOp@7:
+    b main_after_if_else@8
+
+main___algopy_default_create@9:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -58,50 +77,211 @@ main___algopy_default_create@5:
     ==
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    b main_block@8
+    b main_block@12
 
-main_block@8:
-    b main_after_inlined_test_cases.avm_12.contract.Contract.__algopy_default_create@9
+main_block@12:
+    b main_after_inlined_test_cases.avm_12.contract.Contract.__algopy_default_create@13
 
-main_after_inlined_test_cases.avm_12.contract.Contract.__algopy_default_create@9:
+main_after_inlined_test_cases.avm_12.contract.Contract.__algopy_default_create@13:
     intc_1 // 1
     return
 
 
-// test_cases.avm_12.contract.Contract.test_new_ops[routing]() -> void:
-test_new_ops:
-    b test_new_ops_block@0
+// test_cases.avm_12.contract.Contract.test_falcon_verify[routing]() -> void:
+test_falcon_verify:
+    b test_falcon_verify_block@0
 
-test_new_ops_block@0:
-    // avm_12/contract.py:10
+test_falcon_verify_block@0:
+    // avm_12/contract.py:5
     // @arc4.abimethod
-    callsub test_cases.avm_12.contract.Contract.test_new_ops
+    callsub test_cases.avm_12.contract.Contract.test_falcon_verify
     intc_1 // 1
     return
 
 
-// test_cases.avm_12.contract.Contract.test_new_ops() -> void:
-test_cases.avm_12.contract.Contract.test_new_ops:
-    b test_cases.avm_12.contract.Contract.test_new_ops_block@0
+// test_cases.avm_12.contract.Contract.test_reject_version[routing]() -> void:
+test_reject_version:
+    b test_reject_version_block@0
 
-test_cases.avm_12.contract.Contract.test_new_ops_block@0:
-    // avm_12/contract.py:12-13
-    // # op functions
+test_reject_version_block@0:
+    // avm_12/contract.py:9
+    // @arc4.abimethod
+    callsub test_cases.avm_12.contract.Contract.test_reject_version
+    intc_1 // 1
+    return
+
+
+// test_cases.avm_12.contract.Contract.test_falcon_verify() -> void:
+test_cases.avm_12.contract.Contract.test_falcon_verify:
+    b test_cases.avm_12.contract.Contract.test_falcon_verify_block@0
+
+test_cases.avm_12.contract.Contract.test_falcon_verify_block@0:
+    // avm_12/contract.py:7
     // assert not op.falcon_verify(b"", b"", op.bzero(1793))
     pushint 1793 // 1793
     bzero
-    pushbytes 0x
-    pushbytes 0x
+    bytec_0 // 0x
+    bytec_0 // 0x
     uncover 2
     falcon_verify
     !
     assert
-    // avm_12/contract.py:14
-    // assert op.sumhash512(b"")
-    pushbytes 0x
-    sumhash512
-    len
+    retsub
+
+
+// test_cases.avm_12.contract.Contract.test_reject_version() -> void:
+test_cases.avm_12.contract.Contract.test_reject_version:
+    // avm_12/contract.py:9-10
+    // @arc4.abimethod
+    // def test_reject_version(self) -> None:
+    proto 0 0
+    bytec_0 // ""
+    b test_cases.avm_12.contract.Contract.test_reject_version_block@0
+
+test_cases.avm_12.contract.Contract.test_reject_version_block@0:
+    // avm_12/contract.py:11
+    // app_v0_txn = arc4.arc4_create(ContractV0)
+    itxn_begin
     intc_0 // 0
-    !=
-    assert
+    itxn_field LocalNumUint
+    intc_0 // 0
+    itxn_field LocalNumByteSlice
+    intc_0 // 0
+    itxn_field GlobalNumUint
+    intc_0 // 0
+    itxn_field GlobalNumByteSlice
+    intc_0 // 0
+    itxn_field ExtraProgramPages
+    bytec_1 // base64(DEIAAIEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_0 // 0x
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DCACAAFCAABCAAAxGyITQQAqQgAANhoAgASg6BhyTwGOAQAHQgAAQgAAADEZgQQSMRgiExBEiAAVQv/rMRkiEjEYIhIQREIAAEIAACNDQgAAiAACI0NCAAAxRCMSRIk=)
+    itxn_field ApprovalProgramPages
+    bytec_0 // 0x
+    itxn_field ApprovalProgramPages
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.avm_12.contract.Contract.test_reject_version_next_txn@1
+
+test_cases.avm_12.contract.Contract.test_reject_version_next_txn@1:
+    // avm_12/contract.py:11
+    // app_v0_txn = arc4.arc4_create(ContractV0)
+    itxn_submit
+    itxn CreatedApplicationID
+    // avm_12/contract.py:12
+    // app = app_v0_txn.created_app
+    dup
+    frame_bury 0
+    // avm_12/contract.py:13
+    // assert app.version == 0, "should be version 0"
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    intc_0 // 0
+    ==
+    assert // should be version 0
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    itxn_begin
+    // avm_12/contract.py:16
+    // ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    bytec_1 // base64(DEIAAIEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_0 // 0x
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DCACAAFCAABCAAAxGyITQQAqQgAANhoAgAQkN408TwGOAQAHQgAAQgAAADEZgQUSMRgiExBEiAAVQv/rMRkiEjEYIhIQREIAAEIAACNDQgAAiAACI0NCAAAxRIECEkSJ)
+    itxn_field ApprovalProgramPages
+    bytec_0 // 0x
+    itxn_field ApprovalProgramPages
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    pushint 4 // UpdateApplication
+    itxn_field OnCompletion
+    // avm_12/contract.py:16
+    // ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    intc_1 // 1
+    itxn_field RejectVersion
+    itxn_field ApplicationID
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    pushbytes 0xa0e81872 // method "update()void"
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.avm_12.contract.Contract.test_reject_version_next_txn@2
+
+test_cases.avm_12.contract.Contract.test_reject_version_next_txn@2:
+    // avm_12/contract.py:15-17
+    // arc4.arc4_update(
+    //     ContractV0.update, app_id=app, reject_version=1, compiled=compile_contract(ContractV1)
+    // )
+    itxn_submit
+    // avm_12/contract.py:18
+    // assert app.version == 1, "should be version 1"
+    frame_dig 0
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    intc_1 // 1
+    ==
+    assert // should be version 1
+    // avm_12/contract.py:20-29
+    // itxn.ApplicationCall(
+    //     app_args=(
+    //         arc4.arc4_signature(
+    //             ContractV1.delete,
+    //         ),
+    //     ),
+    //     on_completion=OnCompleteAction.DeleteApplication,
+    //     app_id=app,
+    //     reject_version=2,
+    // ).submit()
+    itxn_begin
+    // avm_12/contract.py:28
+    // reject_version=2,
+    pushint 2 // 2
+    itxn_field RejectVersion
+    itxn_field ApplicationID
+    // avm_12/contract.py:26
+    // on_completion=OnCompleteAction.DeleteApplication,
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    // avm_12/contract.py:22-24
+    // arc4.arc4_signature(
+    //     ContractV1.delete,
+    // ),
+    pushbytes 0x24378d3c // method "delete()void"
+    itxn_field ApplicationArgs
+    // avm_12/contract.py:20
+    // itxn.ApplicationCall(
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.avm_12.contract.Contract.test_reject_version_next_txn@3
+
+test_cases.avm_12.contract.Contract.test_reject_version_next_txn@3:
+    // avm_12/contract.py:20-29
+    // itxn.ApplicationCall(
+    //     app_args=(
+    //         arc4.arc4_signature(
+    //             ContractV1.delete,
+    //         ),
+    //     ),
+    //     on_completion=OnCompleteAction.DeleteApplication,
+    //     app_id=app,
+    //     reject_version=2,
+    // ).submit()
+    itxn_submit
     retsub

@@ -1,0 +1,68 @@
+// Op                                                                          Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // avm_12/contract.py:32
+        // class ContractV0(ARC4Contract, avm_version=12):
+        txn NumAppArgs                                                         tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // avm_12/contract.py:32
+        // class ContractV0(ARC4Contract, avm_version=12):
+        txna ApplicationArgs 0                                                 tmp%2#0
+        method update()void                                                    tmp%2#0,Method(update()void)
+        l-load tmp%2#0 1                                                       Method(update()void),tmp%2#0
+        match main_update_route@3 ; b main_switch_case_next@4
+
+    main_update_route@3:
+        // avm_12/contract.py:33
+        // @arc4.abimethod(allow_actions=("UpdateApplication",))
+        txn OnCompletion                                                       tmp%3#0
+        int UpdateApplication                                                  tmp%3#0,UpdateApplication
+        ==                                                                     tmp%4#0
+        txn ApplicationID                                                      tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                       tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                       tmp%4#0,tmp%5#0
+        &&                                                                     tmp%7#0
+        assert // OnCompletion must be UpdateApplication && can only call when not creating 
+        callsub update
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // avm_12/contract.py:32
+        // class ContractV0(ARC4Contract, avm_version=12):
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                       tmp%8#0
+        !                                                                      tmp%9#0
+        txn ApplicationID                                                      tmp%9#0,tmp%10#0
+        !                                                                      tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                       tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                      tmp%9#0,tmp%11#0
+        &&                                                                     tmp%12#0
+        assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                  1
+        return
+
+
+// test_cases.avm_12.contract.ContractV0.update[routing]() -> void:
+subroutine update:
+    update_block@0:
+        // avm_12/contract.py:36
+        // Txn.reject_version == 1
+        txn RejectVersion                                                      tmp%0#0
+        int 1                                                                  tmp%0#0,1
+        ==                                                                     tmp%1#0
+        // avm_12/contract.py:35-37
+        // assert (
+        //     Txn.reject_version == 1
+        // ), "can only update if caller expects this to be currently be v0"
+        assert // can only update if caller expects this to be currently be v0
+        // avm_12/contract.py:33
+        // @arc4.abimethod(allow_actions=("UpdateApplication",))
+        int 1                                                                  1
+        return
+
+

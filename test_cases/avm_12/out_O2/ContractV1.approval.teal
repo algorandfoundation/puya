@@ -1,0 +1,31 @@
+#pragma version 12
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match main_delete_route@3
+    err
+
+main_delete_route@3:
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    txn RejectVersion
+    pushint 2 // 2
+    ==
+    return // on error: can only update if caller expects this to be currently be v1
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating

@@ -1,0 +1,44 @@
+#pragma version 12
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // avm_12/contract.py:40
+    // class ContractV1(ARC4Contract, avm_version=12):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match main_delete_route@3
+    err
+
+main_delete_route@3:
+    // avm_12/contract.py:41
+    // @arc4.abimethod(allow_actions=("DeleteApplication",))
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    b delete
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.avm_12.contract.ContractV1.delete[routing]() -> void:
+delete:
+    // avm_12/contract.py:44
+    // Txn.reject_version == 2
+    txn RejectVersion
+    pushint 2 // 2
+    ==
+    // avm_12/contract.py:41
+    // @arc4.abimethod(allow_actions=("DeleteApplication",))
+    return // on error: can only update if caller expects this to be currently be v1

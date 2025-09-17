@@ -3,19 +3,78 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 6 0 1
+    bytecblock base64(DIEBQw==)
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0xc2b8dd8a // method "test_new_ops()void"
-    txna ApplicationArgs 0
-    match main_test_new_ops_route@3
-    err
-
-main_test_new_ops_route@3:
+    bz main___algopy_default_create@9
     txn OnCompletion
     !
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
+    pushbytess 0xbe56499c 0xac8aab42 // method "test_falcon_verify()void", method "test_reject_version()void"
+    txna ApplicationArgs 0
+    match main_test_falcon_verify_route@4 main_test_reject_version_route@5
+    err
+
+main_test_reject_version_route@5:
+    itxn_begin
+    bytec_0 // base64(DIEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DDEbQQAdgASg6BhyNhoAjgEAAQAxGYEEEjEYEEQxRIEBEkMxGRQxGBQQQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    !
+    assert // should be version 0
+    itxn_begin
+    bytec_0 // base64(DIEBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(DDEbQQAdgAQkN408NhoAjgEAAQAxGYEFEjEYEEQxRIECEkMxGRQxGBQQQw==)
+    itxn_field ApprovalProgramPages
+    pushint 4 // UpdateApplication
+    itxn_field OnCompletion
+    intc_2 // 1
+    itxn_field RejectVersion
+    dup
+    itxn_field ApplicationID
+    pushbytes 0xa0e81872 // method "update()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    dup
+    app_params_get AppVersion
+    assert // application exists
+    intc_2 // 1
+    ==
+    assert // should be version 1
+    itxn_begin
+    pushint 2 // 2
+    itxn_field RejectVersion
+    itxn_field ApplicationID
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    pushbytes 0x24378d3c // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_test_falcon_verify_route@4:
     pushint 1793 // 1793
     bzero
     pushbytes 0x
@@ -25,7 +84,7 @@ main_test_new_ops_route@3:
     !
     return
 
-main___algopy_default_create@5:
+main___algopy_default_create@9:
     txn OnCompletion
     !
     txn ApplicationID
