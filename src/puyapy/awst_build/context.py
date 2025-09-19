@@ -113,6 +113,15 @@ class ASTConversionModuleContext(ASTConversionContext):
                     chop += 1
                 if chop:
                     loc = attrs.evolve(loc, end_line=loc.end_line - chop, end_column=None)
+        # trim leading whitespace on a line
+        column = loc.column or 0
+        if column == 0:
+            lines = try_get_source(self._parse_result.sources_by_path, loc)
+            if lines is not None:
+                first_line = lines[0]
+                start_whitespace = len(first_line) - len(first_line.lstrip())
+                if start_whitespace:
+                    loc = attrs.evolve(loc, column=start_whitespace)
         return loc
 
     def _maybe_convert_location(
