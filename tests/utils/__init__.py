@@ -5,7 +5,6 @@ from pathlib import Path
 
 import attrs
 
-from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.compilation_artifacts import CompilationArtifact
 from puya.compile import awst_to_teal
@@ -243,7 +242,7 @@ def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:
     return prefix, result
 
 
-def log_to_str(log: log.Log, root_dir: Path) -> str:
+def log_to_str(log: Log, root_dir: Path) -> str:
     if log.location and log.location.file:
         relative_path = get_relative_path(log.location, root_dir)
         col = f":{log.location.column + 1}" if log.location.column else ""

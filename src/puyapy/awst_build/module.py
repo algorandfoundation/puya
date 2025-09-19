@@ -30,6 +30,7 @@ from puyapy.awst_build.utils import (
     get_subroutine_decorator_inline_arg,
     get_unaliased_fullname,
 )
+from puyapy.lsp import code_fixes
 from puyapy.models import ConstantValue, ContractClassOptions
 
 logger = log.get_logger(__name__)
@@ -117,9 +118,13 @@ class ModuleASTConverter(
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
         internal_pure_dec = dec_by_fullname.pop(constants.PURE_HINT, None)
         if subroutine_dec is None:
+            loc = self._location(func_def)
+            code_fixes.suggest_fix(
+                code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS), loc
+            )
             self._error(
                 f"free functions must be annotated with @{constants.SUBROUTINE_HINT_ALIAS}",
-                func_def,
+                loc,
             )
             inline = None
         else:
