@@ -355,7 +355,13 @@ def _source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> S
             return SourceLocation(
                 file=file,
                 line=node.line,
+                column=node.column if node.column >= 0 else None,
                 end_line=end_line,
+                end_column=(
+                    node.end_column
+                    if node.end_column is not None and node.end_column >= 0
+                    else None
+                ),
             )
         case mypy.nodes.ClassDef(decorators=class_decorators, defs=class_body):
             line = node.line
