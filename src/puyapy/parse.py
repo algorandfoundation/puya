@@ -1,16 +1,18 @@
+import ast
 import codecs
 import enum
 import functools
+import operator
 import os
 import shutil
 import subprocess
 import sys
 import sysconfig
 import typing
-from collections.abc import Mapping, Sequence, Set
+from collections import defaultdict
+from collections.abc import Callable, Collection, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
-from operator import itemgetter
 from pathlib import Path
 
 import attrs
@@ -18,17 +20,23 @@ from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_co
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
+from mypy.modulefinder import (
+    BuildSource,
+    BuildSourceSet,
+    FindModuleCache,
+    ModuleNotFoundReason,
+    SearchPaths,
+)
 from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.typestate import reset_global_state, type_state
-from mypy.util import find_python_encoding, read_py_file
+from mypy.util import decode_python_encoding, find_python_encoding, read_py_file
 from mypy.version import __version__ as mypy_version
 from packaging import version
 
 from puya import log
-from puya.errors import ConfigurationError, InternalError
+from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 from puyapy import interpreter_data
@@ -91,6 +99,8 @@ def parse_python(
     sources_by_module_name = _create_and_check_source_list(
         paths, excluded_subdir_names=excluded_subdir_names
     )
+    sources_by_module_name = dict(sorted(sources_by_module_name.items()))
+
     source_roots = [bs.base_dir for bs in sources_by_module_name.values()]
     source_roots.append(Path.cwd())
 
@@ -103,11 +113,15 @@ def parse_python(
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
-    mypy_build_sources = [
-        BuildSource(path=str(bs.path), module=module_name, base_dir=str(bs.base_dir))
-        for module_name, bs in sorted(sources_by_module_name.items(), key=itemgetter(0))
-    ]
     mypy_options = _get_mypy_options()
+    mypy_build_sources = [
+        BuildSource(path=str(bs.path), module=bs.module, base_dir=str(bs.base_dir))
+        for bs in sources_by_module_name.values()
+    ]
+    fmc = FindModuleCache(
+        mypy_search_paths, fs_cache, mypy_options, source_set=BuildSourceSet(mypy_build_sources)
+    )
+    dependencies = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
@@ -229,6 +243,347 @@ def _infer_sys_path() -> list[str]:
         )
     logger.debug("using python search path from current interpreter")
     return interpreter_data.get_sys_path()
+
+
+def _find_dependencies(
+    sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
+) -> list[ResolvedSource]:
+    result = list[ResolvedSource]()
+    module_paths = dict[str, Path | None]()
+    for rs in sources:
+        file_bytes = fs_cache.read(str(rs.path))
+        source = decode_python_encoding(file_bytes)
+        tree = ast.parse(
+            source,
+            rs.path,
+            "exec",
+            type_comments=True,
+            feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
+        )
+        visitor = _ImportCollector(rs)
+        visitor.visit(tree)
+
+        import_data = _all_imported_modules_in_file(visitor.module_imports, visitor.from_imports)
+        for dep, is_definite in import_data.ordered:
+            if dep.id in module_paths:
+                continue  # already resolved or attempted to resolve
+            path_or_reason = fmc.find_module(dep.id, fast_path=True)
+            if isinstance(path_or_reason, str):
+                module_paths[dep.id] = Path(path_or_reason)
+            else:
+                module_paths[dep.id] = None
+                if is_definite and path_or_reason is ModuleNotFoundReason.NOT_FOUND:
+                    logger.error(f'unable to resolve imported module "{dep.id}"', location=dep.loc)
+        # result.sort(key=lambda x: (-x[0].count("."), x[1].line))
+
+    return result
+
+
+@attrs.frozen
+class ImportAs:
+    loc: SourceLocation
+    name: str
+    as_name: str | None
+
+
+@attrs.frozen
+class ModuleImport:
+    loc: SourceLocation
+    names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
+
+
+@attrs.frozen
+class FromImport:
+    loc: SourceLocation
+    module: str
+    names: list[ImportAs] | None = attrs.field(
+        validator=attrs.validators.optional(attrs.validators.min_len(1))
+    )
+    """if None, then import all (ie star import)"""
+
+
+AnyImport = ModuleImport | FromImport
+
+
+@attrs.define
+class _ImportCollector(ast.NodeVisitor):
+    source: ResolvedSource
+    module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
+    from_imports: list[FromImport] = attrs.field(factory=list, init=False)
+
+    @typing.override
+    def visit_Import(self, node: ast.Import) -> None:
+        names = [
+            ImportAs(
+                name=alias.name,
+                as_name=alias.asname,
+                loc=self._loc(alias),
+            )
+            for alias in node.names
+        ]
+        self.module_imports.append(
+            ModuleImport(
+                names=names,
+                loc=self._loc(node),
+            )
+        )
+
+    @typing.override
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        match node.names:
+            case [ast.alias("*", None)]:
+                names = None
+            case _:
+                names = list[ImportAs](
+                    ImportAs(
+                        name=alias.name,
+                        as_name=alias.asname,
+                        loc=self._loc(alias),
+                    )
+                    for alias in node.names
+                )
+
+        node_loc = self._loc(node)
+        if not node.level:
+            assert node.module
+            module = node.module
+        else:
+            module = self._correct_relative_import(
+                module=node.module, level=node.level, loc=node_loc
+            )
+
+        self.from_imports.append(
+            FromImport(
+                module=module,
+                names=names,
+                loc=node_loc,
+            )
+        )
+
+    def _correct_relative_import(self, module: str | None, level: int, loc: SourceLocation) -> str:
+        """Function to correct for relative imports."""
+        file_id = self.source.module
+        rel = level
+        assert level > 0
+        if self.source.path.stem == "__init__":
+            rel -= 1
+        if rel != 0:
+            file_id = ".".join(file_id.split(".")[:-rel])
+
+        if module:
+            new_id = file_id + "." + module
+        else:
+            new_id = file_id
+
+        if not new_id:
+            # TODO: log and exit at end of discovery
+            raise CodeError("no parent module, cannot perform relative import", loc)
+
+        return new_id
+
+    @typing.override
+    def visit_If(self, node: ast.If) -> None:
+        condition_value = _infer_condition_value(node.test, self.source.path)
+        if condition_value is not ALWAYS_FALSE:
+            for if_body_stmt in node.body:
+                self.generic_visit(if_body_stmt)
+        if condition_value is not ALWAYS_FALSE:
+            for else_body_stmt in node.orelse:
+                self.generic_visit(else_body_stmt)
+
+    @typing.override
+    def visit_IfExp(self, node: ast.IfExp) -> None:
+        condition_value = _infer_condition_value(node.test, self.source.path)
+        if condition_value is not ALWAYS_FALSE:
+            self.generic_visit(node.body)
+        if condition_value is not ALWAYS_TRUE:
+            self.generic_visit(node.orelse)
+
+    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
+        return _ast_source_location(node, self.source.path)
+
+
+def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
+    return SourceLocation(file=file, line=node.lineno)
+
+
+@enum.unique
+class ConditionValue(enum.Enum):
+    UNKNOWN = enum.auto()
+    ALWAYS_TRUE = enum.auto()
+    ALWAYS_FALSE = enum.auto()
+    TYPE_CHECKING_TRUE = enum.auto()
+    TYPE_CHECKING_FALSE = enum.auto()
+
+    @cached_property
+    def negated(self) -> "ConditionValue":
+        match self:
+            case ConditionValue.UNKNOWN:
+                return TRUTH_VALUE_UNKNOWN
+            case ConditionValue.ALWAYS_TRUE:
+                return ALWAYS_FALSE
+            case ConditionValue.ALWAYS_FALSE:
+                return ALWAYS_TRUE
+            case ConditionValue.TYPE_CHECKING_TRUE:
+                return TYPE_CHECKING_FALSE
+            case ConditionValue.TYPE_CHECKING_FALSE:
+                return TYPE_CHECKING_TRUE
+
+
+TRUTH_VALUE_UNKNOWN: typing.Final = ConditionValue.UNKNOWN
+ALWAYS_TRUE: typing.Final = ConditionValue.ALWAYS_TRUE
+ALWAYS_FALSE: typing.Final = ConditionValue.ALWAYS_FALSE
+TYPE_CHECKING_TRUE: typing.Final = ConditionValue.TYPE_CHECKING_TRUE
+TYPE_CHECKING_FALSE: typing.Final = ConditionValue.TYPE_CHECKING_FALSE
+
+
+def _infer_condition_value(expr: ast.expr, file: Path) -> ConditionValue:
+    match expr:
+        case ast.Constant(value):
+            if value:
+                return ALWAYS_TRUE
+            else:
+                return ALWAYS_FALSE
+        case ast.Attribute(_, "TYPE_CHECKING", ast.Load()):
+            return TYPE_CHECKING_TRUE
+        case ast.Name("TYPE_CHECKING", ast.Load()):
+            return TYPE_CHECKING_TRUE
+        case ast.UnaryOp(ast.Not(), operand):
+            nested = _infer_condition_value(operand, file)
+            return nested.negated
+        case ast.BoolOp(ast.Or(), operands):
+            results = {_infer_condition_value(operand, file) for operand in operands}
+            if len(results) == 1:
+                return results.pop()
+            if ALWAYS_TRUE in results:
+                return ALWAYS_TRUE
+            elif TYPE_CHECKING_TRUE in results:
+                return TYPE_CHECKING_TRUE
+            elif results <= {ALWAYS_FALSE, TYPE_CHECKING_FALSE}:
+                return ALWAYS_FALSE
+            else:
+                return TRUTH_VALUE_UNKNOWN
+        case ast.BoolOp(ast.And(), operands):
+            results = {_infer_condition_value(operand, file) for operand in operands}
+            if len(results) == 1:
+                return results.pop()
+            if ALWAYS_FALSE in results:
+                return ALWAYS_FALSE
+            elif TYPE_CHECKING_FALSE in results:
+                return TYPE_CHECKING_FALSE
+            elif results <= {ALWAYS_TRUE, TYPE_CHECKING_TRUE}:
+                return TYPE_CHECKING_TRUE
+            else:
+                return TRUTH_VALUE_UNKNOWN
+        # TODO: ?
+        # case ast.BinOp(left=ast.Constant(left), op=bin_op, right=ast.Constant(right)):
+        #     try:
+        #         op_impl = _AST_BIN_OP_TO_OP[type(op)]
+        #     except KeyError:
+        #         raise InternalError(
+        #             f"unknown operator: {op}", _ast_source_location(expr, file)
+        #         ) from None
+        #     try:
+        #         result = op_impl(left, right)
+        #     except Exception:
+        #         logger.error()
+        #         return None
+        #     else:
+        #         return None
+        # TODO: ast.Compare ?
+        case _:
+            return TRUTH_VALUE_UNKNOWN
+
+
+_AST_BIN_OP_TO_OP: Mapping[type[ast.operator], Callable] = {  # type: ignore[type-arg]
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+    ast.LShift: operator.lshift,
+    ast.RShift: operator.rshift,
+    ast.BitOr: operator.or_,
+    ast.BitXor: operator.xor,
+    ast.BitAnd: operator.and_,
+    ast.MatMult: operator.matmul,
+}
+
+_AST_CMP_TO_OP: Mapping[type[ast.cmpop], Callable] = {  # type: ignore[type-arg]
+    ast.Eq: operator.eq,
+    ast.NotEq: operator.ne,
+    ast.Lt: operator.lt,
+    ast.LtE: operator.le,
+    ast.Gt: operator.gt,
+    ast.GtE: operator.ge,
+    ast.Is: operator.is_,
+    ast.IsNot: operator.is_not,
+    ast.In: lambda a, b: a in b,
+    ast.NotIn: lambda a, b: a not in b,
+}
+
+
+@attrs.frozen
+class _Dependency:
+    id: str
+    loc: SourceLocation
+
+
+@attrs.frozen
+class _ImportData:
+    module_dependencies: list[_Dependency] = attrs.field(factory=list)
+    maybe_module_dependencies: list[_Dependency] = attrs.field(factory=list)
+
+    @cached_property
+    def ordered(self) -> Sequence[tuple[_Dependency, bool]]:
+        all_locs = defaultdict[str, list[SourceLocation]](list)
+        definite_modules = set[str]()
+        all_ids = set[str]()
+        for dep in self.module_dependencies:
+            all_locs[dep.id].append(dep.loc)
+            definite_modules.add(dep.id)
+            all_ids.add(dep.id)
+        for dep in self.maybe_module_dependencies:
+            all_locs[dep.id].append(dep.loc)
+            all_ids.add(dep.id)
+        result = []
+        for id in sorted(all_ids, key=lambda x: (-x.count("."), x)):
+            first_loc = min(all_locs[id], key=lambda y: y.line)
+            result.append((_Dependency(id=id, loc=first_loc), id in definite_modules))
+        return result
+
+
+def _all_imported_modules_in_file(
+    module_imports: list[ModuleImport],
+    from_imports: list[FromImport],
+) -> _ImportData:
+    result = _ImportData()
+    for mod_imp in module_imports:
+        for alias in mod_imp.names:
+            for module_id in _expand_ancestors(alias.name):
+                result.module_dependencies.append(_Dependency(id=module_id, loc=mod_imp.loc))
+    for from_imp in from_imports:
+        from_module = from_imp.module
+        for module_id in _expand_ancestors(from_module):
+            result.module_dependencies.append(_Dependency(id=module_id, loc=from_imp.loc))
+        # Also add any imported names that might be submodules.
+        for alias in from_imp.names or ():
+            maybe_submodule_id = from_module + "." + alias.name
+            result.maybe_module_dependencies.append(
+                _Dependency(id=maybe_submodule_id, loc=from_imp.loc)
+            )
+    return result
+
+
+def _expand_ancestors(module_id: str) -> Iterator[str]:
+    """
+    Given a module_id like "a.b.c", will yield in turn: "a.b.c", "a.b", "a"
+    """
+    while module_id:
+        yield module_id
+        module_id, *_ = module_id.rpartition(".")
 
 
 def _check_encoding(mypy_fscache: FileSystemCache, module_path: Path) -> None:
