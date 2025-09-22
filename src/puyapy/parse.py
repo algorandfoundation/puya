@@ -2,6 +2,7 @@ import ast
 import codecs
 import enum
 import functools
+import itertools
 import operator
 import os
 import shutil
@@ -9,7 +10,7 @@ import subprocess
 import sys
 import sysconfig
 import typing
-from collections import defaultdict
+from collections import defaultdict, deque
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
@@ -38,7 +39,7 @@ from packaging import version
 from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd
+from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSource, create_source_list
 
@@ -82,7 +83,7 @@ class ParseResult:
         return {
             sm.path
             for sm in self.ordered_modules.values()
-            if sm.discovery_mechanism != SourceDiscoveryMechanism.dependency
+            if sm.discovery_mechanism == SourceDiscoveryMechanism.explicit
         }
 
 
@@ -121,7 +122,16 @@ def parse_python(
     fmc = FindModuleCache(
         mypy_search_paths, fs_cache, mypy_options, source_set=BuildSourceSet(mypy_build_sources)
     )
-    dependencies = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
+    module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
+    mypy_build_sources = [
+        BuildSource(
+            path=str(md.source.path),  # TODO: figure out why omitting this fails in pytest only
+            module=module,
+            text=md.data,
+            followed=md.followed,
+        )
+        for module, md in module_data.items()
+    ]
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
@@ -142,24 +152,37 @@ def parse_python(
             ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
             assert module.path, f"no path for mypy module: {module_name}"
             module_path = Path(module.path).resolve()
-            if module_path.is_dir():
+            if module.is_stub:
+                assert module.name not in module_data, "shouldn't have stub as input"
+                file_bytes = fs_cache.read(str(module_path))
+                _check_encoding(file_bytes, module_path)
+                lines = decode_python_encoding(file_bytes).splitlines()
+                ordered_modules[module_name] = SourceModule(
+                    name=module_name,
+                    node=module,
+                    path=module_path,
+                    lines=lines,
+                    discovery_mechanism=SourceDiscoveryMechanism.dependency,
+                    is_typeshed_file=module.is_typeshed_file(mypy_options),
+                )
+            elif module_path.is_dir():
                 # this module is a module directory with no __init__.py, ie it contains
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                _check_encoding(fs_cache, module_path)
-                lines = read_py_file(str(module_path), fs_cache.read)
-                if module_name in sources_by_module_name:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit
-                else:
+                md = module_data[module_name]
+                lines = md.data.splitlines()
+                if md.followed:
                     discovery_mechanism = SourceDiscoveryMechanism.dependency
+                else:
+                    discovery_mechanism = SourceDiscoveryMechanism.explicit
                 ordered_modules[module_name] = SourceModule(
                     name=module_name,
                     node=module,
                     path=module_path,
                     lines=lines,
                     discovery_mechanism=discovery_mechanism,
-                    is_typeshed_file=module.is_typeshed_file(mypy_options),
+                    is_typeshed_file=False,
                 )
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
@@ -245,13 +268,28 @@ def _infer_sys_path() -> list[str]:
     return interpreter_data.get_sys_path()
 
 
+@attrs.frozen
+class _ModuleData:
+    source: ResolvedSource
+    data: str
+    dependencies: frozenset[str]
+    tree: ast.Module
+    followed: bool
+
+
 def _find_dependencies(
     sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
-) -> list[ResolvedSource]:
-    result = list[ResolvedSource]()
-    module_paths = dict[str, Path | None]()
-    for rs in sources:
+) -> Mapping[str, _ModuleData]:
+    result_by_id = dict[str, _ModuleData]()
+    source_queue = deque(sources)
+    queued_id_set = {rs.module for rs in source_queue}
+    initial_source_ids = {rs.module for rs in sources}
+    # module_paths = dict[str, Path | None]()
+    while source_queue:
+        rs = source_queue.popleft()
+        assert rs.module not in result_by_id
         file_bytes = fs_cache.read(str(rs.path))
+        _check_encoding(file_bytes, rs.path)
         source = decode_python_encoding(file_bytes)
         tree = ast.parse(
             source,
@@ -263,20 +301,54 @@ def _find_dependencies(
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
 
-        import_data = _all_imported_modules_in_file(visitor.module_imports, visitor.from_imports)
+        import_data = _all_imported_modules_in_file(
+            rs, visitor.module_imports, visitor.from_imports
+        )
+        module_dep_ids = set[str]()
         for dep, is_definite in import_data.ordered:
-            if dep.id in module_paths:
-                continue  # already resolved or attempted to resolve
+            # if dep.id in module_paths:
+            #     if is_definite or module_paths.get(dep.id) is not None:
+            #         module_dep_ids.add(dep.id)
+            #     continue  # already resolved or attempted to resolve
             path_or_reason = fmc.find_module(dep.id, fast_path=True)
             if isinstance(path_or_reason, str):
-                module_paths[dep.id] = Path(path_or_reason)
-            else:
-                module_paths[dep.id] = None
-                if is_definite and path_or_reason is ModuleNotFoundReason.NOT_FOUND:
-                    logger.error(f'unable to resolve imported module "{dep.id}"', location=dep.loc)
-        # result.sort(key=lambda x: (-x[0].count("."), x[1].line))
+                module_dep_ids.add(dep.id)
+                mod_path = Path(path_or_reason)
+                # module_paths[dep.id] = mod_path
+                assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
+                if mod_path.suffix == ".py" and set_add(queued_id_set, dep.id):
+                    dep_rs = ResolvedSource(
+                        path=mod_path,
+                        module=dep.id,
+                        base_dir=_infer_base_dir(mod_path, dep.id),
+                    )
+                    source_queue.append(dep_rs)
+            else:  # noqa: PLR5501
+                # module_paths[dep.id] = None
+                if is_definite:
+                    module_dep_ids.add(dep.id)
+                    if path_or_reason is ModuleNotFoundReason.NOT_FOUND:
+                        logger.error(
+                            f'unable to resolve imported module "{dep.id}"', location=dep.loc
+                        )
+        result_by_id[rs.module] = _ModuleData(
+            source=rs,
+            data=source,
+            tree=tree,
+            dependencies=frozenset(module_dep_ids),
+            followed=rs.module not in initial_source_ids,
+        )
+    return result_by_id
 
-    return result
+
+def _infer_base_dir(path: Path, module: str) -> Path:
+    # /a/pkg/foo.py, pkg.foo -> /a/
+    # /a/pkg/foo/__init__.py, pkg.foo -> /a/
+    # /a/foo.py, foo -> /a/
+    parts = module.count(".")
+    if path.stem == "__init__" and path.suffix in (".py", ".pyi"):
+        parts += 1
+    return path.parents[parts]
 
 
 @attrs.frozen
@@ -528,11 +600,12 @@ _AST_CMP_TO_OP: Mapping[type[ast.cmpop], Callable] = {  # type: ignore[type-arg]
 @attrs.frozen
 class _Dependency:
     id: str
-    loc: SourceLocation
+    loc: SourceLocation | None
 
 
 @attrs.frozen
 class _ImportData:
+    source: ResolvedSource
     module_dependencies: list[_Dependency] = attrs.field(factory=list)
     maybe_module_dependencies: list[_Dependency] = attrs.field(factory=list)
 
@@ -542,24 +615,37 @@ class _ImportData:
         definite_modules = set[str]()
         all_ids = set[str]()
         for dep in self.module_dependencies:
+            assert dep.loc is not None
             all_locs[dep.id].append(dep.loc)
             definite_modules.add(dep.id)
             all_ids.add(dep.id)
         for dep in self.maybe_module_dependencies:
+            assert dep.loc is not None
             all_locs[dep.id].append(dep.loc)
             all_ids.add(dep.id)
+        # TODO: simplify this
+        for ancestor_id in itertools.islice(_expand_ancestors(self.source.module), 1, None):
+            ancestor_path = self.source.base_dir
+            for part in ancestor_id.split("."):
+                ancestor_path = ancestor_path / part
+            ancestor_path = ancestor_path / "__init__.py"
+            if ancestor_path.is_file():
+                all_ids.add(ancestor_id)
+                definite_modules.add(ancestor_id)
+
         result = []
         for id in sorted(all_ids, key=lambda x: (-x.count("."), x)):
-            first_loc = min(all_locs[id], key=lambda y: y.line)
+            first_loc = min(all_locs[id], key=lambda y: y.line, default=None)
             result.append((_Dependency(id=id, loc=first_loc), id in definite_modules))
         return result
 
 
 def _all_imported_modules_in_file(
+    source: ResolvedSource,
     module_imports: list[ModuleImport],
     from_imports: list[FromImport],
 ) -> _ImportData:
-    result = _ImportData()
+    result = _ImportData(source)
     for mod_imp in module_imports:
         for alias in mod_imp.names:
             for module_id in _expand_ancestors(alias.name):
@@ -586,17 +672,9 @@ def _expand_ancestors(module_id: str) -> Iterator[str]:
         module_id, *_ = module_id.rpartition(".")
 
 
-def _check_encoding(mypy_fscache: FileSystemCache, module_path: Path) -> None:
+def _check_encoding(source: bytes, module_path: Path) -> None:
     module_rel_path = make_path_relative_to_cwd(module_path)
     module_loc = SourceLocation(file=module_path, line=1)
-    try:
-        source = mypy_fscache.read(str(module_path))
-    except OSError:
-        logger.warning(
-            f"Couldn't read source for {module_rel_path}",
-            location=module_loc,
-        )
-        return
     # below is based on mypy/util.py:decode_python_encoding
     # check for BOM UTF-8 encoding
     if source.startswith(b"\xef\xbb\xbf"):
