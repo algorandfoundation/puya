@@ -395,10 +395,11 @@ def _source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> S
             if else_body is not None:
                 bodies.append(else_body)
             for body in bodies:
-                if body_start is None:
-                    body_start = body.line
-                else:
-                    body_start = min(body_start, body.line)
+                if body.line >= 0:
+                    if body_start is None:
+                        body_start = body.line
+                    else:
+                        body_start = min(body_start, body.line)
             if body_start is None:
                 # this shouldn't happen, there should be at least one body in one branch,
                 # but this serves okay as a fallback
