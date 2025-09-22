@@ -5,6 +5,7 @@ from pathlib import Path
 import attrs
 
 from puya import log
+from puya.errors import InternalError
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault, make_path_relative_to_cwd
 
@@ -17,10 +18,18 @@ class ResolvedSource:
     """File where it's found (e.g. '/home/user/pkg/module.py')"""
     module: str
     """Module name (e.g. 'pkg.module')"""
-    base_dir: Path
-    """Directory where the package is rooted (e.g. '/home/user')"""
+    base_dir: Path | None
+    """
+    Directory where the package is rooted (e.g. '/home/user'),
+    If None, then unable to determine a package.
+    """
 
     def __attrs_post_init__(self) -> None:
+        if self.base_dir is None and "." in self.module:
+            raise InternalError(
+                f'resolved source has qualified module name "{self.module}" but no base_dir'
+            )
+
         if not all(part.isidentifier() for part in self.module.split(".")):
             logger.warning(
                 f'python module name is invalid ("{self.module}")',
@@ -75,7 +84,7 @@ class _SourceResolver:
         else:
             logger.warning(f"cannot determine package root for {make_path_relative_to_cwd(path)}")
             parent_module = ""
-            base_dir = parent
+            base_dir = None
 
         module = _module_join(parent_module, path.stem)
         return ResolvedSource(path, module, base_dir)
