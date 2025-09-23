@@ -305,7 +305,7 @@ def _find_dependencies(
             #     if is_definite or module_paths.get(dep.id) is not None:
             #         module_dep_ids.add(dep.id)
             #     continue  # already resolved or attempted to resolve
-            path_or_reason = fmc.find_module(dep.id, fast_path=True)
+            path_or_reason = fmc.find_module(dep.id)
             if isinstance(path_or_reason, str):
                 module_dep_ids.add(dep.id)
                 mod_path = Path(path_or_reason)

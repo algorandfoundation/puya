@@ -33,10 +33,6 @@ class ModuleNotFoundReason(enum.Enum):
     # corresponding *-stubs package.
     FOUND_WITHOUT_TYPE_HINTS = 1
 
-    # The module was not found in the current working directory, but
-    # was able to be found in the parent directory.
-    WRONG_WORKING_DIRECTORY = 2
-
     # Stub PyPI package (typically types-pkgname) known to exist but not installed.
     APPROVED_STUBS_NOT_INSTALLED = 3
 
@@ -45,11 +41,6 @@ class ModuleNotFoundReason(enum.Enum):
         if self is ModuleNotFoundReason.NOT_FOUND:
             msg = 'Cannot find implementation or library stub for module named "{module}"'
             notes = [doc_link]
-        elif self is ModuleNotFoundReason.WRONG_WORKING_DIRECTORY:
-            msg = 'Cannot find implementation or library stub for module named "{module}"'
-            notes = [
-                "You may be running mypy in a subpackage, mypy should be run on the package root"
-            ]
         elif self is ModuleNotFoundReason.FOUND_WITHOUT_TYPE_HINTS:
             msg = (
                 'Skipping analyzing "{module}": module is installed, but missing library stubs '
@@ -208,7 +199,7 @@ class FindModuleCache:
         self.initial_components[lib_path] = components
         return components.get(id, [])
 
-    def find_module(self, id: str, *, fast_path: bool = False) -> ModuleSearchResult:
+    def find_module(self, id: str) -> ModuleSearchResult:
         """Return the path of the module source file or why it wasn't found.
 
         If fast_path is True, prioritize performance over generating detailed
@@ -223,17 +214,8 @@ class FindModuleCache:
                 use_typeshed = self._typeshed_has_version(top_level)
             result, should_cache = self._find_module(id, use_typeshed)
             if should_cache:
-                if (
-                    not (fast_path or self.options.fast_module_lookup)
-                    and result is ModuleNotFoundReason.NOT_FOUND
-                    and self._can_find_module_in_parent_dir(id)
-                ):
-                    self.results[id] = ModuleNotFoundReason.WRONG_WORKING_DIRECTORY
-                else:
-                    self.results[id] = result
-                return self.results[id]
-            else:
-                return result
+                self.results[id] = result
+            return result
         return self.results[id]
 
     def _typeshed_has_version(self, module: str) -> bool:
@@ -273,24 +255,6 @@ class FindModuleCache:
             if pkg_id not in self.ns_ancestors and self.fscache.isdir(path):
                 self.ns_ancestors[pkg_id] = path
             path = os.path.dirname(path)
-
-    def _can_find_module_in_parent_dir(self, id: str) -> bool:
-        """Test if a module can be found by checking the parent directories
-        of the current working directory.
-        """
-        working_dir = os.getcwd()
-        parent_search = FindModuleCache(
-            SearchPaths((), (), (), ()),
-            self.fscache,
-            self.options,
-            stdlib_py_versions=self.stdlib_py_versions,
-        )
-        while any(is_init_file(file) for file in os.listdir(working_dir)):
-            working_dir = os.path.dirname(working_dir)
-            parent_search.search_paths = SearchPaths((working_dir,), (), (), ())
-            if not isinstance(parent_search._find_module(id, False)[0], ModuleNotFoundReason):
-                return True
-        return False
 
     def _find_module(self, id: str, use_typeshed: bool) -> tuple[ModuleSearchResult, bool]:
         """Try to find a module in all available sources.
@@ -505,7 +469,7 @@ class FindModuleCache:
         return ModuleNotFoundReason.NOT_FOUND, True
 
     def find_modules_recursive(self, module: str) -> list[BuildSource]:
-        module_path = self.find_module(module, fast_path=True)
+        module_path = self.find_module(module)
         if isinstance(module_path, ModuleNotFoundReason):
             return []
         sources = [BuildSource(module_path, module, None)]
