@@ -3,7 +3,7 @@ import os
 import typing
 
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
+from mypy.modulefinder import BuildSourceSet, SearchPaths
 from mypy.util import os_path_join
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
@@ -348,51 +348,6 @@ class FindModuleCache:
             # typed subpackages in namespace packages.
             return ModuleNotFoundReason.NO_TYPED_MARKER, False
         return ModuleNotFoundReason.NOT_FOUND, True
-
-    def find_modules_recursive(self, module: str) -> list[BuildSource]:
-        module_path = self.find_module(module)
-        if isinstance(module_path, ModuleNotFoundReason):
-            return []
-        sources = [BuildSource(module_path, module, None)]
-
-        package_path = None
-        if is_init_file(module_path):
-            package_path = os.path.dirname(module_path)
-        elif self.fscache.isdir(module_path):
-            package_path = module_path
-        if package_path is None:
-            return sources
-
-        # This logic closely mirrors that in find_sources. One small but important difference is
-        # that we do not sort names with keyfunc. The recursive call to find_modules_recursive
-        # calls find_module, which will handle the preference between packages, pyi and py.
-        # Another difference is it doesn't handle nested search paths / package roots.
-
-        seen: set[str] = set()
-        names = sorted(self.fscache.listdir(package_path))
-        for name in names:
-            # Skip certain names altogether
-            if name in ("__pycache__", "site-packages", "node_modules") or name.startswith("."):
-                continue
-            subpath = os_path_join(package_path, name)
-
-            if self.fscache.isdir(subpath):
-                # Only recurse into packages
-                if self._enable_namespace_packages or (
-                    self.fscache.isfile(os_path_join(subpath, "__init__.py"))
-                ):
-                    seen.add(name)
-                    sources.extend(self.find_modules_recursive(module + "." + name))
-            else:
-                stem, suffix = os.path.splitext(name)
-                if stem == "__init__":
-                    continue
-                if stem not in seen and "." not in stem and suffix == ".py":
-                    # (If we sorted names by keyfunc) we could probably just make the BuildSource
-                    # ourselves, but this ensures compatibility with find_module / the cache
-                    seen.add(stem)
-                    sources.extend(self.find_modules_recursive(module + "." + stem))
-        return sources
 
 
 def is_init_file(path: str) -> bool:
