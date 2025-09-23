@@ -731,6 +731,7 @@ def _get_mypy_options() -> MypyOptions:
     mypy_opts.disallow_any_explicit = True
 
     mypy_opts.pretty = True  # show source in output
+    mypy_opts.fast_module_lookup = True  # look modules up in source set first
 
     return mypy_opts
 

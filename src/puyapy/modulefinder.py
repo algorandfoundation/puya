@@ -46,7 +46,7 @@ class FindModuleCache:
         source_set: BuildSourceSet,
         *,
         enable_namespace_packages: bool = True,
-        fast_module_lookup: bool = False,
+        fast_module_lookup: bool = True,
     ) -> None:
         self.search_paths = search_paths
         self.source_set = source_set
