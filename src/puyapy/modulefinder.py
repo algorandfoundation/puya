@@ -103,9 +103,8 @@ class FindModuleCache:
         self.results: dict[str, ModuleSearchResult] = {}
         self.ns_ancestors: dict[str, str] = {}
         self.options = options
-        custom_typeshed_dir = options.custom_typeshed_dir
         self.stdlib_py_versions = stdlib_py_versions or load_stdlib_py_versions(
-            custom_typeshed_dir
+            options.custom_typeshed_dir
         )
 
     def clear(self) -> None:
