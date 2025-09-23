@@ -94,7 +94,7 @@ class FindModuleCache:
         self,
         search_paths: SearchPaths,
         fscache: FileSystemCache | None,
-        options: Options | None,
+        options: Options,
         stdlib_py_versions: StdlibVersions | None = None,
         source_set: BuildSourceSet | None = None,
     ) -> None:
@@ -108,9 +108,7 @@ class FindModuleCache:
         self.results: dict[str, ModuleSearchResult] = {}
         self.ns_ancestors: dict[str, str] = {}
         self.options = options
-        custom_typeshed_dir = None
-        if options:
-            custom_typeshed_dir = options.custom_typeshed_dir
+        custom_typeshed_dir = options.custom_typeshed_dir
         self.stdlib_py_versions = stdlib_py_versions or load_stdlib_py_versions(
             custom_typeshed_dir
         )
@@ -232,9 +230,7 @@ class FindModuleCache:
             result, should_cache = self._find_module(id, use_typeshed)
             if should_cache:
                 if (
-                    not (
-                        fast_path or (self.options is not None and self.options.fast_module_lookup)
-                    )
+                    not (fast_path or self.options.fast_module_lookup)
                     and result is ModuleNotFoundReason.NOT_FOUND
                     and self._can_find_module_in_parent_dir(id)
                 ):
@@ -247,8 +243,6 @@ class FindModuleCache:
         return self.results[id]
 
     def _typeshed_has_version(self, module: str) -> bool:
-        if not self.options:
-            return True
         version = typeshed_py_version(self.options)
         min_version, max_version = self.stdlib_py_versions[module]
         return version >= min_version and (max_version is None or version <= max_version)
@@ -271,10 +265,9 @@ class FindModuleCache:
             if not self.fscache.isdir(dir_path):
                 break
         if plausible_match:
-            if self.options:
-                module_specific_options = self.options.clone_for_module(id)
-                if module_specific_options.follow_untyped_imports:
-                    return os.path.join(pkg_dir, *components[:-1]), False
+            module_specific_options = self.options.clone_for_module(id)
+            if module_specific_options.follow_untyped_imports:
+                return os.path.join(pkg_dir, *components[:-1]), False
             return ModuleNotFoundReason.FOUND_WITHOUT_TYPE_HINTS
         else:
             return ModuleNotFoundReason.NOT_FOUND
@@ -340,11 +333,7 @@ class FindModuleCache:
         #
         # Thankfully, such cases are efficiently handled by looking up the module path
         # via BuildSourceSet.
-        p = (
-            self.find_module_via_source_set(id)
-            if (self.options is not None and self.options.fast_module_lookup)
-            else None
-        )
+        p = self.find_module_via_source_set(id) if self.options.fast_module_lookup else None
         if p:
             return p, True
 
@@ -405,7 +394,7 @@ class FindModuleCache:
                 third_party_inline_dirs.append(non_stub_match)
                 self._update_ns_ancestors(components, non_stub_match)
 
-        if self.options and self.options.use_builtins_fixtures:
+        if self.options.use_builtins_fixtures:
             # Everything should be in fixtures.
             third_party_inline_dirs.clear()
             third_party_stubs_dirs.clear()
@@ -452,7 +441,7 @@ class FindModuleCache:
                     return path, True
 
             # In namespace mode, register a potential namespace package
-            if self.options and self.options.namespace_packages:
+            if self.options.namespace_packages:
                 if (
                     not has_init
                     and fscache.exists_case(base_path, dir_prefix)
@@ -490,7 +479,7 @@ class FindModuleCache:
         # only foo/bar/__init__.py it returns 1, and if we have
         # foo/__init__.py it returns 2 (regardless of what's in
         # foo/bar).  It doesn't look higher than that.
-        if self.options and self.options.namespace_packages and near_misses:
+        if self.options.namespace_packages and near_misses:
             levels = [
                 highest_init_level(fscache, id, path, dir_prefix)
                 for path, dir_prefix in near_misses
@@ -553,20 +542,18 @@ class FindModuleCache:
                 continue
             subpath = os_path_join(package_path, name)
 
-            if self.options and matches_exclude(
+            if matches_exclude(
                 subpath, self.options.exclude, self.fscache, self.options.verbosity >= 2
             ):
                 continue
-            if (
-                self.options
-                and self.options.exclude_gitignore
-                and matches_gitignore(subpath, self.fscache, self.options.verbosity >= 2)
+            if self.options.exclude_gitignore and matches_gitignore(
+                subpath, self.fscache, self.options.verbosity >= 2
             ):
                 continue
 
             if self.fscache.isdir(subpath):
                 # Only recurse into packages
-                if (self.options and self.options.namespace_packages) or (
+                if self.options.namespace_packages or (
                     self.fscache.isfile(os_path_join(subpath, "__init__.py"))
                     or self.fscache.isfile(os_path_join(subpath, "__init__.pyi"))
                 ):
