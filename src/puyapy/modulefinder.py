@@ -1,8 +1,5 @@
 import enum
-import functools
 import os
-import re
-import sys
 import typing
 
 from mypy.fscache import FileSystemCache
@@ -10,8 +7,6 @@ from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.options import Options
 from mypy.stubinfo import stub_distribution_name
 from mypy.util import os_path_join
-from pathspec import PathSpec
-from pathspec.patterns.gitwildmatch import GitWildMatchPatternError
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
 OnePackageDir = tuple[str, bool]
@@ -394,11 +389,6 @@ class FindModuleCache:
                 third_party_inline_dirs.append(non_stub_match)
                 self._update_ns_ancestors(components, non_stub_match)
 
-        if self.options.use_builtins_fixtures:
-            # Everything should be in fixtures.
-            third_party_inline_dirs.clear()
-            third_party_stubs_dirs.clear()
-            found_possible_third_party_missing_type_hints = False
         python_mypy_path = self.search_paths.mypy_path + self.search_paths.python_path
         candidate_base_dirs = self.find_lib_path_dirs(id, python_mypy_path)
         if use_typeshed:
@@ -542,15 +532,6 @@ class FindModuleCache:
                 continue
             subpath = os_path_join(package_path, name)
 
-            if matches_exclude(
-                subpath, self.options.exclude, self.fscache, self.options.verbosity >= 2
-            ):
-                continue
-            if self.options.exclude_gitignore and matches_gitignore(
-                subpath, self.fscache, self.options.verbosity >= 2
-            ):
-                continue
-
             if self.fscache.isdir(subpath):
                 # Only recurse into packages
                 if self.options.namespace_packages or (
@@ -569,75 +550,6 @@ class FindModuleCache:
                     seen.add(stem)
                     sources.extend(self.find_modules_recursive(module + "." + stem))
         return sources
-
-
-def matches_exclude(
-    subpath: str, excludes: list[str], fscache: FileSystemCache, verbose: bool
-) -> bool:
-    if not excludes:
-        return False
-    subpath_str = os.path.relpath(subpath).replace(os.sep, "/")
-    if fscache.isdir(subpath):
-        subpath_str += "/"
-    for exclude in excludes:
-        try:
-            if re.search(exclude, subpath_str):
-                if verbose:
-                    print(
-                        f"TRACE: Excluding {subpath_str} (matches pattern {exclude})",
-                        file=sys.stderr,
-                    )
-                return True
-        except re.error as e:
-            print(
-                f"error: The exclude {exclude} is an invalid regular expression, because: {e}"
-                + (
-                    "\n(Hint: use / as a path separator, even if you're on Windows!)"
-                    if "\\" in exclude
-                    else ""
-                )
-                + "\nFor more information on Python's flavor of regex, see:"
-                + " https://docs.python.org/3/library/re.html",
-                file=sys.stderr,
-            )
-            sys.exit(2)
-    return False
-
-
-def matches_gitignore(subpath: str, fscache: FileSystemCache, verbose: bool) -> bool:
-    dir, _ = os.path.split(subpath)
-    for gi_path, gi_spec in find_gitignores(dir):
-        relative_path = os.path.relpath(subpath, gi_path)
-        if fscache.isdir(relative_path):
-            relative_path = relative_path + "/"
-        if gi_spec.match_file(relative_path):
-            if verbose:
-                print(
-                    f"TRACE: Excluding {relative_path} (matches .gitignore) in {gi_path}",
-                    file=sys.stderr,
-                )
-            return True
-    return False
-
-
-@functools.lru_cache
-def find_gitignores(dir: str) -> list[tuple[str, PathSpec]]:
-    parent_dir = os.path.dirname(dir)
-    if parent_dir == dir:
-        parent_gitignores = []
-    else:
-        parent_gitignores = find_gitignores(parent_dir)
-
-    gitignore = os.path.join(dir, ".gitignore")
-    if os.path.isfile(gitignore):
-        with open(gitignore) as f:
-            lines = f.readlines()
-        try:
-            return parent_gitignores + [(dir, PathSpec.from_lines("gitwildmatch", lines))]
-        except GitWildMatchPatternError:
-            print(f"error: could not parse {gitignore}", file=sys.stderr)
-            return parent_gitignores
-    return parent_gitignores
 
 
 def is_init_file(path: str) -> bool:
