@@ -158,17 +158,15 @@ class FindModuleCache:
         return components.get(id, [])
 
     def find_module(self, id: str) -> ModuleSearchResult:
-        """Return the path of the module source file or why it wasn't found.
-
-        If fast_path is True, prioritize performance over generating detailed
-        error descriptions.
-        """
-        if id not in self.results:
-            result, should_cache = self._find_module(id)
-            if should_cache:
-                self.results[id] = result
-            return result
-        return self.results[id]
+        """Return the path of the module source file or why it wasn't found."""
+        try:
+            return self.results[id]
+        except KeyError:
+            pass
+        result, should_cache = self._find_module(id)
+        if should_cache:
+            self.results[id] = result
+        return result
 
     def _find_module_non_stub_helper(
         self, id: str, pkg_dir: str
