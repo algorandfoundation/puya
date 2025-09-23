@@ -301,6 +301,9 @@ def _find_dependencies(
         )
         module_dep_ids = set[str]()
         for dep, is_definite in import_data.ordered:
+            top_level = dep.id.partition(".")[0]
+            if top_level in ("algopy", "abc", "typing", "typing_extensions"):
+                continue
             # if dep.id in module_paths:
             #     if is_definite or module_paths.get(dep.id) is not None:
             #         module_dep_ids.add(dep.id)
