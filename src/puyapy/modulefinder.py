@@ -1,9 +1,9 @@
 import enum
 import os
+import typing
 
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
-from mypy.options import Options
 from mypy.util import os_path_join
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
@@ -42,20 +42,23 @@ class FindModuleCache:
     def __init__(
         self,
         search_paths: SearchPaths,
-        fscache: FileSystemCache | None,
-        options: Options,
-        source_set: BuildSourceSet | None = None,
+        fscache: FileSystemCache,
+        source_set: BuildSourceSet,
+        *,
+        enable_namespace_packages: bool = True,
+        fast_module_lookup: bool = False,
     ) -> None:
         self.search_paths = search_paths
         self.source_set = source_set
-        self.fscache = fscache or FileSystemCache()
+        self.fscache = fscache
         # Cache for get_toplevel_possibilities:
         # search_paths -> (toplevel_id -> list(package_dirs))
-        self.initial_components: dict[tuple[str, ...], dict[str, list[str]]] = {}
+        self.initial_components = dict[tuple[str, ...], dict[str, list[str]]]()
         # Cache find_module: id -> result
-        self.results: dict[str, ModuleSearchResult] = {}
-        self.ns_ancestors: dict[str, str] = {}
-        self.options = options
+        self.results = dict[str, ModuleSearchResult]()
+        self.ns_ancestors = dict[str, str]()
+        self._enable_namespace_packages: typing.Final = enable_namespace_packages
+        self._fast_module_lookup: typing.Final = fast_module_lookup
 
     def clear(self) -> None:
         self.results.clear()
@@ -66,8 +69,6 @@ class FindModuleCache:
         """Fast path to find modules by looking through the input sources
 
         This is only used when --fast-module-lookup is passed on the command line."""
-        if not self.source_set:
-            return None
 
         p = self.source_set.source_modules.get(id, None)
         if p and self.fscache.isfile(p):
@@ -234,7 +235,7 @@ class FindModuleCache:
         #
         # Thankfully, such cases are efficiently handled by looking up the module path
         # via BuildSourceSet.
-        p = self.find_module_via_source_set(id) if self.options.fast_module_lookup else None
+        p = self.find_module_via_source_set(id) if self._fast_module_lookup else None
         if p:
             return p, True
 
@@ -291,7 +292,7 @@ class FindModuleCache:
                     return path, True
 
             # In namespace mode, register a potential namespace package
-            if self.options.namespace_packages:
+            if self._enable_namespace_packages:
                 if (
                     not has_init
                     and fscache.exists_case(base_path, dir_prefix)
@@ -328,7 +329,7 @@ class FindModuleCache:
         # only foo/bar/__init__.py it returns 1, and if we have
         # foo/__init__.py it returns 2 (regardless of what's in
         # foo/bar).  It doesn't look higher than that.
-        if self.options.namespace_packages and near_misses:
+        if self._enable_namespace_packages and near_misses:
             levels = [
                 highest_init_level(fscache, id, path, dir_prefix)
                 for path, dir_prefix in near_misses
@@ -379,7 +380,7 @@ class FindModuleCache:
 
             if self.fscache.isdir(subpath):
                 # Only recurse into packages
-                if self.options.namespace_packages or (
+                if self._enable_namespace_packages or (
                     self.fscache.isfile(os_path_join(subpath, "__init__.py"))
                 ):
                     seen.add(name)

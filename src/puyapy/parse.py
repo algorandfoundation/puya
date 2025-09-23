@@ -109,13 +109,12 @@ def parse_python(
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
-    mypy_options = _get_mypy_options()
     mypy_build_sources = [
         BuildSource(path=str(bs.path), module=bs.module, base_dir=str(bs.base_dir))
         for bs in sources_by_module_name.values()
     ]
     fmc = FindModuleCache(
-        mypy_search_paths, fs_cache, mypy_options, source_set=BuildSourceSet(mypy_build_sources)
+        mypy_search_paths, fs_cache, source_set=BuildSourceSet(mypy_build_sources)
     )
     module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
@@ -127,6 +126,7 @@ def parse_python(
         )
         for module, md in module_data.items()
     ]
+    mypy_options = _get_mypy_options()
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
