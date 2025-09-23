@@ -5,7 +5,6 @@ from pathlib import Path
 
 import attrs
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import SearchPaths
 from mypy.util import os_path_join
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
@@ -32,7 +31,7 @@ ModuleSearchResult = str | ModuleNotFoundReason
 _LibPath = tuple[str, ...]
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class FindModuleCache:
     """Module finder with integrated cache.
 
@@ -44,9 +43,10 @@ class FindModuleCache:
     cleared by client code.
     """
 
-    search_paths: SearchPaths
     fscache: FileSystemCache
     source_modules: Mapping[str, Path]
+    source_roots: _LibPath
+    package_paths: _LibPath
     _enable_namespace_packages: bool = True
     _fast_module_lookup: bool = True
     # Cache for get_toplevel_possibilities:
@@ -246,14 +246,12 @@ class FindModuleCache:
         # Third-party stub/typed packages
         candidate_package_dirs = {
             package_dir[0]
-            for package_dir in self.find_lib_path_dirs(
-                components[0], self.search_paths.package_path
-            )
+            for package_dir in self.find_lib_path_dirs(components[0], self.package_paths)
         }
 
         third_party_inline_dirs: PackageDirs = []
         found_possible_third_party_missing_typed_marker = False
-        for pkg_dir in self.search_paths.package_path:
+        for pkg_dir in self.package_paths:
             if pkg_dir in candidate_package_dirs:
                 non_stub_match = self._find_module_non_stub_helper(id, pkg_dir)
                 if non_stub_match is ModuleNotFoundReason.NO_TYPED_MARKER:
@@ -262,7 +260,7 @@ class FindModuleCache:
                     third_party_inline_dirs.append(non_stub_match)
                     self._update_ns_ancestors(components, non_stub_match)
 
-        python_path = self.search_paths.python_path
+        python_path = self.source_roots
         candidate_base_dirs = self.find_lib_path_dirs(id, python_path)
         candidate_base_dirs += third_party_inline_dirs
 

@@ -102,15 +102,11 @@ def parse_python(
 
     python_path = tuple(dict.fromkeys(map(str, source_roots)))
     package_paths = tuple(_resolve_package_paths(package_search_paths))
-    typeshed_paths = _typeshed_paths()
-    mypy_search_paths = SearchPaths(
-        python_path=python_path,
-        package_path=package_paths,
-        typeshed_path=typeshed_paths,
-        mypy_path=(),
-    )
     fmc = FindModuleCache(
-        mypy_search_paths, fs_cache, {bs.module: bs.path for bs in sources_by_module_name.values()}
+        source_roots=python_path,
+        package_paths=package_paths,
+        fscache=fs_cache,
+        source_modules={bs.module: bs.path for bs in sources_by_module_name.values()},
     )
     module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
@@ -123,6 +119,13 @@ def parse_python(
         for module, md in module_data.items()
     ]
     mypy_options = _get_mypy_options()
+    typeshed_paths = _typeshed_paths()
+    mypy_search_paths = SearchPaths(
+        python_path=python_path,
+        package_path=package_paths,
+        typeshed_path=typeshed_paths,
+        mypy_path=(),
+    )
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
