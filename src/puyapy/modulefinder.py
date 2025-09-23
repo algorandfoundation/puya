@@ -1,26 +1,10 @@
-"""Low-level infrastructure to find modules.
-
-This builds on fscache.py; find_sources.py builds on top of this.
-"""
-
-from __future__ import annotations
-
-import ast
-import collections
+import enum
 import functools
 import os
 import re
-import subprocess
 import sys
-from enum import Enum, unique
-from typing import (
-    Final,
-    TypeAlias as _TypeAlias,
-    Union,
-)
+import typing
 
-from mypy import pyinfo
-from mypy.errors import CompileError
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.options import Options
@@ -34,16 +18,16 @@ OnePackageDir = tuple[str, bool]
 PackageDirs = list[OnePackageDir]
 
 # Minimum and maximum Python versions for modules in stdlib as (major, minor)
-StdlibVersions: _TypeAlias = dict[str, tuple[tuple[int, int], tuple[int, int] | None]]
+StdlibVersions: typing.TypeAlias = dict[str, tuple[tuple[int, int], tuple[int, int] | None]]
 
-PYTHON_EXTENSIONS: Final = [".pyi", ".py"]
+PYTHON_EXTENSIONS: typing.Final = [".pyi", ".py"]
 
 
 # TODO: Consider adding more reasons here?
 # E.g. if we deduce a module would likely be found if the user were
 # to set the --namespace-packages flag.
-@unique
-class ModuleNotFoundReason(Enum):
+@enum.unique
+class ModuleNotFoundReason(enum.Enum):
     # The module was not found: we found neither stubs nor a plausible code
     # implementation (with or without a py.typed file).
     NOT_FOUND = 0
@@ -92,7 +76,7 @@ class ModuleNotFoundReason(Enum):
 
 # If we found the module, returns the path to the module as a str.
 # Otherwise, returns the reason why the module wasn't found.
-ModuleSearchResult = Union[str, ModuleNotFoundReason]
+ModuleSearchResult = str | ModuleNotFoundReason
 
 
 class FindModuleCache:
@@ -700,184 +684,6 @@ def highest_init_level(fscache: FileSystemCache, id: str, path: str, prefix: str
         ):
             level = i + 1
     return level
-
-
-def mypy_path() -> list[str]:
-    path_env = os.getenv("MYPYPATH")
-    if not path_env:
-        return []
-    return path_env.split(os.pathsep)
-
-
-def default_lib_path(
-    data_dir: str, pyversion: tuple[int, int], custom_typeshed_dir: str | None
-) -> list[str]:
-    """Return default standard library search paths. Guaranteed to be normalised."""
-
-    data_dir = os.path.abspath(data_dir)
-    path: list[str] = []
-
-    if custom_typeshed_dir:
-        custom_typeshed_dir = os.path.abspath(custom_typeshed_dir)
-        typeshed_dir = os.path.join(custom_typeshed_dir, "stdlib")
-        mypy_extensions_dir = os.path.join(custom_typeshed_dir, "stubs", "mypy-extensions")
-        versions_file = os.path.join(typeshed_dir, "VERSIONS")
-        if not os.path.isdir(typeshed_dir) or not os.path.isfile(versions_file):
-            print(
-                f"error: --custom-typeshed-dir does not point to a valid typeshed ({custom_typeshed_dir})",
-                file=sys.stderr,
-            )
-            sys.exit(2)
-    else:
-        auto = os.path.join(data_dir, "stubs-auto")
-        if os.path.isdir(auto):
-            data_dir = auto
-        typeshed_dir = os.path.join(data_dir, "typeshed", "stdlib")
-        mypy_extensions_dir = os.path.join(data_dir, "typeshed", "stubs", "mypy-extensions")
-    path.append(typeshed_dir)
-
-    # Get mypy-extensions stubs from typeshed, since we treat it as an
-    # "internal" library, similar to typing and typing-extensions.
-    path.append(mypy_extensions_dir)
-
-    # Add fallback path that can be used if we have a broken installation.
-    if sys.platform != "win32":
-        path.append("/usr/local/lib/mypy")
-    if not path:
-        print(
-            "Could not resolve typeshed subdirectories. Your mypy install is broken.\n"
-            f"Python executable is located at {sys.executable}.\nMypy located at {data_dir}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    return path
-
-
-@functools.cache
-def get_search_dirs(python_executable: str | None) -> tuple[list[str], list[str]]:
-    """Find package directories for given python. Guaranteed to return absolute paths.
-
-    This runs a subprocess call, which generates a list of the directories in sys.path.
-    To avoid repeatedly calling a subprocess (which can be slow!) we
-    lru_cache the results.
-    """
-
-    if python_executable is None:
-        return ([], [])
-    elif python_executable == sys.executable:
-        # Use running Python's package dirs
-        sys_path, site_packages = pyinfo.getsearchdirs()
-    else:
-        # Use subprocess to get the package directory of given Python
-        # executable
-        env = {**dict(os.environ), "PYTHONSAFEPATH": "1"}
-        try:
-            sys_path, site_packages = ast.literal_eval(
-                subprocess.check_output(
-                    [python_executable, pyinfo.__file__, "getsearchdirs"],
-                    env=env,
-                    stderr=subprocess.PIPE,
-                ).decode()
-            )
-        except subprocess.CalledProcessError as err:
-            print(err.stderr)
-            print(err.stdout)
-            raise
-        except OSError as err:
-            assert err.errno is not None
-            reason = os.strerror(err.errno)
-            raise CompileError(
-                [f"mypy: Invalid python executable '{python_executable}': {reason}"]
-            ) from err
-    return sys_path, site_packages
-
-
-def compute_search_paths(
-    sources: list[BuildSource], options: Options, data_dir: str, alt_lib_path: str | None = None
-) -> SearchPaths:
-    """Compute the search paths as specified in PEP 561.
-
-    There are the following 4 members created:
-    - User code (from `sources`)
-    - MYPYPATH (set either via config or environment variable)
-    - installed package directories (which will later be split into stub-only and inline)
-    - typeshed
-    """
-    # Determine the default module search path.
-    lib_path = collections.deque(
-        default_lib_path(
-            data_dir, options.python_version, custom_typeshed_dir=options.custom_typeshed_dir
-        )
-    )
-
-    if options.use_builtins_fixtures:
-        # Use stub builtins (to speed up test cases and to make them easier to
-        # debug).  This is a test-only feature, so assume our files are laid out
-        # as in the source tree.
-        # We also need to allow overriding where to look for it. Argh.
-        root_dir = os.getenv("MYPY_TEST_PREFIX", None)
-        if not root_dir:
-            root_dir = os.path.dirname(os.path.dirname(__file__))
-        root_dir = os.path.abspath(root_dir)
-        lib_path.appendleft(os.path.join(root_dir, "test-data", "unit", "lib-stub"))
-    # alt_lib_path is used by some tests to bypass the normal lib_path mechanics.
-    # If we don't have one, grab directories of source files.
-    python_path: list[str] = []
-    if not alt_lib_path:
-        for source in sources:
-            # Include directory of the program file in the module search path.
-            if source.base_dir:
-                dir = source.base_dir
-                if dir not in python_path:
-                    python_path.append(dir)
-
-        # Do this even if running as a file, for sanity (mainly because with
-        # multiple builds, there could be a mix of files/modules, so its easier
-        # to just define the semantics that we always add the current director
-        # to the lib_path
-        # TODO: Don't do this in some cases; for motivation see see
-        # https://github.com/python/mypy/issues/4195#issuecomment-341915031
-        if options.bazel:
-            dir = "."
-        else:
-            dir = os.getcwd()
-        if dir not in lib_path:
-            python_path.insert(0, dir)
-
-    # Start with a MYPYPATH environment variable at the front of the mypy_path, if defined.
-    mypypath = mypy_path()
-
-    # Add a config-defined mypy path.
-    mypypath.extend(options.mypy_path)
-
-    # If provided, insert the caller-supplied extra module path to the
-    # beginning (highest priority) of the search path.
-    if alt_lib_path:
-        mypypath.insert(0, alt_lib_path)
-
-    sys_path, site_packages = get_search_dirs(options.python_executable)
-    # We only use site packages for this check
-    for site in site_packages:
-        assert site not in lib_path
-        if (
-            site in mypypath
-            or any(p.startswith(site + os.path.sep) for p in mypypath)
-            or (os.path.altsep and any(p.startswith(site + os.path.altsep) for p in mypypath))
-        ):
-            print(f"{site} is in the MYPYPATH. Please remove it.", file=sys.stderr)
-            print(
-                "See https://mypy.readthedocs.io/en/stable/running_mypy.html"
-                "#how-mypy-handles-imports for more info",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
-    return SearchPaths(
-        python_path=tuple(reversed(python_path)),
-        mypy_path=tuple(mypypath),
-        package_path=tuple(sys_path + site_packages),
-        typeshed_path=tuple(lib_path),
-    )
 
 
 def load_stdlib_py_versions(custom_typeshed_dir: str | None) -> StdlibVersions:
