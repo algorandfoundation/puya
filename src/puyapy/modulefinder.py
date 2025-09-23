@@ -1,9 +1,11 @@
 import enum
 import os
-import typing
+from collections.abc import Mapping, Sequence
+from pathlib import Path
 
+import attrs
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import BuildSourceSet, SearchPaths
+from mypy.modulefinder import SearchPaths
 from mypy.util import os_path_join
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
@@ -27,7 +29,10 @@ class ModuleNotFoundReason(enum.Enum):
 # Otherwise, returns the reason why the module wasn't found.
 ModuleSearchResult = str | ModuleNotFoundReason
 
+_LibPath = tuple[str, ...]
 
+
+@attrs.frozen
 class FindModuleCache:
     """Module finder with integrated cache.
 
@@ -39,26 +44,19 @@ class FindModuleCache:
     cleared by client code.
     """
 
-    def __init__(
-        self,
-        search_paths: SearchPaths,
-        fscache: FileSystemCache,
-        source_set: BuildSourceSet,
-        *,
-        enable_namespace_packages: bool = True,
-        fast_module_lookup: bool = True,
-    ) -> None:
-        self.search_paths = search_paths
-        self.source_set = source_set
-        self.fscache = fscache
-        # Cache for get_toplevel_possibilities:
-        # search_paths -> (toplevel_id -> list(package_dirs))
-        self.initial_components = dict[tuple[str, ...], dict[str, list[str]]]()
-        # Cache find_module: id -> result
-        self.results = dict[str, ModuleSearchResult]()
-        self.ns_ancestors = dict[str, str]()
-        self._enable_namespace_packages: typing.Final = enable_namespace_packages
-        self._fast_module_lookup: typing.Final = fast_module_lookup
+    search_paths: SearchPaths
+    fscache: FileSystemCache
+    source_modules: Mapping[str, Path]
+    _enable_namespace_packages: bool = True
+    _fast_module_lookup: bool = True
+    # Cache for get_toplevel_possibilities:
+    # search_paths -> (toplevel_id -> list(package_dirs))
+    initial_components: dict[_LibPath, dict[str, list[str]]] = attrs.field(
+        factory=dict, init=False
+    )
+    # Cache find_module: id -> result
+    results: dict[str, ModuleSearchResult] = attrs.field(factory=dict, init=False)
+    ns_ancestors: dict[str, str] = attrs.field(factory=dict, init=False)
 
     def clear(self) -> None:
         self.results.clear()
@@ -70,18 +68,18 @@ class FindModuleCache:
 
         This is only used when --fast-module-lookup is passed on the command line."""
 
-        p = self.source_set.source_modules.get(id, None)
-        if p and self.fscache.isfile(p):
+        p = self.source_modules.get(id)
+        if p and p.is_file():
             # We need to make sure we still have __init__.py all the way up
             # otherwise we might have false positives compared to slow path
             # in case of deletion of init files, which is covered by some tests.
             # TODO: are there some combination of flags in which this check should be skipped?
-            d = os.path.dirname(p)
+            d = p.parent
             for _ in range(id.count(".")):
-                if not self.fscache.isfile(os_path_join(d, "__init__.py")):
+                if not (d / "__init__.py").is_file():
                     return None
-                d = os.path.dirname(d)
-            return p
+                d = d.parent
+            return str(p)
 
         idx = id.rfind(".")
         if idx != -1:
@@ -110,13 +108,13 @@ class FindModuleCache:
                 return ModuleNotFoundReason.NOT_FOUND
         return None
 
-    def find_lib_path_dirs(self, id: str, lib_path: tuple[str, ...]) -> PackageDirs:
+    def find_lib_path_dirs(self, id: str, lib_path: _LibPath) -> PackageDirs:
         """Find which elements of a lib_path have the directory a module needs to exist."""
         components = id.split(".")
         dir_chain = os.sep.join(components[:-1])  # e.g., 'foo/bar'
 
         dirs = []
-        for pathitem in self.get_toplevel_possibilities(lib_path, components[0]):
+        for pathitem in self.get_toplevel_possibilities(lib_path).get(components[0], []):
             # e.g., '/usr/lib/python3.4/foo/bar'
             if dir_chain:
                 dir = os_path_join(pathitem, dir_chain)
@@ -126,7 +124,7 @@ class FindModuleCache:
                 dirs.append((dir, True))
         return dirs
 
-    def get_toplevel_possibilities(self, lib_path: tuple[str, ...], id: str) -> list[str]:
+    def get_toplevel_possibilities(self, lib_path: _LibPath) -> Mapping[str, Sequence[str]]:
         """Find which elements of lib_path could contain a particular top-level module.
 
         In practice, almost all modules can be routed to the correct entry in
@@ -137,11 +135,13 @@ class FindModuleCache:
         the lib_path could contain each potential top-level module that appears.
         """
 
-        if lib_path in self.initial_components:
-            return self.initial_components[lib_path].get(id, [])
+        try:
+            return self.initial_components[lib_path]
+        except KeyError:
+            pass
 
         # Enumerate all the files in the directories on lib_path and produce the map
-        components: dict[str, list[str]] = {}
+        components = dict[str, list[str]]()
         for dir in lib_path:
             try:
                 contents = self.fscache.listdir(dir)
@@ -155,7 +155,7 @@ class FindModuleCache:
                 components.setdefault(name, []).append(dir)
 
         self.initial_components[lib_path] = components
-        return components.get(id, [])
+        return components
 
     def find_module(self, id: str) -> ModuleSearchResult:
         """Return the path of the module source file or why it wasn't found."""
@@ -290,7 +290,7 @@ class FindModuleCache:
                     return path, True
 
             # In namespace mode, register a potential namespace package
-            if self._enable_namespace_packages:
+            if self._enable_namespace_packages:  # noqa: SIM102
                 if (
                     not has_init
                     and fscache.exists_case(base_path, dir_prefix)

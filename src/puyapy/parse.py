@@ -109,12 +109,8 @@ def parse_python(
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
-    mypy_build_sources = [
-        BuildSource(path=str(bs.path), module=bs.module, base_dir=str(bs.base_dir))
-        for bs in sources_by_module_name.values()
-    ]
     fmc = FindModuleCache(
-        mypy_search_paths, fs_cache, source_set=BuildSourceSet(mypy_build_sources)
+        mypy_search_paths, fs_cache, {bs.module: bs.path for bs in sources_by_module_name.values()}
     )
     module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
