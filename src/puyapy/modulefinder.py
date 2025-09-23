@@ -5,10 +5,9 @@ from pathlib import Path
 
 import attrs
 from mypy.fscache import FileSystemCache
-from mypy.util import os_path_join
 
 # Package dirs are a two-tuple of path to search and whether to verify the module
-OnePackageDir = tuple[str, bool]
+OnePackageDir = tuple[Path, bool]
 PackageDirs = list[OnePackageDir]
 
 
@@ -26,9 +25,9 @@ class ModuleNotFoundReason(enum.Enum):
 
 # If we found the module, returns the path to the module as a str.
 # Otherwise, returns the reason why the module wasn't found.
-ModuleSearchResult = str | ModuleNotFoundReason
+ModuleSearchResult = Path | ModuleNotFoundReason
 
-_LibPath = tuple[str, ...]
+_LibPath = tuple[Path, ...]
 
 
 @attrs.frozen(kw_only=True)
@@ -51,12 +50,12 @@ class FindModuleCache:
     _fast_module_lookup: bool = True
     # Cache for get_toplevel_possibilities:
     # search_paths -> (toplevel_id -> list(package_dirs))
-    initial_components: dict[_LibPath, dict[str, list[str]]] = attrs.field(
+    initial_components: dict[_LibPath, dict[str, list[Path]]] = attrs.field(
         factory=dict, init=False
     )
     # Cache find_module: id -> result
     results: dict[str, ModuleSearchResult] = attrs.field(factory=dict, init=False)
-    ns_ancestors: dict[str, str] = attrs.field(factory=dict, init=False)
+    ns_ancestors: dict[str, Path] = attrs.field(factory=dict, init=False)
 
     def clear(self) -> None:
         self.results.clear()
@@ -79,20 +78,16 @@ class FindModuleCache:
                 if not (d / "__init__.py").is_file():
                     return None
                 d = d.parent
-            return str(p)
+            return p
 
-        idx = id.rfind(".")
-        if idx != -1:
+        parent_id = id.rpartition(".")[0]
+        if parent_id:
             # When we're looking for foo.bar.baz and can't find a matching module
             # in the source set, look up for a foo.bar module.
-            parent = self.find_module_via_source_set(id[:idx])
-            if parent is None or not isinstance(parent, str):
-                return None
-
-            basename, ext = os.path.splitext(parent)
-            if not parent.endswith("__init__.py") and (
-                ext == ".py" and not self.fscache.isdir(basename)
-            ):
+            parent_result = self.find_module_via_source_set(parent_id)
+            if isinstance(parent_result, Path):
+                parent_path = parent_result
+                assert parent_path.suffix == ".py"
                 # If we do find such a *module* (and crucially, we don't want a package,
                 # hence the filtering out of __init__ files, and checking for the presence
                 # of a folder with a matching name), then we can be pretty confident that
@@ -105,26 +100,30 @@ class FindModuleCache:
                 #     more likely to lead to erroneous results
                 #  2. as described in _find_module, in some cases the search itself could
                 #  potentially waste significant amounts of time
-                return ModuleNotFoundReason.NOT_FOUND
+                if parent_path.stem != "__init__" and not parent_path.with_suffix("").is_dir():
+                    return ModuleNotFoundReason.NOT_FOUND
         return None
 
     def find_lib_path_dirs(self, id: str, lib_path: _LibPath) -> PackageDirs:
         """Find which elements of a lib_path have the directory a module needs to exist."""
-        components = id.split(".")
-        dir_chain = os.sep.join(components[:-1])  # e.g., 'foo/bar'
+        pkg, _, mod_path = id.partition(".")
+        dir_chain = None
+        if mod_path:
+            dir_chain = Path(*mod_path.split("."))
 
         dirs = []
-        for pathitem in self.get_toplevel_possibilities(lib_path).get(components[0], []):
+        top_level_map = self.get_toplevel_possibilities(lib_path)
+        for pathitem in top_level_map.get(pkg, []):
             # e.g., '/usr/lib/python3.4/foo/bar'
             if dir_chain:
-                dir = os_path_join(pathitem, dir_chain)
+                dir = pathitem / dir_chain
             else:
                 dir = pathitem
-            if self.fscache.isdir(dir):
+            if dir.is_dir():
                 dirs.append((dir, True))
         return dirs
 
-    def get_toplevel_possibilities(self, lib_path: _LibPath) -> Mapping[str, Sequence[str]]:
+    def get_toplevel_possibilities(self, lib_path: _LibPath) -> Mapping[str, Sequence[Path]]:
         """Find which elements of lib_path could contain a particular top-level module.
 
         In practice, almost all modules can be routed to the correct entry in
@@ -141,18 +140,17 @@ class FindModuleCache:
             pass
 
         # Enumerate all the files in the directories on lib_path and produce the map
-        components = dict[str, list[str]]()
+        components = dict[str, list[Path]]()
         for dir in lib_path:
             try:
-                contents = self.fscache.listdir(dir)
+                contents = list(dir.iterdir())
             except OSError:
                 contents = []
             # False positives are fine for correctness here, since we will check
             # precisely later, so we only look at the root of every filename without
             # any concern for the exact details.
             for name in contents:
-                name = os.path.splitext(name)[0]
-                components.setdefault(name, []).append(dir)
+                components.setdefault(name.stem, []).append(dir)
 
         self.initial_components[lib_path] = components
         return components
@@ -169,34 +167,34 @@ class FindModuleCache:
         return result
 
     def _find_module_non_stub_helper(
-        self, id: str, pkg_dir: str
+        self, id: str, pkg_dir: Path
     ) -> OnePackageDir | ModuleNotFoundReason:
         plausible_match = False
         dir_path = pkg_dir
         components = id.split(".")
         for index, component in enumerate(components):
-            dir_path = os_path_join(dir_path, component)
-            if self.fscache.isfile(os_path_join(dir_path, "py.typed")):
-                return os.path.join(pkg_dir, *components[:-1]), index == 0
+            dir_path = dir_path / component
+            if (dir_path / "py.typed").is_file():
+                return Path(pkg_dir, *components[:-1]), index == 0
             elif not plausible_match and (
-                self.fscache.isdir(dir_path) or self.fscache.isfile(dir_path + ".py")
+                dir_path.is_dir() or dir_path.with_suffix(".py").is_file()
             ):
                 plausible_match = True
             # If this is not a directory then we can't traverse further into it
-            if not self.fscache.isdir(dir_path):
+            if not dir_path.is_dir():
                 break
         if plausible_match:
             return ModuleNotFoundReason.NO_TYPED_MARKER
         else:
             return ModuleNotFoundReason.NOT_FOUND
 
-    def _update_ns_ancestors(self, components: list[str], match: tuple[str, bool]) -> None:
+    def _update_ns_ancestors(self, components: list[str], match: tuple[Path, bool]) -> None:
         path, verify = match
         for i in range(1, len(components)):
             pkg_id = ".".join(components[:-i])
-            if pkg_id not in self.ns_ancestors and self.fscache.isdir(path):
+            if pkg_id not in self.ns_ancestors and path.is_dir():
                 self.ns_ancestors[pkg_id] = path
-            path = os.path.dirname(path)
+            path = path.parent
 
     def _find_module(self, id: str) -> tuple[ModuleSearchResult, bool]:
         """Try to find a module in all available sources.
@@ -348,28 +346,24 @@ class FindModuleCache:
         return ModuleNotFoundReason.NOT_FOUND, True
 
 
-def is_init_file(path: str) -> bool:
-    return os.path.basename(path) == "__init__.py"
-
-
-def verify_module(fscache: FileSystemCache, id: str, path: str, prefix: str) -> bool:
+def verify_module(fscache: FileSystemCache, id: str, path: Path, prefix: str) -> bool:
     """Check that all packages containing id have a __init__ file."""
-    if is_init_file(path):
-        path = os.path.dirname(path)
+    if path.name == "__init__.py":
+        path = path.parent
     for i in range(id.count(".")):
-        path = os.path.dirname(path)
-        if not fscache.isfile_case(os_path_join(path, "__init__.py"), prefix):
+        path = path.parent
+        if not fscache.isfile_case(path / "__init__.py", prefix):
             return False
     return True
 
 
-def highest_init_level(fscache: FileSystemCache, id: str, path: str, prefix: str) -> int:
+def highest_init_level(fscache: FileSystemCache, id: str, path: Path, prefix: str) -> int:
     """Compute the highest level where an __init__ file is found."""
-    if is_init_file(path):
-        path = os.path.dirname(path)
+    if path.name == "__init__.py":
+        path = path.parent
     level = 0
     for i in range(id.count(".")):
-        path = os.path.dirname(path)
-        if fscache.isfile_case(os_path_join(path, "__init__.py"), prefix):
+        path = path.parent
+        if fscache.isfile_case(path / "__init__.py", prefix):
             level = i + 1
     return level
