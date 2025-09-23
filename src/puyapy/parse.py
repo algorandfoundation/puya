@@ -21,13 +21,7 @@ from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_co
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
 from mypy.fscache import FileSystemCache
-from mypy.modulefinder import (
-    BuildSource,
-    BuildSourceSet,
-    FindModuleCache,
-    ModuleNotFoundReason,
-    SearchPaths,
-)
+from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
@@ -42,6 +36,7 @@ from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSource, create_source_list
+from puyapy.modulefinder import FindModuleCache, ModuleNotFoundReason
 
 logger = log.get_logger(__name__)
 
