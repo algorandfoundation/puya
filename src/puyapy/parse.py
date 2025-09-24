@@ -274,6 +274,9 @@ class _ModuleData:
     stubs: frozenset[str]
 
 
+_ALLOWED_STUBS: typing.Final = frozenset(("algopy", "abc", "typing", "typing_extensions"))
+
+
 def _find_dependencies(
     sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
 ) -> Mapping[str, _ModuleData]:
@@ -298,14 +301,14 @@ def _find_dependencies(
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
 
-        import_data = _all_imported_modules_in_file(
-            rs, visitor.module_imports, visitor.from_imports
+        import_data = _ImportData(
+            source=rs, module_imports=visitor.module_imports, from_imports=visitor.from_imports
         )
         module_dep_ids = set[str]()
         module_stub_dep_ids = set[str]()
         for dep, is_definite in import_data.ordered:
             top_level = dep.id.partition(".")[0]
-            if top_level in ("algopy", "abc", "typing", "typing_extensions"):
+            if top_level in _ALLOWED_STUBS:
                 module_stub_dep_ids.add(dep.id)
                 continue
             # if dep.id in module_paths:
@@ -609,23 +612,35 @@ class _Dependency:
 @attrs.frozen
 class _ImportData:
     source: ResolvedSource
-    module_dependencies: list[_Dependency] = attrs.field(factory=list)
-    maybe_module_dependencies: list[_Dependency] = attrs.field(factory=list)
+    module_imports: Sequence[ModuleImport]
+    from_imports: Sequence[FromImport]
 
     @cached_property
     def ordered(self) -> Sequence[tuple[_Dependency, bool]]:
         all_locs = defaultdict[str, list[SourceLocation]](list)
         definite_modules = set[str]()
         all_ids = set[str]()
-        for dep in self.module_dependencies:
-            assert dep.loc is not None
-            all_locs[dep.id].append(dep.loc)
-            definite_modules.add(dep.id)
-            all_ids.add(dep.id)
-        for dep in self.maybe_module_dependencies:
-            assert dep.loc is not None
-            all_locs[dep.id].append(dep.loc)
-            all_ids.add(dep.id)
+        for mod_imp in self.module_imports:
+            for alias in mod_imp.names:
+                for module_id in _expand_ancestors(alias.name):
+                    all_locs[module_id].append(mod_imp.loc)
+                    definite_modules.add(module_id)
+                    all_ids.add(module_id)
+        for from_imp in self.from_imports:
+            for module_id in _expand_ancestors(from_imp.module):
+                all_locs[module_id].append(from_imp.loc)
+                definite_modules.add(module_id)
+                all_ids.add(module_id)
+            if from_imp.names is None:
+                module_root = from_imp.module.partition(".")[0]
+                if module_root not in _ALLOWED_STUBS:
+                    logger.warning("TODO: handle star imports", location=from_imp.loc)
+            else:
+                for maybe_module_alias in from_imp.names:
+                    maybe_module_name = maybe_module_alias.name
+                    maybe_module_id = ".".join((from_imp.module, maybe_module_name))
+                    all_locs[maybe_module_id].append(maybe_module_alias.loc)
+                    all_ids.add(maybe_module_id)
         # TODO: simplify this
         for ancestor_id in itertools.islice(_expand_ancestors(self.source.module), 1, None):
             assert self.source.base_dir is not None
@@ -642,29 +657,6 @@ class _ImportData:
             first_loc = min(all_locs[id], key=lambda y: y.line, default=None)
             result.append((_Dependency(id=id, loc=first_loc), id in definite_modules))
         return result
-
-
-def _all_imported_modules_in_file(
-    source: ResolvedSource,
-    module_imports: list[ModuleImport],
-    from_imports: list[FromImport],
-) -> _ImportData:
-    result = _ImportData(source)
-    for mod_imp in module_imports:
-        for alias in mod_imp.names:
-            for module_id in _expand_ancestors(alias.name):
-                result.module_dependencies.append(_Dependency(id=module_id, loc=mod_imp.loc))
-    for from_imp in from_imports:
-        from_module = from_imp.module
-        for module_id in _expand_ancestors(from_module):
-            result.module_dependencies.append(_Dependency(id=module_id, loc=from_imp.loc))
-        # Also add any imported names that might be submodules.
-        for alias in from_imp.names or ():
-            maybe_submodule_id = from_module + "." + alias.name
-            result.maybe_module_dependencies.append(
-                _Dependency(id=maybe_submodule_id, loc=from_imp.loc)
-            )
-    return result
 
 
 def _expand_ancestors(module_id: str) -> Iterator[str]:
