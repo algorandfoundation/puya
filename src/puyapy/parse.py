@@ -271,6 +271,7 @@ class _ModuleData:
     dependencies: frozenset[str]
     tree: ast.Module
     followed: bool
+    stubs: frozenset[str]
 
 
 def _find_dependencies(
@@ -301,9 +302,11 @@ def _find_dependencies(
             rs, visitor.module_imports, visitor.from_imports
         )
         module_dep_ids = set[str]()
+        module_stub_dep_ids = set[str]()
         for dep, is_definite in import_data.ordered:
             top_level = dep.id.partition(".")[0]
             if top_level in ("algopy", "abc", "typing", "typing_extensions"):
+                module_stub_dep_ids.add(dep.id)
                 continue
             # if dep.id in module_paths:
             #     if is_definite or module_paths.get(dep.id) is not None:
@@ -336,6 +339,7 @@ def _find_dependencies(
             tree=tree,
             dependencies=frozenset(module_dep_ids),
             followed=rs.module not in initial_source_ids,
+            stubs=frozenset(module_stub_dep_ids),
         )
     return result_by_id
 
