@@ -97,7 +97,9 @@ def parse_python(
     )
     sources_by_module_name = dict(sorted(sources_by_module_name.items()))
 
-    source_roots = [bs.base_dir for bs in sources_by_module_name.values()]
+    source_roots = [
+        bs.base_dir for bs in sources_by_module_name.values() if bs.base_dir is not None
+    ]
     source_roots.append(Path.cwd())
 
     python_path = tuple(dict.fromkeys(map(str, source_roots)))
@@ -622,6 +624,7 @@ class _ImportData:
             all_ids.add(dep.id)
         # TODO: simplify this
         for ancestor_id in itertools.islice(_expand_ancestors(self.source.module), 1, None):
+            assert self.source.base_dir is not None
             ancestor_path = self.source.base_dir
             for part in ancestor_id.split("."):
                 ancestor_path = ancestor_path / part
