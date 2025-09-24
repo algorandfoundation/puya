@@ -96,7 +96,7 @@ class EventArg:
     struct: StructName | None = None
     """
     If the type is a struct, the name of the struct
-    Note: this is a separate field to maintain backwards compatability with ARC-23
+    Note: this is a separate field to maintain backwards compatibility with ARC-23
     """
 
 
@@ -151,7 +151,7 @@ class MethodArg:
     struct: StructName | None = None
     """
     If the type is a struct, the name of the struct.
-    Note: this is a separate field to maintain backwards compatability with ARC-4
+    Note: this is a separate field to maintain backwards compatibility with ARC-4
     """
     name: str | None = None
     """Optional, user-friendly name for the argument"""

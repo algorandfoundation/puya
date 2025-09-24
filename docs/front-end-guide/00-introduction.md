@@ -4,7 +4,7 @@ Puya is a multi-stage compiler designed from the start to support multiple sourc
 
 > See the [Puya architecture](../../ARCHITECTURE.md) documentation for more on the different stages of the Puya compiler. This document will focus only on the parts relevant to the front end.
 
-AWST strives to represent the AST of a generic c-like language, cutting back on nodes that represent a language's syntactic sugar in favour of supporting the minimum nodes required to support semantic compatability. As an example, there is no node to represent a `for(i = 0; i < x; i++)` style loop available in many languages as this can be adequately represented using a while loop. 
+AWST strives to represent the AST of a generic c-like language, cutting back on nodes that represent a language's syntactic sugar in favour of supporting the minimum nodes required to support semantic compatibility. As an example, there is no node to represent a `for(i = 0; i < x; i++)` style loop available in many languages as this can be adequately represented using a while loop. 
 
 ```ts
 for (let i = 0; i < 10; i++) {

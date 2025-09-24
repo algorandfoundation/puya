@@ -8,13 +8,13 @@ Each Event is identified by a unique 4-byte identifier derived from its `Event S
 Swapped(uint64,uint64)
 ```
 
-Events are emitting by including them in the [log output](./lg-logs.md). The metadata that identifies the event should then be included in the ARC-4 contract output so that a calling client can parse the logs to parse the structured data out. This part of the ARC-28 spec isn't yet implemented in Algorand Python, but it's on the roadmap.
+Events are emitted by including them in the [log output](./lg-logs.md). The metadata that identifies the event should then be included in the ARC-4 contract output so that a calling client can parse the logs to parse the structured data out. This part of the ARC-28 spec isn't yet implemented in Algorand Python, but it's on the roadmap.
 
 ## Emitting Events
 
 To emit an ARC-28 event in Algorand Python you can use the `emit` function, which appears in the `algopy.arc4` namespace for convenience since it heavily uses ARC-4 types and is essentially an extension of the ARC-4 specification. This function takes care of encoding the event payload to conform to the ARC-28 specification and there are 3 overloads:
 
--   An [ARC-4 struct](./lg-arc4.md), from what the name of the struct will be used as a the event name and the struct parameters will be used as the event fields - `arc4.emit(Swapped(a, b))`
+-   An [ARC-4 struct](./lg-arc4.md#structs), from which the name of the struct will be used as the event name and the struct parameters will be used as the event fields - `arc4.emit(Swapped(a, b))`
 -   An event signature as a [string literal (or module variable)](./lg-types.md), followed by the values - `arc4.emit("Swapped(uint64,uint64)", a, b)`
 -   An event name as a [string literal (or module variable)](./lg-types.md), followed by the values - `arc4.emit("Swapped", a, b)`
 

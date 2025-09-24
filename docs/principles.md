@@ -14,7 +14,7 @@ in terms of available AVM functions.
 TEAL is a [non-structured](https://en.wikipedia.org/wiki/Non-structured_programming)
 [imperative language](https://en.wikipedia.org/wiki/Procedural_programming#Imperative_programming)
 (albeit one with support for procedure calls that can isolate stack changes since v8 with `proto`). Writing TEAL is very
-similar to writing assembly code. It goes without saying that this is a particularly common or well-practiced model for
+similar to writing assembly code. It goes without saying that this is NOT a particularly common or well-practiced model for
 programming these days.
 
 As it stands today, developers wanting to write smart contracts specifically for Algorand have the option of writing
@@ -28,7 +28,7 @@ classes of errors resulting from the interaction between the procedural elements
 expression-building framework go unnoticed until the point of TEAL generation, or worse go completely unnoticed, and even
 when PyTEAL can/does provide an error it can be difficult to understand.
 
-Tealish provides a higher level procedural language, bearing a passing resemblance to Python, than compiles down to TEAL.
+Tealish provides a higher level procedural language, bearing a passing resemblance to Python, that compiles down to TEAL.
 However, it's still lower level than most developers are used to.
 For example, the expression `1 + 2 + 3`is [not valid in tealish](https://tealish.tinyman.org/en/latest/language.html#math-logic).
 Another difference vs a higher level language such as Python is that [functions can only be declared after the program
@@ -40,8 +40,8 @@ presenting an additional learning curve to developers looking to learn blockchai
 Being a bespoke language also means it has a much smaller ecosystem of tooling built around it compared to languages like
 Python or JavaScript.
 
-To most developers, the Python programming language needs no introduction. First released in 1991, it's popularity has
-grown steadily over the decades, and as of June 2023 it is consistently ranked as either the most popular langauge,
+To most developers, the Python programming language needs no introduction. First released in 1991, its popularity has
+grown steadily over the decades, and as of June 2023 it is consistently ranked as either the most popular language,
 or second most popular following JavaScript:
 
 -   [GitHub 2022](https://octoverse.github.com/2022/top-programming-languages)
@@ -57,7 +57,7 @@ such as Python would make great strides towards both of these goals.
 
 Wyvern was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL
 smart contracts. In line with the principle of meeting developers where they are, and recognising the popularity of
-JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL compiler is [also underway](https://tealscript.netlify.app).
+JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL compiler is [available here](https://github.com/algorandfoundation/puya-ts/).
 
 ## Principles
 
@@ -166,7 +166,7 @@ and not a set of "macros" for generating TEAL. As such, developers will not be a
 output, if this is desirable a language such as [Tealish](https://tealish.tinyman.org) is more appropriate.
 
 Whilst this will abstract away certain aspects of the underlying TEAL language, there are certain AVM concerns
-(such as op code budgets) that should not be abstracted away. That said, we should strive to generate code this is
+(such as op code budgets) that should not be abstracted away. That said, we should strive to generate code that is
 cost-effective and unsurprising. Python mechanisms such as dynamic (runtime) dispatch, and also many of its builtin
 functions on types such as `str` that are taken for granted, would require large amounts of ops compared to the
 Python code it represents.

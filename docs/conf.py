@@ -58,6 +58,7 @@ myst_enable_extensions = [
     "colon_fence",
     "fieldlist",
 ]
+myst_heading_anchors = 3
 
 # -- Options for autodoc2 ---
 autodoc2_packages = [

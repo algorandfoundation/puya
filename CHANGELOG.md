@@ -279,7 +279,7 @@ Support storing native `tuple` and `typing.NamedTuple` in global, local and box 
 ### Changed
 
 * raise an error when attempting to iterate a tuple of mutable values ([`43a364e`](https://github.com/algorandfoundation/puya/commit/43a364e0131e580565cbdfa3d8f44e9b78621252))
-* passing a mutable value more than once to a subroutine will now raise an error as allowing it would break semantic compatability ([`dac51be`](https://github.com/algorandfoundation/puya/commit/dac51be3c5cc3487ac303e9160fd9d8bd7b17788))
+* passing a mutable value more than once to a subroutine will now raise an error as allowing it would break semantic compatibility ([`dac51be`](https://github.com/algorandfoundation/puya/commit/dac51be3c5cc3487ac303e9160fd9d8bd7b17788))
 * raise an error when attempting to modify immutable arrays such as `algopy.arc4.Address` ([`9450c7a`](https://github.com/algorandfoundation/puya/commit/9450c7a615712010067f494cc57d0ceb48f021f4))
 
 ### Added
@@ -546,7 +546,7 @@ Support storing native `tuple` and `typing.NamedTuple` in global, local and box 
 
 ### Fixed
 
-* bool evaluations that evaluate to constants are now treated as errors as they were either hiding a semantic compatability issue or were a sign of a mistake in the code. ([`247d62d`](https://github.com/algorandfoundation/puya/commit/247d62d24543d232e2649c48a96d979e426b9ae3))
+* bool evaluations that evaluate to constants are now treated as errors as they were either hiding a semantic compatibility issue or were a sign of a mistake in the code. ([`247d62d`](https://github.com/algorandfoundation/puya/commit/247d62d24543d232e2649c48a96d979e426b9ae3))
 
 * handle single item tuples correctly ([`2026815`](https://github.com/algorandfoundation/puya/commit/202681511512bb7c7e6f41190c6bb4d810c02ab6))
 

@@ -1,6 +1,6 @@
 # PuyaPy compiler
 
-The PuyaPy compiler is a multi-stage, optimising compiler that takes Algorand Python and prepares it for execution on the AVM. PuyaPy ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy (among other formats).
+The PuyaPy compiler is a multi-stage, optimising compiler that takes Algorand Python and prepares it for execution on the AVM. PuyaPy ensures the resulting AVM bytecode has execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy (among other formats).
 
 The PuyaPy compiler is based on the [Puya compiler architecture](https://github.com/algorandfoundation/puya/blob/main/ARCHITECTURE.md),
 which allows for multiple frontend languages to leverage the majority of the compiler logic so adding new frontend languages for execution on Algorand is relatively easy.
@@ -26,6 +26,10 @@ There are three ways of installing the PuyaPy compiler.
 
 Alternatively, it can be installed per project. For example, if you're using [poetry](https://python-poetry.org),
 you can install it as a dev-dependency like so:
+
+```shell
+poetry add puyapy --group=dev
+```
 
 If you just want to play with some examples, you can clone the repo and have a poke around:
 
@@ -58,13 +62,13 @@ e.g. either `puyapy my_project/` or `puyapy my_project/contract.py` will work to
 
 ## Type checking
 
-The first and second steps of the [compiler pipeline](#compiler-architecture) are significant to note, because it's where we perform type checking. We leverage [MyPy](https://mypy-lang.org/) to do this, so we recommend that you install and use the latest version of MyPy in your development environment to get the best typing information that aligns to what the PuyaPy compiler expects. This should work with standard Python tooling e.g. with Visual Studio Code, PyCharm, et. al.
+The first and second steps of the [compiler pipeline](https://github.com/algorandfoundation/puya/blob/main/ARCHITECTURE.md) are significant to note, because it's where we perform type checking. We leverage [MyPy](https://mypy-lang.org/) to do this, so we recommend that you install and use the latest version of MyPy in your development environment to get the best typing information that aligns to what the PuyaPy compiler expects. This should work with standard Python tooling e.g. with Visual Studio Code, PyCharm, et. al.
 
 The easiest way to get a productive development environment with Algorand Python is to instantiate a template with AlgoKit via `algokit init -t python`. This will give you a full development environment with intellisense, linting, automatic formatting, breakpoint debugging, deployment and CI/CD.
 
 Alternatively, you can construct your own environment by configuring MyPy, Ruff, etc. with the same configuration files [used by that template](https://github.com/algorandfoundation/algokit-python-template).
 
-The MyPy config that PuyaPy uses is in [compile.py](https://github.com/algorandfoundation/puya/blob/main/src/puya/compile.py#L79)
+The MyPy config that PuyaPy uses is in [parse.py](https://github.com/algorandfoundation/puya/blob/8be90f7c84ecd6eaa972e4dbf82f3ec7a616fc75/src/puyapy/parse.py#L274)
 
 ## Compiler usage
 

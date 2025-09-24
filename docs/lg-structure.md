@@ -127,9 +127,6 @@ The compiler will produce a warning if a Contract class is implicitly abstract, 
 abstract methods are unimplemented.
 ```
 
-For more about inheritance and it's role in code reuse, see the section
-in [Code reuse](lg-code-reuse.md#inheritance)
-
 ### Contract class configuration
 
 When defining a contract subclass you can pass configuration options to the `algopy.Contract`
@@ -258,8 +255,8 @@ Things to note here:
 -   The default options for `abimethod` is to only allow `NoOp` as an on-completion-action, so we
     don't need to check this manually.
 -   The current call count is returned from the `invoke` method.
--   Every method in an `AR4Contract` except for the optional `__init__` and `clear_state_program`
-    methods must be decorated with one of `algopy.arc4.abimethod`, `alogpy.arc4.baremethod`, or
+-   Every method in an `ARC4Contract` except for the optional `__init__` and `clear_state_program`
+    methods must be decorated with one of `algopy.arc4.abimethod`, `algopy.arc4.baremethod`, or
     `algopy.subroutine`. `subroutines` won't be directly callable through the default router.
 
 See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the above.
