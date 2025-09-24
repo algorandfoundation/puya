@@ -2,7 +2,6 @@ import ast
 import codecs
 import enum
 import functools
-import itertools
 import operator
 import os
 import shutil
@@ -10,7 +9,7 @@ import subprocess
 import sys
 import sysconfig
 import typing
-from collections import defaultdict, deque
+from collections import deque
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
@@ -36,7 +35,7 @@ from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSource, create_source_list
-from puyapy.modulefinder import FindModuleCache, ModuleNotFoundReason
+from puyapy.modulefinder import FindModuleCache
 
 logger = log.get_logger(__name__)
 
@@ -284,7 +283,6 @@ def _find_dependencies(
     source_queue = deque(sources)
     queued_id_set = {rs.module for rs in source_queue}
     initial_source_ids = {rs.module for rs in sources}
-    # module_paths = dict[str, Path | None]()
     while source_queue:
         rs = source_queue.popleft()
         assert rs.module not in result_by_id
@@ -300,42 +298,27 @@ def _find_dependencies(
         )
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
-
-        import_data = _ImportData(
-            source=rs, module_imports=visitor.module_imports, from_imports=visitor.from_imports
+        dependencies, stub_imports = _ordered_dependencies(
+            rs,
+            fmc,
+            module_imports=visitor.module_imports,
+            from_imports=visitor.from_imports,
         )
         module_dep_ids = set[str]()
-        module_stub_dep_ids = set[str]()
-        for dep, is_definite in import_data.ordered:
-            top_level = dep.id.partition(".")[0]
-            if top_level in _ALLOWED_STUBS:
-                module_stub_dep_ids.add(dep.id)
-                continue
-            # if dep.id in module_paths:
-            #     if is_definite or module_paths.get(dep.id) is not None:
-            #         module_dep_ids.add(dep.id)
-            #     continue  # already resolved or attempted to resolve
-            path_or_reason = fmc.find_module(dep.id)
-            if isinstance(path_or_reason, str):
-                module_dep_ids.add(dep.id)
-                mod_path = Path(path_or_reason)
-                # module_paths[dep.id] = mod_path
-                assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
-                if mod_path.suffix == ".py" and set_add(queued_id_set, dep.id):
-                    dep_rs = ResolvedSource(
-                        path=mod_path,
-                        module=dep.id,
-                        base_dir=_infer_base_dir(mod_path, dep.id),
-                    )
-                    source_queue.append(dep_rs)
-            else:  # noqa: PLR5501
-                # module_paths[dep.id] = None
-                if is_definite:
-                    module_dep_ids.add(dep.id)
-                    if path_or_reason is ModuleNotFoundReason.NOT_FOUND:
-                        logger.error(
-                            f'unable to resolve imported module "{dep.id}"', location=dep.loc
-                        )
+        module_stub_dep_ids = set[str]()  # TODO: fill this in
+        for dep in dependencies:
+            mod_path = dep.path
+            module_dep_ids.add(dep.module_id)
+            assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
+            # assert mod_path.suffix == ".py", mod_path  # TODO: reinstate me?
+            if mod_path.suffix == ".py" and set_add(queued_id_set, dep.module_id):
+                dep_rs = ResolvedSource(
+                    path=mod_path,
+                    module=dep.module_id,
+                    base_dir=_infer_base_dir(mod_path, dep.module_id),
+                )
+                source_queue.append(dep_rs)
+        module_dep_ids.discard(rs.module)  # TODO: is this required?
         result_by_id[rs.module] = _ModuleData(
             source=rs,
             data=source,
@@ -605,58 +588,118 @@ _AST_CMP_TO_OP: Mapping[type[ast.cmpop], Callable] = {  # type: ignore[type-arg]
 
 @attrs.frozen
 class _Dependency:
-    id: str
+    module_id: str
+    path: Path
     loc: SourceLocation | None
+    implicit: bool
 
 
-@attrs.frozen
-class _ImportData:
-    source: ResolvedSource
-    module_imports: Sequence[ModuleImport]
-    from_imports: Sequence[FromImport]
+def _ordered_dependencies(
+    source: ResolvedSource,
+    fmc: FindModuleCache,
+    *,
+    module_imports: Sequence[ModuleImport],
+    from_imports: Sequence[FromImport],
+) -> tuple[list[_Dependency], list[ImportAs]]:
+    dependencies = []
+    stub_imports = list[ImportAs]()
+    for mod_imp in module_imports:
+        for alias in mod_imp.names:
+            if alias.name.partition(".")[0] in _ALLOWED_STUBS:
+                stub_imports.append(alias)
+                continue
 
-    @cached_property
-    def ordered(self) -> Sequence[tuple[_Dependency, bool]]:
-        all_locs = defaultdict[str, list[SourceLocation]](list)
-        definite_modules = set[str]()
-        all_ids = set[str]()
-        for mod_imp in self.module_imports:
-            for alias in mod_imp.names:
-                for module_id in _expand_ancestors(alias.name):
-                    all_locs[module_id].append(mod_imp.loc)
-                    definite_modules.add(module_id)
-                    all_ids.add(module_id)
-        for from_imp in self.from_imports:
-            for module_id in _expand_ancestors(from_imp.module):
-                all_locs[module_id].append(from_imp.loc)
-                definite_modules.add(module_id)
-                all_ids.add(module_id)
+            path_str = fmc.find_module(alias.name, alias.loc)
+            if path_str is None:
+                continue
+
+            path = Path(path_str)
+            dependencies.append(_Dependency(alias.name, path, alias.loc, implicit=False))
+            for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
+                alias.name, path
+            ):
+                dependencies.append(
+                    _Dependency(ancestor_module_id, ancestor_init_path, alias.loc, implicit=True)
+                )
+    for from_imp in from_imports:
+        module_id = from_imp.module
+        if module_id.partition(".")[0] in _ALLOWED_STUBS:
             if from_imp.names is None:
-                module_root = from_imp.module.partition(".")[0]
-                if module_root not in _ALLOWED_STUBS:
-                    logger.warning("TODO: handle star imports", location=from_imp.loc)
+                logger.debug("TODO: collect star imports from stubs", location=from_imp.loc)
             else:
-                for maybe_module_alias in from_imp.names:
-                    maybe_module_name = maybe_module_alias.name
-                    maybe_module_id = ".".join((from_imp.module, maybe_module_name))
-                    all_locs[maybe_module_id].append(maybe_module_alias.loc)
-                    all_ids.add(maybe_module_id)
-        # TODO: simplify this
-        for ancestor_id in itertools.islice(_expand_ancestors(self.source.module), 1, None):
-            assert self.source.base_dir is not None
-            ancestor_path = self.source.base_dir
-            for part in ancestor_id.split("."):
-                ancestor_path = ancestor_path / part
-            ancestor_path = ancestor_path / "__init__.py"
-            if ancestor_path.is_file():
-                all_ids.add(ancestor_id)
-                definite_modules.add(ancestor_id)
+                for alias in from_imp.names:
+                    stub_imports.append(
+                        attrs.evolve(alias, name=".".join((module_id, alias.name)))
+                    )
+            continue
 
-        result = []
-        for id in sorted(all_ids, key=lambda x: (-x.count("."), x)):
-            first_loc = min(all_locs[id], key=lambda y: y.line, default=None)
-            result.append((_Dependency(id=id, loc=first_loc), id in definite_modules))
-        return result
+        # note: there is a case that this doesn't handle, where module_id points to a directory of
+        # an implicit namespace package without an __init__.py, in that case however a from-import
+        # behaves differently depending on what has already been imported, which adds significant
+        # complexity here - so just error altogether for now.
+        path_str = fmc.find_module(module_id, from_imp.loc)
+        if path_str is None:
+            continue
+
+        path = Path(path_str)
+        sub_deps = []
+        any_unresolved = False
+        # If not resolving to an init file, then all imported symbols must be from that file.
+        # Similarly, when a `from x.y import *` resolves to x/y/__init__.py, all imported symbols
+        # must be from that file.
+        if path.name == "__init__.py" and from_imp.names is not None:
+            # There are two complications at this point:
+            # The first is that if x/__init__.py defines a variable foo, but there is also a
+            # file x/foo.py, then `from x import foo` will actually refer to the variable.
+            # This is okay, at worst we create spurious dependencies.
+            # The second complication is that symbols in the __init__.py could be modules from
+            # another location, this is okay because as long as there is a dependency to the
+            # __init__.py file then the importer will also depend transitively on that imported
+            # module.
+            mod_dir = path.parent
+            for alias in from_imp.names:
+                maybe_path = mod_dir / alias.name
+                if maybe_path.is_dir():
+                    maybe_path = maybe_path / "__init__.py"
+                else:
+                    maybe_path = maybe_path.with_suffix(".py")
+                if maybe_path.is_file():
+                    submodule_id = ".".join((module_id, alias.name))
+                    sub_deps.append(
+                        _Dependency(submodule_id, maybe_path, alias.loc, implicit=False)
+                    )
+                else:
+                    any_unresolved = True
+        dependencies.append(
+            _Dependency(module_id, path, from_imp.loc, implicit=not any_unresolved)
+        )
+        dependencies.extend(sub_deps)
+        for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(module_id, path):
+            dependencies.append(
+                _Dependency(ancestor_module_id, ancestor_init_path, from_imp.loc, implicit=True)
+            )
+
+    for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
+        source.module, source.path
+    ):
+        dependencies.append(
+            _Dependency(ancestor_module_id, ancestor_init_path, None, implicit=True)
+        )
+    return dependencies, stub_imports
+
+
+def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
+    """Check that all packages containing id have a __init__ file."""
+    ancestors = list(_expand_ancestors(module_id))
+    if path.name == "__init__.py":
+        path = path.parent
+    else:
+        ancestors.pop(0)
+    for ancestor in ancestors:
+        path = path.parent
+        init_file = path / "__init__.py"
+        if init_file.is_file():
+            yield ancestor, init_file
 
 
 def _expand_ancestors(module_id: str) -> Iterator[str]:

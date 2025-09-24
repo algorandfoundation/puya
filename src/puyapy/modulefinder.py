@@ -7,9 +7,14 @@ import attrs
 from mypy.fscache import FileSystemCache
 from mypy.util import os_path_join
 
+from puya import log
+from puya.parse import SourceLocation
+
 # Package dirs are a two-tuple of path to search and whether to verify the module
 OnePackageDir = tuple[str, bool]
 PackageDirs = list[OnePackageDir]
+
+logger = log.get_logger(__name__)
 
 
 @enum.unique
@@ -157,7 +162,7 @@ class FindModuleCache:
         self.initial_components[lib_path] = components
         return components
 
-    def find_module(self, id: str) -> ModuleSearchResult:
+    def try_find_module(self, id: str) -> ModuleSearchResult:
         """Return the path of the module source file or why it wasn't found."""
         try:
             return self.results[id]
@@ -167,6 +172,23 @@ class FindModuleCache:
         if should_cache:
             self.results[id] = result
         return result
+
+    def find_module(self, module_id: str, import_loc: SourceLocation | None) -> str | None:
+        path_or_reason = self.try_find_module(module_id)
+        match path_or_reason:
+            case str(path):
+                return path
+            case ModuleNotFoundReason.NOT_FOUND:
+                logger.error(
+                    f'unable to resolve imported module "{module_id}"', location=import_loc
+                )
+                return None
+            case ModuleNotFoundReason.NO_TYPED_MARKER:
+                logger.error(
+                    f'imported module "{module_id}" comes from an untyped package',
+                    location=import_loc,
+                )
+                return None
 
     def _find_module_non_stub_helper(
         self, id: str, pkg_dir: str
