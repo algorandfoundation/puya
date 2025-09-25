@@ -74,7 +74,7 @@ def constant_bool_and_error(
     Returns a constant bool instance builder for the specified value and negate combination.
 
     Always emits an error as either allowing the expression would result in a semantic
-    compatability issue, or indicates the user has most likely made a mistake
+    compatibility issue, or indicates the user has most likely made a mistake
     """
     from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 

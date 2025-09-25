@@ -10,13 +10,13 @@ Algorand Python exposes a number of types that provide a statically typed repres
 
 ## AVM types
 
-The most basic [types on the AVM](https://devdeveloper.algorand.co/concepts/smart-contracts/avm/#stack-types)
+The most basic [types on the AVM](https://dev.algorand.co/concepts/smart-contracts/avm/#stack-types)
 are `uint64` and `bytes[]`, representing unsigned 64-bit integers and byte arrays respectively.
-These are represented by [`UInt64`](./#uint64) and [`Bytes`](./#bytes) in Algorand Python.
+These are represented by [`UInt64`](#uint64) and [`Bytes`](#bytes) in Algorand Python.
 
 There are further "bounded" types supported by the AVM, which are backed by these two simple primitives.
 For example, `bigint` represents a variably sized (up to 512-bits), unsigned integer, but is actually
-backed by a `bytes[]`. This is represented by [`BigUInt`](./#biguint) in Algorand Python.
+backed by a `bytes[]`. This is represented by [`BigUInt`](#biguint) in Algorand Python.
 
 ### UInt64
 
@@ -97,12 +97,12 @@ See [Python builtins](lg-builtins.md#len---length) for an explanation of why `le
 
 ### String
 
-[`String`](#algopy.String) is a special Algorand Python type that represents a UTF8 encoded string.
-It's backed by `Bytes`, which can be accessed through the `.bytes`.
+[`String`](#algopy.String) is a special Algorand Python type that represents a UTF-8 encoded string.
+It's backed by `Bytes`, which can be accessed through the `.bytes` property.
 
 It works similarly to `Bytes`, except that it works with `str` literals rather than `bytes`
 literals. Additionally, due to a lack of AVM support for unicode data, indexing and length
-operations are not currently supported (simply getting the length of a UTF8 string is an `O(N)`
+operations are not currently supported (simply getting the length of a UTF-8 string is an `O(N)`
 operation, which would be quite costly in a smart contract). If you are happy using the length as
 the number of bytes, then you can call `.bytes.length`.
 
@@ -123,7 +123,7 @@ assert data == "abcdef"
 assert abc.startswith("ab")
 assert abc.endswith("bc")
 assert abc in data
-# you can also join multiple Strings together with a seperator:
+# you can also join multiple Strings together with a separator:
 assert algopy.String(", ").join((abc, abc)) == "abc, abc"
 # access the underlying bytes
 assert abc.bytes == b"abc"

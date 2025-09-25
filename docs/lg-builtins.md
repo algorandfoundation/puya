@@ -4,17 +4,17 @@ Some common python builtins have equivalent `algopy` versions, that use an [`UIn
 
 ## len
 
-The `len()` builtin is not supported, instead `algopy` types that have a length have a `.length` property of type [`UInt64`](#algopy.UInt64). This is primarily
+The `len()` builtin is not supported. Instead, `algopy` types that have a length have a `.length` property of type [`UInt64`](#algopy.UInt64). This is primarily
 due to `len()` always returning `int` and the CPython implementation enforcing that it returns _exactly_ `int`.
 
 ## range
 
-The `range()` builtin has an equivalent [`algopy.urange`](#algopy.urange) this behaves the same as the python builtin except that it returns
+The `range()` builtin has an equivalent [`algopy.urange`](#algopy.urange). This behaves the same as the python builtin except that it returns
 an iteration of [`UInt64`](#algopy.UInt64) values instead of `int`.
 
 ## enumerate
 
-The `enumerate()` builtin has an equivalent [`algopy.uenumerate`](#algopy.uenumerate) this behaves the same as the python builtin except that it returns
+The `enumerate()` builtin has an equivalent [`algopy.uenumerate`](#algopy.uenumerate). This behaves the same as the python builtin except that it returns
 an iteration of [`UInt64`](#algopy.UInt64) index values and the corresponding item.
 
 ## reversed

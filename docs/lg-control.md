@@ -62,11 +62,11 @@ for index, item in uenumerate(reversed(urange(4))):
 assert test_array.bytes == Bytes.from_hex("03020100")
 ```
 
-[See full](https://github.com/algorandfoundation/puya/blob/main/test_cases/reversed_iteration/contract.py) [examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
+[See full examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
 
 ## Match Statements
 
-Match statements work the same as Python and work for [...]
+Match statements work the same as Python with support for basic case/switch functionality. Captures and patterns are not supported. Pattern matching and guard clauses are also not supported currently.
 
 ```python
 match value:
@@ -77,7 +77,5 @@ match value:
     case _:
         # Fallback
 ```
-
-Note: Captures and patterns are not supported. Currently, there is only support for basic case/switch functionality; pattern matching and guard clauses are not currently supported.
 
 [See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/match/contract.py).

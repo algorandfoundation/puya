@@ -177,4 +177,4 @@ The `out` directory will contain a `*.teal` file for both the approval and clear
 
 Producing the above artifacts and invoking Puya is the end game of building a new front end. 
 
-**Next up**: [Designing a langauge](./02-designing-a-language.md)
+**Next up**: [Designing a language](./02-designing-a-language.md)
