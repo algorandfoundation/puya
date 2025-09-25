@@ -191,11 +191,12 @@ def _create_and_check_source_list(
     build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
     sources_by_module_name = dict[str, ResolvedSource]()
     sources_by_path = dict[Path, ResolvedSource]()
-    duplicate_errors = list[ConfigurationError]()
+    base_dir_by_pkg = dict[str, Path | None]()
+    errors = list[ConfigurationError]()
     for bs in build_sources:
         existing = sources_by_module_name.setdefault(bs.module, bs)
         if existing != bs:
-            duplicate_errors.append(
+            errors.append(
                 ConfigurationError(
                     f"duplicate modules named in build sources:"
                     f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
@@ -205,15 +206,38 @@ def _create_and_check_source_list(
         else:
             existing = sources_by_path.setdefault(bs.path, bs)
             if existing != bs:
-                duplicate_errors.append(
+                errors.append(
                     ConfigurationError(
                         f"source path {make_path_relative_to_cwd(bs.path)}"
                         f" was resolved to multiple module names, ensure each path is only"
                         f" specified once or add top-level __init__.py files to mark package roots"
                     )
                 )
-    if duplicate_errors:
-        raise ExceptionGroup("duplicate module errors", duplicate_errors)
+            else:
+                pkg = bs.module.partition(".")[0]
+                existing_base = base_dir_by_pkg.setdefault(pkg, bs.base_dir)
+                if existing_base != bs.base_dir:
+                    if existing_base is None:
+                        conflict_msg = (
+                            f"module '{bs.module}' appears to be a package"
+                            f" rooted at {bs.base_dir},"
+                            f" which conflicts with a standalone module '{pkg}'"
+                        )
+                    elif bs.base_dir is None:
+                        conflict_msg = (
+                            f"module '{bs.module}' appears to be a standalone module,"
+                            f" which conflicts with a package of the same name"
+                            f" rooted at {existing_base}"
+                        )
+                    else:
+                        conflict_msg = (
+                            f"module '{bs.module}' appears to be a package"
+                            f" rooted at {bs.base_dir},"
+                            f" which conflicts with existing package root {existing_base}"
+                        )
+                    errors.append(ConfigurationError(conflict_msg))
+    if errors:
+        raise ExceptionGroup("source conflicts", errors)
     return sources_by_module_name
 
 
