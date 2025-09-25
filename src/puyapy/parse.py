@@ -118,6 +118,8 @@ def parse_python(
     typeshed_paths = _typeshed_paths()
     mypy_search_paths = SearchPaths(
         python_path=(),
+        # TODO: trim this down to just algopy-stubs location when not running from built puyapy
+        #       (where it is contained in typeshed)
         package_path=tuple(map(str, package_paths)),
         typeshed_path=typeshed_paths,
         mypy_path=(),

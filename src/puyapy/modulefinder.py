@@ -60,7 +60,8 @@ class FindModuleCache:
                 return None
             case ModuleNotFoundReason.UNTYPED_PACKAGE:
                 logger.error(
-                    f'imported module "{module_id}" comes from an untyped package',
+                    f'imported module "{module_id}" comes from an untyped package,'
+                    f" or a package with separate type stubs",
                     location=import_loc,
                 )
                 return None
@@ -94,13 +95,17 @@ class FindModuleCache:
             else:
                 mod_path = pkg_root.parent.joinpath(*rest.split("."))
                 if mod_path.is_dir():
-                    mod_path = mod_path / "__init__.py"
+                    mod_init_path = mod_path / "__init__.py"
+                    if mod_init_path.is_file():
+                        return mod_init_path
+                    else:
+                        return mod_path
                 else:
                     mod_path = mod_path.with_suffix(".py")
-                if mod_path.is_file():
-                    return mod_path
-                else:
-                    return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
+                    if mod_path.is_file():
+                        return mod_path
+                    else:
+                        return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
         possible_namespace_package = False
         for lib_path in self.package_paths:
             lib_path_entries = lazy_setdefault(self._lib_path_cache, lib_path, self._load_lib_path)
@@ -118,13 +123,17 @@ class FindModuleCache:
                     assert pkg_root.name == "__init__.py"
                     mod_path = pkg_root.parent.joinpath(*rest.split("."))
                     if mod_path.is_dir():
-                        mod_path = mod_path / "__init__.py"
+                        mod_init_path = mod_path / "__init__.py"
+                        if mod_init_path.is_file():
+                            return mod_init_path
+                        else:
+                            return mod_path
                     else:
                         mod_path = mod_path.with_suffix(".py")
-                    if mod_path.is_file():
-                        return mod_path
-                    else:
-                        return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
+                        if mod_path.is_file():
+                            return mod_path
+                        else:
+                            return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
                 case unexpected:
                     typing.assert_never(unexpected)
         if possible_namespace_package:
