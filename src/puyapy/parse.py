@@ -91,23 +91,18 @@ def parse_python(
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    sources_by_module_name = _create_and_check_source_list(
+    sources_by_module_name, package_roots = _create_and_check_source_list(
         paths, excluded_subdir_names=excluded_subdir_names
     )
     sources_by_module_name = dict(sorted(sources_by_module_name.items()))
 
-    source_roots = [
-        bs.base_dir for bs in sources_by_module_name.values() if bs.base_dir is not None
-    ]
-    source_roots.append(Path.cwd())
-
-    python_path = tuple(dict.fromkeys(map(str, source_roots)))
-    package_paths = tuple(_resolve_package_paths(package_search_paths))
+    package_paths = (
+        Path.cwd().resolve(),
+        *_resolve_package_paths(package_search_paths),
+    )
     fmc = FindModuleCache(
-        source_roots=python_path,
         package_paths=package_paths,
-        fscache=fs_cache,
-        source_modules={bs.module: bs.path for bs in sources_by_module_name.values()},
+        package_roots=package_roots,
     )
     module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
@@ -122,8 +117,8 @@ def parse_python(
     mypy_options = _get_mypy_options()
     typeshed_paths = _typeshed_paths()
     mypy_search_paths = SearchPaths(
-        python_path=python_path,
-        package_path=package_paths,
+        python_path=(),
+        package_path=tuple(map(str, package_paths)),
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
@@ -187,11 +182,12 @@ def _create_and_check_source_list(
     paths: Sequence[Path],
     *,
     excluded_subdir_names: Sequence[str] | None,
-) -> Mapping[str, ResolvedSource]:
+) -> tuple[Mapping[str, ResolvedSource], Mapping[str, Path]]:
     build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
     sources_by_module_name = dict[str, ResolvedSource]()
     sources_by_path = dict[Path, ResolvedSource]()
     base_dir_by_pkg = dict[str, Path | None]()
+    package_roots = dict[str, Path]()
     errors = list[ConfigurationError]()
     for bs in build_sources:
         existing = sources_by_module_name.setdefault(bs.module, bs)
@@ -215,8 +211,17 @@ def _create_and_check_source_list(
                 )
             else:
                 pkg = bs.module.partition(".")[0]
+                # TODO: use just package_roots instead of also having base_dir_by_pkg
                 existing_base = base_dir_by_pkg.setdefault(pkg, bs.base_dir)
-                if existing_base != bs.base_dir:
+                if existing_base == bs.base_dir:
+                    if bs.base_dir is None:
+                        assert bs.path.suffix == ".py" and not bs.path.name.startswith("__init__.")
+                        package_roots[pkg] = bs.path
+                    else:
+                        init_path = bs.base_dir / pkg / "__init__.py"
+                        assert init_path.is_file()
+                        package_roots[pkg] = init_path
+                else:
                     if existing_base is None:
                         conflict_msg = (
                             f"module '{bs.module}' appears to be a package"
@@ -238,12 +243,12 @@ def _create_and_check_source_list(
                     errors.append(ConfigurationError(conflict_msg))
     if errors:
         raise ExceptionGroup("source conflicts", errors)
-    return sources_by_module_name
+    return sources_by_module_name, package_roots
 
 
 def _resolve_package_paths(
     package_search_paths: Sequence[str] | typing.Literal["infer", "current"],
-) -> list[str]:
+) -> list[Path]:
     match package_search_paths:
         case "current":
             sys_path = interpreter_data.get_sys_path()
@@ -253,7 +258,7 @@ def _resolve_package_paths(
             sys_path = [os.path.abspath(p) for p in paths]  # noqa: PTH100
     logger.info(f"using python search path: {sys_path}")
     _check_algopy_version(sys_path)
-    return sys_path
+    return [Path(p) for p in sys_path]
 
 
 def _infer_sys_path() -> list[str]:
