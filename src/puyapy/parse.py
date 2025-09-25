@@ -1,5 +1,6 @@
 import ast
 import codecs
+import contextlib
 import enum
 import functools
 import operator
@@ -118,9 +119,7 @@ def parse_python(
     typeshed_paths = _typeshed_paths()
     mypy_search_paths = SearchPaths(
         python_path=(),
-        # TODO: trim this down to just algopy-stubs location when not running from built puyapy
-        #       (where it is contained in typeshed)
-        package_path=tuple(map(str, package_paths)),
+        package_path=(),
         typeshed_path=typeshed_paths,
         mypy_path=(),
     )
@@ -891,6 +890,16 @@ def _typeshed_paths() -> tuple[str, str]:
     versions_file = typeshed_dir / "VERSIONS"
     if not typeshed_dir.is_dir() or not versions_file.is_file():
         raise InternalError("puyapy install is corrupted - missing typeshed directories")
+    algopy_typeshed = typeshed_dir / "algopy"
+    # TODO: remove below hack once mypy migration is complete
+    if not algopy_typeshed.exists():
+        logger.debug("algopy not installed in typeshed, assuming puyapy development mode")
+        puyapy_dir = Path(__file__).parent
+        vcs_root = puyapy_dir.parent.parent
+        algopy_stubs = vcs_root / "stubs" / "algopy-stubs"
+        assert algopy_stubs.is_dir()
+        with contextlib.suppress(FileExistsError):  # ignore race condition
+            algopy_typeshed.symlink_to(algopy_stubs, target_is_directory=True)
     # Get mypy-extensions stubs from typeshed, since we treat it as an
     # "internal" library, similar to typing and typing-extensions.
     mypy_extensions_dir = custom_typeshed_dir / "stubs" / "mypy-extensions"
