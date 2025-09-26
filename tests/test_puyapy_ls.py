@@ -378,7 +378,7 @@ async def _create_client() -> "_LanguageClient":
     client = _LanguageClient("puyapy-ls", "99", _LanguageServerProtocol)
     # start the server
     env = os.environ | {"NO_COLOR": "1"}
-    await client.start_io(puya_path, env=env)
+    await client.start_io(puya_path, "--log-level=debug", env=env)
     return client
 
 
