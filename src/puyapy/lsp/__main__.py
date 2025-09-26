@@ -15,7 +15,7 @@ def main(
     stdio: bool = True,
     host: str = "localhost",
     port: int = 8888,
-    log_level: log.LogLevel = log.LogLevel.debug,
+    log_level: log.LogLevel = log.LogLevel.info,
 ) -> None:
     """
     Starts the puyapy language server
