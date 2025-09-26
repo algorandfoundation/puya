@@ -238,11 +238,36 @@ async def test_code_fix_symbol_aliases(
     assert actual_edits == expected_edits
 
 
+@pytest.mark.parametrize(
+    ("package", "import_method"),
+    [
+        ("package", "relative"),
+        ("package", "absolute"),
+        (None, "absolute"),
+        # relative imports without a package are not supported
+    ],
+)
 async def test_dependencies_diagnostics_update(
-    workspace_root: Path, harness: "_LanguageServerHarness"
+    workspace_root: Path,
+    harness: "_LanguageServerHarness",
+    *,
+    package: str | None,
+    import_method: typing.Literal["relative", "absolute"],
 ) -> None:
-    doc_a = (workspace_root / "a.py").as_uri()
-    doc_b = (workspace_root / "b.py").as_uri()
+    package_name = f"{package}_{import_method}"
+    working_dir = workspace_root / package_name
+    working_dir.mkdir()
+    if package:
+        doc_init = (working_dir / "__init__.py").as_uri()
+        harness.open_doc(uri=doc_init, text="\n")
+    a_full_name = f"{package_name}.a" if package else "a"
+    if import_method == "relative":
+        a_import_name = ".a"
+    else:
+        a_import_name = a_full_name
+
+    doc_a = (working_dir / "a.py").as_uri()
+    doc_b = (working_dir / "b.py").as_uri()
     harness.open_doc(
         uri=doc_a,
         text="""
@@ -254,9 +279,9 @@ def five() -> UInt64:
     )
     harness.open_doc(
         uri=doc_b,
-        text="""
+        text=f"""
 from algopy import ARC4Contract, UInt64, arc4
-from a import five
+from {a_import_name} import five
 
 class Contract(ARC4Contract):
 
@@ -275,7 +300,7 @@ class Contract(ARC4Contract):
 
     assert (
         diag_b.diagnostics[0].message
-        == "Cannot invoke a.five as it is not decorated with algopy.subroutine"
+        == f"Cannot invoke {a_full_name}.five as it is not decorated with algopy.subroutine"
     )
 
     harness.insert_lines(
@@ -295,10 +320,6 @@ class Contract(ARC4Contract):
 
     assert diag_a.diagnostics == []
     assert diag_b.diagnostics == []
-
-
-# TODO: add test case for more complex dependencies including relative imports
-#       and reexporting algopy
 
 
 async def test_backend_error(harness: "_LanguageServerHarness", unique_uri: str) -> None:
