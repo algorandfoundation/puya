@@ -196,6 +196,8 @@ class CodeAnalyser:
         path_dependencies = defaultdict[Path, list[Path]](list)
         path_algopy_symbols = dict[Path, dict[str, str | int]]()
         for module_id, module in modules.items():
+            if module.is_typeshed_file:
+                continue
             dependencies = StableSet[str]()
             symbols = dict[str, str | int]()
             for import_ in module.node.imports:
@@ -209,9 +211,10 @@ class CodeAnalyser:
                     # import from can contain modules or other symbols
                     # update graph with any names that are in modules
                     # also need to resolve relative imports to full namespace
-                    import_module_id = _resolve_relative_import(module_id, import_)
-                    if import_module_id == import_.id:
-                        dependencies.add(import_module_id)
+                    import_module_id = _correct_relative_import(
+                        file_id=module_id, file_path=module.path, import_=import_
+                    )
+                    dependencies.add(import_module_id)
 
                     symbols[import_module_id] = coalesce(import_.end_line, import_.line) + 1
                     for name, alias in import_.names:
@@ -220,7 +223,9 @@ class CodeAnalyser:
                         if maybe_sub_module_id in modules:
                             dependencies.add(maybe_sub_module_id)
                 elif isinstance(import_, mypy.nodes.ImportAll):
-                    import_module_id = _resolve_relative_import(module_id, import_)
+                    import_module_id = _correct_relative_import(
+                        file_id=module_id, file_path=module.path, import_=import_
+                    )
                     symbols[import_module_id] = ""
                     # include any known submodules as a dependency
                     sub_module_pattern = re.compile(f"{import_module_id}\\.\\w+$")
@@ -285,16 +290,25 @@ class CodeAnalyser:
             yield from self._get_dependencies(dependency)
 
 
-def _resolve_relative_import(
-    module_id: str, import_: mypy.nodes.ImportFrom | mypy.nodes.ImportAll
+def _correct_relative_import(
+    *, file_id: str, file_path: Path, import_: mypy.nodes.ImportFrom | mypy.nodes.ImportAll
 ) -> str:
+    """Function to correct for relative imports."""
     if import_.relative:
-        import_module_id = module_id
-        if import_.relative > 1:
-            traverse_up = import_.relative - 1
-            import_module_id = ".".join(import_module_id.split(".")[:-traverse_up])
+        rel = import_.relative
+        assert rel > 0
+        if file_path.stem == "__init__":
+            rel -= 1
+        if rel != 0:
+            file_id = ".".join(file_id.split(".")[:-rel])
+
         if import_.id:
-            import_module_id = f"{import_module_id}.{import_.id}"
+            new_id = file_id + "." + import_.id
+        else:
+            new_id = file_id
+
+        logger.debug(f"resolved relative import {import_} to {new_id}")
+        return new_id
     else:
         import_module_id = import_.id
     return import_module_id
