@@ -238,11 +238,19 @@ async def test_code_fix_symbol_aliases(
     assert actual_edits == expected_edits
 
 
+@pytest.mark.parametrize("use_relative_import", [False, True])
 async def test_dependencies_diagnostics_update(
-    workspace_root: Path, harness: "_LanguageServerHarness"
+    workspace_root: Path,
+    harness: "_LanguageServerHarness",
+    use_relative_import: bool,  # noqa: FBT001
 ) -> None:
-    doc_a = (workspace_root / "a.py").as_uri()
-    doc_b = (workspace_root / "b.py").as_uri()
+    pkg_name = "relative" if use_relative_import else "absolute"
+    my_dir = workspace_root / pkg_name
+    my_dir.mkdir()
+    doc_init = (my_dir / "__init__.py").as_uri()
+    harness.open_doc(uri=doc_init, text="\n")
+    doc_a = (my_dir / "a.py").as_uri()
+    doc_b = (my_dir / "b.py").as_uri()
     harness.open_doc(
         uri=doc_a,
         text="""
@@ -254,9 +262,9 @@ def five() -> UInt64:
     )
     harness.open_doc(
         uri=doc_b,
-        text="""
+        text=f"""
 from algopy import ARC4Contract, UInt64, arc4
-from a import five
+from {pkg_name if not use_relative_import else ''}.a import five
 
 class Contract(ARC4Contract):
 
@@ -275,7 +283,7 @@ class Contract(ARC4Contract):
 
     assert (
         diag_b.diagnostics[0].message
-        == "Cannot invoke a.five as it is not decorated with algopy.subroutine"
+        == f"Cannot invoke {pkg_name}.a.five as it is not decorated with algopy.subroutine"
     )
 
     harness.insert_lines(
