@@ -16,7 +16,13 @@ from importlib import metadata
 from pathlib import Path
 
 import attrs
-from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_components
+from mypy.build import (
+    BuildManager,
+    load_graph,
+    order_ascc,
+    process_stale_scc,
+    sorted_components,
+)
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
 from mypy.fscache import FileSystemCache
@@ -138,7 +144,7 @@ def parse_python(
         typeshed_path=tuple(map(str, (typeshed_path, mypy_ext_path))),
         mypy_path=(),
     )
-    manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
+    manager, sccs = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
@@ -150,7 +156,7 @@ def parse_python(
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
-    for scc_module_names in sorted_components(graph):
+    for scc_module_names in sccs:
         for module_name in sorted(scc_module_names):
             module = manager.modules[module_name]
             state = graph[module_name]
@@ -819,7 +825,7 @@ def _mypy_build(
     options: MypyOptions,
     search_paths: SearchPaths,
     fscache: FileSystemCache,
-) -> tuple[BuildManager, Graph]:
+) -> tuple[BuildManager, list[Set[str]]]:
     """Simple wrapper around mypy.build.build
 
     Makes it so that check errors and parse errors are handled the same (ie with an exception)
@@ -857,9 +863,31 @@ def _mypy_build(
 
     reset_global_state()
     graph = load_graph(sources, manager)
-    process_graph(graph, manager)
+    # process_graph(graph, manager)
+    sccs = sorted_components(graph)
+    # We're processing SCCs from leaves (those without further
+    # dependencies) to roots (those from which everything else can be
+    # reached).
+    for ascc in sccs:
+        # Order the SCC's nodes using a heuristic.
+        # Note that ascc is a set, and scc is a list.
+        scc = order_ascc(graph, ascc)
+        # Make the order of the SCC that includes 'builtins' and 'typing',
+        # among other things, predictable. Various things may  break if
+        # the order changes.
+        if "builtins" in ascc:
+            scc = sorted(scc, reverse=True)
+            # If builtins is in the list, move it last.  (This is a bit of
+            # a hack, but it's necessary because the builtins module is
+            # part of a small cycle involving at least {builtins, abc,
+            # typing}.  Of these, builtins must be processed last or else
+            # some builtin objects will be incompletely processed.)
+            scc.remove("builtins")
+            scc.append("builtins")
+        process_stale_scc(graph, scc, manager)
+
     type_state.reset_all_subtype_caches()
-    return manager, graph
+    return manager, sccs
 
 
 class _LogReporter(ErrorFormatter):
