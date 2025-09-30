@@ -84,6 +84,8 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: no active python virtual env",
                 "debug: attempting to locate 'python",
                 "debug: using python search path from ",
+                # dev notes
+                "info: algopy-stubs not installed in typeshed, assuming puyapy development mode",
             )
         )
     ]
