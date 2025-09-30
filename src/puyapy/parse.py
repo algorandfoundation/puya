@@ -97,10 +97,7 @@ def parse_python(
     )
     sources_by_module_name = dict(sorted(sources_by_module_name.items()))
 
-    package_paths = (
-        Path.cwd().resolve(),
-        *_resolve_package_paths(package_search_paths),
-    )
+    package_paths = _resolve_package_paths(package_search_paths)
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     if file_contents:
@@ -340,7 +337,7 @@ def _find_dependencies(
         )
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
-        dependencies, stub_imports = _ordered_dependencies(
+        dependencies = _resolve_import_dependencies(
             rs,
             fmc,
             module_imports=visitor.module_imports,
@@ -636,19 +633,17 @@ class _Dependency:
     implicit: bool
 
 
-def _ordered_dependencies(
+def _resolve_import_dependencies(
     source: ResolvedSource,
     fmc: FindModuleCache,
     *,
     module_imports: Sequence[ModuleImport],
     from_imports: Sequence[FromImport],
-) -> tuple[list[_Dependency], list[ImportAs]]:
+) -> list[_Dependency]:
     dependencies = []
-    stub_imports = list[ImportAs]()
     for mod_imp in module_imports:
         for alias in mod_imp.names:
             if alias.name.partition(".")[0] in _ALLOWED_STUBS:
-                stub_imports.append(alias)
                 continue
 
             path_str = fmc.find_module(alias.name, alias.loc)
@@ -666,13 +661,6 @@ def _ordered_dependencies(
     for from_imp in from_imports:
         module_id = from_imp.module
         if module_id.partition(".")[0] in _ALLOWED_STUBS:
-            if from_imp.names is None:
-                logger.debug("TODO: collect star imports from stubs", location=from_imp.loc)
-            else:
-                for alias in from_imp.names:
-                    stub_imports.append(
-                        attrs.evolve(alias, name=".".join((module_id, alias.name)))
-                    )
             continue
 
         # note: there is a case that this doesn't handle, where module_id points to a directory of
@@ -727,7 +715,7 @@ def _ordered_dependencies(
         dependencies.append(
             _Dependency(ancestor_module_id, ancestor_init_path, None, implicit=True)
         )
-    return dependencies, stub_imports
+    return dependencies
 
 
 def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
