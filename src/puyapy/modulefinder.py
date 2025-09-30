@@ -1,6 +1,6 @@
 import enum
 import typing
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -31,7 +31,7 @@ LibPathResult = (
     ]
 )
 
-_LibPath = tuple[Path, ...]
+_LibPath = Sequence[Path]
 
 
 @attrs.frozen(kw_only=True)
