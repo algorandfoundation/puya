@@ -87,18 +87,34 @@ class FindModuleCache:
         result = lazy_setdefault(self._results, module_id, self._find_module)
         # TODO: should this resolve first instead?
         if result is ModuleNotFoundReason.PACKAGE_NOT_FOUND:
-            module_parts = module_id.split(".")
-            test_path = import_base_dir.joinpath(*module_parts)
-            if test_path.is_dir():
-                init_path = test_path / "__init__.py"
-                if init_path.is_file():
-                    return init_path
-                return test_path  # TODO: consider returning a "possible NS dir" marker
+            pkg, *rest = module_id.split(".")
+            maybe_pkg_dir = import_base_dir.joinpath(pkg)
+            if not maybe_pkg_dir.is_dir():
+                standalone_module_path = maybe_pkg_dir.with_suffix(".py")
+                if standalone_module_path.is_file():
+                    if not rest:
+                        return standalone_module_path
+                    else:
+                        return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
             else:
-                # TODO: warn if shadowed?
-                py_path = test_path.with_suffix(".py")
-                if py_path.is_file():
-                    return py_path
+                pkg_dir = maybe_pkg_dir
+                pkg_init_path = pkg_dir / "__init__.py"
+                if not pkg_init_path.is_file():
+                    return ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE
+                if not rest:
+                    return pkg_init_path
+                sub_path = pkg_dir.joinpath(*rest)
+                if sub_path.is_dir():
+                    init_path = sub_path / "__init__.py"
+                    if init_path.is_file():
+                        return init_path
+                    return sub_path
+                else:
+                    # TODO: warn if shadowed?
+                    py_path = sub_path.with_suffix(".py")
+                    if py_path.is_file():
+                        return py_path
+
         return result
 
     def _find_module(self, module_id: str) -> ModuleSearchResult:
