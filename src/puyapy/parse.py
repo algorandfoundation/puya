@@ -1,6 +1,5 @@
 import ast
 import codecs
-import contextlib
 import enum
 import functools
 import operator
@@ -122,11 +121,21 @@ def parse_python(
         for module, md in module_data.items()
     ]
     mypy_options = _get_mypy_options()
-    typeshed_paths = _typeshed_paths()
+    typeshed_path, mypy_ext_path = _typeshed_paths()
+    algopy_typeshed = typeshed_path / "algopy"
+    stub_package_paths: tuple[str, ...] = ()
+    # TODO: remove below hack once mypy migration is complete
+    if not algopy_typeshed.exists():
+        logger.info("algopy-stubs not installed in typeshed, assuming puyapy development mode")
+        puyapy_dir = Path(__file__).parent
+        vcs_root = puyapy_dir.parent.parent
+        stubs_dir = vcs_root / "stubs"
+        stub_package_paths = (str(stubs_dir),)
+
     mypy_search_paths = SearchPaths(
         python_path=(),
-        package_path=(),
-        typeshed_path=typeshed_paths,
+        package_path=stub_package_paths,
+        typeshed_path=tuple(map(str, (typeshed_path, mypy_ext_path))),
         mypy_path=(),
     )
     manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
@@ -309,7 +318,6 @@ class _ModuleData:
     dependencies: frozenset[str]
     tree: ast.Module
     followed: bool
-    stubs: frozenset[str]
 
 
 _ALLOWED_STUBS: typing.Final = frozenset(("algopy", "abc", "typing", "typing_extensions"))
@@ -344,7 +352,6 @@ def _find_dependencies(
             from_imports=visitor.from_imports,
         )
         module_dep_ids = set[str]()
-        module_stub_dep_ids = set[str]()  # TODO: fill this in
         for dep in dependencies:
             mod_path = dep.path
             module_dep_ids.add(dep.module_id)
@@ -364,7 +371,6 @@ def _find_dependencies(
             tree=tree,
             dependencies=frozenset(module_dep_ids),
             followed=rs.module not in initial_source_ids,
-            stubs=frozenset(module_stub_dep_ids),
         )
     return result_by_id
 
@@ -883,27 +889,23 @@ class _LogReporter(ErrorFormatter):
 
 
 @functools.cache
-def _typeshed_paths() -> tuple[str, str]:
+def _typeshed_paths() -> tuple[Path, Path]:
     """Return default standard library search paths. Guaranteed to be normalised."""
     custom_typeshed_dir = _CUSTOM_TYPESHED_PATH.resolve()
+    if not custom_typeshed_dir.is_dir():
+        raise InternalError("puyapy install is corrupted - missing typeshed directory")
     typeshed_dir = custom_typeshed_dir / "stdlib"
+    if not typeshed_dir.is_dir():
+        raise InternalError("puyapy install is corrupted - missing typeshed stlib directory")
     versions_file = typeshed_dir / "VERSIONS"
-    if not typeshed_dir.is_dir() or not versions_file.is_file():
-        raise InternalError("puyapy install is corrupted - missing typeshed directories")
-    algopy_typeshed = typeshed_dir / "algopy"
-    # TODO: remove below hack once mypy migration is complete
-    if not algopy_typeshed.exists():
-        logger.debug("algopy not installed in typeshed, assuming puyapy development mode")
-        puyapy_dir = Path(__file__).parent
-        vcs_root = puyapy_dir.parent.parent
-        algopy_stubs = vcs_root / "stubs" / "algopy-stubs"
-        assert algopy_stubs.is_dir()
-        with contextlib.suppress(FileExistsError):  # ignore race condition
-            algopy_typeshed.symlink_to(algopy_stubs, target_is_directory=True)
-    # Get mypy-extensions stubs from typeshed, since we treat it as an
-    # "internal" library, similar to typing and typing-extensions.
+    if not versions_file.is_file():
+        raise InternalError("puyapy install is corrupted - missing typeshed VERSIONS file")
     mypy_extensions_dir = custom_typeshed_dir / "stubs" / "mypy-extensions"
-    return str(typeshed_dir), str(mypy_extensions_dir)
+    if not mypy_extensions_dir.is_dir():
+        raise InternalError(
+            "puyapy install is corrupted - missing typeshed mypy-extensions directory"
+        )
+    return typeshed_dir, mypy_extensions_dir
 
 
 def get_sys_path(python_executable: str) -> list[str]:
