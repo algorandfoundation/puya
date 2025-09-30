@@ -63,7 +63,6 @@ class SourceModule:
     path: Path
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
-    is_typeshed_file: bool
     dependencies: frozenset[str]
 
 
@@ -112,11 +111,14 @@ def parse_python(
             fs_cache.stat_or_none(fn)
             fs_cache.read_cache[fn] = data
             fs_cache.hash_cache[fn] = hash_digest(data)
+    typeshed_paths, algopy_sources = _typeshed_paths()
     fmc = FindModuleCache(
         package_paths=package_paths,
         package_roots=package_roots,
     )
-    module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
+    module_data = _find_dependencies(
+        sources_by_module_name.values(), fs_cache, fmc, algopy_sources
+    )
     mypy_build_sources = [
         BuildSource(
             path=str(md.source.path),  # TODO: figure out why omitting this fails in pytest only
@@ -127,7 +129,6 @@ def parse_python(
         for module, md in module_data.items()
     ]
     mypy_options = _get_mypy_options()
-    typeshed_paths, algopy_sources = _typeshed_paths()
 
     mypy_search_paths = SearchPaths(
         python_path=(),
@@ -159,19 +160,16 @@ def parse_python(
             assert module.path, f"no path for mypy module: {module_name}"
             module_path = Path(module.path).resolve()
             if module.is_stub:
-                assert module.name not in module_data, "shouldn't have stub as input"
-                file_bytes = fs_cache.read(str(module_path))
-                _check_encoding(file_bytes, module_path)
-                lines = decode_python_encoding(file_bytes).splitlines()
-                ordered_modules[module_name] = SourceModule(
-                    name=module_name,
-                    node=module,
-                    path=module_path,
-                    lines=lines,
-                    discovery_mechanism=SourceDiscoveryMechanism.dependency,
-                    is_typeshed_file=module.is_typeshed_file(mypy_options),
-                    dependencies=frozenset(state.dependencies_set),
-                )
+                assert module_name not in module_data, "shouldn't have stub as input"
+                module_rel_path = make_path_relative_to_cwd(module_path)
+                if module_name in ("abc", "typing", "collections.abc"):
+                    logger.debug(f"Skipping stdlib stub {module_rel_path}")  # TODO: lowercase
+                elif module_name.startswith("algopy"):
+                    logger.debug(f"Skipping algopy stub {module_rel_path}")
+                elif module.is_typeshed_file(mypy_options):
+                    logger.debug(f"Skipping typeshed stub {module_rel_path}")
+                else:
+                    logger.warning(f"Skipping stub: {module_rel_path}")
             elif module_path.is_dir():
                 # this module is a module directory with no __init__.py, ie it contains
                 # nothing and is only in the graph as a reference
@@ -189,8 +187,7 @@ def parse_python(
                     path=module_path,
                     lines=lines,
                     discovery_mechanism=discovery_mechanism,
-                    is_typeshed_file=False,
-                    dependencies=frozenset(state.dependencies_set),
+                    dependencies=md.dependencies,
                 )
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
@@ -319,11 +316,21 @@ class _ModuleData:
     followed: bool
 
 
-_ALLOWED_STUBS: typing.Final = frozenset(("algopy", "abc", "typing", "typing_extensions"))
+_ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
+    (
+        "abc",
+        "typing",
+        # not technically stlib, but treated as synonym for typing for our purposes
+        "typing_extensions",
+    )
+)
 
 
 def _find_dependencies(
-    sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
+    sources: Collection[ResolvedSource],
+    fs_cache: FileSystemCache,
+    fmc: FindModuleCache,
+    algopy_sources: Mapping[str, Path],
 ) -> Mapping[str, _ModuleData]:
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
@@ -349,6 +356,7 @@ def _find_dependencies(
             fmc,
             module_imports=visitor.module_imports,
             from_imports=visitor.from_imports,
+            algopy_sources=algopy_sources,
         )
         module_dep_ids = set[str]()
         for dep in dependencies:
@@ -644,14 +652,22 @@ def _resolve_import_dependencies(
     *,
     module_imports: Sequence[ModuleImport],
     from_imports: Sequence[FromImport],
+    algopy_sources: Mapping[str, Path],
 ) -> list[_Dependency]:
     dependencies = []
     import_base_dir = source.base_dir or source.path.parent
     for mod_imp in module_imports:
         for alias in mod_imp.names:
-            if alias.name.partition(".")[0] in _ALLOWED_STUBS:
+            if alias.name in _ALLOWED_STDLIB_STUBS:
                 continue
-
+            if alias.name in algopy_sources:
+                path = algopy_sources[alias.name]
+                dependencies.append(_Dependency(alias.name, path, alias.loc, implicit=False))
+                if alias.name != "algopy":
+                    dependencies.append(
+                        _Dependency("algopy", algopy_sources["algopy"], alias.loc, implicit=True)
+                    )
+                continue
             path_str = fmc.find_module(alias.name, alias.loc, import_base_dir=import_base_dir)
             if path_str is None:
                 continue
@@ -666,7 +682,38 @@ def _resolve_import_dependencies(
                 )
     for from_imp in from_imports:
         module_id = from_imp.module
-        if module_id.partition(".")[0] in _ALLOWED_STUBS:
+        if module_id in _ALLOWED_STDLIB_STUBS:
+            continue
+        if module_id in algopy_sources:
+            dependencies.append(
+                _Dependency(module_id, algopy_sources[module_id], from_imp.loc, implicit=False)
+            )
+            any_unresolved = False
+            sub_deps = []
+            if module_id == "algopy" and from_imp.names is not None:
+                for alias in from_imp.names:
+                    submodule_id = ".".join(("algopy", alias.name))
+                    if submodule_id in algopy_sources:
+                        sub_deps.append(
+                            _Dependency(
+                                submodule_id,
+                                algopy_sources[submodule_id],
+                                alias.loc,
+                                implicit=False,
+                            )
+                        )
+                    else:
+                        any_unresolved = True
+            dependencies.append(
+                _Dependency(
+                    module_id, algopy_sources[module_id], from_imp.loc, implicit=not any_unresolved
+                )
+            )
+            dependencies.extend(sub_deps)
+            if module_id != "algopy":
+                dependencies.append(
+                    _Dependency("algopy", algopy_sources["algopy"], from_imp.loc, implicit=True)
+                )
             continue
 
         # note: there is a case that this doesn't handle, where module_id points to a directory of
