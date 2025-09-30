@@ -127,35 +127,12 @@ def parse_python(
         for module, md in module_data.items()
     ]
     mypy_options = _get_mypy_options()
-    typeshed_path, mypy_ext_path = _typeshed_paths()
-    algopy_stubs = typeshed_path / "algopy"
-    # TODO: remove below hack once mypy migration is complete
-    if not algopy_stubs.exists():
-        logger.info("algopy-stubs not installed in typeshed, assuming puyapy development mode")
-        puyapy_dir = Path(__file__).parent
-        vcs_root = puyapy_dir.parent.parent
-        stubs_dir = vcs_root / "stubs"
-        algopy_stubs = stubs_dir / "algopy-stubs"
-    if not algopy_stubs.is_dir():
-        raise InternalError("puyapy install is corrupted - algopy stubs not a directory")
-    algopy_sources = list[BuildSource]()
-    for algopy_stub_file in sorted(algopy_stubs.glob("*.pyi")):
-        if algopy_stub_file.stem == "__init__":
-            module_name = "algopy"
-        else:
-            module_name = f"algopy.{algopy_stub_file.stem}"
-        algopy_sources.append(
-            BuildSource(
-                path=str(algopy_stub_file),
-                module=module_name,
-                followed=True,
-            )
-        )
+    typeshed_paths, algopy_sources = _typeshed_paths()
 
     mypy_search_paths = SearchPaths(
         python_path=(),
         package_path=(),
-        typeshed_path=tuple(map(str, (typeshed_path, mypy_ext_path))),
+        typeshed_path=tuple(map(str, typeshed_paths)),
         mypy_path=(),
     )
     manager, sccs = _mypy_build(
@@ -841,14 +818,16 @@ def _mypy_build(
     options: MypyOptions,
     search_paths: SearchPaths,
     fscache: FileSystemCache,
-    algopy_sources: list[BuildSource],
+    algopy_sources: Mapping[str, Path],
 ) -> tuple[BuildManager, list[Set[str]]]:
     """Simple wrapper around mypy.build.build
 
     Makes it so that check errors and parse errors are handled the same (ie with an exception)
     """
-
-    source_set = BuildSourceSet(sources + algopy_sources)
+    algopy_build_sources = [
+        BuildSource(path=str(v), module=k, followed=True) for k, v in algopy_sources.items()
+    ]
+    source_set = BuildSourceSet(sources + algopy_build_sources)
     cached_read = fscache.read
     errors = Errors(options, read_source=lambda path: read_py_file(path, cached_read))
     plugin = DefaultPlugin(options)
@@ -880,10 +859,9 @@ def _mypy_build(
 
     reset_global_state()
     graph = load_graph(sources, manager)
-    for algopy_src in algopy_sources:
-        graph[algopy_src.module].ignore_all = True
-        assert algopy_src.path
-        manager.errors.ignored_files.add(algopy_src.path)
+    for algopy_module, algopy_module_path in algopy_sources.items():
+        graph[algopy_module].ignore_all = True
+        manager.errors.ignored_files.add(str(algopy_module_path))
     # process_graph(graph, manager)
     sccs = sorted_components(graph)
     # We're processing SCCs from leaves (those without further
@@ -939,7 +917,7 @@ class _LogReporter(ErrorFormatter):
 
 
 @functools.cache
-def _typeshed_paths() -> tuple[Path, Path]:
+def _typeshed_paths() -> tuple[tuple[Path, ...], Mapping[str, Path]]:
     """Return default standard library search paths. Guaranteed to be normalised."""
     custom_typeshed_dir = _CUSTOM_TYPESHED_PATH.resolve()
     if not custom_typeshed_dir.is_dir():
@@ -955,7 +933,25 @@ def _typeshed_paths() -> tuple[Path, Path]:
         raise InternalError(
             "puyapy install is corrupted - missing typeshed mypy-extensions directory"
         )
-    return typeshed_dir, mypy_extensions_dir
+
+    algopy_stubs = typeshed_dir / "algopy"
+    # TODO: remove below hack once mypy migration is complete
+    if not algopy_stubs.exists():
+        logger.info("algopy-stubs not installed in typeshed, assuming puyapy development mode")
+        puyapy_dir = Path(__file__).parent
+        vcs_root = puyapy_dir.parent.parent
+        stubs_dir = vcs_root / "stubs"
+        algopy_stubs = stubs_dir / "algopy-stubs"
+    if not algopy_stubs.is_dir():
+        raise InternalError("puyapy install is corrupted - algopy stubs not a directory")
+    algopy_sources = dict[str, Path]()
+    for algopy_stub_file in sorted(algopy_stubs.glob("*.pyi")):
+        if algopy_stub_file.stem == "__init__":
+            module_name = "algopy"
+        else:
+            module_name = f"algopy.{algopy_stub_file.stem}"
+        algopy_sources[module_name] = algopy_stub_file
+    return (typeshed_dir, mypy_extensions_dir), algopy_sources
 
 
 def get_sys_path(python_executable: str) -> list[str]:
