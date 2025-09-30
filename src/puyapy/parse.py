@@ -647,12 +647,13 @@ def _resolve_import_dependencies(
     from_imports: Sequence[FromImport],
 ) -> list[_Dependency]:
     dependencies = []
+    import_base_dir = source.base_dir or source.path.parent
     for mod_imp in module_imports:
         for alias in mod_imp.names:
             if alias.name.partition(".")[0] in _ALLOWED_STUBS:
                 continue
 
-            path_str = fmc.find_module(alias.name, alias.loc)
+            path_str = fmc.find_module(alias.name, alias.loc, import_base_dir=import_base_dir)
             if path_str is None:
                 continue
 
@@ -673,7 +674,7 @@ def _resolve_import_dependencies(
         # an implicit namespace package without an __init__.py, in that case however a from-import
         # behaves differently depending on what has already been imported, which adds significant
         # complexity here - so just error altogether for now.
-        path_str = fmc.find_module(module_id, from_imp.loc)
+        path_str = fmc.find_module(module_id, from_imp.loc, import_base_dir=import_base_dir)
         if path_str is None:
             continue
 
