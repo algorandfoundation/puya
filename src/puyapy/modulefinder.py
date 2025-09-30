@@ -43,8 +43,10 @@ class FindModuleCache:
         factory=dict, init=False
     )
 
-    def find_module(self, module_id: str, import_loc: SourceLocation | None) -> Path | None:
-        path_or_reason = self.try_find_module(module_id)
+    def find_module(
+        self, module_id: str, import_loc: SourceLocation | None, import_base_dir: Path
+    ) -> Path | None:
+        path_or_reason = self.try_find_module(module_id, import_base_dir)
         match path_or_reason:
             case ModuleNotFoundReason.PACKAGE_NOT_FOUND:
                 logger.error(
@@ -81,8 +83,23 @@ class FindModuleCache:
             case path:
                 return path
 
-    def try_find_module(self, module_id: str) -> ModuleSearchResult:
-        return lazy_setdefault(self._results, module_id, self._find_module)
+    def try_find_module(self, module_id: str, import_base_dir: Path) -> ModuleSearchResult:
+        result = lazy_setdefault(self._results, module_id, self._find_module)
+        # TODO: should this resolve first instead?
+        if result is ModuleNotFoundReason.PACKAGE_NOT_FOUND:
+            module_parts = module_id.split(".")
+            test_path = import_base_dir.joinpath(*module_parts)
+            if test_path.is_dir():
+                init_path = test_path / "__init__.py"
+                if init_path.is_file():
+                    return init_path
+                return test_path  # TODO: consider returning a "possible NS dir" marker
+            else:
+                # TODO: warn if shadowed?
+                py_path = test_path.with_suffix(".py")
+                if py_path.is_file():
+                    return py_path
+        return result
 
     def _find_module(self, module_id: str) -> ModuleSearchResult:
         pkg, _sep, rest = module_id.partition(".")
