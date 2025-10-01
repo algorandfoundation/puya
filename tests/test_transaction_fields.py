@@ -1,8 +1,12 @@
+import functools
 import json
+import sys
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 import attrs
+import mypy.build
+import mypy.find_sources
 import mypy.nodes
 import mypy.types
 import pytest
@@ -13,8 +17,8 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
-from tests import EXAMPLES_DIR, VCS_ROOT
-from tests.utils import get_awst_cache
+from puyapy.parse import _get_mypy_options
+from tests import STUBS_DIR, VCS_ROOT
 
 # the need to use approval / clear_state pages is abstracted away by
 # allowing a tuple of pages in the stubs layer
@@ -35,12 +39,20 @@ class FieldType:
     field_type: pytypes.PyType
 
 
+@functools.lru_cache(maxsize=1)
+def _build_stubs() -> mypy.build.BuildResult:
+    mypy_opts = _get_mypy_options()
+    mypy_opts.python_executable = sys.executable
+    source_list = mypy.find_sources.create_source_list([str(STUBS_DIR)], mypy_opts)
+    return mypy.build.build(source_list, options=mypy_opts)
+
+
 def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
-    awst_cache = get_awst_cache(EXAMPLES_DIR)
+    result = _build_stubs()
 
     for type_name in type_names:
         module_id, symbol_name = type_name.rsplit(".", maxsplit=1)
-        module = awst_cache.parse_result.ordered_modules[module_id].node
+        module = result.files[module_id]
 
         symbol = module.names[symbol_name]
         node = symbol.node
@@ -108,7 +120,7 @@ def test_inner_transaction_members() -> None:
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
-_FAKE_SOURCE_LOCATION = SourceLocation(file=Path(__file__).resolve(), line=1)
+_FAKE_SOURCE_LOCATION = SourceLocation(file=Path(__file__).resolve(), line=1, end_line=1)
 
 
 def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
