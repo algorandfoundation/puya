@@ -114,15 +114,13 @@ def parse_python(
         package_paths=package_paths,
         package_roots=package_roots,
     )
-    module_data = _find_dependencies(
-        sources_by_module_name.values(), fs_cache, fmc, algopy_sources
-    )
+    module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
         BuildSource(
-            path=str(md.source.path),  # TODO: figure out why omitting this fails in pytest only
+            path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
             module=module,
             text=md.data,
-            followed=md.followed,
+            followed=not md.is_source,
         )
         for module, md in module_data.items()
     ]
@@ -175,10 +173,10 @@ def parse_python(
             else:
                 md = module_data[module_name]
                 lines = md.data.splitlines()
-                if md.followed:
-                    discovery_mechanism = SourceDiscoveryMechanism.dependency
-                else:
+                if md.is_source:
                     discovery_mechanism = SourceDiscoveryMechanism.explicit
+                else:
+                    discovery_mechanism = SourceDiscoveryMechanism.dependency
                 ordered_modules[module_name] = SourceModule(
                     name=module_name,
                     node=module,
@@ -309,12 +307,15 @@ def _infer_sys_path() -> list[str]:
 
 @attrs.frozen
 class _ModuleData:
-    source: ResolvedSource
+    path: Path
+    """File where it's found (e.g. '/home/user/pkg/module.py')"""
+    module: str
+    """Module name (e.g. 'pkg.module')"""
     data: str
     dependencies: frozenset[str]
     tree: ast.Module
     symbols: symtable.SymbolTable
-    followed: bool
+    is_source: bool
 
 
 _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
@@ -325,13 +326,23 @@ _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
         "typing_extensions",
     )
 )
+# # TODO: maybe we generate this or parse it instead of hard-coding?
+# #       it also assumes that public submodules are re-exported from __init__
+# _ALGOPY_PUBLIC_SUBMODULES: typing.Final = frozenset(
+#     (
+#         "arc4",
+#         "gtxn",
+#         "itxn",
+#         "op",
+#     )
+# )
+# _ALL_ALGOPY_MODULES: typing.Final = frozenset(
+#     ("algopy", *(f"algopy.{submod}" for submod in _ALGOPY_PUBLIC_SUBMODULES))
+# )
 
 
 def _find_dependencies(
-    sources: Collection[ResolvedSource],
-    fs_cache: FileSystemCache,
-    fmc: FindModuleCache,
-    algopy_sources: Mapping[str, Path],
+    sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
 ) -> Mapping[str, _ModuleData]:
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
@@ -354,11 +365,7 @@ def _find_dependencies(
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
         dependencies = _resolve_import_dependencies(
-            rs,
-            fmc,
-            module_imports=visitor.module_imports,
-            from_imports=visitor.from_imports,
-            algopy_sources=algopy_sources,
+            rs, fmc, module_imports=visitor.module_imports, from_imports=visitor.from_imports
         )
         module_dep_ids = set[str]()
         for dep in dependencies:
@@ -375,12 +382,13 @@ def _find_dependencies(
                 source_queue.append(dep_rs)
         module_dep_ids.discard(rs.module)  # TODO: is this required?
         result_by_id[rs.module] = _ModuleData(
-            source=rs,
+            path=rs.path,
+            module=rs.module,
             data=source,
             tree=tree,
             symbols=symbols,
             dependencies=frozenset(module_dep_ids),
-            followed=rs.module not in initial_source_ids,
+            is_source=rs.module in initial_source_ids,
         )
     return result_by_id
 
@@ -592,7 +600,6 @@ def _resolve_import_dependencies(
     *,
     module_imports: Sequence[ModuleImport],
     from_imports: Sequence[FromImport],
-    algopy_sources: Mapping[str, Path],
 ) -> list[_Dependency]:
     dependencies = []
     import_base_dir = source.base_dir or source.path.parent
@@ -600,13 +607,7 @@ def _resolve_import_dependencies(
         for alias in mod_imp.names:
             if alias.name in _ALLOWED_STDLIB_STUBS:
                 continue
-            if alias.name in algopy_sources:
-                path = algopy_sources[alias.name]
-                dependencies.append(_Dependency(alias.name, path, alias.loc, implicit=False))
-                if alias.name != "algopy":
-                    dependencies.append(
-                        _Dependency("algopy", algopy_sources["algopy"], alias.loc, implicit=True)
-                    )
+            if alias.name.partition(".")[0] == "algopy":
                 continue
             path_str = fmc.find_module(alias.name, alias.loc, import_base_dir=import_base_dir)
             if path_str is None:
@@ -624,36 +625,7 @@ def _resolve_import_dependencies(
         module_id = from_imp.module
         if module_id in _ALLOWED_STDLIB_STUBS:
             continue
-        if module_id in algopy_sources:
-            dependencies.append(
-                _Dependency(module_id, algopy_sources[module_id], from_imp.loc, implicit=False)
-            )
-            any_unresolved = False
-            sub_deps = []
-            if module_id == "algopy" and from_imp.names is not None:
-                for alias in from_imp.names:
-                    submodule_id = ".".join(("algopy", alias.name))
-                    if submodule_id in algopy_sources:
-                        sub_deps.append(
-                            _Dependency(
-                                submodule_id,
-                                algopy_sources[submodule_id],
-                                alias.loc,
-                                implicit=False,
-                            )
-                        )
-                    else:
-                        any_unresolved = True
-            dependencies.append(
-                _Dependency(
-                    module_id, algopy_sources[module_id], from_imp.loc, implicit=not any_unresolved
-                )
-            )
-            dependencies.extend(sub_deps)
-            if module_id != "algopy":
-                dependencies.append(
-                    _Dependency("algopy", algopy_sources["algopy"], from_imp.loc, implicit=True)
-                )
+        if module_id.partition(".")[0] == "algopy":
             continue
 
         # note: there is a case that this doesn't handle, where module_id points to a directory of
