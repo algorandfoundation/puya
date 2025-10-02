@@ -1,6 +1,5 @@
 import ast
 import codecs
-import contextlib
 import enum
 import functools
 import os
@@ -40,7 +39,7 @@ from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
-from puyapy import interpreter_data, reachability
+from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.modulefinder import FindModuleCache
 
@@ -331,19 +330,6 @@ _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
         "typing_extensions",
     )
 )
-# # TODO: maybe we generate this or parse it instead of hard-coding?
-# #       it also assumes that public submodules are re-exported from __init__
-# _ALGOPY_PUBLIC_SUBMODULES: typing.Final = frozenset(
-#     (
-#         "arc4",
-#         "gtxn",
-#         "itxn",
-#         "op",
-#     )
-# )
-# _ALL_ALGOPY_MODULES: typing.Final = frozenset(
-#     ("algopy", *(f"algopy.{submod}" for submod in _ALGOPY_PUBLIC_SUBMODULES))
-# )
 
 
 def _find_dependencies(
@@ -419,8 +405,6 @@ class ImportAs:
 class ModuleImport:
     loc: SourceLocation
     names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
-    scope: tuple[str, ...]
-    typechecking: bool | None
 
 
 @attrs.frozen
@@ -431,8 +415,6 @@ class FromImport:
         validator=attrs.validators.optional(attrs.validators.min_len(1))
     )
     """if None, then import all (ie star import)"""
-    scope: tuple[str, ...]
-    typechecking: bool | None
 
 
 AnyImport = ModuleImport | FromImport
@@ -443,8 +425,6 @@ class _ImportCollector(ast.NodeVisitor):
     source: ResolvedSource
     module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
     from_imports: list[FromImport] = attrs.field(factory=list, init=False)
-    _condition_stack: list[reachability.ConditionValue] = attrs.field(factory=list, init=False)
-    _scope_stack: list[str] = attrs.field(factory=list, init=False)
 
     @typing.override
     def visit_Import(self, node: ast.Import) -> None:
@@ -459,8 +439,6 @@ class _ImportCollector(ast.NodeVisitor):
         self.module_imports.append(
             ModuleImport(
                 names=names,
-                typechecking=self._typechecking,
-                scope=tuple(self._scope_stack),
                 loc=self._loc(node),
             )
         )
@@ -493,48 +471,9 @@ class _ImportCollector(ast.NodeVisitor):
             FromImport(
                 module=module,
                 names=names,
-                typechecking=self._typechecking,
-                scope=tuple(self._scope_stack),
                 loc=node_loc,
             )
         )
-
-    @typing.override
-    def visit_If(self, node: ast.If) -> None:
-        condition_value = reachability.infer_condition_value(node.test, self.source.path)
-        with self._enter_condition(condition_value) as reachable:
-            if reachable:
-                for if_body_stmt in node.body:
-                    self.generic_visit(if_body_stmt)
-        with self._enter_condition(condition_value.negated) as reachable:
-            if reachable:
-                for else_body_stmt in node.orelse:
-                    self.generic_visit(else_body_stmt)
-
-    @typing.override
-    def visit_IfExp(self, node: ast.IfExp) -> None:
-        condition_value = reachability.infer_condition_value(node.test, self.source.path)
-        with self._enter_condition(condition_value) as reachable:
-            if reachable:
-                self.generic_visit(node.body)
-        with self._enter_condition(condition_value.negated) as reachable:
-            if reachable:
-                self.generic_visit(node.orelse)
-
-    @typing.override
-    def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        with self._enter_scope(node.name):
-            self.generic_visit(node)
-
-    @typing.override
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        with self._enter_scope(node.name):
-            self.generic_visit(node)
-
-    @typing.override
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        with self._enter_scope(node.name):
-            self.generic_visit(node)
 
     def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
         return _ast_source_location(node, self.source.path)
@@ -559,32 +498,6 @@ class _ImportCollector(ast.NodeVisitor):
             raise CodeError("no parent module, cannot perform relative import", loc)
 
         return new_id
-
-    @property
-    def _typechecking(self) -> bool | None:
-        cv = reachability.combine_conditions(self._condition_stack)
-        if cv is reachability.TYPE_CHECKING_TRUE:
-            return True
-        if cv is reachability.TYPE_CHECKING_FALSE:
-            return False
-        return None
-
-    @contextlib.contextmanager
-    def _enter_condition(self, condition_value: reachability.ConditionValue) -> Iterator[bool]:
-        self._condition_stack.append(condition_value)
-        combined = reachability.combine_conditions(self._condition_stack)
-        try:
-            yield combined is not reachability.ALWAYS_FALSE
-        finally:
-            self._condition_stack.pop()
-
-    @contextlib.contextmanager
-    def _enter_scope(self, name: str) -> Iterator[None]:
-        self._scope_stack.append(name)
-        try:
-            yield
-        finally:
-            self._scope_stack.pop()
 
 
 def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
