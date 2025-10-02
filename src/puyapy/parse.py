@@ -1,16 +1,18 @@
 import ast
 import codecs
+import contextlib
 import enum
 import functools
 import operator
 import os
 import shutil
 import subprocess
+import symtable  # TODO: remove if ends up unused
 import sys
 import sysconfig
 import typing
 from collections import deque
-from collections.abc import Callable, Collection, Iterator, Mapping, Sequence, Set
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
 from pathlib import Path
@@ -61,6 +63,8 @@ class SourceModule:
     name: str
     node: MypyFile
     path: Path
+    tree: ast.Module
+    symbols: symtable.SymbolTable
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     dependencies: frozenset[str]
@@ -186,6 +190,8 @@ def parse_python(
                     node=module,
                     path=module_path,
                     lines=lines,
+                    tree=md.tree,
+                    symbols=md.symbols,
                     discovery_mechanism=discovery_mechanism,
                     dependencies=md.dependencies,
                 )
@@ -313,6 +319,7 @@ class _ModuleData:
     data: str
     dependencies: frozenset[str]
     tree: ast.Module
+    symbols: symtable.SymbolTable
     followed: bool
 
 
@@ -349,6 +356,7 @@ def _find_dependencies(
             type_comments=True,
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
+        symbols = symtable.symtable(source, str(rs.path), "exec")
         visitor = _ImportCollector(rs)
         visitor.visit(tree)
         dependencies = _resolve_import_dependencies(
@@ -376,6 +384,7 @@ def _find_dependencies(
             source=rs,
             data=source,
             tree=tree,
+            symbols=symbols,
             dependencies=frozenset(module_dep_ids),
             followed=rs.module not in initial_source_ids,
         )
@@ -403,6 +412,8 @@ class ImportAs:
 class ModuleImport:
     loc: SourceLocation
     names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
+    scope: tuple[str, ...]
+    typechecking: bool | None
 
 
 @attrs.frozen
@@ -413,111 +424,11 @@ class FromImport:
         validator=attrs.validators.optional(attrs.validators.min_len(1))
     )
     """if None, then import all (ie star import)"""
+    scope: tuple[str, ...]
+    typechecking: bool | None
 
 
 AnyImport = ModuleImport | FromImport
-
-
-@attrs.define
-class _ImportCollector(ast.NodeVisitor):
-    source: ResolvedSource
-    module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
-    from_imports: list[FromImport] = attrs.field(factory=list, init=False)
-
-    @typing.override
-    def visit_Import(self, node: ast.Import) -> None:
-        names = [
-            ImportAs(
-                name=alias.name,
-                as_name=alias.asname,
-                loc=self._loc(alias),
-            )
-            for alias in node.names
-        ]
-        self.module_imports.append(
-            ModuleImport(
-                names=names,
-                loc=self._loc(node),
-            )
-        )
-
-    @typing.override
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        match node.names:
-            case [ast.alias("*", None)]:
-                names = None
-            case _:
-                names = list[ImportAs](
-                    ImportAs(
-                        name=alias.name,
-                        as_name=alias.asname,
-                        loc=self._loc(alias),
-                    )
-                    for alias in node.names
-                )
-
-        node_loc = self._loc(node)
-        if not node.level:
-            assert node.module
-            module = node.module
-        else:
-            module = self._correct_relative_import(
-                module=node.module, level=node.level, loc=node_loc
-            )
-
-        self.from_imports.append(
-            FromImport(
-                module=module,
-                names=names,
-                loc=node_loc,
-            )
-        )
-
-    def _correct_relative_import(self, module: str | None, level: int, loc: SourceLocation) -> str:
-        """Function to correct for relative imports."""
-        file_id = self.source.module
-        rel = level
-        assert level > 0
-        if self.source.path.stem == "__init__":
-            rel -= 1
-        if rel != 0:
-            file_id = ".".join(file_id.split(".")[:-rel])
-
-        if module:
-            new_id = file_id + "." + module
-        else:
-            new_id = file_id
-
-        if not new_id:
-            # TODO: log and exit at end of discovery
-            raise CodeError("no parent module, cannot perform relative import", loc)
-
-        return new_id
-
-    @typing.override
-    def visit_If(self, node: ast.If) -> None:
-        condition_value = _infer_condition_value(node.test, self.source.path)
-        if condition_value is not ALWAYS_FALSE:
-            for if_body_stmt in node.body:
-                self.generic_visit(if_body_stmt)
-        if condition_value is not ALWAYS_FALSE:
-            for else_body_stmt in node.orelse:
-                self.generic_visit(else_body_stmt)
-
-    @typing.override
-    def visit_IfExp(self, node: ast.IfExp) -> None:
-        condition_value = _infer_condition_value(node.test, self.source.path)
-        if condition_value is not ALWAYS_FALSE:
-            self.generic_visit(node.body)
-        if condition_value is not ALWAYS_TRUE:
-            self.generic_visit(node.orelse)
-
-    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
-        return _ast_source_location(node, self.source.path)
-
-
-def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
-    return SourceLocation(file=file, line=node.lineno)
 
 
 @enum.unique
@@ -550,6 +461,175 @@ TYPE_CHECKING_TRUE: typing.Final = ConditionValue.TYPE_CHECKING_TRUE
 TYPE_CHECKING_FALSE: typing.Final = ConditionValue.TYPE_CHECKING_FALSE
 
 
+@attrs.define
+class _ImportCollector(ast.NodeVisitor):
+    source: ResolvedSource
+    module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
+    from_imports: list[FromImport] = attrs.field(factory=list, init=False)
+    _condition_stack: list[ConditionValue] = attrs.field(factory=list, init=False)
+    _scope_stack: list[str] = attrs.field(factory=list, init=False)
+
+    @typing.override
+    def visit_Import(self, node: ast.Import) -> None:
+        names = [
+            ImportAs(
+                name=alias.name,
+                as_name=alias.asname,
+                loc=self._loc(alias),
+            )
+            for alias in node.names
+        ]
+        self.module_imports.append(
+            ModuleImport(
+                names=names,
+                typechecking=self._typechecking,
+                scope=tuple(self._scope_stack),
+                loc=self._loc(node),
+            )
+        )
+
+    @typing.override
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        match node.names:
+            case [ast.alias("*", None)]:
+                names = None
+            case _:
+                names = list[ImportAs](
+                    ImportAs(
+                        name=alias.name,
+                        as_name=alias.asname,
+                        loc=self._loc(alias),
+                    )
+                    for alias in node.names
+                )
+
+        node_loc = self._loc(node)
+        if not node.level:
+            assert node.module
+            module = node.module
+        else:
+            module = self._correct_relative_import(
+                module=node.module, level=node.level, loc=node_loc
+            )
+
+        self.from_imports.append(
+            FromImport(
+                module=module,
+                names=names,
+                typechecking=self._typechecking,
+                scope=tuple(self._scope_stack),
+                loc=node_loc,
+            )
+        )
+
+    @typing.override
+    def visit_If(self, node: ast.If) -> None:
+        condition_value = _infer_condition_value(node.test, self.source.path)
+        with self._enter_condition(condition_value) as reachable:
+            if reachable:
+                for if_body_stmt in node.body:
+                    self.generic_visit(if_body_stmt)
+        with self._enter_condition(condition_value.negated) as reachable:
+            if reachable:
+                for else_body_stmt in node.orelse:
+                    self.generic_visit(else_body_stmt)
+
+    @typing.override
+    def visit_IfExp(self, node: ast.IfExp) -> None:
+        condition_value = _infer_condition_value(node.test, self.source.path)
+        with self._enter_condition(condition_value) as reachable:
+            if reachable:
+                self.generic_visit(node.body)
+        with self._enter_condition(condition_value.negated) as reachable:
+            if reachable:
+                self.generic_visit(node.orelse)
+
+    @typing.override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        with self._enter_scope(node.name):
+            self.generic_visit(node)
+
+    @typing.override
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        with self._enter_scope(node.name):
+            self.generic_visit(node)
+
+    @typing.override
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        with self._enter_scope(node.name):
+            self.generic_visit(node)
+
+    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
+        return _ast_source_location(node, self.source.path)
+
+    def _correct_relative_import(self, module: str | None, level: int, loc: SourceLocation) -> str:
+        """Function to correct for relative imports."""
+        file_id = self.source.module
+        rel = level
+        assert level > 0
+        if self.source.path.stem == "__init__":
+            rel -= 1
+        if rel != 0:
+            file_id = ".".join(file_id.split(".")[:-rel])
+
+        if module:
+            new_id = file_id + "." + module
+        else:
+            new_id = file_id
+
+        if not new_id:
+            # TODO: log and exit at end of discovery
+            raise CodeError("no parent module, cannot perform relative import", loc)
+
+        return new_id
+
+    @property
+    def _typechecking(self) -> bool | None:
+        cv = _combine_conditions(self._condition_stack)
+        if cv is TYPE_CHECKING_TRUE:
+            return True
+        if cv is TYPE_CHECKING_FALSE:
+            return False
+        return None
+
+    @contextlib.contextmanager
+    def _enter_condition(self, condition_value: ConditionValue) -> Iterator[bool]:
+        self._condition_stack.append(condition_value)
+        combined = _combine_conditions(self._condition_stack)
+        try:
+            yield combined is not ALWAYS_FALSE
+        finally:
+            self._condition_stack.pop()
+
+    @contextlib.contextmanager
+    def _enter_scope(self, name: str) -> Iterator[None]:
+        self._scope_stack.append(name)
+        try:
+            yield
+        finally:
+            self._scope_stack.pop()
+
+
+def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
+    return SourceLocation(file=file, line=node.lineno)
+
+
+def _combine_conditions(conditions: Iterable[ConditionValue]) -> ConditionValue:
+    results = set(conditions)
+    if not results:
+        return ALWAYS_TRUE
+    if len(results) == 1:
+        return results.pop()
+    if ALWAYS_FALSE in results:
+        return ALWAYS_FALSE
+    elif TYPE_CHECKING_FALSE in results:
+        return TYPE_CHECKING_FALSE
+    elif results <= {ALWAYS_TRUE, TYPE_CHECKING_TRUE}:
+        return TYPE_CHECKING_TRUE
+    else:
+        return TRUTH_VALUE_UNKNOWN
+
+
 def _infer_condition_value(expr: ast.expr, file: Path) -> ConditionValue:
     match expr:
         case ast.Constant(value):
@@ -578,16 +658,7 @@ def _infer_condition_value(expr: ast.expr, file: Path) -> ConditionValue:
                 return TRUTH_VALUE_UNKNOWN
         case ast.BoolOp(ast.And(), operands):
             results = {_infer_condition_value(operand, file) for operand in operands}
-            if len(results) == 1:
-                return results.pop()
-            if ALWAYS_FALSE in results:
-                return ALWAYS_FALSE
-            elif TYPE_CHECKING_FALSE in results:
-                return TYPE_CHECKING_FALSE
-            elif results <= {ALWAYS_TRUE, TYPE_CHECKING_TRUE}:
-                return TYPE_CHECKING_TRUE
-            else:
-                return TRUTH_VALUE_UNKNOWN
+            return _combine_conditions(results)
         # TODO: ?
         # case ast.BinOp(left=ast.Constant(left), op=bin_op, right=ast.Constant(right)):
         #     try:
