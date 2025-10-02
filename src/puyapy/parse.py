@@ -3,7 +3,6 @@ import codecs
 import contextlib
 import enum
 import functools
-import operator
 import os
 import re
 import shutil
@@ -13,7 +12,7 @@ import sys
 import sysconfig
 import typing
 from collections import deque
-from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence, Set
+from collections.abc import Collection, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
 from pathlib import Path
@@ -36,7 +35,7 @@ from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
-from puyapy import interpreter_data
+from puyapy import interpreter_data, reachability
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.modulefinder import FindModuleCache
 
@@ -426,42 +425,12 @@ class FromImport:
 AnyImport = ModuleImport | FromImport
 
 
-@enum.unique
-class ConditionValue(enum.Enum):
-    UNKNOWN = enum.auto()
-    ALWAYS_TRUE = enum.auto()
-    ALWAYS_FALSE = enum.auto()
-    TYPE_CHECKING_TRUE = enum.auto()
-    TYPE_CHECKING_FALSE = enum.auto()
-
-    @cached_property
-    def negated(self) -> "ConditionValue":
-        match self:
-            case ConditionValue.UNKNOWN:
-                return TRUTH_VALUE_UNKNOWN
-            case ConditionValue.ALWAYS_TRUE:
-                return ALWAYS_FALSE
-            case ConditionValue.ALWAYS_FALSE:
-                return ALWAYS_TRUE
-            case ConditionValue.TYPE_CHECKING_TRUE:
-                return TYPE_CHECKING_FALSE
-            case ConditionValue.TYPE_CHECKING_FALSE:
-                return TYPE_CHECKING_TRUE
-
-
-TRUTH_VALUE_UNKNOWN: typing.Final = ConditionValue.UNKNOWN
-ALWAYS_TRUE: typing.Final = ConditionValue.ALWAYS_TRUE
-ALWAYS_FALSE: typing.Final = ConditionValue.ALWAYS_FALSE
-TYPE_CHECKING_TRUE: typing.Final = ConditionValue.TYPE_CHECKING_TRUE
-TYPE_CHECKING_FALSE: typing.Final = ConditionValue.TYPE_CHECKING_FALSE
-
-
 @attrs.define
 class _ImportCollector(ast.NodeVisitor):
     source: ResolvedSource
     module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
     from_imports: list[FromImport] = attrs.field(factory=list, init=False)
-    _condition_stack: list[ConditionValue] = attrs.field(factory=list, init=False)
+    _condition_stack: list[reachability.ConditionValue] = attrs.field(factory=list, init=False)
     _scope_stack: list[str] = attrs.field(factory=list, init=False)
 
     @typing.override
@@ -519,7 +488,7 @@ class _ImportCollector(ast.NodeVisitor):
 
     @typing.override
     def visit_If(self, node: ast.If) -> None:
-        condition_value = _infer_condition_value(node.test, self.source.path)
+        condition_value = reachability.infer_condition_value(node.test, self.source.path)
         with self._enter_condition(condition_value) as reachable:
             if reachable:
                 for if_body_stmt in node.body:
@@ -531,7 +500,7 @@ class _ImportCollector(ast.NodeVisitor):
 
     @typing.override
     def visit_IfExp(self, node: ast.IfExp) -> None:
-        condition_value = _infer_condition_value(node.test, self.source.path)
+        condition_value = reachability.infer_condition_value(node.test, self.source.path)
         with self._enter_condition(condition_value) as reachable:
             if reachable:
                 self.generic_visit(node.body)
@@ -580,19 +549,19 @@ class _ImportCollector(ast.NodeVisitor):
 
     @property
     def _typechecking(self) -> bool | None:
-        cv = _combine_conditions(self._condition_stack)
-        if cv is TYPE_CHECKING_TRUE:
+        cv = reachability.combine_conditions(self._condition_stack)
+        if cv is reachability.TYPE_CHECKING_TRUE:
             return True
-        if cv is TYPE_CHECKING_FALSE:
+        if cv is reachability.TYPE_CHECKING_FALSE:
             return False
         return None
 
     @contextlib.contextmanager
-    def _enter_condition(self, condition_value: ConditionValue) -> Iterator[bool]:
+    def _enter_condition(self, condition_value: reachability.ConditionValue) -> Iterator[bool]:
         self._condition_stack.append(condition_value)
-        combined = _combine_conditions(self._condition_stack)
+        combined = reachability.combine_conditions(self._condition_stack)
         try:
-            yield combined is not ALWAYS_FALSE
+            yield combined is not reachability.ALWAYS_FALSE
         finally:
             self._condition_stack.pop()
 
@@ -607,101 +576,6 @@ class _ImportCollector(ast.NodeVisitor):
 
 def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
     return SourceLocation(file=file, line=node.lineno)
-
-
-def _combine_conditions(conditions: Iterable[ConditionValue]) -> ConditionValue:
-    results = set(conditions)
-    if not results:
-        return ALWAYS_TRUE
-    if len(results) == 1:
-        return results.pop()
-    if ALWAYS_FALSE in results:
-        return ALWAYS_FALSE
-    elif TYPE_CHECKING_FALSE in results:
-        return TYPE_CHECKING_FALSE
-    elif results <= {ALWAYS_TRUE, TYPE_CHECKING_TRUE}:
-        return TYPE_CHECKING_TRUE
-    else:
-        return TRUTH_VALUE_UNKNOWN
-
-
-def _infer_condition_value(expr: ast.expr, file: Path) -> ConditionValue:
-    match expr:
-        case ast.Constant(value):
-            if value:
-                return ALWAYS_TRUE
-            else:
-                return ALWAYS_FALSE
-        case ast.Attribute(_, "TYPE_CHECKING", ast.Load()):
-            return TYPE_CHECKING_TRUE
-        case ast.Name("TYPE_CHECKING", ast.Load()):
-            return TYPE_CHECKING_TRUE
-        case ast.UnaryOp(ast.Not(), operand):
-            nested = _infer_condition_value(operand, file)
-            return nested.negated
-        case ast.BoolOp(ast.Or(), operands):
-            results = {_infer_condition_value(operand, file) for operand in operands}
-            if len(results) == 1:
-                return results.pop()
-            if ALWAYS_TRUE in results:
-                return ALWAYS_TRUE
-            elif TYPE_CHECKING_TRUE in results:
-                return TYPE_CHECKING_TRUE
-            elif results <= {ALWAYS_FALSE, TYPE_CHECKING_FALSE}:
-                return ALWAYS_FALSE
-            else:
-                return TRUTH_VALUE_UNKNOWN
-        case ast.BoolOp(ast.And(), operands):
-            results = {_infer_condition_value(operand, file) for operand in operands}
-            return _combine_conditions(results)
-        # TODO: ?
-        # case ast.BinOp(left=ast.Constant(left), op=bin_op, right=ast.Constant(right)):
-        #     try:
-        #         op_impl = _AST_BIN_OP_TO_OP[type(op)]
-        #     except KeyError:
-        #         raise InternalError(
-        #             f"unknown operator: {op}", _ast_source_location(expr, file)
-        #         ) from None
-        #     try:
-        #         result = op_impl(left, right)
-        #     except Exception:
-        #         logger.error()
-        #         return None
-        #     else:
-        #         return None
-        # TODO: ast.Compare ?
-        case _:
-            return TRUTH_VALUE_UNKNOWN
-
-
-_AST_BIN_OP_TO_OP: Mapping[type[ast.operator], Callable] = {  # type: ignore[type-arg]
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.FloorDiv: operator.floordiv,
-    ast.Mod: operator.mod,
-    ast.Pow: operator.pow,
-    ast.LShift: operator.lshift,
-    ast.RShift: operator.rshift,
-    ast.BitOr: operator.or_,
-    ast.BitXor: operator.xor,
-    ast.BitAnd: operator.and_,
-    ast.MatMult: operator.matmul,
-}
-
-_AST_CMP_TO_OP: Mapping[type[ast.cmpop], Callable] = {  # type: ignore[type-arg]
-    ast.Eq: operator.eq,
-    ast.NotEq: operator.ne,
-    ast.Lt: operator.lt,
-    ast.LtE: operator.le,
-    ast.Gt: operator.gt,
-    ast.GtE: operator.ge,
-    ast.Is: operator.is_,
-    ast.IsNot: operator.is_not,
-    ast.In: lambda a, b: a in b,
-    ast.NotIn: lambda a, b: a not in b,
-}
 
 
 @attrs.frozen
