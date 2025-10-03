@@ -11,7 +11,7 @@ import sys
 import sysconfig
 import typing
 from collections import deque
-from collections.abc import Collection, Iterator, Mapping, Sequence, Set
+from collections.abc import Collection, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
 from pathlib import Path
@@ -31,11 +31,12 @@ from mypy.version import __version__ as mypy_version
 from packaging import version
 
 from puya import log
-from puya.errors import CodeError, ConfigurationError, InternalError
+from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSource, create_source_list
+from puyapy.import_analysis import resolve_import_dependencies
 from puyapy.modulefinder import FindModuleCache
 
 logger = log.get_logger(__name__)
@@ -317,16 +318,6 @@ class _ModuleData:
     is_source: bool
 
 
-_ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
-    (
-        "abc",
-        "typing",
-        # not technically stlib, but treated as synonym for typing for our purposes
-        "typing_extensions",
-    )
-)
-
-
 def _find_dependencies(
     sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
 ) -> Mapping[str, _ModuleData]:
@@ -348,11 +339,7 @@ def _find_dependencies(
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
         symbols = symtable.symtable(source, str(rs.path), "exec")
-        visitor = _ImportCollector(rs)
-        visitor.visit(tree)
-        dependencies = _resolve_import_dependencies(
-            rs, fmc, module_imports=visitor.module_imports, from_imports=visitor.from_imports
-        )
+        dependencies = resolve_import_dependencies(rs, tree, fmc)
         module_dep_ids = set[str]()
         for dep in dependencies:
             mod_path = dep.path
@@ -387,236 +374,6 @@ def _infer_base_dir(path: Path, module: str) -> Path:
     if path.stem == "__init__" and path.suffix in (".py", ".pyi"):
         parts += 1
     return path.parents[parts]
-
-
-@attrs.frozen
-class ImportAs:
-    loc: SourceLocation
-    name: str
-    as_name: str | None
-
-
-@attrs.frozen
-class ModuleImport:
-    loc: SourceLocation
-    names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
-
-
-@attrs.frozen
-class FromImport:
-    loc: SourceLocation
-    module: str
-    names: list[ImportAs] | None = attrs.field(
-        validator=attrs.validators.optional(attrs.validators.min_len(1))
-    )
-    """if None, then import all (ie star import)"""
-
-
-AnyImport = ModuleImport | FromImport
-
-
-@attrs.define
-class _ImportCollector(ast.NodeVisitor):
-    source: ResolvedSource
-    module_imports: list[ModuleImport] = attrs.field(factory=list, init=False)
-    from_imports: list[FromImport] = attrs.field(factory=list, init=False)
-
-    @typing.override
-    def visit_Import(self, node: ast.Import) -> None:
-        names = [
-            ImportAs(
-                name=alias.name,
-                as_name=alias.asname,
-                loc=self._loc(alias),
-            )
-            for alias in node.names
-        ]
-        self.module_imports.append(
-            ModuleImport(
-                names=names,
-                loc=self._loc(node),
-            )
-        )
-
-    @typing.override
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        match node.names:
-            case [ast.alias("*", None)]:
-                names = None
-            case _:
-                names = list[ImportAs](
-                    ImportAs(
-                        name=alias.name,
-                        as_name=alias.asname,
-                        loc=self._loc(alias),
-                    )
-                    for alias in node.names
-                )
-
-        node_loc = self._loc(node)
-        if not node.level:
-            assert node.module
-            module = node.module
-        else:
-            module = self._correct_relative_import(
-                module=node.module, level=node.level, loc=node_loc
-            )
-
-        self.from_imports.append(
-            FromImport(
-                module=module,
-                names=names,
-                loc=node_loc,
-            )
-        )
-
-    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
-        return _ast_source_location(node, self.source.path)
-
-    def _correct_relative_import(self, module: str | None, level: int, loc: SourceLocation) -> str:
-        """Function to correct for relative imports."""
-        file_id = self.source.module
-        rel = level
-        assert level > 0
-        if self.source.path.stem == "__init__":
-            rel -= 1
-        if rel != 0:
-            file_id = ".".join(file_id.split(".")[:-rel])
-
-        if module:
-            new_id = file_id + "." + module
-        else:
-            new_id = file_id
-
-        if not new_id:
-            # TODO: log and exit at end of discovery
-            raise CodeError("no parent module, cannot perform relative import", loc)
-
-        return new_id
-
-
-def _ast_source_location(node: ast.expr | ast.stmt | ast.alias, file: Path) -> SourceLocation:
-    return SourceLocation(file=file, line=node.lineno)
-
-
-@attrs.frozen
-class _Dependency:
-    module_id: str
-    path: Path
-    loc: SourceLocation | None
-    implicit: bool
-
-
-def _resolve_import_dependencies(
-    source: ResolvedSource,
-    fmc: FindModuleCache,
-    *,
-    module_imports: Sequence[ModuleImport],
-    from_imports: Sequence[FromImport],
-) -> list[_Dependency]:
-    dependencies = []
-    import_base_dir = source.base_dir or source.path.parent
-    for mod_imp in module_imports:
-        for alias in mod_imp.names:
-            if alias.name in _ALLOWED_STDLIB_STUBS:
-                continue
-            if alias.name.partition(".")[0] == "algopy":
-                continue
-            path_str = fmc.find_module(alias.name, alias.loc, import_base_dir=import_base_dir)
-            if path_str is None:
-                continue
-
-            path = Path(path_str)
-            dependencies.append(_Dependency(alias.name, path, alias.loc, implicit=False))
-            for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
-                alias.name, path
-            ):
-                dependencies.append(
-                    _Dependency(ancestor_module_id, ancestor_init_path, alias.loc, implicit=True)
-                )
-    for from_imp in from_imports:
-        module_id = from_imp.module
-        if module_id in _ALLOWED_STDLIB_STUBS:
-            continue
-        if module_id.partition(".")[0] == "algopy":
-            continue
-
-        # note: there is a case that this doesn't handle, where module_id points to a directory of
-        # an implicit namespace package without an __init__.py, in that case however a from-import
-        # behaves differently depending on what has already been imported, which adds significant
-        # complexity here - so just error altogether for now.
-        path_str = fmc.find_module(module_id, from_imp.loc, import_base_dir=import_base_dir)
-        if path_str is None:
-            continue
-
-        path = Path(path_str)
-        sub_deps = []
-        any_unresolved = False
-        # If not resolving to an init file, then all imported symbols must be from that file.
-        # Similarly, when a `from x.y import *` resolves to x/y/__init__.py, all imported symbols
-        # must be from that file.
-        if path.name == "__init__.py" and from_imp.names is not None:
-            # There are two complications at this point:
-            # The first is that if x/__init__.py defines a variable foo, but there is also a
-            # file x/foo.py, then `from x import foo` will actually refer to the variable.
-            # This is okay, at worst we create spurious dependencies.
-            # The second complication is that symbols in the __init__.py could be modules from
-            # another location, this is okay because as long as there is a dependency to the
-            # __init__.py file then the importer will also depend transitively on that imported
-            # module.
-            mod_dir = path.parent
-            for alias in from_imp.names:
-                maybe_path = mod_dir / alias.name
-                if maybe_path.is_dir():
-                    maybe_path = maybe_path / "__init__.py"
-                else:
-                    maybe_path = maybe_path.with_suffix(".py")
-                if maybe_path.is_file():
-                    submodule_id = ".".join((module_id, alias.name))
-                    sub_deps.append(
-                        _Dependency(submodule_id, maybe_path, alias.loc, implicit=False)
-                    )
-                else:
-                    any_unresolved = True
-        dependencies.append(
-            _Dependency(module_id, path, from_imp.loc, implicit=not any_unresolved)
-        )
-        dependencies.extend(sub_deps)
-        for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(module_id, path):
-            dependencies.append(
-                _Dependency(ancestor_module_id, ancestor_init_path, from_imp.loc, implicit=True)
-            )
-
-    for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
-        source.module, source.path
-    ):
-        dependencies.append(
-            _Dependency(ancestor_module_id, ancestor_init_path, None, implicit=True)
-        )
-    return dependencies
-
-
-def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
-    """Check that all packages containing id have a __init__ file."""
-    ancestors = list(_expand_ancestors(module_id))
-    if path.name == "__init__.py":
-        path = path.parent
-    else:
-        ancestors.pop(0)
-    for ancestor in ancestors:
-        path = path.parent
-        init_file = path / "__init__.py"
-        if init_file.is_file():
-            yield ancestor, init_file
-
-
-def _expand_ancestors(module_id: str) -> Iterator[str]:
-    """
-    Given a module_id like "a.b.c", will yield in turn: "a.b.c", "a.b", "a"
-    """
-    while module_id:
-        yield module_id
-        module_id, *_ = module_id.rpartition(".")
 
 
 def _check_encoding(source: bytes, module_path: Path) -> None:
