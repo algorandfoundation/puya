@@ -6,6 +6,152 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.0.0'></a>
+## v5.0.0 (2025-10-03)
+
+PuyaPy 5.0 contains breaking changes, please refer to the Changed section and [migration guide](https://algorandfoundation.github.io/puya/lg-migration-4-5.html) for more details.
+
+### Added
+
+- Documentation for how to get started with contributing a new front end langauge for the compiler.
+
+-   Added `algopy.FixedArray` that supports mutable, native and dynamic elements in an array with a fixed size.
+-   Added `algopy.Struct` that supports mutable, native and dynamic members.
+-   Added `.to_native(element_type)` function for converting `algopy.arc4.DynamicArray` to `algopy.Array` and `algopy.arc4.StaticArray` to `algopy.FixedArray`.
+
+- Added a PuyaPy CLI option and `@abimethod` argument `resource_encoding` that controls how
+  resource types (`algopy.Asset`, `algopy.Application` and `algopy.Account`) are handled in the
+  ABI router.
+  When set to `value` (the default) the types will use their underlying value type (`uint64` or `address`).
+  When set to `index` the types will use their ARC-4 reference aliases and when calling
+  require populating the appropriate foreign array.
+  This affects TEAL, AVM bytecode, ARC-32 and ARC-56 file output.
+
+- Boxes containing fixed-size types larger than 4K can now be created/read/updated, provided
+  the size of the innermost element being read/written is not larger than 4K.
+- Improved reads and writes to nested fixed-size data types by reducing number of bounds checks
+  where possible to do so safely.
+- Added `algopy.zero_bytes()` function to easily initialise fixed-size bytes-backed types to
+  all zero bytes.
+- The optimiser can now detect when a storage key (box/global/local) is guaranteed to exist and
+  can eliminate some redundant asserts.
+- Repeated operations of concatenation, addition, multiplication, and uint64 bitwise operations
+  involving two or more constants can now be optimized.
+- Improved detection and elimination of redundant ARC-4 encode/decode operations, particularly
+  those involving nested data structures, or where data structures have equivalent encoding but
+  not identical types.
+- Improved ARC-4 encoding generation for tuples with dynamically-sized elements.
+
+- Added constant optimizations for `sha3_256`, `sha512_256` and `keccak256` op codes.
+
+- Added support for reading and writing at an index or iterating a dynamic array of fixed size elements
+  in a box > 4k in size.
+
+- Added an optimization for converting `substring3` with a `len` as the length argument to an `extract START 0`.
+
+- Added an optimisation to eliminate `extract_uint64` when it's consumed only from an `itob`.
+
+- Optimize op `arg` to `arg_N` when N <= 3.
+
+- Include an error message in TEAL, ARC-56 and debug outputs for when a dynamic array of fixed elements when writing to an out-of-bounds index.
+
+- Added optimisation to always inline a subroutine that is a single intrinsic.
+- Minor improvements to TEAL peephole optimisations.
+
+- Support matching against multiple values in Python match-cases with `|`.
+
+-   Add `.as_uint64()` and `.as_biguint()` methods for all `arc4.UIntN` and `arc4.BigUIntN` classes to convert them to the primitive values. `.as_uint64()` works even for types with bytes size > 64 such as `BigUIntN[typing.Literal[128]]`, `BigUIntN[typing.Literal[512]]`, .etc, as long as the actual value fits within the bound of uint64. `.as_uint64()` throws overflow error if the value is larger than uint64
+
+-   Added `extract`, `replace`, `resize`, and `splice` methods to `Box` class
+
+- Added AVM 13 support
+- Added support for ops from langspec v4.3.0, including `txn RejectVersion` and `app_params_get AppVersion`
+
+### Changed
+
+-   `algopy.Array` can now be used in storage and allows native, mutable and dynamically sized types,
+    however it no longer has reference semantics and may require `.copy()` when aliasing the array or it's contents.
+
+    To retain the original behaviour of `algopy.Array` use the new `algopy.ReferenceArray` type.
+
+-   Require `.copy()`when extending or concatenating a sequence containing mutable values to maintain idiomatic compatibility.
+
+- The default behaviour for the new `resource_encoding` option is different to prior versions, resource
+  types (`algopy.Asset`, `algopy.Application` and `algopy.Account`) will now appear as their underlying
+  ARC-4 value types in ABI methods (`uint64` and `address`).
+  This affects TEAL, AVM bytecode, ARC-32 and ARC-56 file output.
+
+- Updated vendored mypy version from v1.13.0 to v1.17.0.
+
+- Increase severity from warning to error when referencing logic sig only args in a contract and vice versa.
+
+- Disable some lower level optimisations when running at O0.
+- Improved performance of puya backend.
+
+- ARC-4 router code generation has been changed to be more program-size efficient.
+- Multiple other improvements to decrease program size have been introduced.
+
+- Improved the help output for puyapy.
+
+- Removed automatic output of ARC-32 app spec files.
+  ARC-32 has been marked for eventual deprecation, with ARC-56 as the replacement.
+  ARC-56 app spec files are already automatically output and continue to be.
+  To continue outputting an ARC-32 file, specify the command line option `--output-arc32`.
+
+-   Changed constructors of `ImmutableArray` and `ReferenceArray` to take an `Iterable` instead of variadic args for consistency with other native array types.
+
+- The default AVM version has been updated from 10 to 11 to match the current mainnet version.
+  AVM version 10 remains a supported option for now.
+
+### Deprecated
+
+-   `.native` property in `arc4.UIntN` and `arc4.BigUIntN` classes has been depreacted. Use `.as_uint64()` or `.as_biguint()` instead.
+
+-   `.ref` property in `Box` class has been deprecated. The methods previously accessed via `.ref` e.g. `extract`, `replace`, `resize`, and `splice` are now available directly in the `Box` class.
+-   `BoxRef` class has been deprecated. Use `Box[Bytes]` instead.
+
+### Fixed
+
+- Prevent a critical error when optimizing extract ops with constant offsets and sizes.
+
+- Fixed a potential semantic compatibility bug when instantiating a new `algopy.arc4.Struct`
+  using keyword arguments. The arguments were being evaluated in the order of the fields on the
+  Struct class, rather than from left to right when being passed.
+- Fixed a compilation failure when using `--locals-coalescing-strategy=aggressive` option in
+  combination with `algopy.ReferenceArray`.
+- Fixed a compilation failure when subroutines contained extremely long control flow sequences.
+- Fixed a compilation failure when attempting to iterate an empty tuple.
+
+- Prevent compilation failure in certain scenarios when performing copy-propagation.
+
+- Fixed [an issue](https://github.com/algorandfoundation/puya/issues/516) where comparisons
+  between boolean evaluations of Asset or Application types would produce unexpected results.
+
+- No longer allow optimizations for `setbit` where the value could result in something other than a 0 or 1.
+- Fixed typing for methods that should have only allowed bool inputs, specifically:
+  - `algopy.op.setbit`
+  - `algopy.op.getbit`
+  - `algopy.op.ITxnCreate.set_config_asset_default_frozen`
+  - `algopy.op.ITxnCreate.set_freeze_asset_frozen`
+  - `algopy.op.ITxnCreate.set_nonparticipation`
+  - `algopy.itxn.InnerTransaction`'s `nonparticipation` arg
+  - `algopy.itxn.KeyRegistration`'s `nonparticipation` arg
+- `algopy.itxn.KeyRegistration` no longer has any required fields since some combinations are mutually exclusive.
+
+- Fix a compilation failure occurring at optimisation-level zero when a function that is
+  declared to produce a result but always terminates the program is explicitly inlined.
+
+- Fix an issue where a subroutine that never returns could be generated with ops that will
+  always fail at runtime (specifically, using `frame_dig` and/or `frame_bury` in a subroutine
+  that is detected as not requiring a `proto` instruction).
+
+- Tuple types are now supported in template variables.
+
+- Fixed [an issue](https://github.com/algorandfoundation/puya/issues/453) whereby reading the target variable of a `urange` based for-loop outside of the loop would not match the expected behaviour of the native Python equivalent `range`.
+
+- Fixed [an issue](https://github.com/algorandfoundation/puya/issues/498) of semantic incompatibility concerning the order of evaluation of arguments when constructing named tuples.
+Previously, arguments were evaluated in the order of field declarations in the named tuple type, rather than in the order they appear in the instantiating call. This could cause different results when arguments have side effects.
+
 <a id='changelog-v4.10.0'></a>
 ## v4.10.0 (2025-06-30)
 
