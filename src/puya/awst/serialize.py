@@ -5,7 +5,6 @@ import typing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from cattrs import ClassValidationError, IterableValidationError, transform_error
 from cattrs.literals import is_literal_containing_enums
 from cattrs.preconf.json import JsonConverter, make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
@@ -13,7 +12,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import nodes, txn_fields, wtypes
-from puya.errors import PuyaError
+from puya.errors import InternalError, PuyaError
 
 logger = log.get_logger(__name__)
 
@@ -28,7 +27,7 @@ def _unstructure_optional_enum_literal(value: object) -> object:
 
 @functools.cache
 def get_converter() -> JsonConverter:
-    converter = make_converter()
+    converter = make_converter(detailed_validation=False)
 
     # literals with optional enum
     converter.register_unstructure_hook_factory(
@@ -85,6 +84,24 @@ def get_converter() -> JsonConverter:
     union_strategy(nodes.CompileTimeConstantExpression, converter)
     include_subclasses(nodes.Statement, converter, union_strategy=union_strategy)
     include_subclasses(nodes.RootNode, converter, union_strategy=union_strategy)
+
+    structure_method = converter.structure
+
+    @functools.wraps(structure_method)
+    def wrapped_structure[T](obj: object, cl: type[T]) -> T:
+        try:
+            return structure_method(obj, cl)
+        except PuyaError:
+            raise
+        except (ValueError, TypeError) as err:
+            raise InternalError(
+                f"invalid value encountered during deserialization: {err}"
+            ) from err
+        except Exception as err:
+            raise InternalError(f"deserialization failed: {err}") from err
+
+    converter.structure = wrapped_structure  # type: ignore[method-assign,assignment]
+
     return converter
 
 
@@ -92,24 +109,8 @@ def awst_to_json(awst: nodes.AWST) -> str:
     return get_converter().dumps(awst, indent=4)
 
 
-def _find_and_log_puya_errors(err: ClassValidationError | IterableValidationError) -> None:
-    for ex in err.exceptions:
-        match ex:
-            case PuyaError():
-                logger.error(ex.msg, location=ex.location)
-            case ClassValidationError() | IterableValidationError():
-                _find_and_log_puya_errors(ex)
-
-
 def awst_from_json(json: str) -> nodes.AWST:
-    try:
-        return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
-    except (ClassValidationError, IterableValidationError) as err:
-        _find_and_log_puya_errors(err)
-        logger.debug("Deserialization error: \n" + "\n".join(transform_error(err)))
-        raise ValueError(
-            "Error during deserialization of AWST json. See debug log for details"
-        ) from err
+    return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
 
 
 def source_annotations_to_json(sources_by_path: Mapping[Path, Sequence[str] | None]) -> str:
