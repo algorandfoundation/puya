@@ -61,7 +61,9 @@ def serve(*, log_level: LogLevel = LogLevel.info) -> None:
     Parameters:
         log_level: The minimum log level to be used for logging.
     """
-    start_puya_service(log_level=log_level)
+    # log to stderr to prevent interference with jsonrpc
+    configure_logging(min_log_level=log_level, file=sys.stderr)
+    start_puya_service()
 
 
 def _read_text_from_maybe_compressed_file(path: Path) -> str:

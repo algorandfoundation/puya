@@ -1,5 +1,5 @@
 import contextlib
-import sys
+import typing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -12,7 +12,7 @@ from puya.awst import nodes as awst_nodes
 from puya.awst.serialize import get_converter
 from puya.compile import awst_to_teal
 from puya.errors import PuyaExitError, log_exceptions
-from puya.log import Log, LogLevel, configure_logging, configure_stdio, get_logger, logging_context
+from puya.log import Log, LogLevel, get_logger, logging_context
 from puya.main import PuyaOptionsWithCompilationSet, match_compilation_set
 from puya.options import PuyaOptions
 from puya.utils import pushd
@@ -20,12 +20,7 @@ from puya.utils import pushd
 logger = get_logger(__name__)
 
 
-def start_puya_service(log_level: LogLevel) -> None:
-    # configure stdio before capturing stderr
-    configure_stdio()
-    # log to stderr to prevent interference with jsonrpc
-    configure_logging(min_log_level=log_level, file=sys.stderr)
-
+def start_puya_service() -> None:
     logger.info("Starting puya server, Ctrl+C and Enter to exit...")
     puya_server = create_server(max_workers=1)
     puya_server.start_io()
@@ -60,10 +55,12 @@ class CompileResult:
 
 
 @attrs.frozen(kw_only=True)
-class Request[T]:
+class AnyRequest:
     id: int | str
     method: str
-    params: T
+    # leave the request params as untyped, so we can defer deserialization (and thus validation)
+    # until we're inside a "feature" handler, so that there is a logging context for error capture
+    params: typing.Any
     jsonrpc: str = attrs.field(default="2.0")
 
 
@@ -76,8 +73,8 @@ class Response[T]:
 
 # Map of method name to (request type, response type)
 _REQUEST_TYPES: dict[str, tuple[type | None, type | None]] = {
-    "analyse": (Request[AnalyseParams], Response[AnalyseResult]),
-    "compile": (Request[CompileParams], Response[CompileResult]),
+    "analyse": (AnyRequest, Response[AnalyseResult]),
+    "compile": (AnyRequest, Response[CompileResult]),
 }
 
 
@@ -98,6 +95,7 @@ class PuyaProtocol(JsonRPCProtocol):
 
 
 def create_server(max_workers: int | None) -> JsonRPCServer:
+    converter = get_converter()
     server = JsonRPCServer(PuyaProtocol, get_converter, max_workers=max_workers)
 
     @server.feature("shutdown")
@@ -105,7 +103,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
         ls.shutdown()
 
     @server.feature("analyse")
-    def analyse(params: AnalyseParams) -> AnalyseResult:
+    def analyse(params: typing.Any) -> AnalyseResult:  # noqa: ANN401
         options = PuyaOptions(
             # options chosen to make analysis as fast as possible
             optimization_level=0,
@@ -126,7 +124,8 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
             log_exceptions(),
             pushd(dummy_path),
         ):
-            awst = params.awst
+            request = converter.structure(params, AnalyseParams)
+            awst = request.awst
             compilation_set = {
                 a.id: dummy_path
                 for a in awst
@@ -146,26 +145,30 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
         return result
 
     @server.feature("compile")
-    def compile_(params: CompileParams) -> CompileResult:
+    def compile_(params: typing.Any) -> CompileResult:  # noqa: ANN401
+        log_level = LogLevel.info
         with (
             logging_context() as log_ctx,
             contextlib.suppress(PuyaExitError),
             log_exceptions(),
-            pushd(params.base_path),
         ):
-            awst = params.awst
-            options = params.options
-            compilation_set = match_compilation_set(options.compilation_set, awst)
-            # Process the compilation
-            awst_to_teal(
-                log_ctx,
-                options,
-                compilation_set,
-                params.source_annotations,
-                awst,
-            )
+            request = converter.structure(params, CompileParams)
 
-        result = CompileResult(logs=[log for log in log_ctx.logs if log.level >= params.log_level])
+            log_level = request.log_level
+            with pushd(request.base_path):
+                awst = request.awst
+                options = request.options
+                compilation_set = match_compilation_set(options.compilation_set, awst)
+                # Process the compilation
+                awst_to_teal(
+                    log_ctx,
+                    options,
+                    compilation_set,
+                    request.source_annotations,
+                    awst,
+                )
+
+        result = CompileResult(logs=[log for log in log_ctx.logs if log.level >= log_level])
         return result
 
     return server
