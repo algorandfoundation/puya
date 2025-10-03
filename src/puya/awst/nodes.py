@@ -1381,11 +1381,13 @@ class NewArray(Expression):
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     @values.validator
-    def _check_element_types(self, _attribute: object, value: tuple[Expression, ...]) -> None:
-        if any(expr.wtype != self.wtype.element_type for expr in value):
-            raise ValueError(
-                f"All array elements should have array type: {self.wtype.element_type}"
-            )
+    def _check_element_types(self, _attribute: object, values: tuple[Expression, ...]) -> None:
+        element_wtype = self.wtype.element_type
+        for value in values:
+            if value.wtype != element_wtype:
+                logger.error(
+                    "element type does not match array type", location=value.source_location
+                )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_array(self)
@@ -2270,7 +2272,10 @@ class StateDelete(Expression):
             expected.append(wtypes.bool_wtype)
 
         if value not in expected:
-            raise ValueError(f"Expected {expected}, got {value}")
+            logger.critical(
+                f"invalid expression type for StateDelete of {self.field.storage_kind}: {value}",
+                location=self.source_location,
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_state_delete(self)
