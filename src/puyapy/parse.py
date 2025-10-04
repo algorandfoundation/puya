@@ -420,9 +420,9 @@ def get_sys_path(python_executable: str) -> list[str]:
         raise ConfigurationError(
             f"invalid python executable '{python_executable}': {reason}"
         ) from err
-    if pyinfo_result.stderr:
-        raise ConfigurationError(pyinfo_result.stderr)
     if pyinfo_result.returncode != 0:
+        if pyinfo_result.stderr:
+            raise ConfigurationError(pyinfo_result.stderr)
         raise InternalError(f"failed to inspect python environment for {python_executable}")
     sys_path = pyinfo_result.stdout.splitlines()
     return sys_path
