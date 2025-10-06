@@ -6,17 +6,7 @@ import pytest
 
 from puyapy.awst_build import pytypes
 from tests import STUBS_DIR
-
-
-def _module_name_from_path(file_path: Path, stubs_root: Path) -> str:
-    if file_path.stem == "__init__":
-        mod_path = file_path.parent
-    else:
-        mod_path = file_path.with_suffix("")
-    rel = mod_path.relative_to(stubs_root)
-    parts = list(rel.parts)
-    parts[0] = parts[0].removesuffix("-stubs")
-    return ".".join(parts)
+from tests.utils import get_module_name_from_path
 
 
 def _symbols_from_file(file_path: Path) -> list[str]:
@@ -51,7 +41,7 @@ def _stub_class_names_and_predefined_aliases() -> list[str]:
     stubs_root = STUBS_DIR.parent.resolve()
     results = []
     for path in stubs_root.rglob("*.pyi"):
-        module = _module_name_from_path(path, stubs_root)
+        module = get_module_name_from_path(path, stubs_root)
         symbols = _symbols_from_file(path)
         qualified_symbols = [f"{module}.{name}" for name in symbols if not name.startswith("_")]
         results.extend(qualified_symbols)
