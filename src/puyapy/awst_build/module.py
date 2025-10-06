@@ -333,7 +333,7 @@ class ModuleASTConverter(
         if stmt.is_alias_def:
             match stmt.rvalue:
                 case mypy.nodes.RefExpr(
-                    is_alias_rvalue=True, node=mypy.nodes.TypeInfo(fullname=alias_fullname)
+                    is_alias_rvalue=True, node=mypy.nodes.SymbolNode(fullname=alias_fullname)
                 ):
                     maybe_aliased_pytype = self.context.lookup_pytype(alias_fullname)
                     if maybe_aliased_pytype is None:
