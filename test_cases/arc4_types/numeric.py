@@ -18,7 +18,7 @@ from algopy.arc4 import (
 
 Decimal: t.TypeAlias = UFixedNxM[t.Literal[64], t.Literal[10]]
 
-ARC4BigUInt: t.TypeAlias = BigUIntN[t.Literal[512]]
+ARC4BigUInt: t.TypeAlias = UInt512
 
 ARC4BiggieSmalls: t.TypeAlias = BigUIntN[t.Literal[32]]
 
