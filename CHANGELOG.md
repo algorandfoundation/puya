@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.0.1'></a>
+## v5.0.1 (2025-10-06)
+
+### Fixed
+
+- creating a type alias from another type alias is now supported e.g. `Timestamp = algopy.arc4.UInt64`
+
+- improved language server support for PyCharm LSP4IJ plugin
+
 <a id='changelog-v5.0.0'></a>
 ## v5.0.0 (2025-10-03)
 
