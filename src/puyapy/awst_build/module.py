@@ -337,8 +337,8 @@ class ModuleASTConverter(
                 ):
                     maybe_aliased_pytype = self.context.lookup_pytype(alias_fullname)
                     if maybe_aliased_pytype is None:
-                        self.context.error(
-                            f"Unknown type for type alias: {alias_fullname}", stmt_loc
+                        logger.error(
+                            f"unknown type for type alias: {alias_fullname}", location=stmt_loc
                         )
                         return []
                     aliased_pytype = maybe_aliased_pytype
@@ -351,14 +351,14 @@ class ModuleASTConverter(
                         alias_type, source_location=stmt_loc
                     )
                 case _:
-                    self._error("Unsupported type-alias format", stmt_loc)
+                    logger.error("unsupported type-alias format", location=stmt_loc)
                     return []
             for lvalue in lvalues:
                 self.context.register_pytype(aliased_pytype, alias=lvalue.fullname)
             # We don't include type aliases in AWST since they're Python specific
             return []
         if any(lvalue.is_special_form for lvalue in lvalues):
-            self._error("Unsupported type-form", stmt_loc)
+            logger.error("unsupported type-form", location=stmt_loc)
 
         constant_value = stmt.rvalue.accept(self)
         for lvalue in lvalues:
