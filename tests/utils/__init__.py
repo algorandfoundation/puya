@@ -154,6 +154,17 @@ def get_relative_path(location: SourceLocation | None, root_dir: Path) -> Path |
         return None
 
 
+def get_module_name_from_path(file_path: Path, root: Path) -> str:
+    if file_path.stem == "__init__":
+        mod_path = file_path.parent
+    else:
+        mod_path = file_path.with_suffix("")
+    rel = mod_path.relative_to(root)
+    parts = list(rel.parts)
+    parts[0] = parts[0].removesuffix("-stubs")
+    return ".".join(parts)
+
+
 def _get_log_errors(logs: Iterable[Log]) -> str:
     return "\n".join(str(log) for log in logs if log.level == LogLevel.error)
 
