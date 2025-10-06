@@ -19,6 +19,35 @@ class Statement(Node, abc.ABC):
 
 
 @attrs.frozen
+class ImportAs(Node):
+    name: str
+    as_name: str | None
+
+
+@attrs.frozen
+class ModuleImport(Statement):
+    names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
+
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_module_import(self)
+
+
+@attrs.frozen
+class FromImport(Statement):
+    module: str
+    names: list[ImportAs] | None = attrs.field(
+        validator=attrs.validators.optional(attrs.validators.min_len(1))
+    )
+    """if None, then import all (ie star import)"""
+
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_from_import(self)
+
+
+AnyImport = ModuleImport | FromImport
+
+
+@attrs.frozen
 class Parameter(Node):
     name: str
     annotation: str

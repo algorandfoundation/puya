@@ -135,7 +135,7 @@ class _SourceResolver:
 
         name = src_dir.name
         if not (has_init or name.isidentifier()):
-            # if the  directory name is invalid and there's not __init__.py, stop crawling upwards
+            # if the directory name is invalid and there's not __init__.py, stop crawling upwards
             return None
 
         root = self._find_package_root(parent)
