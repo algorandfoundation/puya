@@ -18,47 +18,38 @@ class FASTBuilder(ast.NodeVisitor):
 
     @typing.override
     def visit_Import(self, node: ast.Import) -> nodes.ModuleImport:
-        names = [
-            nodes.ImportAs(
-                name=alias.name,
-                as_name=alias.asname,
-                source_location=self._loc(alias),
-            )
-            for alias in node.names
-        ]
-        return nodes.ModuleImport(
-            names=names,
-            source_location=self._loc(node),
+        names = [self.visit_alias(alias) for alias in node.names]
+        loc = self._loc(node)
+        return nodes.ModuleImport(names=names, source_location=loc)
+
+    @typing.override
+    def visit_alias(self, alias: ast.alias) -> nodes.ImportAs:
+        return nodes.ImportAs(
+            name=alias.name,
+            as_name=alias.asname,
+            source_location=self._loc(alias),
         )
 
     @typing.override
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> nodes.FromImport:
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> nodes.FromImport | None:
         match node.names:
             case [ast.alias("*", None)]:
                 names = None
             case _:
-                names = [
-                    nodes.ImportAs(
-                        name=alias.name,
-                        as_name=alias.asname,
-                        source_location=self._loc(alias),
-                    )
-                    for alias in node.names
-                ]
+                names = [self.visit_alias(alias) for alias in node.names]
 
         node_loc = self._loc(node)
         if not node.level:
             assert node.module
             module = node.module
         else:
+            is_module_init = self.module_path.stem == "__init__"
             module, relative_okay = correct_relative_import(
-                self.module_name,
-                node.level,
-                node.module,
-                is_cur_package_init_file=self.module_path.stem == "__init__",
+                self.module_name, node.level, node.module, cur_mod_is_init=is_module_init
             )
             if not relative_okay:
                 logger.error("no parent module, cannot perform relative import", location=node_loc)
+                return None
 
         return nodes.FromImport(
             module=module,
@@ -77,14 +68,15 @@ class FASTBuilder(ast.NodeVisitor):
 
 
 def correct_relative_import(
-    cur_mod_id: str, relative: int, target: str | None, *, is_cur_package_init_file: bool
+    cur_mod_id: str, relative: int, target: str | None, *, cur_mod_is_init: bool
 ) -> tuple[str, bool]:
     assert relative > 0
     parts = cur_mod_id.split(".")
     rel = relative
-    if is_cur_package_init_file:
+    if cur_mod_is_init:
         rel -= 1
     ok = len(parts) >= rel
     if rel != 0:
         cur_mod_id = ".".join(parts[:-rel])
-    return cur_mod_id + (("." + target) if target else ""), ok
+    suffix = ("." + target) if target else ""
+    return cur_mod_id + suffix, ok
