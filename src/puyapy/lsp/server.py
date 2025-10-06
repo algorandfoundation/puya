@@ -1,4 +1,5 @@
 import importlib.metadata
+import sys
 import threading
 import time
 import typing
@@ -13,7 +14,7 @@ from pygls.workspace import TextDocument
 from puya.log import Log, LogLevel, get_logger
 from puya.parse import SourceLocation
 from puya.utils import StableSet
-from puyapy import code_fixes, interpreter_data
+from puyapy import code_fixes
 from puyapy.lsp.analyse import (
     CodeAnalyser,
     DocumentAnalysis,
@@ -45,11 +46,10 @@ def _initialize_language_server(ls: LanguageServer, init_params: types.Initializ
     #       2.) Calling get_sys_path outside the initialize phase on Windows seems to block until
     #           the async event loop used by LanguageServer ends
     if python_executable is None:
-        logger.debug("no python executable defined, using current search paths")
-        search_paths = interpreter_data.get_sys_path()
-    else:
-        logger.debug(f"using {python_executable} to discover search paths")
-        search_paths = get_sys_path(python_executable)
+        logger.debug("no python executable provided, using current executable")
+        python_executable = sys.executable
+    logger.debug(f"using {python_executable} to discover search paths")
+    search_paths = get_sys_path(python_executable)
     logger.debug(f"using search paths: {search_paths}")
     puyapy_ls = PuyaPyLanguageServer(
         ls=ls,
