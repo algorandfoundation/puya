@@ -5,7 +5,9 @@ from pathlib import Path
 import attrs
 
 from puya import log
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
+from puya.utils import unique
 from puyapy.fast import nodes
 
 logger = log.get_logger(__name__)
@@ -16,24 +18,97 @@ class FASTBuilder(ast.NodeVisitor):
     module_name: str
     module_path: Path
 
+    @classmethod
+    def parse_module(
+        cls,
+        *,
+        source: str,
+        module_path: Path,
+        module_name: str,
+        feature_version: int | tuple[int, int] | None = None,
+    ) -> nodes.Module:
+        try:
+            mod = ast.parse(
+                source, module_path, "exec", type_comments=True, feature_version=feature_version
+            )
+        except SyntaxError as e:
+            raise CodeError(f"invalid Python syntax: {e}") from e
+
+        builder = cls(module_name=module_name, module_path=module_path)
+        return builder.visit_Module(mod)
+
     @typing.override
     def visit(self, node: ast.AST) -> typing.Any:
         # unlike the parent method, this will error if the visitor method is not defined
         method = "visit_" + node.__class__.__name__
-        visitor = getattr(self, method, None)
-        if visitor is None:
-            node_loc = self._loc(node)
-            logger.error("unsupported ", location=node_loc)
+        try:
+            visitor = getattr(self, method)
+        except AttributeError:
+            loc = self._maybe_loc(node)
+            if loc is not None:
+                logger.error("unsupported Python syntax", location=loc)  # noqa: TRY400
+            else:
+                logger.error(f"unsupported Python syntax: {ast.unparse(node)}")  # noqa: TRY400
             return None
         else:
             return visitor(node)
 
     @typing.override
+    def visit_Module(self, module: ast.Module) -> nodes.Module:
+        body = self._visit_stmt_list(module.body)
+        docstring: str | None = None
+        if body:
+            match body[0]:
+                case nodes.ExpressionStatement(expr=nodes.Constant(value=str(str_constant))):
+                    body.pop(0)
+                    docstring = str_constant
+        future_flags = list[str]()
+        while body:
+            match body[0]:
+                case nodes.FromImport(module="__future__", names=names) as future_import:
+                    body.pop(0)
+                    if names is None:
+                        raise CodeError("invalid Python syntax", future_import.source_location)
+                    for name in names:
+                        if name.as_name:
+                            raise CodeError("invalid Python syntax", name.source_location)
+                        future_flags.append(name.name)
+                case _:
+                    break
+
+        return nodes.Module(
+            name=self.module_name,
+            path=self.module_path,
+            docstring=docstring,
+            future_flags=tuple(unique(future_flags)),
+            body=tuple(body),
+        )
+
+    @typing.override
+    def visit_FunctionDef(self, func_def: ast.FunctionDef) -> nodes.FunctionDef:
+        loc = self._loc(func_def)
+        if func_def.type_comment is not None:
+            raise CodeError("type comments are not supported", loc)
+        type_params = getattr(func_def, "type_params", None)
+        if type_params:
+            raise CodeError("type parameters are not supported", loc)
+        body = tuple(self._visit_stmt_list(func_def.body))
+        return nodes.FunctionDef(
+            name=func_def.name,
+            params=NotImplemented,
+            return_annotation=NotImplemented,
+            decorators=NotImplemented,
+            body=body,
+            source_location=loc,
+        )
+
+    @typing.override
     def visit_alias(self, alias: ast.alias) -> nodes.ImportAs:
+        loc = self._loc(alias)
         return nodes.ImportAs(
             name=alias.name,
             as_name=alias.asname,
-            source_location=self._loc(alias),
+            source_location=loc,
         )
 
     @typing.override
@@ -64,7 +139,36 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
-    def _loc(self, node: ast.AST) -> SourceLocation:
+    def _visit_stmt_list(self, stmts: list[ast.stmt]) -> list[nodes.Statement]:
+        result = []
+        for ast_stmt in stmts:
+            stmt = self.visit(ast_stmt)
+            match stmt:
+                case None:
+                    pass  # error should already have been reported
+                case nodes.Statement():
+                    result.append(stmt)
+                case _:
+                    raise InternalError(
+                        f"unexpected node type transformation, expected a Statement:"
+                        f" {_type_name(type(ast_stmt))} -> {_type_name(type(stmt))}",
+                        self._loc(ast_stmt),
+                    )
+        return result
+
+    def _maybe_loc(self, node: ast.AST) -> SourceLocation | None:
+        lineno = getattr(node, "lineno", None)
+        if lineno is None:
+            return None
+        return SourceLocation(
+            file=self.module_path,
+            line=lineno,
+            end_line=getattr(node, "end_lineno", lineno),
+            column=getattr(node, "col_offset", None),
+            end_column=getattr(node, "end_col_offset", None),
+        )
+
+    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
         return SourceLocation(
             file=self.module_path,
             line=node.lineno,
@@ -100,3 +204,14 @@ def correct_relative_import(
     else:
         absolute = f"{base}.{target_module}"
     return absolute
+
+
+# def _dotted_name(expr: ast.expr) -> str | None:
+#     match expr:
+#         case ast.Name(id=name):
+#             return name
+#         case ast.Attribute()
+
+
+def _type_name(t: type) -> str:
+    return ".".join((t.__module__, t.__qualname__))
