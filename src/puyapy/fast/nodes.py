@@ -59,7 +59,7 @@ AnyImport = ModuleImport | FromImport
 @attrs.frozen
 class Parameter(Node):
     name: str
-    annotation: str
+    annotation: Expression
 
 
 @attrs.frozen
@@ -79,12 +79,20 @@ class Decorator(Node):
 class FunctionDef(Statement):
     name: str
     params: tuple[Parameter, ...]
-    return_annotation: str
+    return_annotation: Expression
     decorators: tuple[Decorator, ...]
+    docstring: str | None
     body: tuple[Statement, ...]
 
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_function_def(self)
+
+
+@attrs.frozen
+class ClassDef(Statement):
+    name: str
+    bases: tuple[Expression, ...]
+    docstring: str | None
 
 
 @attrs.frozen
