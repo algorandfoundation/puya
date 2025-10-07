@@ -1,10 +1,13 @@
 import abc
+import ast
+import types
+import typing
 from pathlib import Path
 
 import attrs
 
 from puya.parse import SourceLocation
-from puyapy.fast.visitors import StatementVisitor
+from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
 
 
 @attrs.frozen
@@ -16,6 +19,12 @@ class Node:
 class Statement(Node, abc.ABC):
     @abc.abstractmethod
     def accept[T](self, visitor: StatementVisitor[T]) -> T: ...
+
+
+@attrs.frozen
+class Expression(Node, abc.ABC):
+    @abc.abstractmethod
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T: ...
 
 
 @attrs.frozen
@@ -54,16 +63,55 @@ class Parameter(Node):
 
 
 @attrs.frozen
+class Decorator(Node):
+    # Technically, as of Python 3.9, decorators can be almost any arbitrary expression,
+    # however there's no such decorator that we support or could envision supporting,
+    # so keep things simple and only translate dotted-expressions followed by at most one
+    # function argument list.
+    # ref: https://peps.python.org/pep-0614/
+    callee: str
+    # we do allow som extra syntax in certain decorator arguments however, so retain
+    # the original AST here.
+    args: tuple[ast.expr, ...] | None
+
+
+@attrs.frozen
 class FunctionDef(Statement):
     name: str
-    parameters: tuple[Parameter, ...]
+    params: tuple[Parameter, ...]
+    return_annotation: str
+    decorators: tuple[Decorator, ...]
+    body: tuple[Statement, ...]
 
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_function_def(self)
 
 
 @attrs.frozen
+class ExpressionStatement(Statement):
+    expr: Expression
+
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_expression_statement(self)
+
+
+ConstantValue: typing.TypeAlias = (
+    None | str | bytes | bool | int | float | complex | types.EllipsisType
+)
+
+
+@attrs.frozen
+class Constant(Expression):
+    value: ConstantValue
+
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_constant(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
+    docstring: str | None
+    future_flags: tuple[str, ...]
     body: tuple[Statement, ...]
