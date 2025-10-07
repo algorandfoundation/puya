@@ -38,7 +38,7 @@ class FASTBuilder(ast.NodeVisitor):
         return builder.visit_Module(mod)
 
     @typing.override
-    def visit(self, node: ast.AST) -> typing.Any:
+    def visit(self, node: ast.AST) -> nodes.Node | None:
         # unlike the parent method, this will error if the visitor method is not defined
         method = "visit_" + node.__class__.__name__
         try:
@@ -51,17 +51,14 @@ class FASTBuilder(ast.NodeVisitor):
                 logger.error(f"unsupported Python syntax: {ast.unparse(node)}")  # noqa: TRY400
             return None
         else:
-            return visitor(node)
+            result = visitor(node)
+            assert isinstance(result, nodes.Node)
+            return result
 
     @typing.override
     def visit_Module(self, module: ast.Module) -> nodes.Module:
-        body = self._visit_stmt_list(module.body)
-        docstring: str | None = None
-        if body:
-            match body[0]:
-                case nodes.ExpressionStatement(expr=nodes.Constant(value=str(str_constant))):
-                    body.pop(0)
-                    docstring = str_constant
+        ast_body, docstring = _extract_docstring(module)
+        body = self._visit_stmt_list(ast_body)
         future_flags = list[str]()
         while body:
             match body[0]:
@@ -92,12 +89,18 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(func_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
-        body = tuple(self._visit_stmt_list(func_def.body))
+        if func_def.returns is None:
+            raise CodeError("return type annotation is required", loc)
+        return_annotation = self.visit(func_def.returns)
+        assert isinstance(return_annotation, nodes.Expression)
+        ast_body, docstring = _extract_docstring(func_def)
+        body = tuple(self._visit_stmt_list(ast_body))
         return nodes.FunctionDef(
             name=func_def.name,
             params=NotImplemented,
-            return_annotation=NotImplemented,
+            return_annotation=return_annotation,
             decorators=NotImplemented,
+            docstring=docstring,
             body=body,
             source_location=loc,
         )
@@ -176,6 +179,16 @@ class FASTBuilder(ast.NodeVisitor):
             column=node.col_offset,
             end_column=node.end_col_offset,
         )
+
+
+def _extract_docstring(
+    node: ast.Module | ast.ClassDef | ast.FunctionDef,
+) -> tuple[list[ast.stmt], str | None]:
+    docstring = ast.get_docstring(node, clean=False)
+    body = node.body
+    if docstring is not None:
+        body = node.body[1:]
+    return body, docstring
 
 
 def correct_relative_import(
