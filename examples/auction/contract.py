@@ -26,11 +26,13 @@ class Auction(ARC4Contract):
         # They may also reclaim all unclaimed bidding money.
         self.claim_time = UInt64(10000)
 
+
     @arc4.baremethod(create="require")
     def create(self) -> None:
         """Creates the contract without choosing an ASA to auction yet."""
 
-    # the explicit disallow is not necessary
+
+    # The explicit disallow is not necessary as this is the default option.
     @arc4.abimethod(create="disallow")
     def opt_into_asset(self, asset: Asset) -> None:
         """
@@ -62,6 +64,7 @@ class Auction(ARC4Contract):
             xfer_asset=asset,
         ).submit()
 
+
     @arc4.abimethod
     def start_auction(
         self,
@@ -77,7 +80,8 @@ class Auction(ARC4Contract):
         assert self.auction_end == 0, "auction already started"
 
         # Ensure we have opted into an asset, and it is the asset being transfered
-        # this SHOULD never happen as the transfer would fail anyways if not opted into
+        # this would not happen as the transfer would fail anyways if not opted into,
+        # but we make it explicit here
         assert axfer.xfer_asset == self.asa, "not the correct asset"
 
         # Verify axfer
@@ -91,8 +95,11 @@ class Auction(ARC4Contract):
         # Set global state
         self.auction_end = Global.latest_timestamp + length
 
-        self.highest_bidder = Global.zero_address # b.c. its not an actual bid
+        # Set to zero address instead of creator address simply to allow the creator
+        # to participate from the auction.
+        self.highest_bidder = Global.zero_address
         self.highest_bid = starting_price
+
 
     @arc4.baremethod(allow_actions=[OnCompleteAction.UpdateApplication])
     def update(self) -> None:
@@ -102,8 +109,10 @@ class Auction(ARC4Contract):
         This is useful during development, but probably should not be enabled in production.
         """
         assert Txn.sender == Global.creator_address
-        assert self.auction_end == 0 and self.asa == Asset(), "already opted into asset or started auction"
+        assert (self.auction_end == 0 and self.asa == Asset()
+            ), "already opted into asset or started auction"
         assert TemplateVar[bool]("UPDATABLE")
+
 
     @arc4.abimethod(
         allow_actions=[OnCompleteAction.DeleteApplication],
@@ -157,6 +166,7 @@ class Auction(ARC4Contract):
         Local State for their account"""
         pass
 
+
     @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     def bid(self, pay: gtxn.PaymentTransaction) -> None:
 
@@ -166,28 +176,46 @@ class Auction(ARC4Contract):
         # Verify payment transaction
         assert pay.sender == Txn.sender, "payment sender must match transaction sender"
         assert pay.amount > self.highest_bid, "Bid must be higher than previous bid"
-        assert pay.receiver == Global.current_application_address, "bid payment must go to the application"
+        assert (pay.receiver == Global.current_application_address
+                ), "bid payment must go to the application"
 
-        #if there was a legitimate bidder before, add to their re-claimable amount
+        # if there was a legitimate bidder before, add to their re-claimable amount
         if self.highest_bidder != Global.zero_address:
-            self.claimable_amount[self.highest_bidder] += self.highest_bid
+            # in case the previous bidder force cleared their state, the bid should not fail
+            (_, is_opted_in) = self.claimable_amount.maybe(self.highest_bidder)
+            if is_opted_in:
+                self.claimable_amount[self.highest_bidder] += self.highest_bid
 
         # set global state
         self.highest_bid = pay.amount
         self.highest_bidder = pay.sender
 
-
     @arc4.abimethod(allow_actions=[OnCompleteAction.CloseOut, OnCompleteAction.NoOp])
     def claim_bids(self) -> None:
+        """
+        At any time during the auction, an account may reclaim their accumulated
+        past bid amounts that have been surpassed by other offers. This excludes
+        the current highest bidder, who may not back down from their offer unless
+        they are outbid.
+        """
         amount = self.claimable_amount[Txn.sender]
 
         assert amount > 0, "no reclaimable bids registered for caller"
 
+        assert (self.highest_bidder != Txn.sender
+                ), "the highest bidder is not allowed to withdraw their bid"
+        # Note that, if the highest bidder were to force clear their state, they would
+        # not deadlock the contract, and if they are outbid they would forfeit a claim
+        # to the whole amount they may have bid (which would be susceptible to collection
+        # by the contract creator on deletion)
+
+        # Claim the amount
         itxn.Payment(
             amount=amount,
             receiver=Txn.sender,
         ).submit()
 
+        # Zero out bidder's claimable amount
         self.claimable_amount[Txn.sender] = UInt64(0)
 
 
@@ -205,7 +233,8 @@ class Auction(ARC4Contract):
         recipient = self.highest_bidder if self.highest_bidder != Global.zero_address else Global.creator_address
 
         # Send ASA to previous bidder
-        # we could opt out here but instead we let the opt out happen on application deletion
+        # Optionally we could opt out of the asset here,
+        # but instead we let the opt out happen on application deletion
         itxn.AssetTransfer(
             xfer_asset=self.asa,
             asset_receiver=recipient,
