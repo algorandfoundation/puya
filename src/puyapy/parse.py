@@ -55,6 +55,7 @@ class SourceModule:
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     is_typeshed_file: bool
+    dependencies: frozenset[str]
 
 
 @attrs.frozen
@@ -132,6 +133,7 @@ def parse_python(
     for scc_module_names in sorted_components(graph):
         for module_name in scc_module_names:
             module = manager.modules[module_name]
+            state = graph[module_name]
             assert (
                 module_name == module.fullname
             ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
@@ -155,6 +157,7 @@ def parse_python(
                     lines=lines,
                     discovery_mechanism=discovery_mechanism,
                     is_typeshed_file=module.is_typeshed_file(mypy_options),
+                    dependencies=frozenset(state.dependencies_set),
                 )
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)

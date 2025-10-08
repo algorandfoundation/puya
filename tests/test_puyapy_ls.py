@@ -101,14 +101,15 @@ async def test_doc_change_updates_diagnostics(
 
 async def test_code_fixes_suggested(unique_uri: str, harness: "_LanguageServerHarness") -> None:
     contract_requiring_fixes = """
-from algopy import arc4
+from algopy import ARC4Contract
+from algopy.arc4 import abimethod
 
-class HelloWorldContract(arc4.ARC4Contract):
-    @arc4.abimethod
+class HelloWorldContract(ARC4Contract):
+    @abimethod
     def literal_fix(self) -> None:
         i = 123
 
-    @arc4.abimethod
+    @abimethod
     def range_fix(self) -> None:
         for j in range(3):
             pass
@@ -137,18 +138,36 @@ def no_sub_dec() -> None:
         "Use algopy.UInt64",
         "Use algopy.urange",
     ]
-    uint64_action = code_actions[4]
+    meth_sub_action, _, _, _, uint64_action, urange_action = code_actions
     assert isinstance(uint64_action, lsp.CodeAction)
-    assert uint64_action.title == "Use algopy.UInt64"
     assert uint64_action.kind == "quickfix"
-    assert uint64_action.edit is not None
-    assert uint64_action.edit.changes is not None
-    assert unique_uri in uint64_action.edit.changes
-    assert [e.new_text for e in uint64_action.edit.changes[unique_uri]] == [
+    edits = _get_edits(uint64_action, unique_uri)
+    assert edits is not None
+    assert [e.new_text for e in edits] == [
         "from algopy import UInt64\n",
         ")",
         "UInt64(",
     ]
+    assert isinstance(meth_sub_action, lsp.CodeAction)
+    edits = _get_edits(meth_sub_action, unique_uri)
+    assert edits is not None
+    assert [e.new_text for e in edits] == [
+        "from algopy import subroutine\n",
+        "\n    @subroutine",
+    ]
+    assert isinstance(urange_action, lsp.CodeAction)
+    edits = _get_edits(urange_action, unique_uri)
+    assert edits is not None
+    assert [e.new_text for e in edits] == [
+        "from algopy import urange\n",
+        "urange",
+    ]
+
+
+def _get_edits(action: lsp.CodeAction, uri: str) -> Sequence[lsp.TextEdit] | None:
+    if action.edit is None or action.edit.changes is None:
+        return None
+    return action.edit.changes.get(uri)
 
 
 def _first_line(arg: str | None) -> str | None:
@@ -168,6 +187,16 @@ class Contract(arc4.ARC4Contract):
     @arc4.abimethod
 """,
             "from algopy import UInt64",
+            "UInt64",
+        ),
+        (
+            """
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+""",
+            None,
             "UInt64",
         ),
         (
@@ -218,7 +247,10 @@ async def test_code_fix_symbol_aliases(
 """,
     )
     # wait for expected diagnostics
-    await harness.wait_for_diagnostic(unique_uri, 1)
+    diagnostics = await harness.wait_for_diagnostic(unique_uri, 1)
+    assert [d.message for d in diagnostics.diagnostics] == [
+        "a Python literal is not valid at this location"
+    ]
 
     code_actions = await harness.code_actions(unique_uri)
     assert code_actions is not None, "expected response"
@@ -236,6 +268,10 @@ async def test_code_fix_symbol_aliases(
         expected_edits.insert(0, expected_import + "\n")
     actual_edits = [e.new_text for e in code_action.edit.changes[unique_uri]]
     assert actual_edits == expected_edits
+    if expected_import:
+        assert (
+            code_action.edit.changes[unique_uri][0].range.start.line == 1
+        ), "expected import statement to be on line 1"
 
 
 @pytest.mark.parametrize(
