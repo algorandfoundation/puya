@@ -2,6 +2,7 @@ import ast
 import builtins
 import functools
 import json
+import typing
 from collections.abc import Iterable, Mapping
 from enum import Enum
 from pathlib import Path
@@ -83,55 +84,251 @@ class ClassNode:
     bases: list[str] = attrs.field(factory=list)
 
 
-def _classes_from_file(file_path: Path, root: Path) -> list[ClassNode]:
+class ClassCollector(ast.NodeVisitor):
+    """Collect top-level classes and build ClassNode instances."""
+
+    def __init__(self, module: str, import_visitor: _ImportCollector) -> None:
+        self.module = module
+        self.import_visitor = import_visitor
+        self.classes: list[ClassNode] = []
+        self.base_class_collector = BaseClassCollector(module, import_visitor)
+        self.class_attribute_collector = ClassAttributeCollector(import_visitor)
+
+    @typing.override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        class_node = ClassNode(name=f"{self.module}.{node.name}")
+        self.base_class_collector.visit(node)
+        self.class_attribute_collector.visit(node)
+
+        # Extend the class_node with collected bases
+        class_node.bases.extend(self.base_class_collector.result)
+
+        # Extend the class_node with collected members
+        class_node.properties.extend(self.class_attribute_collector.properties)
+        class_node.functions.extend(self.class_attribute_collector.functions)
+
+        self.classes.append(class_node)
+
+
+class BaseClassCollector(ast.NodeVisitor):
+    def __init__(self, module: str, import_visitor: _ImportCollector) -> None:
+        self.bases: list[str] = []
+        self.module = module
+        self.import_visitor = import_visitor
+
+    @property
+    def result(self) -> list[str]:
+        def _get_full_name(name: str) -> str:
+            base_module = _get_module_name_from_imports(name, self.import_visitor)
+            return f"{base_module or self.module}.{name}"
+
+        return [_get_full_name(name) for name in self.bases]
+
+    @typing.override
+    def visit_Name(self, node: ast.Name) -> None:
+        self.bases.append(node.id)
+
+    @typing.override
+    def visit_Constant(self, node: ast.Constant) -> None:
+        if isinstance(node.value, str):
+            self.bases.append(node.value)
+
+    @typing.override
+    def visit_Subscript(self, node: ast.Subscript) -> None:
+        self.visit(node.value)
+
+    @typing.override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        for b in node.bases:
+            self.visit(b)
+
+
+class ClassAttributeCollector(ast.NodeVisitor):
+    """Visitor to collect properties and functions from a class body.
+
+    We explicitly implement visit_ methods for the node types we care about
+    and avoid generic traversal so nested definitions are not processed.
     """
-    Parse a single .pyi file and return class names,
-    and module level assignments which are (probably) type annotations.
+
+    def __init__(self, import_visitor: _ImportCollector) -> None:
+        self.properties: list[PropertyNode] = []
+        self.functions: list[FunctionNode] = []
+        self.import_visitor = import_visitor
+
+    @typing.override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        for stmt in node.body:
+            self.visit(stmt)
+
+    @typing.override
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        # Only collect simple name targets (e.g., "x: int")
+        if isinstance(node.target, ast.Name):
+            self.properties.append(
+                PropertyNode(
+                    name=node.target.id,
+                    type=_get_type_node(node.annotation, self.import_visitor) or TypeNode(),
+                )
+            )
+
+    @typing.override
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        # Skip property deleters entirely
+        if self._is_deleter(node.decorator_list):
+            return
+
+        # Property-like methods (@property or setter)
+        if self._is_property_method(node.decorator_list):
+            self.properties.append(
+                PropertyNode(
+                    name=node.name,
+                    type=_get_type_node(node.returns, self.import_visitor) or TypeNode(),
+                )
+            )
+            return
+
+        # Regular function/method
+        args = node.args
+        pos_args_len = len(args.posonlyargs) + len(args.args)
+        pos_defaults_len = len(args.defaults)
+        pos_defaults_cutoff = pos_args_len - pos_defaults_len
+
+        arg_nodes = [
+            ArgNode(
+                name=a.arg,
+                type=_get_type_node(a.annotation, self.import_visitor) or TypeNode(),
+                kind=ArgKind.ARG_OPT if idx >= pos_defaults_cutoff else ArgKind.ARG_POS,
+            )
+            for idx, a in enumerate(args.posonlyargs + args.args)
+        ]
+
+        # Keyword-only args
+        arg_nodes.extend(
+            [
+                ArgNode(
+                    name=a.arg,
+                    type=_get_type_node(a.annotation, self.import_visitor) or TypeNode(),
+                    kind=ArgKind.ARG_NAMED_OPT
+                    if args.kw_defaults[idx] is not None
+                    else ArgKind.ARG_NAMED,
+                )
+                for idx, a in enumerate(args.kwonlyargs)
+            ]
+        )
+
+        self.functions.append(
+            FunctionNode(
+                name=node.name,
+                args=arg_nodes,
+                return_type=_get_type_node(node.returns, self.import_visitor) or TypeNode(),
+            )
+        )
+
+    def _is_property_method(self, decorators: list[ast.expr]) -> bool:
+        """Check if a method has property-related decorators."""
+        return any(
+            (isinstance(d, ast.Name) and d.id == "property")
+            or (isinstance(d, ast.Attribute) and d.attr == "setter")
+            for d in decorators
+        )
+
+    def _is_deleter(self, decorators: list[ast.expr]) -> bool:
+        """Check if a method is a property deleter."""
+        return any(isinstance(d, ast.Attribute) and d.attr == "deleter" for d in decorators)
+
+
+class TypeExprVisitor(ast.NodeVisitor):
+    """Visitor that maps a type expression AST into a TypeNode.
+
+    This preserves the original pattern-matching behavior from the
+    procedural implementation but uses the NodeVisitor pattern so the
+    code is easier to extend.
     """
-    module = get_module_name_from_path(file_path, root)
-    text = file_path.read_text(encoding="utf8")
-    tree = ast.parse(text, filename=str(file_path))
-    visitor = _ImportCollector(ResolvedSource(path=file_path, module=module, base_dir=root))
-    visitor.visit(tree)
 
-    classes = []
-    for stmt in tree.body:
-        match stmt:
-            case ast.ClassDef(name=class_name, bases=bases):
-                # Create new class node with fully qualified name
-                class_node = ClassNode(name=f"{module}.{class_name}")
+    def __init__(self, import_visitor: _ImportCollector) -> None:
+        self.import_visitor = import_visitor
+        self.names: list[str | TypeNode] = []
+        self.is_array = False
 
-                # Process base classes
-                _process_base_classes(class_node, bases, visitor, module)
-
-                # Process class body (properties and methods)
-                _process_class_body(class_node, visitor, stmt.body)
-
-                classes.append(class_node)
-
-    return classes
-
-
-def _expr_to_name(expr: ast.expr) -> str | None:
-    """Extract a name from an AST expression."""
-    match expr:
-        case ast.Name(id=id):
-            return id
-        case ast.Subscript(value=val):
-            return _expr_to_name(val)
-        case ast.Constant(value=v) if isinstance(v, str):
-            return v
-        case _:
+    @property
+    def result(self) -> TypeNode | None:
+        if len(self.names) == 0:
             return None
+        return TypeNode(names=self.names, is_array=self.is_array)
+
+    @typing.override
+    def visit_Name(self, node: ast.Name) -> None:
+        module = _get_module_name_from_imports(node.id, self.import_visitor)
+        self.names = [f"{module}.{node.id}" if module else node.id]
+
+    @typing.override
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        # typing.Self
+        if isinstance(node.value, ast.Name) and node.value.id == "typing" and node.attr == "Self":
+            self.names = ["typing.Self"]
+            return
+
+        # other attribute forms like X.Y -> "X.Y"
+        if isinstance(node.value, ast.Name):
+            self.names = [f"{node.value.id}.{node.attr}"]
+
+    @typing.override
+    def visit_BinOp(self, node: ast.BinOp) -> None:
+        # handle union types (PEP 604): A | B
+        if isinstance(node.op, ast.BitOr):
+            left = self._visit_expr(node.left, self.import_visitor)
+            right = self._visit_expr(node.right, self.import_visitor)
+            names: list[str | TypeNode] = []
+            if left:
+                names.append(left)
+            if right:
+                names.append(right)
+            self.names = names or []
+            self.is_array = (left.is_array if left else False) and (
+                right.is_array if right else False
+            )
+
+    @typing.override
+    def visit_Subscript(self, node: ast.Subscript) -> None:
+        # Iterator[...] or Iterable[...] => array/variadic
+        if isinstance(node.value, ast.Name) and node.value.id in ("Iterator", "Iterable"):
+            self.is_array = True
+            sl = node.slice
+
+            # simple name like Iterator[T]
+            if isinstance(sl, ast.Name):
+                module = _get_module_name_from_imports(sl.id, self.import_visitor)
+                self.names = [f"{module}.{sl.id}" if module else sl.id]
+                return
+
+            # more complex slice -> recurse
+            t = self._visit_expr(sl, self.import_visitor)
+            self.names = [t] if t else []
+            return
+
+        # Subscript with tuple of elements -> treat as array of multiple types
+        if isinstance(node.slice, ast.Tuple):
+            self.is_array = True
+            elts: list[ast.expr] = node.slice.elts
+            names: list[str | TypeNode] = []
+            for elt in elts:
+                t = self._visit_expr(elt, self.import_visitor)
+                if t:
+                    names.append(t)
+            self.names = names or []
+
+    def _visit_expr(self, expr: ast.expr, import_visitor: _ImportCollector) -> TypeNode | None:
+        visitor = TypeExprVisitor(import_visitor)
+        visitor.visit(expr)
+        return visitor.result
 
 
 def _get_module_name_from_imports(name: str, visitor: _ImportCollector) -> str | None:
+    def _is_builtin_type(name: str) -> bool:
+        return name in builtins.__dict__ and isinstance(builtins.__dict__[name], type)
+
     result = next(
-        (
-            f.module
-            for f in visitor.from_imports
-            if any(n for n in f.names or [] if n.name == name)
-        ),
+        (f.module for f in visitor.from_imports if any(n.name == name for n in (f.names or []))),
         None,
     )
 
@@ -140,144 +337,33 @@ def _get_module_name_from_imports(name: str, visitor: _ImportCollector) -> str |
     return result
 
 
-def _is_builtin_type(name: str) -> bool:
-    """
-    Checks if a given name, typically from an ast.Name node,
-    corresponds to a built-in type in Python.
-    """
-    return name in builtins.__dict__ and isinstance(builtins.__dict__[name], type)
-
-
-def _is_property_method(decorators: list[ast.expr]) -> bool:
-    """Check if a method has property-related decorators."""
-    return any(
-        (isinstance(d, ast.Name) and d.id == "property")
-        or (isinstance(d, ast.Attribute) and d.attr == "setter")
-        for d in decorators
-    )
-
-
-def _is_deleter(decorators: list[ast.expr]) -> bool:
-    """Check if a method is a property deleter."""
-    return any(isinstance(d, ast.Attribute) and d.attr == "deleter" for d in decorators)
-
-
-def _process_base_classes(
-    class_node: ClassNode, bases: list[ast.expr], visitor: _ImportCollector, module: str
-) -> None:
-    """Process base classes and add them to the class node."""
-    for base in bases:
-        name = _expr_to_name(base)
-        if name:
-            # Find the module where this base class is imported from
-            base_module = _get_module_name_from_imports(name, visitor)
-            # Add the fully qualified base class name
-            class_node.bases.append(f"{base_module or module}.{name}")
-
-
-def _process_class_body(
-    class_node: ClassNode, visitor: _ImportCollector, body: list[ast.stmt]
-) -> None:
-    """Process class body statements to extract properties and functions."""
-    for stmt in body:
-        match stmt:
-            # Handle properties: annotations and assignments
-            case (
-                ast.AnnAssign(target=ast.Name(id=prop_name))
-                | ast.Assign(targets=[ast.Name(id=prop_name)])
-            ):
-                class_node.properties.append(PropertyNode(name=prop_name))
-
-            # Handle properties defined with @property decorator or property.setter
-            case ast.FunctionDef(name=name, decorator_list=decorators) if _is_property_method(
-                decorators
-            ):
-                class_node.properties.append(
-                    PropertyNode(
-                        name=name, type=_get_type_node(stmt.returns, visitor) or TypeNode()
-                    )
-                )
-
-            # Handle regular methods (excluding property deleters)
-            case ast.FunctionDef(
-                name=func_name, args=args, returns=return_type, decorator_list=decorators
-            ) if not _is_deleter(decorators):
-                pos_args_len = len(args.posonlyargs) + len(args.args)
-                pos_defaults_len = len(args.defaults)
-                pos_defaults_cutoff = pos_args_len - pos_defaults_len
-
-                arg_nodes = [
-                    ArgNode(
-                        name=a.arg,
-                        type=_get_type_node(a.annotation, visitor) or TypeNode(),
-                        kind=ArgKind.ARG_OPT if idx >= pos_defaults_cutoff else ArgKind.ARG_POS,
-                    )
-                    for idx, a in enumerate(args.posonlyargs + args.args)
-                ]
-                arg_nodes.extend(
-                    [
-                        ArgNode(
-                            name=a.arg,
-                            type=_get_type_node(a.annotation, visitor) or TypeNode(),
-                            kind=ArgKind.ARG_NAMED_OPT
-                            if args.kw_defaults[idx] is not None
-                            else ArgKind.ARG_NAMED,
-                        )
-                        for idx, a in enumerate(args.kwonlyargs)
-                    ]
-                )
-                class_node.functions.append(
-                    FunctionNode(
-                        name=func_name,
-                        args=arg_nodes,
-                        return_type=_get_type_node(return_type, visitor) or TypeNode(),
-                    )
-                )
-
-
 def _get_type_node(type_expr: ast.expr | None, visitor: _ImportCollector) -> TypeNode | None:
-    names: list[str | TypeNode] = ["None"]
-    is_array = False
-    if type_expr:
-        match type_expr:
-            case ast.Constant(value=None):
-                pass
-            case ast.Name(id=id):
-                module = _get_module_name_from_imports(id, visitor)
-                names = [f"{module}.{id}" if module else id]
-            case ast.Subscript(value=ast.Name(id="Iterator" | "Iterable"), slice=ast.Name(id=id)):
-                is_array = True
-                module = _get_module_name_from_imports(id, visitor)
-                names = [f"{module}.{id}" if module else id]
-            case ast.Subscript(value=ast.Name(id="Iterator" | "Iterable"), slice=slice_value):
-                is_array = True
-                t = _get_type_node(slice_value, visitor)
-                names = [t] if t else []
-            case ast.Attribute(value=ast.Name(id="typing"), attr="Self"):
-                names = ["typing.Self"]
-            case ast.Attribute(value=ast.Name(id=id), attr=attr):
-                names = [f"{id}.{attr}"]
-            case ast.BinOp(left=left, right=right, op=ast.BitOr()):
-                left_node = _get_type_node(left, visitor)
-                right_node = _get_type_node(right, visitor)
-                names = [
-                    *([left_node] if left_node else []),
-                    *([right_node] if right_node else []),
-                ]
-                is_array = (left_node.is_array if left_node else False) and (
-                    right_node.is_array if right_node else False
-                )
-            case ast.Subscript(slice=ast.Tuple(elts=elts)):
-                is_array = True
-                names = []
-                for elt in elts:
-                    t = _get_type_node(elt, visitor)
-                    names.extend([t] if t else [])
-            case ast.Constant(value=value) if value is Ellipsis:
-                return None
-            case _:
-                pass
-    return TypeNode(names=names, is_array=is_array)
+    if type_expr is None:
+        return None
+    type_expr_visitor = TypeExprVisitor(visitor)
+    type_expr_visitor.visit(type_expr)
+    return type_expr_visitor.result
+
+
+def _classes_from_file(file_path: Path, root: Path) -> list[ClassNode]:
+    """Parse a single .pyi file and return top-level ClassNode objects.
+
+    This uses an ast.NodeVisitor (ClassCollector) to collect only top-level
+    classes so nested/inner classes are ignored (preserving previous behavior).
+    """
+
+    module = get_module_name_from_path(file_path, root)
+    text = file_path.read_text(encoding="utf8")
+    tree = ast.parse(text, filename=str(file_path))
+
+    # First collect imports so we can resolve names when processing classes
+    import_collector = _ImportCollector(
+        ResolvedSource(path=file_path, module=module, base_dir=root)
+    )
+    import_collector.visit(tree)
+    collector = ClassCollector(module, import_collector)
+    collector.visit(tree)
+    return collector.classes
 
 
 @functools.cache
@@ -398,6 +484,8 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
         return next(e for e in builtins_registry.values() if str(e) == name or e.name == name)
 
     def _get_pytype_for_node(node: TypeNode) -> pytypes.PyType:
+        if len(node.names) == 0:
+            return pytypes.NoneType
         if len(node.names) > 1:
             t: pytypes.PyType = pytypes.UnionType(
                 types=[
