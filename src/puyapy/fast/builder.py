@@ -184,7 +184,7 @@ class FASTBuilder(ast.NodeVisitor):
         if type_params:
             logger.error("type parameters are not supported", location=loc)
         decorators = self._visit_decorator_list(class_def.decorator_list)
-        bases = tuple(self._visit_expr_list(class_def.bases))
+        bases, _ = self._visit_expr_list(class_def.bases)
         kwargs = self._visit_keywords_list(class_def.keywords)
         ast_body, docstring = _extract_docstring(class_def)
         body = tuple(self._visit_stmt_list(ast_body))
@@ -235,13 +235,176 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
-    def _visit_expr_list(self, exprs: list[ast.expr]) -> list[nodes.Expression]:
+    @typing.override
+    def visit_Return(self, ret: ast.Return) -> nodes.Return:
+        value = self._visit_expr(ret.value)
+        loc = self._loc(ret)
+        return nodes.Return(value=value, source_location=loc)
+
+    @typing.override
+    def visit_Delete(self, delete: ast.Delete) -> nodes.Delete | None:
+        targets, targets_ok = self._visit_expr_list(delete.targets)
+        if not targets_ok:
+            return None
+        loc = self._loc(delete)
+        return nodes.Delete(
+            targets=tuple(targets),
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Assign(self, assign: ast.Assign) -> nodes.Assign | nodes.MultiAssign | None:
+        loc = self._loc(assign)
+        if assign.type_comment is not None:
+            logger.error("type comments are not supported", location=loc)
+        value = self._visit_expr(assign.value)
+        targets, targets_ok = self._visit_expr_list(assign.targets)
+        if value is None or not targets_ok:
+            return None
+        elif len(targets) > 1:
+            return nodes.MultiAssign(
+                targets=tuple(targets),
+                value=value,
+                source_location=loc,
+            )
+        else:
+            (target,) = targets
+            return nodes.Assign(
+                target=target,
+                value=value,
+                annotation=None,
+                source_location=loc,
+            )
+
+    @typing.override
+    def visit_AnnAssign(
+        self, ann_assign: ast.AnnAssign
+    ) -> nodes.AnnotationStatement | nodes.Assign | None:
+        loc = self._loc(ann_assign)
+        target: nodes.Name | nodes.Attribute | nodes.Subscript | None
+        match ann_assign.target:
+            case ast.Name() as name_expr:
+                target = self.visit_Name(name_expr)
+            case ast.Attribute() as attribute_expr:
+                target = self.visit_Attribute(attribute_expr)
+            case ast.Subscript() as subscript_expr:
+                target = self.visit_Subscript(subscript_expr)
+            case unexpected:
+                typing.assert_never(unexpected)
+        annotation = self._visit_expr(ann_assign.annotation)
+        value = self._visit_expr(ann_assign.value)
+        if annotation is None or target is None:
+            return None
+        elif value is None:
+            return nodes.AnnotationStatement(
+                target=target,
+                annotation=annotation,
+                source_location=loc,
+            )
+        else:
+            return nodes.Assign(
+                target=target,
+                value=value,
+                annotation=annotation,
+                source_location=loc,
+            )
+
+    @typing.override
+    def visit_AugAssign(self, aug_assign: ast.AugAssign) -> nodes.AugAssign | None:
+        loc = self._loc(aug_assign)
+        target: nodes.Name | nodes.Attribute | nodes.Subscript | None
+        match aug_assign.target:
+            case ast.Name() as name_expr:
+                target = self.visit_Name(name_expr)
+            case ast.Attribute() as attribute_expr:
+                target = self.visit_Attribute(attribute_expr)
+            case ast.Subscript() as subscript_expr:
+                target = self.visit_Subscript(subscript_expr)
+            case unexpected:
+                typing.assert_never(unexpected)
+        value = self._visit_expr(aug_assign.value)
+        if value is None or target is None:
+            return None
+        return nodes.AugAssign(
+            target=target,
+            op=aug_assign.op,
+            value=value,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Name(self, name: ast.Name) -> nodes.Name:
+        loc = self._loc(name)
+        return nodes.Name(
+            id=name.id,
+            ctx=name.ctx,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Attribute(self, attribute: ast.Attribute) -> nodes.Attribute | None:
+        base = self._visit_expr(attribute.value)
+        if base is None:
+            return None
+        loc = self._loc(attribute)
+        return nodes.Attribute(
+            base=base,
+            attr=attribute.attr,
+            ctx=attribute.ctx,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Subscript(self, subscript: ast.Subscript) -> nodes.Subscript | None:
+        base = self._visit_expr(subscript.value)
+        match subscript.slice:
+            case ast.Tuple(elts=ast_indexes):
+                pass
+            case ast_index:
+                ast_indexes = [ast_index]
+        if base is None:
+            return None
+        indexes = list[nodes.Expression | nodes.Slice]()
+        for ast_index in ast_indexes:
+            match ast_index:
+                case ast.Slice():
+                    index_slice = self.visit_Slice(ast_index)
+                    indexes.append(index_slice)
+                case _:
+                    index = self._visit_expr(ast_index)
+                    if index is not None:
+                        indexes.append(index)
+        loc = self._loc(subscript)
+        return nodes.Subscript(
+            base=base,
+            indexes=tuple(indexes),
+            ctx=subscript.ctx,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Slice(self, slice: ast.Slice) -> nodes.Slice:
+        lower = self._visit_expr(slice.lower)
+        upper = self._visit_expr(slice.upper)
+        step = self._visit_expr(slice.step)
+        loc = self._loc(slice)
+        return nodes.Slice(
+            lower=lower,
+            upper=upper,
+            step=step,
+            source_location=loc,
+        )
+
+    def _visit_expr_list(self, exprs: list[ast.expr]) -> tuple[tuple[nodes.Expression, ...], bool]:
         result = []
+        ok = True
         for expr in exprs:
             transformed = self._visit_expr(expr)
             if transformed is not None:
                 result.append(transformed)
-        return result
+            else:
+                ok = False
+        return tuple(result), ok
 
     def _visit_expr(self, expr: ast.expr | None) -> nodes.Expression | None:
         result = self.visit(expr)
