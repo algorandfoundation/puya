@@ -256,6 +256,18 @@ class AnnotationStatement(Statement):
 
 
 @attrs.frozen
+class For(Statement):
+    target: Expression
+    iterable: Expression
+    body: tuple[Statement, ...]
+    else_body: tuple[Statement, ...]
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_for(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
