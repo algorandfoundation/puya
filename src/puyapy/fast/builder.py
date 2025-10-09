@@ -395,6 +395,33 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
+    @typing.override
+    def visit_For(self, for_stmt: ast.For) -> nodes.For | None:
+        loc = self._loc(for_stmt)
+        if for_stmt.type_comment is not None:
+            logger.error("type comments are not supported", location=loc)
+        target = self._visit_expr(for_stmt.target)
+        iterable = self._visit_expr(for_stmt.iter)
+        if target is None or iterable is None:
+            return None
+        body = self._visit_stmt_list(for_stmt.body)
+        else_body = self._visit_stmt_list(for_stmt.orelse)
+        return nodes.For(
+            target=target,
+            iterable=iterable,
+            body=tuple(body),
+            else_body=tuple(else_body),
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Constant(self, constant: ast.Constant) -> nodes.Constant:
+        loc = self._loc(constant)
+        return nodes.Constant(
+            value=constant.value,
+            source_location=loc,
+        )
+
     def _visit_expr_list(self, exprs: list[ast.expr]) -> tuple[tuple[nodes.Expression, ...], bool]:
         result = []
         ok = True
