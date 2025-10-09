@@ -59,7 +59,7 @@ class ArgKind(Enum):
 @attrs.define
 class ArgNode:
     name: str
-    kind: ArgKind = ArgKind.ARG_POS
+    kind: ArgKind = attrs.field(default=ArgKind.ARG_POS)
     type: TypeNode = attrs.field(factory=TypeNode)
 
 
@@ -91,19 +91,19 @@ class ClassCollector(ast.NodeVisitor):
         self.module = module
         self.import_visitor = import_visitor
         self.classes: list[ClassNode] = []
-        self.base_class_collector = BaseClassCollector(module, import_visitor)
         self.class_attribute_collector = ClassAttributeCollector(import_visitor)
 
     @typing.override
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         class_node = ClassNode(name=f"{self.module}.{node.name}")
-        self.base_class_collector.visit(node)
-        self.class_attribute_collector.visit(node)
 
         # Extend the class_node with collected bases
-        class_node.bases.extend(self.base_class_collector.result)
+        base_class_collector = BaseClassCollector(self.module, self.import_visitor)
+        base_class_collector.visit(node)
+        class_node.bases.extend(base_class_collector.result)
 
         # Extend the class_node with collected members
+        self.class_attribute_collector.visit(node)
         class_node.properties.update(
             {p.name: p for p in self.class_attribute_collector.properties}
         )
@@ -125,6 +125,12 @@ class BaseClassCollector(ast.NodeVisitor):
             return f"{base_module or self.module}.{name}"
 
         return [_get_full_name(name) for name in self.bases]
+
+    @typing.override
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        # skip typing.* bases
+        if isinstance(node.value, ast.Name) and node.value.id != "typing":
+            self.bases.append(f"{node.value.id}.{node.attr}")
 
     @typing.override
     def visit_Name(self, node: ast.Name) -> None:
@@ -383,11 +389,7 @@ def _get_type_infos(
     result = _build_stubs()
 
     for type_name in type_names:
-        try:
-            match = result[type_name]
-        except KeyError:
-            continue
-
+        match = result[type_name]
         properties = match.properties
         functions = match.functions
 
