@@ -1,6 +1,7 @@
 import ast
 import builtins
 import functools
+import itertools
 import json
 import typing
 from collections.abc import Iterable, Mapping
@@ -15,8 +16,6 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
-from puyapy.find_sources import ResolvedSource
-from puyapy.import_analysis import _ImportCollector
 from tests import STUBS_DIR, VCS_ROOT
 from tests.utils import get_module_name_from_path
 
@@ -42,7 +41,7 @@ class FieldType:
 @attrs.define
 class TypeNode:
     is_array: bool = attrs.field(default=False)
-    names: "list[str | TypeNode]" = attrs.field(factory=list)
+    types: "list[str | TypeNode]" = attrs.field(factory=list)
 
 
 class ArgKind(Enum):
@@ -84,21 +83,36 @@ class ClassNode:
     bases: list[str] = attrs.field(factory=list)
 
 
+@attrs.define
+class ResolvedSymbol:
+    module: str
+    name: str
+    source: str
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.module}.{self.name}"
+
+    @property
+    def full_source_name(self) -> str:
+        return f"{self.source}.{self.name}"
+
+
 class ClassCollector(ast.NodeVisitor):
     """Collect top-level classes and build ClassNode instances."""
 
-    def __init__(self, module: str, import_visitor: _ImportCollector) -> None:
+    def __init__(self, module: str, module_symbols: list[ResolvedSymbol]) -> None:
         self.module = module
-        self.import_visitor = import_visitor
+        self.module_symbols = module_symbols
         self.classes: list[ClassNode] = []
-        self.class_attribute_collector = ClassAttributeCollector(import_visitor)
+        self.class_attribute_collector = _ClassAttributeCollector(module_symbols)
 
     @typing.override
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         class_node = ClassNode(name=f"{self.module}.{node.name}")
 
         # Extend the class_node with collected bases
-        base_class_collector = BaseClassCollector(self.module, self.import_visitor)
+        base_class_collector = _BaseClassCollector(self.module, self.module_symbols)
         base_class_collector.visit(node)
         class_node.bases.extend(base_class_collector.result)
 
@@ -112,16 +126,16 @@ class ClassCollector(ast.NodeVisitor):
         self.classes.append(class_node)
 
 
-class BaseClassCollector(ast.NodeVisitor):
-    def __init__(self, module: str, import_visitor: _ImportCollector) -> None:
+class _BaseClassCollector(ast.NodeVisitor):
+    def __init__(self, module: str, module_symbols: list[ResolvedSymbol]) -> None:
         self.bases: list[str] = []
         self.module = module
-        self.import_visitor = import_visitor
+        self.module_symbols = module_symbols
 
     @property
     def result(self) -> list[str]:
         def _get_full_name(name: str) -> str:
-            base_module = _get_module_name_from_imports(name, self.import_visitor)
+            base_module = _get_module_name_from_imports(name, self.module_symbols)
             return f"{base_module or self.module}.{name}"
 
         return [_get_full_name(name) for name in self.bases]
@@ -151,17 +165,17 @@ class BaseClassCollector(ast.NodeVisitor):
             self.visit(b)
 
 
-class ClassAttributeCollector(ast.NodeVisitor):
+class _ClassAttributeCollector(ast.NodeVisitor):
     """Visitor to collect properties and functions from a class body.
 
     We explicitly implement visit_ methods for the node types we care about
     and avoid generic traversal so nested definitions are not processed.
     """
 
-    def __init__(self, import_visitor: _ImportCollector) -> None:
+    def __init__(self, module_symbols: list[ResolvedSymbol]) -> None:
         self.properties: list[PropertyNode] = []
         self.functions: list[FunctionNode] = []
-        self.import_visitor = import_visitor
+        self.module_symbols = module_symbols
 
     @typing.override
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
@@ -175,7 +189,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
             self.properties.append(
                 PropertyNode(
                     name=node.target.id,
-                    type=_get_type_node(node.annotation, self.import_visitor) or TypeNode(),
+                    type=_get_type_node(node.annotation, self.module_symbols) or TypeNode(),
                 )
             )
 
@@ -190,7 +204,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
             self.properties.append(
                 PropertyNode(
                     name=node.name,
-                    type=_get_type_node(node.returns, self.import_visitor) or TypeNode(),
+                    type=_get_type_node(node.returns, self.module_symbols) or TypeNode(),
                 )
             )
             return
@@ -204,7 +218,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
         arg_nodes = [
             ArgNode(
                 name=a.arg,
-                type=_get_type_node(a.annotation, self.import_visitor) or TypeNode(),
+                type=_get_type_node(a.annotation, self.module_symbols) or TypeNode(),
                 kind=ArgKind.ARG_OPT if idx >= pos_defaults_cutoff else ArgKind.ARG_POS,
             )
             for idx, a in enumerate(args.posonlyargs + args.args)
@@ -215,7 +229,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
             [
                 ArgNode(
                     name=a.arg,
-                    type=_get_type_node(a.annotation, self.import_visitor) or TypeNode(),
+                    type=_get_type_node(a.annotation, self.module_symbols) or TypeNode(),
                     kind=ArgKind.ARG_NAMED_OPT
                     if args.kw_defaults[idx] is not None
                     else ArgKind.ARG_NAMED,
@@ -228,7 +242,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
             FunctionNode(
                 name=node.name,
                 args=arg_nodes,
-                return_type=_get_type_node(node.returns, self.import_visitor) or TypeNode(),
+                return_type=_get_type_node(node.returns, self.module_symbols) or TypeNode(),
             )
         )
 
@@ -245,7 +259,7 @@ class ClassAttributeCollector(ast.NodeVisitor):
         return any(isinstance(d, ast.Attribute) and d.attr == "deleter" for d in decorators)
 
 
-class TypeExprVisitor(ast.NodeVisitor):
+class _TypeExprVisitor(ast.NodeVisitor):
     """Visitor that maps a type expression AST into a TypeNode.
 
     This preserves the original pattern-matching behavior from the
@@ -253,45 +267,45 @@ class TypeExprVisitor(ast.NodeVisitor):
     code is easier to extend.
     """
 
-    def __init__(self, import_visitor: _ImportCollector) -> None:
-        self.import_visitor = import_visitor
-        self.names: list[str | TypeNode] = []
+    def __init__(self, module_symbols: list[ResolvedSymbol]) -> None:
+        self.module_symbols = module_symbols
+        self.types: list[str | TypeNode] = []
         self.is_array = False
 
     @property
     def result(self) -> TypeNode | None:
-        if len(self.names) == 0:
+        if len(self.types) == 0:
             return None
-        return TypeNode(names=self.names, is_array=self.is_array)
+        return TypeNode(types=self.types, is_array=self.is_array)
 
     @typing.override
     def visit_Name(self, node: ast.Name) -> None:
-        module = _get_module_name_from_imports(node.id, self.import_visitor)
-        self.names = [f"{module}.{node.id}" if module else node.id]
+        module = _get_module_name_from_imports(node.id, self.module_symbols)
+        self.types = [f"{module}.{node.id}" if module else node.id]
 
     @typing.override
     def visit_Attribute(self, node: ast.Attribute) -> None:
         # typing.Self
         if isinstance(node.value, ast.Name) and node.value.id == "typing" and node.attr == "Self":
-            self.names = ["typing.Self"]
+            self.types = ["typing.Self"]
             return
 
         # other attribute forms like X.Y -> "X.Y"
         if isinstance(node.value, ast.Name):
-            self.names = [f"{node.value.id}.{node.attr}"]
+            self.types = [f"{node.value.id}.{node.attr}"]
 
     @typing.override
     def visit_BinOp(self, node: ast.BinOp) -> None:
         # handle union types (PEP 604): A | B
         if isinstance(node.op, ast.BitOr):
-            left = self._visit_expr(node.left, self.import_visitor)
-            right = self._visit_expr(node.right, self.import_visitor)
+            left = self._visit_expr(node.left, self.module_symbols)
+            right = self._visit_expr(node.right, self.module_symbols)
             names: list[str | TypeNode] = []
             if left:
                 names.append(left)
             if right:
                 names.append(right)
-            self.names = names or []
+            self.types = names or []
             self.is_array = (left.is_array if left else False) and (
                 right.is_array if right else False
             )
@@ -305,13 +319,13 @@ class TypeExprVisitor(ast.NodeVisitor):
 
             # simple name like Iterator[T]
             if isinstance(sl, ast.Name):
-                module = _get_module_name_from_imports(sl.id, self.import_visitor)
-                self.names = [f"{module}.{sl.id}" if module else sl.id]
+                module = _get_module_name_from_imports(sl.id, self.module_symbols)
+                self.types = [f"{module}.{sl.id}" if module else sl.id]
                 return
 
             # more complex slice -> recurse
-            t = self._visit_expr(sl, self.import_visitor)
-            self.names = [t] if t else []
+            t = self._visit_expr(sl, self.module_symbols)
+            self.types = [t] if t else []
             return
 
         # Subscript with tuple of elements -> treat as array of multiple types
@@ -320,23 +334,126 @@ class TypeExprVisitor(ast.NodeVisitor):
             elts: list[ast.expr] = node.slice.elts
             names: list[str | TypeNode] = []
             for elt in elts:
-                t = self._visit_expr(elt, self.import_visitor)
+                t = self._visit_expr(elt, self.module_symbols)
                 if t:
                     names.append(t)
-            self.names = names or []
+            self.types = names or []
 
-    def _visit_expr(self, expr: ast.expr, import_visitor: _ImportCollector) -> TypeNode | None:
-        visitor = TypeExprVisitor(import_visitor)
+    def _visit_expr(self, expr: ast.expr, module_symbols: list[ResolvedSymbol]) -> TypeNode | None:
+        visitor = _TypeExprVisitor(module_symbols)
         visitor.visit(expr)
         return visitor.result
 
 
-def _get_module_name_from_imports(name: str, visitor: _ImportCollector) -> str | None:
+class ModuleSymbolCollector(ast.NodeVisitor):
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        self.symbols: dict[str, list[ResolvedSymbol]] = {}
+        self.seen_files: set[Path] = set()
+
+    @typing.override
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        if not node.module:
+            return
+        module = self.root_module_name
+        from_name = node.module
+        # Process each imported name separately. For a star import we map
+        # the module itself to the exported symbols; for `from X import Y`
+        # we map `X.Y` to the exported symbols from the corresponding
+        # stub file (or record the name if the stub file doesn't exist).
+        base_path = from_name.replace(self.root_module_name, "").lstrip(".").replace(".", "/")
+        for n in node.names:
+            if not isinstance(n, ast.alias):
+                continue
+
+            symbols: list[ResolvedSymbol] = []
+            if n.name == "*":
+                module_path = Path(self.root / (base_path + ".pyi"))
+                module = self.root_module_name
+                source = from_name
+            else:
+                module_path = Path(self.root / base_path / (n.name + ".pyi"))
+                module = f"{from_name}.{n.name}"
+                source = f"{from_name}.{n.name}"
+
+            if not module_path.exists():
+                # If the module path doesn't exist in stubs, record the name
+                # as-is so callers know which symbol was referenced.
+                module = self.root_module_name
+                source = from_name
+                symbols.append(ResolvedSymbol(module, n.name, source))
+            else:
+                exported_symbols = self._collect_exported_symbols(module_path, module, source)
+                symbols.extend(exported_symbols)
+
+            # Merge symbols for this module; multiple imports shouldn't clobber
+            # previously-recorded entries for the same key.
+            self.symbols.setdefault(module, []).extend(symbols)
+
+    def collect_module_symbols(self) -> None:
+        self._collect_init_file_symbols()
+        for path in self.root.rglob("*.pyi"):
+            if path not in self.seen_files:
+                symbols = self._collect_exported_symbols(path)
+                if len(symbols) > 0:
+                    self.symbols.setdefault(symbols[0].module, []).extend(symbols)
+
+    def _collect_init_file_symbols(self) -> dict[str, list[ResolvedSymbol]]:
+        init_file_path = self.root / "__init__.pyi"
+        init_text = init_file_path.read_text(encoding="utf8")
+        init_tree = ast.parse(init_text, filename=str(init_file_path))
+        self.root_module_name = get_module_name_from_path(init_file_path, self.root.parent)
+
+        self.visit(init_tree)
+        self.seen_files.add(init_file_path)
+        return self.symbols
+
+    def _collect_exported_symbols(
+        self, module_path: Path, module: str | None = None, source: str | None = None
+    ) -> list[ResolvedSymbol]:
+        self.seen_files.add(module_path)
+        module_text = module_path.read_text(encoding="utf8")
+        module_tree = ast.parse(module_text, filename=str(module_path))
+        exported_symbol_visitor = _ExportedSymbolCollector()
+        exported_symbol_visitor.visit(module_tree)
+        module = module or get_module_name_from_path(module_path, self.root.parent)
+        source = source or module
+        return [
+            ResolvedSymbol(module, e, source) for e in exported_symbol_visitor.exported_symbols
+        ]
+
+
+class _ExportedSymbolCollector(ast.NodeVisitor):
+    def __init__(self) -> None:
+        self.is_explicit_export_defined = False
+        self.exported_symbols: list[str] = []
+
+    @typing.override
+    def visit_Assign(self, node: ast.Assign) -> None:
+        if (
+            len(node.targets) == 1
+            and isinstance(node.targets[0], ast.Name)
+            and node.targets[0].id == "__all__"
+        ):
+            self.exported_symbols = []
+            self.is_explicit_export_defined = True
+            if isinstance(node.value, ast.List):
+                for elt in node.value.elts:
+                    if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                        self.exported_symbols.append(elt.value)
+
+    @typing.override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        if not self.is_explicit_export_defined:
+            self.exported_symbols.append(node.name)
+
+
+def _get_module_name_from_imports(name: str, module_symbols: list[ResolvedSymbol]) -> str | None:
     def _is_builtin_type(name: str) -> bool:
         return name in builtins.__dict__ and isinstance(builtins.__dict__[name], type)
 
     result = next(
-        (f.module for f in visitor.from_imports if any(n.name == name for n in (f.names or []))),
+        (f.module for f in module_symbols if name in (f.name, f.full_name, f.full_source_name)),
         None,
     )
 
@@ -345,15 +462,19 @@ def _get_module_name_from_imports(name: str, visitor: _ImportCollector) -> str |
     return result
 
 
-def _get_type_node(type_expr: ast.expr | None, visitor: _ImportCollector) -> TypeNode | None:
+def _get_type_node(
+    type_expr: ast.expr | None, module_symbols: list[ResolvedSymbol]
+) -> TypeNode | None:
     if type_expr is None:
         return None
-    type_expr_visitor = TypeExprVisitor(visitor)
+    type_expr_visitor = _TypeExprVisitor(module_symbols)
     type_expr_visitor.visit(type_expr)
     return type_expr_visitor.result
 
 
-def _classes_from_file(file_path: Path, root: Path) -> list[ClassNode]:
+def _classes_from_file(
+    file_path: Path, root: Path, module_symbols: list[ResolvedSymbol]
+) -> list[ClassNode]:
     """Parse a single .pyi file and return top-level ClassNode objects.
 
     This uses an ast.NodeVisitor (ClassCollector) to collect only top-level
@@ -364,22 +485,21 @@ def _classes_from_file(file_path: Path, root: Path) -> list[ClassNode]:
     text = file_path.read_text(encoding="utf8")
     tree = ast.parse(text, filename=str(file_path))
 
-    # First collect imports so we can resolve names when processing classes
-    import_collector = _ImportCollector(
-        ResolvedSource(path=file_path, module=module, base_dir=root)
-    )
-    import_collector.visit(tree)
-    collector = ClassCollector(module, import_collector)
+    collector = ClassCollector(module, module_symbols)
     collector.visit(tree)
     return collector.classes
 
 
 @functools.cache
 def _build_stubs() -> Mapping[str, ClassNode]:
+    module_symbol_collector = ModuleSymbolCollector(STUBS_DIR)
+    module_symbol_collector.collect_module_symbols()
+    module_symbols = list(itertools.chain.from_iterable(module_symbol_collector.symbols.values()))
+
     stubs_root = STUBS_DIR.parent.resolve()
     classes = []
     for path in stubs_root.rglob("*.pyi"):
-        classes.extend(_classes_from_file(path, stubs_root))
+        classes.extend(_classes_from_file(path, stubs_root, module_symbols))
     return {c.name: c for c in classes}
 
 
@@ -485,21 +605,21 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
         return next(e for e in builtins_registry.values() if str(e) == name or e.name == name)
 
     def _get_pytype_for_node(node: TypeNode) -> pytypes.PyType:
-        if len(node.names) == 0:
+        if len(node.types) == 0:
             return pytypes.NoneType
-        if len(node.names) > 1:
+        if len(node.types) > 1:
             t: pytypes.PyType = pytypes.UnionType(
                 types=[
                     _get_pytype_for_name(t) if isinstance(t, str) else _get_pytype_for_node(t)
-                    for t in node.names
+                    for t in node.types
                 ],
                 source_location=_FAKE_SOURCE_LOCATION,
             )
         else:
             t = (
-                _get_pytype_for_name(node.names[0])
-                if isinstance(node.names[0], str)
-                else _get_pytype_for_node(node.names[0])
+                _get_pytype_for_name(node.types[0])
+                if isinstance(node.types[0], str)
+                else _get_pytype_for_node(node.types[0])
             )
         return pytypes.VariadicTupleType(t) if node.is_array else t
 
