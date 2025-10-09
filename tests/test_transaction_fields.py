@@ -39,7 +39,7 @@ class FieldType:
     field_type: pytypes.PyType
 
 
-@functools.lru_cache(maxsize=1)
+@functools.cache
 def _build_stubs() -> mypy.build.BuildResult:
     mypy_opts = _get_mypy_options()
     mypy_opts.python_executable = sys.executable
@@ -65,9 +65,11 @@ def builtins_registry() -> Mapping[str, pytypes.PyType]:
     return pytypes.builtins_registry()
 
 
-def test_group_transaction_members() -> None:
-    gtxn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
-    gtxn_types.append(pytypes.GroupTransactionBaseType.name)
+@pytest.mark.parametrize(
+    "group_transaction_type", [t.name for t in pytypes.GroupTransactionTypes.values()]
+)
+def test_group_transaction_members(group_transaction_type: str) -> None:
+    gtxn_types = [group_transaction_type, pytypes.GroupTransactionBaseType.name]
     for type_info in _get_type_infos(gtxn_types):
         unknown = sorted(set(type_info.protocol_members) - PYTHON_TXN_FIELDS.keys())
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
@@ -114,8 +116,11 @@ def test_inner_transaction_field_setters() -> None:
     assert not unmapped, f"Unmapped inner param fields: {sorted(f.immediate for f in unmapped)}"
 
 
-def test_inner_transaction_members() -> None:
-    for type_info in _get_type_infos(t.name for t in pytypes.InnerTransactionResultTypes.values()):
+@pytest.mark.parametrize(
+    "inner_transaction_type", [t.name for t in pytypes.InnerTransactionResultTypes.values()]
+)
+def test_inner_transaction_members(inner_transaction_type: str) -> None:
+    for type_info in _get_type_infos([inner_transaction_type]):
         unknown = sorted(set(type_info.protocol_members) - PYTHON_TXN_FIELDS.keys())
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
