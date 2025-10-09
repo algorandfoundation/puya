@@ -8,6 +8,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.awst_traverser import AWSTTraverser
+from puyapy import code_fixes
 
 logger = log.get_logger(__name__)
 
@@ -178,6 +179,7 @@ def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None
             "mutable reference to ARC-4-encoded value"
             f" must be copied using .copy() when {context_desc}",
             location=expr.source_location,
+            edits=[code_fixes.AppendMember(".copy()")],
         )
 
 

@@ -337,6 +337,10 @@ class _AlgopySymbolResolver:
                         new_text=f"\n{whitespace}@{symbol_alias}",
                     ),
                 ]
+            case code_fixes.AppendMember(member=member):
+                title = f"Add {member}"
+                append_loc = lsp.Range(start=loc.end, end=loc.end)
+                edits = [lsp.TextEdit(range=append_loc, new_text=member)]
             case _:
                 typing.assert_never(fix.edit)
         return lsp.CodeAction(
