@@ -244,16 +244,18 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     location,
                 )
             case "range":
+                replacement = pytypes.urangeType
                 raise code_fixes.FixableCodeError(
-                    "range() is not supported - use algopy.urange() instead",
+                    f"range() is not supported - use {replacement}() instead",
                     location,
-                    code_fixes.ReplaceWithSymbol("algopy.urange"),
+                    code_fixes.ReplaceWithSymbol(replacement.name),
                 )
             case "enumerate":
+                replacement = pytypes.uenumerateGenericType
                 raise code_fixes.FixableCodeError(
-                    "enumerate() is not supported - use algopy.uenumerate() instead",
+                    f"enumerate() is not supported - use {replacement}() instead",
                     location,
-                    code_fixes.ReplaceWithSymbol("algopy.uenumerate"),
+                    code_fixes.ReplaceWithSymbol(replacement.name),
                 )
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)

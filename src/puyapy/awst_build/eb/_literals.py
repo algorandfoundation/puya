@@ -222,11 +222,11 @@ class LiteralBuilderImpl(LiteralBuilder):
 
 
 _INVALID_ITERABLE_LITERAL_FIXES = {
-    "builtins.bytes": code_fixes.WrapWithSymbol("algopy.Bytes"),
-    "builtins.str": code_fixes.WrapWithSymbol("algopy.String"),
+    "builtins.bytes": code_fixes.WrapWithSymbol(pytypes.BytesType.name),
+    "builtins.str": code_fixes.WrapWithSymbol(pytypes.StringType.name),
 }
 
 _INVALID_LITERAL_FIXES = {
     **_INVALID_ITERABLE_LITERAL_FIXES,
-    "builtins.int": code_fixes.WrapWithSymbol("algopy.UInt64"),
+    "builtins.int": code_fixes.WrapWithSymbol(pytypes.UInt64Type.name),
 }
