@@ -8,7 +8,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import coalesce, unique
+from puya.utils import coalesce, set_add, unique
 from puyapy.fast import nodes
 
 logger = log.get_logger(__name__)
@@ -97,10 +97,10 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_FunctionDef(self, func_def: ast.FunctionDef) -> nodes.FunctionDef:
         loc = self._loc(func_def)
         if func_def.type_comment is not None:
-            raise CodeError("type comments are not supported", loc)
+            logger.error("type comments are not supported", location=loc)
         type_params = getattr(func_def, "type_params", None)
         if type_params:
-            raise CodeError("type parameters are not supported", loc)
+            logger.error("type parameters are not supported", location=loc)
         decorators = self._visit_decorator_list(func_def.decorator_list)
         params = self.visit_arguments(func_def.args)
         return_annotation = None
@@ -120,14 +120,69 @@ class FASTBuilder(ast.NodeVisitor):
 
     @typing.override
     def visit_arguments(self, args: ast.arguments) -> tuple[nodes.Parameter, ...]:
-        raise NotImplementedError
+        params = []
+        args_args = args.posonlyargs + args.args
+        num_no_defaults = len(args_args) - len(args.defaults)
+        defaults = ([None] * num_no_defaults) + args.defaults
+
+        for i, (a, d) in enumerate(zip(args_args, defaults, strict=True)):
+            if i < len(args.posonlyargs):
+                pass_by = nodes.PassBy.POSITION
+            else:
+                pass_by = nodes.PassBy.POSITION | nodes.PassBy.NAME
+            params.append(self._make_parameter(a, d, pass_by))
+
+        # *arg
+        if args.vararg is not None:
+            logger.error(
+                "variadic arguments are not supported in user functions",
+                location=self._loc(args.vararg),
+            )
+
+        for a, kd in zip(args.kwonlyargs, args.kw_defaults, strict=True):
+            params.append(self._make_parameter(a, kd, nodes.PassBy.NAME))
+
+        # **kwarg
+        if args.kwarg is not None:
+            logger.error(
+                "variadic arguments are not supported in user functions",
+                location=self._loc(args.kwarg),
+            )
+
+        seen_names = set[str]()
+        for param in params:
+            if not set_add(seen_names, param.name):
+                logger.error(
+                    "invalid Python syntax:"
+                    f" duplicate argument {param.name!r} in function definition",
+                    location=param.source_location,
+                )
+
+        return tuple(params)
+
+    def _make_parameter(
+        self, arg: ast.arg, default: ast.expr | None, pass_by: nodes.PassBy
+    ) -> nodes.Parameter:
+        name = arg.arg
+        annotation = self._visit_expr(arg.annotation)
+        default_value = self._visit_expr(default)
+        loc = self._loc(arg)
+        if arg.type_comment:
+            logger.error("type comments are not supported", location=loc)
+        return nodes.Parameter(
+            name=name,
+            annotation=annotation,
+            default=default_value,
+            pass_by=pass_by,
+            source_location=loc,
+        )
 
     @typing.override
     def visit_ClassDef(self, class_def: ast.ClassDef) -> nodes.ClassDef:
         loc = self._loc(class_def)
         type_params = getattr(class_def, "type_params", None)
         if type_params:
-            raise CodeError("type parameters are not supported", loc)
+            logger.error("type parameters are not supported", location=loc)
         decorators = self._visit_decorator_list(class_def.decorator_list)
         bases = tuple(self._visit_expr_list(class_def.bases))
         kwargs = self._visit_keywords_list(class_def.keywords)
@@ -279,7 +334,9 @@ class FASTBuilder(ast.NodeVisitor):
             end_column=getattr(node, "end_col_offset", None),
         )
 
-    def _loc(self, node: ast.expr | ast.stmt | ast.alias | ast.keyword) -> SourceLocation:
+    def _loc(
+        self, node: ast.expr | ast.stmt | ast.alias | ast.arg | ast.keyword
+    ) -> SourceLocation:
         return SourceLocation(
             file=self.module_path,
             line=node.lineno,
