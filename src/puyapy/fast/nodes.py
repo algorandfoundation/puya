@@ -1,5 +1,6 @@
 import abc
 import ast
+import enum
 import types
 import typing
 from pathlib import Path
@@ -59,10 +60,17 @@ class FromImport(Statement):
 AnyImport = ModuleImport | FromImport
 
 
+class PassBy(enum.Flag):
+    POSITION = enum.auto()
+    NAME = enum.auto()
+
+
 @attrs.frozen
 class Parameter(Node):
     name: str
     annotation: Expression | None
+    default: Expression | None
+    pass_by: PassBy
 
 
 @attrs.frozen
