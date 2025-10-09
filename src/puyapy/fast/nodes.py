@@ -290,6 +290,16 @@ class If(Statement):
 
 
 @attrs.frozen
+class Assert(Statement):
+    test: Expression
+    msg: Expression | None
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_assert(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
