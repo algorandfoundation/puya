@@ -101,18 +101,18 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(func_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
+        decorators = self._visit_decorator_list(func_def.decorator_list)
+        params = self.visit_arguments(func_def.args)
         return_annotation = None
         if func_def.returns is not None:
             return_annotation = self._visit_expr(func_def.returns)
         ast_body, docstring = _extract_docstring(func_def)
         body = tuple(self._visit_stmt_list(ast_body))
-        decorators = self._visit_decorator_list(func_def.decorator_list)
-        params = self.visit_arguments(func_def.args)
         return nodes.FunctionDef(
+            decorators=decorators,
             name=func_def.name,
             params=params,
             return_annotation=return_annotation,
-            decorators=decorators,
             docstring=docstring,
             body=body,
             source_location=loc,
@@ -128,32 +128,17 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(class_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
-        kwargs: dict[str, ast.expr] | None = None
-        if class_def.keywords:
-            kwargs = {}
-            for kw in class_def.keywords:
-                if kw.arg is None:
-                    logger.error(
-                        "keyword argument unpacking in base list is not supported",
-                        location=self._loc(kw),
-                    )
-                elif kw.arg in kwargs:
-                    logger.error(
-                        f"invalid Python syntax: keyword argument repeated: {kw.arg}",
-                        location=self._loc(kw),
-                    )
-                else:
-                    kwargs[kw.arg] = kw.value
-        bases = tuple(self._visit_expr_list(class_def.bases))
-        ast_body, docstring = _extract_docstring(class_def)
         decorators = self._visit_decorator_list(class_def.decorator_list)
+        bases = tuple(self._visit_expr_list(class_def.bases))
+        kwargs = self._visit_keywords_list(class_def.keywords)
+        ast_body, docstring = _extract_docstring(class_def)
         body = tuple(self._visit_stmt_list(ast_body))
         return nodes.ClassDef(
-            name=class_def.name,
-            kwargs=immutabledict(kwargs) if kwargs is not None else None,
-            docstring=docstring,
             decorators=decorators,
+            name=class_def.name,
             bases=bases,
+            kwargs=kwargs,
+            docstring=docstring,
             body=body,
             source_location=loc,
         )
@@ -225,8 +210,62 @@ class FASTBuilder(ast.NodeVisitor):
                     )
         return result
 
+    def _visit_keywords_list(self, keywords: list[ast.keyword]) -> immutabledict[str, ast.expr]:
+        kwargs = {}
+        for kw in keywords:
+            if kw.arg is None:
+                logger.error(
+                    "keyword argument unpacking in base list is not supported",
+                    location=self._loc(kw),
+                )
+            elif kw.arg in kwargs:
+                logger.error(
+                    f"invalid Python syntax: keyword argument repeated: {kw.arg}",
+                    location=self._loc(kw),
+                )
+            else:
+                kwargs[kw.arg] = kw.value
+        return immutabledict(kwargs)
+
     def _visit_decorator_list(self, decorator_list: list[ast.expr]) -> tuple[nodes.Decorator, ...]:
-        raise NotImplementedError
+        result = []
+        for decorator in decorator_list:
+            callee: ast.expr
+            args: tuple[ast.expr, ...] | None
+            kwargs: immutabledict[str, ast.expr] | None
+            match decorator:
+                case ast.Call(func=callee, args=args_list, keywords=keywords):
+                    args = tuple(args_list)
+                    kwargs = self._visit_keywords_list(keywords)
+                case callee:
+                    args = None
+                    kwargs = None
+            loc = self._loc(decorator)
+            callee_name = self._extract_dotted_name(callee)
+            if callee_name is None:
+                logger.error("unsupported decorator syntax", location=loc)
+            else:
+                result.append(
+                    nodes.Decorator(
+                        callee=callee_name,
+                        args=args,
+                        kwargs=kwargs,
+                        source_location=loc,
+                    )
+                )
+        return tuple(result)
+
+    def _extract_dotted_name(self, expr: ast.expr) -> str | None:
+        match expr:
+            case ast.Name(id=name):
+                return name
+            case ast.Attribute(value=base, attr=name):
+                base_name = self._extract_dotted_name(base)
+                if base_name is None:
+                    return None
+                return f"{base_name}.{name}"
+            case _:
+                return None
 
     def _maybe_loc(self, node: ast.AST) -> SourceLocation | None:
         lineno = getattr(node, "lineno", None)
@@ -286,13 +325,6 @@ def correct_relative_import(
     else:
         absolute = f"{base}.{target_module}"
     return absolute
-
-
-# def _dotted_name(expr: ast.expr) -> str | None:
-#     match expr:
-#         case ast.Name(id=name):
-#             return name
-#         case ast.Attribute()
 
 
 def _type_name(t: type) -> str:
