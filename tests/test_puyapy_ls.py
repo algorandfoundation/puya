@@ -101,7 +101,7 @@ async def test_doc_change_updates_diagnostics(
 
 async def test_code_fixes_suggested(unique_uri: str, harness: "_LanguageServerHarness") -> None:
     contract_requiring_fixes = """
-from algopy import ARC4Contract
+from algopy import ARC4Contract, Array
 from algopy.arc4 import abimethod
 
 class HelloWorldContract(ARC4Contract):
@@ -114,6 +114,11 @@ class HelloWorldContract(ARC4Contract):
         for j in range(3):
             pass
 
+    @abimethod
+    def copy_needed(self) -> None:
+        arr = Array[bool]()
+        arr2 = arr
+
     def no_contract_dec(self) -> None:
         pass
 
@@ -125,7 +130,8 @@ def no_sub_dec() -> None:
         text=contract_requiring_fixes,
     )
     # wait for expected diagnostics
-    await harness.wait_for_diagnostic(unique_uri, 1)
+    diagnostics = await harness.wait_for_diagnostic(unique_uri, 1)
+    assert len(diagnostics.diagnostics) == 5
 
     # now request code actions
     code_actions = await harness.code_actions(unique_uri)
@@ -137,8 +143,9 @@ def no_sub_dec() -> None:
         "Use @algopy.subroutine",
         "Use algopy.UInt64",
         "Use algopy.urange",
+        "Add .copy()",
     ]
-    meth_sub_action, _, _, _, uint64_action, urange_action = code_actions
+    meth_sub_action, _, _, _, uint64_action, urange_action, copy_action = code_actions
     assert isinstance(uint64_action, lsp.CodeAction)
     assert uint64_action.kind == "quickfix"
     edits = _get_edits(uint64_action, unique_uri)
@@ -162,6 +169,10 @@ def no_sub_dec() -> None:
         "from algopy import urange\n",
         "urange",
     ]
+    assert isinstance(copy_action, lsp.CodeAction)
+    edits = _get_edits(copy_action, unique_uri)
+    assert edits is not None
+    assert [e.new_text for e in edits] == [".copy()"]
 
 
 def _get_edits(action: lsp.CodeAction, uri: str) -> Sequence[lsp.TextEdit] | None:

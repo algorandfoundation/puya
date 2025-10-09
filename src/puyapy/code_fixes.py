@@ -29,7 +29,16 @@ class DecorateFunction:
     symbol: str
 
 
-CodeEdit = WrapWithSymbol | ReplaceWithSymbol | DecorateFunction
+@attrs.frozen
+class AppendMember:
+    """
+    Appends a member to an expression
+    """
+
+    member: str
+
+
+CodeEdit = WrapWithSymbol | ReplaceWithSymbol | DecorateFunction | AppendMember
 
 
 @attrs.frozen
