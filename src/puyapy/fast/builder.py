@@ -8,7 +8,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import unique
+from puya.utils import coalesce, unique
 from puyapy.fast import nodes
 
 logger = log.get_logger(__name__)
@@ -33,7 +33,16 @@ class FASTBuilder(ast.NodeVisitor):
                 source, module_path, "exec", type_comments=True, feature_version=feature_version
             )
         except SyntaxError as e:
-            raise CodeError(f"invalid Python syntax: {e}") from e
+            loc = None
+            if e.lineno is not None:
+                loc = SourceLocation(
+                    file=module_path,
+                    line=e.lineno,
+                    end_line=coalesce(e.end_lineno, e.lineno),
+                    column=e.offset,
+                    end_column=e.end_offset,
+                )
+            raise CodeError(f"invalid Python syntax: {e.msg}", loc) from e
 
         builder = cls(module_name=module_name, module_path=module_path)
         return builder.visit_Module(mod)
@@ -129,7 +138,10 @@ class FASTBuilder(ast.NodeVisitor):
                         location=self._loc(kw),
                     )
                 elif kw.arg in kwargs:
-                    logger.error("duplicate keyword argument", location=self._loc(kw))
+                    logger.error(
+                        f"invalid Python syntax: keyword argument repeated: {kw.arg}",
+                        location=self._loc(kw),
+                    )
                 else:
                     kwargs[kw.arg] = kw.value
         bases = tuple(self._visit_expr_list(class_def.bases))
