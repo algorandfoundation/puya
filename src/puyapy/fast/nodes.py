@@ -279,6 +279,17 @@ class While(Statement):
 
 
 @attrs.frozen
+class If(Statement):
+    test: Expression
+    body: tuple[Statement, ...]
+    else_body: tuple[Statement, ...]  # can be another If in here for elif chains
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_if(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
