@@ -139,6 +139,123 @@ class Constant(Expression):
 
 
 @attrs.frozen
+class Name(Expression):
+    id: str
+    ctx: ast.expr_context
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_name(self)
+
+
+@attrs.frozen
+class Attribute(Expression):
+    base: Expression
+    attr: str
+    ctx: ast.expr_context
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_attribute(self)
+
+
+@attrs.frozen
+class Slice(Node):
+    lower: Expression | None
+    upper: Expression | None
+    step: Expression | None
+
+
+@attrs.frozen
+class Subscript(Expression):
+    base: Expression
+    indexes: tuple[Expression | Slice, ...]
+    ctx: ast.expr_context
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_subscript(self)
+
+
+@attrs.frozen
+class Return(Statement):
+    value: Expression | None
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_return(self)
+
+
+@attrs.frozen
+class Delete(Statement):
+    targets: tuple[Expression, ...]
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_delete(self)
+
+
+@attrs.frozen
+class Assign(Statement):
+    """
+    Single assignment, with an optional annotation, e.g. `x: int = 1`
+    """
+
+    target: Expression
+    value: Expression
+    annotation: Expression | None
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_assign(self)
+
+
+@attrs.frozen
+class MultiAssign(Statement):
+    """
+    Chained assignment, e.g. `a = b = ...`
+    Syntactically, cannot have an annotation.
+    """
+
+    targets: tuple[Expression, ...]
+    value: Expression
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_multi_assign(self)
+
+
+@attrs.frozen
+class AugAssign(Statement):
+    """
+    Augmented assignment, e.g. `x += 1`
+    """
+
+    target: Name | Attribute | Subscript
+    op: ast.operator
+    value: Expression
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_aug_assign(self)
+
+
+@attrs.frozen
+class AnnotationStatement(Statement):
+    """
+    An annotation without assignment, e.g. `x: int` or `self.foo: int`.
+    This is effectively a no-op, provided the Name(s) involved exist.
+    """
+
+    target: Name | Attribute | Subscript
+    annotation: Expression
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_annotation(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
