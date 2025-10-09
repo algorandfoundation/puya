@@ -122,7 +122,7 @@ class ModuleASTConverter(
             logger.error(
                 f"free functions must be annotated with @{constants.SUBROUTINE_HINT_ALIAS}",
                 location=loc,
-                edits=code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS),
+                edits=code_fixes.DecorateFunction(constants.SUBROUTINE_HINT),
             )
             inline = None
         else:

@@ -304,9 +304,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 edits = None
                 if num_dec == 0:
                     edits = [
-                        code_fixes.DecorateFunction(constants.SUBROUTINE_HINT_ALIAS),
-                        code_fixes.DecorateFunction(constants.ABIMETHOD_DECORATOR_ALIAS),
-                        code_fixes.DecorateFunction(constants.BAREMETHOD_DECORATOR_ALIAS),
+                        code_fixes.DecorateFunction(constants.SUBROUTINE_HINT),
+                        code_fixes.DecorateFunction(constants.ABIMETHOD_DECORATOR),
+                        code_fixes.DecorateFunction(constants.BAREMETHOD_DECORATOR),
                     ]
                 logger.error(
                     f"ARC-4 contract member functions"
