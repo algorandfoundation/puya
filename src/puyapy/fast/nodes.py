@@ -5,13 +5,14 @@ import typing
 from pathlib import Path
 
 import attrs
+from immutabledict import immutabledict
 
 from puya.parse import SourceLocation
 from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
 
 
 @attrs.frozen
-class Node:
+class Node(abc.ABC):
     source_location: SourceLocation
 
 
@@ -37,6 +38,7 @@ class ImportAs(Node):
 class ModuleImport(Statement):
     names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
 
+    @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_module_import(self)
 
@@ -49,6 +51,7 @@ class FromImport(Statement):
     )
     """if None, then import all (ie star import)"""
 
+    @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_from_import(self)
 
@@ -59,7 +62,7 @@ AnyImport = ModuleImport | FromImport
 @attrs.frozen
 class Parameter(Node):
     name: str
-    annotation: Expression
+    annotation: Expression | None
 
 
 @attrs.frozen
@@ -79,11 +82,12 @@ class Decorator(Node):
 class FunctionDef(Statement):
     name: str
     params: tuple[Parameter, ...]
-    return_annotation: Expression
+    return_annotation: Expression | None
     decorators: tuple[Decorator, ...]
     docstring: str | None
     body: tuple[Statement, ...]
 
+    @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_function_def(self)
 
@@ -92,13 +96,21 @@ class FunctionDef(Statement):
 class ClassDef(Statement):
     name: str
     bases: tuple[Expression, ...]
+    decorators: tuple[Decorator, ...]
     docstring: str | None
+    body: tuple[Statement, ...]
+    kwargs: immutabledict[str, ast.expr] | None
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_class_def(self)
 
 
 @attrs.frozen
 class ExpressionStatement(Statement):
     expr: Expression
 
+    @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_expression_statement(self)
 
@@ -112,6 +124,7 @@ ConstantValue: typing.TypeAlias = (
 class Constant(Expression):
     value: ConstantValue
 
+    @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_constant(self)
 
