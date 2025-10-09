@@ -415,6 +415,21 @@ class FASTBuilder(ast.NodeVisitor):
         )
 
     @typing.override
+    def visit_While(self, while_stmt: ast.While) -> nodes.While | None:
+        loc = self._loc(while_stmt)
+        test = self._visit_expr(while_stmt.test)
+        body = self._visit_stmt_list(while_stmt.body)
+        else_body = self._visit_stmt_list(while_stmt.orelse)
+        if test is None:
+            return None
+        return nodes.While(
+            test=test,
+            body=tuple(body),
+            else_body=tuple(else_body),
+            source_location=loc,
+        )
+
+    @typing.override
     def visit_Constant(self, constant: ast.Constant) -> nodes.Constant:
         loc = self._loc(constant)
         return nodes.Constant(
