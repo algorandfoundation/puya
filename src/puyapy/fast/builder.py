@@ -445,6 +445,30 @@ class FASTBuilder(ast.NodeVisitor):
         )
 
     @typing.override
+    def visit_Assert(self, assert_stmt: ast.Assert) -> nodes.Assert | None:
+        loc = self._loc(assert_stmt)
+        test = self._visit_expr(assert_stmt.test)
+        msg = self._visit_expr(assert_stmt.msg)
+        if test is None:
+            return None
+        return nodes.Assert(
+            test=test,
+            msg=msg,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Expr(self, expr_stmt: ast.Expr) -> nodes.ExpressionStatement | None:
+        loc = self._loc(expr_stmt)
+        expr = self._visit_expr(expr_stmt.value)
+        if expr is None:
+            return None
+        return nodes.ExpressionStatement(
+            expr=expr,
+            source_location=loc,
+        )
+
+    @typing.override
     def visit_Constant(self, constant: ast.Constant) -> nodes.Constant:
         loc = self._loc(constant)
         return nodes.Constant(
