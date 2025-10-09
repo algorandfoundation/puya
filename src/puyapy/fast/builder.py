@@ -3,6 +3,7 @@ import typing
 from pathlib import Path
 
 import attrs
+from immutabledict import immutabledict
 
 from puya import log
 from puya.errors import CodeError, InternalError
@@ -38,7 +39,9 @@ class FASTBuilder(ast.NodeVisitor):
         return builder.visit_Module(mod)
 
     @typing.override
-    def visit(self, node: ast.AST) -> nodes.Node | None:
+    def visit(self, node: ast.AST | None) -> nodes.Node | None:
+        if node is None:
+            return None
         # unlike the parent method, this will error if the visitor method is not defined
         method = "visit_" + node.__class__.__name__
         try:
@@ -89,18 +92,53 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(func_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
-        if func_def.returns is None:
-            raise CodeError("return type annotation is required", loc)
         return_annotation = self.visit(func_def.returns)
-        assert isinstance(return_annotation, nodes.Expression)
+        assert isinstance(return_annotation, nodes.Expression | None)
         ast_body, docstring = _extract_docstring(func_def)
         body = tuple(self._visit_stmt_list(ast_body))
+        decorators = self._visit_decorator_list(func_def.decorator_list)
+        params = self.visit_arguments(func_def.args)
         return nodes.FunctionDef(
             name=func_def.name,
-            params=NotImplemented,
+            params=params,
             return_annotation=return_annotation,
-            decorators=NotImplemented,
+            decorators=decorators,
             docstring=docstring,
+            body=body,
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_arguments(self, args: ast.arguments) -> tuple[nodes.Parameter, ...]:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_ClassDef(self, class_def: ast.ClassDef) -> nodes.ClassDef:
+        loc = self._loc(class_def)
+        type_params = getattr(class_def, "type_params", None)
+        if type_params:
+            raise CodeError("type parameters are not supported", loc)
+        kwargs = None
+        if class_def.keywords:
+            kwargs = {}
+            for kw in class_def.keywords:
+                if kw.arg is None:
+                    logger.error(
+                        "keyword argument unpacking in base list is not supported",
+                        location=self._loc(kw),
+                    )
+                else:
+                    kwargs[kw.arg] = kw.value
+        bases = tuple(self._visit_expr_list(class_def.bases))
+        ast_body, docstring = _extract_docstring(class_def)
+        decorators = self._visit_decorator_list(class_def.decorator_list)
+        body = tuple(self._visit_stmt_list(ast_body))
+        return nodes.ClassDef(
+            name=class_def.name,
+            kwargs=immutabledict(kwargs) if kwargs is not None else None,
+            docstring=docstring,
+            decorators=decorators,
+            bases=bases,
             body=body,
             source_location=loc,
         )
@@ -142,6 +180,9 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
+    def _visit_expr_list(self, exprs: list[ast.expr]) -> list[nodes.Expression]:
+        raise NotImplementedError
+
     def _visit_stmt_list(self, stmts: list[ast.stmt]) -> list[nodes.Statement]:
         result = []
         for ast_stmt in stmts:
@@ -159,6 +200,9 @@ class FASTBuilder(ast.NodeVisitor):
                     )
         return result
 
+    def _visit_decorator_list(self, decorator_list: list[ast.expr]) -> tuple[nodes.Decorator, ...]:
+        raise NotImplementedError
+
     def _maybe_loc(self, node: ast.AST) -> SourceLocation | None:
         lineno = getattr(node, "lineno", None)
         if lineno is None:
@@ -171,7 +215,7 @@ class FASTBuilder(ast.NodeVisitor):
             end_column=getattr(node, "end_col_offset", None),
         )
 
-    def _loc(self, node: ast.expr | ast.stmt | ast.alias) -> SourceLocation:
+    def _loc(self, node: ast.expr | ast.stmt | ast.alias | ast.keyword) -> SourceLocation:
         return SourceLocation(
             file=self.module_path,
             line=node.lineno,
