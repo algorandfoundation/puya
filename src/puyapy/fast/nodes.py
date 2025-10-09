@@ -76,6 +76,7 @@ class Decorator(Node):
     # we do allow som extra syntax in certain decorator arguments however, so retain
     # the original AST here.
     args: tuple[ast.expr, ...] | None
+    kwargs: immutabledict[str, ast.expr] | None
 
 
 @attrs.frozen
@@ -99,7 +100,7 @@ class ClassDef(Statement):
     decorators: tuple[Decorator, ...]
     docstring: str | None
     body: tuple[Statement, ...]
-    kwargs: immutabledict[str, ast.expr] | None
+    kwargs: immutabledict[str, ast.expr]
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
