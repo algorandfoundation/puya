@@ -476,6 +476,27 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
+    @typing.override
+    def visit_Pass(self, pass_stmt: ast.Pass) -> nodes.Pass:
+        loc = self._loc(pass_stmt)
+        return nodes.Pass(
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Break(self, break_stmt: ast.Break) -> nodes.Break:
+        loc = self._loc(break_stmt)
+        return nodes.Break(
+            source_location=loc,
+        )
+
+    @typing.override
+    def visit_Continue(self, continue_stmt: ast.Continue) -> nodes.Continue:
+        loc = self._loc(continue_stmt)
+        return nodes.Continue(
+            source_location=loc,
+        )
+
     def _visit_expr_list(self, exprs: list[ast.expr]) -> tuple[tuple[nodes.Expression, ...], bool]:
         result = []
         ok = True
