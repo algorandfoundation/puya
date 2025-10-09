@@ -300,6 +300,27 @@ class Assert(Statement):
 
 
 @attrs.frozen
+class Pass(Statement):
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_pass(self)
+
+
+@attrs.frozen
+class Break(Statement):
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_break(self)
+
+
+@attrs.frozen
+class Continue(Statement):
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_continue(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
