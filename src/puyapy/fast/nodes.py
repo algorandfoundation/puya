@@ -268,6 +268,17 @@ class For(Statement):
 
 
 @attrs.frozen
+class While(Statement):
+    test: Expression
+    body: tuple[Statement, ...]
+    else_body: tuple[Statement, ...]
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_while(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
