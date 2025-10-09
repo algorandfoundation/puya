@@ -92,8 +92,9 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(func_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
-        return_annotation = self.visit(func_def.returns)
-        assert isinstance(return_annotation, nodes.Expression | None)
+        return_annotation = None
+        if func_def.returns is not None:
+            return_annotation = self._visit_expr(func_def.returns)
         ast_body, docstring = _extract_docstring(func_def)
         body = tuple(self._visit_stmt_list(ast_body))
         decorators = self._visit_decorator_list(func_def.decorator_list)
@@ -118,7 +119,7 @@ class FASTBuilder(ast.NodeVisitor):
         type_params = getattr(class_def, "type_params", None)
         if type_params:
             raise CodeError("type parameters are not supported", loc)
-        kwargs = None
+        kwargs: dict[str, ast.expr] | None = None
         if class_def.keywords:
             kwargs = {}
             for kw in class_def.keywords:
@@ -127,6 +128,8 @@ class FASTBuilder(ast.NodeVisitor):
                         "keyword argument unpacking in base list is not supported",
                         location=self._loc(kw),
                     )
+                elif kw.arg in kwargs:
+                    logger.error("duplicate keyword argument", location=self._loc(kw))
                 else:
                     kwargs[kw.arg] = kw.value
         bases = tuple(self._visit_expr_list(class_def.bases))
@@ -181,7 +184,17 @@ class FASTBuilder(ast.NodeVisitor):
         )
 
     def _visit_expr_list(self, exprs: list[ast.expr]) -> list[nodes.Expression]:
-        raise NotImplementedError
+        result = []
+        for expr in exprs:
+            transformed = self._visit_expr(expr)
+            if transformed is not None:
+                result.append(transformed)
+        return result
+
+    def _visit_expr(self, expr: ast.expr | None) -> nodes.Expression | None:
+        result = self.visit(expr)
+        assert isinstance(result, nodes.Expression | None)
+        return result
 
     def _visit_stmt_list(self, stmts: list[ast.stmt]) -> list[nodes.Statement]:
         result = []
