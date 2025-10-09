@@ -79,8 +79,8 @@ class PropertyNode:
 @attrs.define
 class ClassNode:
     name: str
-    properties: list[PropertyNode] = attrs.field(factory=list)
-    functions: list[FunctionNode] = attrs.field(factory=list)
+    properties: dict[str, PropertyNode] = attrs.field(factory=dict)
+    functions: dict[str, FunctionNode] = attrs.field(factory=dict)
     bases: list[str] = attrs.field(factory=list)
 
 
@@ -104,8 +104,10 @@ class ClassCollector(ast.NodeVisitor):
         class_node.bases.extend(self.base_class_collector.result)
 
         # Extend the class_node with collected members
-        class_node.properties.extend(self.class_attribute_collector.properties)
-        class_node.functions.extend(self.class_attribute_collector.functions)
+        class_node.properties.update(
+            {p.name: p for p in self.class_attribute_collector.properties}
+        )
+        class_node.functions.update({f.name: f for f in self.class_attribute_collector.functions})
 
         self.classes.append(class_node)
 
@@ -367,12 +369,12 @@ def _classes_from_file(file_path: Path, root: Path) -> list[ClassNode]:
 
 
 @functools.cache
-def _build_stubs() -> list[ClassNode]:
+def _build_stubs() -> Mapping[str, ClassNode]:
     stubs_root = STUBS_DIR.parent.resolve()
     classes = []
     for path in stubs_root.rglob("*.pyi"):
         classes.extend(_classes_from_file(path, stubs_root))
-    return classes
+    return {c.name: c for c in classes}
 
 
 def _get_type_infos(
@@ -381,8 +383,9 @@ def _get_type_infos(
     result = _build_stubs()
 
     for type_name in type_names:
-        match = next((c for c in result if c.name in (type_name)), None)
-        if not match:
+        try:
+            match = result[type_name]
+        except KeyError:
             continue
 
         properties = match.properties
@@ -390,8 +393,8 @@ def _get_type_infos(
 
         # Extend properties with base class properties
         for bases in _get_type_infos(match.bases):
-            properties.extend(bases.properties)
-            functions.extend(bases.functions)
+            properties.update(bases.properties)
+            functions.update(bases.functions)
         yield ClassNode(
             name=match.name,
             properties=properties,
@@ -410,10 +413,8 @@ def builtins_registry() -> Mapping[str, pytypes.PyType]:
 def test_group_transaction_members(group_transaction_type: str) -> None:
     gtxn_types = [group_transaction_type, pytypes.GroupTransactionBaseType.name]
     for type_info in _get_type_infos(gtxn_types):
-        attributes = [p.name for p in type_info.properties]
-        attributes.extend(
-            [f.name for f in type_info.functions if f.name.startswith("__") is False]
-        )
+        attributes = list(type_info.properties)
+        attributes.extend([f for f in type_info.functions if f.startswith("__") is False])
         unknown = sorted(set(attributes) - PYTHON_TXN_FIELDS.keys())
         assert not unknown, f"{type_info.name}: Unknown TxnField members: {unknown}"
 
@@ -437,7 +438,7 @@ def test_inner_transaction_field_setters() -> None:
     ):
         init_args: set[str] | None = None
         for member in ("__init__", "set"):
-            func_def = next(f for f in type_info.functions if f.name == member)
+            func_def = type_info.functions[member]
             # Extract arg names from the FunctionNode's args list
             arg_names = {a.name for a in func_def.args}
             arg_names.discard("self")
@@ -462,10 +463,8 @@ def test_inner_transaction_field_setters() -> None:
 )
 def test_inner_transaction_members(inner_transaction_type: str) -> None:
     for type_info in _get_type_infos([inner_transaction_type]):
-        attributes = [p.name for p in type_info.properties]
-        attributes.extend(
-            [f.name for f in type_info.functions if f.name.startswith("__") is False]
-        )
+        attributes = list(type_info.properties)
+        attributes.extend([f for f in type_info.functions if f.startswith("__") is False])
         unknown = sorted(set(attributes) - PYTHON_TXN_FIELDS.keys())
         assert not unknown, f"{type_info.name}: Unknown TxnField members: {unknown}"
 
@@ -502,13 +501,13 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
             )
         return pytypes.VariadicTupleType(t) if node.is_array else t
 
-    for type_info_1 in _get_type_infos(txn_types):
+    for type_info in _get_type_infos(txn_types):
         type_nodes = [
             (
                 p.name,
                 FieldType(is_array=p.type.is_array, field_type=_get_pytype_for_node(p.type)),
             )
-            for p in type_info_1.properties
+            for p in type_info.properties.values()
         ]
         type_nodes.extend(
             [
@@ -519,7 +518,7 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
                         field_type=_get_pytype_for_node(f.return_type),
                     ),
                 )
-                for f in type_info_1.functions
+                for f in type_info.functions.values()
                 if f.name.startswith("__") is False
             ]
         )
@@ -534,11 +533,11 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
 
     # add fields that are arguments
 
-    for type_info_2 in _get_type_infos(
+    for type_info in _get_type_infos(
         t.name for t in pytypes.InnerTransactionFieldsetTypes.values()
     ):
         for member in ("__init__", "set"):
-            func_def = next(f for f in type_info_2.functions if f.name == member)
+            func_def = type_info.functions[member]
             func_type = pytypes.FuncType(
                 name=func_def.name,
                 args=[
