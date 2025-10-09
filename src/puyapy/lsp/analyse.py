@@ -255,30 +255,17 @@ class CodeAnalyser:
 @attrs.frozen
 class _AlgopySymbolResolver:
     _lines: Sequence[str]
-    _symbols: dict[str, str | int]
+    _symbols: dict[str, str]
     _import_block_end: int
 
     @classmethod
     def create(cls, module: SourceModule) -> typing.Self:
-        parent_modules = dict[str, int]()
         module_symbols = dict[str, str]()
         for name, sym in module.node.names.items():
             fullname = sym.fullname or ""
             root_module, _, _ = fullname.partition(".")
-            if root_module != "algopy":
-                continue
-            module_symbols[fullname] = name
-            if sym.node is None or fullname == "algopy":
-                continue
-            parent_module, _, _ = fullname.rpartition(".")
-            parent_module = _friendly_algopy(parent_module)
-            stmt_end_line = coalesce(sym.node.end_line, sym.node.line)
-            assert stmt_end_line > 0, f"expected valid stmt line for {sym}"
-            insert_line = stmt_end_line + 1
-            try:
-                parent_modules[parent_module] = max(parent_modules[parent_module], insert_line)
-            except KeyError:
-                parent_modules[parent_module] = insert_line
+            if root_module == "algopy":
+                module_symbols[fullname] = name
 
         import_block_end = max(
             (
@@ -291,10 +278,7 @@ class _AlgopySymbolResolver:
         assert module.lines is not None, f"missing source for {module.name}"
         return cls(
             lines=module.lines,
-            symbols={
-                **parent_modules,
-                **module_symbols,
-            },
+            symbols=module_symbols,
             import_block_end=import_block_end,
         )
 
@@ -372,22 +356,19 @@ class _AlgopySymbolResolver:
         full_name = _friendly_algopy(full_name)
         symbol_module, _, symbol = full_name.rpartition(".")
 
-        module = self._symbols.get(symbol_module, self._import_block_end)
-        match module:
-            case str():
-                # if module itself was imported then reference symbol relative to that
-                return f"{module}.{symbol}", None
-            case int(line):
-                # if just siblings of the parent module were imported then use symbol
-                # and also add an edit to add the appropriate import importing from the same module
-                line_pos = lsp.Position(line=line - 1, character=0)
-                insert_at = lsp.Range(start=line_pos, end=line_pos)
-                edit = lsp.TextEdit(
-                    new_text=f"from {symbol_module} import {symbol}\n", range=insert_at
-                )
-                return symbol, edit
-            case _:
-                typing.assert_never(module)
+        try:
+            module = self._symbols[symbol_module]
+        except KeyError:
+            # add an import for symbol
+            line_pos = lsp.Position(line=self._import_block_end - 1, character=0)
+            insert_at = lsp.Range(start=line_pos, end=line_pos)
+            edit = lsp.TextEdit(
+                new_text=f"from {symbol_module} import {symbol}\n", range=insert_at
+            )
+            return symbol, edit
+        else:
+            # if module itself was imported then reference symbol relative to that
+            return f"{module}.{symbol}", None
 
 
 _ALGOPY_FRIENDLY_SUB = re.compile(r"algopy\._[^.]+")

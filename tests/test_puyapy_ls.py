@@ -281,7 +281,7 @@ async def test_code_fix_symbol_aliases(
     assert actual_edits == expected_edits
     if expected_import:
         assert (
-            code_action.edit.changes[unique_uri][0].range.start.line == 1
+            code_action.edit.changes[unique_uri][0].range.start.line == 2
         ), "expected import statement to be on line 1"
 
 
