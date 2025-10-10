@@ -153,7 +153,7 @@ def resolve_import_dependencies(
             if alias.name in _ALLOWED_STDLIB_STUBS:
                 continue
             if alias.name.partition(".")[0] == "algopy":
-                continue
+                continue  # TODO: expose as dependency somehow?
             path_str = fmc.find_module(alias.name, alias.loc, import_base_dir=import_base_dir)
             if path_str is None:
                 continue
@@ -171,7 +171,7 @@ def resolve_import_dependencies(
         if module_id in _ALLOWED_STDLIB_STUBS:
             continue
         if module_id.partition(".")[0] == "algopy":
-            continue
+            continue  # TODO: expose as dependency somehow?
 
         # note: there is a case that this doesn't handle, where module_id points to a directory of
         # an implicit namespace package without an __init__.py, in that case however a from-import
