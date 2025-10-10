@@ -59,8 +59,8 @@ def parse_module(
 
 @attrs.define
 class FASTBuilder(ast.NodeVisitor):
-    _module_name: str
-    _module_path: Path
+    _module_name: str = attrs.field(on_setattr=attrs.setters.frozen)
+    _module_path: Path = attrs.field(on_setattr=attrs.setters.frozen)
     _failures: int = attrs.field(default=0, init=False)
 
     @property
@@ -114,6 +114,9 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_Module(self, module: ast.Module) -> nodes.Module:
         ast_body, docstring = _extract_docstring(module)
         body = self._visit_stmt_list(ast_body)
+        # Feature flag imports do technically exist as objects of type _Feature,
+        # but there's no use case for being able to access these from Algorand Python,
+        # so just collect them up as flags.
         future_flags = list[str]()
         while body:
             match body[0]:
@@ -123,10 +126,9 @@ class FASTBuilder(ast.NodeVisitor):
                         self._invalid_syntax(future_import.source_location)
                     else:
                         for name in names:
-                            if name.as_name:
-                                self._invalid_syntax(name.source_location)
-                            else:
-                                future_flags.append(name.name)
+                            # aliasing is technically allowed, but since we're not allowing access
+                            # doesn't matter anyway
+                            future_flags.append(name.name)
                 case _:
                     break
 
@@ -475,15 +477,18 @@ class FASTBuilder(ast.NodeVisitor):
             self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         target = self._visit_expr(for_stmt.target)
         iterable = self._visit_expr(for_stmt.iter)
+        body = tuple(self._visit_stmt_list(for_stmt.body))
+        if not for_stmt.orelse:
+            else_body = None
+        else:
+            else_body = tuple(self._visit_stmt_list(for_stmt.orelse))
         if target is None or iterable is None:
             return None
-        body = self._visit_stmt_list(for_stmt.body)
-        else_body = self._visit_stmt_list(for_stmt.orelse)
         return nodes.For(
             target=target,
             iterable=iterable,
-            body=tuple(body),
-            else_body=tuple(else_body),
+            body=body,
+            else_body=else_body,
             source_location=loc,
         )
 
@@ -491,14 +496,17 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_While(self, while_stmt: ast.While) -> nodes.While | None:
         loc = self._loc(while_stmt)
         test = self._visit_expr(while_stmt.test)
-        body = self._visit_stmt_list(while_stmt.body)
-        else_body = self._visit_stmt_list(while_stmt.orelse)
+        body = tuple(self._visit_stmt_list(while_stmt.body))
+        if not while_stmt.orelse:
+            else_body = None
+        else:
+            else_body = tuple(self._visit_stmt_list(while_stmt.orelse))
         if test is None:
             return None
         return nodes.While(
             test=test,
-            body=tuple(body),
-            else_body=tuple(else_body),
+            body=body,
+            else_body=else_body,
             source_location=loc,
         )
 
@@ -506,14 +514,17 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_If(self, if_stmt: ast.If) -> nodes.If | None:
         loc = self._loc(if_stmt)
         test = self._visit_expr(if_stmt.test)
-        body = self._visit_stmt_list(if_stmt.body)
-        else_body = self._visit_stmt_list(if_stmt.orelse)
+        body = tuple(self._visit_stmt_list(if_stmt.body))
+        if not if_stmt.orelse:
+            else_body = None
+        else:
+            else_body = tuple(self._visit_stmt_list(if_stmt.orelse))
         if test is None:
             return None
         return nodes.If(
             test=test,
-            body=tuple(body),
-            else_body=tuple(else_body),
+            body=body,
+            else_body=else_body,
             source_location=loc,
         )
 
