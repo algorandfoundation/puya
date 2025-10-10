@@ -183,6 +183,8 @@ def _visit_stmt(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement | None:
             result = handler(ctx, node)
         except PuyaError as e:
             logger.debug(f"<<FAST>> ({loc}) " + e.msg)
+        except NotImplementedError:
+            pass
     return result
 
 
@@ -606,6 +608,10 @@ def _extract_dotted_name(ctx: _BuildContext, expr: ast.expr) -> str | None:
             return None
 
 
+def _visit_match(ctx: _BuildContext, match_stmt: ast.Match) -> typing.Never:
+    raise NotImplementedError
+
+
 _TStatementVisitor = Callable[[_BuildContext, ast.stmt], nodes.Statement]
 
 
@@ -625,19 +631,29 @@ _STATEMENT_HANDLERS: typing.Final[
     Mapping[type[ast.stmt], Callable[[_BuildContext, ast.stmt], nodes.Statement]]
 ] = dict(
     (
+        # supported statements are listed here in the same order as the appear in:
+        # https://docs.python.org/3.12/library/ast.html#abstract-grammar
         _stmt_visitor_pair(ast.FunctionDef, _visit_function_def),
+        # <br>
         _stmt_visitor_pair(ast.ClassDef, _visit_class_def),
-        _stmt_visitor_pair(ast.Import, _visit_import),
-        _stmt_visitor_pair(ast.ImportFrom, _visit_import_from),
         _stmt_visitor_pair(ast.Return, _visit_return),
+        # <br>
         _stmt_visitor_pair(ast.Delete, _visit_delete),
         _stmt_visitor_pair(ast.Assign, _visit_assign),
-        _stmt_visitor_pair(ast.AnnAssign, _visit_annotated_assign),
         _stmt_visitor_pair(ast.AugAssign, _visit_augmented_assign),
+        _stmt_visitor_pair(ast.AnnAssign, _visit_annotated_assign),
+        # <br>
         _stmt_visitor_pair(ast.For, _visit_for_loop),
         _stmt_visitor_pair(ast.While, _visit_while_loop),
         _stmt_visitor_pair(ast.If, _visit_if),
+        # <br>
+        _stmt_visitor_pair(ast.Match, _visit_match),
+        # <br>
         _stmt_visitor_pair(ast.Assert, _visit_assert),
+        # <br>
+        _stmt_visitor_pair(ast.Import, _visit_import),
+        _stmt_visitor_pair(ast.ImportFrom, _visit_import_from),
+        # <br>
         _stmt_visitor_pair(ast.Expr, _visit_expression_statement),
         _stmt_visitor_pair(ast.Pass, _visit_pass),
         _stmt_visitor_pair(ast.Break, _visit_break),
@@ -732,6 +748,52 @@ def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
     )
 
 
+def _visit_bool_op(ctx: _BuildContext, bool_op: ast.BoolOp) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_named_expr(ctx: _BuildContext, named_expr: ast.NamedExpr) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_bin_op(ctx: _BuildContext, bin_op: ast.BinOp) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_unary_op(ctx: _BuildContext, unary_op: ast.UnaryOp) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_if_exp(ctx: _BuildContext, if_exp: ast.IfExp) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_compare(ctx: _BuildContext, compare: ast.Compare) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_call(ctx: _BuildContext, call: ast.Call) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_formatted_value(
+    ctx: _BuildContext, formatted_value: ast.FormattedValue
+) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_list(ctx: _BuildContext, list_: ast.List) -> typing.Never:
+    raise NotImplementedError
+
+
+def _visit_tuple(ctx: _BuildContext, tuple_: ast.Tuple) -> typing.Never:
+    raise NotImplementedError
+
+
 _TExpressionVisitor = Callable[[_BuildContext, ast.expr], nodes.Expression]
 
 
@@ -748,9 +810,25 @@ _EXPRESSION_HANDLERS: typing.Final[
     Mapping[type[ast.expr], Callable[[_BuildContext, ast.expr], nodes.Expression]]
 ] = dict(
     (
+        # supported statements are listed here in the same order as the appear in:
+        # https://docs.python.org/3.12/library/ast.html#abstract-grammar
+        _expr_visitor_pair(ast.BoolOp, _visit_bool_op),
+        _expr_visitor_pair(ast.NamedExpr, _visit_named_expr),
+        _expr_visitor_pair(ast.BinOp, _visit_bin_op),
+        _expr_visitor_pair(ast.UnaryOp, _visit_unary_op),
+        _expr_visitor_pair(ast.IfExp, _visit_if_exp),
+        _expr_visitor_pair(ast.Compare, _visit_compare),
+        _expr_visitor_pair(ast.Call, _visit_call),
+        _expr_visitor_pair(ast.FormattedValue, _visit_formatted_value),
+        _expr_visitor_pair(ast.JoinedStr, _visit_joined_str),
         _expr_visitor_pair(ast.Constant, _visit_constant),
-        _expr_visitor_pair(ast.Name, _visit_name),
+        # <br>
         _expr_visitor_pair(ast.Attribute, _visit_attribute),
         _expr_visitor_pair(ast.Subscript, _visit_subscript),
+        _expr_visitor_pair(ast.Name, _visit_name),
+        _expr_visitor_pair(ast.List, _visit_list),  # *only* supported when ctx=ast.Store
+        _expr_visitor_pair(ast.Tuple, _visit_tuple),
+        # <br>
+        # Slice - note this can only appear in Subscript, which we handle directly
     )
 )
