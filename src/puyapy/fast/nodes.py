@@ -524,6 +524,25 @@ class TupleExpr(Expression):
 
 
 @attrs.frozen
+class ListExpr(Expression):
+    elements: tuple[Expression, ...]
+    ctx: ast.expr_context
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_list_expr(self)
+
+@attrs.frozen
+class DictExpr(Expression):
+    keys: tuple[Expression | None, ...]
+    values: tuple[Expression, ...]
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_dict_expr(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
