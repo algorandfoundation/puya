@@ -230,7 +230,7 @@ class FASTBuilder(ast.NodeVisitor):
         if type_params:
             self._fail(_NO_TYPE_PARAMS_MSG, loc)
         decorators = self._visit_decorator_list(class_def.decorator_list)
-        bases, _ = self._visit_expr_list(class_def.bases)
+        bases = self._visit_expr_list(class_def.bases)
         kwargs = self._visit_keywords_list(class_def.keywords)
         ast_body, docstring = _extract_docstring(class_def)
         body = tuple(self._visit_stmt_list(ast_body))
@@ -318,8 +318,8 @@ class FASTBuilder(ast.NodeVisitor):
 
     @typing.override
     def visit_Delete(self, delete: ast.Delete) -> nodes.Delete | None:
-        targets, targets_ok = self._visit_expr_list(delete.targets)
-        if not targets_ok:
+        targets = self._visit_expr_list(delete.targets)
+        if len(targets) != len(delete.targets):
             return None
         loc = self._loc(delete)
         return nodes.Delete(
@@ -333,8 +333,8 @@ class FASTBuilder(ast.NodeVisitor):
         if assign.type_comment is not None:
             self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         value = self._visit_expr(assign.value)
-        targets, targets_ok = self._visit_expr_list(assign.targets)
-        if value is None or not targets_ok:
+        targets = self._visit_expr_list(assign.targets)
+        if value is None or len(targets) != len(assign.targets):
             return None
         elif len(targets) > 1:
             return nodes.MultiAssign(
@@ -437,8 +437,6 @@ class FASTBuilder(ast.NodeVisitor):
                 pass
             case ast_index:
                 ast_indexes = [ast_index]
-        if base is None:
-            return None
         indexes = list[nodes.Expression | nodes.Slice]()
         for ast_index in ast_indexes:
             match ast_index:
@@ -449,6 +447,8 @@ class FASTBuilder(ast.NodeVisitor):
                     index = self._visit_expr(ast_index)
                     if index is not None:
                         indexes.append(index)
+        if base is None or len(indexes) != len(ast_indexes):
+            return None
         loc = self._loc(subscript)
         return nodes.Subscript(
             base=base,
@@ -581,16 +581,13 @@ class FASTBuilder(ast.NodeVisitor):
             source_location=loc,
         )
 
-    def _visit_expr_list(self, exprs: list[ast.expr]) -> tuple[tuple[nodes.Expression, ...], bool]:
+    def _visit_expr_list(self, exprs: list[ast.expr]) -> tuple[nodes.Expression, ...]:
         result = []
-        ok = True
         for expr in exprs:
             transformed = self._visit_expr(expr)
             if transformed is not None:
                 result.append(transformed)
-            else:
-                ok = False
-        return tuple(result), ok
+        return tuple(result)
 
     def _visit_expr(self, expr: ast.expr | None) -> nodes.Expression | None:
         result = self.visit(expr)
