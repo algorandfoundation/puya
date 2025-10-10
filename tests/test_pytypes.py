@@ -1,48 +1,31 @@
-import sys
 from collections.abc import Mapping
 
 import pytest
 
 from puyapy.awst_build import pytypes
-from tests import VCS_ROOT
+from tests.utils.stubs_ast import build_stubs_classes
 
-_STUB_SUFFIX = ".pyi"
+KNOWN_SYMBOLS_WITHOUT_PYTYPES = [
+    "algopy.arc4._ABIEncoded",
+    "algopy.arc4._ABICallProtocolType",
+    "algopy.arc4._StructMeta",
+    "algopy.arc4._UIntN",
+    "algopy.gtxn._GroupTransaction",
+    "algopy.itxn._InnerTransaction",
+    "algopy._template_variables._TemplateVarGeneric",
+    "algopy._transaction._ApplicationProtocol",
+    "algopy._transaction._AssetConfigProtocol",
+    "algopy._transaction._AssetFreezeProtocol",
+    "algopy._transaction._AssetTransferProtocol",
+    "algopy._transaction._KeyRegistrationProtocol",
+    "algopy._transaction._PaymentProtocol",
+    "algopy._transaction._TransactionBaseProtocol",
+]
 
 
-def stub_class_names_and_predefined_aliases() -> list[str]:
-    from mypy import build, find_sources, fscache, nodes
-
-    from puyapy.parse import _get_mypy_options
-
-    stubs_dir = (VCS_ROOT / "stubs" / "algopy-stubs").resolve()
-    mypy_options = _get_mypy_options()
-    mypy_options.python_executable = sys.executable
-    fs_cache = fscache.FileSystemCache()
-    mypy_build_sources = find_sources.create_source_list(
-        paths=[str(stubs_dir)], options=mypy_options, fscache=fs_cache
-    )
-    build_result = build.build(sources=mypy_build_sources, options=mypy_options, fscache=fs_cache)
-    result = set()
-
-    algopy_module = build_result.files["algopy"]
-    modules_to_visit = [algopy_module]
-    seen_modules = set()
-    while modules_to_visit:
-        module = modules_to_visit.pop()
-        if module in seen_modules:
-            continue
-        seen_modules.add(module)
-        for name, symbol in module.names.items():
-            if name.startswith("_") or symbol.module_hidden or symbol.kind != nodes.GDEF:
-                continue
-            match symbol.node:
-                case nodes.MypyFile() as new_module:
-                    modules_to_visit.append(new_module)
-                case nodes.TypeAlias(fullname=alias_name):
-                    result.add(alias_name)
-                case nodes.TypeInfo(fullname=class_name):
-                    result.add(class_name)
-    return sorted(result)
+def _stub_class_names_and_predefined_aliases() -> list[str]:
+    class_nodes = build_stubs_classes()
+    return [c for c in class_nodes if c not in KNOWN_SYMBOLS_WITHOUT_PYTYPES]
 
 
 @pytest.fixture(scope="session")
@@ -50,11 +33,7 @@ def builtins_registry() -> Mapping[str, pytypes.PyType]:
     return pytypes.builtins_registry()
 
 
-@pytest.mark.parametrize(
-    "fullname",
-    stub_class_names_and_predefined_aliases(),
-    ids=str,
-)
+@pytest.mark.parametrize("fullname", _stub_class_names_and_predefined_aliases(), ids=str)
 def test_stub_class_names_lookup(
     builtins_registry: Mapping[str, pytypes.PyType], fullname: str
 ) -> None:
