@@ -1,51 +1,31 @@
-import ast
 from collections.abc import Mapping
-from pathlib import Path
 
 import pytest
 
 from puyapy.awst_build import pytypes
-from tests import STUBS_DIR
-from tests.utils import get_module_name_from_path
+from tests.utils.stubs_ast import build_stubs_classes
 
-
-def _symbols_from_file(file_path: Path) -> list[str]:
-    """
-    Parse a single .pyi file and return class names,
-    and module level assignments which are (probably) type annotations.
-    """
-    text = file_path.read_text(encoding="utf8")
-    tree = ast.parse(text, filename=str(file_path))
-    symbols = []
-    for stmt in tree.body:
-        match stmt:
-            case ast.ClassDef(name=class_name):
-                symbols.append(class_name)
-            case (
-                ast.AnnAssign(target=ast.Name(id=alias_name))
-                | ast.Assign(targets=[ast.Name(id=alias_name)])
-            ) if stmt.value is None or not _is_ellipsis(stmt.value):
-                symbols.append(alias_name)
-    return symbols
-
-
-def _is_ellipsis(expr: ast.expr) -> bool:
-    match expr:
-        case ast.Constant(value=value):
-            return value is Ellipsis
-        case _:
-            return False
+KNOWN_SYMBOLS_WITHOUT_PYTYPES = [
+    "algopy.arc4._ABIEncoded",
+    "algopy.arc4._ABICallProtocolType",
+    "algopy.arc4._StructMeta",
+    "algopy.arc4._UIntN",
+    "algopy.gtxn._GroupTransaction",
+    "algopy.itxn._InnerTransaction",
+    "algopy._template_variables._TemplateVarGeneric",
+    "algopy._transaction._ApplicationProtocol",
+    "algopy._transaction._AssetConfigProtocol",
+    "algopy._transaction._AssetFreezeProtocol",
+    "algopy._transaction._AssetTransferProtocol",
+    "algopy._transaction._KeyRegistrationProtocol",
+    "algopy._transaction._PaymentProtocol",
+    "algopy._transaction._TransactionBaseProtocol",
+]
 
 
 def _stub_class_names_and_predefined_aliases() -> list[str]:
-    stubs_root = STUBS_DIR.parent.resolve()
-    results = []
-    for path in stubs_root.rglob("*.pyi"):
-        module = get_module_name_from_path(path, stubs_root)
-        symbols = _symbols_from_file(path)
-        qualified_symbols = [f"{module}.{name}" for name in symbols if not name.startswith("_")]
-        results.extend(qualified_symbols)
-    return results
+    class_nodes = build_stubs_classes()
+    return [c for c in class_nodes if c not in KNOWN_SYMBOLS_WITHOUT_PYTYPES]
 
 
 @pytest.fixture(scope="session")
