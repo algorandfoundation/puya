@@ -19,7 +19,7 @@ class SourceLocation:
         default=None, validator=attrs.validators.optional(attrs.validators.ge(0))
     )
     end_column: int | None = attrs.field(
-        default=None, validator=attrs.validators.optional(attrs.validators.ge(1))
+        default=None, validator=attrs.validators.optional(attrs.validators.ge(0))
     )
 
     @file.validator
