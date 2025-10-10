@@ -260,7 +260,7 @@ class For(Statement):
     target: Expression
     iterable: Expression
     body: tuple[Statement, ...]
-    else_body: tuple[Statement, ...]
+    else_body: tuple[Statement, ...] | None
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
@@ -271,7 +271,7 @@ class For(Statement):
 class While(Statement):
     test: Expression
     body: tuple[Statement, ...]
-    else_body: tuple[Statement, ...]
+    else_body: tuple[Statement, ...] | None
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
@@ -282,7 +282,7 @@ class While(Statement):
 class If(Statement):
     test: Expression
     body: tuple[Statement, ...]
-    else_body: tuple[Statement, ...]  # can be another If in here for elif chains
+    else_body: tuple[Statement, ...] | None  # if there are elifs, they are nested in here as Ifs
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
