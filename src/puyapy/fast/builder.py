@@ -606,19 +606,19 @@ def _extract_dotted_name(ctx: _BuildContext, expr: ast.expr) -> str | None:
             return None
 
 
+_TStatementVisitor = Callable[[_BuildContext, ast.stmt], nodes.Statement]
+
+
 def _stmt_visitor_pair[TIn: ast.stmt, TOut: nodes.Statement](
     typ: type[TIn],
     func: Callable[[_BuildContext, TIn], TOut],
-) -> tuple[type[ast.stmt], Callable[[_BuildContext, ast.stmt], nodes.Statement]]:
-    if typing.TYPE_CHECKING:
-
-        def wrapper(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement:
-            assert isinstance(node, typ)
-            return func(ctx, node)
-    else:
-        wrapper = func
-
-    return typ, wrapper
+) -> tuple[type[ast.stmt], _TStatementVisitor]:
+    # this cast should be safe, we have a pair of type and a func that takes that type,
+    # and returns a specific type, and we're just casting to something more generic,
+    # unfortunately there doesn't seem to be a way to express this as part of a mapping with
+    # Python's type annotations
+    visitor = typing.cast(_TStatementVisitor, func)
+    return typ, visitor
 
 
 _STATEMENT_HANDLERS: typing.Final[
@@ -732,19 +732,16 @@ def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
     )
 
 
+_TExpressionVisitor = Callable[[_BuildContext, ast.expr], nodes.Expression]
+
+
 def _expr_visitor_pair[TIn: ast.expr, TOut: nodes.Expression](
     typ: type[TIn],
     func: Callable[[_BuildContext, TIn], TOut],
-) -> tuple[type[ast.expr], Callable[[_BuildContext, ast.expr], nodes.Expression]]:
-    if typing.TYPE_CHECKING:
-
-        def wrapper(ctx: _BuildContext, node: ast.expr) -> nodes.Expression:
-            assert isinstance(node, typ)
-            return func(ctx, node)
-    else:
-        wrapper = func
-
-    return typ, wrapper
+) -> tuple[type[ast.expr], _TExpressionVisitor]:
+    # see comments in _stmt_visitor_pair
+    visitor = typing.cast(_TExpressionVisitor, func)
+    return typ, visitor
 
 
 _EXPRESSION_HANDLERS: typing.Final[
