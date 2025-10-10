@@ -37,7 +37,6 @@ _UNSTABLE_LOG_PREFIXES = {
         "no active python virtual env",
         "attempting to locate 'python",
         "using python search path from ",
-        "<<FAST>> ",  # TODO: REMOVE ME
     ),
     LogLevel.info: (
         # ignore platform specific paths
