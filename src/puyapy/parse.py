@@ -154,7 +154,6 @@ def parse_python(
     for scc_module_names in sccs:
         for module_name in sorted(scc_module_names):
             module = manager.modules[module_name]
-            state = graph[module_name]
             assert (
                 module_name == module.fullname
             ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
