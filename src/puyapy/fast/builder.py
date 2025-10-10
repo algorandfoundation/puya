@@ -14,16 +14,47 @@ from puyapy.fast import nodes
 logger = log.get_logger(__name__)
 
 
+_UNSUPPORTED_SYNTAX_MSG = "unsupported Python syntax"
+_INVALID_SYNTAX_MSG = "invalid Python syntax"
+_NO_TYPE_COMMENTS_MSG = "type comments are not supported"
+_NO_TYPE_PARAMS_MSG = "type parameters are not supported"
+
+
 @attrs.frozen
 class FASTResult:
     ast: ast.Module | None
     module: nodes.Module | None
 
 
-_UNSUPPORTED_SYNTAX_MSG = "unsupported Python syntax"
-_INVALID_SYNTAX_MSG = "invalid Python syntax"
-_NO_TYPE_COMMENTS_MSG = "type comments are not supported"
-_NO_TYPE_PARAMS_MSG = "type parameters are not supported"
+def parse_module(
+    *,
+    source: str,
+    module_path: Path,
+    module_name: str,
+    feature_version: int | tuple[int, int] | None = None,
+) -> FASTResult:
+    try:
+        mod = ast.parse(
+            source, module_path, "exec", type_comments=True, feature_version=feature_version
+        )
+    except SyntaxError as e:
+        loc = None
+        if e.lineno is not None:
+            loc = SourceLocation(
+                file=module_path,
+                line=e.lineno,
+                end_line=coalesce(e.end_lineno, e.lineno),
+                column=e.offset,
+                end_column=e.end_offset,
+            )
+        logger.error(f"{_INVALID_SYNTAX_MSG}: {e.msg}", location=loc)  # noqa: TRY400
+        return FASTResult(ast=None, module=None)
+
+    builder = FASTBuilder(module_name=module_name, module_path=module_path)
+    fast = builder.visit_Module(mod)
+    if builder.failures:
+        return FASTResult(ast=mod, module=None)
+    return FASTResult(ast=mod, module=fast)
 
 
 @attrs.define
@@ -35,38 +66,6 @@ class FASTBuilder(ast.NodeVisitor):
     @property
     def failures(self) -> int:
         return self._failures
-
-    @classmethod
-    def parse_module(
-        cls,
-        *,
-        source: str,
-        module_path: Path,
-        module_name: str,
-        feature_version: int | tuple[int, int] | None = None,
-    ) -> FASTResult:
-        try:
-            mod = ast.parse(
-                source, module_path, "exec", type_comments=True, feature_version=feature_version
-            )
-        except SyntaxError as e:
-            loc = None
-            if e.lineno is not None:
-                loc = SourceLocation(
-                    file=module_path,
-                    line=e.lineno,
-                    end_line=coalesce(e.end_lineno, e.lineno),
-                    column=e.offset,
-                    end_column=e.end_offset,
-                )
-            logger.error(f"{_INVALID_SYNTAX_MSG}: {e.msg}", location=loc)  # noqa: TRY400
-            return FASTResult(ast=None, module=None)
-
-        builder = cls(module_name=module_name, module_path=module_path)
-        fast = builder.visit_Module(mod)
-        if builder.failures:
-            return FASTResult(ast=mod, module=None)
-        return FASTResult(ast=mod, module=fast)
 
     def _invalid_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
         if detail is None:
