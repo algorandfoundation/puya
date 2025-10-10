@@ -187,6 +187,8 @@ def resolve_import_dependencies(
         # If not resolving to an init file, then all imported symbols must be from that file.
         # Similarly, when a `from x.y import *` resolves to x/y/__init__.py, all imported symbols
         # must be from that file.
+        # TODO: not true if __all__ is defined, see:
+        #  https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
         if path.name == "__init__.py" and from_imp.names is not None:
             # There are two complications at this point:
             # The first is that if x/__init__.py defines a variable foo, but there is also a
