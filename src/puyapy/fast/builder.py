@@ -828,49 +828,160 @@ def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
 
 
 def _visit_bool_op(ctx: _BuildContext, bool_op: ast.BoolOp) -> nodes.BoolOp:
-    raise NotImplementedError
+    loc = ctx.loc(bool_op)
+    values = _visit_expr_list(ctx, bool_op.values)
+    return nodes.BoolOp(
+        op=bool_op.op,
+        values=values,
+        source_location=loc,
+    )
 
 
 def _visit_named_expr(ctx: _BuildContext, named_expr: ast.NamedExpr) -> nodes.NamedExpr:
-    raise NotImplementedError
+    loc = ctx.loc(named_expr)
+    target = _visit_name(ctx, named_expr.target)
+    value = _visit_expr(ctx, named_expr.value)
+    return nodes.NamedExpr(
+        target=target,
+        value=value,
+        source_location=loc,
+    )
 
 
 def _visit_bin_op(ctx: _BuildContext, bin_op: ast.BinOp) -> nodes.BinOp:
-    raise NotImplementedError
+    loc = ctx.loc(bin_op)
+    left = _visit_expr(ctx, bin_op.left)
+    right = _visit_expr(ctx, bin_op.right)
+    return nodes.BinOp(
+        left=left,
+        op=bin_op.op,
+        right=right,
+        source_location=loc,
+    )
 
 
 def _visit_unary_op(ctx: _BuildContext, unary_op: ast.UnaryOp) -> nodes.UnaryOp:
-    raise NotImplementedError
+    loc = ctx.loc(unary_op)
+    operand = _visit_expr(ctx, unary_op.operand)
+    return nodes.UnaryOp(
+        op=unary_op.op,
+        operand=operand,
+        source_location=loc,
+    )
 
 
 def _visit_if_exp(ctx: _BuildContext, if_exp: ast.IfExp) -> nodes.IfExp:
-    raise NotImplementedError
+    loc = ctx.loc(if_exp)
+    test = _visit_expr(ctx, if_exp.test)
+    true = _visit_expr(ctx, if_exp.body)
+    false = _visit_expr(ctx, if_exp.orelse)
+    return nodes.IfExp(
+        test=test,
+        true=true,
+        false=false,
+        source_location=loc,
+    )
 
 
 def _visit_compare(ctx: _BuildContext, compare: ast.Compare) -> nodes.Compare:
-    raise NotImplementedError
+    loc = ctx.loc(compare)
+    left = _visit_expr(ctx, compare.left)
+    comparators = _visit_expr_list(ctx, compare.comparators)
+    return nodes.Compare(
+        left=left,
+        ops=tuple(compare.ops),
+        comparators=comparators,
+        source_location=loc,
+    )
 
 
 def _visit_call(ctx: _BuildContext, call: ast.Call) -> nodes.Call:
-    raise NotImplementedError
+    loc = ctx.loc(call)
+    func = _visit_expr(ctx, call.func)
+    args = _visit_expr_list(ctx, call.args)
+    kwargs = {k: _visit_expr(ctx, v) for k, v in _visit_keywords_list(ctx, call.keywords).items()}
+    return nodes.Call(
+        func=func,
+        args=args,
+        kwargs=immutabledict(kwargs),
+        source_location=loc,
+    )
 
 
 def _visit_formatted_value(
     ctx: _BuildContext, formatted_value: ast.FormattedValue
 ) -> nodes.FormattedValue:
-    raise NotImplementedError
+    loc = ctx.loc(formatted_value)
+    value = _visit_expr(ctx, formatted_value.value)
+    match formatted_value.format_spec:
+        case None:
+            format_spec = None
+        case ast.JoinedStr() as js:
+            format_spec = _visit_joined_str(ctx, js)
+        case node:
+            raise InternalError(
+                f"unexpected node {type(node).__name__} in FormattedValue.format_spec",
+                ctx.loc(node),
+            )
+    conversion: typing.Literal["s", "r", "a"] | None
+    match formatted_value.conversion:
+        case -1:
+            conversion = None
+        case 115:
+            conversion = "s"
+        case 114:
+            conversion = "r"
+        case 97:
+            conversion = "a"
+        case unexpected:
+            raise InternalError(f"unexpected conversion value: {unexpected}", loc)
+    return nodes.FormattedValue(
+        value=value,
+        conversion=conversion,
+        format_spec=format_spec,
+        source_location=loc,
+    )
 
 
 def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> nodes.JoinedStr:
-    raise NotImplementedError
+    loc = ctx.loc(joined_str)
+    values = list[nodes.Constant | nodes.FormattedValue]()
+    for part in joined_str.values:
+        match part:
+            case ast.Constant():
+                values.append(_visit_constant(ctx, part))
+            case ast.FormattedValue():
+                values.append(_visit_formatted_value(ctx, part))
+            case _:
+                raise InternalError(
+                    f"unexpected node {type(part).__name__} in JoinedStr", ctx.loc(part)
+                )
+    return nodes.JoinedStr(
+        values=tuple(values),
+        source_location=loc,
+    )
 
 
-def _visit_list(ctx: _BuildContext, list_: ast.List) -> nodes.TupleExpr:
-    raise NotImplementedError
+def _visit_list(ctx: _BuildContext, ast_list: ast.List) -> nodes.TupleExpr:
+    loc = ctx.loc(ast_list)
+    if not isinstance(ast_list.ctx, ast.Store):
+        raise CodeError("list expressions are only supported in assignment targets", loc)
+    elements = _visit_expr_list(ctx, ast_list.elts)
+    return nodes.TupleExpr(
+        elements=elements,
+        ctx=ast_list.ctx,
+        source_location=loc,
+    )
 
 
-def _visit_tuple(ctx: _BuildContext, tuple_: ast.Tuple) -> nodes.TupleExpr:
-    raise NotImplementedError
+def _visit_tuple(ctx: _BuildContext, ast_tuple: ast.Tuple) -> nodes.TupleExpr:
+    loc = ctx.loc(ast_tuple)
+    elements = _visit_expr_list(ctx, ast_tuple.elts)
+    return nodes.TupleExpr(
+        elements=elements,
+        ctx=ast_tuple.ctx,
+        source_location=loc,
+    )
 
 
 _TExpressionVisitor = Callable[[_BuildContext, ast.expr], nodes.Expression]
