@@ -149,7 +149,6 @@ def parse_python(
     for scc in sorted_components(graph):
         for module_name in sorted(scc.mod_ids):
             module = manager.modules[module_name]
-            state = graph[module_name]
             assert (
                 module_name == module.fullname
             ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
