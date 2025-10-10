@@ -61,5 +61,6 @@ api
 compiler
 references/algopy_testing
 references/avm_debugger
+references/language_servers
 front-end-guide/index
 ```
