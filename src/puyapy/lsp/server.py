@@ -1,3 +1,4 @@
+import functools
 import importlib.metadata
 import sys
 import threading
@@ -6,10 +7,11 @@ import typing
 from collections.abc import Mapping
 
 import attrs
+from cattrs.preconf.json import make_converter
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
-from puya.log import get_logger
+from puya import log
 from puya.utils import StableSet
 from puyapy.lsp.analyse import (
     CodeAnalyser,
@@ -18,10 +20,18 @@ from puyapy.lsp.analyse import (
 from puyapy.lsp.log import LogToClient
 from puyapy.parse import get_sys_path
 
-logger = get_logger(__name__)
+logger = log.get_logger(__name__)
 
-_DEFAULT_DEBOUNCE_INTERVAL: typing.Final = 0.5
 
+URI: typing.TypeAlias = str
+
+
+@attrs.frozen
+class ClientConfiguration:
+    """Configuration comes from JSON so uses JSON naming conventions"""
+
+    logLevel: typing.Literal["Debug", "Info", "Warning", "Error"] = "Info"  # noqa: N815
+    debounceInterval: float = 0.5  # noqa: N815
 
 
 def create_server(log_to_client: LogToClient) -> LanguageServer:
@@ -41,7 +51,6 @@ def _initialize_language_server(
     logger.debug("initializing server")
     options = init_params.initialization_options or {}
     python_executable = options.get("pythonExecutable")
-    debounce_interval = options.get("debounceInterval", _DEFAULT_DEBOUNCE_INTERVAL)
     # note: ideally, search_paths would be updated whenever the venv is modified
     #       however, there are two things that make that tricky
     #       1.) Detecting when it's modified
@@ -55,12 +64,23 @@ def _initialize_language_server(
     logger.debug(f"using search paths: {search_paths}")
     puyapy_ls = PuyaPyLanguageServer(
         ls=ls,
-        debounce_interval=debounce_interval,
         analyser=CodeAnalyser(
             workspace=ls.workspace,
             package_search_paths=search_paths,
         ),
     )
+
+    converter = make_converter(detailed_validation=False)
+
+    @ls.feature(types.WORKSPACE_DID_CHANGE_CONFIGURATION)
+    def did_change_configuration(
+        _ls: LanguageServer, params: types.DidChangeConfigurationParams
+    ) -> None:
+        if params.settings is not None:
+            config = converter.structure(params.settings, ClientConfiguration)
+            log_to_client.log_level = types.MessageType[config.logLevel]
+            puyapy_ls.debounce_interval = config.debounceInterval
+        logger.debug(f"did_change_configuration: {params.settings}")
 
     @ls.feature(types.TEXT_DOCUMENT_DID_OPEN)
     def text_document_did_open(
@@ -84,12 +104,8 @@ def _initialize_language_server(
         return puyapy_ls.get_code_actions(params.text_document.uri, params.range)
 
 
-URI: typing.TypeAlias = str
-
-
 @attrs.define
 class PuyaPyLanguageServer:
-    _debounce_interval: float
     _ls: LanguageServer
     _analyser: CodeAnalyser
     _analysis: dict[URI, DocumentAnalysis] = attrs.field(factory=dict, init=False)
@@ -98,6 +114,7 @@ class PuyaPyLanguageServer:
     _analysis_lock: threading.Lock = attrs.field(factory=threading.Lock, init=False)
     _last_trigger: float = attrs.field(default=0.0, init=False)
     _analysis_thread: threading.Thread = attrs.field(init=False)
+    debounce_interval: float = 0.5
 
     @_analysis_thread.default
     def _analysis_thread_factory(self) -> threading.Thread:
@@ -118,7 +135,7 @@ class PuyaPyLanguageServer:
         except KeyError:
             logger.debug(f"no analysis found for {document_uri}")
             return []
-        logger.info(f"found {len(analysis.actions)} actions for {document_uri}")
+        logger.debug(f"found {len(analysis.actions)} actions for {document_uri}")
 
         return [
             action
@@ -148,7 +165,7 @@ class PuyaPyLanguageServer:
             self._publish_diagnostics(analysis)
 
     def _time_to_wait_for_debounce(self) -> float:
-        return self._last_trigger + self._debounce_interval - time.time()
+        return self._last_trigger + self.debounce_interval - time.time()
 
     def _publish_diagnostics(self, uris: Mapping[URI, DocumentAnalysis]) -> None:
         for uri, analysis in uris.items():
