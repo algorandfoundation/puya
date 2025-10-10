@@ -102,7 +102,9 @@ class _BuildContext:
             end_column=getattr(node, "end_col_offset", None),
         )
 
-    def loc(self, node: ast.expr | ast.stmt | ast.alias | ast.arg | ast.keyword) -> SourceLocation:
+    def loc(
+        self, node: ast.expr | ast.stmt | ast.pattern | ast.alias | ast.arg | ast.keyword
+    ) -> SourceLocation:
         return SourceLocation(
             file=self.module_path,
             line=node.lineno,
@@ -608,8 +610,85 @@ def _extract_dotted_name(ctx: _BuildContext, expr: ast.expr) -> str | None:
             return None
 
 
-def _visit_match(ctx: _BuildContext, match_stmt: ast.Match) -> typing.Never:
-    raise NotImplementedError
+def _visit_match(ctx: _BuildContext, match_stmt: ast.Match) -> nodes.Match:
+    loc = ctx.loc(match_stmt)
+    subject = _visit_expr(ctx, match_stmt.subject)
+    cases = []
+    for case in match_stmt.cases:
+        pattern = _visit_match_pattern(ctx, case.pattern)
+        guard = _visit_optional_expr(ctx, case.guard)
+        body = tuple(_visit_stmt_list(ctx, case.body))
+        cases.append(nodes.MatchCase(pattern=pattern, guard=guard, body=body))
+    return nodes.Match(
+        subject=subject,
+        cases=tuple(cases),
+        source_location=loc,
+    )
+
+
+def _visit_match_pattern(ctx: _BuildContext, pattern: ast.pattern) -> nodes.MatchPattern:
+    loc = ctx.loc(pattern)
+    match pattern:
+        case ast.MatchValue(value=ast_value):
+            value = _visit_expr(ctx, ast_value)
+            return nodes.MatchValue(
+                value=value,
+                source_location=loc,
+            )
+        case ast.MatchSingleton(value=singleton):
+            return nodes.MatchSingleton(
+                value=singleton,
+                source_location=loc,
+            )
+        case ast.MatchSequence(patterns=ast_patterns):
+            patterns = [_visit_match_pattern(ctx, p) for p in ast_patterns]
+            return nodes.MatchSequence(
+                patterns=tuple(patterns),
+                source_location=loc,
+            )
+        case ast.MatchStar(name=name):
+            return nodes.MatchStar(
+                name=name,
+                source_location=loc,
+            )
+        case ast.MatchMapping(keys=ast_keys, patterns=ast_patterns, rest=rest):
+            keys = [_visit_expr(ctx, k) for k in ast_keys]
+            patterns = [_visit_match_pattern(ctx, p) for p in ast_patterns]
+            return nodes.MatchMapping(
+                kwd_patterns=immutabledict(zip(keys, patterns, strict=True)),
+                rest=rest,
+                source_location=loc,
+            )
+        case ast.MatchClass(
+            cls=ast_cls, patterns=patterns, kwd_attrs=kwd_attrs, kwd_patterns=ast_kwd_patterns
+        ):
+            cls = _visit_expr(ctx, ast_cls)
+            pos_patterns = [_visit_match_pattern(ctx, p) for p in patterns]
+            kwd_patterns = [_visit_match_pattern(ctx, p) for p in ast_kwd_patterns]
+            return nodes.MatchClass(
+                cls=cls,
+                patterns=tuple(pos_patterns),
+                kwd_patterns=immutabledict(zip(kwd_attrs, kwd_patterns, strict=True)),
+                source_location=loc,
+            )
+        case ast.MatchAs(pattern=maybe_ast_pattern, name=name):
+            if maybe_ast_pattern is None:
+                maybe_pattern = None
+            else:
+                maybe_pattern = _visit_match_pattern(ctx, maybe_ast_pattern)
+            return nodes.MatchAs(
+                pattern=maybe_pattern,
+                name=name,
+                source_location=loc,
+            )
+        case ast.MatchOr(patterns=ast_patterns):
+            patterns = [_visit_match_pattern(ctx, p) for p in ast_patterns]
+            return nodes.MatchOr(
+                patterns=tuple(patterns),
+                source_location=loc,
+            )
+        case _:
+            raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc)
 
 
 _TStatementVisitor = Callable[[_BuildContext, ast.stmt], nodes.Statement]
