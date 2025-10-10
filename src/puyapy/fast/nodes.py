@@ -420,6 +420,110 @@ class Match(Statement):
 
 
 @attrs.frozen
+class BoolOp(Expression):
+    op: ast.boolop
+    values: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(2))
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_bool_op(self)
+
+
+@attrs.frozen
+class NamedExpr(Expression):
+    target: Name
+    value: Expression
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_named_expr(self)
+
+
+@attrs.frozen
+class BinOp(Expression):
+    left: Expression
+    op: ast.operator
+    right: Expression
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_bin_op(self)
+
+
+@attrs.frozen
+class UnaryOp(Expression):
+    op: ast.unaryop
+    operand: Expression
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_unary_op(self)
+
+
+@attrs.frozen
+class IfExp(Expression):
+    test: Expression
+    true: Expression
+    false: Expression
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_if_exp(self)
+
+
+@attrs.frozen
+class Compare(Expression):
+    left: Expression
+    ops: tuple[ast.cmpop, ...] = attrs.field(validator=attrs.validators.min_len(1))
+    comparators: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(2))
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_compare(self)
+
+
+@attrs.frozen
+class Call(Expression):
+    func: Expression
+    args: tuple[Expression, ...]
+    kwargs: immutabledict[str, Expression]
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_call(self)
+
+
+@attrs.frozen
+class FormattedValue(Expression):
+    value: Expression
+    conversion: typing.Literal["s", "r", "a"] | None
+    format_spec: "JoinedStr | None"  # ???
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_formatted_value(self)
+
+
+@attrs.frozen
+class JoinedStr(Expression):
+    values: tuple[FormattedValue | Constant, ...]  # ???
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_joined_str(self)
+
+
+@attrs.frozen
+class TupleExpr(Expression):
+    elements: tuple[Expression, ...]
+    ctx: ast.expr_context
+
+    @typing.override
+    def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_tuple_expr(self)
+
+
+@attrs.frozen
 class Module:
     name: str
     path: Path
