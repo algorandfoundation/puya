@@ -86,6 +86,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: using python search path from ",
                 # dev notes
                 "info: algopy-stubs not installed in typeshed, assuming puyapy development mode",
+                "debug: <<FAST>> ",  # TODO: REMOVE ME
             )
         )
     ]
