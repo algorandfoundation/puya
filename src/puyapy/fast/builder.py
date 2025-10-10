@@ -483,64 +483,6 @@ def _visit_augmented_assign(ctx: _BuildContext, aug_assign: ast.AugAssign) -> no
     )
 
 
-def _visit_name(ctx: _BuildContext, name: ast.Name) -> nodes.Name:
-    loc = ctx.loc(name)
-    return nodes.Name(
-        id=name.id,
-        ctx=name.ctx,
-        source_location=loc,
-    )
-
-
-def _visit_attribute(ctx: _BuildContext, attribute: ast.Attribute) -> nodes.Attribute:
-    base = _visit_expr(ctx, attribute.value)
-    loc = ctx.loc(attribute)
-    return nodes.Attribute(
-        base=base,
-        attr=attribute.attr,
-        ctx=attribute.ctx,
-        source_location=loc,
-    )
-
-
-def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subscript:
-    base = _visit_expr(ctx, subscript.value)
-    match subscript.slice:
-        case ast.Tuple(elts=ast_indexes):
-            pass
-        case ast_index:
-            ast_indexes = [ast_index]
-    indexes = list[nodes.Expression | nodes.Slice]()
-    for ast_index in ast_indexes:
-        match ast_index:
-            case ast.Slice():
-                index_slice = _visit_slice(ctx, ast_index)
-                indexes.append(index_slice)
-            case _:
-                index = _visit_expr(ctx, ast_index)
-                indexes.append(index)
-    loc = ctx.loc(subscript)
-    return nodes.Subscript(
-        base=base,
-        indexes=tuple(indexes),
-        ctx=subscript.ctx,
-        source_location=loc,
-    )
-
-
-def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
-    lower = _visit_optional_expr(ctx, slice_.lower)
-    upper = _visit_optional_expr(ctx, slice_.upper)
-    step = _visit_optional_expr(ctx, slice_.step)
-    loc = ctx.loc(slice_)
-    return nodes.Slice(
-        lower=lower,
-        upper=upper,
-        step=step,
-        source_location=loc,
-    )
-
-
 def _visit_for_loop(ctx: _BuildContext, for_stmt: ast.For) -> nodes.For:
     loc = ctx.loc(for_stmt)
     if for_stmt.type_comment is not None:
@@ -615,14 +557,6 @@ def _visit_expression_statement(
     )
 
 
-def _visit_constant(ctx: _BuildContext, constant: ast.Constant) -> nodes.Constant:
-    loc = ctx.loc(constant)
-    return nodes.Constant(
-        value=constant.value,
-        source_location=loc,
-    )
-
-
 def _visit_pass(ctx: _BuildContext, pass_stmt: ast.Pass) -> nodes.Pass:
     loc = ctx.loc(pass_stmt)
     return nodes.Pass(
@@ -642,26 +576,6 @@ def _visit_continue(ctx: _BuildContext, continue_stmt: ast.Continue) -> nodes.Co
     return nodes.Continue(
         source_location=loc,
     )
-
-
-def _visit_expr_list(ctx: _BuildContext, exprs: list[ast.expr]) -> tuple[nodes.Expression, ...]:
-    return tuple(_visit_expr(ctx, expr) for expr in exprs)
-
-
-def _visit_expr(ctx: _BuildContext, node: ast.expr) -> nodes.Expression:
-    try:
-        handler = _EXPRESSION_HANDLERS[type(node)]
-    except KeyError:
-        loc = ctx.loc(node)
-        raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc) from None
-    else:
-        return handler(ctx, node)
-
-
-def _visit_optional_expr(ctx: _BuildContext, node: ast.expr | None) -> nodes.Expression | None:
-    if node is None:
-        return None
-    return _visit_expr(ctx, node)
 
 
 def _visit_keywords_list(
@@ -730,6 +644,92 @@ _STATEMENT_HANDLERS: typing.Final[
         _stmt_visitor_pair(ast.Continue, _visit_continue),
     )
 )
+
+
+def _visit_expr_list(ctx: _BuildContext, exprs: list[ast.expr]) -> tuple[nodes.Expression, ...]:
+    return tuple(_visit_expr(ctx, expr) for expr in exprs)
+
+
+def _visit_expr(ctx: _BuildContext, node: ast.expr) -> nodes.Expression:
+    try:
+        handler = _EXPRESSION_HANDLERS[type(node)]
+    except KeyError:
+        loc = ctx.loc(node)
+        raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc) from None
+    else:
+        return handler(ctx, node)
+
+
+def _visit_optional_expr(ctx: _BuildContext, node: ast.expr | None) -> nodes.Expression | None:
+    if node is None:
+        return None
+    return _visit_expr(ctx, node)
+
+
+def _visit_constant(ctx: _BuildContext, constant: ast.Constant) -> nodes.Constant:
+    loc = ctx.loc(constant)
+    return nodes.Constant(
+        value=constant.value,
+        source_location=loc,
+    )
+
+
+def _visit_name(ctx: _BuildContext, name: ast.Name) -> nodes.Name:
+    loc = ctx.loc(name)
+    return nodes.Name(
+        id=name.id,
+        ctx=name.ctx,
+        source_location=loc,
+    )
+
+
+def _visit_attribute(ctx: _BuildContext, attribute: ast.Attribute) -> nodes.Attribute:
+    base = _visit_expr(ctx, attribute.value)
+    loc = ctx.loc(attribute)
+    return nodes.Attribute(
+        base=base,
+        attr=attribute.attr,
+        ctx=attribute.ctx,
+        source_location=loc,
+    )
+
+
+def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subscript:
+    base = _visit_expr(ctx, subscript.value)
+    match subscript.slice:
+        case ast.Tuple(elts=ast_indexes):
+            pass
+        case ast_index:
+            ast_indexes = [ast_index]
+    indexes = list[nodes.Expression | nodes.Slice]()
+    for ast_index in ast_indexes:
+        match ast_index:
+            case ast.Slice():
+                index_slice = _visit_slice(ctx, ast_index)
+                indexes.append(index_slice)
+            case _:
+                index = _visit_expr(ctx, ast_index)
+                indexes.append(index)
+    loc = ctx.loc(subscript)
+    return nodes.Subscript(
+        base=base,
+        indexes=tuple(indexes),
+        ctx=subscript.ctx,
+        source_location=loc,
+    )
+
+
+def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
+    lower = _visit_optional_expr(ctx, slice_.lower)
+    upper = _visit_optional_expr(ctx, slice_.upper)
+    step = _visit_optional_expr(ctx, slice_.step)
+    loc = ctx.loc(slice_)
+    return nodes.Slice(
+        lower=lower,
+        upper=upper,
+        step=step,
+        source_location=loc,
+    )
 
 
 def _expr_visitor_pair[TIn: ast.expr, TOut: nodes.Expression](
