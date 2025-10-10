@@ -475,7 +475,7 @@ class IfExp(Expression):
 class Compare(Expression):
     left: Expression
     ops: tuple[ast.cmpop, ...] = attrs.field(validator=attrs.validators.min_len(1))
-    comparators: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(2))
+    comparators: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(1))
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:

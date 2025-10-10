@@ -7,7 +7,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.errors import CodeError, InternalError, PuyaError
+from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.utils import coalesce, set_add, unique
 from puyapy.fast import nodes
@@ -72,10 +72,7 @@ class _BuildContext:
             message = _INVALID_SYNTAX_MSG
         else:
             message = f"{_INVALID_SYNTAX_MSG}: {detail}"
-        # TODO: replace with call to _fail() once that's an error
-        # self._fail(message, loc)
-        logger.error(message, location=loc)
-        self._failures += 1
+        self.fail(message, loc)
 
     def unsupported_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
         if detail is None:
@@ -85,9 +82,7 @@ class _BuildContext:
         self.fail(message, loc)
 
     def fail(self, message: str, loc: SourceLocation | None) -> None:
-        # logger.error(message, location=loc)
-        # TODO: delete next line, uncomment previous line
-        logger.debug(f"<<FAST>> ({loc}) " + message)
+        logger.error(message, location=loc)
         self._failures += 1
 
     def maybe_loc(self, node: ast.AST) -> SourceLocation | None:
@@ -179,14 +174,8 @@ def _visit_stmt(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement | None:
     except KeyError:
         ctx.unsupported_syntax(loc)
     else:
-        # with log_exceptions(loc):
-        # TODO: delete try-except, uncomment previous line
-        try:
+        with log_exceptions(loc):
             result = handler(ctx, node)
-        except PuyaError as e:
-            logger.debug(f"<<FAST>> ({loc}) " + e.msg)
-        except NotImplementedError:
-            pass
     return result
 
 
