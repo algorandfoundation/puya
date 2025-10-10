@@ -951,12 +951,25 @@ def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> nodes.Jo
     )
 
 
-def _visit_list(ctx: _BuildContext, ast_list: ast.List) -> nodes.TupleExpr:
+def _visit_dict_expr(ctx: _BuildContext, dict_expr: ast.Dict) -> nodes.DictExpr:
+    loc = ctx.loc(dict_expr)
+    # TODO: move validation to node
+    assert len(dict_expr.keys) == len(
+        dict_expr.values
+    ), "ast.Dict should always have matching keys and values"
+    keys = tuple(_visit_optional_expr(ctx, k) for k in dict_expr.keys)
+    values = _visit_expr_list(ctx, dict_expr.values)
+    return nodes.DictExpr(
+        keys=keys,
+        values=values,
+        source_location=loc,
+    )
+
+
+def _visit_list(ctx: _BuildContext, ast_list: ast.List) -> nodes.ListExpr:
     loc = ctx.loc(ast_list)
-    if not isinstance(ast_list.ctx, ast.Store):
-        raise CodeError("list expressions are only supported in assignment targets", loc)
     elements = _visit_expr_list(ctx, ast_list.elts)
-    return nodes.TupleExpr(
+    return nodes.ListExpr(
         elements=elements,
         ctx=ast_list.ctx,
         source_location=loc,
@@ -996,6 +1009,7 @@ _EXPRESSION_HANDLERS: typing.Final[
         _expr_visitor_pair(ast.BinOp, _visit_bin_op),
         _expr_visitor_pair(ast.UnaryOp, _visit_unary_op),
         _expr_visitor_pair(ast.IfExp, _visit_if_exp),
+        _expr_visitor_pair(ast.Dict, _visit_dict_expr),
         _expr_visitor_pair(ast.Compare, _visit_compare),
         _expr_visitor_pair(ast.Call, _visit_call),
         _expr_visitor_pair(ast.FormattedValue, _visit_formatted_value),
@@ -1005,7 +1019,7 @@ _EXPRESSION_HANDLERS: typing.Final[
         _expr_visitor_pair(ast.Attribute, _visit_attribute),
         _expr_visitor_pair(ast.Subscript, _visit_subscript),
         _expr_visitor_pair(ast.Name, _visit_name),
-        _expr_visitor_pair(ast.List, _visit_list),  # *only* supported when ctx=ast.Store
+        _expr_visitor_pair(ast.List, _visit_list),
         _expr_visitor_pair(ast.Tuple, _visit_tuple),
         # <br>
         # Slice - note this can only appear in Subscript, which we handle directly
