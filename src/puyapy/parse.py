@@ -6,7 +6,6 @@ import os
 import re
 import shutil
 import subprocess
-import symtable  # TODO: remove if ends up unused
 import sys
 import sysconfig
 import typing
@@ -35,6 +34,7 @@ from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
+from puyapy.fast.builder import FASTBuilder
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.import_analysis import resolve_import_dependencies
 from puyapy.modulefinder import FindModuleCache
@@ -58,7 +58,6 @@ class SourceModule:
     node: MypyFile
     path: Path
     tree: ast.Module
-    symbols: symtable.SymbolTable
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     dependencies: frozenset[str]
@@ -182,7 +181,6 @@ def parse_python(
                     path=module_path,
                     lines=lines,
                     tree=md.tree,
-                    symbols=md.symbols,
                     discovery_mechanism=discovery_mechanism,
                     dependencies=md.dependencies,
                 )
@@ -313,7 +311,6 @@ class _ModuleData:
     data: str
     dependencies: frozenset[str]
     tree: ast.Module
-    symbols: symtable.SymbolTable
     is_source: bool
 
 
@@ -330,14 +327,15 @@ def _find_dependencies(
         file_bytes = fs_cache.read(str(rs.path))
         _check_encoding(file_bytes, rs.path)
         source = decode_python_encoding(file_bytes)
-        tree = ast.parse(
-            source,
-            rs.path,
-            "exec",
-            type_comments=True,
+        fast_result = FASTBuilder.parse_module(
+            source=source,
+            module_path=rs.path,
+            module_name=rs.module,
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
-        symbols = symtable.symtable(source, str(rs.path), "exec")
+        tree = fast_result.ast
+        if tree is None:
+            continue
         dependencies = resolve_import_dependencies(rs, tree, fmc)
         module_dep_ids = set[str]()
         for dep in dependencies:
@@ -358,7 +356,6 @@ def _find_dependencies(
             module=rs.module,
             data=source,
             tree=tree,
-            symbols=symbols,
             dependencies=frozenset(module_dep_ids),
             is_source=rs.module in initial_source_ids,
         )

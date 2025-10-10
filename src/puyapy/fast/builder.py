@@ -6,7 +6,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya import log
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.parse import SourceLocation
 from puya.utils import coalesce, set_add, unique
 from puyapy.fast import nodes
@@ -15,9 +15,26 @@ logger = log.get_logger(__name__)
 
 
 @attrs.frozen
+class FASTResult:
+    ast: ast.Module | None
+    module: nodes.Module | None
+
+
+_UNSUPPORTED_SYNTAX_MSG = "unsupported Python syntax"
+_INVALID_SYNTAX_MSG = "invalid Python syntax"
+_NO_TYPE_COMMENTS_MSG = "type comments are not supported"
+_NO_TYPE_PARAMS_MSG = "type parameters are not supported"
+
+
+@attrs.define
 class FASTBuilder(ast.NodeVisitor):
-    module_name: str
-    module_path: Path
+    _module_name: str
+    _module_path: Path
+    _failures: int = attrs.field(default=0, init=False)
+
+    @property
+    def failures(self) -> int:
+        return self._failures
 
     @classmethod
     def parse_module(
@@ -27,7 +44,7 @@ class FASTBuilder(ast.NodeVisitor):
         module_path: Path,
         module_name: str,
         feature_version: int | tuple[int, int] | None = None,
-    ) -> nodes.Module:
+    ) -> FASTResult:
         try:
             mod = ast.parse(
                 source, module_path, "exec", type_comments=True, feature_version=feature_version
@@ -42,10 +59,37 @@ class FASTBuilder(ast.NodeVisitor):
                     column=e.offset,
                     end_column=e.end_offset,
                 )
-            raise CodeError(f"invalid Python syntax: {e.msg}", loc) from e
+            logger.error(f"{_INVALID_SYNTAX_MSG}: {e.msg}", location=loc)  # noqa: TRY400
+            return FASTResult(ast=None, module=None)
 
         builder = cls(module_name=module_name, module_path=module_path)
-        return builder.visit_Module(mod)
+        fast = builder.visit_Module(mod)
+        if builder.failures:
+            return FASTResult(ast=mod, module=None)
+        return FASTResult(ast=mod, module=fast)
+
+    def _invalid_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
+        if detail is None:
+            message = _INVALID_SYNTAX_MSG
+        else:
+            message = f"{_INVALID_SYNTAX_MSG}: {detail}"
+        # TODO: replace with call to _fail() once that's an error
+        # self._fail(message, loc)
+        logger.error(message, location=loc)
+        self._failures += 1
+
+    def _unsupported_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
+        if detail is None:
+            message = _UNSUPPORTED_SYNTAX_MSG
+        else:
+            message = f"{_UNSUPPORTED_SYNTAX_MSG}: {detail}"
+        self._fail(message, loc)
+
+    def _fail(self, message: str, loc: SourceLocation | None) -> None:
+        # logger.error(message, location=loc)
+        # TODO: delete next line, uncomment previous line
+        logger.debug(f"<<FAST>> ({loc}) " + message)
+        self._failures += 1
 
     @typing.override
     def visit(self, node: ast.AST | None) -> nodes.Node | None:
@@ -58,13 +102,13 @@ class FASTBuilder(ast.NodeVisitor):
         except AttributeError:
             loc = self._maybe_loc(node)
             if loc is not None:
-                logger.error("unsupported Python syntax", location=loc)  # noqa: TRY400
+                self._unsupported_syntax(loc)
             else:
-                logger.error(f"unsupported Python syntax: {ast.unparse(node)}")  # noqa: TRY400
+                self._unsupported_syntax(None, ast.unparse(node))
             return None
         else:
             result = visitor(node)
-            assert isinstance(result, nodes.Node)
+            assert isinstance(result, nodes.Node | None)
             return result
 
     @typing.override
@@ -77,17 +121,19 @@ class FASTBuilder(ast.NodeVisitor):
                 case nodes.FromImport(module="__future__", names=names) as future_import:
                     body.pop(0)
                     if names is None:
-                        raise CodeError("invalid Python syntax", future_import.source_location)
-                    for name in names:
-                        if name.as_name:
-                            raise CodeError("invalid Python syntax", name.source_location)
-                        future_flags.append(name.name)
+                        self._invalid_syntax(future_import.source_location)
+                    else:
+                        for name in names:
+                            if name.as_name:
+                                self._invalid_syntax(name.source_location)
+                            else:
+                                future_flags.append(name.name)
                 case _:
                     break
 
         return nodes.Module(
-            name=self.module_name,
-            path=self.module_path,
+            name=self._module_name,
+            path=self._module_path,
             docstring=docstring,
             future_flags=tuple(unique(future_flags)),
             body=tuple(body),
@@ -97,10 +143,10 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_FunctionDef(self, func_def: ast.FunctionDef) -> nodes.FunctionDef:
         loc = self._loc(func_def)
         if func_def.type_comment is not None:
-            logger.error("type comments are not supported", location=loc)
+            self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         type_params = getattr(func_def, "type_params", None)
         if type_params:
-            logger.error("type parameters are not supported", location=loc)
+            self._fail(_NO_TYPE_PARAMS_MSG, loc)
         decorators = self._visit_decorator_list(func_def.decorator_list)
         params = self.visit_arguments(func_def.args)
         return_annotation = None
@@ -134,9 +180,9 @@ class FASTBuilder(ast.NodeVisitor):
 
         # *arg
         if args.vararg is not None:
-            logger.error(
+            self._unsupported_syntax(
+                self._loc(args.vararg),
                 "variadic arguments are not supported in user functions",
-                location=self._loc(args.vararg),
             )
 
         for a, kd in zip(args.kwonlyargs, args.kw_defaults, strict=True):
@@ -144,18 +190,17 @@ class FASTBuilder(ast.NodeVisitor):
 
         # **kwarg
         if args.kwarg is not None:
-            logger.error(
+            self._unsupported_syntax(
+                self._loc(args.kwarg),
                 "variadic arguments are not supported in user functions",
-                location=self._loc(args.kwarg),
             )
 
         seen_names = set[str]()
         for param in params:
             if not set_add(seen_names, param.name):
-                logger.error(
-                    "invalid Python syntax:"
-                    f" duplicate argument {param.name!r} in function definition",
-                    location=param.source_location,
+                self._invalid_syntax(
+                    param.source_location,
+                    f"duplicate argument {param.name!r} in function definition",
                 )
 
         return tuple(params)
@@ -168,7 +213,7 @@ class FASTBuilder(ast.NodeVisitor):
         default_value = self._visit_expr(default)
         loc = self._loc(arg)
         if arg.type_comment:
-            logger.error("type comments are not supported", location=loc)
+            self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         return nodes.Parameter(
             name=name,
             annotation=annotation,
@@ -182,7 +227,7 @@ class FASTBuilder(ast.NodeVisitor):
         loc = self._loc(class_def)
         type_params = getattr(class_def, "type_params", None)
         if type_params:
-            logger.error("type parameters are not supported", location=loc)
+            self._fail(_NO_TYPE_PARAMS_MSG, loc)
         decorators = self._visit_decorator_list(class_def.decorator_list)
         bases, _ = self._visit_expr_list(class_def.bases)
         kwargs = self._visit_keywords_list(class_def.keywords)
@@ -221,10 +266,10 @@ class FASTBuilder(ast.NodeVisitor):
             case _:
                 names = [self.visit_alias(alias) for alias in node.names]
         loc = self._loc(node)
-        module_is_init = self.module_path.stem == "__init__"
-        module = correct_relative_import(
+        module_is_init = self._module_path.stem == "__init__"
+        module = self._correct_relative_import(
             node.level,
-            current_module=self.module_name,
+            current_module=self._module_name,
             target_module=node.module,
             module_is_init=module_is_init,
             import_loc=loc,
@@ -234,6 +279,35 @@ class FASTBuilder(ast.NodeVisitor):
             names=names,
             source_location=loc,
         )
+
+    def _correct_relative_import(
+        self,
+        relative: int,
+        *,
+        current_module: str,
+        target_module: str | None,
+        module_is_init: bool,
+        import_loc: SourceLocation,
+    ) -> str:
+        if not relative:
+            if target_module is None:
+                raise InternalError("non-relative from-import without identifier", import_loc)
+            return target_module
+
+        if module_is_init:
+            relative -= 1
+        parts = current_module.split(".")
+        if len(parts) < relative:
+            self._fail("attempted relative import with no known parent package", import_loc)
+        if relative == 0:
+            base = current_module
+        else:
+            base = ".".join(parts[:-relative])
+        if target_module is None:
+            absolute = base
+        else:
+            absolute = f"{base}.{target_module}"
+        return absolute
 
     @typing.override
     def visit_Return(self, ret: ast.Return) -> nodes.Return:
@@ -256,7 +330,7 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_Assign(self, assign: ast.Assign) -> nodes.Assign | nodes.MultiAssign | None:
         loc = self._loc(assign)
         if assign.type_comment is not None:
-            logger.error("type comments are not supported", location=loc)
+            self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         value = self._visit_expr(assign.value)
         targets, targets_ok = self._visit_expr_list(assign.targets)
         if value is None or not targets_ok:
@@ -399,7 +473,7 @@ class FASTBuilder(ast.NodeVisitor):
     def visit_For(self, for_stmt: ast.For) -> nodes.For | None:
         loc = self._loc(for_stmt)
         if for_stmt.type_comment is not None:
-            logger.error("type comments are not supported", location=loc)
+            self._fail(_NO_TYPE_COMMENTS_MSG, loc)
         target = self._visit_expr(for_stmt.target)
         iterable = self._visit_expr(for_stmt.iter)
         if target is None or iterable is None:
@@ -534,15 +608,10 @@ class FASTBuilder(ast.NodeVisitor):
         kwargs = {}
         for kw in keywords:
             if kw.arg is None:
-                logger.error(
-                    "keyword argument unpacking in base list is not supported",
-                    location=self._loc(kw),
-                )
+                # if the arg names is None, it's a **kwargs unpacking
+                self._unsupported_syntax(self._loc(kw))
             elif kw.arg in kwargs:
-                logger.error(
-                    f"invalid Python syntax: keyword argument repeated: {kw.arg}",
-                    location=self._loc(kw),
-                )
+                self._invalid_syntax(self._loc(kw), f"keyword argument repeated: {kw.arg}")
             else:
                 kwargs[kw.arg] = kw.value
         return immutabledict(kwargs)
@@ -563,7 +632,8 @@ class FASTBuilder(ast.NodeVisitor):
             loc = self._loc(decorator)
             callee_name = self._extract_dotted_name(callee)
             if callee_name is None:
-                logger.error("unsupported decorator syntax", location=loc)
+                # see comments on nodes.Decorator for more context
+                self._unsupported_syntax(loc)
             else:
                 result.append(
                     nodes.Decorator(
@@ -592,7 +662,7 @@ class FASTBuilder(ast.NodeVisitor):
         if lineno is None:
             return None
         return SourceLocation(
-            file=self.module_path,
+            file=self._module_path,
             line=lineno,
             end_line=getattr(node, "end_lineno", lineno),
             column=getattr(node, "col_offset", None),
@@ -603,7 +673,7 @@ class FASTBuilder(ast.NodeVisitor):
         self, node: ast.expr | ast.stmt | ast.alias | ast.arg | ast.keyword
     ) -> SourceLocation:
         return SourceLocation(
-            file=self.module_path,
+            file=self._module_path,
             line=node.lineno,
             end_line=node.end_lineno if node.end_lineno is not None else node.lineno,
             column=node.col_offset,
@@ -619,34 +689,6 @@ def _extract_docstring(
     if docstring is not None:
         body = node.body[1:]
     return body, docstring
-
-
-def correct_relative_import(
-    relative: int,
-    *,
-    current_module: str,
-    target_module: str | None,
-    module_is_init: bool,
-    import_loc: SourceLocation,
-) -> str:
-    if not relative:
-        assert target_module is not None, "non-relative from-import without identifier"
-        return target_module
-
-    if module_is_init:
-        relative -= 1
-    parts = current_module.split(".")
-    if len(parts) < relative:
-        logger.error("no parent module, cannot perform relative import", location=import_loc)
-    if relative == 0:
-        base = current_module
-    else:
-        base = ".".join(parts[:-relative])
-    if target_module is None:
-        absolute = base
-    else:
-        absolute = f"{base}.{target_module}"
-    return absolute
 
 
 def _type_name(t: type) -> str:
