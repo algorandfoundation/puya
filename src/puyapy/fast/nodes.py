@@ -9,7 +9,7 @@ import attrs
 from immutabledict import immutabledict
 
 from puya.parse import SourceLocation
-from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
+from puyapy.fast.visitors import ExpressionVisitor, MatchPatternVisitor, StatementVisitor
 
 
 @attrs.frozen
@@ -318,6 +318,105 @@ class Continue(Statement):
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_continue(self)
+
+
+@attrs.frozen
+class MatchPattern(Node, abc.ABC):
+    @abc.abstractmethod
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T: ...
+
+
+@attrs.frozen
+class MatchValue(MatchPattern):
+    value: Expression
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_value(self)
+
+
+@attrs.frozen
+class MatchSequence(MatchPattern):
+    patterns: tuple[MatchPattern, ...] = attrs.field(validator=attrs.validators.min_len(1))
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_sequence(self)
+
+
+@attrs.frozen
+class MatchSingleton(MatchPattern):
+    value: typing.Literal[True, False] | None
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_singleton(self)
+
+
+@attrs.frozen
+class MatchStar(MatchPattern):
+    name: str | None
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_star(self)
+
+
+@attrs.frozen
+class MatchMapping(MatchPattern):
+    kwd_patterns: immutabledict[Expression, MatchPattern]
+    rest: str | None
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_mapping(self)
+
+
+@attrs.frozen
+class MatchClass(MatchPattern):
+    cls: Expression
+    patterns: tuple[MatchPattern, ...]
+    kwd_patterns: immutabledict[str, MatchPattern]
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_class(self)
+
+
+@attrs.frozen
+class MatchAs(MatchPattern):
+    pattern: MatchPattern | None
+    name: str | None
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_as(self)
+
+
+@attrs.frozen
+class MatchOr(MatchPattern):
+    patterns: tuple[MatchPattern, ...] = attrs.field(validator=attrs.validators.min_len(1))
+
+    @typing.override
+    def accept[T](self, visitor: MatchPatternVisitor[T]) -> T:
+        return visitor.visit_match_or(self)
+
+
+@attrs.frozen
+class MatchCase:
+    pattern: MatchPattern
+    guard: Expression | None
+    body: tuple[Statement, ...]
+
+
+@attrs.frozen
+class Match(Statement):
+    subject: Expression
+    cases: tuple[MatchCase, ...]
+
+    @typing.override
+    def accept[T](self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_match(self)
 
 
 @attrs.frozen
