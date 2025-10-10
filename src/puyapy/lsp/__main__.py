@@ -30,8 +30,8 @@ def main(
     """
     # logging to stdout interferes with stdio protocol, so log to stderr instead
     log_file = sys.stderr if stdio else sys.stdout
-    configure_logging(min_log_level=log_level, file=log_file)
-    server = create_server()
+    log_to_client = configure_logging(min_log_level=log_level, file=log_file)
+    server = create_server(log_to_client)
     if stdio:
         # helpful tip for users that run puyapy manually
         print("Language server started using stdio, Ctrl+D to exit", file=log_file)

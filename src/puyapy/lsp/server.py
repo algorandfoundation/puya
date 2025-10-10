@@ -15,6 +15,7 @@ from puyapy.lsp.analyse import (
     CodeAnalyser,
     DocumentAnalysis,
 )
+from puyapy.lsp.log import LogToClient
 from puyapy.parse import get_sys_path
 
 logger = get_logger(__name__)
@@ -22,16 +23,21 @@ logger = get_logger(__name__)
 _DEFAULT_DEBOUNCE_INTERVAL: typing.Final = 0.5
 
 
-def create_server() -> LanguageServer:
+
+def create_server(log_to_client: LogToClient) -> LanguageServer:
     server = LanguageServer("puyapy", version=importlib.metadata.version("puyapy"))
     logger.info(f"{server.name} - {server.version}")
     logger.debug(f"Server location: {__file__}")
 
-    server.feature(types.INITIALIZE)(_initialize_language_server)
+    server.feature(types.INITIALIZE)(functools.partial(_initialize_language_server, log_to_client))
     return server
 
 
-def _initialize_language_server(ls: LanguageServer, init_params: types.InitializeParams) -> None:
+def _initialize_language_server(
+    log_to_client: LogToClient, ls: LanguageServer, init_params: types.InitializeParams
+) -> None:
+    # only set language server once protocol is up and running
+    log_to_client.server = ls
     logger.debug("initializing server")
     options = init_params.initialization_options or {}
     python_executable = options.get("pythonExecutable")
