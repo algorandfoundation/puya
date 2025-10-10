@@ -169,7 +169,7 @@ class Slice(Node):
 @attrs.frozen
 class Subscript(Expression):
     base: Expression
-    indexes: tuple[Expression | Slice, ...]
+    indexes: tuple[Expression | Slice, ...] = attrs.field(validator=attrs.validators.min_len(1))
     ctx: ast.expr_context
 
     @typing.override
@@ -188,7 +188,7 @@ class Return(Statement):
 
 @attrs.frozen
 class Delete(Statement):
-    targets: tuple[Expression, ...]
+    targets: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(1))
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
@@ -217,7 +217,7 @@ class MultiAssign(Statement):
     Syntactically, cannot have an annotation.
     """
 
-    targets: tuple[Expression, ...]
+    targets: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(2))
     value: Expression
 
     @typing.override
