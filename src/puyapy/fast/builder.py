@@ -827,49 +827,49 @@ def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
     )
 
 
-def _visit_bool_op(ctx: _BuildContext, bool_op: ast.BoolOp) -> typing.Never:
+def _visit_bool_op(ctx: _BuildContext, bool_op: ast.BoolOp) -> nodes.BoolOp:
     raise NotImplementedError
 
 
-def _visit_named_expr(ctx: _BuildContext, named_expr: ast.NamedExpr) -> typing.Never:
+def _visit_named_expr(ctx: _BuildContext, named_expr: ast.NamedExpr) -> nodes.NamedExpr:
     raise NotImplementedError
 
 
-def _visit_bin_op(ctx: _BuildContext, bin_op: ast.BinOp) -> typing.Never:
+def _visit_bin_op(ctx: _BuildContext, bin_op: ast.BinOp) -> nodes.BinOp:
     raise NotImplementedError
 
 
-def _visit_unary_op(ctx: _BuildContext, unary_op: ast.UnaryOp) -> typing.Never:
+def _visit_unary_op(ctx: _BuildContext, unary_op: ast.UnaryOp) -> nodes.UnaryOp:
     raise NotImplementedError
 
 
-def _visit_if_exp(ctx: _BuildContext, if_exp: ast.IfExp) -> typing.Never:
+def _visit_if_exp(ctx: _BuildContext, if_exp: ast.IfExp) -> nodes.IfExp:
     raise NotImplementedError
 
 
-def _visit_compare(ctx: _BuildContext, compare: ast.Compare) -> typing.Never:
+def _visit_compare(ctx: _BuildContext, compare: ast.Compare) -> nodes.Compare:
     raise NotImplementedError
 
 
-def _visit_call(ctx: _BuildContext, call: ast.Call) -> typing.Never:
+def _visit_call(ctx: _BuildContext, call: ast.Call) -> nodes.Call:
     raise NotImplementedError
 
 
 def _visit_formatted_value(
     ctx: _BuildContext, formatted_value: ast.FormattedValue
-) -> typing.Never:
+) -> nodes.FormattedValue:
     raise NotImplementedError
 
 
-def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> typing.Never:
+def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> nodes.JoinedStr:
     raise NotImplementedError
 
 
-def _visit_list(ctx: _BuildContext, list_: ast.List) -> typing.Never:
+def _visit_list(ctx: _BuildContext, list_: ast.List) -> nodes.TupleExpr:
     raise NotImplementedError
 
 
-def _visit_tuple(ctx: _BuildContext, tuple_: ast.Tuple) -> typing.Never:
+def _visit_tuple(ctx: _BuildContext, tuple_: ast.Tuple) -> nodes.TupleExpr:
     raise NotImplementedError
 
 
