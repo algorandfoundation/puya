@@ -61,7 +61,7 @@ class CodeAnalyser:
         if not paths:
             logger.debug("no algopy related files were changed, nothing to do")
             return {}
-        logger.debug(f"analysing algopy related paths={', '.join(map(str, paths))}")
+        logger.info(f"analysing algopy related paths={', '.join(map(str, paths))}")
 
         root_path = Path(self._workspace.root_path)
         with set_cwd(root_path):

@@ -118,7 +118,7 @@ class PuyaPyLanguageServer:
         except KeyError:
             logger.debug(f"no analysis found for {document_uri}")
             return []
-        logger.debug(f"found {len(analysis.actions)} actions for {document_uri}")
+        logger.info(f"found {len(analysis.actions)} actions for {document_uri}")
 
         return [
             action
@@ -143,7 +143,7 @@ class PuyaPyLanguageServer:
             start = time.time()
             analysis = self._analyser.analyse(changed)
             duration = time.time() - start
-            logger.debug(f"analysis took {duration:.2f}s")
+            logger.info(f"analysis took {duration:.2f}s")
             self._analysis.update(analysis)
             self._publish_diagnostics(analysis)
 
@@ -155,7 +155,7 @@ class PuyaPyLanguageServer:
             version = analysis.version
             diagnostics = analysis.diagnostics
 
-            logger.debug(f"Publish {len(diagnostics)} diagnostics for {uri=}, {version=}")
+            logger.info(f"publish {len(diagnostics)} diagnostics for {uri=}, {version=}")
             self._ls.text_document_publish_diagnostics(
                 types.PublishDiagnosticsParams(
                     uri=uri,
