@@ -125,8 +125,10 @@ def _convert_module(
     while body:
         match body[0]:
             case nodes.FromImport(module="__future__", names=names) as future_import:
-                body.pop(0)
+                body = body[1:]
                 if names is None:
+                    # this is `from __future__ import *` which gives:
+                    # SyntaxError: future feature * is not defined
                     ctx.invalid_syntax(future_import.source_location)
                 else:
                     for name in names:
@@ -157,13 +159,13 @@ def _extract_docstring(
     return body, docstring
 
 
-def _visit_stmt_list(ctx: _BuildContext, stmts: list[ast.stmt]) -> list[nodes.Statement]:
+def _visit_stmt_list(ctx: _BuildContext, stmts: list[ast.stmt]) -> tuple[nodes.Statement, ...]:
     result = []
     for ast_stmt in stmts:
         stmt = _visit_stmt(ctx, ast_stmt)
         if stmt is not None:
             result.append(stmt)
-    return result
+    return tuple(result)
 
 
 def _visit_stmt(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement | None:
@@ -192,7 +194,7 @@ def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.
     if func_def.returns is not None:
         return_annotation = _visit_expr(ctx, func_def.returns)
     ast_body, docstring = _extract_docstring(func_def)
-    body = tuple(_visit_stmt_list(ctx, ast_body))
+    body = _visit_stmt_list(ctx, ast_body)
     return nodes.FunctionDef(
         decorators=decorators,
         name=func_def.name,
@@ -304,7 +306,7 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
     bases = _visit_expr_list(ctx, class_def.bases)
     kwargs = _visit_keywords_list(ctx, class_def.keywords)
     ast_body, docstring = _extract_docstring(class_def)
-    body = tuple(_visit_stmt_list(ctx, ast_body))
+    body = _visit_stmt_list(ctx, ast_body)
     return nodes.ClassDef(
         decorators=decorators,
         name=class_def.name,
@@ -482,11 +484,11 @@ def _visit_for_loop(ctx: _BuildContext, for_stmt: ast.For) -> nodes.For:
         ctx.fail(_NO_TYPE_COMMENTS_MSG, loc)
     target = _visit_expr(ctx, for_stmt.target)
     iterable = _visit_expr(ctx, for_stmt.iter)
-    body = tuple(_visit_stmt_list(ctx, for_stmt.body))
+    body = _visit_stmt_list(ctx, for_stmt.body)
     if not for_stmt.orelse:
         else_body = None
     else:
-        else_body = tuple(_visit_stmt_list(ctx, for_stmt.orelse))
+        else_body = _visit_stmt_list(ctx, for_stmt.orelse)
     return nodes.For(
         target=target,
         iterable=iterable,
@@ -499,11 +501,11 @@ def _visit_for_loop(ctx: _BuildContext, for_stmt: ast.For) -> nodes.For:
 def _visit_while_loop(ctx: _BuildContext, while_stmt: ast.While) -> nodes.While:
     loc = ctx.loc(while_stmt)
     test = _visit_expr(ctx, while_stmt.test)
-    body = tuple(_visit_stmt_list(ctx, while_stmt.body))
+    body = _visit_stmt_list(ctx, while_stmt.body)
     if not while_stmt.orelse:
         else_body = None
     else:
-        else_body = tuple(_visit_stmt_list(ctx, while_stmt.orelse))
+        else_body = _visit_stmt_list(ctx, while_stmt.orelse)
     return nodes.While(
         test=test,
         body=body,
@@ -515,11 +517,11 @@ def _visit_while_loop(ctx: _BuildContext, while_stmt: ast.While) -> nodes.While:
 def _visit_if(ctx: _BuildContext, if_stmt: ast.If) -> nodes.If:
     loc = ctx.loc(if_stmt)
     test = _visit_expr(ctx, if_stmt.test)
-    body = tuple(_visit_stmt_list(ctx, if_stmt.body))
+    body = _visit_stmt_list(ctx, if_stmt.body)
     if not if_stmt.orelse:
         else_body = None
     else:
-        else_body = tuple(_visit_stmt_list(ctx, if_stmt.orelse))
+        else_body = _visit_stmt_list(ctx, if_stmt.orelse)
     return nodes.If(
         test=test,
         body=body,
@@ -606,7 +608,7 @@ def _visit_match(ctx: _BuildContext, match_stmt: ast.Match) -> nodes.Match:
     for case in match_stmt.cases:
         pattern = _visit_match_pattern(ctx, case.pattern)
         guard = _visit_optional_expr(ctx, case.guard)
-        body = tuple(_visit_stmt_list(ctx, case.body))
+        body = _visit_stmt_list(ctx, case.body)
         cases.append(nodes.MatchCase(pattern=pattern, guard=guard, body=body))
     return nodes.Match(
         subject=subject,
