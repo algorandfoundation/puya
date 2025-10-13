@@ -607,6 +607,20 @@ class ARC4Decode(Expression):
 
 
 @attrs.frozen
+class ARC4FromBytes(Expression):
+    """
+    Convert a Bytes expression into an ARC4 value and optionally validate the value
+    """
+
+    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.BytesWType))
+    wtype: wtypes.ARC4Type
+    validate: bool
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_arc4_from_bytes(self)
+
+
+@attrs.frozen
 class ConvertArray(Expression):
     expr: Expression = attrs.field(
         validator=expression_has_wtype(

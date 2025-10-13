@@ -89,17 +89,14 @@ def _call(
 
 
 def _app_arg(
-    index: int,
-    wtype: wtypes.WType,
-    location: SourceLocation,
+    index: int, wtype: wtypes.ARC4Type, location: SourceLocation, *, validate: bool
 ) -> awst_nodes.Expression:
     value = _txn_app_args(index, location)
-    if wtype == wtypes.bytes_wtype:
-        return value
-    return awst_nodes.ReinterpretCast(
-        source_location=location,
-        expr=value,
+    return awst_nodes.ARC4FromBytes(
+        value=value,
+        validate=validate,
         wtype=wtype,
+        source_location=location,
     )
 
 
@@ -391,10 +388,14 @@ def _assert_statement(
 
 
 def _map_abi_args(
-    arg_types: Sequence[wtypes.WType], location: SourceLocation, *, use_reference_alias: bool
+    arg_types: Sequence[wtypes.WType],
+    location: SourceLocation,
+    *,
+    use_reference_alias: bool,
+    validate: bool,
 ) -> Iterable[awst_nodes.Expression]:
     transaction_arg_offset = 0
-    incoming_types = []
+    incoming_types = list[wtypes.ARC4Type]()
     for a in arg_types:
         if isinstance(a, wtypes.WGroupTransaction):
             transaction_arg_offset += 1
@@ -412,14 +413,17 @@ def _map_abi_args(
     else:
         unpacked_types, packed_types = incoming_types, []
     abi_args = [
-        _app_arg(array_index, arg_wtype, location)
+        _app_arg(array_index, arg_wtype, location, validate=validate)
         for array_index, arg_wtype in enumerate(unpacked_types, start=1)
     ]
     if packed_types:
         abi_args.extend(
             awst_nodes.TupleItemExpression(
                 base=_app_arg(
-                    15, wtypes.ARC4Tuple(types=packed_types, source_location=location), location
+                    15,
+                    wtypes.ARC4Tuple(types=packed_types, source_location=location),
+                    location,
+                    validate=validate,
                 ),
                 index=tuple_index,
                 source_location=location,
@@ -459,12 +463,21 @@ def _map_abi_args(
 
 
 def _build_abi_wrapper(
-    method: md.ARC4ABIMethod, sig: AWSTContractMethodSignature, *, exit_success: bool
+    method: md.ARC4ABIMethod,
+    sig: AWSTContractMethodSignature,
+    *,
+    exit_success: bool,
+    validate_args: bool,
 ) -> awst_nodes.Subroutine:
     abi_loc = method.config_location
     use_reference_alias = method.resource_encoding == "index"
     abi_args = list(
-        _map_abi_args(sig.parameter_types, abi_loc, use_reference_alias=use_reference_alias)
+        _map_abi_args(
+            sig.parameter_types,
+            abi_loc,
+            use_reference_alias=use_reference_alias,
+            validate=validate_args,
+        )
     )
     method_result = _call(abi_loc, sig, *abi_args)
     match sig.return_type:
@@ -562,6 +575,7 @@ def _route_abi_methods(
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
     *,
     assign_true_on_match: awst_nodes.VarExpression | None,
+    validate_args: bool,
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     _check_for_duplicates(methods)
 
@@ -569,7 +583,9 @@ def _route_abi_methods(
     no_op_only_routing_methods = {}
     other_routing_methods = {}
     for method, sig in methods.items():
-        wrapper_method = _build_abi_wrapper(method, sig, exit_success=assign_true_on_match is None)
+        wrapper_method = _build_abi_wrapper(
+            method, sig, exit_success=assign_true_on_match is None, validate_args=validate_args
+        )
         arc4_wrapper_methods.append(wrapper_method)
         match method:
             case md.ARC4ABIMethod(allowed_completion_types=[OnCompletionAction.NoOp]):
@@ -649,6 +665,7 @@ def create_abi_router(
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
     *,
     can_exit_early: bool,
+    validate_args: bool,
 ) -> tuple[awst_nodes.ContractMethod, Sequence[awst_nodes.Subroutine]]:
     router_location = contract.source_location
     abi_methods = {}
@@ -668,6 +685,7 @@ def create_abi_router(
         router_location,
         abi_methods,
         assign_true_on_match=None if can_exit_early else match_var,
+        validate_args=validate_args,
     )
     router: list[awst_nodes.Statement]
     if not bare_methods:

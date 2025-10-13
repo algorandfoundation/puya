@@ -77,6 +77,10 @@ def puyapy(
     locals_coalescing_strategy: Annotated[
         LocalsCoalescingStrategy, cyclopts.Parameter(group=_compilation_group)
     ] = LocalsCoalescingStrategy.root_operand,
+    validate_abi_values: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
+    validate_abi_dynamic_severity: Annotated[
+        LogLevel, cyclopts.Parameter(group=_compilation_group)
+    ] = LogLevel.warning,
     # templating
     template_var: Annotated[
         Sequence[str],
@@ -132,6 +136,9 @@ def puyapy(
                            appropriate foreign array.
                            The default option "value", as of PuyaPy 5.0, means these values will be
                            passed directly.
+        validate_abi_values: Validates ABI transaction arguments by ensuring they are the correct
+                             size
+        validate_abi_dynamic_severity: Severity level for unvalidatable dynamic ABI types
         out_dir: Path for outputting artefacts
         log_level: Minimum level to log to console
     """
