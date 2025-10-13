@@ -220,7 +220,9 @@ def _visit_decorator_list(
         callee_name = _extract_dotted_name(ctx, callee)
         if callee_name is None:
             # see comments on nodes.Decorator for more context
-            ctx.unsupported_syntax(loc)
+            ctx.unsupported_syntax(
+                loc, "only direct function references are supported as decorators"
+            )
         else:
             result.append(
                 nodes.Decorator(
