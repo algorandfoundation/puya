@@ -33,14 +33,14 @@ subroutine main:
     main_oh_no_route@4:
         // regression_tests/jira_241.py:5
         // @arc4.abimethod(default_args={"wrong_size": False})
-        int 1                                                                 1
-        return
+        callsub oh_no
+        b main_after_if_else@8
 
     main_oh_yes_route@5:
         // regression_tests/jira_241.py:9
         // @arc4.abimethod(default_args={"wrong_size": True})
-        int 1                                                                 1
-        return
+        callsub oh_yes
+        b main_after_if_else@8
 
     main_after_if_else@8:
         // regression_tests/jira_241.py:4
@@ -64,6 +64,46 @@ subroutine main:
         v-store tmp%11#0
         v-load tmp%11#0                                                       tmp%11#0
         assert // OnCompletion must be NoOp && can only call when creating
+        int 1                                                                 1
+        return
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
+subroutine oh_no:
+    oh_no_block@0:
+        // regression_tests/jira_241.py:5
+        // @arc4.abimethod(default_args={"wrong_size": False})
+        txna ApplicationArgs 1                                                tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                        tmp%0#0
+        len                                                                   len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                        len%0#0
+        int 1                                                                 len%0#0,1
+        ==                                                                    eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                         eq%0#0
+        assert // invalid number of bytes for bool8
+        int 1                                                                 1
+        return
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
+subroutine oh_yes:
+    oh_yes_block@0:
+        // regression_tests/jira_241.py:9
+        // @arc4.abimethod(default_args={"wrong_size": True})
+        txna ApplicationArgs 1                                                tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                        tmp%0#0
+        len                                                                   len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                        len%0#0
+        int 1                                                                 len%0#0,1
+        ==                                                                    eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                         eq%0#0
+        assert // invalid number of bytes for bool8
         int 1                                                                 1
         return
 

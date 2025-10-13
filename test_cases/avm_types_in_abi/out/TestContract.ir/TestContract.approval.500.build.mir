@@ -1,28 +1,28 @@
-// Op                                                                                    Stack (out)
+// Op                                                                Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                 tmp%0#1
+        txn OnCompletion                                             tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                                                                   tmp%0#1
-        !                                                                                tmp%1#0
+        v-load tmp%0#1                                               tmp%0#1
+        !                                                            tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                                                   tmp%1#0
+        v-load tmp%1#0                                               tmp%1#0
         assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                tmp%2#0
+        txn ApplicationID                                            tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                                   tmp%2#0
+        v-load tmp%2#0                                               tmp%2#0
         bz main_create_NoOp@5 ; b main_call_NoOp@2
 
     main_call_NoOp@2:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                           tmp%4#0
+        txna ApplicationArgs 0                                       tmp%4#0
         v-store tmp%4#0
-        method tuple_of_arc4((uint8,address))(uint8,address)                             Method(tuple_of_arc4((uint8,address))(uint8,address))
-        v-load tmp%4#0                                                                   Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
+        method tuple_of_arc4((uint8,address))(uint8,address)         Method(tuple_of_arc4((uint8,address))(uint8,address))
+        v-load tmp%4#0                                               Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
         match main_tuple_of_arc4_route@3 ; b main_after_if_else@8
 
     main_tuple_of_arc4_route@3:
@@ -34,10 +34,10 @@ subroutine main:
     main_create_NoOp@5:
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                           tmp%5#0
+        txna ApplicationArgs 0                                       tmp%5#0
         v-store tmp%5#0
         method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
-        v-load tmp%5#0                                                                   Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
+        v-load tmp%5#0                                               Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
         match main_create_route@6 ; b main_after_if_else@8
 
     main_create_route@6:
@@ -57,205 +57,263 @@ subroutine create:
     create_block@0:
         // avm_types_in_abi/contract.py:5
         // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        txna ApplicationArgs 1                                                           reinterpret_Encoded(bool8)%0#0
-        v-store reinterpret_Encoded(bool8)%0#0
-        v-load reinterpret_Encoded(bool8)%0#0                                            reinterpret_Encoded(bool8)%0#0
-        int 0                                                                            reinterpret_Encoded(bool8)%0#0,0
-        getbit                                                                           bool_param#0
+        txna ApplicationArgs 1                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                               tmp%0#0
+        len                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                               len%0#0
+        int 1                                                        len%0#0,1
+        ==                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                eq%0#0
+        assert // invalid number of bytes for bool8
+        v-load tmp%0#0                                               tmp%0#0
+        int 0                                                        tmp%0#0,0
+        getbit                                                       bool_param#0
         v-store bool_param#0
-        txna ApplicationArgs 2                                                           reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                           reinterpret_Encoded(uint64)%0#0
-        btoi                                                                             uint64_param#0
+        txna ApplicationArgs 2                                       tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                               tmp%2#0
+        len                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                               len%1#0
+        int 8                                                        len%1#0,8
+        ==                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                eq%1#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%2#0                                               tmp%2#0
+        btoi                                                         uint64_param#0
         v-store uint64_param#0
-        txna ApplicationArgs 3                                                           reinterpret_Encoded(len+uint8[])%0#0
-        v-store reinterpret_Encoded(len+uint8[])%0#0
-        v-load reinterpret_Encoded(len+uint8[])%0#0                                      reinterpret_Encoded(len+uint8[])%0#0
-        extract 2 0                                                                      bytes_param#0
+        txna ApplicationArgs 3                                       tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                               tmp%4#0
+        int 0                                                        tmp%4#0,0
+        extract_uint16                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                            aggregate%array_length%0#0
+        int 2                                                        aggregate%array_length%0#0,2
+        +                                                            add%0#0
+        v-store add%0#0
+        v-load tmp%4#0                                               tmp%4#0
+        len                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                               len%2#0
+        v-load add%0#0                                               len%2#0,add%0#0
+        ==                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                eq%2#0
+        assert // invalid number of bytes for (len+uint8[])
+        v-load tmp%4#0                                               tmp%4#0
+        extract 2 0                                                  bytes_param#0
         v-store bytes_param#0
-        txna ApplicationArgs 4                                                           biguint_param#0
+        txna ApplicationArgs 4                                       biguint_param#0
         v-store biguint_param#0
-        txna ApplicationArgs 5                                                           reinterpret_Encoded(len+utf8[])%0#0
-        v-store reinterpret_Encoded(len+utf8[])%0#0
-        v-load reinterpret_Encoded(len+utf8[])%0#0                                       reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                      string_param#0
+        v-load biguint_param#0                                       biguint_param#0
+        len                                                          len%3#0
+        v-store len%3#0
+        v-load len%3#0                                               len%3#0
+        int 64                                                       len%3#0,64
+        ==                                                           eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                eq%3#0
+        assert // invalid number of bytes for uint512
+        txna ApplicationArgs 5                                       tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                               tmp%8#0
+        int 0                                                        tmp%8#0,0
+        extract_uint16                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                            aggregate%array_length%1#0
+        int 2                                                        aggregate%array_length%1#0,2
+        +                                                            add%1#0
+        v-store add%1#0
+        v-load tmp%8#0                                               tmp%8#0
+        len                                                          len%4#0
+        v-store len%4#0
+        v-load len%4#0                                               len%4#0
+        v-load add%1#0                                               len%4#0,add%1#0
+        ==                                                           eq%4#0
+        v-store eq%4#0
+        v-load eq%4#0                                                eq%4#0
+        assert // invalid number of bytes for (len+utf8[])
+        v-load tmp%8#0                                               tmp%8#0
+        extract 2 0                                                  string_param#0
         v-store string_param#0
-        txna ApplicationArgs 6                                                           reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        v-store reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        int 0                                                                            reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,0
-        getbit                                                                           tuple_param.0#0
+        txna ApplicationArgs 6                                       tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                              tmp%10#0
+        int 0                                                        tmp%10#0,0
+        getbit                                                       tuple_param.0#0
         v-store tuple_param.0#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        int 1                                                                            reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,1
-        extract_uint64                                                                   tuple_param.1#0
+        v-load tmp%10#0                                              tmp%10#0
+        int 1                                                        tmp%10#0,1
+        extract_uint64                                               tuple_param.1#0
         v-store tuple_param.1#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        int 9                                                                            reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,9
-        extract_uint16                                                                   aggregate%extract_uint16%0#0
+        v-load tmp%10#0                                              tmp%10#0
+        int 9                                                        tmp%10#0,9
+        extract_uint16                                               aggregate%extract_uint16%0#0
         v-store aggregate%extract_uint16%0#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        int 75                                                                           reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,75
-        extract_uint16                                                                   aggregate%extract_uint16%1#0
+        v-load tmp%10#0                                              tmp%10#0
+        int 75                                                       tmp%10#0,75
+        extract_uint16                                               aggregate%extract_uint16%1#0
         v-store aggregate%extract_uint16%1#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        v-load aggregate%extract_uint16%0#0                                              reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0
-        v-load aggregate%extract_uint16%1#0                                              reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
-        substring3                                                                       aggregate%substring3%0#0
+        v-load tmp%10#0                                              tmp%10#0
+        v-load aggregate%extract_uint16%0#0                          tmp%10#0,aggregate%extract_uint16%0#0
+        v-load aggregate%extract_uint16%1#0                          tmp%10#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
+        substring3                                                   aggregate%substring3%0#0
         v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                  aggregate%substring3%0#0
-        extract 2 0                                                                      tuple_param.2#0
+        v-load aggregate%substring3%0#0                              aggregate%substring3%0#0
+        extract 2 0                                                  tuple_param.2#0
         v-store tuple_param.2#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        extract 11 64                                                                    tuple_param.3#0
+        v-load tmp%10#0                                              tmp%10#0
+        extract 11 64                                                tuple_param.3#0
         v-store tuple_param.3#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        len                                                                              aggregate%len%0#0
+        v-load tmp%10#0                                              tmp%10#0
+        len                                                          aggregate%len%0#0
         v-store aggregate%len%0#0
-        v-load reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0  reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        v-load aggregate%extract_uint16%1#0                                              reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0
-        v-load aggregate%len%0#0                                                         reinterpret_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0,aggregate%extract_uint16%1#0,aggregate%len%0#0
-        substring3                                                                       aggregate%substring3%1#0
+        v-load tmp%10#0                                              tmp%10#0
+        v-load aggregate%extract_uint16%1#0                          tmp%10#0,aggregate%extract_uint16%1#0
+        v-load aggregate%len%0#0                                     tmp%10#0,aggregate%extract_uint16%1#0,aggregate%len%0#0
+        substring3                                                   aggregate%substring3%1#0
         v-store aggregate%substring3%1#0
-        v-load aggregate%substring3%1#0                                                  aggregate%substring3%1#0
-        extract 2 0                                                                      tuple_param.4#0
+        v-load aggregate%substring3%1#0                              aggregate%substring3%1#0
+        extract 2 0                                                  tuple_param.4#0
         v-store tuple_param.4#0
         // avm_types_in_abi/contract.py:16
         // assert result == tuple_param
-        v-load bool_param#0                                                              bool_param#0
-        v-load tuple_param.0#0                                                           bool_param#0,tuple_param.0#0
-        ==                                                                               tmp%0#1
+        v-load bool_param#0                                          bool_param#0
+        v-load tuple_param.0#0                                       bool_param#0,tuple_param.0#0
+        ==                                                           tmp%0#1
         v-store tmp%0#1
-        v-load uint64_param#0                                                            uint64_param#0
-        v-load tuple_param.1#0                                                           uint64_param#0,tuple_param.1#0
-        ==                                                                               tmp%1#1
+        v-load uint64_param#0                                        uint64_param#0
+        v-load tuple_param.1#0                                       uint64_param#0,tuple_param.1#0
+        ==                                                           tmp%1#1
         v-store tmp%1#1
-        v-load tmp%0#1                                                                   tmp%0#1
-        v-load tmp%1#1                                                                   tmp%0#1,tmp%1#1
-        &&                                                                               tmp%2#1
+        v-load tmp%0#1                                               tmp%0#1
+        v-load tmp%1#1                                               tmp%0#1,tmp%1#1
+        &&                                                           tmp%2#1
         v-store tmp%2#1
-        v-load bytes_param#0                                                             bytes_param#0
-        v-load tuple_param.2#0                                                           bytes_param#0,tuple_param.2#0
-        ==                                                                               tmp%3#1
+        v-load bytes_param#0                                         bytes_param#0
+        v-load tuple_param.2#0                                       bytes_param#0,tuple_param.2#0
+        ==                                                           tmp%3#1
         v-store tmp%3#1
-        v-load tmp%2#1                                                                   tmp%2#1
-        v-load tmp%3#1                                                                   tmp%2#1,tmp%3#1
-        &&                                                                               tmp%4#1
+        v-load tmp%2#1                                               tmp%2#1
+        v-load tmp%3#1                                               tmp%2#1,tmp%3#1
+        &&                                                           tmp%4#1
         v-store tmp%4#1
-        v-load biguint_param#0                                                           biguint_param#0
-        v-load tuple_param.3#0                                                           biguint_param#0,tuple_param.3#0
-        b==                                                                              tmp%5#1
+        v-load biguint_param#0                                       biguint_param#0
+        v-load tuple_param.3#0                                       biguint_param#0,tuple_param.3#0
+        b==                                                          tmp%5#1
         v-store tmp%5#1
-        v-load tmp%4#1                                                                   tmp%4#1
-        v-load tmp%5#1                                                                   tmp%4#1,tmp%5#1
-        &&                                                                               tmp%6#1
+        v-load tmp%4#1                                               tmp%4#1
+        v-load tmp%5#1                                               tmp%4#1,tmp%5#1
+        &&                                                           tmp%6#1
         v-store tmp%6#1
-        v-load string_param#0                                                            string_param#0
-        v-load tuple_param.4#0                                                           string_param#0,tuple_param.4#0
-        ==                                                                               tmp%7#1
+        v-load string_param#0                                        string_param#0
+        v-load tuple_param.4#0                                       string_param#0,tuple_param.4#0
+        ==                                                           tmp%7#1
         v-store tmp%7#1
-        v-load tmp%6#1                                                                   tmp%6#1
-        v-load tmp%7#1                                                                   tmp%6#1,tmp%7#1
-        &&                                                                               tmp%8#1
+        v-load tmp%6#1                                               tmp%6#1
+        v-load tmp%7#1                                               tmp%6#1,tmp%7#1
+        &&                                                           tmp%8#1
         v-store tmp%8#1
-        v-load tmp%8#1                                                                   tmp%8#1
+        v-load tmp%8#1                                               tmp%8#1
         assert
         // avm_types_in_abi/contract.py:5
         // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        byte 0x00                                                                        0x00
-        int 0                                                                            0x00,0
-        v-load bool_param#0                                                              0x00,0,bool_param#0
-        setbit                                                                           aggregate%encoded_bool%0#0
+        byte 0x00                                                    0x00
+        int 0                                                        0x00,0
+        v-load bool_param#0                                          0x00,0,bool_param#0
+        setbit                                                       aggregate%encoded_bool%0#0
         v-store aggregate%encoded_bool%0#0
-        v-load uint64_param#0                                                            uint64_param#0
-        itob                                                                             aggregate%val_as_bytes%0#0
+        v-load uint64_param#0                                        uint64_param#0
+        itob                                                         aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        v-load aggregate%encoded_bool%0#0                                                aggregate%encoded_bool%0#0
-        v-load aggregate%val_as_bytes%0#0                                                aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                           aggregate%head%1#0
+        v-load aggregate%encoded_bool%0#0                            aggregate%encoded_bool%0#0
+        v-load aggregate%val_as_bytes%0#0                            aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0
+        concat                                                       aggregate%head%1#0
         v-store aggregate%head%1#0
-        v-load bytes_param#0                                                             bytes_param#0
-        len                                                                              aggregate%length%0#0
+        v-load bytes_param#0                                         bytes_param#0
+        len                                                          aggregate%length%0#0
         v-store aggregate%length%0#0
-        v-load aggregate%length%0#0                                                      aggregate%length%0#0
-        itob                                                                             aggregate%as_bytes%0#0
+        v-load aggregate%length%0#0                                  aggregate%length%0#0
+        itob                                                         aggregate%as_bytes%0#0
         v-store aggregate%as_bytes%0#0
-        v-load aggregate%as_bytes%0#0                                                    aggregate%as_bytes%0#0
-        extract 6 2                                                                      aggregate%length_uint16%0#0
+        v-load aggregate%as_bytes%0#0                                aggregate%as_bytes%0#0
+        extract 6 2                                                  aggregate%length_uint16%0#0
         v-store aggregate%length_uint16%0#0
-        v-load aggregate%length_uint16%0#0                                               aggregate%length_uint16%0#0
-        v-load bytes_param#0                                                             aggregate%length_uint16%0#0,bytes_param#0
-        concat                                                                           aggregate%encoded_value%0#0
+        v-load aggregate%length_uint16%0#0                           aggregate%length_uint16%0#0
+        v-load bytes_param#0                                         aggregate%length_uint16%0#0,bytes_param#0
+        concat                                                       aggregate%encoded_value%0#0
         v-store aggregate%encoded_value%0#0
-        v-load aggregate%head%1#0                                                        aggregate%head%1#0
-        byte 0x004d                                                                      aggregate%head%1#0,0x004d
-        concat                                                                           aggregate%head%2#0
+        v-load aggregate%head%1#0                                    aggregate%head%1#0
+        byte 0x004d                                                  aggregate%head%1#0,0x004d
+        concat                                                       aggregate%head%2#0
         v-store aggregate%head%2#0
-        v-load aggregate%encoded_value%0#0                                               aggregate%encoded_value%0#0
-        len                                                                              aggregate%data_length%0#0
+        v-load aggregate%encoded_value%0#0                           aggregate%encoded_value%0#0
+        len                                                          aggregate%data_length%0#0
         v-store aggregate%data_length%0#0
-        int 77                                                                           77
-        v-load aggregate%data_length%0#0                                                 77,aggregate%data_length%0#0
-        +                                                                                aggregate%current_tail_offset%0#0
+        int 77                                                       77
+        v-load aggregate%data_length%0#0                             77,aggregate%data_length%0#0
+        +                                                            aggregate%current_tail_offset%0#0
         v-store aggregate%current_tail_offset%0#0
-        v-load biguint_param#0                                                           biguint_param#0
-        len                                                                              aggregate%value_len%0#0
-        v-store aggregate%value_len%0#0
-        v-load aggregate%value_len%0#0                                                   aggregate%value_len%0#0
-        int 64                                                                           aggregate%value_len%0#0,64
-        <=                                                                               aggregate%len_ok%0#0
+        v-load len%3#0                                               len%3#0
+        int 64                                                       len%3#0,64
+        <=                                                           aggregate%len_ok%0#0
         v-store aggregate%len_ok%0#0
-        v-load aggregate%len_ok%0#0                                                      aggregate%len_ok%0#0
+        v-load aggregate%len_ok%0#0                                  aggregate%len_ok%0#0
         assert // overflow
-        int 64                                                                           64
-        bzero                                                                            aggregate%bzero%0#0
+        int 64                                                       64
+        bzero                                                        aggregate%bzero%0#0
         v-store aggregate%bzero%0#0
-        v-load biguint_param#0                                                           biguint_param#0
-        v-load aggregate%bzero%0#0                                                       biguint_param#0,aggregate%bzero%0#0
-        b|                                                                               aggregate%arc4_encoded%0#0
+        v-load biguint_param#0                                       biguint_param#0
+        v-load aggregate%bzero%0#0                                   biguint_param#0,aggregate%bzero%0#0
+        b|                                                           aggregate%arc4_encoded%0#0
         v-store aggregate%arc4_encoded%0#0
-        v-load aggregate%head%2#0                                                        aggregate%head%2#0
-        v-load aggregate%arc4_encoded%0#0                                                aggregate%head%2#0,aggregate%arc4_encoded%0#0
-        concat                                                                           aggregate%head%3#0
+        v-load aggregate%head%2#0                                    aggregate%head%2#0
+        v-load aggregate%arc4_encoded%0#0                            aggregate%head%2#0,aggregate%arc4_encoded%0#0
+        concat                                                       aggregate%head%3#0
         v-store aggregate%head%3#0
-        v-load string_param#0                                                            string_param#0
-        len                                                                              aggregate%length%1#0
+        v-load string_param#0                                        string_param#0
+        len                                                          aggregate%length%1#0
         v-store aggregate%length%1#0
-        v-load aggregate%length%1#0                                                      aggregate%length%1#0
-        itob                                                                             aggregate%as_bytes%2#0
+        v-load aggregate%length%1#0                                  aggregate%length%1#0
+        itob                                                         aggregate%as_bytes%2#0
         v-store aggregate%as_bytes%2#0
-        v-load aggregate%as_bytes%2#0                                                    aggregate%as_bytes%2#0
-        extract 6 2                                                                      aggregate%length_uint16%1#0
+        v-load aggregate%as_bytes%2#0                                aggregate%as_bytes%2#0
+        extract 6 2                                                  aggregate%length_uint16%1#0
         v-store aggregate%length_uint16%1#0
-        v-load aggregate%length_uint16%1#0                                               aggregate%length_uint16%1#0
-        v-load string_param#0                                                            aggregate%length_uint16%1#0,string_param#0
-        concat                                                                           aggregate%encoded_value%1#0
+        v-load aggregate%length_uint16%1#0                           aggregate%length_uint16%1#0
+        v-load string_param#0                                        aggregate%length_uint16%1#0,string_param#0
+        concat                                                       aggregate%encoded_value%1#0
         v-store aggregate%encoded_value%1#0
-        v-load aggregate%current_tail_offset%0#0                                         aggregate%current_tail_offset%0#0
-        itob                                                                             aggregate%as_bytes%3#0
+        v-load aggregate%current_tail_offset%0#0                     aggregate%current_tail_offset%0#0
+        itob                                                         aggregate%as_bytes%3#0
         v-store aggregate%as_bytes%3#0
-        v-load aggregate%as_bytes%3#0                                                    aggregate%as_bytes%3#0
-        extract 6 2                                                                      aggregate%offset_as_uint16%1#0
+        v-load aggregate%as_bytes%3#0                                aggregate%as_bytes%3#0
+        extract 6 2                                                  aggregate%offset_as_uint16%1#0
         v-store aggregate%offset_as_uint16%1#0
-        v-load aggregate%head%3#0                                                        aggregate%head%3#0
-        v-load aggregate%offset_as_uint16%1#0                                            aggregate%head%3#0,aggregate%offset_as_uint16%1#0
-        concat                                                                           aggregate%head%4#0
+        v-load aggregate%head%3#0                                    aggregate%head%3#0
+        v-load aggregate%offset_as_uint16%1#0                        aggregate%head%3#0,aggregate%offset_as_uint16%1#0
+        concat                                                       aggregate%head%4#0
         v-store aggregate%head%4#0
-        v-load aggregate%head%4#0                                                        aggregate%head%4#0
-        v-load aggregate%encoded_value%0#0                                               aggregate%head%4#0,aggregate%encoded_value%0#0
-        concat                                                                           aggregate%concat%0#0
+        v-load aggregate%head%4#0                                    aggregate%head%4#0
+        v-load aggregate%encoded_value%0#0                           aggregate%head%4#0,aggregate%encoded_value%0#0
+        concat                                                       aggregate%concat%0#0
         v-store aggregate%concat%0#0
-        v-load aggregate%concat%0#0                                                      aggregate%concat%0#0
-        v-load aggregate%encoded_value%1#0                                               aggregate%concat%0#0,aggregate%encoded_value%1#0
-        concat                                                                           aggregate%concat%1#0
+        v-load aggregate%concat%0#0                                  aggregate%concat%0#0
+        v-load aggregate%encoded_value%1#0                           aggregate%concat%0#0,aggregate%encoded_value%1#0
+        concat                                                       aggregate%concat%1#0
         v-store aggregate%concat%1#0
-        byte 0x151f7c75                                                                  0x151f7c75
-        v-load aggregate%concat%1#0                                                      0x151f7c75,aggregate%concat%1#0
-        concat                                                                           tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                  tmp%16#0
+        byte 0x151f7c75                                              0x151f7c75
+        v-load aggregate%concat%1#0                                  0x151f7c75,aggregate%concat%1#0
+        concat                                                       tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                              tmp%22#0
         log
-        int 1                                                                            1
+        int 1                                                        1
         return
 
 
@@ -264,45 +322,54 @@ subroutine tuple_of_arc4:
     tuple_of_arc4_block@0:
         // avm_types_in_abi/contract.py:19
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                           reinterpret_Encoded(uint8,uint8[32])%0#0
-        v-store reinterpret_Encoded(uint8,uint8[32])%0#0
-        v-load reinterpret_Encoded(uint8,uint8[32])%0#0                                  reinterpret_Encoded(uint8,uint8[32])%0#0
-        extract 0 1                                                                      args.0#0
+        txna ApplicationArgs 1                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                               tmp%0#0
+        len                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                               len%0#0
+        int 33                                                       len%0#0,33
+        ==                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                eq%0#0
+        assert // invalid number of bytes for (uint8,uint8[32])
+        v-load tmp%0#0                                               tmp%0#0
+        extract 0 1                                                  args.0#0
         v-store args.0#0
-        v-load reinterpret_Encoded(uint8,uint8[32])%0#0                                  reinterpret_Encoded(uint8,uint8[32])%0#0
-        extract 1 32                                                                     args.1#0
+        v-load tmp%0#0                                               tmp%0#0
+        extract 1 32                                                 args.1#0
         v-store args.1#0
         // avm_types_in_abi/contract.py:23
         // assert args[0].bytes.length == 1
-        v-load args.0#0                                                                  args.0#0
-        len                                                                              tmp%0#1
+        v-load args.0#0                                              args.0#0
+        len                                                          tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                                                                   tmp%0#1
-        int 1                                                                            tmp%0#1,1
-        ==                                                                               tmp%1#1
+        v-load tmp%0#1                                               tmp%0#1
+        int 1                                                        tmp%0#1,1
+        ==                                                           tmp%1#1
         v-store tmp%1#1
-        v-load tmp%1#1                                                                   tmp%1#1
+        v-load tmp%1#1                                               tmp%1#1
         assert
         // avm_types_in_abi/contract.py:24
         // assert args[1].bytes.length == 32
-        v-load args.1#0                                                                  args.1#0
-        len                                                                              tmp%2#1
+        v-load args.1#0                                              args.1#0
+        len                                                          tmp%2#1
         v-store tmp%2#1
-        v-load tmp%2#1                                                                   tmp%2#1
-        int 32                                                                           tmp%2#1,32
-        ==                                                                               tmp%3#1
+        v-load tmp%2#1                                               tmp%2#1
+        int 32                                                       tmp%2#1,32
+        ==                                                           tmp%3#1
         v-store tmp%3#1
-        v-load tmp%3#1                                                                   tmp%3#1
+        v-load tmp%3#1                                               tmp%3#1
         assert
         // avm_types_in_abi/contract.py:19
         // @arc4.abimethod
-        byte 0x151f7c75                                                                  0x151f7c75
-        v-load reinterpret_Encoded(uint8,uint8[32])%0#0                                  0x151f7c75,reinterpret_Encoded(uint8,uint8[32])%0#0
-        concat                                                                           tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                   tmp%5#0
+        byte 0x151f7c75                                              0x151f7c75
+        v-load tmp%0#0                                               0x151f7c75,tmp%0#0
+        concat                                                       tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                               tmp%6#0
         log
-        int 1                                                                            1
+        int 1                                                        1
         return
 
 

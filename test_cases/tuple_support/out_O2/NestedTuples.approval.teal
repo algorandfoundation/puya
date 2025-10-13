@@ -355,6 +355,15 @@ main_after_for@39:
 
 main_load_tuple_from_local_state_or_default_route@13:
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     callsub echo
     callsub get_sender_inefficiently
@@ -396,8 +405,14 @@ main_ternary_false@43:
     b main_ternary_merge@44
 
 main_load_tuple_from_box_or_default_route@12:
-    bytec_1 // "box"
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    bytec_1 // "box"
+    swap
     concat
     pushint 4 // 4
     intc_2 // 2
@@ -435,8 +450,14 @@ main_ternary_false@48:
     b main_ternary_merge@49
 
 main_maybe_load_tuple_from_box_route@11:
-    bytec_1 // "box"
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    bytec_1 // "box"
+    swap
     concat
     box_get
     dup
@@ -476,8 +497,14 @@ main_ternary_false@53:
     b main_ternary_merge@54
 
 main_load_tuple_from_box_route@10:
-    bytec_1 // "box"
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    bytec_1 // "box"
+    swap
     concat
     box_get
     assert // check self.box entry exists
@@ -489,8 +516,14 @@ main_load_tuple_from_box_route@10:
     return
 
 main_is_tuple_in_box_route@9:
-    bytec_1 // "box"
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    bytec_1 // "box"
+    swap
     concat
     box_len
     bury 1
@@ -507,6 +540,11 @@ main_is_tuple_in_box_route@9:
 
 main_store_tuple_in_box_route@8:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     dup
     extract 0 8
     dig 1

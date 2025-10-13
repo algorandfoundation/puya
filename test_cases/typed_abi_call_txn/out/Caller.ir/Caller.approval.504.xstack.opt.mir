@@ -70,10 +70,36 @@ subroutine test_call_with_txn:
     test_call_with_txn_block@0:
         // typed_abi_call_txn/caller.py:15
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+uint8[])%0#0
-        txna ApplicationArgs 2                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 3                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                           reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        txna ApplicationArgs 1                                                         tmp%0#0
+        l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                              tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                            tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
+        ==                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0
+        txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,tmp%2#0,aggregate%array_length%1#0
+        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
+        +                                                                              tmp%0#0,tmp%2#0,add%1#0
+        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
+        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
+        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                   tmp%0#0,tmp%2#0,tmp%4#0
+        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:22-28
         // asset_id, _txn = arc4.abi_call(
         //     TxnContract.call_with_txn,
@@ -82,25 +108,25 @@ subroutine test_call_with_txn:
         //     b,
         //     app_id=app,
         // )
-        itxn_begin                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        itxn_begin                                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:20
         // total=1,
-        int 1                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,1
-        itxn_field ConfigAssetTotal                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int 1                                                                          tmp%0#0,tmp%2#0,app#0,1
+        itxn_field ConfigAssetTotal                                                    tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:19
         // asset_name="TEST",
-        byte "TEST"                                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TEST"
-        itxn_field ConfigAssetName                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TEST"                                                                    tmp%0#0,tmp%2#0,app#0,"TEST"
+        itxn_field ConfigAssetName                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:18
         // unit_name="TST",
-        byte "TST"                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TST"
-        itxn_field ConfigAssetUnitName                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TST"                                                                     tmp%0#0,tmp%2#0,app#0,"TST"
+        itxn_field ConfigAssetUnitName                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:17
         // txn = itxn.AssetConfig(
-        int acfg                                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,acfg
-        itxn_field TypeEnum                                                            reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        int 0                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,0
-        itxn_field Fee                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int acfg                                                                       tmp%0#0,tmp%2#0,app#0,acfg
+        itxn_field TypeEnum                                                            tmp%0#0,tmp%2#0,app#0
+        int 0                                                                          tmp%0#0,tmp%2#0,app#0,0
+        itxn_field Fee                                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:22-28
         // asset_id, _txn = arc4.abi_call(
         //     TxnContract.call_with_txn,
@@ -109,14 +135,14 @@ subroutine test_call_with_txn:
         //     b,
         //     app_id=app,
         // )
-        itxn_next                                                                      reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        l-load app#0 0                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        itxn_field ApplicationID                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        method call_with_txn(byte[],txn,byte[])uint64                                  reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,Method(call_with_txn(byte[],txn,byte[])uint64)
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 1                                  reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(len+uint8[])%0#0
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 0                                  reinterpret_Encoded(len+uint8[])%1#0
+        itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
+        l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
+        itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
+        method call_with_txn(byte[],txn,byte[])uint64                                  tmp%0#0,tmp%2#0,Method(call_with_txn(byte[],txn,byte[])uint64)
+        itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
+        l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
+        itxn_field ApplicationArgs                                                     tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
         int appl                                                                       appl
         itxn_field TypeEnum
@@ -125,13 +151,18 @@ subroutine test_call_with_txn:
         itxn_submit
         gitxn 1 LastLog                                                                awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
-        extract 4 0                                                                    awst_tmp%0#0,tmp%2#1
-        l-load awst_tmp%0#0 1                                                          tmp%2#1,awst_tmp%0#0
-        extract 0 4                                                                    tmp%2#1,tmp%3#0
-        byte 0x151f7c75                                                                tmp%2#1,tmp%3#0,0x151f7c75
-        ==                                                                             tmp%2#1,tmp%4#0
-        assert // application log value is not the result of an ABI return             tmp%2#1
-        l-load tmp%2#1 0                                                               tmp%2#1
+        extract 4 0                                                                    awst_tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                          awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                            awst_tmp%0#0,tmp%2#0,len%0#0
+        int 8                                                                          awst_tmp%0#0,tmp%2#0,len%0#0,8
+        ==                                                                             awst_tmp%0#0,tmp%2#0,eq%0#0
+        assert // invalid number of bytes for uint64                                   awst_tmp%0#0,tmp%2#0
+        l-load awst_tmp%0#0 1                                                          tmp%2#0,awst_tmp%0#0
+        extract 0 4                                                                    tmp%2#0,tmp%3#1
+        byte 0x151f7c75                                                                tmp%2#0,tmp%3#1,0x151f7c75
+        ==                                                                             tmp%2#0,tmp%4#1
+        assert // application log value is not the result of an ABI return             tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         btoi                                                                           asset_id#0
         // typed_abi_call_txn/caller.py:29
         // assert asset_id, "expected asset id"
@@ -147,10 +178,36 @@ subroutine test_call_with_acfg:
     test_call_with_acfg_block@0:
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+uint8[])%0#0
-        txna ApplicationArgs 2                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 3                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                           reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        txna ApplicationArgs 1                                                         tmp%0#0
+        l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                              tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                            tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
+        ==                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0
+        txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,tmp%2#0,aggregate%array_length%1#0
+        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
+        +                                                                              tmp%0#0,tmp%2#0,add%1#0
+        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
+        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
+        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                   tmp%0#0,tmp%2#0,tmp%4#0
+        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:38-44
         // arc4.abi_call(
         //     TxnContract.call_with_acfg,
@@ -159,25 +216,25 @@ subroutine test_call_with_acfg:
         //     b,
         //     app_id=app,
         // )
-        itxn_begin                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        itxn_begin                                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:36
         // total=1,
-        int 1                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,1
-        itxn_field ConfigAssetTotal                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int 1                                                                          tmp%0#0,tmp%2#0,app#0,1
+        itxn_field ConfigAssetTotal                                                    tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:35
         // asset_name="TEST",
-        byte "TEST"                                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TEST"
-        itxn_field ConfigAssetName                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TEST"                                                                    tmp%0#0,tmp%2#0,app#0,"TEST"
+        itxn_field ConfigAssetName                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:34
         // unit_name="TST",
-        byte "TST"                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TST"
-        itxn_field ConfigAssetUnitName                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TST"                                                                     tmp%0#0,tmp%2#0,app#0,"TST"
+        itxn_field ConfigAssetUnitName                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:33
         // txn = itxn.AssetConfig(
-        int acfg                                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,acfg
-        itxn_field TypeEnum                                                            reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        int 0                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,0
-        itxn_field Fee                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int acfg                                                                       tmp%0#0,tmp%2#0,app#0,acfg
+        itxn_field TypeEnum                                                            tmp%0#0,tmp%2#0,app#0
+        int 0                                                                          tmp%0#0,tmp%2#0,app#0,0
+        itxn_field Fee                                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:38-44
         // arc4.abi_call(
         //     TxnContract.call_with_acfg,
@@ -186,14 +243,14 @@ subroutine test_call_with_acfg:
         //     b,
         //     app_id=app,
         // )
-        itxn_next                                                                      reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        l-load app#0 0                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        itxn_field ApplicationID                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        method call_with_acfg(byte[],acfg,byte[])uint64                                reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,Method(call_with_acfg(byte[],acfg,byte[])uint64)
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 1                                  reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(len+uint8[])%0#0
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 0                                  reinterpret_Encoded(len+uint8[])%1#0
+        itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
+        l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
+        itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
+        method call_with_acfg(byte[],acfg,byte[])uint64                                tmp%0#0,tmp%2#0,Method(call_with_acfg(byte[],acfg,byte[])uint64)
+        itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
+        l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
+        itxn_field ApplicationArgs                                                     tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
         int appl                                                                       appl
         itxn_field TypeEnum
@@ -201,9 +258,16 @@ subroutine test_call_with_acfg:
         itxn_field Fee
         itxn_submit
         gitxn 1 LastLog                                                                awst_tmp%0#0
-        extract 0 4                                                                    tmp%3#0
-        byte 0x151f7c75                                                                tmp%3#0,0x151f7c75
-        ==                                                                             tmp%4#0
+        l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                    awst_tmp%0#0,tmp%2#0
+        len                                                                            awst_tmp%0#0,len%0#0
+        int 8                                                                          awst_tmp%0#0,len%0#0,8
+        ==                                                                             awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                   awst_tmp%0#0
+        l-load awst_tmp%0#0 0                                                          awst_tmp%0#0
+        extract 0 4                                                                    tmp%3#1
+        byte 0x151f7c75                                                                tmp%3#1,0x151f7c75
+        ==                                                                             tmp%4#1
         assert // application log value is not the result of an ABI return
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
@@ -216,10 +280,36 @@ subroutine test_call_with_infer:
     test_call_with_infer_block@0:
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+uint8[])%0#0
-        txna ApplicationArgs 2                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 3                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                           reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        txna ApplicationArgs 1                                                         tmp%0#0
+        l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                              tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                            tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
+        ==                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0
+        txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,tmp%2#0,aggregate%array_length%1#0
+        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
+        +                                                                              tmp%0#0,tmp%2#0,add%1#0
+        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
+        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
+        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                   tmp%0#0,tmp%2#0,tmp%4#0
+        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:53-59
         // arc4.abi_call[UInt64](
         //     "call_with_acfg",
@@ -228,25 +318,25 @@ subroutine test_call_with_infer:
         //     b,
         //     app_id=app,
         // )
-        itxn_begin                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        itxn_begin                                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:51
         // total=1,
-        int 1                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,1
-        itxn_field ConfigAssetTotal                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int 1                                                                          tmp%0#0,tmp%2#0,app#0,1
+        itxn_field ConfigAssetTotal                                                    tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:50
         // asset_name="TEST",
-        byte "TEST"                                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TEST"
-        itxn_field ConfigAssetName                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TEST"                                                                    tmp%0#0,tmp%2#0,app#0,"TEST"
+        itxn_field ConfigAssetName                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:49
         // unit_name="TST",
-        byte "TST"                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TST"
-        itxn_field ConfigAssetUnitName                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TST"                                                                     tmp%0#0,tmp%2#0,app#0,"TST"
+        itxn_field ConfigAssetUnitName                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:48
         // txn = itxn.AssetConfig(
-        int acfg                                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,acfg
-        itxn_field TypeEnum                                                            reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        int 0                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,0
-        itxn_field Fee                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int acfg                                                                       tmp%0#0,tmp%2#0,app#0,acfg
+        itxn_field TypeEnum                                                            tmp%0#0,tmp%2#0,app#0
+        int 0                                                                          tmp%0#0,tmp%2#0,app#0,0
+        itxn_field Fee                                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:53-59
         // arc4.abi_call[UInt64](
         //     "call_with_acfg",
@@ -255,14 +345,14 @@ subroutine test_call_with_infer:
         //     b,
         //     app_id=app,
         // )
-        itxn_next                                                                      reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        l-load app#0 0                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        itxn_field ApplicationID                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        method call_with_acfg(byte[],acfg,byte[])uint64                                reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,Method(call_with_acfg(byte[],acfg,byte[])uint64)
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 1                                  reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(len+uint8[])%0#0
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 0                                  reinterpret_Encoded(len+uint8[])%1#0
+        itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
+        l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
+        itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
+        method call_with_acfg(byte[],acfg,byte[])uint64                                tmp%0#0,tmp%2#0,Method(call_with_acfg(byte[],acfg,byte[])uint64)
+        itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
+        l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
+        itxn_field ApplicationArgs                                                     tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
         int appl                                                                       appl
         itxn_field TypeEnum
@@ -270,9 +360,16 @@ subroutine test_call_with_infer:
         itxn_field Fee
         itxn_submit
         gitxn 1 LastLog                                                                awst_tmp%0#0
-        extract 0 4                                                                    tmp%3#0
-        byte 0x151f7c75                                                                tmp%3#0,0x151f7c75
-        ==                                                                             tmp%4#0
+        l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                    awst_tmp%0#0,tmp%2#0
+        len                                                                            awst_tmp%0#0,len%0#0
+        int 8                                                                          awst_tmp%0#0,len%0#0,8
+        ==                                                                             awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                   awst_tmp%0#0
+        l-load awst_tmp%0#0 0                                                          awst_tmp%0#0
+        extract 0 4                                                                    tmp%3#1
+        byte 0x151f7c75                                                                tmp%3#1,0x151f7c75
+        ==                                                                             tmp%4#1
         assert // application log value is not the result of an ABI return
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
@@ -285,53 +382,79 @@ subroutine test_call_with_acfg_no_return:
     test_call_with_acfg_no_return_block@0:
         // typed_abi_call_txn/caller.py:61
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+uint8[])%0#0
-        txna ApplicationArgs 2                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 3                                                         reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(uint64)%0#0
-        btoi                                                                           reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        txna ApplicationArgs 1                                                         tmp%0#0
+        l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                              tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                            tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
+        ==                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0
+        txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                 tmp%0#0,tmp%2#0,aggregate%array_length%1#0
+        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
+        +                                                                              tmp%0#0,tmp%2#0,add%1#0
+        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
+        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                            tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
+        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                   tmp%0#0,tmp%2#0,tmp%4#0
+        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:68-70
         // txn1 = arc4.abi_call(
         //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
         // )
-        itxn_begin                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        itxn_begin                                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:66
         // total=1,
-        int 1                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,1
-        itxn_field ConfigAssetTotal                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int 1                                                                          tmp%0#0,tmp%2#0,app#0,1
+        itxn_field ConfigAssetTotal                                                    tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:65
         // asset_name="TEST",
-        byte "TEST"                                                                    reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TEST"
-        itxn_field ConfigAssetName                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TEST"                                                                    tmp%0#0,tmp%2#0,app#0,"TEST"
+        itxn_field ConfigAssetName                                                     tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:64
         // unit_name="TST",
-        byte "TST"                                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,"TST"
-        itxn_field ConfigAssetUnitName                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        byte "TST"                                                                     tmp%0#0,tmp%2#0,app#0,"TST"
+        itxn_field ConfigAssetUnitName                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:63
         // acfg = itxn.AssetConfig(
-        int acfg                                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,acfg
-        itxn_field TypeEnum                                                            reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        int 0                                                                          reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,0
-        itxn_field Fee                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        int acfg                                                                       tmp%0#0,tmp%2#0,app#0,acfg
+        itxn_field TypeEnum                                                            tmp%0#0,tmp%2#0,app#0
+        int 0                                                                          tmp%0#0,tmp%2#0,app#0,0
+        itxn_field Fee                                                                 tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:68-70
         // txn1 = arc4.abi_call(
         //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
         // )
-        itxn_next                                                                      reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
+        itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:69
         // TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
-        byte 0x31                                                                      reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0,0x31
-        itxn_field Note                                                                reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        l-load app#0 0                                                                 reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,app#0
-        itxn_field ApplicationID                                                       reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
+        byte 0x31                                                                      tmp%0#0,tmp%2#0,app#0,0x31
+        itxn_field Note                                                                tmp%0#0,tmp%2#0,app#0
+        l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
+        itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
         // typed_abi_call_txn/caller.py:68-70
         // txn1 = arc4.abi_call(
         //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
         // )
-        method call_with_acfg_no_return(byte[],acfg,byte[])void                        reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0,Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 1                                  reinterpret_Encoded(len+uint8[])%1#0,reinterpret_Encoded(len+uint8[])%0#0
-        itxn_field ApplicationArgs                                                     reinterpret_Encoded(len+uint8[])%1#0
-        l-load reinterpret_Encoded(len+uint8[])%1#0 0                                  reinterpret_Encoded(len+uint8[])%1#0
+        method call_with_acfg_no_return(byte[],acfg,byte[])void                        tmp%0#0,tmp%2#0,Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
+        itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
+        l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
+        itxn_field ApplicationArgs                                                     tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
         int appl                                                                       appl
         itxn_field TypeEnum

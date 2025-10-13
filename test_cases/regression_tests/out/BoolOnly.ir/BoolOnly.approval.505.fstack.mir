@@ -63,7 +63,18 @@ subroutine set_0_convert:
     set_0_convert_block@0:
         // regression_tests/bool_only.py:5
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                   reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                   tmp%0#0
+        l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                    tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                           tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                    tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                        tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                    tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                      tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                         tmp%0#0,len%0#0,add%0#0
+        ==                                                                       tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                      tmp%0#0
+        l-load tmp%0#0 0                                                         tmp%0#0
         extract 2 0                                                              inp#0
         // regression_tests/bool_only.py:7
         // return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
@@ -84,7 +95,7 @@ subroutine set_0_convert:
         concat                                                                   aggregate%encoded_value%0#0
         byte 0x151f7c75                                                          aggregate%encoded_value%0#0,0x151f7c75
         l-load aggregate%encoded_value%0#0 1                                     0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                   tmp%3#0
+        concat                                                                   tmp%4#0
         log
         int 1                                                                    1
         return
@@ -95,7 +106,18 @@ subroutine set_0_compare:
     set_0_compare_block@0:
         // regression_tests/bool_only.py:9
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                   reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                   tmp%0#0
+        l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                    tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                           tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                    tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                        tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                    tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                      tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                         tmp%0#0,len%0#0,add%0#0
+        ==                                                                       tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                      tmp%0#0
+        l-load tmp%0#0 0                                                         tmp%0#0
         extract 2 0                                                              inp#0
         // regression_tests/bool_only.py:11
         // return op.setbit_bytes(inp, 0, Txn.num_app_args > 0)
@@ -116,7 +138,7 @@ subroutine set_0_compare:
         concat                                                                   aggregate%encoded_value%0#0
         byte 0x151f7c75                                                          aggregate%encoded_value%0#0,0x151f7c75
         l-load aggregate%encoded_value%0#0 1                                     0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                   tmp%3#0
+        concat                                                                   tmp%4#0
         log
         int 1                                                                    1
         return

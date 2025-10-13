@@ -100,7 +100,18 @@ subroutine greet:
     greet_block@0:
         // compile/apps.py:91
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+utf8[])%0#0
+        txna ApplicationArgs 1                                                                    tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                     tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                            tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                                     tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                                         tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                                     tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                                       tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                          tmp%0#0,len%0#0,add%0#0
+        ==                                                                                        tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                        tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
         extract 2 0                                                                               name#0
         // compile/apps.py:93
         // num_alpha = (self.num + 48).bytes[-1]
@@ -127,8 +138,8 @@ subroutine greet:
         assert // check self.greeting exists                                                      name#0,num_alpha#0,maybe_value%1#0
         l-load maybe_value%1#0 0                                                                  name#0,num_alpha#0,maybe_value%1#0
         byte 0x20                                                                                 name#0,num_alpha#0,maybe_value%1#0,0x20
-        concat                                                                                    name#0,num_alpha#0,tmp%3#0
-        l-load name#0 2                                                                           num_alpha#0,tmp%3#0,name#0
+        concat                                                                                    name#0,num_alpha#0,tmp%3#1
+        l-load name#0 2                                                                           num_alpha#0,tmp%3#1,name#0
         concat                                                                                    num_alpha#0,tmp%4#0
         l-load num_alpha#0 1                                                                      tmp%4#0,num_alpha#0
         concat                                                                                    tmp%5#0
@@ -156,7 +167,7 @@ subroutine greet:
         concat                                                                                    aggregate%encoded_value%0#0
         byte 0x151f7c75                                                                           aggregate%encoded_value%0#0,0x151f7c75
         l-load aggregate%encoded_value%0#0 1                                                      0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                                    tmp%3#0
+        concat                                                                                    tmp%4#0
         log
         int 1                                                                                     1
         return

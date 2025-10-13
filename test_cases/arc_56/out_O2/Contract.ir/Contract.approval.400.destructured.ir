@@ -34,8 +34,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 arg#0 10u)
         let aggregate%len%1#0: uint64 = (len arg#0)
         let s#0: Encoded((len+uint8[]),uint8) = (substring3 arg#0 aggregate%extract_uint16%1#0 aggregate%len%1#0)
-        let tmp%1#7: bytes = (concat 0x151f7c75 s#0)
-        (log tmp%1#7)
+        let tmp%2#0: bytes = (concat 0x151f7c75 s#0)
+        (log tmp%2#0)
         exit 1u
     block@10: // emits_error_route_L99
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
@@ -48,8 +48,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32)
         exit 1u
     block@12: // conditional_emit_route_L113
-        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
-        let should_emit#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
+        let tmp%0#4: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#4)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        let should_emit#0: bool = (getbit tmp%0#4 0u)
         goto should_emit#0 ? block@40 : block@41
     block@40: // if_body_L116
         (log 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33)
@@ -57,10 +60,10 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@41: // after_if_else_L115
         exit 1u
     block@13: // template_value_route_L122
-        let tmp%0#4: Encoded((len+uint8[]),uint8) = TemplateVar[Encoded((len+uint8[]),uint8)](TMPL_STRUCT)
+        let tmp%0#4: bytes = TemplateVar[Encoded((len+uint8[]),uint8)](TMPL_STRUCT)
         let tmp%1#4: uint64 = TemplateVar[uint64](TMPL_AVM_UINT64)
         let tmp%2#3: string = TemplateVar[string](TMPL_AVM_STRING)
-        let tmp%3#3: Encoded(uint8) = TemplateVar[Encoded(uint8)](TMPL_ARC4_UINT8)
+        let tmp%3#1: bytes = TemplateVar[Encoded(uint8)](TMPL_ARC4_UINT8)
         let aggregate%data_length%6#0: uint64 = (len tmp%0#4)
         let aggregate%current_tail_offset%6#0: uint64 = (+ 13u aggregate%data_length%6#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%1#4)
@@ -72,7 +75,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%12#0: bytes[8] = (itob aggregate%current_tail_offset%6#0)
         let aggregate%offset_as_uint16%7#0: bytes = ((extract 6 2) aggregate%as_bytes%12#0)
         let aggregate%head%14#0: bytes = (concat aggregate%head%13#0 aggregate%offset_as_uint16%7#0)
-        let aggregate%head%15#0: bytes = (concat aggregate%head%14#0 tmp%3#3)
+        let aggregate%head%15#0: bytes = (concat aggregate%head%14#0 tmp%3#1)
         let aggregate%concat%6#0: bytes = (concat aggregate%head%15#0 tmp%0#4)
         let aggregate%concat%7#0: bytes = (concat aggregate%concat%6#0 aggregate%encoded_value%4#0)
         let tmp%5#3: bytes = (concat 0x151f7c75 aggregate%concat%7#0)
@@ -80,23 +83,43 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@14: // with_constant_defaults_route_L131
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let b#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
-        let c#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len a#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let b#0: uint64 = (btoi tmp%1#2)
+        let tmp%3#1: bytes = (txna ApplicationArgs 3)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%3#1 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%2#0: uint64 = (len tmp%3#1)
+        let eq%2#0: bool = (== len%2#0 add%0#0)
+        (assert eq%2#0) // invalid number of bytes for (len+uint8[])
+        let c#0: bytes = ((extract 2 0) tmp%3#1)
         let d#0: Encoded(uint64,uint64) = (txna ApplicationArgs 4)
-        let reinterpret_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = (txna ApplicationArgs 5)
-        let e.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,(len+utf8[]))%0#0 0u)
-        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 reinterpret_Encoded(uint64,(len+utf8[]))%0#0 8u)
-        let aggregate%len%2#0: uint64 = (len reinterpret_Encoded(uint64,(len+utf8[]))%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 reinterpret_Encoded(uint64,(len+utf8[]))%0#0 aggregate%extract_uint16%2#0 aggregate%len%2#0)
+        let len%3#0: uint64 = (len d#0)
+        let eq%3#0: bool = (== len%3#0 16u)
+        (assert eq%3#0) // invalid number of bytes for (uint64,uint64)
+        let tmp%6#1: bytes = (txna ApplicationArgs 5)
+        let e.0#0: uint64 = (extract_uint64 tmp%6#1 0u)
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%6#1 8u)
+        let aggregate%len%2#0: uint64 = (len tmp%6#1)
+        let aggregate%substring3%2#0: bytes = (substring3 tmp%6#1 aggregate%extract_uint16%2#0 aggregate%len%2#0)
         let e.1#0: string = ((extract 2 0) aggregate%substring3%2#0)
         let f#0: Encoded((len+utf8[])[2]) = (txna ApplicationArgs 6)
         let g#0: Encoded(len+(len+utf8[])[]) = (txna ApplicationArgs 7)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 8)
-        let h#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 9)
-        let i#0: uint64 = (btoi reinterpret_Encoded(uint64)%3#0)
+        let tmp%11#1: bytes = (txna ApplicationArgs 8)
+        let len%4#0: uint64 = (len tmp%11#1)
+        let eq%4#0: bool = (== len%4#0 8u)
+        (assert eq%4#0) // invalid number of bytes for uint64
+        let h#0: uint64 = (btoi tmp%11#1)
+        let tmp%13#1: bytes = (txna ApplicationArgs 9)
+        let len%5#0: uint64 = (len tmp%13#1)
+        let eq%5#0: bool = (== len%5#0 8u)
+        (assert eq%5#0) // invalid number of bytes for uint64
+        let i#0: uint64 = (btoi tmp%13#1)
         let tmp%0#3: bool = (b!= a#0 0b)
         (assert tmp%0#3)
         (assert b#0)
@@ -119,8 +142,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert or_result%0#0)
         goto e.0#0 ? block@33 : block@32
     block@32: // or_contd_L160
-        let tmp%7#1: uint64 = (len e.1#0)
-        goto tmp%7#1 ? block@33 : block@34
+        let tmp%7#2: uint64 = (len e.1#0)
+        goto tmp%7#2 ? block@33 : block@34
     block@33: // bool_true_L160
         let or_result%1#0: bool = 1u
         goto block@35
@@ -133,15 +156,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%item_length%0#0: uint64 = (extract_uint16 f#0 aggregate%item_offset%0#0)
         let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length%0#0 2u)
         let aggregate%item%0#0: bytes = (extract3 f#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
-        let tmp%10#1: bool = (== aggregate%item%0#0 0x00026869)
-        (assert tmp%10#1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 g#0 0u)
-        let tmp%12#1: bool = (== aggregate%array_length%0#0 2u)
-        (assert tmp%12#1)
+        let tmp%10#2: bool = (== aggregate%item%0#0 0x00026869)
+        (assert tmp%10#2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 g#0 0u)
+        let tmp%12#2: bool = (== aggregate%array_length%1#0 2u)
+        (assert tmp%12#2)
         let tmp%13#0: bool = (== h#0 42u)
         (assert tmp%13#0)
-        let tmp%14#0: bool = (== i#0 1234u)
-        (assert tmp%14#0)
+        let tmp%14#1: bool = (== i#0 1234u)
+        (assert tmp%14#1)
         exit 1u
     block@18: // bare_routing_L53
         let tmp%11#0: uint64 = (txn OnCompletion)

@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 2
     bytecblock 0x00030000
     txn NumAppArgs
     bz main___algopy_default_create@5
@@ -18,17 +19,27 @@ main_verify_route@3:
     &&
     assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    pushint 32 // 32
+    *
+    intc_1 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint256[])
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     pushbytes 0x00
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     setbit
     swap
-    pushint 0 // 0
-    extract_uint16
-    pushint 2 // 2
+    intc_1 // 2
     !=
     bz main_after_if_else@10
     bytec_0 // 0x00030000

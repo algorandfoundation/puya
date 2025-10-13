@@ -266,14 +266,20 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup[routing]() -> void:
     block@0: // L49
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tmp%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup[routing]() -> void:
     block@0: // L56
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#0)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#1: bool = (< index#0 values%0#0)
@@ -282,8 +288,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
-        let tmp%2#0: bytes = (concat 0x151f7c75 array_item%0#0)
-        (log tmp%2#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 array_item%0#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum[routing]() -> void:
@@ -327,7 +333,14 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L70
         let tups#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
-        let array_length%0#0: uint64 = aggregate%array_length%0#0
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tups#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#0 0u)
+        let array_length%0#0: uint64 = aggregate%array_length%1#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L72
@@ -349,6 +362,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups[routing]() -> void:
     block@0: // L75
         let tups#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tups#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
         let array_length%0#0: uint64 = 3u
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
@@ -368,8 +384,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a[routing]() -> void:
     block@0: // L80
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let a#0: uint64 = (btoi tmp%0#0)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -406,8 +425,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b[routing]() -> void:
     block@0: // L87
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let b#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let b#0: uint64 = (btoi tmp%0#0)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -444,8 +466,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups[routing]() -> void:
     block@0: // L94
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let start#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let start#0: uint64 = (btoi tmp%0#0)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#1: uint64 = (+ start#0 3u)
@@ -460,9 +485,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let aggregate%bytes_offset%1#0: uint64 = (* tmp%2#1 16u)
         let aggregate%encoded_element%1#0: bytes = (extract3 box%box_extract%3#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint64) = aggregate%encoded_element%1#0
-        let tmp%3#0: uint64 = (+ start#0 2u)
+        let tmp%3#1: uint64 = (+ start#0 2u)
         let box%box_extract%4#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
-        let aggregate%bytes_offset%2#0: uint64 = (* tmp%3#0 16u)
+        let aggregate%bytes_offset%2#0: uint64 = (* tmp%3#1 16u)
         let aggregate%encoded_element%2#0: bytes = (extract3 box%box_extract%4#0 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64,uint64) = aggregate%encoded_element%2#0
         let aggregate%head%0#0: bytes = (concat 0x array_item%0#0)
@@ -470,8 +495,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 array_item%2#0)
         let aggregate%as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = aggregate%head%2#0
         let encoded_array%0#0: Encoded((uint64,uint64)[3]) = aggregate%as_Encoded((uint64,uint64)[3])%0#0
-        let tmp%2#0: bytes = (concat 0x151f7c75 encoded_array%0#0)
-        (log tmp%2#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 encoded_array%0#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups[routing]() -> void:

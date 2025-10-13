@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 3 8
+    intcblock 0 1 3 16
     bytecblock "turns" "game" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
     dup
@@ -23,10 +23,15 @@ main:
 main_play_route@9:
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     intc_0 // 0
     extract_uint64
     bury 3
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     bury 1
     intc_0 // 0
@@ -91,10 +96,15 @@ main_whose_turn_route@8:
 main_join_game_route@7:
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     intc_0 // 0
     extract_uint64
     swap
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     intc_0 // 0
     bytec_3 // "challenger"
@@ -114,10 +124,15 @@ main_join_game_route@7:
 main_new_game_route@4:
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     intc_0 // 0
     extract_uint64
     bury 3
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     bury 1
     txn ApplicationID

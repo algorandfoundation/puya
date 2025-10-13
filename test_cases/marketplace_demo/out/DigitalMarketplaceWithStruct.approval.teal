@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 4 10 50500
+    intcblock 1 8 0 4 50500
     bytecblock 0x6c697374696e6773
     txn ApplicationID
     bnz main_after_if_else@2
@@ -57,6 +57,11 @@ allow_asset:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:84
     // assert not Global.current_application_address.is_opted_in(asset)
@@ -88,15 +93,15 @@ allow_asset:
     // marketplace_demo/marketplace_with_mutable_struct.py:90
     // xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
     global CurrentApplicationAddress
-    intc_1 // 0
+    intc_2 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_mutable_struct.py:89
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_mutable_struct.py:89-91
     // itxn.AssetTransfer(
@@ -126,12 +131,22 @@ first_deposit:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:101
     // assert mbr_pay.sender == Txn.sender
@@ -239,7 +254,7 @@ first_deposit:
     concat
     // marketplace_demo/marketplace_with_mutable_struct.py:116
     // bid=UInt64(),
-    intc_1 // 0
+    intc_2 // 0
     // marketplace_demo/marketplace_with_mutable_struct.py:112-118
     // self.listings[key] = ListingValue(
     //     deposited=xfer.asset_amount,
@@ -270,10 +285,15 @@ deposit:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:122
     // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
@@ -332,7 +352,7 @@ deposit:
     // marketplace_demo/marketplace_with_mutable_struct.py:134
     // deposited=existing.deposited + xfer.asset_amount,
     uncover 4
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     uncover 6
     +
@@ -365,10 +385,25 @@ set_price:
     // marketplace_demo/marketplace_with_mutable_struct.py:137
     // @arc4.abimethod(name="setPrice")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:139
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -432,9 +467,24 @@ buy:
     // marketplace_demo/marketplace_with_mutable_struct.py:150
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -445,6 +495,11 @@ buy:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:159
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
@@ -467,7 +522,7 @@ buy:
     // marketplace_demo/marketplace_with_mutable_struct.py:163
     // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
     dup
-    pushint 8 // 8
+    intc_1 // 8
     extract_uint64
     dig 5
     asset_params_get AssetDecimals
@@ -479,7 +534,7 @@ buy:
     mulw
     // marketplace_demo/marketplace_with_mutable_struct.py:70
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_mutable_struct.py:71-73
@@ -528,7 +583,7 @@ buy:
     // marketplace_demo/marketplace_with_mutable_struct.py:174
     // deposited=listing.deposited - quantity,
     uncover 4
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dig 6
     -
@@ -564,9 +619,9 @@ buy:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_mutable_struct.py:177
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_mutable_struct.py:177-179
     // itxn.AssetTransfer(
@@ -584,9 +639,19 @@ withdraw:
     // marketplace_demo/marketplace_with_mutable_struct.py:181
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:183
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -634,7 +699,7 @@ withdraw:
     mulw
     // marketplace_demo/marketplace_with_mutable_struct.py:70
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_mutable_struct.py:71-73
@@ -656,7 +721,7 @@ withdraw:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -700,7 +765,7 @@ withdraw_after_if_else@4:
     // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     // marketplace_demo/marketplace_with_mutable_struct.py:196-198
@@ -712,7 +777,7 @@ withdraw_after_if_else@4:
     // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
     txn Sender
     dig 2
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
@@ -720,9 +785,9 @@ withdraw_after_if_else@4:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_mutable_struct.py:196
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_mutable_struct.py:196-198
     // itxn.AssetTransfer(
@@ -740,11 +805,26 @@ bid:
     // marketplace_demo/marketplace_with_mutable_struct.py:200
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     cover 2
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -756,9 +836,19 @@ bid:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     cover 3
     txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     cover 3
     // marketplace_demo/marketplace_with_mutable_struct.py:210
@@ -813,7 +903,7 @@ bid:
     mulw
     // marketplace_demo/marketplace_with_mutable_struct.py:70
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_mutable_struct.py:71-73
@@ -835,7 +925,7 @@ bid:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -856,7 +946,7 @@ bid_after_if_else@4:
     mulw
     // marketplace_demo/marketplace_with_mutable_struct.py:70
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_mutable_struct.py:71-73
@@ -934,9 +1024,19 @@ accept_bid:
     // marketplace_demo/marketplace_with_mutable_struct.py:236
     // @arc4.abimethod(name="acceptBid")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_mutable_struct.py:238
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -970,7 +1070,7 @@ accept_bid:
     // marketplace_demo/marketplace_with_mutable_struct.py:243
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dup
     uncover 2
@@ -1003,7 +1103,7 @@ accept_bid_ternary_merge@4:
     mulw
     // marketplace_demo/marketplace_with_mutable_struct.py:70
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_mutable_struct.py:71-73
@@ -1025,7 +1125,7 @@ accept_bid_ternary_merge@4:
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     // marketplace_demo/marketplace_with_mutable_struct.py:251-253
@@ -1043,9 +1143,9 @@ accept_bid_ternary_merge@4:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_mutable_struct.py:251
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_mutable_struct.py:251-253
     // itxn.AssetTransfer(

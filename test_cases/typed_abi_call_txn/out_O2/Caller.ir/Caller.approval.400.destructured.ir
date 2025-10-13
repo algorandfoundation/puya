@@ -9,12 +9,25 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@4, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@5, method "test_call_with_infer(byte[],byte[],uint64)void" => block@5, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@7, * => block@10}
+        switch tmp%6#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@4, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@5, method "test_call_with_infer(byte[],byte[],uint64)void" => block@6, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@7, * => block@10}
     block@4: // test_call_with_txn_route_L15
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let app#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#1 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%4#1)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -24,24 +37,40 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_next
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_txn(byte[],txn,byte[])uint64")
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%0#0)
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%1#0)
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field ApplicationArgs) tmp%2#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
-        let tmp%2#4: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
-        let tmp%3#2: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%4#1: bool = (== tmp%3#2 0x151f7c75)
-        (assert tmp%4#1) // application log value is not the result of an ABI return
-        let asset_id#0: uint64 = (btoi tmp%2#4)
+        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#1)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%3#4: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#3: bool = (== tmp%3#4 0x151f7c75)
+        (assert tmp%4#3) // application log value is not the result of an ABI return
+        let asset_id#0: uint64 = (btoi tmp%2#1)
         (assert asset_id#0) // expected asset id
         exit 1u
     block@5: // test_call_with_acfg_route_L31
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let app#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%2#1 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%3#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%4#1)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -51,21 +80,79 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_next
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%0#0)
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%1#0)
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field ApplicationArgs) tmp%2#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
-        let tmp%3#2: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%4#1: bool = (== tmp%3#2 0x151f7c75)
-        (assert tmp%4#1) // application log value is not the result of an ABI return
+        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#1)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%3#4: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#3: bool = (== tmp%3#4 0x151f7c75)
+        (assert tmp%4#3) // application log value is not the result of an ABI return
+        exit 1u
+    block@6: // test_call_with_infer_route_L46
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%4#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 tmp%2#1 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%5#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%4#1)
+        itxn_begin
+        ((itxn_field ConfigAssetTotal) 1u)
+        ((itxn_field ConfigAssetName) "TEST")
+        ((itxn_field ConfigAssetUnitName) "TST")
+        ((itxn_field TypeEnum) acfg)
+        ((itxn_field Fee) 0u)
+        itxn_next
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (gitxn 1 LastLog)
+        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#1)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%3#4: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#3: bool = (== tmp%3#4 0x151f7c75)
+        (assert tmp%4#3) // application log value is not the result of an ABI return
         exit 1u
     block@7: // test_call_with_acfg_no_return_route_L61
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let app#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%6#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%7#0: uint64 = (extract_uint16 tmp%2#1 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%7#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%4#1)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -76,8 +163,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Note) 0x31)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg_no_return(byte[],acfg,byte[])void")
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%0#0)
-        ((itxn_field ApplicationArgs) reinterpret_Encoded(len+uint8[])%1#0)
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field ApplicationArgs) tmp%2#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

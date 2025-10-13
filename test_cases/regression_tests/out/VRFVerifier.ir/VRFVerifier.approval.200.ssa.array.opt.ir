@@ -26,17 +26,32 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:
     block@0: // L5
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let message#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let proof#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
-        let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
-        let pk#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let message#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let proof#0: bytes = ((extract 2 0) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let add%2#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for (len+uint8[])
+        let pk#0: bytes = ((extract 2 0) tmp%4#0)
         goto block@2
     block@2: // while_top_L20
         let tmp%1#2: uint64 = (global OpcodeBudget)
-        let tmp%2#0: bool = (> 10010u tmp%1#2)
-        goto tmp%2#0 ? block@3 : block@7
+        let tmp%2#1: bool = (> 10010u tmp%1#2)
+        goto tmp%2#1 ? block@3 : block@7
     block@3: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -59,6 +74,6 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routin
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%1#1)
         let aggregate%head%1#0: bytes = (concat 0x0003 aggregate%encoded_bool%0#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 aggregate%encoded_value%0#0)
-        let tmp%6#0: bytes = (concat 0x151f7c75 aggregate%concat%0#0)
-        (log tmp%6#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%concat%0#0)
+        (log tmp%9#0)
         exit 1u

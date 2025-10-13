@@ -28,8 +28,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: bytes = (txna ApplicationArgs 0)
         switch tmp%10#0 {method "greet(string)byte[]" => block@7, * => block@12}
     block@7: // greet_route_L91
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%0#1: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#1 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#1)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let name#0: string = ((extract 2 0) tmp%0#1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num")
         (assert maybe_exists%0#0) // check self.num exists
         let tmp%0#3: biguint = (b+ maybe_value%0#0 48b)
@@ -38,8 +43,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let num_alpha#0: bytes = (extract3 tmp%0#3 tmp%2#3 1u)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%1#0) // check self.greeting exists
-        let tmp%3#1: bytes = (concat maybe_value%1#0 0x20)
-        let tmp%4#1: bytes = (concat tmp%3#1 name#0)
+        let tmp%3#2: bytes = (concat maybe_value%1#0 0x20)
+        let tmp%4#1: bytes = (concat tmp%3#2 name#0)
         let tmp%5#1: bytes = (concat tmp%4#1 num_alpha#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "address")
         (assert maybe_exists%2#0) // check self.address exists
@@ -51,8 +56,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%7#1)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
+        (log tmp%4#1)
         exit 1u
     block@9: // create_NoOp_L76
         let tmp%11#0: bytes = (txna ApplicationArgs 0)

@@ -32,12 +32,22 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:
     block@0: // L12
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let acfg#0: uint64 = (- tmp%1#0 1u)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let b#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let a#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let acfg#0: uint64 = (- tmp%2#0 1u)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let b#0: bytes = ((extract 2 0) tmp%3#0)
         let tmp%0#1: bool = (== a#0 0x61)
         (assert tmp%0#1) // a is not a
         let tmp%1#1: bool = (== b#0 0x62)
@@ -48,21 +58,31 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[
         let tmp%4#1: uint64 = ((gtxns CreatedAssetID) acfg#0)
         (assert tmp%4#1) // expected asset id
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%4#1)
-        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%7#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
     block@0: // L20
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let acfg#0: uint64 = (- tmp%1#0 1u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let a#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let acfg#0: uint64 = (- tmp%2#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) acfg#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let b#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let b#0: bytes = ((extract 2 0) tmp%3#0)
         let tmp%0#1: bool = (== a#0 0x61)
         (assert tmp%0#1) // a is not a
         let tmp%1#1: bool = (== b#0 0x62)
@@ -70,21 +90,31 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
         let tmp%2#1: uint64 = ((gtxns CreatedAssetID) acfg#0)
         (assert tmp%2#1) // expected asset id
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#1)
-        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%7#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
     block@0: // L27
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let acfg#0: uint64 = (- tmp%1#0 1u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let a#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let acfg#0: uint64 = (- tmp%2#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) acfg#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let b#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let b#0: bytes = ((extract 2 0) tmp%3#0)
         let tmp%0#1: bool = (== a#0 0x61)
         (assert tmp%0#1) // a is not a
         let tmp%1#1: bool = (== b#0 0x62)

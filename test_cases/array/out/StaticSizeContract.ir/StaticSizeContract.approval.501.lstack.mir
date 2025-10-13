@@ -212,12 +212,40 @@ subroutine test_array:
         // array/static_size.py:41
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    x1#0
-        txna ApplicationArgs 2                                                                    x1#0,reinterpret_Encoded(uint64)%1#0
-        l-load reinterpret_Encoded(uint64)%1#0 0                                                  x1#0,reinterpret_Encoded(uint64)%1#0
+        l-load-copy x1#0 0                                                                        x1#0,x1#0 (copy)
+        len                                                                                       x1#0,len%0#0
+        l-load len%0#0 0                                                                          x1#0,len%0#0
+        int 8                                                                                     x1#0,len%0#0,8
+        ==                                                                                        x1#0,eq%0#0
+        l-load eq%0#0 0                                                                           x1#0,eq%0#0
+        assert // invalid number of bytes for uint64                                              x1#0
+        txna ApplicationArgs 2                                                                    x1#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                     x1#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                       x1#0,tmp%1#0,len%1#0
+        l-load len%1#0 0                                                                          x1#0,tmp%1#0,len%1#0
+        int 8                                                                                     x1#0,tmp%1#0,len%1#0,8
+        ==                                                                                        x1#0,tmp%1#0,eq%1#0
+        l-load eq%1#0 0                                                                           x1#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for uint64                                              x1#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          x1#0,tmp%1#0
         btoi                                                                                      x1#0,y1#0
         txna ApplicationArgs 3                                                                    x1#0,y1#0,x2#0
-        txna ApplicationArgs 4                                                                    x1#0,y1#0,x2#0,reinterpret_Encoded(uint64)%3#0
-        l-load reinterpret_Encoded(uint64)%3#0 0                                                  x1#0,y1#0,x2#0,reinterpret_Encoded(uint64)%3#0
+        l-load-copy x2#0 0                                                                        x1#0,y1#0,x2#0,x2#0 (copy)
+        len                                                                                       x1#0,y1#0,x2#0,len%2#0
+        l-load len%2#0 0                                                                          x1#0,y1#0,x2#0,len%2#0
+        int 8                                                                                     x1#0,y1#0,x2#0,len%2#0,8
+        ==                                                                                        x1#0,y1#0,x2#0,eq%2#0
+        l-load eq%2#0 0                                                                           x1#0,y1#0,x2#0,eq%2#0
+        assert // invalid number of bytes for uint64                                              x1#0,y1#0,x2#0
+        txna ApplicationArgs 4                                                                    x1#0,y1#0,x2#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                     x1#0,y1#0,x2#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                       x1#0,y1#0,x2#0,tmp%4#0,len%3#0
+        l-load len%3#0 0                                                                          x1#0,y1#0,x2#0,tmp%4#0,len%3#0
+        int 8                                                                                     x1#0,y1#0,x2#0,tmp%4#0,len%3#0,8
+        ==                                                                                        x1#0,y1#0,x2#0,tmp%4#0,eq%3#0
+        l-load eq%3#0 0                                                                           x1#0,y1#0,x2#0,tmp%4#0,eq%3#0
+        assert // invalid number of bytes for uint64                                              x1#0,y1#0,x2#0,tmp%4#0
+        l-load tmp%4#0 0                                                                          x1#0,y1#0,x2#0,tmp%4#0
         btoi                                                                                      x1#0,y1#0,x2#0,y2#0
         // array/static_size.py:43
         // self.count = UInt64(0)
@@ -229,10 +257,10 @@ subroutine test_array:
         callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1
         // array/static_size.py:47
         // Point(x=x1, y=y1, other=self.xtra()),
-        callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0
+        callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0
         // array/static_size.py:48
         // Point(x=x2, y=y2, other=self.xtra()),
-        callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0
+        callsub xtra                                                                              x1#0,y1#0,x2#0,y2#0,tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0
         // array/static_size.py:44-50
         // path = ReferenceArray(
         //     (
@@ -241,51 +269,51 @@ subroutine test_array:
         //         Point(x=x2, y=y2, other=self.xtra()),
         //     )
         // )
-        l-load tmp%0#1 14                                                                         x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,tmp%0#1
-        itob                                                                                      x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0
-        l-load tmp%1#1 14                                                                         x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,tmp%1#1
-        itob                                                                                      x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%1#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%2#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
-        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0
-        l-load aggregate%head%3#0 0                                                               x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0
-        l-load tmp%2#1 13                                                                         x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0,tmp%2#1
-        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                               x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0
-        l-load tmp%3#1 12                                                                         x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0,tmp%3#1
-        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0
-        l-load-copy tmp%4#1 11                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,tmp%4#1 (copy)
-        len                                                                                       x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0
-        l-load aggregate%value_len%0#0 0                                                          x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0
-        int 64                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0,64
-        <=                                                                                        x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%len_ok%0#0
-        l-load aggregate%len_ok%0#0 0                                                             x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%len_ok%0#0
-        assert // overflow                                                                        x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0
-        int 64                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,64
-        bzero                                                                                     x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0
-        l-load tmp%4#1 12                                                                         x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,tmp%4#1
-        l-load-copy aggregate%bzero%0#0 1                                                         x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,tmp%4#1,aggregate%bzero%0#0 (copy)
-        b|                                                                                        x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,aggregate%arc4_encoded%0#0
-        l-load aggregate%head%5#0 2                                                               x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%arc4_encoded%0#0,aggregate%head%5#0
-        l-load aggregate%arc4_encoded%0#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%5#0,aggregate%arc4_encoded%0#0
-        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%6#0
-        byte 0x00000000000000000000000000000000                                                   x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%6#0,0x00000000000000000000000000000000
-        l-load aggregate%head%6#0 1                                                               x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,0x00000000000000000000000000000000,aggregate%head%6#0
-        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0
-        l-load y1#0 14                                                                            x1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,y1#0
-        itob                                                                                      x1#0,x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%val_as_bytes%3#0
-        l-load x1#0 15                                                                            x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%val_as_bytes%3#0,x1#0
-        l-load aggregate%val_as_bytes%3#0 1                                                       x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,x1#0,aggregate%val_as_bytes%3#0
-        concat                                                                                    x2#0,y2#0,tmp%5#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0
-        l-load tmp%5#0 12                                                                         x2#0,y2#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,tmp%5#0
-        itob                                                                                      x2#0,y2#0,tmp%6#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0
-        l-load tmp%6#0 12                                                                         x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,tmp%6#0
-        itob                                                                                      x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
-        l-load aggregate%val_as_bytes%4#0 1                                                       x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%val_as_bytes%5#0 1                                                       x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
-        concat                                                                                    x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0
-        l-load aggregate%head%12#0 0                                                              x2#0,y2#0,tmp%7#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0
-        l-load tmp%7#0 11                                                                         x2#0,y2#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0,tmp%7#0
+        l-load tmp%0#1 14                                                                         x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,tmp%0#1
+        itob                                                                                      x1#0,y1#0,x2#0,y2#0,tmp%1#1,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0
+        l-load tmp%1#1 14                                                                         x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,tmp%1#1
+        itob                                                                                      x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%1#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%2#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0
+        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0
+        l-load aggregate%head%3#0 0                                                               x1#0,y1#0,x2#0,y2#0,tmp%2#1,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0
+        l-load tmp%2#1 13                                                                         x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%3#0,tmp%2#1
+        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0
+        l-load aggregate%head%4#0 0                                                               x1#0,y1#0,x2#0,y2#0,tmp%3#1,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0
+        l-load tmp%3#1 12                                                                         x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%4#0,tmp%3#1
+        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0
+        l-load-copy tmp%4#1 11                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,tmp%4#1 (copy)
+        len                                                                                       x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0
+        l-load aggregate%value_len%0#0 0                                                          x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0
+        int 64                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%value_len%0#0,64
+        <=                                                                                        x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%len_ok%0#0
+        l-load aggregate%len_ok%0#0 0                                                             x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%len_ok%0#0
+        assert // overflow                                                                        x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0
+        int 64                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,64
+        bzero                                                                                     x1#0,y1#0,x2#0,y2#0,tmp%4#1,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0
+        l-load tmp%4#1 12                                                                         x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,tmp%4#1
+        l-load-copy aggregate%bzero%0#0 1                                                         x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,tmp%4#1,aggregate%bzero%0#0 (copy)
+        b|                                                                                        x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%head%5#0,aggregate%bzero%0#0,aggregate%arc4_encoded%0#0
+        l-load aggregate%head%5#0 2                                                               x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%arc4_encoded%0#0,aggregate%head%5#0
+        l-load aggregate%arc4_encoded%0#0 1                                                       x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%5#0,aggregate%arc4_encoded%0#0
+        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%6#0
+        byte 0x00000000000000000000000000000000                                                   x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%6#0,0x00000000000000000000000000000000
+        l-load aggregate%head%6#0 1                                                               x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,0x00000000000000000000000000000000,aggregate%head%6#0
+        concat                                                                                    x1#0,y1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0
+        l-load y1#0 14                                                                            x1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,y1#0
+        itob                                                                                      x1#0,x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%val_as_bytes%3#0
+        l-load x1#0 15                                                                            x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%val_as_bytes%3#0,x1#0
+        l-load aggregate%val_as_bytes%3#0 1                                                       x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,x1#0,aggregate%val_as_bytes%3#0
+        concat                                                                                    x2#0,y2#0,tmp%5#1,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0
+        l-load tmp%5#1 12                                                                         x2#0,y2#0,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,tmp%5#1
+        itob                                                                                      x2#0,y2#0,tmp%6#1,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0
+        l-load tmp%6#1 12                                                                         x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,tmp%6#1
+        itob                                                                                      x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                       x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%val_as_bytes%5#0 1                                                       x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        concat                                                                                    x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0
+        l-load aggregate%head%12#0 0                                                              x2#0,y2#0,tmp%7#1,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0
+        l-load tmp%7#1 11                                                                         x2#0,y2#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%12#0,tmp%7#1
         concat                                                                                    x2#0,y2#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%13#0
         l-load aggregate%head%13#0 0                                                              x2#0,y2#0,tmp%8#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%13#0
         l-load tmp%8#0 10                                                                         x2#0,y2#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,tmp%14#0,aggregate%bzero%0#0,aggregate%head%7#0,aggregate%head%10#0,aggregate%head%13#0,tmp%8#0
@@ -544,16 +572,16 @@ subroutine test_array:
         int 0                                                                                     aggregate%encoded_element%4#0,0
         // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
-        extract_uint64                                                                            tmp%5#0
-        v-load aggregate%encoded_element%3#0                                                      tmp%5#0,aggregate%encoded_element%3#0
+        extract_uint64                                                                            tmp%5#1
+        v-load aggregate%encoded_element%3#0                                                      tmp%5#1,aggregate%encoded_element%3#0
         // array/static_size.py:169
         // last_point = path[0]
-        int 0                                                                                     tmp%5#0,aggregate%encoded_element%3#0,0
+        int 0                                                                                     tmp%5#1,aggregate%encoded_element%3#0,0
         // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
-        extract_uint64                                                                            tmp%5#0,tmp%6#0
-        l-load tmp%5#0 1                                                                          tmp%6#0,tmp%5#0
-        l-load tmp%6#0 1                                                                          tmp%5#0,tmp%6#0
+        extract_uint64                                                                            tmp%5#1,tmp%6#1
+        l-load tmp%5#1 1                                                                          tmp%6#1,tmp%5#1
+        l-load tmp%6#1 1                                                                          tmp%5#1,tmp%6#1
         -                                                                                         dx#0
         v-store dx#0
         b test_array_after_if_else@11
@@ -563,8 +591,8 @@ subroutine test_array:
         // if point.y < last_point.y:
         v-load point.y#0                                                                          point.y#0
         v-load last_point.y#0                                                                     point.y#0,last_point.y#0
-        <                                                                                         tmp%8#1
-        l-load tmp%8#1 0                                                                          tmp%8#1
+        <                                                                                         tmp%8#2
+        l-load tmp%8#2 0                                                                          tmp%8#2
         bz test_array_else_body@13 ; b test_array_if_body@12
 
     test_array_if_body@12:
@@ -621,8 +649,8 @@ subroutine test_array:
         itob                                                                                      aggregate%val_as_bytes%9#0
         byte 0x151f7c75                                                                           aggregate%val_as_bytes%9#0,0x151f7c75
         l-load aggregate%val_as_bytes%9#0 1                                                       0x151f7c75,aggregate%val_as_bytes%9#0
-        concat                                                                                    tmp%4#0
-        l-load tmp%4#0 0                                                                          tmp%4#0
+        concat                                                                                    tmp%8#0
+        l-load tmp%8#0 0                                                                          tmp%8#0
         log
         int 1                                                                                     1
         return
@@ -633,10 +661,17 @@ subroutine test_extend_from_tuple:
     test_extend_from_tuple_block@0:
         // array/static_size.py:59
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0
-        l-load-copy reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 0                    reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0,reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 (copy)
-        extract 0 16                                                                              reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0,some_more.0#0
-        l-load reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0 1                         some_more.0#0,reinterpret_Encoded((uint64,uint64),(uint64,uint64))%0#0
+        txna ApplicationArgs 1                                                                    tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        len                                                                                       tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                          tmp%0#0,len%0#0
+        int 32                                                                                    tmp%0#0,len%0#0,32
+        ==                                                                                        tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                           tmp%0#0,eq%0#0
+        assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))                   tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        extract 0 16                                                                              tmp%0#0,some_more.0#0
+        l-load tmp%0#0 1                                                                          some_more.0#0,tmp%0#0
         extract 16 16                                                                             some_more.0#0,some_more.1#0
         // array/static_size.py:62
         // arr.extend(some_more)
@@ -704,8 +739,8 @@ subroutine test_extend_from_tuple:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           result#0,0x151f7c75
         l-load result#0 1                                                                         0x151f7c75,result#0
-        concat                                                                                    tmp%3#0
-        l-load tmp%3#0 0                                                                          tmp%3#0
+        concat                                                                                    tmp%4#0
+        l-load tmp%4#0 0                                                                          tmp%4#0
         log
         int 1                                                                                     1
         return
@@ -717,16 +752,21 @@ subroutine test_extend_from_arc4_tuple:
         // array/static_size.py:69
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    some_more#0
+        l-load-copy some_more#0 0                                                                 some_more#0,some_more#0 (copy)
+        len                                                                                       some_more#0,len%0#0
+        l-load-copy len%0#0 0                                                                     some_more#0,len%0#0,len%0#0 (copy)
+        int 32                                                                                    some_more#0,len%0#0,len%0#0 (copy),32
+        ==                                                                                        some_more#0,len%0#0,eq%0#0
+        l-load eq%0#0 0                                                                           some_more#0,len%0#0,eq%0#0
+        assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))                   some_more#0,len%0#0
         // array/static_size.py:74
         // arr.extend(some_more)
-        l-load-copy some_more#0 0                                                                 some_more#0,some_more#0 (copy)
-        v-store slot%0                                                                            some_more#0
+        l-load-copy some_more#0 1                                                                 some_more#0,len%0#0,some_more#0 (copy)
+        v-store slot%0                                                                            some_more#0,len%0#0
         // array/static_size.py:75
         // return arr.freeze()
-        l-load-copy some_more#0 0                                                                 some_more#0,some_more#0 (copy)
-        len                                                                                       some_more#0,aggregate%bytes_len%0#0
-        l-load aggregate%bytes_len%0#0 0                                                          some_more#0,aggregate%bytes_len%0#0
-        int 16                                                                                    some_more#0,aggregate%bytes_len%0#0,16
+        l-load len%0#0 0                                                                          some_more#0,len%0#0
+        int 16                                                                                    some_more#0,len%0#0,16
         /                                                                                         some_more#0,aggregate%array_len%0#0
         l-load aggregate%array_len%0#0 0                                                          some_more#0,aggregate%array_len%0#0
         itob                                                                                      some_more#0,as_bytes%0#0
@@ -739,8 +779,8 @@ subroutine test_extend_from_arc4_tuple:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           converted_array%0#0,0x151f7c75
         l-load converted_array%0#0 1                                                              0x151f7c75,converted_array%0#0
-        concat                                                                                    tmp%1#0
-        l-load tmp%1#0 0                                                                          tmp%1#0
+        concat                                                                                    tmp%2#0
+        l-load tmp%2#0 0                                                                          tmp%2#0
         log
         int 1                                                                                     1
         return
@@ -751,8 +791,15 @@ subroutine test_bool_array:
     test_bool_array_block@0:
         // array/static_size.py:77
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                  reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                    tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        len                                                                                       tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                          tmp%0#0,len%0#0
+        int 8                                                                                     tmp%0#0,len%0#0,8
+        ==                                                                                        tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                           tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                              tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
         btoi                                                                                      length#0
         l-store-copy length#0 0                                                                   length#0,length#0 (copy)
         v-store length#0                                                                          length#0
@@ -789,12 +836,12 @@ subroutine test_bool_array:
         int 2                                                                                     i#0,i#0 (copy),2
         %                                                                                         i#0,tmp%3#1
         l-load tmp%3#1 0                                                                          i#0,tmp%3#1
-        !                                                                                         i#0,tmp%4#0
-        v-load slot%0                                                                             i#0,tmp%4#0,slot%0
-        l-store slot_contents%0#0 1                                                               i#0,slot_contents%0#0,tmp%4#0
-        byte 0x00                                                                                 i#0,slot_contents%0#0,tmp%4#0,0x00
-        int 0                                                                                     i#0,slot_contents%0#0,tmp%4#0,0x00,0
-        l-load tmp%4#0 2                                                                          i#0,slot_contents%0#0,0x00,0,tmp%4#0
+        !                                                                                         i#0,tmp%4#1
+        v-load slot%0                                                                             i#0,tmp%4#1,slot%0
+        l-store slot_contents%0#0 1                                                               i#0,slot_contents%0#0,tmp%4#1
+        byte 0x00                                                                                 i#0,slot_contents%0#0,tmp%4#1,0x00
+        int 0                                                                                     i#0,slot_contents%0#0,tmp%4#1,0x00,0
+        l-load tmp%4#1 2                                                                          i#0,slot_contents%0#0,0x00,0,tmp%4#1
         setbit                                                                                    i#0,slot_contents%0#0,aggregate%encoded_bool%0#0
         l-load slot_contents%0#0 1                                                                i#0,aggregate%encoded_bool%0#0,slot_contents%0#0
         l-load aggregate%encoded_bool%0#0 1                                                       i#0,slot_contents%0#0,aggregate%encoded_bool%0#0
@@ -913,8 +960,8 @@ subroutine test_bool_array:
         itob                                                                                      aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                           aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                       0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                    tmp%3#0
-        l-load tmp%3#0 0                                                                          tmp%3#0
+        concat                                                                                    tmp%4#0
+        l-load tmp%4#0 0                                                                          tmp%4#0
         log
         int 1                                                                                     1
         return
@@ -925,8 +972,15 @@ subroutine test_arc4_conversion:
     test_arc4_conversion_block@0:
         // array/static_size.py:96
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                  reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                    tmp%0#0
+        l-load-copy tmp%0#0 0                                                                     tmp%0#0,tmp%0#0 (copy)
+        len                                                                                       tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                          tmp%0#0,len%0#0
+        int 8                                                                                     tmp%0#0,len%0#0,8
+        ==                                                                                        tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                           tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                              tmp%0#0
+        l-load tmp%0#0 0                                                                          tmp%0#0
         btoi                                                                                      length#0
         l-store-copy length#0 0                                                                   length#0,length#0 (copy)
         v-store length#0                                                                          length#0
@@ -1077,8 +1131,8 @@ subroutine test_arc4_conversion:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                           arc4_arr#1,0x151f7c75
         l-load arc4_arr#1 1                                                                       0x151f7c75,arc4_arr#1
-        concat                                                                                    tmp%2#0
-        l-load tmp%2#0 0                                                                          tmp%2#0
+        concat                                                                                    tmp%3#0
+        l-load tmp%3#0 0                                                                          tmp%3#0
         log
         int 1                                                                                     1
         return
@@ -1090,6 +1144,22 @@ subroutine sum_array:
         // array/static_size.py:114
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    arc4_arr#0
+        l-load-copy arc4_arr#0 0                                                                  arc4_arr#0,arc4_arr#0 (copy)
+        int 0                                                                                     arc4_arr#0,arc4_arr#0 (copy),0
+        extract_uint16                                                                            arc4_arr#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                       arc4_arr#0,aggregate%array_length%0#0
+        int 8                                                                                     arc4_arr#0,aggregate%array_length%0#0,8
+        *                                                                                         arc4_arr#0,mul%0#0
+        l-load mul%0#0 0                                                                          arc4_arr#0,mul%0#0
+        int 2                                                                                     arc4_arr#0,mul%0#0,2
+        +                                                                                         arc4_arr#0,add%0#0
+        l-load-copy arc4_arr#0 1                                                                  arc4_arr#0,add%0#0,arc4_arr#0 (copy)
+        len                                                                                       arc4_arr#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                          arc4_arr#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                          arc4_arr#0,len%0#0,add%0#0
+        ==                                                                                        arc4_arr#0,eq%0#0
+        l-load eq%0#0 0                                                                           arc4_arr#0,eq%0#0
+        assert // invalid number of bytes for (len+uint64[])                                      arc4_arr#0
         // array/static_size.py:117
         // arr.extend(arc4_arr)
         l-load arc4_arr#0 0                                                                       arc4_arr#0
@@ -1152,8 +1222,8 @@ subroutine sum_array:
         itob                                                                                      aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                           aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                       0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                    tmp%2#0
-        l-load tmp%2#0 0                                                                          tmp%2#0
+        concat                                                                                    tmp%3#0
+        l-load tmp%3#0 0                                                                          tmp%3#0
         log
         int 1                                                                                     1
         return

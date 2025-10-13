@@ -59,13 +59,18 @@ subroutine new_game:
     new_game_block@0:
         // tictactoe/tictactoe.py:20
         // @arc4.abimethod(create="allow")
-        txna ApplicationArgs 1                                                                                                                                                      reinterpret_Encoded(uint64,uint64)%0#0
-        l-load-copy reinterpret_Encoded(uint64,uint64)%0#0 0                                                                                                                        reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy)
-        int 0                                                                                                                                                                       reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy),0
-        extract_uint64                                                                                                                                                              reinterpret_Encoded(uint64,uint64)%0#0,move.0#0
-        f-store move.0#0                                                                                                                                                            (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0
-        l-load reinterpret_Encoded(uint64,uint64)%0#0 0                                                                                                                             (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0
-        int 8                                                                                                                                                                       (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0,8
+        txna ApplicationArgs 1                                                                                                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                                                                                         tmp%0#0,len%0#0
+        int 16                                                                                                                                                                      tmp%0#0,len%0#0,16
+        ==                                                                                                                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                                                                                                       tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                                                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint64                                                                                                                                                              tmp%0#0,move.0#0
+        f-store move.0#0                                                                                                                                                            (𝕗) move.0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                                                                                                            (𝕗) move.0#0 | tmp%0#0
+        int 8                                                                                                                                                                       (𝕗) move.0#0 | tmp%0#0,8
         extract_uint64                                                                                                                                                              (𝕗) move.0#0 | move.1#0
         f-store move.1#0                                                                                                                                                            (𝕗) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:22
@@ -110,9 +115,9 @@ subroutine new_game:
     new_game_after_if_else@5:                                                                                                                                                       (𝕗) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:30
         // self.host = Txn.sender
-        txn Sender                                                                                                                                                                  (𝕗) move.0#0,move.1#0 | tmp%2#0
-        byte "host"                                                                                                                                                                 (𝕗) move.0#0,move.1#0 | tmp%2#0,"host"
-        l-load tmp%2#0 1                                                                                                                                                            (𝕗) move.0#0,move.1#0 | "host",tmp%2#0
+        txn Sender                                                                                                                                                                  (𝕗) move.0#0,move.1#0 | tmp%2#1
+        byte "host"                                                                                                                                                                 (𝕗) move.0#0,move.1#0 | tmp%2#1,"host"
+        l-load tmp%2#1 1                                                                                                                                                            (𝕗) move.0#0,move.1#0 | "host",tmp%2#1
         app_global_put                                                                                                                                                              (𝕗) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:31
         // self.game = Game.from_bytes(op.bzero(9))
@@ -190,12 +195,17 @@ subroutine join_game:
     join_game_block@0:
         // tictactoe/tictactoe.py:37
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                                                                                                      reinterpret_Encoded(uint64,uint64)%0#0
-        l-load-copy reinterpret_Encoded(uint64,uint64)%0#0 0                                                                                                                        reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy)
-        int 0                                                                                                                                                                       reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy),0
-        extract_uint64                                                                                                                                                              reinterpret_Encoded(uint64,uint64)%0#0,move.0#0
-        l-load reinterpret_Encoded(uint64,uint64)%0#0 1                                                                                                                             move.0#0,reinterpret_Encoded(uint64,uint64)%0#0
-        int 8                                                                                                                                                                       move.0#0,reinterpret_Encoded(uint64,uint64)%0#0,8
+        txna ApplicationArgs 1                                                                                                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                                                                                         tmp%0#0,len%0#0
+        int 16                                                                                                                                                                      tmp%0#0,len%0#0,16
+        ==                                                                                                                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                                                                                                       tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                                                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint64                                                                                                                                                              tmp%0#0,move.0#0
+        l-load tmp%0#0 1                                                                                                                                                            move.0#0,tmp%0#0
+        int 8                                                                                                                                                                       move.0#0,tmp%0#0,8
         extract_uint64                                                                                                                                                              move.0#0,move.1#0
         // tictactoe/tictactoe.py:39
         // assert not self.challenger, "Host already has a challenger"
@@ -256,13 +266,18 @@ subroutine play:
     play_block@0:
         // tictactoe/tictactoe.py:47
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                                                                                                      reinterpret_Encoded(uint64,uint64)%0#0
-        l-load-copy reinterpret_Encoded(uint64,uint64)%0#0 0                                                                                                                        reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy)
-        int 0                                                                                                                                                                       reinterpret_Encoded(uint64,uint64)%0#0,reinterpret_Encoded(uint64,uint64)%0#0 (copy),0
-        extract_uint64                                                                                                                                                              reinterpret_Encoded(uint64,uint64)%0#0,move.0#0
-        f-store move.0#0                                                                                                                                                            (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0
-        l-load reinterpret_Encoded(uint64,uint64)%0#0 0                                                                                                                             (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0
-        int 8                                                                                                                                                                       (𝕗) move.0#0 | reinterpret_Encoded(uint64,uint64)%0#0,8
+        txna ApplicationArgs 1                                                                                                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                                                                                         tmp%0#0,len%0#0
+        int 16                                                                                                                                                                      tmp%0#0,len%0#0,16
+        ==                                                                                                                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                                                                                                       tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                                                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint64                                                                                                                                                              tmp%0#0,move.0#0
+        f-store move.0#0                                                                                                                                                            (𝕗) move.0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                                                                                                            (𝕗) move.0#0 | tmp%0#0
+        int 8                                                                                                                                                                       (𝕗) move.0#0 | tmp%0#0,8
         extract_uint64                                                                                                                                                              (𝕗) move.0#0 | move.1#0
         f-store move.1#0                                                                                                                                                            (𝕗) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:49

@@ -126,16 +126,22 @@ subroutine allow_asset:
         int pay                                                                                       mbr_pay#0,gtxn_type%0#0,pay
         ==                                                                                            mbr_pay#0,gtxn_type_matches%0#0
         assert // transaction type is pay                                                             mbr_pay#0
-        txna ApplicationArgs 1                                                                        mbr_pay#0,reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        mbr_pay#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                         mbr_pay#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                           mbr_pay#0,tmp%1#0,len%0#0
+        int 8                                                                                         mbr_pay#0,tmp%1#0,len%0#0,8
+        ==                                                                                            mbr_pay#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  mbr_pay#0,tmp%1#0
+        l-load tmp%1#0 0                                                                              mbr_pay#0,tmp%1#0
         btoi                                                                                          mbr_pay#0,asset#0
         // marketplace_demo/marketplace_with_tups.py:85
         // assert not Global.current_application_address.is_opted_in(asset)
         global CurrentApplicationAddress                                                              mbr_pay#0,asset#0,tmp%0#1
         l-load-copy asset#0 1                                                                         mbr_pay#0,asset#0,tmp%0#1,asset#0 (copy)
-        asset_holding_get AssetBalance                                                                mbr_pay#0,asset#0,tmp%1#1,tmp%2#0
-        l-store tmp%2#0 1                                                                             mbr_pay#0,asset#0,tmp%2#0,tmp%1#1
-        pop 1                                                                                         mbr_pay#0,asset#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              mbr_pay#0,asset#0,tmp%2#0
+        asset_holding_get AssetBalance                                                                mbr_pay#0,asset#0,tmp%1#1,tmp%2#1
+        l-store tmp%2#1 1                                                                             mbr_pay#0,asset#0,tmp%2#1,tmp%1#1
+        pop 1                                                                                         mbr_pay#0,asset#0,tmp%2#1
+        l-load tmp%2#1 0                                                                              mbr_pay#0,asset#0,tmp%2#1
         !                                                                                             mbr_pay#0,asset#0,tmp%3#0
         assert                                                                                        mbr_pay#0,asset#0
         // marketplace_demo/marketplace_with_tups.py:87
@@ -208,9 +214,21 @@ subroutine first_deposit:
         int axfer                                                                                     mbr_pay#0,xfer#0,gtxn_type%1#0,axfer
         ==                                                                                            mbr_pay#0,xfer#0,gtxn_type_matches%1#0
         assert // transaction type is axfer                                                           mbr_pay#0,xfer#0
-        txna ApplicationArgs 1                                                                        mbr_pay#0,xfer#0,reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        mbr_pay#0,xfer#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         mbr_pay#0,xfer#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           mbr_pay#0,xfer#0,tmp%2#0,len%0#0
+        int 8                                                                                         mbr_pay#0,xfer#0,tmp%2#0,len%0#0,8
+        ==                                                                                            mbr_pay#0,xfer#0,tmp%2#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  mbr_pay#0,xfer#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              mbr_pay#0,xfer#0,tmp%2#0
         btoi                                                                                          mbr_pay#0,xfer#0,unitary_price#0
-        txna ApplicationArgs 2                                                                        mbr_pay#0,xfer#0,unitary_price#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                        mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                         mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                           mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,len%1#0
+        int 8                                                                                         mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,len%1#0,8
+        ==                                                                                            mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
         btoi                                                                                          mbr_pay#0,xfer#0,unitary_price#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:102
         // assert mbr_pay.sender == Txn.sender
@@ -225,10 +243,10 @@ subroutine first_deposit:
         // assert mbr_pay.receiver == Global.current_application_address
         l-load-copy mbr_pay#0 3                                                                       mbr_pay#0,xfer#0,unitary_price#0,nonce#0,mbr_pay#0 (copy)
         gtxns Receiver                                                                                mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%3#1
-        global CurrentApplicationAddress                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%3#1,tmp%4#0
-        l-load tmp%3#1 1                                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%4#0,tmp%3#1
-        l-load tmp%4#0 1                                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%3#1,tmp%4#0
-        ==                                                                                            mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%5#0
+        global CurrentApplicationAddress                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%3#1,tmp%4#1
+        l-load tmp%3#1 1                                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%4#1,tmp%3#1
+        l-load tmp%4#1 1                                                                              mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%3#1,tmp%4#1
+        ==                                                                                            mbr_pay#0,xfer#0,unitary_price#0,nonce#0,tmp%5#1
         assert                                                                                        mbr_pay#0,xfer#0,unitary_price#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:104
         // assert mbr_pay.amount == self.listings_box_mbr()
@@ -367,7 +385,13 @@ subroutine deposit:
         int axfer                                                                                     xfer#0,gtxn_type%0#0,axfer
         ==                                                                                            xfer#0,gtxn_type_matches%0#0
         assert // transaction type is axfer                                                           xfer#0
-        txna ApplicationArgs 1                                                                        xfer#0,reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        xfer#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                         xfer#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                           xfer#0,tmp%1#0,len%0#0
+        int 8                                                                                         xfer#0,tmp%1#0,len%0#0,8
+        ==                                                                                            xfer#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  xfer#0,tmp%1#0
+        l-load tmp%1#0 0                                                                              xfer#0,tmp%1#0
         btoi                                                                                          xfer#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:123
         // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
@@ -377,10 +401,10 @@ subroutine deposit:
         // marketplace_demo/marketplace_with_tups.py:125
         // assert xfer.sender == Txn.sender
         l-load-copy xfer#0 3                                                                          xfer#0,nonce#0,key.owner#0,key.asset#0,xfer#0 (copy)
-        gtxns Sender                                                                                  xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#0
-        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#0,tmp%3#0
-        l-load tmp%2#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%3#0,tmp%2#0
-        l-load tmp%3#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#0,tmp%3#0
+        gtxns Sender                                                                                  xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1
+        txn Sender                                                                                    xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
+        l-load tmp%2#1 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%3#0,tmp%2#1
+        l-load tmp%3#0 1                                                                              xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%2#1,tmp%3#0
         ==                                                                                            xfer#0,nonce#0,key.owner#0,key.asset#0,tmp%4#0
         assert                                                                                        xfer#0,nonce#0,key.owner#0,key.asset#0
         // marketplace_demo/marketplace_with_tups.py:126
@@ -465,11 +489,29 @@ subroutine set_price:
     set_price_block@0:
         // marketplace_demo/marketplace_with_tups.py:138
         // @arc4.abimethod(name="setPrice")
-        txna ApplicationArgs 1                                                                        reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        tmp%0#0
+        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
+        len                                                                                           tmp%0#0,len%0#0
+        int 8                                                                                         tmp%0#0,len%0#0,8
+        ==                                                                                            tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  tmp%0#0
+        l-load tmp%0#0 0                                                                              tmp%0#0
         btoi                                                                                          asset#0
-        txna ApplicationArgs 2                                                                        asset#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                        asset#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         asset#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           asset#0,tmp%2#0,len%1#0
+        int 8                                                                                         asset#0,tmp%2#0,len%1#0,8
+        ==                                                                                            asset#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  asset#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              asset#0,tmp%2#0
         btoi                                                                                          asset#0,nonce#0
-        txna ApplicationArgs 3                                                                        asset#0,nonce#0,reinterpret_Encoded(uint64)%2#0
+        txna ApplicationArgs 3                                                                        asset#0,nonce#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                         asset#0,nonce#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                           asset#0,nonce#0,tmp%4#0,len%2#0
+        int 8                                                                                         asset#0,nonce#0,tmp%4#0,len%2#0,8
+        ==                                                                                            asset#0,nonce#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                                  asset#0,nonce#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              asset#0,nonce#0,tmp%4#0
         btoi                                                                                          asset#0,nonce#0,unitary_price#0
         // marketplace_demo/marketplace_with_tups.py:140
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -536,19 +578,42 @@ subroutine buy:
         // marketplace_demo/marketplace_with_tups.py:151
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                        owner#0
-        txna ApplicationArgs 2                                                                        owner#0,reinterpret_Encoded(uint64)%0#0
+        l-load-copy owner#0 0                                                                         owner#0,owner#0 (copy)
+        len                                                                                           owner#0,len%0#0
+        int 32                                                                                        owner#0,len%0#0,32
+        ==                                                                                            owner#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                                               owner#0
+        txna ApplicationArgs 2                                                                        owner#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         owner#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           owner#0,tmp%2#0,len%1#0
+        int 8                                                                                         owner#0,tmp%2#0,len%1#0,8
+        ==                                                                                            owner#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  owner#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              owner#0,tmp%2#0
         btoi                                                                                          owner#0,asset#0
-        txna ApplicationArgs 3                                                                        owner#0,asset#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 3                                                                        owner#0,asset#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                         owner#0,asset#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                           owner#0,asset#0,tmp%4#0,len%2#0
+        int 8                                                                                         owner#0,asset#0,tmp%4#0,len%2#0,8
+        ==                                                                                            owner#0,asset#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                                  owner#0,asset#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              owner#0,asset#0,tmp%4#0
         btoi                                                                                          owner#0,asset#0,nonce#0
-        txn GroupIndex                                                                                owner#0,asset#0,nonce#0,tmp%3#0
-        int 1                                                                                         owner#0,asset#0,nonce#0,tmp%3#0,1
+        txn GroupIndex                                                                                owner#0,asset#0,nonce#0,tmp%6#0
+        int 1                                                                                         owner#0,asset#0,nonce#0,tmp%6#0,1
         -                                                                                             owner#0,asset#0,nonce#0,buy_pay#0
         l-load-copy buy_pay#0 0                                                                       owner#0,asset#0,nonce#0,buy_pay#0,buy_pay#0 (copy)
         gtxns TypeEnum                                                                                owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0
         int pay                                                                                       owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0,pay
         ==                                                                                            owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type_matches%0#0
         assert // transaction type is pay                                                             owner#0,asset#0,nonce#0,buy_pay#0
-        txna ApplicationArgs 4                                                                        owner#0,asset#0,nonce#0,buy_pay#0,reinterpret_Encoded(uint64)%2#0
+        txna ApplicationArgs 4                                                                        owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
+        l-load-copy tmp%7#0 0                                                                         owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,tmp%7#0 (copy)
+        len                                                                                           owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,len%3#0
+        int 8                                                                                         owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,len%3#0,8
+        ==                                                                                            owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,eq%3#0
+        assert // invalid number of bytes for uint64                                                  owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
+        l-load tmp%7#0 0                                                                              owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
         btoi                                                                                          owner#0,asset#0,nonce#0,buy_pay#0,quantity#0
         // marketplace_demo/marketplace_with_tups.py:162
         // listing = self.listings[key]
@@ -611,16 +676,16 @@ subroutine buy:
         // marketplace_demo/marketplace_with_tups.py:75
         // assert _quotient_high == 0
         l-load _quotient_high#0 0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,_quotient_high#0
-        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#0
+        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
         assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_tups.py:166
         // assert buy_pay.sender == Txn.sender
         l-load-copy buy_pay#0 8                                                                       owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#0
-        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#0,tmp%7#0
-        l-load tmp%6#0 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%7#0,tmp%6#0
-        l-load tmp%7#0 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#0,tmp%7#0
-        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#0
+        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1
+        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
+        l-load tmp%6#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%7#1,tmp%6#1
+        l-load tmp%7#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%6#1,tmp%7#1
+        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1,tmp%8#1
         assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing.deposited#0,listing.unitaryPrice#0,listing.bidder#0,aggregate%extract%3#0,aggregate%extract%4#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_tups.py:167
         // assert buy_pay.receiver == owner
@@ -702,11 +767,23 @@ subroutine withdraw:
     withdraw_block@0:
         // marketplace_demo/marketplace_with_tups.py:182
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                        reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        tmp%0#0
+        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
+        len                                                                                           tmp%0#0,len%0#0
+        int 8                                                                                         tmp%0#0,len%0#0,8
+        ==                                                                                            tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  tmp%0#0
+        l-load tmp%0#0 0                                                                              tmp%0#0
         btoi                                                                                          asset#0
         l-store-copy asset#0 0                                                                        asset#0,asset#0 (copy)
         v-store asset#0                                                                               asset#0
-        txna ApplicationArgs 2                                                                        asset#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                        asset#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         asset#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           asset#0,tmp%2#0,len%1#0
+        int 8                                                                                         asset#0,tmp%2#0,len%1#0,8
+        ==                                                                                            asset#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  asset#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              asset#0,tmp%2#0
         btoi                                                                                          asset#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:184
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -884,14 +961,31 @@ subroutine bid:
         // marketplace_demo/marketplace_with_tups.py:201
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                        owner#0
-        txna ApplicationArgs 2                                                                        owner#0,reinterpret_Encoded(uint64)%0#0
+        l-load-copy owner#0 0                                                                         owner#0,owner#0 (copy)
+        len                                                                                           owner#0,len%0#0
+        int 32                                                                                        owner#0,len%0#0,32
+        ==                                                                                            owner#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                                               owner#0
+        txna ApplicationArgs 2                                                                        owner#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         owner#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           owner#0,tmp%2#0,len%1#0
+        int 8                                                                                         owner#0,tmp%2#0,len%1#0,8
+        ==                                                                                            owner#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  owner#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              owner#0,tmp%2#0
         btoi                                                                                          owner#0,asset#0
         l-store-copy asset#0 0                                                                        owner#0,asset#0,asset#0 (copy)
         v-store asset#0                                                                               owner#0,asset#0
-        txna ApplicationArgs 3                                                                        owner#0,asset#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 3                                                                        owner#0,asset#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                         owner#0,asset#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                           owner#0,asset#0,tmp%4#0,len%2#0
+        int 8                                                                                         owner#0,asset#0,tmp%4#0,len%2#0,8
+        ==                                                                                            owner#0,asset#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                                                  owner#0,asset#0,tmp%4#0
+        l-load tmp%4#0 0                                                                              owner#0,asset#0,tmp%4#0
         btoi                                                                                          owner#0,asset#0,nonce#0
-        txn GroupIndex                                                                                owner#0,asset#0,nonce#0,tmp%3#0
-        int 1                                                                                         owner#0,asset#0,nonce#0,tmp%3#0,1
+        txn GroupIndex                                                                                owner#0,asset#0,nonce#0,tmp%6#0
+        int 1                                                                                         owner#0,asset#0,nonce#0,tmp%6#0,1
         -                                                                                             owner#0,asset#0,nonce#0,bid_pay#0
         l-store-copy bid_pay#0 0                                                                      owner#0,asset#0,nonce#0,bid_pay#0,bid_pay#0 (copy)
         v-store bid_pay#0                                                                             owner#0,asset#0,nonce#0,bid_pay#0
@@ -900,10 +994,22 @@ subroutine bid:
         int pay                                                                                       owner#0,asset#0,nonce#0,gtxn_type%0#0,pay
         ==                                                                                            owner#0,asset#0,nonce#0,gtxn_type_matches%0#0
         assert // transaction type is pay                                                             owner#0,asset#0,nonce#0
-        txna ApplicationArgs 4                                                                        owner#0,asset#0,nonce#0,reinterpret_Encoded(uint64)%2#0
+        txna ApplicationArgs 4                                                                        owner#0,asset#0,nonce#0,tmp%7#0
+        l-load-copy tmp%7#0 0                                                                         owner#0,asset#0,nonce#0,tmp%7#0,tmp%7#0 (copy)
+        len                                                                                           owner#0,asset#0,nonce#0,tmp%7#0,len%3#0
+        int 8                                                                                         owner#0,asset#0,nonce#0,tmp%7#0,len%3#0,8
+        ==                                                                                            owner#0,asset#0,nonce#0,tmp%7#0,eq%3#0
+        assert // invalid number of bytes for uint64                                                  owner#0,asset#0,nonce#0,tmp%7#0
+        l-load tmp%7#0 0                                                                              owner#0,asset#0,nonce#0,tmp%7#0
         btoi                                                                                          owner#0,asset#0,nonce#0,quantity#0
         v-store quantity#0                                                                            owner#0,asset#0,nonce#0
-        txna ApplicationArgs 5                                                                        owner#0,asset#0,nonce#0,reinterpret_Encoded(uint64)%3#0
+        txna ApplicationArgs 5                                                                        owner#0,asset#0,nonce#0,tmp%9#0
+        l-load-copy tmp%9#0 0                                                                         owner#0,asset#0,nonce#0,tmp%9#0,tmp%9#0 (copy)
+        len                                                                                           owner#0,asset#0,nonce#0,tmp%9#0,len%4#0
+        int 8                                                                                         owner#0,asset#0,nonce#0,tmp%9#0,len%4#0,8
+        ==                                                                                            owner#0,asset#0,nonce#0,tmp%9#0,eq%4#0
+        assert // invalid number of bytes for uint64                                                  owner#0,asset#0,nonce#0,tmp%9#0
+        l-load tmp%9#0 0                                                                              owner#0,asset#0,nonce#0,tmp%9#0
         btoi                                                                                          owner#0,asset#0,nonce#0,unitary_price#0
         v-store unitary_price#0                                                                       owner#0,asset#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:213
@@ -949,7 +1055,7 @@ subroutine bid:
         global ZeroAddress                                                                            listing.bidder#0,tmp%5#1
         l-load listing.bidder#0 1                                                                     tmp%5#1,listing.bidder#0
         l-load tmp%5#1 1                                                                              listing.bidder#0,tmp%5#1
-        !=                                                                                            tmp%6#0
+        !=                                                                                            tmp%6#1
         bz bid_after_if_else@4 ; b bid_if_body@2
 
     bid_if_body@2:
@@ -958,7 +1064,7 @@ subroutine bid:
         v-load unitary_price#0                                                                        unitary_price#0
         v-load listing.bidUnitaryPrice#0                                                              unitary_price#0,listing.bidUnitaryPrice#0
         l-store-copy listing.bidUnitaryPrice#0 1                                                      listing.bidUnitaryPrice#0,unitary_price#0,listing.bidUnitaryPrice#0 (copy)
-        >                                                                                             listing.bidUnitaryPrice#0,tmp%7#0
+        >                                                                                             listing.bidUnitaryPrice#0,tmp%7#1
         assert                                                                                        listing.bidUnitaryPrice#0
         // marketplace_demo/marketplace_with_tups.py:218
         // listing.bid, listing.bidUnitaryPrice, asset.decimals
@@ -1047,10 +1153,10 @@ subroutine bid:
         // assert bid_pay.sender == Txn.sender
         v-load bid_pay#0                                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
         l-store-copy bid_pay#0 0                                                                      unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,bid_pay#0 (copy)
-        gtxns Sender                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#0
-        txn Sender                                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#0,tmp%11#0
-        l-load tmp%10#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0,tmp%10#0
-        l-load tmp%11#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#0,tmp%11#0
+        gtxns Sender                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#1
+        txn Sender                                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#1,tmp%11#0
+        l-load tmp%10#1 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0,tmp%10#1
+        l-load tmp%11#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#1,tmp%11#0
         ==                                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%12#0
         assert                                                                                        unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
         // marketplace_demo/marketplace_with_tups.py:226
@@ -1111,11 +1217,23 @@ subroutine accept_bid:
     accept_bid_block@0:
         // marketplace_demo/marketplace_with_tups.py:237
         // @arc4.abimethod(name="acceptBid")
-        txna ApplicationArgs 1                                                                        reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                        tmp%0#0
+        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
+        len                                                                                           tmp%0#0,len%0#0
+        int 8                                                                                         tmp%0#0,len%0#0,8
+        ==                                                                                            tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                  tmp%0#0
+        l-load tmp%0#0 0                                                                              tmp%0#0
         btoi                                                                                          asset#0
         l-store-copy asset#0 0                                                                        asset#0,asset#0 (copy)
         v-store asset#0                                                                               asset#0
-        txna ApplicationArgs 2                                                                        asset#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                        asset#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                         asset#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                           asset#0,tmp%2#0,len%1#0
+        int 8                                                                                         asset#0,tmp%2#0,len%1#0,8
+        ==                                                                                            asset#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                  asset#0,tmp%2#0
+        l-load tmp%2#0 0                                                                              asset#0,tmp%2#0
         btoi                                                                                          asset#0,nonce#0
         // marketplace_demo/marketplace_with_tups.py:239
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)

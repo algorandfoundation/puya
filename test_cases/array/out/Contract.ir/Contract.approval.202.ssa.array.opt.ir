@@ -541,8 +541,11 @@ subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursag
 
 subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
     block@0: // L134
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let num#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let num#0: uint64 = (btoi tmp%0#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L136

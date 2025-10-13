@@ -31,8 +31,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%3#0: bytes = (concat aggregate%head%9#0 0x00010000000000000000)
         (box_del "box")
         (box_put "box" aggregate%concat%3#0)
-        let tmp%0#2: account = (txn Sender)
-        (app_local_put tmp%0#2 "loc" aggregate%concat%3#0)
+        let tmp%0#3: account = (txn Sender)
+        (app_local_put tmp%0#3 "loc" aggregate%concat%3#0)
         exit 1u
     block@6: // switch_case_next_L11
         let tmp%8#0: uint64 = (txn OnCompletion)
@@ -44,6 +44,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%12#0 {method "mutate_tuple(uint64)void" => block@8, method "mutate_box(uint64)void" => block@9, method "mutate_global(uint64)void" => block@10, method "mutate_local(uint64)void" => block@11, * => block@14}
     block@8: // mutate_tuple_route_L28
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#1) // check self.tup exists
         let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 maybe_value%0#1 0u)
@@ -62,6 +65,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@9: // mutate_box_route_L32
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
         (assert aggregate%box_get%1#0) // check self.box exists
         let aggregate%extract_uint16%5#0: uint64 = (extract_uint16 aggregate%box_get%0#0 0u)
@@ -81,6 +87,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@10: // mutate_global_route_L36
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#1) // check self.glob exists
         let aggregate%extract_uint16%6#0: uint64 = (extract_uint16 maybe_value%0#1 0u)
@@ -99,8 +108,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@11: // mutate_local_route_L40
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#2: account = (txn Sender)
-        let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_local_get_ex tmp%0#2 0u "loc")
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%0#3: account = (txn Sender)
+        let (maybe_value%0#1: bytes, maybe_exists%0#1: bool) = (app_local_get_ex tmp%0#3 0u "loc")
         (assert maybe_exists%0#1) // check self.loc exists for account
         let aggregate%extract_uint16%7#0: uint64 = (extract_uint16 maybe_value%0#1 0u)
         let aggregate%len%7#0: uint64 = (len maybe_value%0#1)
@@ -114,7 +126,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%head%23#0: bytes = (concat 0x000a aggregate%extract%7#0)
         let aggregate%concat%8#0: bytes = (concat aggregate%head%23#0 replace%0#0)
-        (app_local_put tmp%0#2 "loc" aggregate%concat%8#0)
+        (app_local_put tmp%0#3 "loc" aggregate%concat%8#0)
         exit 1u
     block@14: // after_if_else_L11
         fail

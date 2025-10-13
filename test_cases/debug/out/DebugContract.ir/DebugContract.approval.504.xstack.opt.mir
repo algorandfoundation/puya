@@ -157,25 +157,43 @@ subroutine test:
     test_block@0:
         // debug/contract.py:5
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                 reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                  tmp%0#0,tmp%0#0 (copy)
+        len                                                                    tmp%0#0,len%0#0
+        int 8                                                                  tmp%0#0,len%0#0,8
+        ==                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                           tmp%0#0
+        l-load tmp%0#0 0                                                       tmp%0#0
         btoi                                                                   x#0
-        txna ApplicationArgs 2                                                 x#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                 x#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                  x#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                    x#0,tmp%2#0,len%1#0
+        int 8                                                                  x#0,tmp%2#0,len%1#0,8
+        ==                                                                     x#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                           x#0,tmp%2#0
+        l-load tmp%2#0 0                                                       x#0,tmp%2#0
         btoi                                                                   x#0,y#0
-        l-store-copy y#0 1                                                     y#0,x#0,y#0 (copy)
-        v-store y#0                                                            y#0,x#0
-        txna ApplicationArgs 3                                                 y#0,x#0,reinterpret_Encoded(uint64)%2#0
-        btoi                                                                   y#0,x#0,z#0
-        l-store-copy z#0 0                                                     y#0,x#0,z#0,z#0 (copy)
-        v-store z#0                                                            y#0,x#0,z#0
+        l-store-copy y#0 0                                                     x#0,y#0,y#0 (copy)
+        v-store y#0                                                            x#0,y#0
+        txna ApplicationArgs 3                                                 x#0,y#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                  x#0,y#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                    x#0,y#0,tmp%4#0,len%2#0
+        int 8                                                                  x#0,y#0,tmp%4#0,len%2#0,8
+        ==                                                                     x#0,y#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                           x#0,y#0,tmp%4#0
+        l-load tmp%4#0 0                                                       x#0,y#0,tmp%4#0
+        btoi                                                                   x#0,y#0,z#0
+        l-store-copy z#0 0                                                     x#0,y#0,z#0,z#0 (copy)
+        v-store z#0                                                            x#0,y#0,z#0
         // debug/contract.py:7
         // a = x * TemplateVar[UInt64]("A_MULT")
-        l-load-copy x#0 1                                                      y#0,x#0,z#0,x#0 (copy)
-        int TMPL_A_MULT                                                        y#0,x#0,z#0,x#0 (copy),TMPL_A_MULT
-        *                                                                      y#0,x#0,z#0,a#0
-        v-store a#0                                                            y#0,x#0,z#0
+        l-load-copy x#0 2                                                      x#0,y#0,z#0,x#0 (copy)
+        int TMPL_A_MULT                                                        x#0,y#0,z#0,x#0 (copy),TMPL_A_MULT
+        *                                                                      x#0,y#0,z#0,a#0
+        v-store a#0                                                            x#0,y#0,z#0
         // debug/contract.py:8
         // b = x + y
-        l-load x#0 1                                                           y#0,z#0,x#0
+        l-load x#0 2                                                           y#0,z#0,x#0
         l-load y#0 2                                                           z#0,x#0,y#0
         +                                                                      z#0,b#0
         l-store-copy b#0 0                                                     z#0,b#0,b#0 (copy)
@@ -225,7 +243,7 @@ subroutine test:
         // elif b < a:
         v-load b#0                                                             b#0
         v-load a#0                                                             b#0,a#0
-        <                                                                      tmp%7#0
+        <                                                                      tmp%7#1
         bz test_else_body@7 ; b test_if_body@6
 
     test_if_body@6:
@@ -386,7 +404,7 @@ subroutine test:
         itob                                                                   aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                        aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                    0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                 tmp%5#0
+        concat                                                                 tmp%8#0
         log
         int 1                                                                  1
         return

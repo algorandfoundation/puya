@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 6 32
+    intcblock 0 1 6 32
     bytecblock 0xd0a28200 0x0002686f
     txn NumAppArgs
     bz main___algots__.defaultCreate@9
@@ -29,30 +29,43 @@ main___algots__.defaultCreate@9:
 // tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
 distribute:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 2
+    dup
+    intc_3 // 32
+    *
+    pushint 2 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[32][])
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 2
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
-    cover 2
+    cover 3
     dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // assert target is match for conditions
     dig 1
-    intc_1 // 0
-    extract_uint16
-    dup
-    cover 3
-    dup
     assert // must provide some accounts
-    swap
     gtxns Amount
     swap
     /
@@ -66,15 +79,15 @@ distribute:
     itxn_begin
     itxn_field Receiver
     itxn_field Amount
-    intc_0 // 1
+    intc_1 // 1
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
-    intc_0 // 1
+    intc_1 // 1
 
 distribute_for_header@2:
     dup
-    dig 4
+    dig 5
     <
     bz distribute_after_for@5
     dupn 2
@@ -87,12 +100,12 @@ distribute_for_header@2:
     itxn_next
     dig 4
     itxn_field Amount
-    intc_0 // 1
+    intc_1 // 1
     itxn_field TypeEnum
     itxn_field Receiver
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b distribute_for_header@2
@@ -101,48 +114,53 @@ distribute_after_for@5:
     itxn_next
     pushbytes 0x65a9aecc // method "verify()void"
     itxn_field ApplicationArgs
-    dig 4
+    dig 3
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     pushbytes "abc"
     itxn_field ConfigAssetName
     pushint 3 // 3
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
 conditionalBegin:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     itxn_begin
     pushbytes 0x009225ae // method "helloCreate(string)void"
     itxn_field ApplicationArgs
     pushbytes 0x00024869
     itxn_field ApplicationArgs
-    intc_0 // 1
+    intc_1 // 1
     itxn_field GlobalNumByteSlice
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyYBCGdyZWV0aW5nMRhAAAQogABnggIEJDeNPASg6BhyNhoAjgIALgAlMRkURDEYQQAOgATQooIANhoAjgEALQCABACSJa42GgCOAQATADEZgQQSMRgQQzEZgQUSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
+    pushbytes base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGeCAgQkN408BKDoGHI2GgCOAgAuACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEAJIlrjYaAI4BABMAMRmBBBIxGBBDMRmBBRIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
     itxn_field ApprovalProgramPages
-    intc_1 // 0
+    intc_0 // 0
     itxn_field OnCompletion
     intc_2 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 0 CreatedApplicationID
-    intc_1 // 0
+    intc_0 // 0
 
 conditionalBegin_for_header@3:
     dup
@@ -160,12 +178,12 @@ conditionalBegin_for_header@3:
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
 
 conditionalBegin_after_if_else@7:
     dup
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b conditionalBegin_for_header@3
@@ -180,11 +198,11 @@ conditionalBegin_else_body@6:
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     b conditionalBegin_after_if_else@7
 
 conditionalBegin_after_for@9:
     itxn_submit
-    intc_0 // 1
+    intc_1 // 1
     return

@@ -178,7 +178,7 @@ subroutine struct_return:
         // @arc4.abimethod(readonly=True)
         byte 0x151f7c75                                                                  s#0,0x151f7c75
         l-load s#0 1                                                                     0x151f7c75,s#0
-        concat                                                                           tmp%1#0
+        concat                                                                           tmp%2#0
         log
         int 1                                                                            1
         return
@@ -194,7 +194,7 @@ subroutine errors:
         // assert arg.a.bytes == arc4.UInt8(0).bytes, "this will error"
         extract 0 8                                                                      aggregate%extract%0#0
         byte 0x00                                                                        aggregate%extract%0#0,0x00
-        ==                                                                               tmp%0#0
+        ==                                                                               tmp%0#1
         assert // this will error
         // arc_56/contract.py:99
         // @arc4.abimethod(name="emits_error", readonly=True)
@@ -228,8 +228,14 @@ subroutine conditional_emit:
     conditional_emit_block@0:
         // arc_56/contract.py:113
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                           reinterpret_Encoded(bool8)%0#0
-        int 0                                                                            reinterpret_Encoded(bool8)%0#0,0
+        txna ApplicationArgs 1                                                           tmp%0#0
+        l-load-copy tmp%0#0 0                                                            tmp%0#0,tmp%0#0 (copy)
+        len                                                                              tmp%0#0,len%0#0
+        int 1                                                                            tmp%0#0,len%0#0,1
+        ==                                                                               tmp%0#0,eq%0#0
+        assert // invalid number of bytes for bool8                                      tmp%0#0
+        l-load tmp%0#0 0                                                                 tmp%0#0
+        int 0                                                                            tmp%0#0,0
         getbit                                                                           should_emit#0
         // arc_56/contract.py:115
         // if should_emit:
@@ -327,52 +333,91 @@ subroutine with_constant_defaults:
         //     }
         // )
         txna ApplicationArgs 1                                                           a#0
-        txna ApplicationArgs 2                                                           a#0,reinterpret_Encoded(uint64)%1#0
+        l-load-copy a#0 0                                                                a#0,a#0 (copy)
+        len                                                                              a#0,len%0#0
+        int 8                                                                            a#0,len%0#0,8
+        ==                                                                               a#0,eq%0#0
+        assert // invalid number of bytes for uint64                                     a#0
+        txna ApplicationArgs 2                                                           a#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                            a#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                              a#0,tmp%1#0,len%1#0
+        int 8                                                                            a#0,tmp%1#0,len%1#0,8
+        ==                                                                               a#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for uint64                                     a#0,tmp%1#0
+        l-load tmp%1#0 0                                                                 a#0,tmp%1#0
         btoi                                                                             a#0,b#0
-        txna ApplicationArgs 3                                                           a#0,b#0,reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 3                                                           a#0,b#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                            a#0,b#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                            a#0,b#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                                   a#0,b#0,tmp%3#0,aggregate%array_length%0#0
+        int 2                                                                            a#0,b#0,tmp%3#0,aggregate%array_length%0#0,2
+        +                                                                                a#0,b#0,tmp%3#0,add%0#0
+        l-load-copy tmp%3#0 1                                                            a#0,b#0,tmp%3#0,add%0#0,tmp%3#0 (copy)
+        len                                                                              a#0,b#0,tmp%3#0,add%0#0,len%2#0
+        l-load add%0#0 1                                                                 a#0,b#0,tmp%3#0,len%2#0,add%0#0
+        ==                                                                               a#0,b#0,tmp%3#0,eq%2#0
+        assert // invalid number of bytes for (len+uint8[])                              a#0,b#0,tmp%3#0
+        l-load tmp%3#0 0                                                                 a#0,b#0,tmp%3#0
         extract 2 0                                                                      a#0,b#0,c#0
         txna ApplicationArgs 4                                                           a#0,b#0,c#0,d#0
-        l-store-copy d#0 3                                                               d#0,a#0,b#0,c#0,d#0
-        f-store d#0                                                                      (𝕗) d#0 | d#0,a#0,b#0,c#0
-        txna ApplicationArgs 5                                                           (𝕗) d#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 0                       (𝕗) d#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        int 0                                                                            (𝕗) d#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy),0
-        extract_uint64                                                                   (𝕗) d#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,e.0#0
-        f-store e.0#0                                                                    (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 0                       (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        int 8                                                                            (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy),8
-        extract_uint16                                                                   (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 1                       (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        len                                                                              (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        l-load reinterpret_Encoded(uint64,(len+utf8[]))%0#0 2                            (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load aggregate%extract_uint16%0#0 2                                            (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,aggregate%len%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0
-        l-load aggregate%len%0#0 2                                                       (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                       (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,aggregate%substring3%0#0
-        extract 2 0                                                                      (𝕗) d#0,e.0#0 | d#0,a#0,b#0,c#0,e.1#0
-        f-store e.1#0                                                                    (𝕗) d#0,e.0#0,e.1#0 | d#0,a#0,b#0,c#0
-        txna ApplicationArgs 6                                                           (𝕗) d#0,e.0#0,e.1#0 | d#0,a#0,b#0,c#0,f#0
-        f-store f#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0 | d#0,a#0,b#0,c#0
-        txna ApplicationArgs 7                                                           (𝕗) d#0,e.0#0,e.1#0,f#0 | d#0,a#0,b#0,c#0,g#0
-        f-store g#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | d#0,a#0,b#0,c#0
-        txna ApplicationArgs 8                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%2#0
-        btoi                                                                             (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | d#0,a#0,b#0,c#0,h#0
-        f-store h#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | d#0,a#0,b#0,c#0
-        txna ApplicationArgs 9                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%3#0
-        btoi                                                                             (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | d#0,a#0,b#0,c#0,i#0
-        f-store i#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,a#0,b#0,c#0
+        l-store-copy d#0 0                                                               a#0,b#0,c#0,d#0,d#0
+        f-store d#0                                                                      (𝕗) d#0 | a#0,b#0,c#0,d#0
+        l-load-copy d#0 0                                                                (𝕗) d#0 | a#0,b#0,c#0,d#0,d#0 (copy)
+        len                                                                              (𝕗) d#0 | a#0,b#0,c#0,d#0,len%3#0
+        int 16                                                                           (𝕗) d#0 | a#0,b#0,c#0,d#0,len%3#0,16
+        ==                                                                               (𝕗) d#0 | a#0,b#0,c#0,d#0,eq%3#0
+        assert // invalid number of bytes for (uint64,uint64)                            (𝕗) d#0 | a#0,b#0,c#0,d#0
+        txna ApplicationArgs 5                                                           (𝕗) d#0 | a#0,b#0,c#0,d#0,tmp%6#0
+        l-load-copy tmp%6#0 0                                                            (𝕗) d#0 | a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy)
+        int 0                                                                            (𝕗) d#0 | a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy),0
+        extract_uint64                                                                   (𝕗) d#0 | a#0,b#0,c#0,d#0,tmp%6#0,e.0#0
+        f-store e.0#0                                                                    (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0
+        l-load-copy tmp%6#0 0                                                            (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy)
+        int 8                                                                            (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy),8
+        extract_uint16                                                                   (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0
+        l-load-copy tmp%6#0 1                                                            (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,tmp%6#0 (copy)
+        len                                                                              (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load tmp%6#0 2                                                                 (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,tmp%6#0
+        l-load aggregate%extract_uint16%0#0 2                                            (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,aggregate%len%0#0,tmp%6#0,aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                       (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                       (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,aggregate%substring3%0#0
+        extract 2 0                                                                      (𝕗) d#0,e.0#0 | a#0,b#0,c#0,d#0,e.1#0
+        f-store e.1#0                                                                    (𝕗) d#0,e.0#0,e.1#0 | a#0,b#0,c#0,d#0
+        txna ApplicationArgs 6                                                           (𝕗) d#0,e.0#0,e.1#0 | a#0,b#0,c#0,d#0,f#0
+        f-store f#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0 | a#0,b#0,c#0,d#0
+        txna ApplicationArgs 7                                                           (𝕗) d#0,e.0#0,e.1#0,f#0 | a#0,b#0,c#0,d#0,g#0
+        f-store g#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0
+        txna ApplicationArgs 8                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0
+        l-load-copy tmp%11#0 0                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0,tmp%11#0 (copy)
+        len                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0,len%4#0
+        int 8                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0,len%4#0,8
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0,eq%4#0
+        assert // invalid number of bytes for uint64                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0
+        l-load tmp%11#0 0                                                                (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,tmp%11#0
+        btoi                                                                             (𝕗) d#0,e.0#0,e.1#0,f#0,g#0 | a#0,b#0,c#0,d#0,h#0
+        f-store h#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0
+        txna ApplicationArgs 9                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0
+        l-load-copy tmp%13#0 0                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0,tmp%13#0 (copy)
+        len                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0,len%5#0
+        int 8                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0,len%5#0,8
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0,eq%5#0
+        assert // invalid number of bytes for uint64                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0
+        l-load tmp%13#0 0                                                                (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,tmp%13#0
+        btoi                                                                             (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0 | a#0,b#0,c#0,d#0,i#0
+        f-store i#0                                                                      (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | a#0,b#0,c#0,d#0
         // arc_56/contract.py:156
         // assert a
-        l-load a#0 2                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,b#0,c#0,a#0
-        byte 0x                                                                          (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,b#0,c#0,a#0,0x
-        b!=                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,b#0,c#0,tmp%0#1
-        assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,b#0,c#0
+        l-load a#0 3                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | b#0,c#0,d#0,a#0
+        byte 0x                                                                          (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | b#0,c#0,d#0,a#0,0x
+        b!=                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | b#0,c#0,d#0,tmp%0#1
+        assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | b#0,c#0,d#0
         // arc_56/contract.py:157
         // assert b
-        l-load b#0 1                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,c#0,b#0
-        assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,c#0
+        l-load b#0 2                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | c#0,d#0,b#0
+        assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | c#0,d#0
         // arc_56/contract.py:158
         // assert c
-        l-load c#0 0                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,c#0
+        l-load c#0 1                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,c#0
         len                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0,tmp%2#1
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | d#0
         // arc_56/contract.py:159
@@ -416,7 +461,7 @@ subroutine with_constant_defaults:
         // arc_56/contract.py:160
         // assert e[0] or e[1]
         f-load e.1#0                                                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | e.1#0
-        len                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%7#0
+        len                                                                              (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%7#1
         bz with_constant_defaults_bool_false@8 ; b with_constant_defaults_bool_true@7    (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
 
     with_constant_defaults_bool_true@7:                                                  (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
@@ -450,27 +495,27 @@ subroutine with_constant_defaults:
         l-load aggregate%item_head_tail_length%0#0 2                                     (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | f#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
         extract3                                                                         (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%item%0#0
         byte 0x00026869                                                                  (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%item%0#0,0x00026869
-        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%10#0
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%10#1
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
         // arc_56/contract.py:162
         // assert g.length == 2
         f-load g#0                                                                       (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | g#0
         int 0                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | g#0,0
-        extract_uint16                                                                   (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%array_length%0#0
-        int 2                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%array_length%0#0,2
-        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%12#0
+        extract_uint16                                                                   (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%array_length%1#0
+        int 2                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | aggregate%array_length%1#0,2
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%12#1
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
         // arc_56/contract.py:163
         // assert h == 42
         f-load h#0                                                                       (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | h#0
         int 42                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | h#0,42
-        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%13#0
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%13#1
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
         // arc_56/contract.py:164
         // assert i == 1234
         f-load i#0                                                                       (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | i#0
         int 1234                                                                         (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | i#0,1234
-        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%14#0
+        ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%14#1
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
         // arc_56/contract.py:131-143
         // @arc4.abimethod(

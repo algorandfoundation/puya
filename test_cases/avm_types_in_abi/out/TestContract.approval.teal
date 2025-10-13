@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 64
+    intcblock 1 0 64 2
     bytecblock 0x151f7c75
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
@@ -31,14 +31,48 @@ create:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for bool8
     intc_1 // 0
     getbit
     txna ApplicationArgs 2
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    len
+    dup
+    intc_2 // 64
+    ==
+    assert // invalid number of bytes for uint512
     txna ApplicationArgs 5
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 6
     dup
@@ -69,18 +103,18 @@ create:
     extract 2 0
     // avm_types_in_abi/contract.py:16
     // assert result == tuple_param
+    dig 10
+    uncover 5
+    ==
     dig 9
     uncover 5
     ==
-    dig 8
-    uncover 5
-    ==
     &&
-    dig 6
+    dig 7
     uncover 4
     ==
     &&
-    dig 4
+    dig 5
     uncover 3
     b==
     &&
@@ -93,16 +127,16 @@ create:
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     pushbytes 0x00
     intc_1 // 0
-    uncover 6
+    uncover 7
     setbit
-    uncover 4
+    uncover 5
     itob
     concat
-    dig 3
+    dig 4
     len
     itob
     extract 6 2
-    uncover 4
+    uncover 5
     concat
     swap
     pushbytes 0x004d
@@ -111,8 +145,7 @@ create:
     len
     pushint 77 // 77
     +
-    dig 4
-    len
+    uncover 4
     intc_2 // 64
     <=
     assert // overflow
@@ -152,6 +185,11 @@ tuple_of_arc4:
     // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 33 // 33
+    ==
+    assert // invalid number of bytes for (uint8,uint8[32])
     dup
     extract 0 1
     dig 1

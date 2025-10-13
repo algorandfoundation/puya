@@ -81,21 +81,55 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
 
 subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@0: // L58
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let vote_id#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let snapshot_public_key#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let metadata_ipfs_cid#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%1#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let start_time#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let end_time#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let vote_id#0: string = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let snapshot_public_key#0: bytes = ((extract 2 0) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let add%2#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        let metadata_ipfs_cid#0: string = ((extract 2 0) tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 4)
+        let len%3#0: uint64 = (len tmp%6#0)
+        let eq%3#0: bool = (== len%3#0 8u)
+        (assert eq%3#0) // invalid number of bytes for uint64
+        let start_time#0: uint64 = (btoi tmp%6#0)
+        let tmp%8#0: bytes = (txna ApplicationArgs 5)
+        let len%4#0: uint64 = (len tmp%8#0)
+        let eq%4#0: bool = (== len%4#0 8u)
+        (assert eq%4#0) // invalid number of bytes for uint64
+        let end_time#0: uint64 = (btoi tmp%8#0)
         let option_counts#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let quorum#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
-        let reinterpret_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = (txna ApplicationArgs 8)
-        let nft_image_url#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%2#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u)
+        let add%3#0: uint64 = (+ aggregate%array_length%3#0 2u)
+        let len%5#0: uint64 = (len option_counts#0)
+        let eq%5#0: bool = (== len%5#0 add%3#0)
+        (assert eq%5#0) // invalid number of bytes for (len+uint8[])
+        let tmp%11#0: bytes = (txna ApplicationArgs 7)
+        let len%6#0: uint64 = (len tmp%11#0)
+        let eq%6#0: bool = (== len%6#0 8u)
+        (assert eq%6#0) // invalid number of bytes for uint64
+        let quorum#0: uint64 = (btoi tmp%11#0)
+        let tmp%13#0: bytes = (txna ApplicationArgs 8)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%13#0 0u)
+        let add%4#0: uint64 = (+ aggregate%array_length%4#0 2u)
+        let len%7#0: uint64 = (len tmp%13#0)
+        let eq%7#0: bool = (== len%7#0 add%4#0)
+        (assert eq%7#0) // invalid number of bytes for (len+utf8[])
+        let nft_image_url#0: string = ((extract 2 0) tmp%13#0)
         let tmp%0#1: bool = (< start_time#0 end_time#0)
         (assert tmp%0#1) // End time should be after start time
         let tmp%1#1: uint64 = (global LatestTimestamp)
@@ -108,9 +142,8 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         (app_global_put "end_time" end_time#0)
         (app_global_put "quorum" quorum#0)
         (app_global_put "nft_image_url" nft_image_url#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 option_counts#0 0u)
-        (assert aggregate%array_length%0#0) // option_counts should be non-empty
-        let tmp%3#0: bool = (<= aggregate%array_length%0#0 112u)
+        (assert aggregate%array_length%3#0) // option_counts should be non-empty
+        let tmp%3#0: bool = (<= aggregate%array_length%3#0 112u)
         (assert tmp%3#0) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
@@ -118,19 +151,18 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@2: // for_header_L223
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@3)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%3#0)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L224
-        let aggregate%total_length%0#0: uint64 = (len option_counts#0)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
         let item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 item_index_internal%0#1 1u) // on error: index access is out of bounds
-        let tmp%4#0: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#1)
-        let total_options#2: uint64 = (+ total_options#1 tmp%4#0)
+        let tmp%4#1: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#1)
+        let total_options#2: uint64 = (+ total_options#1 tmp%4#1)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@2
     block@4: // after_for_L223
-        let tmp%6#0: bool = (<= total_options#1 128u)
-        (assert tmp%6#0) // Can't have more than 128 vote options
+        let tmp%6#1: bool = (<= total_options#1 128u)
+        (assert tmp%6#1) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#1)
         exit 1u
@@ -278,8 +310,13 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
     block@0: // L160
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let signature#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let signature#0: bytes = ((extract 2 0) tmp%0#0)
         let tmp%0#1: bool = examples.voting.voting.VotingRoundApp.voting_open()
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
         let tmp%2#1: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
@@ -293,8 +330,8 @@ subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() ->
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%head%3#0)
-        (log tmp%2#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%head%3#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
@@ -304,9 +341,19 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) fund_min_bal_req#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let signature#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let signature#0: bytes = ((extract 2 0) tmp%1#0)
         let answer_ids#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len answer_ids#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
         _puya_lib.util.ensure_budget(7700u, 0u)
         let tmp%0#1: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
         (assert tmp%0#1) // Not allowed to vote
@@ -314,12 +361,11 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         (assert tmp%1#1) // Voting not open
         let materialized_values%0#1: account = (txn Sender)
         let (_%0#0: uint64, maybe_exists%0#1: bool) = (box_len materialized_values%0#1)
-        let tmp%3#0: bool = (! maybe_exists%0#1)
-        (assert tmp%3#0) // Already voted
+        let tmp%3#1: bool = (! maybe_exists%0#1)
+        (assert tmp%3#1) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
         let tmp%6#0: bool = (== aggregate%array_length%1#0 questions_count#0)
         (assert tmp%6#0) // Number of answers incorrect
         let tmp%9#0: uint64 = (+ 34u aggregate%array_length%1#0)
@@ -343,7 +389,6 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L197
-        let aggregate%total_length%0#0: uint64 = (len answer_ids#0)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) answer_ids#0)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 question_index#0 1u) // on error: index access is out of bounds
         let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
@@ -359,8 +404,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let tmp%0#2: bytes = (box_extract "V" index#0 8u)
         let current_vote#0: uint64 = (btoi tmp%0#2)
         let tmp%1#2: uint64 = (+ current_vote#0 1u)
-        let tmp%2#1: bytes = (itob tmp%1#2)
-        (box_replace "V" index#0 tmp%2#1)
+        let tmp%2#2: bytes = (itob tmp%1#2)
+        (box_replace "V" index#0 tmp%2#2)
         let cumulative_offset#2: uint64 = (+ cumulative_offset#1 options_count#0)
         let materialized_values%0#0: account = (txn Sender)
         (box_del materialized_values%0#0)

@@ -19,25 +19,183 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0)
         let tmp%12#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%12#0 {method "check_uint64(uint64,byte[])void" => block@6, method "check_dynamic_bytes(byte[],byte[])void" => block@7, method "check_string(string,byte[])void" => block@6, method "check_biguint(uint512,byte[])void" => block@6, method "check_bool(bool,byte[])void" => block@6, method "check_dyn_array_uin64(uint64[],byte[])void" => block@6, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@6, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@6, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@6, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@6, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@6, method "check_static_bytes(byte[32])void" => block@17, * => block@20}
+        switch tmp%12#0 {method "check_uint64(uint64,byte[])void" => block@6, method "check_dynamic_bytes(byte[],byte[])void" => block@7, method "check_string(string,byte[])void" => block@8, method "check_biguint(uint512,byte[])void" => block@9, method "check_bool(bool,byte[])void" => block@10, method "check_dyn_array_uin64(uint64[],byte[])void" => block@11, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@12, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@13, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@14, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@15, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@16, method "check_static_bytes(byte[32])void" => block@17, * => block@20}
     block@6: // check_uint64_route_L235
         let value#0: bytes = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%0#4: bool = (== value#0 expected#0)
-        (assert tmp%0#4) // expected to encode correctly
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
         exit 1u
     block@7: // check_dynamic_bytes_route_L239
         let value#0: bytes = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
-        let tmp%0#4: bool = (== value#0 expected#0)
-        (assert tmp%0#4) // expected to encode correctly
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@8: // check_string_route_L243
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 value#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%3#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%4#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@9: // check_biguint_route_L247
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for uint512
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%5#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@10: // check_bool_route_L251
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%6#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@11: // check_dyn_array_uin64_route_L255
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%7#0: uint64 = (extract_uint16 value#0 0u)
+        let mul%0#3: uint64 = (* aggregate%array_length%7#0 8u)
+        let add%0#0: uint64 = (+ mul%0#3 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%8#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%8#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@12: // check_static_array_uin64_3_route_L261
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 24u)
+        (assert eq%0#0) // invalid number of bytes for uint64[3]
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%9#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%9#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@13: // check_dyn_array_struct_route_L267
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%10#0: uint64 = (extract_uint16 value#0 0u)
+        let mul%0#3: uint64 = (* aggregate%array_length%10#0 40u)
+        let add%0#0: uint64 = (+ mul%0#3 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint8[32])[])
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%11#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%11#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@14: // check_static_array_struct_route_L273
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 120u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint8[32])[3]
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%12#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%12#0 2u)
+        let len%1#0: uint64 = (len tmp%1#2)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@15: // check_dyn_array_dyn_struct_route_L279
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%13#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%13#0 2u)
+        let len%0#0: uint64 = (len tmp%1#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
+        exit 1u
+    block@16: // check_static_array_dyn_struct_route_L285
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let tmp%1#2: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%14#0: uint64 = (extract_uint16 tmp%1#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%14#0 2u)
+        let len%0#0: uint64 = (len tmp%1#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = ((extract 2 0) tmp%1#2)
+        let tmp%0#5: bool = (== value#0 expected#0)
+        (assert tmp%0#5) // expected to encode correctly
         exit 1u
     block@17: // check_static_bytes_route_L291
         let bytes32#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%0#2: account = (txn Sender)
-        let tmp%1#1: bool = (== bytes32#0 tmp%0#2)
+        let len%0#0: uint64 = (len bytes32#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let tmp%0#3: account = (txn Sender)
+        let tmp%1#1: bool = (== bytes32#0 tmp%0#3)
         (assert tmp%1#1) // expected to encode correctly
         exit 1u
     block@20: // after_if_else_L230

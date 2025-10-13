@@ -27,8 +27,17 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
     block@0: // L13
         let arr#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let app#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let length%0#0: uint64 = array_len(arr#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len arr#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let app#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[])uint64")
@@ -41,13 +50,13 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let array_head_and_tail#0: bytes = ((extract 2 0) nested_arr#0)
         let new_head_and_tail#0: bytes = bytes_encode<(len+uint64[])[]>(arr#0)
         let new_head#0: bytes = 0x
-        let tmp%1#0: uint64 = (* array_items_count#0 2u)
+        let tmp%1#1: uint64 = (* array_items_count#0 2u)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L211
         let head_offset#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#0 tmp%1#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%1#1)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L212
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
@@ -79,7 +88,7 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
         let tmp%17#0: bytes = (concat tmp%16#0 new_head#3)
-        let tmp%19#0: bytes = (substring3 array_head_and_tail#0 tmp%1#0 head_and_tail_length#0)
+        let tmp%19#0: bytes = (substring3 array_head_and_tail#0 tmp%1#1 head_and_tail_length#0)
         let tmp%20#0: bytes = (concat tmp%17#0 tmp%19#0)
         let tmp%23#0: bytes = ((extract 2 0) new_head_and_tail#0)
         let nested_arr#1: Encoded(len+(len+uint64[])[]) = (concat tmp%20#0 tmp%23#0)

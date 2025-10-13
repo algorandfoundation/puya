@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 8
     bytecblock "tup" 0x000a "box" "glob" "loc" 0x000a000000000000000000010000000000000000 0x00010000000000000000
     txn ApplicationID
     bnz main_after_if_else@2
@@ -45,6 +45,11 @@ main_after_if_else@2:
 
 main_mutate_local_route@11:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     txn Sender
     dup
     intc_0 // 0
@@ -85,6 +90,11 @@ main_mutate_local_route@11:
 
 main_mutate_global_route@10:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     intc_0 // 0
     bytec_3 // "glob"
     app_global_get_ex
@@ -123,6 +133,11 @@ main_mutate_global_route@10:
 
 main_mutate_box_route@9:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     bytec_2 // "box"
     box_get
     assert // check self.box exists
@@ -163,6 +178,11 @@ main_mutate_box_route@9:
 
 main_mutate_tuple_route@8:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     intc_0 // 0
     bytec_0 // "tup"
     app_global_get_ex

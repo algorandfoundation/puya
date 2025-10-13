@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 1
+    intcblock 0 6 1 2
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
@@ -113,6 +113,15 @@ log_greetings:
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
     //     app_id=self.hello_app,
@@ -146,6 +155,17 @@ log_greetings:
     itxn LastLog
     // inner_transactions/c2c.py:29
     // greeting = arc4.String.from_log(hello_call.last_log)
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     dup
     extract 0 4
     bytec_1 // 0x151f7c75

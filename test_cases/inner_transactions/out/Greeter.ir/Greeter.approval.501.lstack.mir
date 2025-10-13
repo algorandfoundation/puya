@@ -154,6 +154,19 @@ subroutine log_greetings:
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                name#0
+        l-load-copy name#0 0                                                  name#0,name#0 (copy)
+        int 0                                                                 name#0,name#0 (copy),0
+        extract_uint16                                                        name#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                   name#0,aggregate%array_length%0#0
+        int 2                                                                 name#0,aggregate%array_length%0#0,2
+        +                                                                     name#0,add%0#0
+        l-load-copy name#0 1                                                  name#0,add%0#0,name#0 (copy)
+        len                                                                   name#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                      name#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                      name#0,len%0#0,add%0#0
+        ==                                                                    name#0,eq%0#0
+        l-load eq%0#0 0                                                       name#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                    name#0
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
         //     app_id=self.hello_app,
@@ -190,6 +203,21 @@ subroutine log_greetings:
         itxn LastLog                                                          hello_call.LastLog#0
         // inner_transactions/c2c.py:29
         // greeting = arc4.String.from_log(hello_call.last_log)
+        l-load-copy hello_call.LastLog#0 0                                    hello_call.LastLog#0,hello_call.LastLog#0 (copy)
+        extract 4 0                                                           hello_call.LastLog#0,greeting#0
+        l-load-copy greeting#0 0                                              hello_call.LastLog#0,greeting#0,greeting#0 (copy)
+        int 0                                                                 hello_call.LastLog#0,greeting#0,greeting#0 (copy),0
+        extract_uint16                                                        hello_call.LastLog#0,greeting#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                   hello_call.LastLog#0,greeting#0,aggregate%array_length%1#0
+        int 2                                                                 hello_call.LastLog#0,greeting#0,aggregate%array_length%1#0,2
+        +                                                                     hello_call.LastLog#0,greeting#0,add%0#0
+        l-load greeting#0 1                                                   hello_call.LastLog#0,add%0#0,greeting#0
+        len                                                                   hello_call.LastLog#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                      hello_call.LastLog#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                      hello_call.LastLog#0,len%0#0,add%0#0
+        ==                                                                    hello_call.LastLog#0,eq%0#0
+        l-load eq%0#0 0                                                       hello_call.LastLog#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                    hello_call.LastLog#0
         l-load-copy hello_call.LastLog#0 0                                    hello_call.LastLog#0,hello_call.LastLog#0 (copy)
         extract 0 4                                                           hello_call.LastLog#0,tmp%1#0
         l-load tmp%1#0 0                                                      hello_call.LastLog#0,tmp%1#0

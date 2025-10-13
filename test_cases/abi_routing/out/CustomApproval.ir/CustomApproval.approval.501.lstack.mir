@@ -133,8 +133,15 @@ subroutine add_one:
     add_one_block@0:
         // abi_routing/custom_approval.py:23
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                             reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                                  tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                     tmp%0#0,len%0#0
+        int 8                                                                                tmp%0#0,len%0#0,8
+        ==                                                                                   tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                      tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                         tmp%0#0
+        l-load tmp%0#0 0                                                                     tmp%0#0
         btoi                                                                                 x#0
         // abi_routing/custom_approval.py:25
         // return x + 1
@@ -147,8 +154,8 @@ subroutine add_one:
         itob                                                                                 aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                      aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                  0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                               tmp%3#0
-        l-load tmp%3#0 0                                                                     tmp%3#0
+        concat                                                                               tmp%4#0
+        l-load tmp%4#0 0                                                                     tmp%4#0
         log
         retsub
 

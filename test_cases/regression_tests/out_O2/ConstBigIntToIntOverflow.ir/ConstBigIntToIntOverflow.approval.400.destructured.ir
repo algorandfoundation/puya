@@ -11,8 +11,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "get_abs_bound1(uint64)uint64" => block@4, method "get_abs_bound2()uint64" => block@5, * => block@8}
     block@4: // get_abs_bound1_route_L5
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let upper_bound#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#4: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#4)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let upper_bound#0: uint64 = (btoi tmp%0#4)
         let abs_bound#0: uint64 = 0u
         goto upper_bound#0 ? block@15 : block@16
     block@15: // if_body_L13
@@ -20,8 +23,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@16
     block@16: // after_if_else_L8
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob abs_bound#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#1)
         exit 1u
     block@5: // get_abs_bound2_route_L17
         let abs_bound#0: uint64 = (btoi 18446744073709551616b)

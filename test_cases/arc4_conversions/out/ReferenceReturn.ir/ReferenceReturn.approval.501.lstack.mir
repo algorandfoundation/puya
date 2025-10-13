@@ -141,11 +141,32 @@ subroutine store:
         // arc4_conversions/reference.py:17
         // @arc4.abimethod
         txna ApplicationArgs 1                                             acc#0
-        txna ApplicationArgs 2                                             acc#0,reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                           acc#0,reinterpret_Encoded(uint64)%0#0
+        l-load-copy acc#0 0                                                acc#0,acc#0 (copy)
+        len                                                                acc#0,len%0#0
+        l-load len%0#0 0                                                   acc#0,len%0#0
+        int 32                                                             acc#0,len%0#0,32
+        ==                                                                 acc#0,eq%0#0
+        l-load eq%0#0 0                                                    acc#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                    acc#0
+        txna ApplicationArgs 2                                             acc#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                              acc#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                acc#0,tmp%2#0,len%1#0
+        l-load len%1#0 0                                                   acc#0,tmp%2#0,len%1#0
+        int 8                                                              acc#0,tmp%2#0,len%1#0,8
+        ==                                                                 acc#0,tmp%2#0,eq%1#0
+        l-load eq%1#0 0                                                    acc#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                       acc#0,tmp%2#0
+        l-load tmp%2#0 0                                                   acc#0,tmp%2#0
         btoi                                                               acc#0,app#0
-        txna ApplicationArgs 3                                             acc#0,app#0,reinterpret_Encoded(uint64)%1#0
-        l-load reinterpret_Encoded(uint64)%1#0 0                           acc#0,app#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 3                                             acc#0,app#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                              acc#0,app#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                acc#0,app#0,tmp%4#0,len%2#0
+        l-load len%2#0 0                                                   acc#0,app#0,tmp%4#0,len%2#0
+        int 8                                                              acc#0,app#0,tmp%4#0,len%2#0,8
+        ==                                                                 acc#0,app#0,tmp%4#0,eq%2#0
+        l-load eq%2#0 0                                                    acc#0,app#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for uint64                       acc#0,app#0,tmp%4#0
+        l-load tmp%4#0 0                                                   acc#0,app#0,tmp%4#0
         btoi                                                               acc#0,app#0,asset#0
         // arc4_conversions/reference.py:19
         // self.acc = acc
@@ -174,6 +195,22 @@ subroutine store_apps:
         // arc4_conversions/reference.py:23
         // @arc4.abimethod
         txna ApplicationArgs 1                                             apps#0
+        l-load-copy apps#0 0                                               apps#0,apps#0 (copy)
+        int 0                                                              apps#0,apps#0 (copy),0
+        extract_uint16                                                     apps#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                apps#0,aggregate%array_length%0#0
+        int 8                                                              apps#0,aggregate%array_length%0#0,8
+        *                                                                  apps#0,mul%0#0
+        l-load mul%0#0 0                                                   apps#0,mul%0#0
+        int 2                                                              apps#0,mul%0#0,2
+        +                                                                  apps#0,add%0#0
+        l-load-copy apps#0 1                                               apps#0,add%0#0,apps#0 (copy)
+        len                                                                apps#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                   apps#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                   apps#0,len%0#0,add%0#0
+        ==                                                                 apps#0,eq%0#0
+        l-load eq%0#0 0                                                    apps#0,eq%0#0
+        assert // invalid number of bytes for (len+uint64[])               apps#0
         // arc4_conversions/reference.py:25
         // self.apps = apps
         byte "apps"                                                        apps#0,"apps"
@@ -191,6 +228,22 @@ subroutine store_assets:
         // arc4_conversions/reference.py:27
         // @arc4.abimethod
         txna ApplicationArgs 1                                             assets#0
+        l-load-copy assets#0 0                                             assets#0,assets#0 (copy)
+        int 0                                                              assets#0,assets#0 (copy),0
+        extract_uint16                                                     assets#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                assets#0,aggregate%array_length%0#0
+        int 8                                                              assets#0,aggregate%array_length%0#0,8
+        *                                                                  assets#0,mul%0#0
+        l-load mul%0#0 0                                                   assets#0,mul%0#0
+        int 2                                                              assets#0,mul%0#0,2
+        +                                                                  assets#0,add%0#0
+        l-load-copy assets#0 1                                             assets#0,add%0#0,assets#0 (copy)
+        len                                                                assets#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                   assets#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                   assets#0,len%0#0,add%0#0
+        ==                                                                 assets#0,eq%0#0
+        l-load eq%0#0 0                                                    assets#0,eq%0#0
+        assert // invalid number of bytes for (len+uint64[])               assets#0
         // arc4_conversions/reference.py:29
         // self.assets = assets
         byte "assets"                                                      assets#0,"assets"
@@ -208,6 +261,22 @@ subroutine store_accounts:
         // arc4_conversions/reference.py:31
         // @arc4.abimethod
         txna ApplicationArgs 1                                             accounts#0
+        l-load-copy accounts#0 0                                           accounts#0,accounts#0 (copy)
+        int 0                                                              accounts#0,accounts#0 (copy),0
+        extract_uint16                                                     accounts#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                accounts#0,aggregate%array_length%0#0
+        int 32                                                             accounts#0,aggregate%array_length%0#0,32
+        *                                                                  accounts#0,mul%0#0
+        l-load mul%0#0 0                                                   accounts#0,mul%0#0
+        int 2                                                              accounts#0,mul%0#0,2
+        +                                                                  accounts#0,add%0#0
+        l-load-copy accounts#0 1                                           accounts#0,add%0#0,accounts#0 (copy)
+        len                                                                accounts#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                   accounts#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                   accounts#0,len%0#0,add%0#0
+        ==                                                                 accounts#0,eq%0#0
+        l-load eq%0#0 0                                                    accounts#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[32][])            accounts#0
         // arc4_conversions/reference.py:33
         // self.accounts = accounts
         byte "accounts"                                                    accounts#0,"accounts"

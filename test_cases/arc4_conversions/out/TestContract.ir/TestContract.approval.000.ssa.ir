@@ -109,9 +109,13 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]() -> void:
     block@0: // L178
-        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
-        let tmp%0#0: bool = decode_bytes<bool>(reinterpret_Encoded(bool8)%0#0)
-        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(tmp%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
+        let tmp%1#0: bool = decode_bytes<bool>(as_Encoded(bool8)%0#0)
+        test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(tmp%1#0)
         exit 1u
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:

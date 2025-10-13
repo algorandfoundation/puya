@@ -73,9 +73,18 @@ subroutine get_abs_bound1:
     get_abs_bound1_block@0:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                             reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                             reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                             tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                     tmp%0#0
+        len                                                                len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                     len%0#0
+        int 8                                                              len%0#0,8
+        ==                                                                 eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                      eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                     tmp%0#0
         btoi                                                               upper_bound#0
         v-store upper_bound#0
         // regression_tests/biguint_opt.py:7
@@ -103,9 +112,9 @@ subroutine get_abs_bound1:
         v-store aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                    0x151f7c75
         v-load aggregate%val_as_bytes%0#0                                  0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                             tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                     tmp%3#0
+        concat                                                             tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                     tmp%4#0
         log
         int 1                                                              1
         return

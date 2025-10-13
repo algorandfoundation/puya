@@ -91,26 +91,30 @@ subroutine test_cases.arc_56.contract.Contract.create[routing]() -> void:
 
 subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
     block@0: // L88
-        let reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded((len+uint8[]),uint8)%0#0: Encoded((len+uint8[]),uint8) = (txna ApplicationArgs 2)
-        let tmp%0#0: uint64 = test_cases.arc_56.contract.Contract.struct_arg(reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0, reinterpret_Encoded((len+uint8[]),uint8)%0#0)
-        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = tmp%0#0
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let as_Encoded((len+uint8[]),uint8)%0#0: Encoded((len+uint8[]),uint8) = tmp%1#0
+        let tmp%2#0: uint64 = test_cases.arc_56.contract.Contract.struct_arg(as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0, as_Encoded((len+uint8[]),uint8)%0#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
     block@0: // L94
-        let reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
-        let tmp%0#0: Encoded((len+uint8[]),uint8) = test_cases.arc_56.contract.Contract.struct_return(reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
-        (log tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = tmp%0#0
+        let tmp%1#0: Encoded((len+uint8[]),uint8) = test_cases.arc_56.contract.Contract.struct_return(as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
     block@0: // L99
-        let reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
-        test_cases.arc_56.contract.Contract.errors(reinterpret_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = tmp%0#0
+        test_cases.arc_56.contract.Contract.errors(as_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))%0#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
@@ -120,9 +124,13 @@ subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
 
 subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> void:
     block@0: // L113
-        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
-        let tmp%0#0: bool = decode_bytes<bool>(reinterpret_Encoded(bool8)%0#0)
-        test_cases.arc_56.contract.Contract.conditional_emit(tmp%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
+        let tmp%1#0: bool = decode_bytes<bool>(as_Encoded(bool8)%0#0)
+        test_cases.arc_56.contract.Contract.conditional_emit(tmp%1#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.template_value[routing]() -> void:
@@ -135,21 +143,51 @@ subroutine test_cases.arc_56.contract.Contract.template_value[routing]() -> void
 
 subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]() -> void:
     block@0: // L131
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
-        let tmp%1#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 4)
-        let reinterpret_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = (txna ApplicationArgs 5)
-        let (tmp%2#0: uint64, tmp%3#0: string) = decode_bytes<(uint64,string,)>(reinterpret_Encoded(uint64,(len+utf8[]))%0#0)
-        let reinterpret_Encoded((len+utf8[])[2])%0#0: Encoded((len+utf8[])[2]) = (txna ApplicationArgs 6)
-        let reinterpret_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = (txna ApplicationArgs 7)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 8)
-        let tmp%4#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 9)
-        let tmp%5#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        test_cases.arc_56.contract.Contract.with_constant_defaults(reinterpret_Encoded(uint64)%0#0, tmp%0#0, tmp%1#0, reinterpret_Encoded(uint64,uint64)%0#0, tmp%2#0, tmp%3#0, reinterpret_Encoded((len+utf8[])[2])%0#0, reinterpret_Encoded(len+(len+utf8[])[])%0#0, tmp%4#0, tmp%5#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%1#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 3)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%2#0: uint64 = (len tmp%3#0)
+        let eq%2#0: bool = (== len%2#0 add%0#0)
+        (assert eq%2#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%3#0
+        let tmp%4#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let tmp%5#0: bytes = (txna ApplicationArgs 4)
+        let len%3#0: uint64 = (len tmp%5#0)
+        let eq%3#0: bool = (== len%3#0 16u)
+        (assert eq%3#0) // invalid number of bytes for (uint64,uint64)
+        let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%5#0
+        let tmp%6#0: bytes = (txna ApplicationArgs 5)
+        let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = tmp%6#0
+        let (tmp%7#0: uint64, tmp%8#0: string) = decode_bytes<(uint64,string,)>(as_Encoded(uint64,(len+utf8[]))%0#0)
+        let tmp%9#0: bytes = (txna ApplicationArgs 6)
+        let as_Encoded((len+utf8[])[2])%0#0: Encoded((len+utf8[])[2]) = tmp%9#0
+        let tmp%10#0: bytes = (txna ApplicationArgs 7)
+        let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = tmp%10#0
+        let tmp%11#0: bytes = (txna ApplicationArgs 8)
+        let len%4#0: uint64 = (len tmp%11#0)
+        let eq%4#0: bool = (== len%4#0 8u)
+        (assert eq%4#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = tmp%11#0
+        let tmp%12#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%2#0)
+        let tmp%13#0: bytes = (txna ApplicationArgs 9)
+        let len%5#0: uint64 = (len tmp%13#0)
+        let eq%5#0: bool = (== len%5#0 8u)
+        (assert eq%5#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = tmp%13#0
+        let tmp%14#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%3#0)
+        test_cases.arc_56.contract.Contract.with_constant_defaults(as_Encoded(uint64)%0#0, tmp%2#0, tmp%4#0, as_Encoded(uint64,uint64)%0#0, tmp%7#0, tmp%8#0, as_Encoded((len+utf8[])[2])%0#0, as_Encoded(len+(len+utf8[])[])%0#0, tmp%12#0, tmp%14#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.__init__() -> void:

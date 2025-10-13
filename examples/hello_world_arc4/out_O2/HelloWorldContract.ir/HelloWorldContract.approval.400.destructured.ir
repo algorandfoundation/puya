@@ -11,15 +11,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
         (assert tmp%7#0) // OnCompletion must be NoOp && can only call when not creating
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
-        let tmp%0#3: bytes = (concat "Hello, " name#0)
-        let aggregate%length%0#0: uint64 = (len tmp%0#3)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let name#0: string = ((extract 2 0) tmp%0#2)
+        let tmp%0#2: bytes = (concat "Hello, " name#0)
+        let aggregate%length%0#0: uint64 = (len tmp%0#2)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%0#3)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
-        (log tmp%3#1)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%0#2)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
+        (log tmp%4#1)
         exit 1u
     block@4: // switch_case_next_L9
         fail

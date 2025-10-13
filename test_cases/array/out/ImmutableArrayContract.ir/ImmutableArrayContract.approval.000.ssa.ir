@@ -643,9 +643,13 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array[
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array[routing]() -> void:
     block@0: // L155
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        test_cases.array.immutable.ImmutableArrayContract.test_bool_array(tmp%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        test_cases.array.immutable.ImmutableArrayContract.test_bool_array(tmp%1#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array[routing]() -> void:
@@ -670,24 +674,43 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log[routing]() -> void:
     block@0: // L250
-        let reinterpret_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log(reinterpret_Encoded(len+uint64[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
+        test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log(as_Encoded(len+uint64[])%0#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit[routing]() -> void:
     block@0: // L254
-        let reinterpret_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit(reinterpret_Encoded(len+uint64[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
+        test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit(as_Encoded(len+uint64[])%0#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[routing]() -> void:
     block@0: // L258
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 2)
-        let tmp%1#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_nested_array(tmp%0#0, reinterpret_Encoded(len+(len+uint64[])[])%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let as_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = tmp%2#0
+        let tmp%3#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_nested_array(tmp%1#0, as_Encoded(len+(len+uint64[])[])%0#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples[routing]() -> void:
@@ -697,111 +720,181 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues[routing]() -> void:
     block@0: // L341
-        let reinterpret_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+bool1[])%0#0: Encoded(len+bool1[]) = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (txna ApplicationArgs 3)
-        let reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 4)
-        let (tmp%0#0: uint64, tmp%1#0: uint64, tmp%2#0: uint64, tmp%3#0: uint64) = test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(reinterpret_Encoded(len+uint64[])%0#0, reinterpret_Encoded(len+bool1[])%0#0, reinterpret_Encoded(len+(uint64,bool1,bool1)[])%0#0, reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
-        let tmp%4#0: Encoded(uint64,uint64,uint64,uint64) = bytes_encode<(uint64,uint64,uint64,uint64)>(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0)
-        let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
-        (log tmp%5#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%1#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 7u)
+        let div_floor%0#0: uint64 = (/ add%1#0 8u)
+        let add%2#0: uint64 = (+ div_floor%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%2#0)
+        (assert eq%1#0) // invalid number of bytes for (len+bool1[])
+        let as_Encoded(len+bool1[])%0#0: Encoded(len+bool1[]) = tmp%1#0
+        let tmp%2#0: bytes = (txna ApplicationArgs 3)
+        let length%2#0: uint64 = array_len(tmp%2#0)
+        let mul%2#0: uint64 = (* length%2#0 9u)
+        let add%3#0: uint64 = (+ mul%2#0 2u)
+        let len%2#0: uint64 = (len tmp%2#0)
+        let eq%2#0: bool = (== len%2#0 add%3#0)
+        (assert eq%2#0) // invalid number of bytes for (len+(uint64,bool1,bool1)[])
+        let as_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = tmp%2#0
+        let tmp%3#0: bytes = (txna ApplicationArgs 4)
+        let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = tmp%3#0
+        let (tmp%4#0: uint64, tmp%5#0: uint64, tmp%6#0: uint64, tmp%7#0: uint64) = test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(as_Encoded(len+uint64[])%0#0, as_Encoded(len+bool1[])%0#0, as_Encoded(len+(uint64,bool1,bool1)[])%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
+        let tmp%8#0: Encoded(uint64,uint64,uint64,uint64) = bytes_encode<(uint64,uint64,uint64,uint64)>(tmp%4#0, tmp%5#0, tmp%6#0, tmp%7#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
+        (log tmp%9#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return[routing]() -> void:
     block@0: // L368
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%1#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_return[routing]() -> void:
     block@0: // L375
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%1#0: Encoded(len+bool1[]) = test_cases.array.immutable.ImmutableArrayContract.test_bool_return(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: Encoded(len+bool1[]) = test_cases.array.immutable.ImmutableArrayContract.test_bool_return(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return[routing]() -> void:
     block@0: // L382
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%1#0: Encoded(len+(uint64,bool1,bool1)[]) = test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: Encoded(len+(uint64,bool1,bool1)[]) = test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return[routing]() -> void:
     block@0: // L389
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back[routing]() -> void:
     block@0: // L396
-        let reinterpret_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let tmp%1#0: Encoded(len+(uint64,bool1,bool1)[]) = test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(reinterpret_Encoded(len+(uint64,bool1,bool1)[])%0#0, tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 9u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,bool1,bool1)[])
+        let as_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = tmp%0#0
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%1#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%3#0: Encoded(len+(uint64,bool1,bool1)[]) = test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(as_Encoded(len+(uint64,bool1,bool1)[])%0#0, tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple[routing]() -> void:
     block@0: // L406
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(reinterpret_Encoded(uint64,uint64)%0#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
-        (log tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
+        let tmp%1#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(as_Encoded(uint64,uint64)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple[routing]() -> void:
     block@0: // L414
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let (tmp%0#0: Encoded(uint64), tmp%1#0: Encoded(uint64)) = decode_bytes<(Encoded(uint64),Encoded(uint64),)>(reinterpret_Encoded(uint64,uint64)%0#0)
-        let tmp%2#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(tmp%0#0, tmp%1#0)
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
-        (log tmp%3#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
+        let (tmp%1#0: Encoded(uint64), tmp%2#0: Encoded(uint64)) = decode_bytes<(Encoded(uint64),Encoded(uint64),)>(as_Encoded(uint64,uint64)%0#0)
+        let tmp%3#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(tmp%1#0, tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple[routing]() -> void:
     block@0: // L422
-        let reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
-        let tmp%0#0: Encoded(len+(len+utf8[])[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
-        (log tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = tmp%0#0
+        let tmp%1#0: Encoded(len+(len+utf8[])[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple[routing]() -> void:
     block@0: // L430
-        let reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
-        let (tmp%0#0: Encoded(len+utf8[]), tmp%1#0: Encoded(len+utf8[])) = decode_bytes<(Encoded(len+utf8[]),Encoded(len+utf8[]),)>(reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0)
-        let tmp%2#0: Encoded(len+(len+utf8[])[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(tmp%0#0, tmp%1#0)
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
-        (log tmp%3#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = tmp%0#0
+        let (tmp%1#0: Encoded(len+utf8[]), tmp%2#0: Encoded(len+utf8[])) = decode_bytes<(Encoded(len+utf8[]),Encoded(len+utf8[]),)>(as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
+        let tmp%3#0: Encoded(len+(len+utf8[])[]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(tmp%1#0, tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic[routing]() -> void:
     block@0: // L438
-        let reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 2)
-        let tmp%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%0#0, reinterpret_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
-        (log tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = tmp%0#0
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = tmp%1#0
+        let tmp%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(as_Encoded(len+(uint64,(len+utf8[]))[])%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4[routing]() -> void:
     block@0: // L444
-        let reinterpret_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4(reinterpret_Encoded(len+(uint64,uint64)[])%0#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
-        (log tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%0#0
+        let tmp%1#0: Encoded(len+(uint64,uint64)[]) = test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4(as_Encoded(len+(uint64,uint64)[])%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[routing]() -> void:

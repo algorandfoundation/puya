@@ -50,32 +50,48 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
     block@0: // L5
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%0#0)
-        let aggregate%length%0#0: uint64 = (len tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(tmp%1#0)
+        let aggregate%length%0#0: uint64 = (len tmp%2#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%2#0)
         let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%0#0
-        let tmp%2#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
-        (log tmp%3#0)
+        let tmp%3#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]() -> void:
     block@0: // L9
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%0#0)
-        let aggregate%length%0#0: uint64 = (len tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(tmp%1#0)
+        let aggregate%length%0#0: uint64 = (len tmp%2#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%2#0)
         let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%0#0
-        let tmp%2#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
-        (log tmp%3#0)
+        let tmp%3#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[routing]() -> void:

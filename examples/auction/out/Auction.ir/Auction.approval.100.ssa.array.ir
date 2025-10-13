@@ -51,11 +51,14 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
     block@0: // L25
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let asset#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let asset#0: uint64 = (btoi tmp%0#0)
         let tmp%0#1: account = (txn Sender)
-        let tmp%1#0: account = (global CreatorAddress)
-        let tmp%2#0: bool = (== tmp%0#1 tmp%1#0)
+        let tmp%1#1: account = (global CreatorAddress)
+        let tmp%2#0: bool = (== tmp%0#1 tmp%1#1)
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
         (assert maybe_exists%0#0) // check self.asa exists
@@ -73,12 +76,18 @@ subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
 
 subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
     block@0: // L40
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let starting_price#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let length#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        let tmp%2#0: uint64 = (txn GroupIndex)
-        let axfer#0: uint64 = (- tmp%2#0 1u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let starting_price#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let length#0: uint64 = (btoi tmp%2#0)
+        let tmp%4#0: uint64 = (txn GroupIndex)
+        let axfer#0: uint64 = (- tmp%4#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) axfer#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
@@ -88,11 +97,11 @@ subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
         (assert tmp%2#1) // auction must be started by creator
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
-        let tmp%3#0: bool = (! maybe_value%0#0)
-        (assert tmp%3#0) // auction already started
-        let tmp%4#0: account = ((gtxns AssetReceiver) axfer#0)
+        let tmp%3#1: bool = (! maybe_value%0#0)
+        (assert tmp%3#1) // auction already started
+        let tmp%4#1: account = ((gtxns AssetReceiver) axfer#0)
         let tmp%5#0: account = (global CurrentApplicationAddress)
-        let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
+        let tmp%6#0: bool = (== tmp%4#1 tmp%5#0)
         (assert tmp%6#0) // axfer must transfer to this app
         let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
         (app_global_put "asa_amount" tmp%7#0)
@@ -160,13 +169,16 @@ subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
 
 subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
     block@0: // L97
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let asset#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let asset#0: uint64 = (btoi tmp%0#0)
         let tmp%0#1: uint64 = (global LatestTimestamp)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
-        let tmp%1#0: bool = (> tmp%0#1 maybe_value%0#0)
-        (assert tmp%1#0) // auction has not ended
+        let tmp%1#1: bool = (> tmp%0#1 maybe_value%0#0)
+        (assert tmp%1#1) // auction has not ended
         itxn_begin
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists

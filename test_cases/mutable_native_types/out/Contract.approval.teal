@@ -227,6 +227,11 @@ add_payment:
     // mutable_native_types/contract.py:131
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint8[32],uint64,uint64)
     // mutable_native_types/contract.py:133
     // assert self.num_payments < self.payments.length, "too many payments"
     intc_0 // 0
@@ -273,8 +278,18 @@ increment_payment:
     // mutable_native_types/contract.py:137
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/contract.py:139
     // assert index < self.num_payments, "invalid payment index"
@@ -319,6 +334,11 @@ create_storage:
     // mutable_native_types/contract.py:142
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/contract.py:144
     // self.nested_proxy.value = self.nested.copy()
@@ -416,6 +436,11 @@ delete_storage:
     // mutable_native_types/contract.py:161
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/contract.py:163
     // del self.nested_proxy.value
@@ -450,8 +475,18 @@ struct_arg:
     // mutable_native_types/contract.py:168
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // mutable_native_types/contract.py:170
     // self.nested.fixed_a = a
     intc_0 // 0
@@ -624,11 +659,20 @@ test_arr:
     // mutable_native_types/contract.py:197
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    // mutable_native_types/contract.py:199
-    // assert arr.length == 0, "expected empty array"
     dup
     intc_0 // 0
     extract_uint16
+    dup
+    intc_2 // 16
+    *
+    pushint 2 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
+    // mutable_native_types/contract.py:199
+    // assert arr.length == 0, "expected empty array"
     dup
     !
     assert // expected empty array
@@ -868,18 +912,24 @@ test_arr_after_for@7:
 
 // test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]() -> void:
 test_match_struct:
-    // mutable_native_types/contract.py:264
-    // case FixedStruct(UInt64(1), UInt64(2)):
-    pushbytes 0x00000000000000010000000000000002
     // mutable_native_types/contract.py:261
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    // mutable_native_types/contract.py:264
+    // case FixedStruct(UInt64(1), UInt64(2)):
+    pushbytes 0x00000000000000010000000000000002
     // mutable_native_types/contract.py:263-267
     // match arg:
     //     case FixedStruct(UInt64(1), UInt64(2)):
     //         return True
     //     case _:
     //         return False
+    swap
     match test_match_struct_switch_case_0@2
     // mutable_native_types/contract.py:267
     // return False

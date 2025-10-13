@@ -32,16 +32,31 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]() -> void:
     block@0: // L22
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let a#0: uint64 = (btoi tmp%0#0)
         let b#0: biguint = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let c#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 4)
-        let d#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let len%1#0: uint64 = (len b#0)
+        let eq%1#0: bool = (== len%1#0 64u)
+        (assert eq%1#0) // invalid number of bytes for uint512
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 add%0#0)
+        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        let c#0: string = ((extract 2 0) tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 4)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%6#0 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%3#0: uint64 = (len tmp%6#0)
+        let eq%3#0: bool = (== len%3#0 add%1#0)
+        (assert eq%3#0) // invalid number of bytes for (len+uint8[])
+        let d#0: bytes = ((extract 2 0) tmp%6#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob a#0)
-        let aggregate%value_len%0#0: uint64 = (len b#0)
-        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
+        let aggregate%len_ok%0#0: bool = (<= len%1#0 64u)
         (assert aggregate%len_ok%0#0) // overflow
         let aggregate%bzero%0#0: bytes = (bzero 64u)
         let aggregate%arc4_encoded%0#0: bytes[64] = (b| b#0 aggregate%bzero%0#0)
@@ -62,8 +77,8 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[rout
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 aggregate%encoded_value%0#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%encoded_value%1#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
-        (log tmp%9#0)
+        let tmp%13#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
+        (log tmp%13#0)
         exit 1u
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side_effects[routing]() -> void:
@@ -79,15 +94,15 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_side
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
     block@0: // L41
-        let reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (txna ApplicationArgs 1)
-        let value.a#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0u)
-        let value.b#0: biguint = ((extract 8 64) reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
-        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 72u)
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 74u)
-        let aggregate%substring3%0#0: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let value.a#0: uint64 = (extract_uint64 tmp%0#0 0u)
+        let value.b#0: biguint = ((extract 8 64) tmp%0#0)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 72u)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 74u)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let value.c#0: string = ((extract 2 0) aggregate%substring3%0#0)
-        let aggregate%len%0#0: uint64 = (len reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
-        let aggregate%substring3%1#0: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%1#0 aggregate%len%0#0)
+        let aggregate%len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%1#0 aggregate%len%0#0)
         let value.d#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
         let tmp%0#1: bool = (< value.a#0 1000u)
         (assert tmp%0#1)
@@ -96,7 +111,7 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routi
         let tmp%2#1: uint64 = (len value.c#0)
         let tmp%3#1: bool = (> tmp%2#1 1u)
         (assert tmp%3#1)
-        let tmp%4#0: account = (txn Sender)
-        let tmp%5#0: bool = (== value.d#0 tmp%4#0)
+        let tmp%4#1: account = (txn Sender)
+        let tmp%5#0: bool = (== value.d#0 tmp%4#1)
         (assert tmp%5#0)
         exit 1u

@@ -30,9 +30,15 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
     block@0: // L12
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len a#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(b#0, a#0)
-        let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#0)
+        let len%1#0: uint64 = (len b#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let tmp%0#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(b#0, a#0)
+        let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#1)
         (log event%0#0)
         (log event%0#0)
         (log event%0#0)
@@ -41,8 +47,14 @@ subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void
 subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
     block@0: // L18
         let a#0: Encoded(uint256) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len a#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint256
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%0#0: Encoded(uint256,uint64) = bytes_encode<(uint256,uint64)>(a#0, b#0)
-        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" tmp%0#0)
+        let len%1#0: uint64 = (len b#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let tmp%0#1: Encoded(uint256,uint64) = bytes_encode<(uint256,uint64)>(a#0, b#0)
+        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" tmp%0#1)
         (log event%0#0)
         exit 1u

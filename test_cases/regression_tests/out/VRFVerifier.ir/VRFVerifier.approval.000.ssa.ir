@@ -65,16 +65,37 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_r
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:
     block@0: // L5
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%1#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
-        let tmp%2#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
-        let (tmp%3#0: bytes, tmp%4#0: bool) = test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(tmp%0#0, tmp%1#0, tmp%2#0)
-        let tmp%5#0: Encoded((len+uint8[]),bool1) = bytes_encode<((len+uint8[]),bool1)>(tmp%3#0, tmp%4#0)
-        let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
-        (log tmp%6#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%2#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%1#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let length%2#0: uint64 = array_len(tmp%4#0)
+        let mul%2#0: uint64 = (* length%2#0 1u)
+        let add%2#0: uint64 = (+ mul%2#0 2u)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = tmp%4#0
+        let tmp%5#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%2#0)
+        let (tmp%6#0: bytes, tmp%7#0: bool) = test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(tmp%1#0, tmp%3#0, tmp%5#0)
+        let tmp%8#0: Encoded((len+uint8[]),bool1) = bytes_encode<((len+uint8[]),bool1)>(tmp%6#0, tmp%7#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
+        (log tmp%9#0)
         exit 1u
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes) -> <bytes, bool>:

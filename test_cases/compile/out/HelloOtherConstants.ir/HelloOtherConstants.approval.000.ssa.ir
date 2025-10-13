@@ -63,12 +63,19 @@ subroutine test_cases.compile.apps.HelloOtherConstants.delete[routing]() -> void
 
 subroutine test_cases.compile.apps.HelloOtherConstants.greet[routing]() -> void:
     block@0: // L91
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
-        let tmp%1#0: bytes = test_cases.compile.apps.HelloOtherConstants.greet(tmp%0#0)
-        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%1#0)
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
-        (log tmp%3#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%0#0
+        let tmp%1#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
+        let tmp%2#0: bytes = test_cases.compile.apps.HelloOtherConstants.greet(tmp%1#0)
+        let tmp%3#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.compile.apps.HelloOtherConstants.__init__() -> void:

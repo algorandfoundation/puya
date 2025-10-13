@@ -73,7 +73,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_logicsig[routing]() -> v
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing]() -> void:
     block@0: // L30
-        let compiled.approval_program.0#0: bytes = CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let compiled.approval_program.0#0: bytes = CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -100,6 +100,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(result#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len result#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%4#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
@@ -117,7 +123,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[routing]() -> void:
     block@0: // L61
-        let compiled.approval_program.0#0: bytes = CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -149,6 +155,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(result#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len result#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -166,7 +178,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[routing]() -> void:
     block@0: // L96
-        let compiled.approval_program.0#0: bytes = CyYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==
+        let compiled.approval_program.0#0: bytes = CyACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -192,6 +204,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(result#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len result#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -234,6 +252,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
+        let len%0#0: uint64 = (len result#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
@@ -252,7 +273,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
     block@0: // L160
         itxn_begin
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = C4EBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -285,7 +306,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%3#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%3#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
@@ -303,7 +330,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing]() -> void:
     block@0: // L177
-        let compiled.approval_program.0#0: bytes = CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let compiled.approval_program.0#0: bytes = CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -336,7 +363,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -354,7 +387,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing]() -> void:
     block@0: // L198
-        let compiled.approval_program.0#0: bytes = CyYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==
+        let compiled.approval_program.0#0: bytes = CyACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -387,7 +420,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -435,7 +474,10 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%1#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
@@ -453,7 +495,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled[routing]() -> void:
     block@0: // L236
-        let compiled.approval_program.0#0: bytes = CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let compiled.approval_program.0#0: bytes = CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -500,7 +542,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%7#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%7#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%7#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
@@ -519,7 +567,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -> void:
     block@0: // L263
         itxn_begin
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = C4EBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -546,7 +594,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -554,7 +607,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         let tmp%6#0: bool = (== result#0 "hi there")
         (assert tmp%6#0)
         itxn_begin
-        let inner_txn_params%2%%param_ApprovalProgramPages_idx_0#0: bytes = CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let inner_txn_params%2%%param_ApprovalProgramPages_idx_0#0: bytes = CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         let inner_txn_params%2%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%2%%param_ClearStateProgramPages_idx_0#0: bytes = C4EBQw==
         let inner_txn_params%2%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -575,7 +628,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%8#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%1#0)
+        let tmp%8#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = array_len(tmp%8#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%8#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+utf8[])
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
         (assert tmp%10#0) // application log value is not the result of an ABI return
@@ -594,7 +652,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
 subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]() -> void:
     block@0: // L297
         itxn_begin
-        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCJDMRmBBRIxGBBDNhoBVwIAIyllRIABMKBJFSIJIlgjKGVEgAEgUE8CUExQIyplRFAjK2VEUEkVFlcGAkxQgAQVH3x1TFCwIkM=
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = CyACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCNDMRmBBRIxGBBDNhoBSSJZgQIISwEVEkRXAgAiKWVEgAEwoEkVIwkjWCIoZUSAASBQTwJQTFAiKmVEUCIrZURQSRUWVwYCTFCABBUffHVMULAjQw==
         let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = 
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = C4EBQw==
         let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = 
@@ -626,7 +684,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: Encoded(len+uint8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
@@ -647,7 +711,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
 
 subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[routing]() -> void:
     block@0: // L323
-        let compiled.approval_program.0#0: bytes = CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        let compiled.approval_program.0#0: bytes = CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         let compiled.approval_program.1#0: bytes = 
         let compiled.clear_state_program.0#0: bytes = C4EBQw==
         let compiled.clear_state_program.1#0: bytes = 
@@ -682,7 +746,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%3#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%3#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 10 8
+    intcblock 0 1 2 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -45,7 +45,7 @@ main_create_NoOp@10:
 ensure_budget:
     proto 2 0
     frame_dig -2
-    intc_2 // 10
+    pushint 10 // 10
     +
 
 ensure_budget_while_top@1:
@@ -94,7 +94,7 @@ itoa:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    intc_2 // 10
+    pushint 10 // 10
     // voting/voting.py:253
     // if i < radix:
     <
@@ -115,7 +115,7 @@ itoa_after_if_else@2:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    intc_2 // 10
+    pushint 10 // 10
     // voting/voting.py:255
     // return itoa(i // radix) + String.from_bytes(digits[i % radix])
     /
@@ -123,7 +123,7 @@ itoa_after_if_else@2:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    intc_2 // 10
+    pushint 10 // 10
     // voting/voting.py:255
     // return itoa(i // radix) + String.from_bytes(digits[i % radix])
     %
@@ -144,32 +144,94 @@ create:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 5
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 6
     dup
-    cover 5
     cover 6
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 7
+    dup
+    intc_2 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 7
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 8
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     // voting/voting.py:70
     // assert start_time < end_time, "End time should be after start time"
-    dig 3
-    dig 3
+    dig 4
+    dig 4
     <
     assert // End time should be after start time
     // voting/voting.py:71
     // assert end_time >= Global.latest_timestamp, "End time should be in the future"
-    dig 2
+    dig 3
     global LatestTimestamp
     >=
     assert // End time should be in the future
@@ -181,22 +243,22 @@ create:
     // voting/voting.py:74
     // self.snapshot_public_key = snapshot_public_key
     bytec 8 // "snapshot_public_key"
-    uncover 6
+    uncover 7
     app_global_put
     // voting/voting.py:75
     // self.metadata_ipfs_cid = metadata_ipfs_cid
     bytec 9 // "metadata_ipfs_cid"
-    uncover 5
+    uncover 6
     app_global_put
     // voting/voting.py:76
     // self.start_time = start_time
     bytec 10 // "start_time"
-    uncover 4
+    uncover 5
     app_global_put
     // voting/voting.py:77
     // self.end_time = end_time
     bytec 11 // "end_time"
-    uncover 3
+    uncover 4
     app_global_put
     // voting/voting.py:78
     // self.quorum = quorum
@@ -210,9 +272,7 @@ create:
     app_global_put
     // voting/voting.py:219
     // assert option_counts.length, "option_counts should be non-empty"
-    intc_0 // 0
-    extract_uint16
-    dupn 2
+    dup
     assert // option_counts should be non-empty
     // voting/voting.py:220
     // assert option_counts.length <= 112, "Can't have more than 112 questions"
@@ -781,6 +841,15 @@ get_preconditions:
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // voting/voting.py:163
     // is_voting_open=arc4.UInt64(self.voting_open()),
@@ -840,11 +909,29 @@ vote:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    cover 2
     cover 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    intc_2 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     // voting/voting.py:176
     // ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
     pushint 7700 // 7700
@@ -853,6 +940,7 @@ vote:
     // voting/voting.py:177-178
     // # Check voting preconditions
     // assert self.allowed_to_vote(signature), "Not allowed to vote"
+    swap
     callsub allowed_to_vote
     assert // Not allowed to vote
     // voting/voting.py:179
@@ -880,11 +968,7 @@ vote:
     cover 3
     // voting/voting.py:182
     // assert answer_ids.length == questions_count, "Number of answers incorrect"
-    swap
-    intc_0 // 0
-    extract_uint16
-    dup
-    uncover 2
+    dig 1
     ==
     assert // Number of answers incorrect
     // voting/voting.py:185

@@ -21,20 +21,29 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@5: // attach_asset_to_user_route_L35
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#0: uint64 = (len user_id#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%1#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
-        let user#1: Encoded((len+utf8[]),uint64,uint64) = ((replace2 10) box_data#0 reinterpret_Encoded(uint64)%1#0)
+        let user#1: Encoded((len+utf8[]),uint64,uint64) = ((replace2 10) box_data#0 tmp%1#1)
         let box_key#0: bytes = ((extract 2 8) user#1)
         (box_del box_key#0)
         (box_put box_key#0 user#1)
         exit 1u
     block@6: // get_user_route_L41
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len user_id#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
-        let tmp%1#1: bytes = (concat 0x151f7c75 box_data#0)
-        (log tmp%1#1)
+        let tmp%2#1: bytes = (concat 0x151f7c75 box_data#0)
+        (log tmp%2#1)
         exit 1u
     block@9: // after_if_else_L10
         fail

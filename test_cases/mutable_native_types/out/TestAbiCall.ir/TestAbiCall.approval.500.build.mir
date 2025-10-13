@@ -106,7 +106,7 @@ subroutine test_fixed_struct:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -170,6 +170,15 @@ subroutine test_fixed_struct:
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                                 len%0#0
+        int 16                                                                                         len%0#0,16
+        ==                                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                  eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 0 4                                                                                    tmp%6#0
         v-store tmp%6#0
@@ -242,6 +251,15 @@ subroutine test_fixed_struct:
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                                 len%1#0
+        int 16                                                                                         len%1#0,16
+        ==                                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                  eq%1#0
+        assert // invalid number of bytes for (uint64,uint64)
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 0 4                                                                                    tmp%15#0
         v-store tmp%15#0
@@ -289,7 +307,7 @@ subroutine test_nested_struct:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -373,6 +391,15 @@ subroutine test_nested_struct:
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                                 len%0#0
+        int 24                                                                                         len%0#0,24
+        ==                                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                  eq%0#0
+        assert // invalid number of bytes for ((uint64,uint64),uint64)
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 0 4                                                                                    tmp%9#0
         v-store tmp%9#0
@@ -467,6 +494,15 @@ subroutine test_nested_struct:
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                                 len%1#0
+        int 24                                                                                         len%1#0,24
+        ==                                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                  eq%1#0
+        assert // invalid number of bytes for ((uint64,uint64),uint64)
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 0 4                                                                                    tmp%21#0
         v-store tmp%21#0
@@ -514,7 +550,7 @@ subroutine test_dynamic_struct:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -877,7 +913,7 @@ subroutine test_fixed_array:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -951,6 +987,15 @@ subroutine test_fixed_array:
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                                 len%0#0
+        int 48                                                                                         len%0#0,48
+        ==                                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                  eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)[3]
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 0 4                                                                                    tmp%6#0
         v-store tmp%6#0
@@ -1037,6 +1082,15 @@ subroutine test_fixed_array:
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                                 len%1#0
+        int 48                                                                                         len%1#0,48
+        ==                                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                  eq%1#0
+        assert // invalid number of bytes for (uint64,uint64)[3]
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 0 4                                                                                    tmp%15#0
         v-store tmp%15#0
@@ -1084,7 +1138,7 @@ subroutine test_native_array:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum
@@ -1162,6 +1216,27 @@ subroutine test_native_array:
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        int 0                                                                                          res#0,0
+        extract_uint16                                                                                 aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                              aggregate%array_length%0#0
+        int 16                                                                                         aggregate%array_length%0#0,16
+        *                                                                                              mul%0#0
+        v-store mul%0#0
+        v-load mul%0#0                                                                                 mul%0#0
+        int 2                                                                                          mul%0#0,2
+        +                                                                                              add%0#0
+        v-store add%0#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                                 len%0#0
+        v-load add%0#0                                                                                 len%0#0,add%0#0
+        ==                                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                  eq%0#0
+        assert // invalid number of bytes for (len+(uint64,uint64)[])
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 0 4                                                                                    tmp%6#0
         v-store tmp%6#0
@@ -1254,6 +1329,27 @@ subroutine test_native_array:
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 4 0                                                                                    res#0
         v-store res#0
+        v-load res#0                                                                                   res#0
+        int 0                                                                                          res#0,0
+        extract_uint16                                                                                 aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                              aggregate%array_length%1#0
+        int 16                                                                                         aggregate%array_length%1#0,16
+        *                                                                                              mul%1#0
+        v-store mul%1#0
+        v-load mul%1#0                                                                                 mul%1#0
+        int 2                                                                                          mul%1#0,2
+        +                                                                                              add%1#0
+        v-store add%1#0
+        v-load res#0                                                                                   res#0
+        len                                                                                            len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                                 len%1#0
+        v-load add%1#0                                                                                 len%1#0,add%1#0
+        ==                                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                  eq%1#0
+        assert // invalid number of bytes for (len+(uint64,uint64)[])
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 0 4                                                                                    tmp%15#0
         v-store tmp%15#0
@@ -1301,7 +1397,7 @@ subroutine test_log:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                  C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM= CyACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAHKABCQ3jTw2GgCOAQBcMRkURDEYRIILBBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4LABIAGQAjACoANAA7AEUATQBYAGAAawAxGYEFEjEYEEMxGRQxGBQQQyk2GgFnIkMjKWVEKExQsCJDKjYaAWciQyMqZUQoTFCwIkMrNhoBZyJDIytlRChMULAiQycENhoBZyJDIycEZUQoTFCwIkMnBTYaAWciQyMnBWVEKExQsCJDIyllRLAjKmVEsCMrZUSwIycEZUSwIycFZUSwIkM=
+        byte CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw== CyADAQAQJgYEFR98dQxmaXhlZF9zdHJ1Y3QNbmVzdGVkX3N0cnVjdA5keW5hbWljX3N0cnVjdAlmaXhlZF9hcnIKbmF0aXZlX2FycjEbQQBygAQkN408NhoAjgEAXDEZFEQxGESCCwQRsZuVBNKLlkoE6hhlXwS7O/23BEbsFKAEm00JJgRPDetQBFlmSrYEEl0TdgSBjkpiBJu+EDI2GgCOCwASAB8AKQA3AEEASABSAGEAbACCAI0AMRmBBRIxGBBDMRkUMRgUEEM2GgFJFSQSRClMZyJDIyllRChMULAiQzYaAUkVgRgSRCpMZyJDIyplRChMULAiQys2GgFnIkMjK2VEKExQsCJDNhoBSRWBMBJEJwRMZyJDIycEZUQoTFCwIkM2GgFJI1kkC4ECCEsBFRJEJwVMZyJDIycFZUQoTFCwIkMjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLAiQw==
         itxn_field ApprovalProgramPages
         int appl                                                                                       appl
         itxn_field TypeEnum

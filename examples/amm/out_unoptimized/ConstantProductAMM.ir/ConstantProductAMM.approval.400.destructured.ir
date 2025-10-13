@@ -143,9 +143,13 @@ subroutine examples.amm.contract.do_asset_transfer(receiver: account, asset: uin
 
 subroutine examples.amm.contract.ConstantProductAMM.set_governor[routing]() -> void:
     block@0: // L43
-        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%0#0: account = reinterpret_Encoded(uint8[32])%0#0
-        examples.amm.contract.ConstantProductAMM.set_governor(tmp%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%0#0
+        let tmp%1#0: account = as_Encoded(uint8[32])%0#0
+        examples.amm.contract.ConstantProductAMM.set_governor(tmp%1#0)
         exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void:
@@ -155,18 +159,26 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
-        let tmp%5#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%2#0, tmp%4#0)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%5#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%1#0
+        let tmp%2#0: uint64 = (btoi as_Encoded(uint8)%0#0)
+        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint8)%1#0)
+        let tmp%6#0: uint64 = ((txnas Assets) tmp%5#0)
+        let tmp%7#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%3#0, tmp%6#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%7#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
-        let tmp%6#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
-        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
-        (log tmp%7#0)
+        let tmp%8#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
+        (log tmp%9#0)
         exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
@@ -181,16 +193,28 @@ subroutine examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%2#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%4#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%5#0: uint64 = ((txnas Assets) tmp%4#0)
-        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%6#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%2#0
+        let tmp%3#0: uint64 = (btoi as_Encoded(uint8)%0#0)
+        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
+        let tmp%5#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%5#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%5#0
+        let tmp%6#0: uint64 = (btoi as_Encoded(uint8)%1#0)
         let tmp%7#0: uint64 = ((txnas Assets) tmp%6#0)
-        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%0#0, gtxn_idx%1#0, tmp%3#0, tmp%5#0, tmp%7#0)
+        let tmp%8#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%8#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%2#0: Encoded(uint8) = tmp%8#0
+        let tmp%9#0: uint64 = (btoi as_Encoded(uint8)%2#0)
+        let tmp%10#0: uint64 = ((txnas Assets) tmp%9#0)
+        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%0#0, gtxn_idx%1#0, tmp%4#0, tmp%7#0, tmp%10#0)
         exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
@@ -200,16 +224,28 @@ subroutine examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
-        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%5#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%1#0
+        let tmp%2#0: uint64 = (btoi as_Encoded(uint8)%0#0)
+        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint8)%1#0)
         let tmp%6#0: uint64 = ((txnas Assets) tmp%5#0)
-        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%0#0, tmp%2#0, tmp%4#0, tmp%6#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%7#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%2#0: Encoded(uint8) = tmp%7#0
+        let tmp%8#0: uint64 = (btoi as_Encoded(uint8)%2#0)
+        let tmp%9#0: uint64 = ((txnas Assets) tmp%8#0)
+        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%0#0, tmp%3#0, tmp%6#0, tmp%9#0)
         exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
@@ -219,13 +255,21 @@ subroutine examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%1#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%2#0: uint64 = ((txnas Assets) tmp%1#0)
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%4#0: uint64 = ((txnas Assets) tmp%3#0)
-        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%0#0, tmp%2#0, tmp%4#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%1#0
+        let tmp%2#0: uint64 = (btoi as_Encoded(uint8)%0#0)
+        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for uint8
+        let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint8)%1#0)
+        let tmp%6#0: uint64 = ((txnas Assets) tmp%5#0)
+        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%0#0, tmp%3#0, tmp%6#0)
         exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:

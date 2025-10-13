@@ -3,9 +3,9 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 4 10 50500
+    intcblock 1 8 0 4 50500
     bytecblock 0x6c697374696e6773
-    intc_1 // 0
+    intc_2 // 0
     dupn 4
     pushbytes ""
     dupn 5
@@ -29,10 +29,20 @@ main_after_if_else@2:
 
 main_acceptBid_route@14:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     bury 7
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn Sender
     uncover 2
@@ -60,7 +70,7 @@ main_acceptBid_route@14:
     !=
     assert
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dup
     cover 2
@@ -88,7 +98,7 @@ main_ternary_merge@24:
     dup
     cover 3
     mulw
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     divmodw
@@ -102,7 +112,7 @@ main_ternary_merge@24:
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     itxn_begin
@@ -114,9 +124,9 @@ main_ternary_merge@24:
     itxn_field AssetReceiver
     uncover 3
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     uncover 3
@@ -151,11 +161,26 @@ main_ternary_false@23:
 
 main_bid_route@13:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     bury 8
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -167,9 +192,19 @@ main_bid_route@13:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 7
     txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 6
     swap
@@ -213,7 +248,7 @@ main_bid_route@13:
     assert // asset exists
     cover 2
     mulw
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     divmodw
@@ -227,7 +262,7 @@ main_bid_route@13:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -242,7 +277,7 @@ main_after_if_else@28:
     dup
     cover 3
     mulw
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     divmodw
@@ -288,10 +323,20 @@ main_after_if_else@28:
 
 main_withdraw_route@12:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     bury 7
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn Sender
     uncover 2
@@ -330,7 +375,7 @@ main_withdraw_route@12:
     swap
     uncover 2
     mulw
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     divmodw
@@ -344,7 +389,7 @@ main_withdraw_route@12:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -359,21 +404,21 @@ main_after_if_else@32:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     itxn_begin
     txn Sender
     dig 7
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
     dig 5
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     intc_0 // 1
@@ -381,9 +426,24 @@ main_after_if_else@32:
 
 main_buy_route@11:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -394,6 +454,11 @@ main_buy_route@11:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dig 3
     itob
@@ -410,7 +475,7 @@ main_buy_route@11:
     box_get
     assert // check self.listings entry exists
     dup
-    pushint 8 // 8
+    intc_1 // 8
     extract_uint64
     dig 5
     asset_params_get AssetDecimals
@@ -418,7 +483,7 @@ main_buy_route@11:
     dig 1
     dig 5
     mulw
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     divmodw
@@ -447,7 +512,7 @@ main_buy_route@11:
     dig 3
     extract 16 32
     uncover 4
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dig 6
     -
@@ -467,9 +532,9 @@ main_buy_route@11:
     itxn_field AssetReceiver
     itxn_field AssetAmount
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     intc_0 // 1
@@ -477,10 +542,25 @@ main_buy_route@11:
 
 main_setPrice_route@10:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn Sender
     uncover 3
@@ -522,10 +602,15 @@ main_deposit_route@9:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn Sender
     dig 2
@@ -564,7 +649,7 @@ main_deposit_route@9:
     dig 3
     extract 8 8
     uncover 4
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     uncover 6
     +
@@ -595,12 +680,22 @@ main_firstDeposit_route@8:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dig 3
     gtxns Sender
@@ -655,7 +750,7 @@ main_firstDeposit_route@8:
     concat
     swap
     concat
-    intc_1 // 0
+    intc_2 // 0
     itob
     swap
     dig 1
@@ -676,6 +771,11 @@ main_allowAsset_route@7:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     global CurrentApplicationAddress
     dig 1
@@ -695,13 +795,13 @@ main_allowAsset_route@7:
     assert
     itxn_begin
     global CurrentApplicationAddress
-    intc_1 // 0
+    intc_2 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     intc_0 // 1

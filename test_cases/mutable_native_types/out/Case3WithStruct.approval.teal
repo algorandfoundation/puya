@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8 16 128 4272
+    intcblock 8 1 0 16 128 4272
     bytecblock "tup_bag" 0x151f7c75
     // mutable_native_types/case3_with_mutable_struct.py:34
     // class Case3WithStruct(arc4.ARC4Contract):
@@ -54,10 +54,10 @@ create_box:
     // self.tup_bag.value.bootstrapped = True
     bytec_0 // "tup_bag"
     intc 5 // 4272
-    intc_0 // 1
+    intc_1 // 1
     box_extract
-    intc_1 // 0
-    intc_0 // 1
+    intc_2 // 0
+    intc_1 // 1
     setbit
     bytec_0 // "tup_bag"
     intc 5 // 4272
@@ -65,7 +65,7 @@ create_box:
     box_replace
     // mutable_native_types/case3_with_mutable_struct.py:38
     // @arc4.abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -74,8 +74,8 @@ num_tups:
     // mutable_native_types/case3_with_mutable_struct.py:47
     // return self.tup_bag.value.count
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     // mutable_native_types/case3_with_mutable_struct.py:45
     // @arc4.abimethod()
@@ -83,7 +83,7 @@ num_tups:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -92,9 +92,14 @@ add_tup:
     // mutable_native_types/case3_with_mutable_struct.py:49
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     callsub test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup
     pop
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -103,12 +108,17 @@ get_tup:
     // mutable_native_types/case3_with_mutable_struct.py:56
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case3_with_mutable_struct.py:58
     // assert index < self.tup_bag.value.count, "index out of bounds"
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
     dig 1
@@ -117,7 +127,7 @@ get_tup:
     // mutable_native_types/case3_with_mutable_struct.py:59
     // return self.tup_bag.value.items[index]
     bytec_0 // "tup_bag"
-    intc_2 // 8
+    intc_0 // 8
     intc 4 // 128
     box_extract
     swap
@@ -131,7 +141,7 @@ get_tup:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -139,15 +149,15 @@ get_tup:
 sum:
     // mutable_native_types/case3_with_mutable_struct.py:63
     // total = UInt64()
-    intc_1 // 0
+    intc_2 // 0
     // mutable_native_types/case3_with_mutable_struct.py:64
     // for i in urange(self.tup_bag.value.count):
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
-    intc_1 // 0
+    intc_2 // 0
 
 sum_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:64
@@ -162,7 +172,7 @@ sum_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:65-66
     // tup = self.tup_bag.value.items[i].copy()
     // total += tup.a
-    intc_2 // 8
+    intc_0 // 8
     intc 4 // 128
     box_extract
     dig 1
@@ -178,7 +188,7 @@ sum_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:65-66
     // tup = self.tup_bag.value.items[i].copy()
     // total += tup.a
-    intc_1 // 0
+    intc_2 // 0
     // mutable_native_types/case3_with_mutable_struct.py:66
     // total += tup.a
     extract_uint64
@@ -187,13 +197,13 @@ sum_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:67
     // total += tup.b
     swap
-    intc_2 // 8
+    intc_0 // 8
     extract_uint64
     +
     bury 4
     // mutable_native_types/case3_with_mutable_struct.py:64
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b sum_for_header@2
@@ -207,7 +217,7 @@ sum_after_for@5:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -216,12 +226,22 @@ add_many_tups:
     // mutable_native_types/case3_with_mutable_struct.py:70
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dupn 2
+    intc_2 // 0
+    extract_uint16
     dup
+    cover 2
+    intc_3 // 16
+    *
+    pushint 2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
     // mutable_native_types/case3_with_mutable_struct.py:72
     // for i in urange(tups.length):
-    intc_1 // 0
-    extract_uint16
-    intc_1 // 0
+    intc_2 // 0
 
 add_many_tups_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:72
@@ -245,7 +265,7 @@ add_many_tups_for_header@2:
     pop
     // mutable_native_types/case3_with_mutable_struct.py:72
     // for i in urange(tups.length):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b add_many_tups_for_header@2
@@ -253,7 +273,7 @@ add_many_tups_for_header@2:
 add_many_tups_after_for@5:
     // mutable_native_types/case3_with_mutable_struct.py:70
     // @arc4.abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -262,9 +282,14 @@ add_fixed_tups:
     // mutable_native_types/case3_with_mutable_struct.py:75
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64)[3]
     // mutable_native_types/case3_with_mutable_struct.py:77
     // for i in urange(tups.length):
-    intc_1 // 0
+    intc_2 // 0
 
 add_fixed_tups_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:77
@@ -286,7 +311,7 @@ add_fixed_tups_for_header@2:
     pop
     // mutable_native_types/case3_with_mutable_struct.py:77
     // for i in urange(tups.length):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b add_fixed_tups_for_header@2
@@ -294,7 +319,7 @@ add_fixed_tups_for_header@2:
 add_fixed_tups_after_for@5:
     // mutable_native_types/case3_with_mutable_struct.py:75
     // @arc4.abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -303,17 +328,22 @@ set_a:
     // mutable_native_types/case3_with_mutable_struct.py:80
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // mutable_native_types/case3_with_mutable_struct.py:82
     // self._check_owner()
     callsub _check_owner
     // mutable_native_types/case3_with_mutable_struct.py:83
     // for i in urange(self.tup_bag.value.count):
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
-    intc_1 // 0
+    intc_2 // 0
 
 set_a_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:83
@@ -325,13 +355,13 @@ set_a_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:84
     // self.tup_bag.value.items[i].a = a
     dupn 2
-    intc_2 // 8
+    intc_0 // 8
     <
     assert // index out of bounds
     dup
     intc_3 // 16
     *
-    intc_2 // 8
+    intc_0 // 8
     +
     bytec_0 // "tup_bag"
     swap
@@ -339,7 +369,7 @@ set_a_for_header@2:
     box_replace
     // mutable_native_types/case3_with_mutable_struct.py:83
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b set_a_for_header@2
@@ -347,7 +377,7 @@ set_a_for_header@2:
 set_a_after_for@5:
     // mutable_native_types/case3_with_mutable_struct.py:80
     // @arc4.abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -356,17 +386,22 @@ set_b:
     // mutable_native_types/case3_with_mutable_struct.py:86
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // mutable_native_types/case3_with_mutable_struct.py:88
     // self._check_owner()
     callsub _check_owner
     // mutable_native_types/case3_with_mutable_struct.py:89
     // for i in urange(self.tup_bag.value.count):
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
-    intc_1 // 0
+    intc_2 // 0
 
 set_b_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:89
@@ -378,7 +413,7 @@ set_b_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:90
     // self.tup_bag.value.items[i].b = b
     dupn 2
-    intc_2 // 8
+    intc_0 // 8
     <
     assert // index out of bounds
     dup
@@ -392,7 +427,7 @@ set_b_for_header@2:
     box_replace
     // mutable_native_types/case3_with_mutable_struct.py:89
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b set_b_for_header@2
@@ -400,7 +435,7 @@ set_b_for_header@2:
 set_b_after_for@5:
     // mutable_native_types/case3_with_mutable_struct.py:86
     // @arc4.abimethod()
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -409,12 +444,17 @@ get_3_tups:
     // mutable_native_types/case3_with_mutable_struct.py:92
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case3_with_mutable_struct.py:94
     // assert self.tup_bag.value.count >= start + 3, "not enough items"
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
     dig 1
@@ -427,7 +467,7 @@ get_3_tups:
     bytec_0 // "tup_bag"
     // mutable_native_types/case3_with_mutable_struct.py:99
     // items[start].copy(),
-    intc_2 // 8
+    intc_0 // 8
     intc 4 // 128
     box_extract
     dig 1
@@ -440,7 +480,7 @@ get_3_tups:
     // mutable_native_types/case3_with_mutable_struct.py:100
     // items[start + 1].copy(),
     dig 2
-    intc_0 // 1
+    intc_1 // 1
     +
     intc_3 // 16
     *
@@ -477,7 +517,7 @@ get_3_tups:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -490,11 +530,11 @@ get_all_tups:
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
-    intc_1 // 0
+    intc_2 // 0
 
 get_all_tups_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:109-110
@@ -509,7 +549,7 @@ get_all_tups_for_header@2:
     bytec_0 // "tup_bag"
     // mutable_native_types/case3_with_mutable_struct.py:111
     // result.append(items[i].copy())
-    intc_2 // 8
+    intc_0 // 8
     intc 4 // 128
     box_extract
     dig 1
@@ -524,9 +564,9 @@ get_all_tups_for_header@2:
     uncover 2
     concat // on error: max array length exceeded
     swap
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 2
@@ -535,7 +575,7 @@ get_all_tups_for_header@2:
     // mutable_native_types/case3_with_mutable_struct.py:109-110
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 1
     b get_all_tups_for_header@2
@@ -547,7 +587,7 @@ get_all_tups_after_for@5:
     dig 3
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -563,19 +603,19 @@ test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tu
     // mutable_native_types/case3_with_mutable_struct.py:52
     // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
     dup
-    intc_2 // 8
+    intc_0 // 8
     <
     assert // too many tups
     // mutable_native_types/case3_with_mutable_struct.py:53
     // self.tup_bag.value.items[self.tup_bag.value.count] = tup.copy()
     intc_3 // 16
     *
-    intc_2 // 8
+    intc_0 // 8
     +
     bytec_0 // "tup_bag"
     swap
@@ -584,15 +624,15 @@ test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tu
     // mutable_native_types/case3_with_mutable_struct.py:54
     // self.tup_bag.value.count += 1
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_2 // 8
+    intc_2 // 0
+    intc_0 // 8
     box_extract
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     bytec_0 // "tup_bag"
-    intc_1 // 0
+    intc_2 // 0
     uncover 2
     box_replace
     frame_dig -1
@@ -605,9 +645,9 @@ _check_owner:
     // assert self.tup_bag.value.bootstrapped, "app not bootstrapped"
     bytec_0 // "tup_bag"
     intc 5 // 4272
-    intc_0 // 1
+    intc_1 // 1
     box_extract
-    intc_1 // 0
+    intc_2 // 0
     getbit
     assert // app not bootstrapped
     // mutable_native_types/case3_with_mutable_struct.py:117
@@ -622,7 +662,7 @@ _check_owner:
     // self.tup_bag.value.app == Global.current_application_id
     bytec_0 // "tup_bag"
     pushint 168 // 168
-    intc_2 // 8
+    intc_0 // 8
     box_extract
     btoi
     global CurrentApplicationID

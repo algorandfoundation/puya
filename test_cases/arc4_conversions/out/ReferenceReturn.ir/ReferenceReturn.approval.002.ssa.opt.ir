@@ -75,12 +75,21 @@ subroutine test_cases.arc4_conversions.reference.ReferenceReturn.app_ret[routing
 
 subroutine test_cases.arc4_conversions.reference.ReferenceReturn.store[routing]() -> void:
     block@0: // L17
-        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let acc#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let app#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let asset#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let acc#0: account = decode_bytes<account>(tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let app#0: uint64 = decode_bytes<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let asset#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         (app_global_put "acc" acc#0)
         (app_global_put "asset" asset#0)
         (app_global_put "app" app#0)
@@ -89,18 +98,36 @@ subroutine test_cases.arc4_conversions.reference.ReferenceReturn.store[routing](
 subroutine test_cases.arc4_conversions.reference.ReferenceReturn.store_apps[routing]() -> void:
     block@0: // L23
         let apps#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(apps#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len apps#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
         (app_global_put "apps" apps#0)
         exit 1u
 
 subroutine test_cases.arc4_conversions.reference.ReferenceReturn.store_assets[routing]() -> void:
     block@0: // L27
         let assets#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(assets#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len assets#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
         (app_global_put "assets" assets#0)
         exit 1u
 
 subroutine test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts[routing]() -> void:
     block@0: // L31
         let accounts#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(accounts#0)
+        let mul%0#0: uint64 = (* length%0#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len accounts#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[32][])
         (app_global_put "accounts" accounts#0)
         exit 1u
 

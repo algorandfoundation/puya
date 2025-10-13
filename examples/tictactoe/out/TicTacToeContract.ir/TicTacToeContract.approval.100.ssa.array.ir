@@ -204,10 +204,13 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() -> void:
     block@0: // L20
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%0#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 0u 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%extract%1#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 8u 8u)
+        let aggregate%extract%1#0: bytes = (extract3 tmp%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
         let (move.0#0: uint64, move.1#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0)
         let tmp%0#1: uint64 = (txn ApplicationID)
@@ -224,8 +227,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
         (app_global_del "winner")
         goto block@5
     block@5: // after_if_else_L22
-        let tmp%2#0: account = (txn Sender)
-        (app_global_put "host" tmp%2#0)
+        let tmp%2#1: account = (txn Sender)
+        (app_global_put "host" tmp%2#1)
         let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
         (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
         let tmp%3#0: bool = (< move.0#0 3u)
@@ -259,10 +262,13 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -> void:
     block@0: // L37
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%0#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 0u 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%extract%1#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 8u 8u)
+        let aggregate%extract%1#0: bytes = (extract3 tmp%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
         let (move.0#0: uint64, move.1#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0)
         let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
@@ -285,10 +291,13 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() 
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> void:
     block@0: // L47
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%0#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 0u 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%extract%1#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 8u 8u)
+        let aggregate%extract%1#0: bytes = (extract3 tmp%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
         let (move.0#0: uint64, move.1#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0)
         let (_%0#0: Encoded(uint8), maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 16
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
     // mutable_native_types/abi_call.py:41
     // class CallMe(arc4.ARC4Contract):
@@ -43,14 +43,18 @@ main___algopy_default_create@22:
 
 // test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:
 fixed_struct_arg:
-    // mutable_native_types/abi_call.py:55
-    // self.fixed_struct.value = arg
-    bytec_1 // "fixed_struct"
     // mutable_native_types/abi_call.py:53
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // mutable_native_types/abi_call.py:55
     // self.fixed_struct.value = arg
+    bytec_1 // "fixed_struct"
+    swap
     app_global_put
     // mutable_native_types/abi_call.py:53
     // @arc4.abimethod()
@@ -78,14 +82,18 @@ fixed_struct_ret:
 
 // test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]() -> void:
 nested_struct_arg:
-    // mutable_native_types/abi_call.py:63
-    // self.nested_struct.value = arg
-    bytec_2 // "nested_struct"
     // mutable_native_types/abi_call.py:61
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 24 // 24
+    ==
+    assert // invalid number of bytes for ((uint64,uint64),uint64)
     // mutable_native_types/abi_call.py:63
     // self.nested_struct.value = arg
+    bytec_2 // "nested_struct"
+    swap
     app_global_put
     // mutable_native_types/abi_call.py:61
     // @arc4.abimethod()
@@ -148,14 +156,18 @@ dynamic_struct_ret:
 
 // test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]() -> void:
 fixed_arr_arg:
-    // mutable_native_types/abi_call.py:79
-    // self.fixed_arr.value = arg.copy()
-    bytec 4 // "fixed_arr"
     // mutable_native_types/abi_call.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64)[3]
     // mutable_native_types/abi_call.py:79
     // self.fixed_arr.value = arg.copy()
+    bytec 4 // "fixed_arr"
+    swap
     app_global_put
     // mutable_native_types/abi_call.py:77
     // @arc4.abimethod()
@@ -183,14 +195,24 @@ fixed_arr_ret:
 
 // test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]() -> void:
 native_arr_arg:
-    // mutable_native_types/abi_call.py:87
-    // self.native_arr.value = arg.copy()
-    bytec 5 // "native_arr"
     // mutable_native_types/abi_call.py:85
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 16
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
     // mutable_native_types/abi_call.py:87
     // self.native_arr.value = arg.copy()
+    bytec 5 // "native_arr"
+    swap
     app_global_put
     // mutable_native_types/abi_call.py:85
     // @arc4.abimethod()

@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 32
+    intcblock 32 1
     bytecblock 0x151f7c75
     txn NumAppArgs
     bz main___algots__.defaultCreate@13
@@ -29,39 +29,68 @@ main___algots__.defaultCreate@13:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
 hashAddresses:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     concat
     sha512_256
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
 receiveB32:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     dup
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert // invalid size
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
 receiveBytes:
     txna ApplicationArgs 1
+    dup
+    pushint 0 // 0
+    extract_uint16
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     swap
     len
@@ -73,12 +102,16 @@ receiveBytes:
 returnLength:
     txna ApplicationArgs 1
     len
+    dup
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     itob
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -90,7 +123,7 @@ test:
     pushbytes "abcdefghabcdefghabcdefghabcdefgh"
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -114,7 +147,7 @@ tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32:
     proto 1 1
     frame_dig -1
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert
     frame_dig -1

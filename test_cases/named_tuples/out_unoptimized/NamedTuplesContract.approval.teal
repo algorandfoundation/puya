@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 64 76
+    intcblock 0 1 64 8
     bytecblock 0x 0x151f7c75
     b main_block@0
 
@@ -122,11 +122,43 @@ build_tuple_block@0:
     // named_tuples/contract.py:22
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 64
+    ==
+    assert // invalid number of bytes for uint512
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     uncover 3
     uncover 3
@@ -156,7 +188,7 @@ build_tuple_block@0:
     extract 6 2
     uncover 2
     concat
-    intc_3 // 76
+    pushint 76 // 76
     itob
     extract 6 2
     uncover 2
@@ -165,7 +197,7 @@ build_tuple_block@0:
     cover 1
     dup
     len
-    intc_3 // 76
+    pushint 76 // 76
     +
     dig 3
     len
@@ -229,12 +261,12 @@ test_tuple_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    pushint 8 // 8
+    intc_3 // 8
     extract3
     btoi
     cover 1
     dup
-    pushint 8 // 8
+    intc_3 // 8
     intc_2 // 64
     extract3
     cover 1

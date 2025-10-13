@@ -109,19 +109,33 @@ subroutine attach_asset_to_user:
         // struct_in_box/contract.py:35
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                user_id#0
-        txna ApplicationArgs 2                                                user_id#0,reinterpret_Encoded(uint64)%1#0
+        l-load-copy user_id#0 0                                               user_id#0,user_id#0 (copy)
+        len                                                                   user_id#0,len%0#0
+        l-load len%0#0 0                                                      user_id#0,len%0#0
+        int 8                                                                 user_id#0,len%0#0,8
+        ==                                                                    user_id#0,eq%0#0
+        l-load eq%0#0 0                                                       user_id#0,eq%0#0
+        assert // invalid number of bytes for uint64                          user_id#0
+        txna ApplicationArgs 2                                                user_id#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                 user_id#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                   user_id#0,tmp%1#0,len%1#0
+        l-load len%1#0 0                                                      user_id#0,tmp%1#0,len%1#0
+        int 8                                                                 user_id#0,tmp%1#0,len%1#0,8
+        ==                                                                    user_id#0,tmp%1#0,eq%1#0
+        l-load eq%1#0 0                                                       user_id#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for uint64                          user_id#0,tmp%1#0
         // struct_in_box/contract.py:13
         // box_data, exists = op.Box.get(user_id.bytes)
-        l-load user_id#0 1                                                    reinterpret_Encoded(uint64)%1#0,user_id#0
-        box_get                                                               reinterpret_Encoded(uint64)%1#0,box_data#0,exists#0
+        l-load user_id#0 1                                                    tmp%1#0,user_id#0
+        box_get                                                               tmp%1#0,box_data#0,exists#0
         // struct_in_box/contract.py:14
         // assert exists, "User with that id does not exist"
-        l-load exists#0 0                                                     reinterpret_Encoded(uint64)%1#0,box_data#0,exists#0
-        assert // User with that id does not exist                            reinterpret_Encoded(uint64)%1#0,box_data#0
+        l-load exists#0 0                                                     tmp%1#0,box_data#0,exists#0
+        assert // User with that id does not exist                            tmp%1#0,box_data#0
         // struct_in_box/contract.py:38
         // user.asset = arc4.UInt64(asset.id)
-        l-load box_data#0 0                                                   reinterpret_Encoded(uint64)%1#0,box_data#0
-        l-load reinterpret_Encoded(uint64)%1#0 1                              box_data#0,reinterpret_Encoded(uint64)%1#0
+        l-load box_data#0 0                                                   tmp%1#0,box_data#0
+        l-load tmp%1#0 1                                                      box_data#0,tmp%1#0
         replace2 10                                                           user#1
         // struct_in_box/contract.py:19
         // box_key = user.id.bytes
@@ -149,6 +163,13 @@ subroutine get_user:
         // struct_in_box/contract.py:41
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                user_id#0
+        l-load-copy user_id#0 0                                               user_id#0,user_id#0 (copy)
+        len                                                                   user_id#0,len%0#0
+        l-load len%0#0 0                                                      user_id#0,len%0#0
+        int 8                                                                 user_id#0,len%0#0,8
+        ==                                                                    user_id#0,eq%0#0
+        l-load eq%0#0 0                                                       user_id#0,eq%0#0
+        assert // invalid number of bytes for uint64                          user_id#0
         // struct_in_box/contract.py:13
         // box_data, exists = op.Box.get(user_id.bytes)
         l-load user_id#0 0                                                    user_id#0
@@ -161,8 +182,8 @@ subroutine get_user:
         // @arc4.abimethod()
         byte 0x151f7c75                                                       box_data#0,0x151f7c75
         l-load box_data#0 1                                                   0x151f7c75,box_data#0
-        concat                                                                tmp%1#0
-        l-load tmp%1#0 0                                                      tmp%1#0
+        concat                                                                tmp%2#0
+        l-load tmp%2#0 0                                                      tmp%2#0
         log
         int 1                                                                 1
         return

@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1 8
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn NumAppArgs
@@ -56,7 +57,7 @@ add_user:
     box_put
     // struct_in_box/contract.py:30
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -64,10 +65,21 @@ add_user:
 attach_asset_to_user:
     // struct_in_box/contract.py:35
     // @arc4.abimethod()
-    txna ApplicationArgs 2
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
+    swap
     box_get
     // struct_in_box/contract.py:14
     // assert exists, "User with that id does not exist"
@@ -92,7 +104,7 @@ attach_asset_to_user:
     box_put
     // struct_in_box/contract.py:35
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 
@@ -101,6 +113,11 @@ get_user:
     // struct_in_box/contract.py:41
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
     box_get
@@ -113,5 +130,5 @@ get_user:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_0 // 1
     return

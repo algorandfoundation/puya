@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 4 10 50500
+    intcblock 1 8 0 4 50500
     bytecblock 0x6c697374696e6773
     txn ApplicationID
     bnz main_after_if_else@2
@@ -57,6 +57,11 @@ allow_asset:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:85
     // assert not Global.current_application_address.is_opted_in(asset)
@@ -88,15 +93,15 @@ allow_asset:
     // marketplace_demo/marketplace_with_tups.py:91
     // xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
     global CurrentApplicationAddress
-    intc_1 // 0
+    intc_2 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:90
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_tups.py:90-92
     // itxn.AssetTransfer(
@@ -126,12 +131,22 @@ first_deposit:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:102
     // assert mbr_pay.sender == Txn.sender
@@ -233,7 +248,7 @@ first_deposit:
     concat
     // marketplace_demo/marketplace_with_tups.py:117
     // bid=UInt64(),
-    intc_1 // 0
+    intc_2 // 0
     // marketplace_demo/marketplace_with_tups.py:113
     // self.listings[key] = ListingValue(
     itob
@@ -266,10 +281,15 @@ deposit:
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:123
     // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
@@ -313,7 +333,7 @@ deposit:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dig 1
     extract 8 8
@@ -359,10 +379,25 @@ set_price:
     // marketplace_demo/marketplace_with_tups.py:138
     // @arc4.abimethod(name="setPrice")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:140
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -422,9 +457,24 @@ buy:
     // marketplace_demo/marketplace_with_tups.py:151
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -435,6 +485,11 @@ buy:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:162
     // listing = self.listings[key]
@@ -453,10 +508,10 @@ buy:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dig 1
-    pushint 8 // 8
+    intc_1 // 8
     extract_uint64
     dig 2
     extract 16 32
@@ -476,7 +531,7 @@ buy:
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_tups.py:72-74
@@ -549,9 +604,9 @@ buy:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:178
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_tups.py:178-180
     // itxn.AssetTransfer(
@@ -569,9 +624,19 @@ withdraw:
     // marketplace_demo/marketplace_with_tups.py:182
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:184
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -591,7 +656,7 @@ withdraw:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     swap
     dup
@@ -622,7 +687,7 @@ withdraw:
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_tups.py:72-74
@@ -644,7 +709,7 @@ withdraw:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -688,7 +753,7 @@ withdraw_after_if_else@4:
     // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     // marketplace_demo/marketplace_with_tups.py:197-199
@@ -706,9 +771,9 @@ withdraw_after_if_else@4:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:197
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_tups.py:197-199
     // itxn.AssetTransfer(
@@ -726,11 +791,26 @@ bid:
     // marketplace_demo/marketplace_with_tups.py:201
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     cover 2
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_0 // 1
@@ -742,9 +822,19 @@ bid:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     cover 3
     txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     cover 3
     // marketplace_demo/marketplace_with_tups.py:213
@@ -805,7 +895,7 @@ bid:
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_tups.py:72-74
@@ -827,7 +917,7 @@ bid:
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
 
@@ -848,7 +938,7 @@ bid_after_if_else@4:
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_tups.py:72-74
@@ -920,9 +1010,19 @@ accept_bid:
     // marketplace_demo/marketplace_with_tups.py:237
     // @arc4.abimethod(name="acceptBid")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // marketplace_demo/marketplace_with_tups.py:239
     // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -942,7 +1042,7 @@ accept_bid:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dup
     uncover 2
@@ -992,7 +1092,7 @@ accept_bid_ternary_merge@4:
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-    intc_3 // 10
+    pushint 10 // 10
     uncover 3
     expw
     // marketplace_demo/marketplace_with_tups.py:72-74
@@ -1014,7 +1114,7 @@ accept_bid_ternary_merge@4:
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     // marketplace_demo/marketplace_with_tups.py:252-254
@@ -1032,9 +1132,9 @@ accept_bid_ternary_merge@4:
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:252
     // itxn.AssetTransfer(
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // marketplace_demo/marketplace_with_tups.py:252-254
     // itxn.AssetTransfer(

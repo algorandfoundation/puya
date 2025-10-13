@@ -92,29 +92,42 @@ subroutine all:
     all_block@0:
         // intrinsics/optimizations.py:21
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                             reinterpret_Encoded(len+uint8[])%0#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 0                      reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                              tmp%0#0,tmp%0#0 (copy)
+        int 0                                                              tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                     tmp%0#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                tmp%0#0,aggregate%array_length%0#0
+        int 2                                                              tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                  tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                              tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                   tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                   tmp%0#0,len%0#0,add%0#0
+        ==                                                                 tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                    tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                tmp%0#0
+        l-load tmp%0#0 0                                                   tmp%0#0
         extract 2 0                                                        value_to_hash#0
         // intrinsics/optimizations.py:24
         // op.sha256(value_to_hash),
         l-load-copy value_to_hash#0 0                                      value_to_hash#0,value_to_hash#0 (copy)
-        sha256                                                             value_to_hash#0,tmp%0#1
+        sha256                                                             value_to_hash#0,tmp%0#0
         // intrinsics/optimizations.py:25
         // op.sha3_256(value_to_hash),
-        l-load-copy value_to_hash#0 1                                      value_to_hash#0,tmp%0#1,value_to_hash#0 (copy)
-        sha3_256                                                           value_to_hash#0,tmp%0#1,tmp%1#1
+        l-load-copy value_to_hash#0 1                                      value_to_hash#0,tmp%0#0,value_to_hash#0 (copy)
+        sha3_256                                                           value_to_hash#0,tmp%0#0,tmp%1#1
         // intrinsics/optimizations.py:26
         // op.sha512_256(value_to_hash),
-        l-load-copy value_to_hash#0 2                                      value_to_hash#0,tmp%0#1,tmp%1#1,value_to_hash#0 (copy)
-        sha512_256                                                         value_to_hash#0,tmp%0#1,tmp%1#1,tmp%2#1
+        l-load-copy value_to_hash#0 2                                      value_to_hash#0,tmp%0#0,tmp%1#1,value_to_hash#0 (copy)
+        sha512_256                                                         value_to_hash#0,tmp%0#0,tmp%1#1,tmp%2#1
         // intrinsics/optimizations.py:27
         // op.keccak256(value_to_hash),
-        l-load value_to_hash#0 3                                           tmp%0#1,tmp%1#1,tmp%2#1,value_to_hash#0
-        keccak256                                                          tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1
+        l-load value_to_hash#0 3                                           tmp%0#0,tmp%1#1,tmp%2#1,value_to_hash#0
+        keccak256                                                          tmp%0#0,tmp%1#1,tmp%2#1,tmp%3#1
         // intrinsics/optimizations.py:21
         // @arc4.abimethod()
-        byte 0x0020                                                        tmp%0#1,tmp%1#1,tmp%2#1,tmp%3#1,0x0020
-        l-load tmp%0#1 4                                                   tmp%1#1,tmp%2#1,tmp%3#1,0x0020,tmp%0#1
+        byte 0x0020                                                        tmp%0#0,tmp%1#1,tmp%2#1,tmp%3#1,0x0020
+        l-load tmp%0#0 4                                                   tmp%1#1,tmp%2#1,tmp%3#1,0x0020,tmp%0#0
         concat                                                             tmp%1#1,tmp%2#1,tmp%3#1,aggregate%encoded_value%0#0
         l-load-copy aggregate%encoded_value%0#0 0                          tmp%1#1,tmp%2#1,tmp%3#1,aggregate%encoded_value%0#0,aggregate%encoded_value%0#0 (copy)
         len                                                                tmp%1#1,tmp%2#1,tmp%3#1,aggregate%encoded_value%0#0,aggregate%data_length%0#0
@@ -175,8 +188,8 @@ subroutine all:
         concat                                                             aggregate%concat%3#0
         byte 0x151f7c75                                                    aggregate%concat%3#0,0x151f7c75
         l-load aggregate%concat%3#0 1                                      0x151f7c75,aggregate%concat%3#0
-        concat                                                             tmp%6#0
-        l-load tmp%6#0 0                                                   tmp%6#0
+        concat                                                             tmp%7#0
+        l-load tmp%7#0 0                                                   tmp%7#0
         log
         int 1                                                              1
         return
