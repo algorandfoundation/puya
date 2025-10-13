@@ -57,6 +57,9 @@ def parse_module(
     return FASTResult(ast=mod, module=fast)
 
 
+_ASTNodeWithLocation = ast.expr | ast.stmt | ast.pattern | ast.alias | ast.arg | ast.keyword
+
+
 @attrs.define
 class _BuildContext:
     module_name: str = attrs.field(on_setattr=attrs.setters.frozen)
@@ -67,39 +70,31 @@ class _BuildContext:
     def failures(self) -> int:
         return self._failures
 
-    def invalid_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
+    def invalid_syntax(
+        self, loc: SourceLocation | _ASTNodeWithLocation | None, detail: str | None = None
+    ) -> None:
         if detail is None:
             message = _INVALID_SYNTAX_MSG
         else:
             message = f"{_INVALID_SYNTAX_MSG}: {detail}"
         self.fail(message, loc)
 
-    def unsupported_syntax(self, loc: SourceLocation | None, detail: str | None = None) -> None:
+    def unsupported_syntax(
+        self, loc: SourceLocation | _ASTNodeWithLocation | None, detail: str | None = None
+    ) -> None:
         if detail is None:
             message = _UNSUPPORTED_SYNTAX_MSG
         else:
             message = f"{_UNSUPPORTED_SYNTAX_MSG}: {detail}"
         self.fail(message, loc)
 
-    def fail(self, message: str, loc: SourceLocation | None) -> None:
+    def fail(self, message: str, loc: SourceLocation | _ASTNodeWithLocation | None) -> None:
+        if not isinstance(loc, SourceLocation | None):
+            loc = self.loc(loc)
         logger.error(message, location=loc)
         self._failures += 1
 
-    def maybe_loc(self, node: ast.AST) -> SourceLocation | None:
-        lineno = getattr(node, "lineno", None)
-        if lineno is None:
-            return None
-        return SourceLocation(
-            file=self.module_path,
-            line=lineno,
-            end_line=getattr(node, "end_lineno", lineno),
-            column=getattr(node, "col_offset", None),
-            end_column=getattr(node, "end_col_offset", None),
-        )
-
-    def loc(
-        self, node: ast.expr | ast.stmt | ast.pattern | ast.alias | ast.arg | ast.keyword
-    ) -> SourceLocation:
+    def loc(self, node: _ASTNodeWithLocation) -> SourceLocation:
         return SourceLocation(
             file=self.module_path,
             line=node.lineno,
@@ -254,8 +249,7 @@ def _convert_arguments(ctx: _BuildContext, args: ast.arguments) -> tuple[nodes.P
     # *arg
     if args.vararg is not None:
         ctx.unsupported_syntax(
-            ctx.loc(args.vararg),
-            "variadic arguments are not supported in user functions",
+            args.vararg, "variadic arguments are not supported in user functions"
         )
 
     for a, kd in zip(args.kwonlyargs, args.kw_defaults, strict=True):
@@ -264,8 +258,7 @@ def _convert_arguments(ctx: _BuildContext, args: ast.arguments) -> tuple[nodes.P
     # **kwarg
     if args.kwarg is not None:
         ctx.unsupported_syntax(
-            ctx.loc(args.kwarg),
-            "variadic arguments are not supported in user functions",
+            args.kwarg, "variadic arguments are not supported in user functions"
         )
 
     seen_names = set[str]()
@@ -580,9 +573,9 @@ def _visit_keywords_list(
     for kw in keywords:
         if kw.arg is None:
             # if the arg names is None, it's a **kwargs unpacking
-            ctx.unsupported_syntax(ctx.loc(kw))
+            ctx.unsupported_syntax(kw)
         elif kw.arg in kwargs:
-            ctx.invalid_syntax(ctx.loc(kw), f"keyword argument repeated: {kw.arg}")
+            ctx.invalid_syntax(kw, f"keyword argument repeated: {kw.arg}")
         else:
             kwargs[kw.arg] = _visit_expr(ctx, kw.value)
     return immutabledict(kwargs)
