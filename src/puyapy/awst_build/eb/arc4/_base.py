@@ -6,7 +6,9 @@ from collections.abc import Callable, Sequence
 import typing_extensions
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4FromBytes,
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
@@ -58,11 +60,19 @@ class ARC4FromLogBuilder(FunctionBuilder):
 
     @classmethod
     def abi_expr_from_log(
-        cls, typ: pytypes.PyType, value: InstanceBuilder, location: SourceLocation
+        cls,
+        typ: pytypes.PyType,
+        value: InstanceBuilder,
+        location: SourceLocation,
     ) -> Expression:
         tmp_value = value.single_eval().resolve()
-        arc4_value = intrinsic_factory.extract(
-            tmp_value, start=4, loc=location, result_type=typ.checked_wtype(location)
+        arc4_wtype = typ.checked_wtype(location)
+        assert isinstance(arc4_wtype, wtypes.ARC4Type), "expected ARC4 wtype"
+        arc4_value = ARC4FromBytes(
+            value=intrinsic_factory.extract(tmp_value, start=4, loc=location),
+            wtype=arc4_wtype,
+            validate=True,
+            source_location=location,
         )
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
         arc4_prefix_is_valid = compare_expr_bytes(

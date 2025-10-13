@@ -79,6 +79,10 @@ class ToCodeVisitor(
         return f"arc4_encode({expr.value.accept(self)}, {expr.wtype})"
 
     @typing.override
+    def visit_arc4_from_bytes(self, expr: nodes.ARC4FromBytes) -> str:
+        return f"arc4_validate({expr.value.accept(self)}, {expr.wtype})"
+
+    @typing.override
     def visit_reinterpret_cast(self, expr: nodes.ReinterpretCast) -> str:
         return f"reinterpret_cast<{expr.wtype}>({expr.expr.accept(self)})"
 
