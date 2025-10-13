@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.2.0'></a>
+## v5.2.0 (2025-10-13)
+
+### Added
+
+- Added a compiler option to validate the sizes of ARC-4 arguments to ensure they are well-formed this option is enabled by default
+- Added a compiler option to control the severity of compiler output when notifying that nested dynamic types are not validated
+
 <a id='changelog-v5.1.0'></a>
 ## v5.1.0 (2025-10-13)
 
