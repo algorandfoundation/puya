@@ -81,10 +81,8 @@ class Decorator(Node):
     # function argument list.
     # ref: https://peps.python.org/pep-0614/
     callee: str
-    # we do allow som extra syntax in certain decorator arguments however, so retain
-    # the original AST here.
-    args: tuple[ast.expr, ...] | None
-    kwargs: immutabledict[str, ast.expr] | None
+    args: tuple[Expression, ...] | None
+    kwargs: immutabledict[str, Expression] | None
 
 
 @attrs.frozen
@@ -108,7 +106,7 @@ class ClassDef(Statement):
     decorators: tuple[Decorator, ...]
     docstring: str | None
     body: tuple[Statement, ...]
-    kwargs: immutabledict[str, ast.expr]
+    kwargs: immutabledict[str, Expression]
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
@@ -531,6 +529,7 @@ class ListExpr(Expression):
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_list_expr(self)
+
 
 @attrs.frozen
 class DictExpr(Expression):
