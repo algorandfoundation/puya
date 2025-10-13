@@ -210,11 +210,11 @@ def _visit_decorator_list(
     result = []
     for decorator in decorator_list:
         callee: ast.expr
-        args: tuple[ast.expr, ...] | None
-        kwargs: immutabledict[str, ast.expr] | None
+        args: tuple[nodes.Expression, ...] | None
+        kwargs: immutabledict[str, nodes.Expression] | None
         match decorator:
             case ast.Call(func=callee, args=args_list, keywords=keywords):
-                args = tuple(args_list)
+                args = _visit_expr_list(ctx, args_list)
                 kwargs = _visit_keywords_list(ctx, keywords)
             case callee:
                 args = None
@@ -573,7 +573,7 @@ def _visit_continue(ctx: _BuildContext, continue_stmt: ast.Continue) -> nodes.Co
 
 def _visit_keywords_list(
     ctx: _BuildContext, keywords: list[ast.keyword]
-) -> immutabledict[str, ast.expr]:
+) -> immutabledict[str, nodes.Expression]:
     kwargs = {}
     for kw in keywords:
         if kw.arg is None:
@@ -582,7 +582,7 @@ def _visit_keywords_list(
         elif kw.arg in kwargs:
             ctx.invalid_syntax(ctx.loc(kw), f"keyword argument repeated: {kw.arg}")
         else:
-            kwargs[kw.arg] = kw.value
+            kwargs[kw.arg] = _visit_expr(ctx, kw.value)
     return immutabledict(kwargs)
 
 
@@ -888,11 +888,11 @@ def _visit_call(ctx: _BuildContext, call: ast.Call) -> nodes.Call:
     loc = ctx.loc(call)
     func = _visit_expr(ctx, call.func)
     args = _visit_expr_list(ctx, call.args)
-    kwargs = {k: _visit_expr(ctx, v) for k, v in _visit_keywords_list(ctx, call.keywords).items()}
+    kwargs = _visit_keywords_list(ctx, call.keywords)
     return nodes.Call(
         func=func,
         args=args,
-        kwargs=immutabledict(kwargs),
+        kwargs=kwargs,
         source_location=loc,
     )
 
