@@ -192,13 +192,56 @@ subroutine test_is_a_b:
     test_is_a_b_block@0:
         // typed_abi_call/typed_c2c.py:25
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(len+uint8[])%0#0
-        v-store reinterpret_Encoded(len+uint8[])%0#0
-        txna ApplicationArgs 2                                                                       reinterpret_Encoded(len+uint8[])%1#0
-        v-store reinterpret_Encoded(len+uint8[])%1#0
-        txna ApplicationArgs 3                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        int 0                                                                                        tmp%0#0,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+uint8[])
+        txna ApplicationArgs 2                                                                       tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        int 0                                                                                        tmp%2#0,0
+        extract_uint16                                                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                            aggregate%array_length%1#0
+        int 2                                                                                        aggregate%array_length%1#0,2
+        +                                                                                            add%1#0
+        v-store add%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        v-load add%1#0                                                                               len%1#0,add%1#0
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (len+uint8[])
+        txna ApplicationArgs 3                                                                       tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                               tmp%4#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        int 8                                                                                        len%2#0,8
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%4#0                                                                               tmp%4#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:27-32
@@ -213,9 +256,9 @@ subroutine test_is_a_b:
         itxn_field ApplicationID
         method is_a_b(byte[],byte[])void                                                             Method(is_a_b(byte[],byte[])void)
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(len+uint8[])%0#0                                                  reinterpret_Encoded(len+uint8[])%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(len+uint8[])%1#0                                                  reinterpret_Encoded(len+uint8[])%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
         itxn_field ApplicationArgs
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -233,9 +276,18 @@ subroutine test_method_selector_kinds:
     test_method_selector_kinds_block@0:
         // typed_abi_call/typed_c2c.py:34
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:37
@@ -257,6 +309,23 @@ subroutine test_method_selector_kinds:
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 4 0                                                                                  result#0
         v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%3#0
         v-store tmp%3#0
@@ -293,6 +362,23 @@ subroutine test_method_selector_kinds:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  result#0
         v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                            aggregate%array_length%1#0
+        int 2                                                                                        aggregate%array_length%1#0,2
+        +                                                                                            add%1#0
+        v-store add%1#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        v-load add%1#0                                                                               len%1#0,add%1#0
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%9#0
         v-store tmp%9#0
@@ -329,6 +415,23 @@ subroutine test_method_selector_kinds:
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 4 0                                                                                  result#0
         v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                            aggregate%array_length%2#0
+        int 2                                                                                        aggregate%array_length%2#0,2
+        +                                                                                            add%2#0
+        v-store add%2#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        v-load add%2#0                                                                               len%2#0,add%2#0
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%15#0
         v-store tmp%15#0
@@ -365,6 +468,23 @@ subroutine test_method_selector_kinds:
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 4 0                                                                                  result#0
         v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
+        v-load aggregate%array_length%3#0                                                            aggregate%array_length%3#0
+        int 2                                                                                        aggregate%array_length%3#0,2
+        +                                                                                            add%3#0
+        v-store add%3#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%3#0
+        v-store len%3#0
+        v-load len%3#0                                                                               len%3#0
+        v-load add%3#0                                                                               len%3#0,add%3#0
+        ==                                                                                           eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                                eq%3#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 0 4                                                                                  tmp%21#0
         v-store tmp%21#0
@@ -401,6 +521,23 @@ subroutine test_method_selector_kinds:
         v-load awst_tmp%4#0                                                                          awst_tmp%4#0
         extract 4 0                                                                                  result#0
         v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
+        v-load aggregate%array_length%4#0                                                            aggregate%array_length%4#0
+        int 2                                                                                        aggregate%array_length%4#0,2
+        +                                                                                            add%4#0
+        v-store add%4#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%4#0
+        v-store len%4#0
+        v-load len%4#0                                                                               len%4#0
+        v-load add%4#0                                                                               len%4#0,add%4#0
+        ==                                                                                           eq%4#0
+        v-store eq%4#0
+        v-load eq%4#0                                                                                eq%4#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%4#0                                                                          awst_tmp%4#0
         extract 0 4                                                                                  tmp%27#0
         v-store tmp%27#0
@@ -429,9 +566,18 @@ subroutine test_method_overload:
     test_method_overload_block@0:
         // typed_abi_call/typed_c2c.py:48
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:50
@@ -451,6 +597,26 @@ subroutine test_method_overload:
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
+        extract 4 0                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        int 0                                                                                        tmp%1#1,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load tmp%1#1                                                                               tmp%1#1
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
+        v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                               tmp%2#0
@@ -466,6 +632,23 @@ subroutine test_method_overload:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  tmp%4#0
         v-store tmp%4#0
+        v-load tmp%4#0                                                                               tmp%4#0
+        int 0                                                                                        tmp%4#0,0
+        extract_uint16                                                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                            aggregate%array_length%1#0
+        int 2                                                                                        aggregate%array_length%1#0,2
+        +                                                                                            add%1#0
+        v-store add%1#0
+        v-load tmp%4#0                                                                               tmp%4#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        v-load add%1#0                                                                               len%1#0,add%1#0
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%5#0
         v-store tmp%5#0
@@ -502,6 +685,23 @@ subroutine test_method_overload:
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 4 0                                                                                  tmp%10#0
         v-store tmp%10#0
+        v-load tmp%10#0                                                                              tmp%10#0
+        int 0                                                                                        tmp%10#0,0
+        extract_uint16                                                                               aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                            aggregate%array_length%2#0
+        int 2                                                                                        aggregate%array_length%2#0,2
+        +                                                                                            add%2#0
+        v-store add%2#0
+        v-load tmp%10#0                                                                              tmp%10#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        v-load add%2#0                                                                               len%2#0,add%2#0
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%11#0
         v-store tmp%11#0
@@ -536,6 +736,23 @@ subroutine test_method_overload:
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 4 0                                                                                  result.0#0
         v-store result.0#0
+        v-load result.0#0                                                                            result.0#0
+        int 0                                                                                        result.0#0,0
+        extract_uint16                                                                               aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
+        v-load aggregate%array_length%3#0                                                            aggregate%array_length%3#0
+        int 2                                                                                        aggregate%array_length%3#0,2
+        +                                                                                            add%3#0
+        v-store add%3#0
+        v-load result.0#0                                                                            result.0#0
+        len                                                                                          len%3#0
+        v-store len%3#0
+        v-load len%3#0                                                                               len%3#0
+        v-load add%3#0                                                                               len%3#0,add%3#0
+        ==                                                                                           eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                                eq%3#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 0 4                                                                                  tmp%17#0
         v-store tmp%17#0
@@ -560,6 +777,23 @@ subroutine test_method_overload:
         v-load result.1.LastLog#0                                                                    result.1.LastLog#0
         extract 4 0                                                                                  tmp%21#0
         v-store tmp%21#0
+        v-load tmp%21#0                                                                              tmp%21#0
+        int 0                                                                                        tmp%21#0,0
+        extract_uint16                                                                               aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
+        v-load aggregate%array_length%4#0                                                            aggregate%array_length%4#0
+        int 2                                                                                        aggregate%array_length%4#0,2
+        +                                                                                            add%4#0
+        v-store add%4#0
+        v-load tmp%21#0                                                                              tmp%21#0
+        len                                                                                          len%4#0
+        v-store len%4#0
+        v-load len%4#0                                                                               len%4#0
+        v-load add%4#0                                                                               len%4#0,add%4#0
+        ==                                                                                           eq%4#0
+        v-store eq%4#0
+        v-load eq%4#0                                                                                eq%4#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load result.1.LastLog#0                                                                    result.1.LastLog#0
         extract 0 4                                                                                  tmp%22#0
         v-store tmp%22#0
@@ -600,6 +834,23 @@ subroutine test_method_overload:
         v-load txn_result.LastLog#0                                                                  txn_result.LastLog#0
         extract 4 0                                                                                  tmp%27#0
         v-store tmp%27#0
+        v-load tmp%27#0                                                                              tmp%27#0
+        int 0                                                                                        tmp%27#0,0
+        extract_uint16                                                                               aggregate%array_length%5#0
+        v-store aggregate%array_length%5#0
+        v-load aggregate%array_length%5#0                                                            aggregate%array_length%5#0
+        int 2                                                                                        aggregate%array_length%5#0,2
+        +                                                                                            add%5#0
+        v-store add%5#0
+        v-load tmp%27#0                                                                              tmp%27#0
+        len                                                                                          len%5#0
+        v-store len%5#0
+        v-load len%5#0                                                                               len%5#0
+        v-load add%5#0                                                                               len%5#0,add%5#0
+        ==                                                                                           eq%5#0
+        v-store eq%5#0
+        v-load eq%5#0                                                                                eq%5#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load txn_result.LastLog#0                                                                  txn_result.LastLog#0
         extract 0 4                                                                                  tmp%28#0
         v-store tmp%28#0
@@ -626,9 +877,18 @@ subroutine test_arg_conversion:
     test_arg_conversion_block@0:
         // typed_abi_call/typed_c2c.py:63
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:65
@@ -651,9 +911,9 @@ subroutine test_arg_conversion:
         // assert txn.last_log == b"converted1"
         v-load txn.LastLog#0                                                                         txn.LastLog#0
         byte 0x636f6e76657274656431                                                                  txn.LastLog#0,0x636f6e76657274656431
-        ==                                                                                           tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                               tmp%1#0
+        ==                                                                                           tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
         assert
         // typed_abi_call/typed_c2c.py:68
         // txn = arc4.abi_call(Logger.log_uint64, 2, app_id=app)
@@ -765,9 +1025,18 @@ subroutine test_15plus_args:
     test_15plus_args_block@0:
         // typed_abi_call/typed_c2c.py:80
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:82-105
@@ -898,6 +1167,26 @@ subroutine test_15plus_args:
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
+        extract 4 0                                                                                  result#0
+        v-store result#0
+        v-load result#0                                                                              result#0
+        int 0                                                                                        result#0,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load result#0                                                                              result#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+uint8[])
+        v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%3#0
         v-store tmp%3#0
         v-load tmp%3#0                                                                               tmp%3#0
@@ -928,9 +1217,18 @@ subroutine test_void:
     test_void_block@0:
         // typed_abi_call/typed_c2c.py:108
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:110
@@ -953,9 +1251,9 @@ subroutine test_void:
         // assert txn.last_log == b"World1"
         v-load txn.LastLog#0                                                                         txn.LastLog#0
         byte 0x576f726c6431                                                                          txn.LastLog#0,0x576f726c6431
-        ==                                                                                           tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                               tmp%1#0
+        ==                                                                                           tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
         assert
         // typed_abi_call/typed_c2c.py:113
         // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app)
@@ -1040,14 +1338,32 @@ subroutine test_ref_types:
     test_ref_types_block@0:
         // typed_abi_call/typed_c2c.py:122
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
-        txna ApplicationArgs 2                                                                       reinterpret_Encoded(uint64)%1#0
-        v-store reinterpret_Encoded(uint64)%1#0
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                       tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 8                                                                                        len%1#0,8
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%2#0                                                                               tmp%2#0
         btoi                                                                                         asset#0
         v-store asset#0
         // typed_abi_call/typed_c2c.py:124-130
@@ -1075,11 +1391,11 @@ subroutine test_ref_types:
         // )
         method log(uint64,address,uint64)void                                                        Method(log(uint64,address,uint64)void)
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
         itxn_field ApplicationArgs
         v-load tmp%1#1                                                                               tmp%1#1
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
         itxn_field ApplicationArgs
         int appl                                                                                     appl
         itxn_field TypeEnum
@@ -1137,9 +1453,18 @@ subroutine test_account_to_address:
     test_account_to_address_block@0:
         // typed_abi_call/typed_c2c.py:136
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:138-142
@@ -1193,9 +1518,18 @@ subroutine test_native_string:
     test_native_string_block@0:
         // typed_abi_call/typed_c2c.py:145
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:147
@@ -1214,6 +1548,26 @@ subroutine test_native_string:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
+        v-load awst_tmp%0#0                                                                          awst_tmp%0#0
+        extract 4 0                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        int 0                                                                                        tmp%1#1,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load tmp%1#1                                                                               tmp%1#1
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%2#0
         v-store tmp%2#0
@@ -1255,6 +1609,26 @@ subroutine test_native_string:
         itxn LastLog                                                                                 awst_tmp%1#0
         v-store awst_tmp%1#0
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
+        extract 4 0                                                                                  tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                               tmp%7#0
+        int 0                                                                                        tmp%7#0,0
+        extract_uint16                                                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                            aggregate%array_length%1#0
+        int 2                                                                                        aggregate%array_length%1#0,2
+        +                                                                                            add%1#0
+        v-store add%1#0
+        v-load tmp%7#0                                                                               tmp%7#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        v-load add%1#0                                                                               len%1#0,add%1#0
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (len+utf8[])
+        v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                                               tmp%8#0
@@ -1295,6 +1669,26 @@ subroutine test_native_string:
         itxn LastLog                                                                                 awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
+        extract 4 0                                                                                  tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                              tmp%13#0
+        int 0                                                                                        tmp%13#0,0
+        extract_uint16                                                                               aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                            aggregate%array_length%2#0
+        int 2                                                                                        aggregate%array_length%2#0,2
+        +                                                                                            add%2#0
+        v-store add%2#0
+        v-load tmp%13#0                                                                              tmp%13#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        v-load add%2#0                                                                               len%2#0,add%2#0
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for (len+utf8[])
+        v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%14#0
         v-store tmp%14#0
         v-load tmp%14#0                                                                              tmp%14#0
@@ -1325,9 +1719,18 @@ subroutine test_native_bytes:
     test_native_bytes_block@0:
         // typed_abi_call/typed_c2c.py:156
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:158
@@ -1346,6 +1749,26 @@ subroutine test_native_bytes:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
+        v-load awst_tmp%0#0                                                                          awst_tmp%0#0
+        extract 4 0                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        int 0                                                                                        tmp%1#1,0
+        extract_uint16                                                                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                            aggregate%array_length%0#0
+        int 2                                                                                        aggregate%array_length%0#0,2
+        +                                                                                            add%0#0
+        v-store add%0#0
+        v-load tmp%1#1                                                                               tmp%1#1
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        v-load add%0#0                                                                               len%0#0,add%0#0
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (len+uint8[])
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%2#0
         v-store tmp%2#0
@@ -1386,6 +1809,26 @@ subroutine test_native_bytes:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%1#0
         v-store awst_tmp%1#0
+        v-load awst_tmp%1#0                                                                          awst_tmp%1#0
+        extract 4 0                                                                                  tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                               tmp%7#0
+        int 0                                                                                        tmp%7#0,0
+        extract_uint16                                                                               aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                            aggregate%array_length%1#0
+        int 2                                                                                        aggregate%array_length%1#0,2
+        +                                                                                            add%1#0
+        v-store add%1#0
+        v-load tmp%7#0                                                                               tmp%7#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        v-load add%1#0                                                                               len%1#0,add%1#0
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (len+uint8[])
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%8#0
         v-store tmp%8#0
@@ -1431,6 +1874,26 @@ subroutine test_native_bytes:
         itxn LastLog                                                                                 awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
+        extract 4 0                                                                                  tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                              tmp%13#0
+        int 0                                                                                        tmp%13#0,0
+        extract_uint16                                                                               aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                            aggregate%array_length%2#0
+        int 2                                                                                        aggregate%array_length%2#0,2
+        +                                                                                            add%2#0
+        v-store add%2#0
+        v-load tmp%13#0                                                                              tmp%13#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        v-load add%2#0                                                                               len%2#0,add%2#0
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for (len+uint8[])
+        v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%14#0
         v-store tmp%14#0
         v-load tmp%14#0                                                                              tmp%14#0
@@ -1461,9 +1924,18 @@ subroutine test_native_uint64:
     test_native_uint64_block@0:
         // typed_abi_call/typed_c2c.py:169
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:171
@@ -1483,18 +1955,27 @@ subroutine test_native_uint64:
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 4 0                                                                                  tmp%0#1
-        v-store tmp%0#1
+        extract 4 0                                                                                  tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 0 4                                                                                  tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                               tmp%1#0
-        byte 0x151f7c75                                                                              tmp%1#0,0x151f7c75
+        extract 0 4                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        byte 0x151f7c75                                                                              tmp%1#1,0x151f7c75
         ==                                                                                           tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                               tmp%2#0
         assert // application log value is not the result of an ABI return
-        v-load tmp%0#1                                                                               tmp%0#1
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         result1#0
         v-store result1#0
         // typed_abi_call/typed_c2c.py:172
@@ -1527,6 +2008,15 @@ subroutine test_native_uint64:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  tmp%6#0
         v-store tmp%6#0
+        v-load tmp%6#0                                                                               tmp%6#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 8                                                                                        len%1#0,8
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%7#0
         v-store tmp%7#0
@@ -1566,6 +2056,15 @@ subroutine test_native_uint64:
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 4 0                                                                                  tmp%11#0
         v-store tmp%11#0
+        v-load tmp%11#0                                                                              tmp%11#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        int 8                                                                                        len%2#0,8
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%12#0
         v-store tmp%12#0
@@ -1597,9 +2096,18 @@ subroutine test_native_biguint:
     test_native_biguint_block@0:
         // typed_abi_call/typed_c2c.py:180
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:182
@@ -1621,11 +2129,20 @@ subroutine test_native_biguint:
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 4 0                                                                                  result1#0
         v-store result1#0
+        v-load result1#0                                                                             result1#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 64                                                                                       len%0#0,64
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint512
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 0 4                                                                                  tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                               tmp%1#0
-        byte 0x151f7c75                                                                              tmp%1#0,0x151f7c75
+        extract 0 4                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        byte 0x151f7c75                                                                              tmp%1#1,0x151f7c75
         ==                                                                                           tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                               tmp%2#0
@@ -1657,6 +2174,15 @@ subroutine test_native_biguint:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  result2#0
         v-store result2#0
+        v-load result2#0                                                                             result2#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 64                                                                                       len%1#0,64
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for uint512
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%7#0
         v-store tmp%7#0
@@ -1693,6 +2219,15 @@ subroutine test_native_biguint:
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 4 0                                                                                  result3#0
         v-store result3#0
+        v-load result3#0                                                                             result3#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        int 64                                                                                       len%2#0,64
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for uint512
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%12#0
         v-store tmp%12#0
@@ -1721,9 +2256,18 @@ subroutine test_native_tuple:
     test_native_tuple_block@0:
         // typed_abi_call/typed_c2c.py:191
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:194-203
@@ -2145,9 +2689,18 @@ subroutine test_native_tuple_method_ref:
     test_native_tuple_method_ref_block@0:
         // typed_abi_call/typed_c2c.py:250
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:253-260
@@ -2669,9 +3222,18 @@ subroutine test_nested_tuples:
     test_nested_tuples_block@0:
         // typed_abi_call/typed_c2c.py:300
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:303-307
@@ -3145,9 +3707,18 @@ subroutine test_no_args:
     test_no_args_block@0:
         // typed_abi_call/typed_c2c.py:346
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:348
@@ -3165,18 +3736,27 @@ subroutine test_no_args:
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 4 0                                                                                  tmp%0#1
-        v-store tmp%0#1
+        extract 4 0                                                                                  tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 0 4                                                                                  tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                               tmp%1#0
-        byte 0x151f7c75                                                                              tmp%1#0,0x151f7c75
+        extract 0 4                                                                                  tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                               tmp%1#1
+        byte 0x151f7c75                                                                              tmp%1#1,0x151f7c75
         ==                                                                                           tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                               tmp%2#0
         assert // application log value is not the result of an ABI return
-        v-load tmp%0#1                                                                               tmp%0#1
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         result#0
         v-store result#0
         // typed_abi_call/typed_c2c.py:349
@@ -3204,6 +3784,15 @@ subroutine test_no_args:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  arc4_result#0
         v-store arc4_result#0
+        v-load arc4_result#0                                                                         arc4_result#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 8                                                                                        len%1#0,8
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%6#0
         v-store tmp%6#0
@@ -3236,6 +3825,18 @@ subroutine test_no_args:
         itxn LastLog                                                                                 awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
+        extract 4 0                                                                                  tmp%9#0
+        v-store tmp%9#0
+        v-load tmp%9#0                                                                               tmp%9#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        int 8                                                                                        len%2#0,8
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for uint64
+        v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%10#0
         v-store tmp%10#0
         v-load tmp%10#0                                                                              tmp%10#0
@@ -3251,6 +3852,15 @@ subroutine test_no_args:
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 4 0                                                                                  tmp%13#0
         v-store tmp%13#0
+        v-load tmp%13#0                                                                              tmp%13#0
+        len                                                                                          len%3#0
+        v-store len%3#0
+        v-load len%3#0                                                                               len%3#0
+        int 8                                                                                        len%3#0,8
+        ==                                                                                           eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                                eq%3#0
+        assert // invalid number of bytes for uint64
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 0 4                                                                                  tmp%14#0
         v-store tmp%14#0
@@ -3277,9 +3887,18 @@ subroutine test_named_tuples:
     test_named_tuples_block@0:
         // typed_abi_call/typed_c2c.py:356
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:358-363
@@ -3319,6 +3938,15 @@ subroutine test_named_tuples:
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 4 0                                                                                  tmp%2#0
         v-store tmp%2#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 1                                                                                        len%0#0,1
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for bool8
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
         extract 0 4                                                                                  tmp%3#0
         v-store tmp%3#0
@@ -3373,6 +4001,15 @@ subroutine test_named_tuples:
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 4 0                                                                                  tmp%8#0
         v-store tmp%8#0
+        v-load tmp%8#0                                                                               tmp%8#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 1                                                                                        len%1#0,1
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for bool8
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%9#0
         v-store tmp%9#0
@@ -3404,9 +4041,18 @@ subroutine test_arc4_struct:
     test_arc4_struct_block@0:
         // typed_abi_call/typed_c2c.py:373
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app#0
         v-store app#0
         // typed_abi_call/typed_c2c.py:376-380
@@ -3498,14 +4144,32 @@ subroutine test_resource_encoding:
     test_resource_encoding_block@0:
         // typed_abi_call/typed_c2c.py:384
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                       reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                                       reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                               tmp%0#0
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 8                                                                                        len%0#0,8
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                               tmp%0#0
         btoi                                                                                         app_to_call#0
         v-store app_to_call#0
-        txna ApplicationArgs 2                                                                       reinterpret_Encoded(uint64)%1#0
-        v-store reinterpret_Encoded(uint64)%1#0
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                       tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                               tmp%2#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 8                                                                                        len%1#0,8
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%2#0                                                                               tmp%2#0
         btoi                                                                                         asset#0
         v-store asset#0
         // typed_abi_call/typed_c2c.py:386
@@ -3551,10 +4215,22 @@ subroutine test_resource_encoding:
         itxn LastLog                                                                                 awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                          awst_tmp%0#0
-        extract 0 4                                                                                  tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                               tmp%3#0
-        byte 0x151f7c75                                                                              tmp%3#0,0x151f7c75
+        extract 4 0                                                                                  tmp%2#1
+        v-store tmp%2#1
+        v-load tmp%2#1                                                                               tmp%2#1
+        len                                                                                          len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                               len%0#0
+        int 48                                                                                       len%0#0,48
+        ==                                                                                           eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                eq%0#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
+        v-load awst_tmp%0#0                                                                          awst_tmp%0#0
+        extract 0 4                                                                                  tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                               tmp%3#1
+        byte 0x151f7c75                                                                              tmp%3#1,0x151f7c75
         ==                                                                                           tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                               tmp%4#0
@@ -3612,7 +4288,7 @@ subroutine test_resource_encoding:
         // )
         method echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)                  Method(echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address))
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
@@ -3625,6 +4301,18 @@ subroutine test_resource_encoding:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%1#0
         v-store awst_tmp%1#0
+        v-load awst_tmp%1#0                                                                          awst_tmp%1#0
+        extract 4 0                                                                                  tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                                              tmp%16#0
+        len                                                                                          len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                               len%1#0
+        int 48                                                                                       len%1#0,48
+        ==                                                                                           eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                eq%1#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
         v-load awst_tmp%1#0                                                                          awst_tmp%1#0
         extract 0 4                                                                                  tmp%17#0
         v-store tmp%17#0
@@ -3704,6 +4392,18 @@ subroutine test_resource_encoding:
         itxn LastLog                                                                                 awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                          awst_tmp%2#0
+        extract 4 0                                                                                  tmp%27#0
+        v-store tmp%27#0
+        v-load tmp%27#0                                                                              tmp%27#0
+        len                                                                                          len%2#0
+        v-store len%2#0
+        v-load len%2#0                                                                               len%2#0
+        int 48                                                                                       len%2#0,48
+        ==                                                                                           eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                eq%2#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
+        v-load awst_tmp%2#0                                                                          awst_tmp%2#0
         extract 0 4                                                                                  tmp%28#0
         v-store tmp%28#0
         v-load tmp%28#0                                                                              tmp%28#0
@@ -3756,7 +4456,7 @@ subroutine test_resource_encoding:
         itxn_field ApplicationID
         method echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)                  Method(echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address))
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
@@ -3769,6 +4469,18 @@ subroutine test_resource_encoding:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%3#0
         v-store awst_tmp%3#0
+        v-load awst_tmp%3#0                                                                          awst_tmp%3#0
+        extract 4 0                                                                                  tmp%41#0
+        v-store tmp%41#0
+        v-load tmp%41#0                                                                              tmp%41#0
+        len                                                                                          len%3#0
+        v-store len%3#0
+        v-load len%3#0                                                                               len%3#0
+        int 48                                                                                       len%3#0,48
+        ==                                                                                           eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                                eq%3#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
         v-load awst_tmp%3#0                                                                          awst_tmp%3#0
         extract 0 4                                                                                  tmp%42#0
         v-store tmp%42#0
@@ -3860,6 +4572,18 @@ subroutine test_resource_encoding:
         itxn LastLog                                                                                 awst_tmp%4#0
         v-store awst_tmp%4#0
         v-load awst_tmp%4#0                                                                          awst_tmp%4#0
+        extract 4 0                                                                                  tmp%52#0
+        v-store tmp%52#0
+        v-load tmp%52#0                                                                              tmp%52#0
+        len                                                                                          len%4#0
+        v-store len%4#0
+        v-load len%4#0                                                                               len%4#0
+        int 48                                                                                       len%4#0,48
+        ==                                                                                           eq%4#0
+        v-store eq%4#0
+        v-load eq%4#0                                                                                eq%4#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
+        v-load awst_tmp%4#0                                                                          awst_tmp%4#0
         extract 0 4                                                                                  tmp%53#0
         v-store tmp%53#0
         v-load tmp%53#0                                                                              tmp%53#0
@@ -3916,7 +4640,7 @@ subroutine test_resource_encoding:
         itxn_field ApplicationID
         method echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)                  Method(echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address))
         itxn_field ApplicationArgs
-        v-load reinterpret_Encoded(uint64)%1#0                                                       reinterpret_Encoded(uint64)%1#0
+        v-load tmp%2#0                                                                               tmp%2#0
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                            aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
@@ -3929,6 +4653,18 @@ subroutine test_resource_encoding:
         itxn_submit
         itxn LastLog                                                                                 awst_tmp%5#0
         v-store awst_tmp%5#0
+        v-load awst_tmp%5#0                                                                          awst_tmp%5#0
+        extract 4 0                                                                                  tmp%66#0
+        v-store tmp%66#0
+        v-load tmp%66#0                                                                              tmp%66#0
+        len                                                                                          len%5#0
+        v-store len%5#0
+        v-load len%5#0                                                                               len%5#0
+        int 48                                                                                       len%5#0,48
+        ==                                                                                           eq%5#0
+        v-store eq%5#0
+        v-load eq%5#0                                                                                eq%5#0
+        assert // invalid number of bytes for (uint64,uint64,uint8[32])
         v-load awst_tmp%5#0                                                                          awst_tmp%5#0
         extract 0 4                                                                                  tmp%67#0
         v-store tmp%67#0

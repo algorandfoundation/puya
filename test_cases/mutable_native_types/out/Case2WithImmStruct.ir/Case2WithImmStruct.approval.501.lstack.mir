@@ -192,8 +192,15 @@ subroutine add_tup:
     add_tup_block@0:
         // mutable_native_types/case2_with_immutable_struct.py:49
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                      reinterpret_Encoded(uint64,uint64)%0#0
-        l-load reinterpret_Encoded(uint64,uint64)%0#0 0                                             reinterpret_Encoded(uint64,uint64)%0#0
+        txna ApplicationArgs 1                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                         tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                            tmp%0#0,len%0#0
+        int 16                                                                                      tmp%0#0,len%0#0,16
+        ==                                                                                          tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                       tmp%0#0
+        l-load tmp%0#0 0                                                                            tmp%0#0
         callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup 
         int 1                                                                                       1
         return
@@ -204,8 +211,15 @@ subroutine get_tup:
     get_tup_block@0:
         // mutable_native_types/case2_with_immutable_struct.py:56
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                      reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                    reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                         tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                            tmp%0#0,len%0#0
+        int 8                                                                                       tmp%0#0,len%0#0,8
+        ==                                                                                          tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                tmp%0#0
+        l-load tmp%0#0 0                                                                            tmp%0#0
         btoi                                                                                        index#0
         // mutable_native_types/case2_with_immutable_struct.py:58
         // assert index < self.tup_bag.value.count, "index out of bounds"
@@ -237,8 +251,8 @@ subroutine get_tup:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                             aggregate%encoded_element%0#0,0x151f7c75
         l-load aggregate%encoded_element%0#0 1                                                      0x151f7c75,aggregate%encoded_element%0#0
-        concat                                                                                      tmp%2#0
-        l-load tmp%2#0 0                                                                            tmp%2#0
+        concat                                                                                      tmp%3#0
+        l-load tmp%3#0 0                                                                            tmp%3#0
         log
         int 1                                                                                       1
         return
@@ -346,12 +360,24 @@ subroutine add_many_tups:
         txna ApplicationArgs 1                                                                      tups#0
         l-store-copy tups#0 0                                                                       tups#0,tups#0 (copy)
         v-store tups#0                                                                              tups#0
-        // mutable_native_types/case2_with_immutable_struct.py:72
-        // for tup in tups:
-        l-load tups#0 0                                                                             tups#0
-        int 0                                                                                       tups#0,0
-        extract_uint16                                                                              aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
+        l-load-copy tups#0 0                                                                        tups#0,tups#0 (copy)
+        int 0                                                                                       tups#0,tups#0 (copy),0
+        extract_uint16                                                                              tups#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                                   tups#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                          tups#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                         tups#0,aggregate%array_length%0#0
+        int 16                                                                                      tups#0,aggregate%array_length%0#0,16
+        *                                                                                           tups#0,mul%0#0
+        l-load mul%0#0 0                                                                            tups#0,mul%0#0
+        int 2                                                                                       tups#0,mul%0#0,2
+        +                                                                                           tups#0,add%0#0
+        l-load tups#0 1                                                                             add%0#0,tups#0
+        len                                                                                         add%0#0,len%0#0
+        l-load len%0#0 0                                                                            add%0#0,len%0#0
+        l-load add%0#0 1                                                                            len%0#0,add%0#0
+        ==                                                                                          eq%0#0
+        l-load eq%0#0 0                                                                             eq%0#0
+        assert // invalid number of bytes for (len+(uint64,uint64)[])
         int 0                                                                                       0
         v-store item_index_internal%0#0
         b add_many_tups_for_header@2
@@ -401,7 +427,15 @@ subroutine add_fixed_tups:
         // mutable_native_types/case2_with_immutable_struct.py:75
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                      tups#0
-        v-store tups#0
+        l-store-copy tups#0 0                                                                       tups#0,tups#0 (copy)
+        v-store tups#0                                                                              tups#0
+        l-load tups#0 0                                                                             tups#0
+        len                                                                                         len%0#0
+        l-load len%0#0 0                                                                            len%0#0
+        int 48                                                                                      len%0#0,48
+        ==                                                                                          eq%0#0
+        l-load eq%0#0 0                                                                             eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)[3]
         int 0                                                                                       0
         v-store item_index_internal%0#0
         b add_fixed_tups_for_header@2
@@ -448,8 +482,15 @@ subroutine set_a:
     set_a_block@0:
         // mutable_native_types/case2_with_immutable_struct.py:80
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                      reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                    reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                         tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                            tmp%0#0,len%0#0
+        int 8                                                                                       tmp%0#0,len%0#0,8
+        ==                                                                                          tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                tmp%0#0
+        l-load tmp%0#0 0                                                                            tmp%0#0
         btoi                                                                                        a#0
         v-store a#0
         // mutable_native_types/case2_with_immutable_struct.py:82
@@ -539,8 +580,15 @@ subroutine set_b:
     set_b_block@0:
         // mutable_native_types/case2_with_immutable_struct.py:87
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                      reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                    reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                         tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                            tmp%0#0,len%0#0
+        int 8                                                                                       tmp%0#0,len%0#0,8
+        ==                                                                                          tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                tmp%0#0
+        l-load tmp%0#0 0                                                                            tmp%0#0
         btoi                                                                                        b#0
         v-store b#0
         // mutable_native_types/case2_with_immutable_struct.py:89
@@ -630,8 +678,15 @@ subroutine get_3_tups:
     get_3_tups_block@0:
         // mutable_native_types/case2_with_immutable_struct.py:94
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                      reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                    reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                                       tmp%0#0,tmp%0#0 (copy)
+        len                                                                                         tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                            tmp%0#0,len%0#0
+        int 8                                                                                       tmp%0#0,len%0#0,8
+        ==                                                                                          tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                             tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                tmp%0#0
+        l-load tmp%0#0 0                                                                            tmp%0#0
         btoi                                                                                        start#0
         // mutable_native_types/case2_with_immutable_struct.py:96
         // assert self.tup_bag.value.count >= start + 3, "not enough items"
@@ -680,9 +735,9 @@ subroutine get_3_tups:
         // items[start + 2],
         l-load start#0 3                                                                            box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,start#0
         int 2                                                                                       box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,start#0,2
-        +                                                                                           box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#0
-        l-load tmp%3#0 0                                                                            box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#0
-        int 16                                                                                      box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#0,16
+        +                                                                                           box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#1
+        l-load tmp%3#1 0                                                                            box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#1
+        int 16                                                                                      box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#1,16
         *                                                                                           box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,aggregate%bytes_offset%2#0
         l-load box%box_extract%2#0 3                                                                aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,aggregate%bytes_offset%2#0,box%box_extract%2#0
         l-load aggregate%bytes_offset%2#0 1                                                         aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,box%box_extract%2#0,aggregate%bytes_offset%2#0
@@ -706,8 +761,8 @@ subroutine get_3_tups:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                             aggregate%head%2#0,0x151f7c75
         l-load aggregate%head%2#0 1                                                                 0x151f7c75,aggregate%head%2#0
-        concat                                                                                      tmp%2#0
-        l-load tmp%2#0 0                                                                            tmp%2#0
+        concat                                                                                      tmp%3#0
+        l-load tmp%3#0 0                                                                            tmp%3#0
         log
         int 1                                                                                       1
         return

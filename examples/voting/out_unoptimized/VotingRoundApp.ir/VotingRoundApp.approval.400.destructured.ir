@@ -95,22 +95,74 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
 
 subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@0: // L58
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%1#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let tmp%2#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%1#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%4#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let tmp%5#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
-        let reinterpret_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = (txna ApplicationArgs 8)
-        let tmp%6#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%2#0)
-        examples.voting.voting.VotingRoundApp.create(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0, tmp%4#0, reinterpret_Encoded(len+uint8[])%1#0, tmp%5#0, tmp%6#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%0#0
+        let tmp%1#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let length%2#0: uint64 = aggregate%array_length%2#0
+        let mul%2#0: uint64 = (* length%2#0 1u)
+        let add%2#0: uint64 = (+ mul%2#0 2u)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = tmp%4#0
+        let tmp%5#0: string = ((extract 2 0) as_Encoded(len+utf8[])%1#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 4)
+        let len%3#0: uint64 = (len tmp%6#0)
+        let eq%3#0: bool = (== len%3#0 8u)
+        (assert eq%3#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%6#0
+        let tmp%7#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        let tmp%8#0: bytes = (txna ApplicationArgs 5)
+        let len%4#0: uint64 = (len tmp%8#0)
+        let eq%4#0: bool = (== len%4#0 8u)
+        (assert eq%4#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%8#0
+        let tmp%9#0: uint64 = (btoi as_Encoded(uint64)%1#0)
+        let tmp%10#0: bytes = (txna ApplicationArgs 6)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%10#0 0u)
+        let length%3#0: uint64 = aggregate%array_length%3#0
+        let mul%3#0: uint64 = (* length%3#0 1u)
+        let add%3#0: uint64 = (+ mul%3#0 2u)
+        let len%5#0: uint64 = (len tmp%10#0)
+        let eq%5#0: bool = (== len%5#0 add%3#0)
+        (assert eq%5#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%10#0
+        let tmp%11#0: bytes = (txna ApplicationArgs 7)
+        let len%6#0: uint64 = (len tmp%11#0)
+        let eq%6#0: bool = (== len%6#0 8u)
+        (assert eq%6#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = tmp%11#0
+        let tmp%12#0: uint64 = (btoi as_Encoded(uint64)%2#0)
+        let tmp%13#0: bytes = (txna ApplicationArgs 8)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%13#0 0u)
+        let length%4#0: uint64 = aggregate%array_length%4#0
+        let mul%4#0: uint64 = (* length%4#0 1u)
+        let add%4#0: uint64 = (+ mul%4#0 2u)
+        let len%7#0: uint64 = (len tmp%13#0)
+        let eq%7#0: bool = (== len%7#0 add%4#0)
+        (assert eq%7#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = tmp%13#0
+        let tmp%14#0: string = ((extract 2 0) as_Encoded(len+utf8[])%2#0)
+        examples.voting.voting.VotingRoundApp.create(tmp%1#0, tmp%3#0, tmp%5#0, tmp%7#0, tmp%9#0, as_Encoded(len+uint8[])%1#0, tmp%12#0, tmp%14#0)
         exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
@@ -130,11 +182,19 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
     block@0: // L160
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: Encoded(uint64,uint64,uint64,uint64) = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: Encoded(uint64,uint64,uint64,uint64) = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
@@ -144,10 +204,26 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%1#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        examples.voting.voting.VotingRoundApp.vote(gtxn_idx%0#0, tmp%1#0, reinterpret_Encoded(len+uint8[])%1#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%1#0
+        let tmp%2#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%3#0
+        examples.voting.voting.VotingRoundApp.vote(gtxn_idx%0#0, tmp%2#0, as_Encoded(len+uint8[])%1#0)
         exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.__init__() -> void:

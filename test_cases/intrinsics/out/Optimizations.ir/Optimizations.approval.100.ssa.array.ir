@@ -86,8 +86,14 @@ subroutine test_cases.intrinsics.optimizations.Optimizations.keccak256[routing](
 
 subroutine test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> void:
     block@0: // L21
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let value_to_hash#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let value_to_hash#0: bytes = ((extract 2 0) tmp%0#0)
         let tmp%0#1: bytes = (sha256 value_to_hash#0)
         let tmp%1#1: bytes = (sha3_256 value_to_hash#0)
         let tmp%2#1: bytes = (sha512_256 value_to_hash#0)
@@ -137,7 +143,7 @@ subroutine test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> v
         let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%as_Encoded(len+uint8[])%2#0)
         let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%as_Encoded(len+uint8[])%3#0)
         let aggregate%as_Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))%0#0: Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[])) = aggregate%concat%3#0
-        let tmp%5#0: Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[])) = aggregate%as_Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))%0#0
-        let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
-        (log tmp%6#0)
+        let tmp%6#0: Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[])) = aggregate%as_Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))%0#0
+        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+        (log tmp%7#0)
         exit 1u

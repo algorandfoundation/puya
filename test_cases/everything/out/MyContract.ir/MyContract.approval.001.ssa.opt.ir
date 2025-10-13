@@ -63,9 +63,15 @@ subroutine test_cases.everything.contract.Everything.create[routing]() -> void:
 subroutine test_cases.everything.contract.Everything.register[routing]() -> void:
     block@0: // L47
         let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(name#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len name#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         test_cases.everything.contract.Everything._check_ban_list()
-        let tmp%0#0: uint64 = (txn OnCompletion)
-        let tmp%1#0: bool = (== tmp%0#0 OptIn)
+        let tmp%0#1: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (== tmp%0#1 OptIn)
         goto tmp%1#0 ? block@2 : block@5
     block@2: // if_body_L51
         let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
@@ -122,14 +128,20 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
 subroutine test_cases.everything.contract.Everything.calculate[routing]() -> void:
     block@0: // L64
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len a#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len b#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let c#0: Encoded(uint64) = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
         let tmp%1#1: uint64 = decode_bytes<uint64>(c#0)
-        let tmp%2#0: uint64 = decode_bytes<uint64>(b#0)
-        let tmp%3#0: uint64 = (* tmp%1#1 tmp%2#0)
-        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%4#0)
-        (log tmp%1#0)
+        let tmp%2#1: uint64 = decode_bytes<uint64>(b#0)
+        let tmp%3#1: uint64 = (* tmp%1#1 tmp%2#1)
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#1)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%4#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.everything.contract.Everything.close_out[routing]() -> void:

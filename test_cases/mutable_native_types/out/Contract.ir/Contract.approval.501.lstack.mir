@@ -348,6 +348,13 @@ subroutine add_payment:
         // mutable_native_types/contract.py:131
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                             pay#0
+        l-load-copy pay#0 0                                                                                pay#0,pay#0 (copy)
+        len                                                                                                pay#0,len%0#0
+        l-load len%0#0 0                                                                                   pay#0,len%0#0
+        int 48                                                                                             pay#0,len%0#0,48
+        ==                                                                                                 pay#0,eq%0#0
+        l-load eq%0#0 0                                                                                    pay#0,eq%0#0
+        assert // invalid number of bytes for (uint8[32],uint64,uint64)                                    pay#0
         // mutable_native_types/contract.py:133
         // assert self.num_payments < self.payments.length, "too many payments"
         int 0                                                                                              pay#0,0
@@ -357,8 +364,8 @@ subroutine add_payment:
         assert // check self.num_payments exists                                                           pay#0,maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                                      pay#0,maybe_value%0#0,maybe_value%0#0 (copy)
         int 2                                                                                              pay#0,maybe_value%0#0,maybe_value%0#0 (copy),2
-        <                                                                                                  pay#0,maybe_value%0#0,tmp%0#0
-        l-load tmp%0#0 0                                                                                   pay#0,maybe_value%0#0,tmp%0#0
+        <                                                                                                  pay#0,maybe_value%0#0,tmp%0#1
+        l-load tmp%0#1 0                                                                                   pay#0,maybe_value%0#0,tmp%0#1
         assert // too many payments                                                                        pay#0,maybe_value%0#0
         // mutable_native_types/contract.py:134
         // self.payments[self.num_payments] = pay.copy()
@@ -401,11 +408,25 @@ subroutine increment_payment:
     increment_payment_block@0:
         // mutable_native_types/contract.py:137
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                           reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                                                              tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                                   tmp%0#0,len%0#0
+        int 8                                                                                              tmp%0#0,len%0#0,8
+        ==                                                                                                 tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                                    tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                       tmp%0#0
+        l-load tmp%0#0 0                                                                                   tmp%0#0
         btoi                                                                                               index#0
-        txna ApplicationArgs 2                                                                             index#0,reinterpret_Encoded(uint64)%1#0
-        l-load reinterpret_Encoded(uint64)%1#0 0                                                           index#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                                             index#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                              index#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                                index#0,tmp%2#0,len%1#0
+        l-load len%1#0 0                                                                                   index#0,tmp%2#0,len%1#0
+        int 8                                                                                              index#0,tmp%2#0,len%1#0,8
+        ==                                                                                                 index#0,tmp%2#0,eq%1#0
+        l-load eq%1#0 0                                                                                    index#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                                       index#0,tmp%2#0
+        l-load tmp%2#0 0                                                                                   index#0,tmp%2#0
         btoi                                                                                               index#0,amt#0
         // mutable_native_types/contract.py:139
         // assert index < self.num_payments, "invalid payment index"
@@ -462,8 +483,15 @@ subroutine create_storage:
     create_storage_block@0:
         // mutable_native_types/contract.py:142
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                           reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                                                              tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                                   tmp%0#0,len%0#0
+        int 8                                                                                              tmp%0#0,len%0#0,8
+        ==                                                                                                 tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                                    tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                       tmp%0#0
+        l-load tmp%0#0 0                                                                                   tmp%0#0
         btoi                                                                                               box_key#0
         // mutable_native_types/contract.py:144
         // self.nested_proxy.value = self.nested.copy()
@@ -491,8 +519,8 @@ subroutine create_storage:
         // assert self.box.create(), "expected box to not exist"
         byte "box"                                                                                         box_key#0,maybe_value%1#0,"box"
         int 2064                                                                                           box_key#0,maybe_value%1#0,"box",2064
-        box_create                                                                                         box_key#0,maybe_value%1#0,tmp%1#0
-        l-load tmp%1#0 0                                                                                   box_key#0,maybe_value%1#0,tmp%1#0
+        box_create                                                                                         box_key#0,maybe_value%1#0,tmp%1#1
+        l-load tmp%1#1 0                                                                                   box_key#0,maybe_value%1#0,tmp%1#1
         assert // expected box to not exist                                                                box_key#0,maybe_value%1#0
         // mutable_native_types/contract.py:147
         // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
@@ -575,8 +603,15 @@ subroutine delete_storage:
     delete_storage_block@0:
         // mutable_native_types/contract.py:161
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                           reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                                                              tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                                   tmp%0#0,len%0#0
+        int 8                                                                                              tmp%0#0,len%0#0,8
+        ==                                                                                                 tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                                    tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                       tmp%0#0
+        l-load tmp%0#0 0                                                                                   tmp%0#0
         btoi                                                                                               box_key#0
         // mutable_native_types/contract.py:163
         // del self.nested_proxy.value
@@ -614,10 +649,24 @@ subroutine struct_arg:
     struct_arg_block@0:
         // mutable_native_types/contract.py:168
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%0#0 0                                                           reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                                                              tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                                   tmp%0#0,len%0#0
+        int 8                                                                                              tmp%0#0,len%0#0,8
+        ==                                                                                                 tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                                    tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                       tmp%0#0
+        l-load tmp%0#0 0                                                                                   tmp%0#0
         btoi                                                                                               box_key#0
         txna ApplicationArgs 2                                                                             box_key#0,a#0
+        l-load-copy a#0 0                                                                                  box_key#0,a#0,a#0 (copy)
+        len                                                                                                box_key#0,a#0,len%1#0
+        l-load len%1#0 0                                                                                   box_key#0,a#0,len%1#0
+        int 16                                                                                             box_key#0,a#0,len%1#0,16
+        ==                                                                                                 box_key#0,a#0,eq%1#0
+        l-load eq%1#0 0                                                                                    box_key#0,a#0,eq%1#0
+        assert // invalid number of bytes for (uint64,uint64)                                              box_key#0,a#0
         // mutable_native_types/contract.py:170
         // self.nested.fixed_a = a
         int 0                                                                                              box_key#0,a#0,0
@@ -829,11 +878,24 @@ subroutine test_arr:
         // mutable_native_types/contract.py:197
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                             arr#0
-        // mutable_native_types/contract.py:199
-        // assert arr.length == 0, "expected empty array"
         l-load-copy arr#0 0                                                                                arr#0,arr#0 (copy)
         int 0                                                                                              arr#0,arr#0 (copy),0
         extract_uint16                                                                                     arr#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                           arr#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 16                                                                                             arr#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),16
+        *                                                                                                  arr#0,aggregate%array_length%0#0,mul%0#0
+        l-load mul%0#0 0                                                                                   arr#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                                              arr#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                                                  arr#0,aggregate%array_length%0#0,add%0#0
+        l-load-copy arr#0 2                                                                                arr#0,aggregate%array_length%0#0,add%0#0,arr#0 (copy)
+        len                                                                                                arr#0,aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                                   arr#0,aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                                   arr#0,aggregate%array_length%0#0,len%0#0,add%0#0
+        ==                                                                                                 arr#0,aggregate%array_length%0#0,eq%0#0
+        l-load eq%0#0 0                                                                                    arr#0,aggregate%array_length%0#0,eq%0#0
+        assert // invalid number of bytes for (len+(uint64,uint64)[])                                      arr#0,aggregate%array_length%0#0
+        // mutable_native_types/contract.py:199
+        // assert arr.length == 0, "expected empty array"
         l-load-copy aggregate%array_length%0#0 0                                                           arr#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
         !                                                                                                  arr#0,aggregate%array_length%0#0,tmp%1#1
         l-load tmp%1#1 0                                                                                   arr#0,aggregate%array_length%0#0,tmp%1#1
@@ -910,9 +972,9 @@ subroutine test_arr:
         // assert arr2.length == 1, "expected array to have 1 item"
         l-load-copy arr2#1 0                                                                               arr#0,arr2#1,arr2#1 (copy)
         int 0                                                                                              arr#0,arr2#1,arr2#1 (copy),0
-        extract_uint16                                                                                     arr#0,arr2#1,aggregate%array_length%2#0
-        l-load aggregate%array_length%2#0 0                                                                arr#0,arr2#1,aggregate%array_length%2#0
-        int 1                                                                                              arr#0,arr2#1,aggregate%array_length%2#0,1
+        extract_uint16                                                                                     arr#0,arr2#1,aggregate%array_length%3#0
+        l-load aggregate%array_length%3#0 0                                                                arr#0,arr2#1,aggregate%array_length%3#0
+        int 1                                                                                              arr#0,arr2#1,aggregate%array_length%3#0,1
         ==                                                                                                 arr#0,arr2#1,tmp%19#0
         l-load tmp%19#0 0                                                                                  arr#0,arr2#1,tmp%19#0
         assert // expected array to have 1 item                                                            arr#0,arr2#1
@@ -1052,8 +1114,8 @@ subroutine test_arr:
         int 1                                                                                              arr2#1,array_length#0,1
         -                                                                                                  arr2#1,length_minus_1#0
         l-load length_minus_1#0 0                                                                          arr2#1,length_minus_1#0
-        itob                                                                                               arr2#1,tmp%2#1
-        l-load tmp%2#1 0                                                                                   arr2#1,tmp%2#1
+        itob                                                                                               arr2#1,tmp%2#0
+        l-load tmp%2#0 0                                                                                   arr2#1,tmp%2#0
         extract 6 0                                                                                        arr2#1,tmp%3#1
         l-load-copy arr2#1 1                                                                               arr2#1,tmp%3#1,arr2#1 (copy)
         l-load tmp%3#1 1                                                                                   arr2#1,arr2#1 (copy),tmp%3#1
@@ -1138,8 +1200,8 @@ subroutine test_arr:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                                    result#0,0x151f7c75
         l-load result#0 1                                                                                  0x151f7c75,result#0
-        concat                                                                                             tmp%1#0
-        l-load tmp%1#0 0                                                                                   tmp%1#0
+        concat                                                                                             tmp%2#0
+        l-load tmp%2#0 0                                                                                   tmp%2#0
         log
         int 1                                                                                              1
         return
@@ -1151,6 +1213,13 @@ subroutine test_match_struct:
         // mutable_native_types/contract.py:261
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                             arg#0
+        l-load-copy arg#0 0                                                                                arg#0,arg#0 (copy)
+        len                                                                                                arg#0,len%0#0
+        l-load len%0#0 0                                                                                   arg#0,len%0#0
+        int 16                                                                                             arg#0,len%0#0,16
+        ==                                                                                                 arg#0,eq%0#0
+        l-load eq%0#0 0                                                                                    arg#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                              arg#0
         // mutable_native_types/contract.py:264
         // case FixedStruct(UInt64(1), UInt64(2)):
         byte 0x00000000000000010000000000000002                                                            arg#0,0x00000000000000010000000000000002
@@ -1169,7 +1238,7 @@ subroutine test_match_struct:
         int 1                                                                                              1
         l-store test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 0 test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0
         l-load test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 0                   test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // mutable_native_types/contract.py:261
         // @arc4.abimethod
         b test_match_struct_after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_struct@4 
@@ -1180,7 +1249,7 @@ subroutine test_match_struct:
         int 0                                                                                              0
         l-store test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 0 test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0
         l-load test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 0                   test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // mutable_native_types/contract.py:261
         // @arc4.abimethod
         b test_match_struct_after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_struct@4 
@@ -1190,12 +1259,12 @@ subroutine test_match_struct:
         // @arc4.abimethod
         byte 0x00                                                                                          0x00
         int 0                                                                                              0x00,0
-        v-load tmp%0#0                                                                                     0x00,0,tmp%0#0
+        v-load tmp%1#0                                                                                     0x00,0,tmp%1#0
         setbit                                                                                             aggregate%encoded_bool%0#0
         byte 0x151f7c75                                                                                    aggregate%encoded_bool%0#0,0x151f7c75
         l-load aggregate%encoded_bool%0#0 1                                                                0x151f7c75,aggregate%encoded_bool%0#0
-        concat                                                                                             tmp%2#0
-        l-load tmp%2#0 0                                                                                   tmp%2#0
+        concat                                                                                             tmp%3#0
+        l-load tmp%3#0 0                                                                                   tmp%3#0
         log
         int 1                                                                                              1
         return

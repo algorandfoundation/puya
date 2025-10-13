@@ -108,6 +108,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]() -> void:
     block@0: // L28
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
@@ -132,6 +135,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box[routing]() -> void:
     block@0: // L32
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
         (assert aggregate%box_get%1#0) // check self.box exists
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 aggregate%box_get%0#0 0u)
@@ -157,6 +163,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global[routing]() -> void:
     block@0: // L36
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
@@ -181,8 +190,11 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local[routing]() -> void:
     block@0: // L40
         let val#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%0#0: account = (txn Sender)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        let len%0#0: uint64 = (len val#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%0#1: account = (txn Sender)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#1 0u "loc")
         (assert maybe_exists%0#0) // check self.loc exists for account
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%len%0#0: uint64 = (len maybe_value%0#0)
@@ -200,5 +212,5 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
         let aggregate%head%1#0: bytes = 0x000a
         let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
-        (app_local_put tmp%0#0 "loc" aggregate%concat%0#0)
+        (app_local_put tmp%0#1 "loc" aggregate%concat%0#0)
         exit 1u

@@ -11,13 +11,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
         (assert tmp%7#0) // OnCompletion must be NoOp && can only call when not creating
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let c#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let c#0: uint64 = (btoi tmp%0#2)
         goto block@9
     block@9: // while_top_L8
         let tmp%0#1: uint64 = (global OpcodeBudget)
-        let tmp%1#1: bool = (> tmp%0#1 350u)
-        goto tmp%1#1 ? block@10 : block@11
+        let tmp%1#2: bool = (> tmp%0#1 350u)
+        goto tmp%1#2 ? block@10 : block@11
     block@10: // while_body_L9
         let tmp%2#1: account = (txn Sender)
         let tmp%3#1: bytes = (sha3_256 tmp%2#1)

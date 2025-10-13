@@ -43,16 +43,21 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.compile.apps.HelloBase.greet[routing]() -> void:
     block@0: // L32
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let name#0: string = ((extract 2 0) tmp%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check self.greeting exists
-        let tmp%0#1: bytes = (concat maybe_value%0#0 " ")
-        let tmp%1#1: bytes = (concat tmp%0#1 name#0)
+        let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
+        let tmp%1#1: bytes = (concat tmp%0#0 name#0)
         let aggregate%length%0#0: uint64 = (len tmp%1#1)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%1#1)
-        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
-        (log tmp%3#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
+        (log tmp%4#0)
         exit 1u

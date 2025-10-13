@@ -11,9 +11,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "oh_no(bool)void" => block@4, method "oh_yes(bool)void" => block@5, * => block@8}
     block@4: // oh_no_route_L5
-        exit 1u
+        test_cases.regression_tests.jira_241.Jira241.oh_no[routing]()
+        goto block@8
     block@5: // oh_yes_route_L9
-        exit 1u
+        test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]()
+        goto block@8
     block@8: // after_if_else_L4
         fail
     block@9: // __algopy_default_create_L1
@@ -23,4 +25,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#0: bool = (! tmp%9#0)
         let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
         (assert tmp%11#0) // OnCompletion must be NoOp && can only call when creating
+        exit 1u
+
+subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
+    block@0: // L5
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        exit 1u
+
+subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
+    block@0: // L9
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
         exit 1u

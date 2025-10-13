@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 32
+    intcblock 32 0 1
     bytecblock "root"
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
@@ -28,18 +28,22 @@ main_create_NoOp@5:
 
 // examples.merkle.contract.MerkleTree.create[routing]() -> void:
 create:
-    // merkle/contract.py:12
-    // self.root = root.bytes
-    bytec_0 // "root"
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     // merkle/contract.py:12
     // self.root = root.bytes
+    bytec_0 // "root"
+    swap
     app_global_put
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -48,29 +52,42 @@ verify:
     // merkle/contract.py:14
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dupn 2
+    intc_1 // 0
+    extract_uint16
     dup
+    cover 2
+    intc_0 // 32
+    *
+    pushint 2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[32][])
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "root"
     app_global_get_ex
     swap
-    cover 3
+    cover 2
     assert // check self.root exists
     // merkle/contract.py:22
     // for idx in urange(proof.length):
-    swap
-    intc_0 // 0
-    extract_uint16
-    swap
-    intc_0 // 0
+    intc_1 // 0
 
 verify_for_header@2:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     dup
-    dig 3
+    dig 4
     <
     bz verify_after_for@7
     // merkle/contract.py:23
@@ -78,9 +95,9 @@ verify_for_header@2:
     dig 4
     extract 2 0
     dig 1
-    intc_2 // 32
+    intc_0 // 32
     *
-    intc_2 // 32
+    intc_0 // 32
     extract3 // on error: index access is out of bounds
     dup
     // merkle/contract.py:29
@@ -100,7 +117,7 @@ verify_ternary_merge@6:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     dup
-    intc_1 // 1
+    intc_2 // 1
     +
     bury 1
     b verify_for_header@2
@@ -115,18 +132,18 @@ verify_ternary_false@5:
 verify_after_for@7:
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
-    dig 3
+    dig 2
     dig 2
     ==
     // merkle/contract.py:14
     // @arc4.abimethod
     pushbytes 0x00
-    intc_0 // 0
+    intc_1 // 0
     uncover 2
     setbit
     pushbytes 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return

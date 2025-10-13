@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 2
     bytecblock 0x00030000
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
@@ -39,25 +40,35 @@ verify:
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    pushint 32 // 32
+    *
+    intc_1 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint256[])
     // regression_tests/issue_118.py:10
     // bool(Txn.num_app_args)
     txn NumAppArgs
-    pushint 0 // 0
+    intc_0 // 0
     !=
     // regression_tests/issue_118.py:9-11
     // val1 = Bool(
     //     bool(Txn.num_app_args)
     // )  # use a non constant value so the repeated expression is not simplified
     pushbytes 0x00
-    pushint 0 // 0
+    intc_0 // 0
     uncover 2
     setbit
     swap
     // regression_tests/issue_118.py:12
     // if values.length != 2:
-    pushint 0 // 0
-    extract_uint16
-    pushint 2 // 2
+    intc_1 // 2
     !=
     bz verify_after_if_else@3
     // regression_tests/issue_118.py:13

@@ -57,9 +57,20 @@ subroutine emit_swapped:
         // arc_28/contract.py:12
         // @arc4.abimethod
         txna ApplicationArgs 1                                             a#0
+        l-load-copy a#0 0                                                  a#0,a#0 (copy)
+        len                                                                a#0,len%0#0
+        int 8                                                              a#0,len%0#0,8
+        ==                                                                 a#0,eq%0#0
+        assert // invalid number of bytes for uint64                       a#0
         txna ApplicationArgs 2                                             a#0,b#0
+        l-load-copy b#0 0                                                  a#0,b#0,b#0 (copy)
+        len                                                                a#0,b#0,len%1#0
+        int 8                                                              a#0,b#0,len%1#0,8
+        ==                                                                 a#0,b#0,eq%1#0
+        assert // invalid number of bytes for uint64                       a#0,b#0
         // arc_28/contract.py:14
         // arc4.emit(Swapped(b, a))
+        l-load b#0 0                                                       a#0,b#0
         l-load a#0 1                                                       b#0,a#0
         concat                                                             aggregate%head%1#0
         method Swapped(uint64,uint64)                                      aggregate%head%1#0,Method(Swapped(uint64,uint64))
@@ -87,7 +98,17 @@ subroutine emit_ufixed:
         // arc_28/contract.py:18
         // @arc4.abimethod()
         txna ApplicationArgs 1                                             a#0
+        l-load-copy a#0 0                                                  a#0,a#0 (copy)
+        len                                                                a#0,len%0#0
+        int 32                                                             a#0,len%0#0,32
+        ==                                                                 a#0,eq%0#0
+        assert // invalid number of bytes for uint256                      a#0
         txna ApplicationArgs 2                                             a#0,b#0
+        l-load-copy b#0 0                                                  a#0,b#0,b#0 (copy)
+        len                                                                a#0,b#0,len%1#0
+        int 8                                                              a#0,b#0,len%1#0,8
+        ==                                                                 a#0,b#0,eq%1#0
+        assert // invalid number of bytes for uint64                       a#0,b#0
         // arc_28/contract.py:24
         // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
         l-load a#0 1                                                       b#0,a#0

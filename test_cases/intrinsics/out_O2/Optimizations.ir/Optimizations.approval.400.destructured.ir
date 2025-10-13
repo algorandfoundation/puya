@@ -23,13 +23,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba)
         exit 1u
     block@8: // all_route_L21
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let value_to_hash#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%0#3: bytes = (sha256 value_to_hash#0)
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let value_to_hash#0: bytes = ((extract 2 0) tmp%0#2)
+        let tmp%0#2: bytes = (sha256 value_to_hash#0)
         let tmp%1#2: bytes = (sha3_256 value_to_hash#0)
         let tmp%2#2: bytes = (sha512_256 value_to_hash#0)
         let tmp%3#2: bytes = (keccak256 value_to_hash#0)
-        let aggregate%encoded_value%4#0: bytes = (concat 0x0020 tmp%0#3)
+        let aggregate%encoded_value%4#0: bytes = (concat 0x0020 tmp%0#2)
         let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%4#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 8u aggregate%data_length%0#0)
         let aggregate%encoded_value%5#0: bytes = (concat 0x0020 tmp%1#2)
@@ -52,8 +57,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%encoded_value%5#0)
         let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%encoded_value%6#0)
         let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%encoded_value%7#0)
-        let tmp%6#0: bytes = (concat 0x151f7c75 aggregate%concat%3#0)
-        (log tmp%6#0)
+        let tmp%7#1: bytes = (concat 0x151f7c75 aggregate%concat%3#0)
+        (log tmp%7#1)
         exit 1u
     block@11: // after_if_else_L4
         fail

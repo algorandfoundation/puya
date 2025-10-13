@@ -128,9 +128,26 @@ subroutine greet:
     greet_block@0:
         // compile/apps.py:32
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                   reinterpret_Encoded(len+utf8[])%0#0
-        v-store reinterpret_Encoded(len+utf8[])%0#0
-        v-load reinterpret_Encoded(len+utf8[])%0#0               reinterpret_Encoded(len+utf8[])%0#0
+        txna ApplicationArgs 1                                   tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                           tmp%0#0
+        int 0                                                    tmp%0#0,0
+        extract_uint16                                           aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                        aggregate%array_length%0#0
+        int 2                                                    aggregate%array_length%0#0,2
+        +                                                        add%0#0
+        v-store add%0#0
+        v-load tmp%0#0                                           tmp%0#0
+        len                                                      len%0#0
+        v-store len%0#0
+        v-load len%0#0                                           len%0#0
+        v-load add%0#0                                           len%0#0,add%0#0
+        ==                                                       eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                            eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
+        v-load tmp%0#0                                           tmp%0#0
         extract 2 0                                              name#0
         v-store name#0
         // compile/apps.py:34
@@ -144,10 +161,10 @@ subroutine greet:
         assert // check self.greeting exists
         v-load maybe_value%0#0                                   maybe_value%0#0
         byte " "                                                 maybe_value%0#0," "
-        concat                                                   tmp%0#1
-        v-store tmp%0#1
-        v-load tmp%0#1                                           tmp%0#1
-        v-load name#0                                            tmp%0#1,name#0
+        concat                                                   tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                           tmp%0#0
+        v-load name#0                                            tmp%0#0,name#0
         concat                                                   tmp%1#1
         v-store tmp%1#1
         // compile/apps.py:32
@@ -167,9 +184,9 @@ subroutine greet:
         v-store aggregate%encoded_value%0#0
         byte 0x151f7c75                                          0x151f7c75
         v-load aggregate%encoded_value%0#0                       0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                   tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                           tmp%3#0
+        concat                                                   tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                           tmp%4#0
         log
         int 1                                                    1
         return

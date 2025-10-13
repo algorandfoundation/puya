@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 10 8
+    intcblock 0 1 2 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "close_time" "vote_id" "metadata_ipfs_cid" "quorum" "nft_image_url" "total_options" "snapshot_public_key" "start_time" "end_time" 0x068101 0x30313233343536373839
     intc_0 // 0
     dupn 5
@@ -39,14 +39,33 @@ main_vote_route@8:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    cover 2
     bury 18
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    intc_2 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     pushint 7700 // 7700
     intc_0 // 0
     callsub ensure_budget
+    swap
     callsub allowed_to_vote
     assert // Not allowed to vote
     callsub voting_open
@@ -64,11 +83,7 @@ main_vote_route@8:
     extract_uint16
     dup
     bury 6
-    swap
-    intc_0 // 0
-    extract_uint16
-    dup
-    uncover 2
+    dig 1
     ==
     assert // Number of answers incorrect
     pushint 34 // 34
@@ -160,6 +175,15 @@ main_after_for@19:
 
 main_get_preconditions_route@7:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     callsub voting_open
     itob
@@ -429,28 +453,90 @@ main_create_NoOp@10:
 
 main_create_route@11:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 5
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 6
     dup
-    cover 5
     bury 18
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 16
+    dup
+    intc_2 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 7
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 8
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
-    dig 3
-    dig 3
+    dig 4
+    dig 4
     <
     assert // End time should be after start time
-    dig 2
+    dig 3
     global LatestTimestamp
     >=
     assert // End time should be in the future
@@ -458,16 +544,16 @@ main_create_route@11:
     uncover 8
     app_global_put
     bytec 10 // "snapshot_public_key"
-    uncover 6
+    uncover 7
     app_global_put
     bytec 6 // "metadata_ipfs_cid"
-    uncover 5
+    uncover 6
     app_global_put
     bytec 11 // "start_time"
-    uncover 4
+    uncover 5
     app_global_put
     bytec 12 // "end_time"
-    uncover 3
+    uncover 4
     app_global_put
     bytec 7 // "quorum"
     uncover 2
@@ -475,10 +561,6 @@ main_create_route@11:
     bytec 8 // "nft_image_url"
     swap
     app_global_put
-    intc_0 // 0
-    extract_uint16
-    dup
-    bury 10
     dup
     assert // option_counts should be non-empty
     pushint 112 // 112
@@ -527,7 +609,7 @@ main_after_for@39:
 ensure_budget:
     proto 2 0
     frame_dig -2
-    intc_2 // 10
+    pushint 10 // 10
     +
 
 ensure_budget_while_top@1:
@@ -569,7 +651,7 @@ ensure_budget_after_while@6:
 itoa:
     proto 1 1
     frame_dig -1
-    intc_2 // 10
+    pushint 10 // 10
     <
     bz itoa_after_if_else@2
     bytec 14 // 0x30313233343536373839
@@ -580,11 +662,11 @@ itoa:
 
 itoa_after_if_else@2:
     frame_dig -1
-    intc_2 // 10
+    pushint 10 // 10
     /
     callsub itoa
     frame_dig -1
-    intc_2 // 10
+    pushint 10 // 10
     %
     bytec 14 // 0x30313233343536373839
     swap

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 4
+    intcblock 0 1 8 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
     pushbytes ""
     txn ApplicationID
@@ -39,6 +39,11 @@ main_after_if_else@2:
 
 main_claim_asset_route@11:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     global LatestTimestamp
     intc_0 // 0
@@ -61,7 +66,7 @@ main_claim_asset_route@11:
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -167,15 +172,25 @@ main_opt_in_route@8:
 
 main_start_auction_route@7:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_2 // axfer
+    intc_3 // axfer
     ==
     assert // transaction type is axfer
     txn Sender
@@ -210,6 +225,11 @@ main_start_auction_route@7:
 
 main_opt_into_asset_route@6:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn Sender
     global CreatorAddress
@@ -228,7 +248,7 @@ main_opt_into_asset_route@6:
     global CurrentApplicationAddress
     itxn_field AssetReceiver
     itxn_field XferAsset
-    intc_2 // axfer
+    intc_3 // axfer
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

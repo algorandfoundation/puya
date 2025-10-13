@@ -189,8 +189,8 @@ subroutine struct_return:
         // @arc4.abimethod(readonly=True)
         byte 0x151f7c75                                                                  s#0,0x151f7c75
         l-load s#0 1                                                                     0x151f7c75,s#0
-        concat                                                                           tmp%1#0
-        l-load tmp%1#0 0                                                                 tmp%1#0
+        concat                                                                           tmp%2#0
+        l-load tmp%2#0 0                                                                 tmp%2#0
         log
         int 1                                                                            1
         return
@@ -208,8 +208,8 @@ subroutine errors:
         extract 0 8                                                                      aggregate%extract%0#0
         l-load aggregate%extract%0#0 0                                                   aggregate%extract%0#0
         byte 0x00                                                                        aggregate%extract%0#0,0x00
-        ==                                                                               tmp%0#0
-        l-load tmp%0#0 0                                                                 tmp%0#0
+        ==                                                                               tmp%0#1
+        l-load tmp%0#1 0                                                                 tmp%0#1
         assert // this will error
         // arc_56/contract.py:99
         // @arc4.abimethod(name="emits_error", readonly=True)
@@ -243,9 +243,16 @@ subroutine conditional_emit:
     conditional_emit_block@0:
         // arc_56/contract.py:113
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                           reinterpret_Encoded(bool8)%0#0
-        l-load reinterpret_Encoded(bool8)%0#0 0                                          reinterpret_Encoded(bool8)%0#0
-        int 0                                                                            reinterpret_Encoded(bool8)%0#0,0
+        txna ApplicationArgs 1                                                           tmp%0#0
+        l-load-copy tmp%0#0 0                                                            tmp%0#0,tmp%0#0 (copy)
+        len                                                                              tmp%0#0,len%0#0
+        l-load len%0#0 0                                                                 tmp%0#0,len%0#0
+        int 1                                                                            tmp%0#0,len%0#0,1
+        ==                                                                               tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                  tmp%0#0,eq%0#0
+        assert // invalid number of bytes for bool8                                      tmp%0#0
+        l-load tmp%0#0 0                                                                 tmp%0#0
+        int 0                                                                            tmp%0#0,0
         getbit                                                                           should_emit#0
         // arc_56/contract.py:115
         // if should_emit:
@@ -353,58 +360,106 @@ subroutine with_constant_defaults:
         //     }
         // )
         txna ApplicationArgs 1                                                           a#0
-        txna ApplicationArgs 2                                                           a#0,reinterpret_Encoded(uint64)%1#0
-        l-load reinterpret_Encoded(uint64)%1#0 0                                         a#0,reinterpret_Encoded(uint64)%1#0
+        l-load-copy a#0 0                                                                a#0,a#0 (copy)
+        len                                                                              a#0,len%0#0
+        l-load len%0#0 0                                                                 a#0,len%0#0
+        int 8                                                                            a#0,len%0#0,8
+        ==                                                                               a#0,eq%0#0
+        l-load eq%0#0 0                                                                  a#0,eq%0#0
+        assert // invalid number of bytes for uint64                                     a#0
+        txna ApplicationArgs 2                                                           a#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                            a#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                              a#0,tmp%1#0,len%1#0
+        l-load len%1#0 0                                                                 a#0,tmp%1#0,len%1#0
+        int 8                                                                            a#0,tmp%1#0,len%1#0,8
+        ==                                                                               a#0,tmp%1#0,eq%1#0
+        l-load eq%1#0 0                                                                  a#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for uint64                                     a#0,tmp%1#0
+        l-load tmp%1#0 0                                                                 a#0,tmp%1#0
         btoi                                                                             a#0,b#0
-        txna ApplicationArgs 3                                                           a#0,b#0,reinterpret_Encoded(len+uint8[])%0#0
-        l-load reinterpret_Encoded(len+uint8[])%0#0 0                                    a#0,b#0,reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 3                                                           a#0,b#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                            a#0,b#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                            a#0,b#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                                   a#0,b#0,tmp%3#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                              a#0,b#0,tmp%3#0,aggregate%array_length%0#0
+        int 2                                                                            a#0,b#0,tmp%3#0,aggregate%array_length%0#0,2
+        +                                                                                a#0,b#0,tmp%3#0,add%0#0
+        l-load-copy tmp%3#0 1                                                            a#0,b#0,tmp%3#0,add%0#0,tmp%3#0 (copy)
+        len                                                                              a#0,b#0,tmp%3#0,add%0#0,len%2#0
+        l-load len%2#0 0                                                                 a#0,b#0,tmp%3#0,add%0#0,len%2#0
+        l-load add%0#0 1                                                                 a#0,b#0,tmp%3#0,len%2#0,add%0#0
+        ==                                                                               a#0,b#0,tmp%3#0,eq%2#0
+        l-load eq%2#0 0                                                                  a#0,b#0,tmp%3#0,eq%2#0
+        assert // invalid number of bytes for (len+uint8[])                              a#0,b#0,tmp%3#0
+        l-load tmp%3#0 0                                                                 a#0,b#0,tmp%3#0
         extract 2 0                                                                      a#0,b#0,c#0
         txna ApplicationArgs 4                                                           a#0,b#0,c#0,d#0
-        l-store-copy d#0 3                                                               d#0,a#0,b#0,c#0,d#0 (copy)
-        v-store d#0                                                                      d#0,a#0,b#0,c#0
-        txna ApplicationArgs 5                                                           d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 0                       d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        int 0                                                                            d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy),0
-        extract_uint64                                                                   d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,e.0#0
-        v-store e.0#0                                                                    d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 0                       d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        int 8                                                                            d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy),8
-        extract_uint16                                                                   d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0
-        l-load-copy reinterpret_Encoded(uint64,(len+utf8[]))%0#0 1                       d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0 (copy)
-        len                                                                              d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        l-load reinterpret_Encoded(uint64,(len+utf8[]))%0#0 2                            d#0,a#0,b#0,c#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0
-        l-load aggregate%extract_uint16%0#0 2                                            d#0,a#0,b#0,c#0,aggregate%len%0#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0
-        l-load aggregate%len%0#0 2                                                       d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64,(len+utf8[]))%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                       d#0,a#0,b#0,c#0,aggregate%substring3%0#0
-        l-load aggregate%substring3%0#0 0                                                d#0,a#0,b#0,c#0,aggregate%substring3%0#0
-        extract 2 0                                                                      d#0,a#0,b#0,c#0,e.1#0
-        v-store e.1#0                                                                    d#0,a#0,b#0,c#0
-        txna ApplicationArgs 6                                                           d#0,a#0,b#0,c#0,f#0
-        v-store f#0                                                                      d#0,a#0,b#0,c#0
-        txna ApplicationArgs 7                                                           d#0,a#0,b#0,c#0,g#0
-        v-store g#0                                                                      d#0,a#0,b#0,c#0
-        txna ApplicationArgs 8                                                           d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%2#0
-        l-load reinterpret_Encoded(uint64)%2#0 0                                         d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%2#0
-        btoi                                                                             d#0,a#0,b#0,c#0,h#0
-        v-store h#0                                                                      d#0,a#0,b#0,c#0
-        txna ApplicationArgs 9                                                           d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%3#0
-        l-load reinterpret_Encoded(uint64)%3#0 0                                         d#0,a#0,b#0,c#0,reinterpret_Encoded(uint64)%3#0
-        btoi                                                                             d#0,a#0,b#0,c#0,i#0
-        v-store i#0                                                                      d#0,a#0,b#0,c#0
+        l-store-copy d#0 0                                                               a#0,b#0,c#0,d#0,d#0 (copy)
+        v-store d#0                                                                      a#0,b#0,c#0,d#0
+        l-load-copy d#0 0                                                                a#0,b#0,c#0,d#0,d#0 (copy)
+        len                                                                              a#0,b#0,c#0,d#0,len%3#0
+        l-load len%3#0 0                                                                 a#0,b#0,c#0,d#0,len%3#0
+        int 16                                                                           a#0,b#0,c#0,d#0,len%3#0,16
+        ==                                                                               a#0,b#0,c#0,d#0,eq%3#0
+        l-load eq%3#0 0                                                                  a#0,b#0,c#0,d#0,eq%3#0
+        assert // invalid number of bytes for (uint64,uint64)                            a#0,b#0,c#0,d#0
+        txna ApplicationArgs 5                                                           a#0,b#0,c#0,d#0,tmp%6#0
+        l-load-copy tmp%6#0 0                                                            a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy)
+        int 0                                                                            a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy),0
+        extract_uint64                                                                   a#0,b#0,c#0,d#0,tmp%6#0,e.0#0
+        v-store e.0#0                                                                    a#0,b#0,c#0,d#0,tmp%6#0
+        l-load-copy tmp%6#0 0                                                            a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy)
+        int 8                                                                            a#0,b#0,c#0,d#0,tmp%6#0,tmp%6#0 (copy),8
+        extract_uint16                                                                   a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0
+        l-load-copy tmp%6#0 1                                                            a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,tmp%6#0 (copy)
+        len                                                                              a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load tmp%6#0 2                                                                 a#0,b#0,c#0,d#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,tmp%6#0
+        l-load aggregate%extract_uint16%0#0 2                                            a#0,b#0,c#0,d#0,aggregate%len%0#0,tmp%6#0,aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                       a#0,b#0,c#0,d#0,tmp%6#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                       a#0,b#0,c#0,d#0,aggregate%substring3%0#0
+        l-load aggregate%substring3%0#0 0                                                a#0,b#0,c#0,d#0,aggregate%substring3%0#0
+        extract 2 0                                                                      a#0,b#0,c#0,d#0,e.1#0
+        v-store e.1#0                                                                    a#0,b#0,c#0,d#0
+        txna ApplicationArgs 6                                                           a#0,b#0,c#0,d#0,f#0
+        v-store f#0                                                                      a#0,b#0,c#0,d#0
+        txna ApplicationArgs 7                                                           a#0,b#0,c#0,d#0,g#0
+        v-store g#0                                                                      a#0,b#0,c#0,d#0
+        txna ApplicationArgs 8                                                           a#0,b#0,c#0,d#0,tmp%11#0
+        l-load-copy tmp%11#0 0                                                           a#0,b#0,c#0,d#0,tmp%11#0,tmp%11#0 (copy)
+        len                                                                              a#0,b#0,c#0,d#0,tmp%11#0,len%4#0
+        l-load len%4#0 0                                                                 a#0,b#0,c#0,d#0,tmp%11#0,len%4#0
+        int 8                                                                            a#0,b#0,c#0,d#0,tmp%11#0,len%4#0,8
+        ==                                                                               a#0,b#0,c#0,d#0,tmp%11#0,eq%4#0
+        l-load eq%4#0 0                                                                  a#0,b#0,c#0,d#0,tmp%11#0,eq%4#0
+        assert // invalid number of bytes for uint64                                     a#0,b#0,c#0,d#0,tmp%11#0
+        l-load tmp%11#0 0                                                                a#0,b#0,c#0,d#0,tmp%11#0
+        btoi                                                                             a#0,b#0,c#0,d#0,h#0
+        v-store h#0                                                                      a#0,b#0,c#0,d#0
+        txna ApplicationArgs 9                                                           a#0,b#0,c#0,d#0,tmp%13#0
+        l-load-copy tmp%13#0 0                                                           a#0,b#0,c#0,d#0,tmp%13#0,tmp%13#0 (copy)
+        len                                                                              a#0,b#0,c#0,d#0,tmp%13#0,len%5#0
+        l-load len%5#0 0                                                                 a#0,b#0,c#0,d#0,tmp%13#0,len%5#0
+        int 8                                                                            a#0,b#0,c#0,d#0,tmp%13#0,len%5#0,8
+        ==                                                                               a#0,b#0,c#0,d#0,tmp%13#0,eq%5#0
+        l-load eq%5#0 0                                                                  a#0,b#0,c#0,d#0,tmp%13#0,eq%5#0
+        assert // invalid number of bytes for uint64                                     a#0,b#0,c#0,d#0,tmp%13#0
+        l-load tmp%13#0 0                                                                a#0,b#0,c#0,d#0,tmp%13#0
+        btoi                                                                             a#0,b#0,c#0,d#0,i#0
+        v-store i#0                                                                      a#0,b#0,c#0,d#0
         // arc_56/contract.py:156
         // assert a
-        l-load a#0 2                                                                     d#0,b#0,c#0,a#0
-        byte 0x                                                                          d#0,b#0,c#0,a#0,0x
-        b!=                                                                              d#0,b#0,c#0,tmp%0#1
-        l-load tmp%0#1 0                                                                 d#0,b#0,c#0,tmp%0#1
-        assert                                                                           d#0,b#0,c#0
+        l-load a#0 3                                                                     b#0,c#0,d#0,a#0
+        byte 0x                                                                          b#0,c#0,d#0,a#0,0x
+        b!=                                                                              b#0,c#0,d#0,tmp%0#1
+        l-load tmp%0#1 0                                                                 b#0,c#0,d#0,tmp%0#1
+        assert                                                                           b#0,c#0,d#0
         // arc_56/contract.py:157
         // assert b
-        l-load b#0 1                                                                     d#0,c#0,b#0
-        assert                                                                           d#0,c#0
+        l-load b#0 2                                                                     c#0,d#0,b#0
+        assert                                                                           c#0,d#0
         // arc_56/contract.py:158
         // assert c
-        l-load c#0 0                                                                     d#0,c#0
+        l-load c#0 1                                                                     d#0,c#0
         len                                                                              d#0,tmp%2#1
         l-load tmp%2#1 0                                                                 d#0,tmp%2#1
         assert                                                                           d#0
@@ -453,8 +508,8 @@ subroutine with_constant_defaults:
         // arc_56/contract.py:160
         // assert e[0] or e[1]
         v-load e.1#0                                                                     e.1#0
-        len                                                                              tmp%7#0
-        l-load tmp%7#0 0                                                                 tmp%7#0
+        len                                                                              tmp%7#1
+        l-load tmp%7#1 0                                                                 tmp%7#1
         bz with_constant_defaults_bool_false@8 ; b with_constant_defaults_bool_true@7
 
     with_constant_defaults_bool_true@7:
@@ -490,32 +545,32 @@ subroutine with_constant_defaults:
         extract3                                                                         aggregate%item%0#0
         l-load aggregate%item%0#0 0                                                      aggregate%item%0#0
         byte 0x00026869                                                                  aggregate%item%0#0,0x00026869
-        ==                                                                               tmp%10#0
-        l-load tmp%10#0 0                                                                tmp%10#0
+        ==                                                                               tmp%10#1
+        l-load tmp%10#1 0                                                                tmp%10#1
         assert
         // arc_56/contract.py:162
         // assert g.length == 2
         v-load g#0                                                                       g#0
         int 0                                                                            g#0,0
-        extract_uint16                                                                   aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                              aggregate%array_length%0#0
-        int 2                                                                            aggregate%array_length%0#0,2
-        ==                                                                               tmp%12#0
-        l-load tmp%12#0 0                                                                tmp%12#0
+        extract_uint16                                                                   aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                              aggregate%array_length%1#0
+        int 2                                                                            aggregate%array_length%1#0,2
+        ==                                                                               tmp%12#1
+        l-load tmp%12#1 0                                                                tmp%12#1
         assert
         // arc_56/contract.py:163
         // assert h == 42
         v-load h#0                                                                       h#0
         int 42                                                                           h#0,42
-        ==                                                                               tmp%13#0
-        l-load tmp%13#0 0                                                                tmp%13#0
+        ==                                                                               tmp%13#1
+        l-load tmp%13#1 0                                                                tmp%13#1
         assert
         // arc_56/contract.py:164
         // assert i == 1234
         v-load i#0                                                                       i#0
         int 1234                                                                         i#0,1234
-        ==                                                                               tmp%14#0
-        l-load tmp%14#0 0                                                                tmp%14#0
+        ==                                                                               tmp%14#1
+        l-load tmp%14#1 0                                                                tmp%14#1
         assert
         // arc_56/contract.py:131-143
         // @arc4.abimethod(

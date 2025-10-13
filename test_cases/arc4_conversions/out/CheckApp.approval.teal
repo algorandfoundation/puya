@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 2 8
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txn NumAppArgs
@@ -44,7 +45,21 @@ check_uint64:
     // arc4_conversions/contract.py:235
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:237
     // assert value.bytes == expected, "expected to encode correctly"
@@ -59,7 +74,25 @@ check_dynamic_bytes:
     // arc4_conversions/contract.py:239
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:241
     // assert value.bytes == expected, "expected to encode correctly"
@@ -74,7 +107,25 @@ check_string:
     // arc4_conversions/contract.py:243
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:245
     // assert value.bytes == expected, "expected to encode correctly"
@@ -89,7 +140,21 @@ check_biguint:
     // arc4_conversions/contract.py:247
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 64 // 64
+    ==
+    assert // invalid number of bytes for uint512
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:249
     // assert value.bytes == expected, "expected to encode correctly"
@@ -104,7 +169,21 @@ check_bool:
     // arc4_conversions/contract.py:251
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 1 // 1
+    ==
+    assert // invalid number of bytes for bool8
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:253
     // assert value.bytes == expected, "expected to encode correctly"
@@ -119,7 +198,27 @@ check_dyn_array_uin64:
     // arc4_conversions/contract.py:255
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 8
+    *
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:259
     // assert value.bytes == expected, "expected to encode correctly"
@@ -134,7 +233,21 @@ check_static_array_uin64_3:
     // arc4_conversions/contract.py:261
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 24 // 24
+    ==
+    assert // invalid number of bytes for uint64[3]
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:265
     // assert value.bytes == expected, "expected to encode correctly"
@@ -149,7 +262,27 @@ check_dyn_array_struct:
     // arc4_conversions/contract.py:267
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 40 // 40
+    *
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint8[32])[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:271
     // assert value.bytes == expected, "expected to encode correctly"
@@ -164,7 +297,21 @@ check_static_array_struct:
     // arc4_conversions/contract.py:273
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 120 // 120
+    ==
+    assert // invalid number of bytes for (uint64,uint8[32])[3]
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:277
     // assert value.bytes == expected, "expected to encode correctly"
@@ -180,6 +327,15 @@ check_dyn_array_dyn_struct:
     // @arc4.abimethod
     txna ApplicationArgs 1
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:283
     // assert value.bytes == expected, "expected to encode correctly"
@@ -195,6 +351,15 @@ check_static_array_dyn_struct:
     // @arc4.abimethod
     txna ApplicationArgs 1
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // arc4_conversions/contract.py:289
     // assert value.bytes == expected, "expected to encode correctly"
@@ -209,6 +374,11 @@ check_static_bytes:
     // arc4_conversions/contract.py:291
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     // arc4_conversions/contract.py:293
     // assert bytes32.bytes == Txn.sender.bytes, "expected to encode correctly"
     txn Sender

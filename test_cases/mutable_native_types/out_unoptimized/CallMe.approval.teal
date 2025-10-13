@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 16
     bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
     b main_block@0
 
@@ -202,6 +202,11 @@ fixed_struct_arg_block@0:
     // mutable_native_types/abi_call.py:53
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     callsub test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg
     intc_1 // 1
     return
@@ -231,6 +236,11 @@ nested_struct_arg_block@0:
     // mutable_native_types/abi_call.py:61
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 24 // 24
+    ==
+    assert // invalid number of bytes for ((uint64,uint64),uint64)
     callsub test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg
     intc_1 // 1
     return
@@ -289,6 +299,11 @@ fixed_arr_arg_block@0:
     // mutable_native_types/abi_call.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64)[3]
     callsub test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg
     intc_1 // 1
     return
@@ -318,6 +333,17 @@ native_arr_arg_block@0:
     // mutable_native_types/abi_call.py:85
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 16
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
     callsub test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg
     intc_1 // 1
     return

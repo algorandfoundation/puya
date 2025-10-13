@@ -27,8 +27,17 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
     block@0: // L13
         let arr#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let app#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len arr#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%1#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[])uint64")
@@ -45,7 +54,7 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let aggregate%head%0#0: bytes = 0x0002
         let new_head_and_tail#0: bytes = (concat 0x0002 arr#0)
         let new_head#0: bytes = 0x
-        let tmp%1#0: uint64 = 0u
+        let tmp%1#1: uint64 = 0u
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L211

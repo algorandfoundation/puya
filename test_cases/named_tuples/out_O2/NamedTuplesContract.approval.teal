@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64
+    intcblock 1 0 2 64
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
@@ -19,7 +19,7 @@ main:
 main_test_tuple_route@6:
     txna ApplicationArgs 1
     dup
-    pushint 0 // 0
+    intc_1 // 0
     extract_uint64
     dig 1
     extract 8 64
@@ -62,7 +62,7 @@ main_build_tuple_side_effects_route@5:
     intc_0 // 1
     itob
     log
-    pushint 2 // 2
+    intc_2 // 2
     itob
     log
     pushint 3 // 3
@@ -75,20 +75,48 @@ main_build_tuple_side_effects_route@5:
 
 main_build_tuple_route@4:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    dup
+    intc_3 // 64
+    ==
+    assert // invalid number of bytes for uint512
     txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
-    extract 2 0
-    uncover 3
-    itob
-    dig 3
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
     len
-    intc_1 // 64
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    uncover 4
+    itob
+    uncover 3
+    intc_3 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_3 // 64
     bzero
     uncover 4
     b|

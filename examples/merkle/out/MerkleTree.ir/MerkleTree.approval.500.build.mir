@@ -59,6 +59,15 @@ subroutine create:
         // @arc4.abimethod(create="require")
         txna ApplicationArgs 1                                                                 root#0
         v-store root#0
+        v-load root#0                                                                          root#0
+        len                                                                                    len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                         len%0#0
+        int 32                                                                                 len%0#0,32
+        ==                                                                                     eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                          eq%0#0
+        assert // invalid number of bytes for uint8[32]
         // merkle/contract.py:12
         // self.root = root.bytes
         byte "root"                                                                            "root"
@@ -77,8 +86,38 @@ subroutine verify:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                 proof#0
         v-store proof#0
+        v-load proof#0                                                                         proof#0
+        int 0                                                                                  proof#0,0
+        extract_uint16                                                                         aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
+        int 32                                                                                 aggregate%array_length%0#0,32
+        *                                                                                      mul%0#0
+        v-store mul%0#0
+        v-load mul%0#0                                                                         mul%0#0
+        int 2                                                                                  mul%0#0,2
+        +                                                                                      add%0#0
+        v-store add%0#0
+        v-load proof#0                                                                         proof#0
+        len                                                                                    len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                         len%0#0
+        v-load add%0#0                                                                         len%0#0,add%0#0
+        ==                                                                                     eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                          eq%0#0
+        assert // invalid number of bytes for (len+uint8[32][])
         txna ApplicationArgs 2                                                                 leaf#0
         v-store leaf#0
+        v-load leaf#0                                                                          leaf#0
+        len                                                                                    len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                         len%1#0
+        int 32                                                                                 len%1#0,32
+        ==                                                                                     eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                          eq%1#0
+        assert // invalid number of bytes for uint8[32]
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
         int 0                                                                                  0
@@ -90,10 +129,6 @@ subroutine verify:
         assert // check self.root exists
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        v-load proof#0                                                                         proof#0
-        int 0                                                                                  proof#0,0
-        extract_uint16                                                                         aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
         int 0                                                                                  0
         v-store value_internal%0#0
         v-load leaf#0                                                                          leaf#0
@@ -186,9 +221,9 @@ subroutine verify:
         v-store aggregate%encoded_bool%0#0
         byte 0x151f7c75                                                                        0x151f7c75
         v-load aggregate%encoded_bool%0#0                                                      0x151f7c75,aggregate%encoded_bool%0#0
-        concat                                                                                 tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                         tmp%2#0
+        concat                                                                                 tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                         tmp%4#0
         log
         int 1                                                                                  1
         return

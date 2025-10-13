@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 2 12
+    intcblock 0 6 2 8
     bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x0000000000000001 0x16e03919 0x00027331 0x00026231 0x0000000000000001000a00056c6f672031 0x01 0xb4b4334e "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x000b6563686f3a207475706c65 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
@@ -33,8 +33,31 @@ test_is_a_b:
     // typed_abi_call/typed_c2c.py:25
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:27-32
     // arc4.abi_call(
@@ -66,6 +89,11 @@ test_method_selector_kinds:
     // typed_abi_call/typed_c2c.py:34
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:37
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
@@ -84,6 +112,15 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -111,6 +148,15 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -138,6 +184,15 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -165,6 +220,15 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -191,6 +255,15 @@ test_method_selector_kinds:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -210,6 +283,11 @@ test_method_overload:
     // typed_abi_call/typed_c2c.py:48
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:50
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
@@ -226,6 +304,17 @@ test_method_overload:
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -235,6 +324,15 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -262,6 +360,15 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -287,6 +394,15 @@ test_method_overload:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -303,6 +419,15 @@ test_method_overload:
     // assert arc4.String.from_log(result[1].last_log) == "echo: tuple"
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -333,6 +458,15 @@ test_method_overload:
     // assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -350,6 +484,11 @@ test_arg_conversion:
     // typed_abi_call/typed_c2c.py:63
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:65
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
@@ -460,6 +599,11 @@ test_15plus_args:
     // typed_abi_call/typed_c2c.py:80
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:82-105
     // result, txn = arc4.abi_call(
@@ -587,6 +731,17 @@ test_15plus_args:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -606,6 +761,11 @@ test_void:
     // typed_abi_call/typed_c2c.py:108
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:110
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
@@ -696,8 +856,18 @@ test_ref_types:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    dup
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     dup
     btoi
     // typed_abi_call/typed_c2c.py:124-130
@@ -760,6 +930,11 @@ test_account_to_address:
     // typed_abi_call/typed_c2c.py:136
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:138-142
     // txn = arc4.abi_call(
@@ -802,6 +977,11 @@ test_native_string:
     // typed_abi_call/typed_c2c.py:145
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:147
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
@@ -818,6 +998,17 @@ test_native_string:
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     dup
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -850,6 +1041,17 @@ test_native_string:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -880,6 +1082,17 @@ test_native_string:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -898,6 +1111,11 @@ test_native_bytes:
     // typed_abi_call/typed_c2c.py:156
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:158
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
@@ -914,6 +1132,17 @@ test_native_bytes:
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     dup
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -945,6 +1174,17 @@ test_native_bytes:
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     dup
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -980,6 +1220,17 @@ test_native_bytes:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -998,6 +1249,11 @@ test_native_uint64:
     // typed_abi_call/typed_c2c.py:169
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:171
     // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
@@ -1016,6 +1272,11 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1046,6 +1307,11 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1074,6 +1340,11 @@ test_native_uint64:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1093,6 +1364,11 @@ test_native_biguint:
     // typed_abi_call/typed_c2c.py:180
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:182
     // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
@@ -1111,6 +1387,11 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 64 // 64
+    ==
+    assert // invalid number of bytes for uint512
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1139,6 +1420,11 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 64 // 64
+    ==
+    assert // invalid number of bytes for uint512
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1166,6 +1452,11 @@ test_native_biguint:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 64 // 64
+    ==
+    assert // invalid number of bytes for uint512
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1184,6 +1475,11 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:191
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:193-203
     // # python literals
@@ -1282,7 +1578,7 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:207
     // assert u.as_uint64() == 2
     uncover 4
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     dup
     intc_2 // 2
@@ -1506,7 +1802,7 @@ test_native_tuple:
     substring3
     extract 2 0
     dig 2
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1540,6 +1836,11 @@ test_native_tuple_method_ref:
     // typed_abi_call/typed_c2c.py:250
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:252-260
     // # test with literal args
@@ -1614,7 +1915,7 @@ test_native_tuple_method_ref:
     substring3
     extract 2 0
     dig 2
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1726,7 +2027,7 @@ test_native_tuple_method_ref:
     substring3
     extract 2 0
     dig 2
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1821,7 +2122,7 @@ test_native_tuple_method_ref:
     substring3
     extract 2 0
     dig 2
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1916,7 +2217,7 @@ test_native_tuple_method_ref:
     substring3
     extract 2 0
     dig 2
-    pushint 8 // 8
+    intc_3 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1947,6 +2248,11 @@ test_nested_tuples:
     // typed_abi_call/typed_c2c.py:300
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:302-307
     // # literal args
@@ -2288,7 +2594,7 @@ test_nested_tuples:
     // typed_abi_call/typed_c2c.py:342
     // assert u64_1 == 12
     uncover 2
-    intc_3 // 12
+    pushint 12 // 12
     ==
     assert
     // typed_abi_call/typed_c2c.py:343
@@ -2311,6 +2617,11 @@ test_no_args:
     // typed_abi_call/typed_c2c.py:346
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:348
     // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
@@ -2327,6 +2638,11 @@ test_no_args:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -2353,6 +2669,11 @@ test_no_args:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -2375,6 +2696,12 @@ test_no_args:
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2384,6 +2711,11 @@ test_no_args:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -2401,6 +2733,11 @@ test_named_tuples:
     // typed_abi_call/typed_c2c.py:356
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:358-363
     // result, _txn = arc4.abi_call(
@@ -2437,6 +2774,11 @@ test_named_tuples:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 1 // 1
+    ==
+    assert // invalid number of bytes for bool8
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -2481,6 +2823,11 @@ test_named_tuples:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 1 // 1
+    ==
+    assert // invalid number of bytes for bool8
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -2501,6 +2848,11 @@ test_arc4_struct:
     // typed_abi_call/typed_c2c.py:373
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // typed_abi_call/typed_c2c.py:376-380
     // result, txn = arc4.abi_call(
@@ -2571,8 +2923,18 @@ test_resource_encoding:
     // typed_abi_call/typed_c2c.py:384
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     dup
     btoi
     // typed_abi_call/typed_c2c.py:386
@@ -2615,6 +2977,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2623,7 +2991,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32
@@ -2671,6 +3039,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2679,7 +3053,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32
@@ -2731,6 +3105,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2739,7 +3119,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32
@@ -2779,6 +3159,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2787,7 +3173,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32
@@ -2851,6 +3237,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2859,7 +3251,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32
@@ -2902,6 +3294,12 @@ test_resource_encoding:
     itxn_submit
     itxn LastLog
     dup
+    extract 4 0
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64,uint8[32])
+    dup
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -2910,7 +3308,7 @@ test_resource_encoding:
     pushint 4 // 4
     extract_uint64
     dig 1
-    intc_3 // 12
+    pushint 12 // 12
     extract_uint64
     uncover 2
     extract 20 32

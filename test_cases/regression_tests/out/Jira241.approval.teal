@@ -14,20 +14,8 @@ main:
     assert
     pushbytess 0x1e3e4374 0xd7a938c9 // method "oh_no(bool)void", method "oh_yes(bool)void"
     txna ApplicationArgs 0
-    match main_oh_no_route@4 main_oh_yes_route@5
+    match oh_no oh_yes
     err
-
-main_oh_yes_route@5:
-    // regression_tests/jira_241.py:9
-    // @arc4.abimethod(default_args={"wrong_size": True})
-    pushint 1 // 1
-    return
-
-main_oh_no_route@4:
-    // regression_tests/jira_241.py:5
-    // @arc4.abimethod(default_args={"wrong_size": False})
-    pushint 1 // 1
-    return
 
 main___algopy_default_create@9:
     txn OnCompletion
@@ -36,3 +24,25 @@ main___algopy_default_create@9:
     !
     &&
     return // on error: OnCompletion must be NoOp && can only call when creating
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
+oh_no:
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    txna ApplicationArgs 1
+    len
+    pushint 1 // 1
+    ==
+    return // on error: invalid number of bytes for bool8
+
+
+// test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
+oh_yes:
+    // regression_tests/jira_241.py:9
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    txna ApplicationArgs 1
+    len
+    pushint 1 // 1
+    ==
+    return // on error: invalid number of bytes for bool8

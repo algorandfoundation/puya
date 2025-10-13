@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 0 8 1 2
     b main_block@0
 
 main_block@0:
@@ -89,7 +89,7 @@ main_block@13:
     b main_after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@14
 
 main_after_inlined_examples.struct_in_box.contract.ExampleContract.__algopy_default_create@14:
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -102,7 +102,7 @@ add_user_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     callsub examples.struct_in_box.contract.ExampleContract.add_user
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -114,10 +114,20 @@ attach_asset_to_user_block@0:
     // struct_in_box/contract.py:35
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     callsub examples.struct_in_box.contract.ExampleContract.attach_asset_to_user
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -129,12 +139,17 @@ get_user_block@0:
     // struct_in_box/contract.py:41
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
     callsub examples.struct_in_box.contract.ExampleContract.get_user
     pushbytes 0x151f7c75
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -172,8 +187,8 @@ write_to_box_block@0:
     // struct_in_box/contract.py:19
     // box_key = user.id.bytes
     frame_dig -1
-    intc_2 // 2
-    intc_3 // 8
+    intc_3 // 2
+    intc_1 // 8
     extract3
     // struct_in_box/contract.py:20-21
     // # Delete existing data, so we don't have to worry about resizing the box
@@ -219,8 +234,8 @@ examples.struct_in_box.contract.ExampleContract.add_user_block@0:
     // struct_in_box/contract.py:32
     // assert not self.box_exists(user.id), "User with id must not exist"
     frame_dig -1
-    intc_2 // 2
-    intc_3 // 8
+    intc_3 // 2
+    intc_1 // 8
     extract3
     callsub box_exists
     !

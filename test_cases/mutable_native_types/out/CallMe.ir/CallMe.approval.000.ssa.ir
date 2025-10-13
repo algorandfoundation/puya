@@ -94,8 +94,12 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.delete[routing]() -> 
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:
     block@0: // L53
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg(reinterpret_Encoded(uint64,uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
+        test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg(as_Encoded(uint64,uint64)%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[routing]() -> void:
@@ -107,8 +111,12 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[rout
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]() -> void:
     block@0: // L61
-        let reinterpret_Encoded((uint64,uint64),uint64)%0#0: Encoded((uint64,uint64),uint64) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg(reinterpret_Encoded((uint64,uint64),uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 24u)
+        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),uint64)
+        let as_Encoded((uint64,uint64),uint64)%0#0: Encoded((uint64,uint64),uint64) = tmp%0#0
+        test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg(as_Encoded((uint64,uint64),uint64)%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[routing]() -> void:
@@ -120,8 +128,9 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[rou
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]() -> void:
     block@0: // L69
-        let reinterpret_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg(reinterpret_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%0#0
+        test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg(as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]() -> void:
@@ -133,8 +142,12 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[ro
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]() -> void:
     block@0: // L77
-        let reinterpret_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(reinterpret_Encoded((uint64,uint64)[3])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
+        let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%0#0
+        test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(as_Encoded((uint64,uint64)[3])%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing]() -> void:
@@ -146,8 +159,15 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]() -> void:
     block@0: // L85
-        let reinterpret_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg(reinterpret_Encoded(len+(uint64,uint64)[])%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%0#0
+        test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg(as_Encoded(len+(uint64,uint64)[])%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routing]() -> void:

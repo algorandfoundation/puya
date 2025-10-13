@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 0 1 4
+    intcblock 8 0 1 32
     bytecblock 0x 0x6c697374696e6773
     b main_block@0
 
@@ -178,6 +178,11 @@ allow_asset_block@0:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     callsub test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset
     intc_2 // 1
@@ -204,12 +209,22 @@ first_deposit_block@0:
     -
     dup
     gtxns TypeEnum
-    intc_3 // axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     uncover 3
     uncover 3
@@ -232,10 +247,15 @@ deposit_block@0:
     -
     dup
     gtxns TypeEnum
-    intc_3 // axfer
+    pushint 4 // axfer
     ==
     assert // transaction type is axfer
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     callsub test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit
     intc_2 // 1
@@ -250,10 +270,25 @@ set_price_block@0:
     // marketplace_demo/marketplace_with_tups.py:138
     // @arc4.abimethod(name="setPrice")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     uncover 2
     uncover 2
@@ -271,9 +306,24 @@ buy_block@0:
     // marketplace_demo/marketplace_with_tups.py:151
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_2 // 1
@@ -284,6 +334,11 @@ buy_block@0:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     uncover 4
     uncover 4
@@ -303,8 +358,18 @@ withdraw_block@0:
     // marketplace_demo/marketplace_with_tups.py:182
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     callsub test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw
     intc_2 // 1
@@ -319,9 +384,24 @@ bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:201
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txn GroupIndex
     intc_2 // 1
@@ -332,8 +412,18 @@ bid_block@0:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 5
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     uncover 5
     uncover 5
@@ -354,8 +444,18 @@ accept_bid_block@0:
     // marketplace_demo/marketplace_with_tups.py:237
     // @arc4.abimethod(name="acceptBid")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     callsub test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid
     intc_2 // 1
@@ -504,7 +604,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.all
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:90
     // itxn.AssetTransfer(
-    intc_3 // axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -732,7 +832,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.dep
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -846,7 +946,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -965,7 +1065,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -1079,7 +1179,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:178
     // itxn.AssetTransfer(
-    intc_3 // axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -1139,7 +1239,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.wit
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -1259,7 +1359,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.wit
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:197
     // itxn.AssetTransfer(
-    intc_3 // axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -1333,7 +1433,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -1540,7 +1640,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.acc
     cover 1
     dup
     pushint 16 // 16
-    pushint 32 // 32
+    intc_3 // 32
     extract3
     cover 1
     dup
@@ -1645,7 +1745,7 @@ test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.acc
     itxn_field XferAsset
     // marketplace_demo/marketplace_with_tups.py:252
     // itxn.AssetTransfer(
-    intc_3 // axfer
+    pushint 4 // axfer
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee

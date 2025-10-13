@@ -331,8 +331,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#1)
         exit 1u
     block@12: // test_allocations_route_L134
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let num#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#4: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#4)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let num#0: uint64 = (btoi tmp%0#4)
         let value_internal%0#0: uint64 = 0u
         let _i#0: uint64 = value_internal%0#0
         goto block@50

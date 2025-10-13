@@ -50,6 +50,11 @@ subroutine create:
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
         txna ApplicationArgs 1                                                                 root#0
+        l-load-copy root#0 0                                                                   root#0,root#0 (copy)
+        len                                                                                    root#0,len%0#0
+        int 32                                                                                 root#0,len%0#0,32
+        ==                                                                                     root#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                                        root#0
         // merkle/contract.py:12
         // self.root = root.bytes
         byte "root"                                                                            root#0,"root"
@@ -69,107 +74,123 @@ subroutine verify:
         txna ApplicationArgs 1                                                                 proof#0
         l-store-copy proof#0 0                                                                 proof#0,proof#0 (copy)
         f-store proof#0                                                                        (𝕗) proof#0 | proof#0
-        txna ApplicationArgs 2                                                                 (𝕗) proof#0 | proof#0,leaf#0
+        l-load-copy proof#0 0                                                                  (𝕗) proof#0 | proof#0,proof#0 (copy)
+        int 0                                                                                  (𝕗) proof#0 | proof#0,proof#0 (copy),0
+        extract_uint16                                                                         (𝕗) proof#0 | proof#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                              (𝕗) proof#0 | proof#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        f-store aggregate%array_length%0#0                                                     (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                    (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,aggregate%array_length%0#0
+        int 32                                                                                 (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,aggregate%array_length%0#0,32
+        *                                                                                      (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,mul%0#0
+        int 2                                                                                  (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,mul%0#0,2
+        +                                                                                      (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,add%0#0
+        l-load proof#0 1                                                                       (𝕗) proof#0,aggregate%array_length%0#0 | add%0#0,proof#0
+        len                                                                                    (𝕗) proof#0,aggregate%array_length%0#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                       (𝕗) proof#0,aggregate%array_length%0#0 | len%0#0,add%0#0
+        ==                                                                                     (𝕗) proof#0,aggregate%array_length%0#0 | eq%0#0
+        assert // invalid number of bytes for (len+uint8[32][])                                (𝕗) proof#0,aggregate%array_length%0#0 |
+        txna ApplicationArgs 2                                                                 (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0
+        l-load-copy leaf#0 0                                                                   (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,leaf#0 (copy)
+        len                                                                                    (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,len%1#0
+        int 32                                                                                 (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,len%1#0,32
+        ==                                                                                     (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,eq%1#0
+        assert // invalid number of bytes for uint8[32]                                        (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
-        int 0                                                                                  (𝕗) proof#0 | proof#0,leaf#0,0
-        byte "root"                                                                            (𝕗) proof#0 | proof#0,leaf#0,0,"root"
-        app_global_get_ex                                                                      (𝕗) proof#0 | proof#0,leaf#0,maybe_value%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                             (𝕗) proof#0 | proof#0,leaf#0,maybe_exists%0#0,maybe_value%0#0
-        f-store maybe_value%0#0                                                                (𝕗) proof#0,maybe_value%0#0 | proof#0,leaf#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                              (𝕗) proof#0,maybe_value%0#0 | proof#0,leaf#0,maybe_exists%0#0
-        assert // check self.root exists                                                       (𝕗) proof#0,maybe_value%0#0 | proof#0,leaf#0
+        int 0                                                                                  (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,0
+        byte "root"                                                                            (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,0,"root"
+        app_global_get_ex                                                                      (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,maybe_value%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                             (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,maybe_exists%0#0,maybe_value%0#0
+        f-store maybe_value%0#0                                                                (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0 | leaf#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                              (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0 | leaf#0,maybe_exists%0#0
+        assert // check self.root exists                                                       (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0 | leaf#0
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        l-load proof#0 1                                                                       (𝕗) proof#0,maybe_value%0#0 | leaf#0,proof#0
-        int 0                                                                                  (𝕗) proof#0,maybe_value%0#0 | leaf#0,proof#0,0
-        extract_uint16                                                                         (𝕗) proof#0,maybe_value%0#0 | leaf#0,aggregate%array_length%0#0
-        f-store aggregate%array_length%0#0                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0 | leaf#0
-        int 0                                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0 | leaf#0,value_internal%0#0
-        l-load leaf#0 1                                                                        (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0 | value_internal%0#0,leaf#0
-        f-store computed#1                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1 | value_internal%0#0
-        l-load value_internal%0#0 0                                                            (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1 | value_internal%0#0
-        f-store idx#0                                                                          (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
-        b verify_for_header@2                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+        int 0                                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0 | leaf#0,value_internal%0#0
+        l-load leaf#0 1                                                                        (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0 | value_internal%0#0,leaf#0
+        f-store computed#1                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1 | value_internal%0#0
+        l-load value_internal%0#0 0                                                            (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1 | value_internal%0#0
+        f-store idx#0                                                                          (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
+        b verify_for_header@2                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
 
-    verify_for_header@2:                                                                       (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+    verify_for_header@2:                                                                       (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        f-load idx#0                                                                           (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | idx#0
-        f-load aggregate%array_length%0#0                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | idx#0,aggregate%array_length%0#0
-        <                                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | continue_looping%0#0
-        bz verify_after_for@7 ; b verify_for_body@3                                            (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+        f-load idx#0                                                                           (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | idx#0
+        f-load aggregate%array_length%0#0                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | idx#0,aggregate%array_length%0#0
+        <                                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | continue_looping%0#0
+        bz verify_after_for@7 ; b verify_for_body@3                                            (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
 
-    verify_for_body@3:                                                                         (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+    verify_for_body@3:                                                                         (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
         // merkle/contract.py:23
         // computed = hash_pair(computed, proof[idx].bytes)
-        f-load proof#0                                                                         (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | proof#0
-        extract 2 0                                                                            (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0
-        f-load idx#0                                                                           (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,idx#0
-        int 32                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,idx#0,32
-        *                                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        l-load aggregate%array_trimmed%0#0 1                                                   (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
-        l-load aggregate%bytes_offset%0#0 1                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        int 32                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
-        extract3 // on error: index access is out of bounds                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | b#0
-        l-store-copy b#0 0                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | b#0,b#0
-        x-store b#0                                                                            (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 | b#0
+        f-load proof#0                                                                         (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | proof#0
+        extract 2 0                                                                            (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0
+        f-load idx#0                                                                           (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,idx#0
+        int 32                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,idx#0,32
+        *                                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                   (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        int 32                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
+        extract3 // on error: index access is out of bounds                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | b#0
+        l-store-copy b#0 0                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | b#0,b#0
+        x-store b#0                                                                            (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 | b#0
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        f-load computed#1                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 | b#0,computed#1
-        l-load b#0 1                                                                           (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 | computed#1,b#0
-        b<                                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 | tmp%0#1
-        bz verify_ternary_false@5 ; b verify_ternary_true@4                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 |
+        f-load computed#1                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 | b#0,computed#1
+        l-load b#0 1                                                                           (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 | computed#1,b#0
+        b<                                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 | tmp%0#1
+        bz verify_ternary_false@5 ; b verify_ternary_true@4                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 |
 
-    verify_ternary_true@4:                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 |
+    verify_ternary_true@4:                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        f-load computed#1                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 | computed#1
-        x-load b#0                                                                             (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | computed#1,b#0
-        concat                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | ternary_result%0#0
-        x-store ternary_result%0#0                                                             (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
-        b verify_ternary_merge@6                                                               (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
+        f-load computed#1                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 | computed#1
+        x-load b#0                                                                             (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | computed#1,b#0
+        concat                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | ternary_result%0#0
+        x-store ternary_result%0#0                                                             (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
+        b verify_ternary_merge@6                                                               (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
 
-    verify_ternary_false@5:                                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) b#0 |
+    verify_ternary_false@5:                                                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) b#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        x-load b#0                                                                             (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | b#0
-        f-load computed#1                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | b#0,computed#1
-        concat                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | ternary_result%0#0
-        x-store ternary_result%0#0                                                             (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
-        b verify_ternary_merge@6                                                               (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
+        x-load b#0                                                                             (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | b#0
+        f-load computed#1                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | b#0,computed#1
+        concat                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | ternary_result%0#0
+        x-store ternary_result%0#0                                                             (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
+        b verify_ternary_merge@6                                                               (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
 
-    verify_ternary_merge@6:                                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
+    verify_ternary_merge@6:                                                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | (𝕏) ternary_result%0#0 |
         // merkle/contract.py:29
         // return op.sha256(a + b if BigUInt.from_bytes(a) < BigUInt.from_bytes(b) else b + a)
-        x-load ternary_result%0#0                                                              (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | ternary_result%0#0
-        sha256                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | computed#1
-        f-store computed#1                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+        x-load ternary_result%0#0                                                              (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | ternary_result%0#0
+        sha256                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | computed#1
+        f-store computed#1                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
         // merkle/contract.py:22
         // for idx in urange(proof.length):
-        f-load idx#0                                                                           (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | idx#0
-        int 1                                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | idx#0,1
-        +                                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | value_internal%0#0
-        f-store idx#0                                                                          (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
-        b verify_for_header@2                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+        f-load idx#0                                                                           (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | idx#0
+        int 1                                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | idx#0,1
+        +                                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | value_internal%0#0
+        f-store idx#0                                                                          (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
+        b verify_for_header@2                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
 
-    verify_after_for@7:                                                                        (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+    verify_after_for@7:                                                                        (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
-        f-load maybe_value%0#0                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | maybe_value%0#0
-        f-load computed#1                                                                      (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | maybe_value%0#0,computed#1
-        ==                                                                                     (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | tmp%0#1
+        f-load maybe_value%0#0                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | maybe_value%0#0
+        f-load computed#1                                                                      (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | maybe_value%0#0,computed#1
+        ==                                                                                     (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | tmp%0#1
         // merkle/contract.py:14
         // @arc4.abimethod
-        byte 0x00                                                                              (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | tmp%0#1,0x00
-        int 0                                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | tmp%0#1,0x00,0
-        l-load tmp%0#1 2                                                                       (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | 0x00,0,tmp%0#1
-        setbit                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%encoded_bool%0#0
-        byte 0x151f7c75                                                                        (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | aggregate%encoded_bool%0#0,0x151f7c75
-        l-load aggregate%encoded_bool%0#0 1                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | 0x151f7c75,aggregate%encoded_bool%0#0
-        concat                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | tmp%2#0
-        log                                                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
-        int 1                                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 | 1
-        return                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,computed#1,idx#0 |
+        byte 0x00                                                                              (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | tmp%0#1,0x00
+        int 0                                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | tmp%0#1,0x00,0
+        l-load tmp%0#1 2                                                                       (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | 0x00,0,tmp%0#1
+        setbit                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%encoded_bool%0#0
+        byte 0x151f7c75                                                                        (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | aggregate%encoded_bool%0#0,0x151f7c75
+        l-load aggregate%encoded_bool%0#0 1                                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | 0x151f7c75,aggregate%encoded_bool%0#0
+        concat                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | tmp%4#0
+        log                                                                                    (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
+        int 1                                                                                  (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 | 1
+        return                                                                                 (𝕗) proof#0,aggregate%array_length%0#0,maybe_value%0#0,computed#1,idx#0 |
 
 

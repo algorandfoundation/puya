@@ -163,6 +163,11 @@ subroutine set_governor:
         // amm/contract.py:43
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                    new_governor#0
+        l-load-copy new_governor#0 0                                                              new_governor#0,new_governor#0 (copy)
+        len                                                                                       new_governor#0,len%0#0
+        int 32                                                                                    new_governor#0,len%0#0,32
+        ==                                                                                        new_governor#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                                           new_governor#0
         // amm/contract.py:46
         // self._check_is_governor()
         callsub _check_is_governor                                                                new_governor#0
@@ -190,11 +195,23 @@ subroutine bootstrap:
         int pay                                                                                   seed#0,gtxn_type%0#0,pay
         ==                                                                                        seed#0,gtxn_type_matches%0#0
         assert // transaction type is pay                                                         seed#0
-        txna ApplicationArgs 1                                                                    seed#0,reinterpret_Encoded(uint8)%0#0
-        btoi                                                                                      seed#0,tmp%1#0
+        txna ApplicationArgs 1                                                                    seed#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                     seed#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                       seed#0,tmp%1#0,len%0#0
+        int 1                                                                                     seed#0,tmp%1#0,len%0#0,1
+        ==                                                                                        seed#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint8                                               seed#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          seed#0,tmp%1#0
+        btoi                                                                                      seed#0,tmp%2#0
         txnas Assets                                                                              seed#0,a_asset#0
-        txna ApplicationArgs 2                                                                    seed#0,a_asset#0,reinterpret_Encoded(uint8)%1#0
-        btoi                                                                                      seed#0,a_asset#0,tmp%3#0
+        txna ApplicationArgs 2                                                                    seed#0,a_asset#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                     seed#0,a_asset#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                       seed#0,a_asset#0,tmp%4#0,len%1#0
+        int 1                                                                                     seed#0,a_asset#0,tmp%4#0,len%1#0,1
+        ==                                                                                        seed#0,a_asset#0,tmp%4#0,eq%1#0
+        assert // invalid number of bytes for uint8                                               seed#0,a_asset#0,tmp%4#0
+        l-load tmp%4#0 0                                                                          seed#0,a_asset#0,tmp%4#0
+        btoi                                                                                      seed#0,a_asset#0,tmp%5#0
         txnas Assets                                                                              seed#0,a_asset#0,b_asset#0
         // amm/contract.py:66
         // assert not self.pool_token, "application has already been bootstrapped"
@@ -210,8 +227,8 @@ subroutine bootstrap:
         callsub _check_is_governor                                                                seed#0,a_asset#0,b_asset#0
         // amm/contract.py:68
         // assert Global.group_size == 2, "group size not 2"
-        global GroupSize                                                                          seed#0,a_asset#0,b_asset#0,tmp%1#0
-        int 2                                                                                     seed#0,a_asset#0,b_asset#0,tmp%1#0,2
+        global GroupSize                                                                          seed#0,a_asset#0,b_asset#0,tmp%1#1
+        int 2                                                                                     seed#0,a_asset#0,b_asset#0,tmp%1#1,2
         ==                                                                                        seed#0,a_asset#0,b_asset#0,tmp%2#1
         assert // group size not 2                                                                seed#0,a_asset#0,b_asset#0
         // amm/contract.py:69
@@ -234,7 +251,7 @@ subroutine bootstrap:
         // assert a_asset.id < b_asset.id, "asset a must be less than asset b"
         l-load-copy a_asset#0 1                                                                   a_asset#0,b_asset#0,a_asset#0 (copy)
         l-load-copy b_asset#0 1                                                                   a_asset#0,b_asset#0,a_asset#0 (copy),b_asset#0 (copy)
-        <                                                                                         a_asset#0,b_asset#0,tmp%8#0
+        <                                                                                         a_asset#0,b_asset#0,tmp%8#1
         assert // asset a must be less than asset b                                               a_asset#0,b_asset#0
         // amm/contract.py:73
         // self.asset_a = a_asset
@@ -270,12 +287,12 @@ subroutine bootstrap:
         l-load value%0#0 1                                                                        b_asset#0,0x4450542d,value%0#0
         concat                                                                                    b_asset#0,tmp%0#2
         byte 0x2d                                                                                 b_asset#0,tmp%0#2,0x2d
-        concat                                                                                    b_asset#0,tmp%1#2
-        l-load b_asset#0 1                                                                        tmp%1#2,b_asset#0
-        asset_params_get AssetUnitName                                                            tmp%1#2,value%1#0,check%1#0
-        assert // asset exists                                                                    tmp%1#2,value%1#0
-        l-load tmp%1#2 1                                                                          value%1#0,tmp%1#2
-        l-load value%1#0 1                                                                        tmp%1#2,value%1#0
+        concat                                                                                    b_asset#0,tmp%1#0
+        l-load b_asset#0 1                                                                        tmp%1#0,b_asset#0
+        asset_params_get AssetUnitName                                                            tmp%1#0,value%1#0,check%1#0
+        assert // asset exists                                                                    tmp%1#0,value%1#0
+        l-load tmp%1#0 1                                                                          value%1#0,tmp%1#0
+        l-load value%1#0 1                                                                        tmp%1#0,value%1#0
         concat                                                                                    inner_txn_params%0%%param_ConfigAssetName_idx_0#0
         // amm/contract.py:279
         // manager=Global.current_application_address,
@@ -328,11 +345,11 @@ subroutine bootstrap:
         // )
         // .submit()
         // .created_asset
-        itxn CreatedAssetID                                                                       tmp%2#2
+        itxn CreatedAssetID                                                                       tmp%2#0
         // amm/contract.py:75
         // self.pool_token = self._create_pool_token()
-        byte "pool_token"                                                                         tmp%2#2,"pool_token"
-        l-load tmp%2#2 1                                                                          "pool_token",tmp%2#2
+        byte "pool_token"                                                                         tmp%2#0,"pool_token"
+        l-load tmp%2#0 1                                                                          "pool_token",tmp%2#0
         app_global_put
         // amm/contract.py:77
         // self._do_opt_in(self.asset_a)
@@ -398,7 +415,7 @@ subroutine bootstrap:
         itob                                                                                      aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                                           aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                                       0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                                    tmp%7#0
+        concat                                                                                    tmp%9#0
         log
         int 1                                                                                     1
         return
@@ -433,14 +450,32 @@ subroutine mint:
         int axfer                                                                                 (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,gtxn_type%1#0,axfer
         ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,gtxn_type_matches%1#0
         assert // transaction type is axfer                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0
-        txna ApplicationArgs 1                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,reinterpret_Encoded(uint8)%0#0
-        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0
+        txna ApplicationArgs 1                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0,len%0#0
+        int 1                                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0,len%0#0,1
+        ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0,eq%0#0
+        assert // invalid number of bytes for uint8                                               (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0
+        l-load tmp%2#0 0                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%2#0
+        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,tmp%3#0
         txnas Assets                                                                              (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0
-        txna ApplicationArgs 2                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,reinterpret_Encoded(uint8)%1#0
-        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%4#0
+        txna ApplicationArgs 2                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0
+        l-load-copy tmp%5#0 0                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0,tmp%5#0 (copy)
+        len                                                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0,len%1#0
+        int 1                                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0,len%1#0,1
+        ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0,eq%1#0
+        assert // invalid number of bytes for uint8                                               (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0
+        l-load tmp%5#0 0                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%5#0
+        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,tmp%6#0
         txnas Assets                                                                              (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0
-        txna ApplicationArgs 3                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,reinterpret_Encoded(uint8)%2#0
-        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%6#0
+        txna ApplicationArgs 3                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0,tmp%8#0 (copy)
+        len                                                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0,len%2#0
+        int 1                                                                                     (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0,len%2#0,1
+        ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0,eq%2#0
+        assert // invalid number of bytes for uint8                                               (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0
+        l-load tmp%8#0 0                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%8#0
+        btoi                                                                                      (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,tmp%9#0
         txnas Assets                                                                              (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0
         // amm/contract.py:256
         // assert self.pool_token, "bootstrap method needs to be called first"
@@ -492,15 +527,15 @@ subroutine mint:
         txn Sender                                                                                (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%6#1,tmp%7#1
         l-load tmp%6#1 1                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%7#1,tmp%6#1
         l-load tmp%7#1 1                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%6#1,tmp%7#1
-        ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%8#0
+        ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%8#1
         assert // sender invalid                                                                  (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0
         // amm/contract.py:123
         // a_xfer.asset_receiver == Global.current_application_address
         l-load-copy a_xfer#0 3                                                                    (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,a_xfer#0 (copy)
-        gtxns AssetReceiver                                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#0
-        global CurrentApplicationAddress                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#0,tmp%10#0
-        l-load tmp%9#0 1                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%10#0,tmp%9#0
-        l-load tmp%10#0 1                                                                         (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#0,tmp%10#0
+        gtxns AssetReceiver                                                                       (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#1
+        global CurrentApplicationAddress                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#1,tmp%10#1
+        l-load tmp%9#1 1                                                                          (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%10#1,tmp%9#1
+        l-load tmp%10#1 1                                                                         (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%9#1,tmp%10#1
         ==                                                                                        (𝕗) a_ratio#0,b_ratio#0 | a_xfer#0,b_xfer#0,maybe_value%1#0,maybe_value%2#0,tmp%11#0
         // amm/contract.py:122-124
         // assert (
@@ -599,9 +634,9 @@ subroutine mint:
         // return op.sqrt(a_amount * b_amount) - SCALE
         f-load a_amount#0                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | a_amount#0
         f-load b_amount#0                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | a_amount#0,b_amount#0
-        *                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%2#0
-        sqrt                                                                                      (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%3#2
-        int 1000                                                                                  (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%3#2,1000
+        *                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%2#2
+        sqrt                                                                                      (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%3#0
+        int 1000                                                                                  (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%3#0,1000
         -                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0
         x-store to_mint#0                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) to_mint#0 |
         // amm/contract.py:135-141
@@ -640,12 +675,12 @@ subroutine mint:
         int 1000                                                                                  (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,1000
         f-load b_amount#0                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,1000,b_amount#0
         l-store-copy b_amount#0 1                                                                 (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,1000,b_amount#0 (copy)
-        *                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#1
-        f-load b_balance#0                                                                        (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#1,b_balance#0
-        l-load b_amount#0 2                                                                       (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,b_balance#0,b_amount#0
-        -                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,tmp%10#1
-        l-load tmp%9#1 1                                                                          (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%10#1,tmp%9#1
-        l-load tmp%10#1 1                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,tmp%10#1
+        *                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#0
+        f-load b_balance#0                                                                        (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#0,b_balance#0
+        l-load b_amount#0 2                                                                       (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#0,b_balance#0,b_amount#0
+        -                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#0,tmp%10#2
+        l-load tmp%9#0 1                                                                          (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%10#2,tmp%9#0
+        l-load tmp%10#2 1                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#0,tmp%10#2
         /                                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0
         l-store-copy b_ratio#0 0                                                                  (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0,b_ratio#0 (copy)
         f-store b_ratio#0                                                                         (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0
@@ -747,14 +782,32 @@ subroutine burn:
         int axfer                                                                                 pool_xfer#0,gtxn_type%0#0,axfer
         ==                                                                                        pool_xfer#0,gtxn_type_matches%0#0
         assert // transaction type is axfer                                                       pool_xfer#0
-        txna ApplicationArgs 1                                                                    pool_xfer#0,reinterpret_Encoded(uint8)%0#0
-        btoi                                                                                      pool_xfer#0,tmp%1#0
+        txna ApplicationArgs 1                                                                    pool_xfer#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                     pool_xfer#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                       pool_xfer#0,tmp%1#0,len%0#0
+        int 1                                                                                     pool_xfer#0,tmp%1#0,len%0#0,1
+        ==                                                                                        pool_xfer#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint8                                               pool_xfer#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          pool_xfer#0,tmp%1#0
+        btoi                                                                                      pool_xfer#0,tmp%2#0
         txnas Assets                                                                              pool_xfer#0,pool_asset#0
-        txna ApplicationArgs 2                                                                    pool_xfer#0,pool_asset#0,reinterpret_Encoded(uint8)%1#0
-        btoi                                                                                      pool_xfer#0,pool_asset#0,tmp%3#0
+        txna ApplicationArgs 2                                                                    pool_xfer#0,pool_asset#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                     pool_xfer#0,pool_asset#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                       pool_xfer#0,pool_asset#0,tmp%4#0,len%1#0
+        int 1                                                                                     pool_xfer#0,pool_asset#0,tmp%4#0,len%1#0,1
+        ==                                                                                        pool_xfer#0,pool_asset#0,tmp%4#0,eq%1#0
+        assert // invalid number of bytes for uint8                                               pool_xfer#0,pool_asset#0,tmp%4#0
+        l-load tmp%4#0 0                                                                          pool_xfer#0,pool_asset#0,tmp%4#0
+        btoi                                                                                      pool_xfer#0,pool_asset#0,tmp%5#0
         txnas Assets                                                                              pool_xfer#0,pool_asset#0,a_asset#0
-        txna ApplicationArgs 3                                                                    pool_xfer#0,pool_asset#0,a_asset#0,reinterpret_Encoded(uint8)%2#0
-        btoi                                                                                      pool_xfer#0,pool_asset#0,a_asset#0,tmp%5#0
+        txna ApplicationArgs 3                                                                    pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0
+        l-load-copy tmp%7#0 0                                                                     pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0,tmp%7#0 (copy)
+        len                                                                                       pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0,len%2#0
+        int 1                                                                                     pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0,len%2#0,1
+        ==                                                                                        pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0,eq%2#0
+        assert // invalid number of bytes for uint8                                               pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0
+        l-load tmp%7#0 0                                                                          pool_xfer#0,pool_asset#0,a_asset#0,tmp%7#0
+        btoi                                                                                      pool_xfer#0,pool_asset#0,a_asset#0,tmp%8#0
         txnas Assets                                                                              pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0
         // amm/contract.py:256
         // assert self.pool_token, "bootstrap method needs to be called first"
@@ -814,7 +867,7 @@ subroutine burn:
         l-load-copy pool_xfer#0 2                                                                 pool_xfer#0,maybe_value%0#1,amount#0,pool_xfer#0 (copy)
         gtxns XferAsset                                                                           pool_xfer#0,maybe_value%0#1,amount#0,tmp%8#0
         l-load maybe_value%0#1 2                                                                  pool_xfer#0,amount#0,tmp%8#0,maybe_value%0#1
-        ==                                                                                        pool_xfer#0,amount#0,tmp%9#0
+        ==                                                                                        pool_xfer#0,amount#0,tmp%9#1
         assert // asset pool incorrect                                                            pool_xfer#0,amount#0
         // amm/contract.py:183
         // assert pool_xfer.sender == Txn.sender, "sender invalid"
@@ -842,8 +895,8 @@ subroutine burn:
         // return supply * amount // issued
         l-load supply#0 1                                                                         amount#0,issued#0,supply#0
         l-load-copy amount#0 2                                                                    amount#0,issued#0,supply#0,amount#0 (copy)
-        *                                                                                         amount#0,issued#0,tmp%2#2
-        l-load-copy issued#0 1                                                                    amount#0,issued#0,tmp%2#2,issued#0 (copy)
+        *                                                                                         amount#0,issued#0,tmp%2#0
+        l-load-copy issued#0 1                                                                    amount#0,issued#0,tmp%2#0,issued#0 (copy)
         /                                                                                         amount#0,issued#0,a_amt#0
         // amm/contract.py:195
         // supply=self._current_b_balance(),
@@ -851,8 +904,8 @@ subroutine burn:
         // amm/contract.py:349
         // return supply * amount // issued
         l-load amount#0 3                                                                         issued#0,a_amt#0,supply#0,amount#0
-        *                                                                                         issued#0,a_amt#0,tmp%2#2
-        l-load issued#0 2                                                                         a_amt#0,tmp%2#2,issued#0
+        *                                                                                         issued#0,a_amt#0,tmp%2#0
+        l-load issued#0 2                                                                         a_amt#0,tmp%2#0,issued#0
         /                                                                                         a_amt#0,b_amt#0
         // amm/contract.py:200
         // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
@@ -912,11 +965,23 @@ subroutine swap:
         int axfer                                                                                 (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,gtxn_type%0#0,axfer
         ==                                                                                        (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,gtxn_type_matches%0#0
         assert // transaction type is axfer                                                       (𝕗) in_supply#0,out_asset#0 | swap_xfer#0
-        txna ApplicationArgs 1                                                                    (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,reinterpret_Encoded(uint8)%0#0
-        btoi                                                                                      (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0
+        txna ApplicationArgs 1                                                                    (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                     (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                       (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0,len%0#0
+        int 1                                                                                     (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0,len%0#0,1
+        ==                                                                                        (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint8                                               (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%1#0
+        btoi                                                                                      (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,tmp%2#0
         txnas Assets                                                                              (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0
-        txna ApplicationArgs 2                                                                    (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,reinterpret_Encoded(uint8)%1#0
-        btoi                                                                                      (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%3#0
+        txna ApplicationArgs 2                                                                    (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                     (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                       (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0,len%1#0
+        int 1                                                                                     (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0,len%1#0,1
+        ==                                                                                        (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0,eq%1#0
+        assert // invalid number of bytes for uint8                                               (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0
+        l-load tmp%4#0 0                                                                          (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%4#0
+        btoi                                                                                      (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,tmp%5#0
         txnas Assets                                                                              (𝕗) in_supply#0,out_asset#0 | swap_xfer#0,a_asset#0,b_asset#0
         // amm/contract.py:256
         // assert self.pool_token, "bootstrap method needs to be called first"
@@ -958,10 +1023,10 @@ subroutine swap:
         // assert swap_xfer.sender == Txn.sender, "sender invalid"
         l-load-copy swap_xfer#0 2                                                                 (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,swap_xfer#0 (copy)
         gtxns Sender                                                                              (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1
-        txn Sender                                                                                (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#0
-        l-load tmp%4#1 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%5#0,tmp%4#1
-        l-load tmp%5#0 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#0
-        ==                                                                                        (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%6#0
+        txn Sender                                                                                (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
+        l-load tmp%4#1 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%5#1,tmp%4#1
+        l-load tmp%5#1 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%4#1,tmp%5#1
+        ==                                                                                        (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0,tmp%6#1
         assert // sender invalid                                                                  (𝕗) in_supply#0,out_asset#0,in_amount#0 | swap_xfer#0,maybe_value%0#0,maybe_value%1#0
         // amm/contract.py:234
         // match swap_xfer.xfer_asset:
@@ -1038,17 +1103,17 @@ subroutine swap:
         -                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_amount#0,tmp%0#0
         int 1000                                                                                  (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_amount#0,tmp%0#0,1000
         l-load tmp%0#0 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_amount#0,1000,tmp%0#0
-        *                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_amount#0,tmp%1#0
-        l-load in_amount#0 1                                                                      (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#0,in_amount#0
-        int 995                                                                                   (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#0,in_amount#0,995
-        *                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#0,tmp%2#2
-        l-load tmp%1#0 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#2,tmp%1#0
-        l-load-copy tmp%2#2 1                                                                     (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#2,tmp%1#0,tmp%2#2 (copy)
-        +                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#2,in_total#0
+        *                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_amount#0,tmp%1#2
+        l-load in_amount#0 1                                                                      (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#2,in_amount#0
+        int 995                                                                                   (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#2,in_amount#0,995
+        *                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%1#2,tmp%2#0
+        l-load tmp%1#2 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#0,tmp%1#2
+        l-load-copy tmp%2#0 1                                                                     (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#0,tmp%1#2,tmp%2#0 (copy)
+        +                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | tmp%2#0,in_total#0
         // amm/contract.py:355
         // out_total = in_amount * FACTOR * out_supply
-        l-load tmp%2#2 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_total#0,tmp%2#2
-        x-load out_supply#0                                                                       (𝕗) in_supply#0,out_asset#0,in_amount#0 | in_total#0,tmp%2#2,out_supply#0
+        l-load tmp%2#0 1                                                                          (𝕗) in_supply#0,out_asset#0,in_amount#0 | (𝕏) out_supply#0 | in_total#0,tmp%2#0
+        x-load out_supply#0                                                                       (𝕗) in_supply#0,out_asset#0,in_amount#0 | in_total#0,tmp%2#0,out_supply#0
         *                                                                                         (𝕗) in_supply#0,out_asset#0,in_amount#0 | in_total#0,out_total#0
         // amm/contract.py:356
         // return out_total // in_total

@@ -77,16 +77,22 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tup
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup[routing]() -> void:
     block@0: // L56
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%item0%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
-        let aggregate%item1%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let aggregate%item0%0#0: uint64 = (extract_uint64 tmp%0#0 0u)
+        let aggregate%item1%0#0: uint64 = (extract_uint64 tmp%0#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(aggregate%item0%0#0, aggregate%item1%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup[routing]() -> void:
     block@0: // L63
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#0)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#1: bool = (< index#0 values%0#0)
@@ -94,8 +100,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%encoded_element%0#0)
-        (log tmp%4#0)
+        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%encoded_element%0#0)
+        (log tmp%5#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[routing]() -> void:
@@ -130,6 +136,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_man
     block@0: // L77
         let tups#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tups#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L79
@@ -151,6 +162,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_man
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups[routing]() -> void:
     block@0: // L82
         let tups#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tups#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L84
@@ -170,8 +184,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[routing]() -> void:
     block@0: // L87
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let a#0: uint64 = (btoi tmp%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -199,8 +216,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[r
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[routing]() -> void:
     block@0: // L94
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let b#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let b#0: uint64 = (btoi tmp%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -228,8 +248,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[r
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups[routing]() -> void:
     block@0: // L101
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let start#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let start#0: uint64 = (btoi tmp%0#0)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#1: uint64 = (+ start#0 3u)
@@ -245,8 +268,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let aggregate%encoded_element%1#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let aggregate%extract%2#0: bytes = ((extract 0 8) aggregate%encoded_element%1#0)
         let aggregate%extract%3#0: bytes = ((extract 8 8) aggregate%encoded_element%1#0)
-        let tmp%3#0: uint64 = (+ start#0 2u)
-        let aggregate%bytes_offset%2#0: uint64 = (* tmp%3#0 16u)
+        let tmp%3#1: uint64 = (+ start#0 2u)
+        let aggregate%bytes_offset%2#0: uint64 = (* tmp%3#1 16u)
         let aggregate%encoded_element%2#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
         let aggregate%extract%4#0: bytes = ((extract 0 8) aggregate%encoded_element%2#0)
         let aggregate%extract%5#0: bytes = ((extract 8 8) aggregate%encoded_element%2#0)
@@ -255,8 +278,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let aggregate%head%5#0: bytes = (concat aggregate%head%1#0 aggregate%head%4#0)
         let aggregate%head%7#0: bytes = (concat aggregate%extract%4#0 aggregate%extract%5#0)
         let aggregate%head%8#0: bytes = (concat aggregate%head%5#0 aggregate%head%7#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%head%8#0)
-        (log tmp%2#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%head%8#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups[routing]() -> void:

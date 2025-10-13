@@ -169,6 +169,11 @@ subroutine mutate_tuple:
         // tuple_support/tuple_storage.py:28
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                             val#0
+        l-load-copy val#0 0                                                                val#0,val#0 (copy)
+        len                                                                                val#0,len%0#0
+        int 8                                                                              val#0,len%0#0,8
+        ==                                                                                 val#0,eq%0#0
+        assert // invalid number of bytes for uint64                                       val#0
         // tuple_support/tuple_storage.py:30
         // self.tup.arr.append(val)
         int 0                                                                              val#0,0
@@ -219,6 +224,11 @@ subroutine mutate_box:
         // tuple_support/tuple_storage.py:32
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                             val#0
+        l-load-copy val#0 0                                                                val#0,val#0 (copy)
+        len                                                                                val#0,len%0#0
+        int 8                                                                              val#0,len%0#0,8
+        ==                                                                                 val#0,eq%0#0
+        assert // invalid number of bytes for uint64                                       val#0
         // tuple_support/tuple_storage.py:34
         // self.box.value.arr.append(val)
         byte "box"                                                                         val#0,"box"
@@ -271,6 +281,11 @@ subroutine mutate_global:
         // tuple_support/tuple_storage.py:36
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                             val#0
+        l-load-copy val#0 0                                                                val#0,val#0 (copy)
+        len                                                                                val#0,len%0#0
+        int 8                                                                              val#0,len%0#0,8
+        ==                                                                                 val#0,eq%0#0
+        assert // invalid number of bytes for uint64                                       val#0
         // tuple_support/tuple_storage.py:38
         // self.glob.value.arr.append(val)
         int 0                                                                              val#0,0
@@ -321,46 +336,51 @@ subroutine mutate_local:
         // tuple_support/tuple_storage.py:40
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                             val#0
+        l-load-copy val#0 0                                                                val#0,val#0 (copy)
+        len                                                                                val#0,len%0#0
+        int 8                                                                              val#0,len%0#0,8
+        ==                                                                                 val#0,eq%0#0
+        assert // invalid number of bytes for uint64                                       val#0
         // tuple_support/tuple_storage.py:42
         // self.loc[Txn.sender].arr.append(val)
-        txn Sender                                                                         val#0,tmp%0#0
-        l-load-copy tmp%0#0 0                                                              val#0,tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                              val#0,tmp%0#0,tmp%0#0 (copy),0
-        byte "loc"                                                                         val#0,tmp%0#0,tmp%0#0 (copy),0,"loc"
-        app_local_get_ex                                                                   val#0,tmp%0#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check self.loc exists for account                                        val#0,tmp%0#0,maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                      val#0,tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy)
-        int 0                                                                              val#0,tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                     val#0,tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0
-        l-load-copy maybe_value%0#0 1                                                      val#0,tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,maybe_value%0#0 (copy)
-        len                                                                                val#0,tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        l-load-copy maybe_value%0#0 2                                                      val#0,tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,maybe_value%0#0 (copy)
-        l-load aggregate%extract_uint16%0#0 2                                              val#0,tmp%0#0,maybe_value%0#0,aggregate%len%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0
-        l-load aggregate%len%0#0 2                                                         val#0,tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                         val#0,tmp%0#0,maybe_value%0#0,aggregate%substring3%0#0
-        l-load maybe_value%0#0 1                                                           val#0,tmp%0#0,aggregate%substring3%0#0,maybe_value%0#0
-        extract 2 8                                                                        val#0,tmp%0#0,aggregate%substring3%0#0,aggregate%extract%0#0
-        l-load-copy aggregate%substring3%0#0 1                                             val#0,tmp%0#0,aggregate%substring3%0#0,aggregate%extract%0#0,aggregate%substring3%0#0 (copy)
-        l-load val#0 4                                                                     tmp%0#0,aggregate%substring3%0#0,aggregate%extract%0#0,aggregate%substring3%0#0 (copy),val#0
-        concat // on error: max array length exceeded                                      tmp%0#0,aggregate%substring3%0#0,aggregate%extract%0#0,concat%0#0
-        l-load aggregate%substring3%0#0 2                                                  tmp%0#0,aggregate%extract%0#0,concat%0#0,aggregate%substring3%0#0
-        int 0                                                                              tmp%0#0,aggregate%extract%0#0,concat%0#0,aggregate%substring3%0#0,0
-        extract_uint16                                                                     tmp%0#0,aggregate%extract%0#0,concat%0#0,extract_uint16%0#0
-        int 1                                                                              tmp%0#0,aggregate%extract%0#0,concat%0#0,extract_uint16%0#0,1
-        +                                                                                  tmp%0#0,aggregate%extract%0#0,concat%0#0,add%0#0
-        itob                                                                               tmp%0#0,aggregate%extract%0#0,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                        tmp%0#0,aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                tmp%0#0,aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                          tmp%0#0,aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                         tmp%0#0,aggregate%extract%0#0,replace%0#0
-        byte 0x000a                                                                        tmp%0#0,aggregate%extract%0#0,replace%0#0,0x000a
-        l-load aggregate%extract%0#0 2                                                     tmp%0#0,replace%0#0,0x000a,aggregate%extract%0#0
-        concat                                                                             tmp%0#0,replace%0#0,aggregate%head%2#0
-        l-load replace%0#0 1                                                               tmp%0#0,aggregate%head%2#0,replace%0#0
-        concat                                                                             tmp%0#0,aggregate%concat%0#0
-        l-load tmp%0#0 1                                                                   aggregate%concat%0#0,tmp%0#0
-        byte "loc"                                                                         aggregate%concat%0#0,tmp%0#0,"loc"
-        l-load aggregate%concat%0#0 2                                                      tmp%0#0,"loc",aggregate%concat%0#0
+        txn Sender                                                                         val#0,tmp%0#1
+        l-load-copy tmp%0#1 0                                                              val#0,tmp%0#1,tmp%0#1 (copy)
+        int 0                                                                              val#0,tmp%0#1,tmp%0#1 (copy),0
+        byte "loc"                                                                         val#0,tmp%0#1,tmp%0#1 (copy),0,"loc"
+        app_local_get_ex                                                                   val#0,tmp%0#1,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.loc exists for account                                        val#0,tmp%0#1,maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                      val#0,tmp%0#1,maybe_value%0#0,maybe_value%0#0 (copy)
+        int 0                                                                              val#0,tmp%0#1,maybe_value%0#0,maybe_value%0#0 (copy),0
+        extract_uint16                                                                     val#0,tmp%0#1,maybe_value%0#0,aggregate%extract_uint16%0#0
+        l-load-copy maybe_value%0#0 1                                                      val#0,tmp%0#1,maybe_value%0#0,aggregate%extract_uint16%0#0,maybe_value%0#0 (copy)
+        len                                                                                val#0,tmp%0#1,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy maybe_value%0#0 2                                                      val#0,tmp%0#1,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                              val#0,tmp%0#1,maybe_value%0#0,aggregate%len%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                         val#0,tmp%0#1,maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                         val#0,tmp%0#1,maybe_value%0#0,aggregate%substring3%0#0
+        l-load maybe_value%0#0 1                                                           val#0,tmp%0#1,aggregate%substring3%0#0,maybe_value%0#0
+        extract 2 8                                                                        val#0,tmp%0#1,aggregate%substring3%0#0,aggregate%extract%0#0
+        l-load-copy aggregate%substring3%0#0 1                                             val#0,tmp%0#1,aggregate%substring3%0#0,aggregate%extract%0#0,aggregate%substring3%0#0 (copy)
+        l-load val#0 4                                                                     tmp%0#1,aggregate%substring3%0#0,aggregate%extract%0#0,aggregate%substring3%0#0 (copy),val#0
+        concat // on error: max array length exceeded                                      tmp%0#1,aggregate%substring3%0#0,aggregate%extract%0#0,concat%0#0
+        l-load aggregate%substring3%0#0 2                                                  tmp%0#1,aggregate%extract%0#0,concat%0#0,aggregate%substring3%0#0
+        int 0                                                                              tmp%0#1,aggregate%extract%0#0,concat%0#0,aggregate%substring3%0#0,0
+        extract_uint16                                                                     tmp%0#1,aggregate%extract%0#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                              tmp%0#1,aggregate%extract%0#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                  tmp%0#1,aggregate%extract%0#0,concat%0#0,add%0#0
+        itob                                                                               tmp%0#1,aggregate%extract%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                        tmp%0#1,aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                tmp%0#1,aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                          tmp%0#1,aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                         tmp%0#1,aggregate%extract%0#0,replace%0#0
+        byte 0x000a                                                                        tmp%0#1,aggregate%extract%0#0,replace%0#0,0x000a
+        l-load aggregate%extract%0#0 2                                                     tmp%0#1,replace%0#0,0x000a,aggregate%extract%0#0
+        concat                                                                             tmp%0#1,replace%0#0,aggregate%head%2#0
+        l-load replace%0#0 1                                                               tmp%0#1,aggregate%head%2#0,replace%0#0
+        concat                                                                             tmp%0#1,aggregate%concat%0#0
+        l-load tmp%0#1 1                                                                   aggregate%concat%0#0,tmp%0#1
+        byte "loc"                                                                         aggregate%concat%0#0,tmp%0#1,"loc"
+        l-load aggregate%concat%0#0 2                                                      tmp%0#1,"loc",aggregate%concat%0#0
         app_local_put
         // tuple_support/tuple_storage.py:40
         // @arc4.abimethod()

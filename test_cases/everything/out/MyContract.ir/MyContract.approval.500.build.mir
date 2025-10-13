@@ -155,14 +155,31 @@ subroutine register:
         // @abimethod(allow_actions=["NoOp", "OptIn"])
         txna ApplicationArgs 1                                                          name#0
         v-store name#0
+        v-load name#0                                                                   name#0
+        int 0                                                                           name#0,0
+        extract_uint16                                                                  aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                               aggregate%array_length%0#0
+        int 2                                                                           aggregate%array_length%0#0,2
+        +                                                                               add%0#0
+        v-store add%0#0
+        v-load name#0                                                                   name#0
+        len                                                                             len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                  len%0#0
+        v-load add%0#0                                                                  len%0#0,add%0#0
+        ==                                                                              eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                   eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        txn Sender                                                                      tmp%0#1
-        v-store tmp%0#1
-        v-load tmp%0#1                                                                  tmp%0#1
+        txn Sender                                                                      tmp%0#2
+        v-store tmp%0#2
+        v-load tmp%0#2                                                                  tmp%0#2
         // everything/contract.py:25
         // addr = Account(BANNED)
-        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               tmp%0#1,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         !=                                                                              tmp%2#0
@@ -171,10 +188,10 @@ subroutine register:
         assert // You are banned, goodbye
         // everything/contract.py:50
         // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                                                tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                  tmp%0#0
-        int OptIn                                                                       tmp%0#0,OptIn
+        txn OnCompletion                                                                tmp%0#1
+        v-store tmp%0#1
+        v-load tmp%0#1                                                                  tmp%0#1
+        int OptIn                                                                       tmp%0#1,OptIn
         ==                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                  tmp%1#0
@@ -343,8 +360,26 @@ subroutine calculate:
         // @abimethod
         txna ApplicationArgs 1                                                          a#0
         v-store a#0
+        v-load a#0                                                                      a#0
+        len                                                                             len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                  len%0#0
+        int 8                                                                           len%0#0,8
+        ==                                                                              eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                   eq%0#0
+        assert // invalid number of bytes for uint64
         txna ApplicationArgs 2                                                          b#0
         v-store b#0
+        v-load b#0                                                                      b#0
+        len                                                                             len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                  len%1#0
+        int 8                                                                           len%1#0,8
+        ==                                                                              eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                   eq%1#0
+        assert // invalid number of bytes for uint64
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         v-load a#0                                                                      a#0
@@ -355,24 +390,24 @@ subroutine calculate:
         v-store tmp%1#2
         v-load tmp%0#0                                                                  tmp%0#0
         v-load tmp%1#2                                                                  tmp%0#0,tmp%1#2
-        +                                                                               tmp%2#1
-        v-store tmp%2#1
+        +                                                                               tmp%2#2
+        v-store tmp%2#2
         // everything/contract.py:67
         // return arc4_UInt64(c.as_uint64() * b.as_uint64())
-        v-load tmp%2#1                                                                  tmp%2#1
-        v-load tmp%1#2                                                                  tmp%2#1,tmp%1#2
-        *                                                                               tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                  tmp%3#0
+        v-load tmp%2#2                                                                  tmp%2#2
+        v-load tmp%1#2                                                                  tmp%2#2,tmp%1#2
+        *                                                                               tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                  tmp%3#1
         itob                                                                            aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         // everything/contract.py:64
         // @abimethod
         byte 0x151f7c75                                                                 0x151f7c75
         v-load aggregate%val_as_bytes%0#0                                               0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                          tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                  tmp%1#0
+        concat                                                                          tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                  tmp%3#0
         log
         int 1                                                                           1
         return

@@ -102,16 +102,33 @@ subroutine all:
     all_block@0:
         // intrinsics/optimizations.py:21
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                             reinterpret_Encoded(len+uint8[])%0#0
-        v-store reinterpret_Encoded(len+uint8[])%0#0
-        v-load reinterpret_Encoded(len+uint8[])%0#0                        reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                             tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                     tmp%0#0
+        int 0                                                              tmp%0#0,0
+        extract_uint16                                                     aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                  aggregate%array_length%0#0
+        int 2                                                              aggregate%array_length%0#0,2
+        +                                                                  add%0#0
+        v-store add%0#0
+        v-load tmp%0#0                                                     tmp%0#0
+        len                                                                len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                     len%0#0
+        v-load add%0#0                                                     len%0#0,add%0#0
+        ==                                                                 eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                      eq%0#0
+        assert // invalid number of bytes for (len+uint8[])
+        v-load tmp%0#0                                                     tmp%0#0
         extract 2 0                                                        value_to_hash#0
         v-store value_to_hash#0
         // intrinsics/optimizations.py:24
         // op.sha256(value_to_hash),
         v-load value_to_hash#0                                             value_to_hash#0
-        sha256                                                             tmp%0#1
-        v-store tmp%0#1
+        sha256                                                             tmp%0#0
+        v-store tmp%0#0
         // intrinsics/optimizations.py:25
         // op.sha3_256(value_to_hash),
         v-load value_to_hash#0                                             value_to_hash#0
@@ -130,7 +147,7 @@ subroutine all:
         // intrinsics/optimizations.py:21
         // @arc4.abimethod()
         byte 0x0020                                                        0x0020
-        v-load tmp%0#1                                                     0x0020,tmp%0#1
+        v-load tmp%0#0                                                     0x0020,tmp%0#0
         concat                                                             aggregate%encoded_value%0#0
         v-store aggregate%encoded_value%0#0
         v-load aggregate%encoded_value%0#0                                 aggregate%encoded_value%0#0
@@ -214,9 +231,9 @@ subroutine all:
         v-store aggregate%concat%3#0
         byte 0x151f7c75                                                    0x151f7c75
         v-load aggregate%concat%3#0                                        0x151f7c75,aggregate%concat%3#0
-        concat                                                             tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                     tmp%6#0
+        concat                                                             tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                     tmp%7#0
         log
         int 1                                                              1
         return

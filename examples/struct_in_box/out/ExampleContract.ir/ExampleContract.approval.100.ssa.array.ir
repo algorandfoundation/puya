@@ -221,11 +221,17 @@ subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]() -
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]() -> void:
     block@0: // L35
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#0: uint64 = (len user_id#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
         let aggregate%extract%0#0: bytes = (extract3 box_data#0 10u 8u)
-        let aggregate%updated_data%0#0: bytes = (replace3 box_data#0 10u reinterpret_Encoded(uint64)%1#0)
+        let aggregate%updated_data%0#0: bytes = (replace3 box_data#0 10u tmp%1#0)
         let user#1: Encoded((len+utf8[]),uint64,uint64) = aggregate%updated_data%0#0
         let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         exit 1u
@@ -233,10 +239,13 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[
 subroutine examples.struct_in_box.contract.ExampleContract.get_user[routing]() -> void:
     block@0: // L41
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len user_id#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
-        let tmp%1#0: bytes = (concat 0x151f7c75 box_data#0)
-        (log tmp%1#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 box_data#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):

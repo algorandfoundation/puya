@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 2 8
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -36,7 +36,7 @@ main_close_out_route@5:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
-    pushint 2 // CloseOut
+    intc_2 // CloseOut
     ==
     txn ApplicationID
     &&
@@ -90,6 +90,15 @@ register:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txna ApplicationArgs 1
+    dupn 2
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
     txn Sender
@@ -211,10 +220,21 @@ say_hello_after_if_else@3:
 calculate:
     // everything/contract.py:64
     // @abimethod
-    txna ApplicationArgs 2
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // everything/my_base.py:15
     // return arc4.UInt64(a.as_uint64() + b.as_uint64())
+    swap
     btoi
     swap
     btoi

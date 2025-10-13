@@ -1352,7 +1352,13 @@ subroutine test_allocations:
     test_allocations_block@0:
         // array/uint64.py:134
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                                                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                                                                                  tmp%0#0,len%0#0
+        int 8                                                                                                                                tmp%0#0,len%0#0,8
+        ==                                                                                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                                                         tmp%0#0
+        l-load tmp%0#0 0                                                                                                                     tmp%0#0
         btoi                                                                                                                                 num#0
         f-store num#0                                                                                                                        (𝕗) num#0 |
         // array/uint64.py:136

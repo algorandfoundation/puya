@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 2 8
     txn NumAppArgs
     bz main___algopy_default_create@21
     pushbytes 0x33b3499e // method "delete_application()void"
@@ -15,25 +16,257 @@ main:
     assert
     pushbytess 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
     txna ApplicationArgs 0
-    match main_check_uint64_route@6 main_check_dynamic_bytes_route@7 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_uint64_route@6 main_check_static_bytes_route@17
+    match main_check_uint64_route@6 main_check_dynamic_bytes_route@7 main_check_string_route@8 main_check_biguint_route@9 main_check_bool_route@10 main_check_dyn_array_uin64_route@11 main_check_static_array_uin64_3_route@12 main_check_dyn_array_struct_route@13 main_check_static_array_struct_route@14 main_check_dyn_array_dyn_struct_route@15 main_check_static_array_dyn_struct_route@16 main_check_static_bytes_route@17
     err
 
 main_check_static_bytes_route@17:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     txn Sender
     ==
     return // on error: expected to encode correctly
 
-main_check_uint64_route@6:
+main_check_static_array_dyn_struct_route@16:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_dyn_array_dyn_struct_route@15:
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_static_array_struct_route@14:
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 120 // 120
+    ==
+    assert // invalid number of bytes for (uint64,uint8[32])[3]
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_dyn_array_struct_route@13:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 40 // 40
+    *
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint8[32])[])
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_static_array_uin64_3_route@12:
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 24 // 24
+    ==
+    assert // invalid number of bytes for uint64[3]
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_dyn_array_uin64_route@11:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 8
+    *
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_bool_route@10:
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 1 // 1
+    ==
+    assert // invalid number of bytes for bool8
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_biguint_route@9:
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 64 // 64
+    ==
+    assert // invalid number of bytes for uint512
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_string_route@8:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     ==
     return // on error: expected to encode correctly
 
 main_check_dynamic_bytes_route@7:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    ==
+    return // on error: expected to encode correctly
+
+main_check_uint64_route@6:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     ==
     return // on error: expected to encode correctly

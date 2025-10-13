@@ -79,8 +79,14 @@ main_after_if_else@2:
     err
 
 main_test_match_struct_route@18:
-    pushbytes 0x00000000000000010000000000000002
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    pushbytes 0x00000000000000010000000000000002
+    swap
     match main_switch_case_0@26
     intc_0 // 0
 
@@ -105,6 +111,15 @@ main_test_arr_route@17:
     dup
     intc_0 // 0
     extract_uint16
+    dup
+    intc_2 // 16
+    *
+    pushint 2 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
     dup
     !
     assert // expected empty array
@@ -366,8 +381,18 @@ main_struct_return_route@14:
 
 main_struct_arg_route@13:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
@@ -414,6 +439,11 @@ main_struct_arg_route@13:
 
 main_delete_storage_route@12:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bytec 4 // 0x70
     app_global_del
@@ -465,6 +495,11 @@ main_local_struct_route@11:
 
 main_create_storage_route@10:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     intc_0 // 0
     bytec_0 // "nested"
@@ -499,8 +534,18 @@ main_create_storage_route@10:
 
 main_increment_payment_route@9:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -535,6 +580,11 @@ main_increment_payment_route@9:
 
 main_add_payment_route@8:
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint8[32],uint64,uint64)
     intc_0 // 0
     bytec_2 // "num_payments"
     app_global_get_ex

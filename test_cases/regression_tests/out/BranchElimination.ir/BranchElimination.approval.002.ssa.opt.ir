@@ -123,21 +123,24 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@0: // L29
         let nested_list#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
         let threshold#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#0: uint64 = (len threshold#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let total#0: uint64 = 0u
         let num_boosts#0: uint64 = 0u
-        let tmp%0#0: uint64 = array_len(nested_list#0)
+        let tmp%0#1: uint64 = array_len(nested_list#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L38
         let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@13)
         let total#4: uint64 = φ(total#0 <- block@0, total#1 <- block@13)
         let num_boosts#3: uint64 = φ(num_boosts#0 <- block@0, num_boosts#1 <- block@13)
-        let continue_looping%0#0: bool = (< i#0 tmp%0#0)
+        let continue_looping%0#0: bool = (< i#0 tmp%0#1)
         goto continue_looping%0#0 ? block@3 : block@15
     block@3: // for_body_L39
         let inner_list#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#0)
-        let tmp%1#0: uint64 = array_len(inner_list#0)
-        let last_inner_list_index#0: uint64 = (- tmp%1#0 1u)
+        let tmp%1#1: uint64 = array_len(inner_list#0)
+        let last_inner_list_index#0: uint64 = (- tmp%1#1 1u)
         let tmp%3#0: uint64 = array_len(inner_list#0)
         let value_internal%1#0: uint64 = 0u
         goto block@4

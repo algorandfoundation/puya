@@ -56,7 +56,13 @@ subroutine get_abs_bound1:
     get_abs_bound1_block@0:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                             reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                             tmp%0#0
+        l-load-copy tmp%0#0 0                                              tmp%0#0,tmp%0#0 (copy)
+        len                                                                tmp%0#0,len%0#0
+        int 8                                                              tmp%0#0,len%0#0,8
+        ==                                                                 tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                       tmp%0#0
+        l-load tmp%0#0 0                                                   tmp%0#0
         btoi                                                               upper_bound#0
         // regression_tests/biguint_opt.py:7
         // abs_bound = lower_bound = UInt64(0)
@@ -82,7 +88,7 @@ subroutine get_abs_bound1:
         itob                                                               aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                    aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                             tmp%3#0
+        concat                                                             tmp%4#0
         log
         int 1                                                              1
         return

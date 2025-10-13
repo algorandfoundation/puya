@@ -79,8 +79,17 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
     block@0: // L13
         let arr#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let app#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let length%0#0: uint64 = array_len(arr#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len arr#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let app#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[])uint64")

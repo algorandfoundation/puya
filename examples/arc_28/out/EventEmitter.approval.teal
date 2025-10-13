@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 8 1
     // arc_28/contract.py:11
     // class EventEmitter(ARC4Contract):
     txn NumAppArgs
@@ -30,10 +31,21 @@ main___algopy_default_create@9:
 emit_swapped:
     // arc_28/contract.py:12
     // @arc4.abimethod
-    txna ApplicationArgs 2
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // arc_28/contract.py:14
     // arc4.emit(Swapped(b, a))
+    swap
     concat
     pushbytes 0x1ccbd925 // method "Swapped(uint64,uint64)"
     swap
@@ -49,7 +61,7 @@ emit_swapped:
     log
     // arc_28/contract.py:12
     // @arc4.abimethod
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 
@@ -58,7 +70,17 @@ emit_ufixed:
     // arc_28/contract.py:18
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint256
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     // arc_28/contract.py:24
     // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
     concat
@@ -68,5 +90,5 @@ emit_ufixed:
     log
     // arc_28/contract.py:18
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_1 // 1
     return

@@ -47,47 +47,89 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.__puya_arc4_ro
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]() -> void:
     block@0: // L12
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%1#0 1u)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%2#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        let tmp%3#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(tmp%0#0, gtxn_idx%0#0, tmp%2#0)
-        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#0)
-        let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
-        (log tmp%5#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%2#0 1u)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%3#0
+        let tmp%4#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%1#0)
+        let tmp%5#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(tmp%1#0, gtxn_idx%0#0, tmp%4#0)
+        let tmp%6#0: Encoded(uint64) = bytes_encode<uint64>(tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+        (log tmp%7#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
     block@0: // L20
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%1#0 1u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%2#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%2#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        let tmp%3#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(tmp%0#0, gtxn_idx%0#0, tmp%2#0)
-        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#0)
-        let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
-        (log tmp%5#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%3#0
+        let tmp%4#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%1#0)
+        let tmp%5#0: uint64 = test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg(tmp%1#0, gtxn_idx%0#0, tmp%4#0)
+        let tmp%6#0: Encoded(uint64) = bytes_encode<uint64>(tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+        (log tmp%7#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
     block@0: // L27
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%1#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%1#0 1u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%2#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 acfg)
         (assert gtxn_type_matches%0#0) // transaction type is acfg
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%2#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(tmp%0#0, gtxn_idx%0#0, tmp%2#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%3#0
+        let tmp%4#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%1#0)
+        test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return(tmp%1#0, gtxn_idx%0#0, tmp%4#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn(a: bytes, acfg: uint64, b: bytes) -> uint64:

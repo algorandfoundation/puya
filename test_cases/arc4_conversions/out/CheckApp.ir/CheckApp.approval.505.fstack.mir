@@ -149,7 +149,23 @@ subroutine check_uint64:
         // arc4_conversions/contract.py:235
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        len                                                                         value#0,len%0#0
+        int 8                                                                       value#0,len%0#0,8
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for uint64                                value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%1#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:237
         // assert value.bytes == expected, "expected to encode correctly"
@@ -169,7 +185,28 @@ subroutine check_dynamic_bytes:
         // arc4_conversions/contract.py:239
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%1#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        int 0                                                                       value#0,value#0 (copy),0
+        extract_uint16                                                              value#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,add%0#0
+        l-load-copy value#0 1                                                       value#0,add%0#0,value#0 (copy)
+        len                                                                         value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,len%0#0,add%0#0
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%1#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%1#0,2
+        +                                                                           value#0,tmp%1#0,add%1#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            value#0,tmp%1#0,len%1#0,add%1#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:241
         // assert value.bytes == expected, "expected to encode correctly"
@@ -189,7 +226,28 @@ subroutine check_string:
         // arc4_conversions/contract.py:243
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        int 0                                                                       value#0,value#0 (copy),0
+        extract_uint16                                                              value#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,add%0#0
+        l-load-copy value#0 1                                                       value#0,add%0#0,value#0 (copy)
+        len                                                                         value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,len%0#0,add%0#0
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                          value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%1#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%1#0,2
+        +                                                                           value#0,tmp%1#0,add%1#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            value#0,tmp%1#0,len%1#0,add%1#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:245
         // assert value.bytes == expected, "expected to encode correctly"
@@ -209,7 +267,23 @@ subroutine check_biguint:
         // arc4_conversions/contract.py:247
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        len                                                                         value#0,len%0#0
+        int 64                                                                      value#0,len%0#0,64
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for uint512                               value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%1#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:249
         // assert value.bytes == expected, "expected to encode correctly"
@@ -229,7 +303,23 @@ subroutine check_bool:
         // arc4_conversions/contract.py:251
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        len                                                                         value#0,len%0#0
+        int 1                                                                       value#0,len%0#0,1
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for bool8                                 value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%1#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:253
         // assert value.bytes == expected, "expected to encode correctly"
@@ -249,7 +339,30 @@ subroutine check_dyn_array_uin64:
         // arc4_conversions/contract.py:255
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        int 0                                                                       value#0,value#0 (copy),0
+        extract_uint16                                                              value#0,aggregate%array_length%0#0
+        int 8                                                                       value#0,aggregate%array_length%0#0,8
+        *                                                                           value#0,mul%0#0
+        int 2                                                                       value#0,mul%0#0,2
+        +                                                                           value#0,add%0#0
+        l-load-copy value#0 1                                                       value#0,add%0#0,value#0 (copy)
+        len                                                                         value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,len%0#0,add%0#0
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for (len+uint64[])                        value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%1#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%1#0,2
+        +                                                                           value#0,tmp%1#0,add%1#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            value#0,tmp%1#0,len%1#0,add%1#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:259
         // assert value.bytes == expected, "expected to encode correctly"
@@ -269,7 +382,23 @@ subroutine check_static_array_uin64_3:
         // arc4_conversions/contract.py:261
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        len                                                                         value#0,len%0#0
+        int 24                                                                      value#0,len%0#0,24
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for uint64[3]                             value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%1#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:265
         // assert value.bytes == expected, "expected to encode correctly"
@@ -289,7 +418,30 @@ subroutine check_dyn_array_struct:
         // arc4_conversions/contract.py:267
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        int 0                                                                       value#0,value#0 (copy),0
+        extract_uint16                                                              value#0,aggregate%array_length%0#0
+        int 40                                                                      value#0,aggregate%array_length%0#0,40
+        *                                                                           value#0,mul%0#0
+        int 2                                                                       value#0,mul%0#0,2
+        +                                                                           value#0,add%0#0
+        l-load-copy value#0 1                                                       value#0,add%0#0,value#0 (copy)
+        len                                                                         value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,len%0#0,add%0#0
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for (len+(uint64,uint8[32])[])            value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%1#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%1#0,2
+        +                                                                           value#0,tmp%1#0,add%1#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            value#0,tmp%1#0,len%1#0,add%1#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:271
         // assert value.bytes == expected, "expected to encode correctly"
@@ -309,7 +461,23 @@ subroutine check_static_array_struct:
         // arc4_conversions/contract.py:273
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load-copy value#0 0                                                       value#0,value#0 (copy)
+        len                                                                         value#0,len%0#0
+        int 120                                                                     value#0,len%0#0,120
+        ==                                                                          value#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint8[32])[3]                 value#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%1#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:277
         // assert value.bytes == expected, "expected to encode correctly"
@@ -329,7 +497,18 @@ subroutine check_dyn_array_dyn_struct:
         // arc4_conversions/contract.py:279
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%0#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:283
         // assert value.bytes == expected, "expected to encode correctly"
@@ -349,7 +528,18 @@ subroutine check_static_array_dyn_struct:
         // arc4_conversions/contract.py:285
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      value#0
-        txna ApplicationArgs 2                                                      value#0,reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 2                                                      value#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                       value#0,tmp%1#0,tmp%1#0 (copy)
+        int 0                                                                       value#0,tmp%1#0,tmp%1#0 (copy),0
+        extract_uint16                                                              value#0,tmp%1#0,aggregate%array_length%0#0
+        int 2                                                                       value#0,tmp%1#0,aggregate%array_length%0#0,2
+        +                                                                           value#0,tmp%1#0,add%0#0
+        l-load-copy tmp%1#0 1                                                       value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
+        len                                                                         value#0,tmp%1#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            value#0,tmp%1#0,len%0#0,add%0#0
+        ==                                                                          value#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         value#0,tmp%1#0
+        l-load tmp%1#0 0                                                            value#0,tmp%1#0
         extract 2 0                                                                 value#0,expected#0
         // arc4_conversions/contract.py:289
         // assert value.bytes == expected, "expected to encode correctly"
@@ -369,11 +559,16 @@ subroutine check_static_bytes:
         // arc4_conversions/contract.py:291
         // @arc4.abimethod
         txna ApplicationArgs 1                                                      bytes32#0
+        l-load-copy bytes32#0 0                                                     bytes32#0,bytes32#0 (copy)
+        len                                                                         bytes32#0,len%0#0
+        int 32                                                                      bytes32#0,len%0#0,32
+        ==                                                                          bytes32#0,eq%0#0
+        assert // invalid number of bytes for uint8[32]                             bytes32#0
         // arc4_conversions/contract.py:293
         // assert bytes32.bytes == Txn.sender.bytes, "expected to encode correctly"
-        txn Sender                                                                  bytes32#0,tmp%0#0
-        l-load bytes32#0 1                                                          tmp%0#0,bytes32#0
-        l-load tmp%0#0 1                                                            bytes32#0,tmp%0#0
+        txn Sender                                                                  bytes32#0,tmp%0#1
+        l-load bytes32#0 1                                                          tmp%0#1,bytes32#0
+        l-load tmp%0#1 1                                                            bytes32#0,tmp%0#1
         ==                                                                          tmp%1#0
         assert // expected to encode correctly
         // arc4_conversions/contract.py:291

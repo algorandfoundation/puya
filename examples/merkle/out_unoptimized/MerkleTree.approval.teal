@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 32
+    intcblock 0 32 1 2
     bytecblock "root"
     b main_block@0
 
@@ -82,7 +82,7 @@ compute_root_hash_block@0:
     frame_dig -2
     intc_0 // 0
     extract_uint16
-    intc_1 // 1
+    intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
     b compute_root_hash_for_header@1
@@ -105,13 +105,13 @@ compute_root_hash_for_body@2:
     frame_dig -2
     len
     frame_dig -2
-    pushint 2 // 2
+    intc_3 // 2
     uncover 2
     substring3
     uncover 1
-    intc_2 // 32
+    intc_1 // 32
     *
-    intc_2 // 32
+    intc_1 // 32
     extract3 // on error: index access is out of bounds
     frame_dig 0
     uncover 1
@@ -123,7 +123,7 @@ compute_root_hash_for_footer@3:
     // merkle/contract.py:22
     // for idx in urange(proof.length):
     frame_dig 2
-    intc_1 // 1
+    intc_2 // 1
     +
     frame_bury 2
     b compute_root_hash_for_header@1
@@ -191,8 +191,13 @@ create_block@0:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     callsub examples.merkle.contract.MerkleTree.create
-    intc_1 // 1
+    intc_2 // 1
     return
 
 
@@ -204,7 +209,23 @@ verify_block@0:
     // merkle/contract.py:14
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 32
+    *
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[32][])
     txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     callsub examples.merkle.contract.MerkleTree.verify
     pushbytes 0x00
     intc_0 // 0
@@ -214,7 +235,7 @@ verify_block@0:
     uncover 1
     concat
     log
-    intc_1 // 1
+    intc_2 // 1
     return
 
 

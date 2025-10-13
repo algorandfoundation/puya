@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, paths=['regression_tests'], resource_encoding='value', output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_values=True, validate_abi_dynamic_severity=<LogLevel.warning: 30>, paths=['regression_tests'], resource_encoding='value', output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
 info: writing regression_tests/out/module.awst
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -808,6 +808,7 @@ debug: Sealing block@0
 debug: Terminated block@0
 debug: Building IR for function test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]
 debug: Sealing block@0
+regression_tests/leftover_branch.py:29:6 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@0
 debug: Building IR for function test_cases.regression_tests.leftover_branch.BranchElimination.umm
 debug: Sealing block@0
@@ -4360,9 +4361,9 @@ regression_tests/leftover_branch.py:29:6 debug: inlining call to test_cases.regr
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: reinterpret_Encoded(len+(len+uint64[])[])%0#0, nested_list#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+(len+uint64[])[])%0#0, nested_list#0
 debug: selected nested_list#0 from equivalence set
-debug: Found equivalence set: reinterpret_Encoded(uint64)%0#0, threshold#0, reinterpret_biguint%1#0
+debug: Found equivalence set: tmp%1#0, as_Encoded(uint64)%0#0, threshold#0, reinterpret_biguint%1#0
 debug: selected threshold#0 from equivalence set
 debug: Found equivalence set: value_internal%0#1, i#0
 debug: selected i#0 from equivalence set
@@ -4384,7 +4385,7 @@ debug: Found equivalence set: tmp%9#0, total#3
 debug: selected total#3 from equivalence set
 debug: Found equivalence set: tmp%10#0, num_boosts#2
 debug: selected num_boosts#2 from equivalence set
-debug: Copy propagation made 20 modifications
+debug: Copy propagation made 21 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -4972,11 +4973,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%array_length%0#0, tmp%0#0
+debug: Found equivalence set: aggregate%array_length%0#0, tmp%0#1
 debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%item%0#0, inner_list#0
 debug: selected inner_list#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%2#0, tmp%1#0
+debug: Found equivalence set: aggregate%array_length%2#0, tmp%1#1
 debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%3#0, tmp%3#0
 debug: selected aggregate%array_length%3#0 from equivalence set
@@ -5558,10 +5559,16 @@ debug: Inserted umm2_if_body@6.ops[1]: 'l-store-copy tmp%3#0 0'
 debug: Replaced umm2_if_body@6.ops[4]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted umm2_after_if_else@9.ops[1]: 'l-store-copy tmp%5#0 0'
 debug: Replaced umm2_after_if_else@9.ops[3]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted calculate_block@0.ops[13]: 'l-store-copy value_internal%0#0 0'
-debug: Replaced calculate_block@0.ops[15]: 'v-load value_internal%0#0' with 'l-load value_internal%0#0'
+debug: Inserted calculate_block@0.ops[3]: 'l-store-copy threshold#0 0'
+debug: Replaced calculate_block@0.ops[5]: 'v-load threshold#0' with 'l-load threshold#0'
+debug: Inserted calculate_block@0.ops[7]: 'l-store-copy len%0#0 0'
+debug: Replaced calculate_block@0.ops[9]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted calculate_block@0.ops[12]: 'l-store-copy eq%0#0 0'
+debug: Replaced calculate_block@0.ops[14]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted calculate_block@0.ops[25]: 'l-store-copy value_internal%0#0 0'
+debug: Replaced calculate_block@0.ops[27]: 'v-load value_internal%0#0' with 'l-load value_internal%0#0'
 debug: Inserted calculate_block@0.ops[1]: 'l-store-copy nested_list#0 0'
-debug: Replaced calculate_block@0.ops[9]: 'v-load nested_list#0' with 'l-load nested_list#0'
+debug: Replaced calculate_block@0.ops[21]: 'v-load nested_list#0' with 'l-load nested_list#0'
 debug: Inserted calculate_for_header@2.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced calculate_for_header@2.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted calculate_for_body@3.ops[16]: 'l-store-copy aggregate%item_length%0#0 0'
@@ -5750,7 +5757,7 @@ regression_tests/jira_ak_752.py:13:6 debug: inlining call to test_cases.regressi
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: reinterpret_Encoded(len+uint8[32][])%0#0, proof#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+uint8[32][])%0#0, proof#0
 debug: selected proof#0 from equivalence set
 debug: Found equivalence set: array_item%0#0, x#0
 debug: selected x#0 from equivalence set
@@ -5758,9 +5765,9 @@ debug: Found equivalence set: tmp%0#1, y#0
 debug: selected y#0 from equivalence set
 debug: Found equivalence set: tmp%1#1, z#0
 debug: selected z#0 from equivalence set
-debug: Found equivalence set: tmp%3#0, tmp%0#0
-debug: selected tmp%3#0 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Found equivalence set: tmp%3#1, tmp%1#0
+debug: selected tmp%3#1 from equivalence set
+debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6010,15 +6017,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#0, x#0
 debug: selected x#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%1#0, array_item%1#0
 debug: selected aggregate%encoded_element%1#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%2#0, array_item%2#0
 debug: selected aggregate%encoded_element%2#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%1#0
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%2#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6038,12 +6047,13 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%total_length%0#0: uint64 = (len proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:13:5-14, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:13:5-14, ir_type=uint64, name='len%0', version=0)]
 debug: Replacing redundant declaration let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0)]
-debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:13:5-14, ir_type=uint64, name='len%0', version=0)]
 debug: Replacing redundant declaration let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) proof#0) with copy of existing registers [Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0)]
-debug: Found equivalence set: aggregate%total_length%0#0, aggregate%total_length%1#0, aggregate%total_length%2#0
-debug: selected aggregate%total_length%0#0 from equivalence set
+debug: Found equivalence set: len%0#0, aggregate%total_length%0#0, aggregate%total_length%1#0, aggregate%total_length%2#0
+debug: selected len%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_trimmed%0#0, aggregate%array_trimmed%1#0, aggregate%array_trimmed%2#0
 debug: selected aggregate%array_trimmed%0#0 from equivalence set
 debug: Optimizer: Encode Decode Pair Elimination
@@ -6080,7 +6090,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%array_trimmed%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Removing unused variable aggregate%bytes_offset%1#0
@@ -6188,8 +6197,8 @@ debug: Performing SSA IR destructuring for test_cases.regression_tests.jira_ak_7
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.regression_tests.jira_ak_752.Verifier.verify[routing] using strategy 'root_operand'
-debug: Coalescing tmp%2#0 with [tmp%2#1]
-debug: Coalescing resulted in 2 replacement/s
+debug: Coalescing tmp%3#0 with [tmp%3#1]
+debug: Coalescing resulted in 3 replacement/s
 debug: Sequentializing parallel copies in test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]
 debug: Performing post-SSA optimizations at level 1
 debug: Output IR to regression_tests/out/Verifier.ir/Verifier.approval.400.destructured.ir
@@ -6225,40 +6234,54 @@ debug: Inserted main___algopy_default_create@5.ops[5]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
 debug: Inserted verify_block@0.ops[1]: 'l-store-copy proof#0 0'
 debug: Replaced verify_block@0.ops[3]: 'v-load proof#0' with 'l-load proof#0'
-debug: Inserted verify_block@0.ops[25]: 'l-store-copy tmp%2#0 0'
-debug: Replaced verify_block@0.ops[27]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted verify_block@0.ops[30]: 'l-store-copy tmp%3#0 0'
-debug: Replaced verify_block@0.ops[32]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted verify_block@0.ops[34]: 'l-store-copy aggregate%length%0#0 0'
-debug: Replaced verify_block@0.ops[36]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
-debug: Inserted verify_block@0.ops[38]: 'l-store-copy aggregate%as_bytes%0#0 0'
-debug: Replaced verify_block@0.ops[40]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
-debug: Inserted verify_block@0.ops[42]: 'l-store-copy aggregate%length_uint16%0#0 0'
-debug: Replaced verify_block@0.ops[44]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
-debug: Inserted verify_block@0.ops[51]: 'l-store-copy tmp%2#0 0'
-debug: Replaced verify_block@0.ops[53]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted verify_block@0.ops[13]: 'l-store-copy aggregate%encoded_element%2#0 0'
-debug: Replaced verify_block@0.ops[16]: 'v-load aggregate%encoded_element%2#0' with 'l-load aggregate%encoded_element%2#0'
-debug: Inserted verify_block@0.ops[48]: 'l-store-copy aggregate%encoded_value%0#0 0'
-debug: Replaced verify_block@0.ops[51]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted verify_block@0.ops[9]: 'l-store-copy proof#0 0'
-debug: Replaced verify_block@0.ops[12]: 'v-load proof#0' with 'l-load proof#0'
-debug: Inserted verify_block@0.ops[18]: 'l-store-copy aggregate%encoded_element%2#0 1'
-debug: Replaced verify_block@0.ops[21]: 'v-load aggregate%encoded_element%2#0' with 'l-load aggregate%encoded_element%2#0'
-debug: Inserted verify_block@0.ops[23]: 'l-store-copy x#0 1'
-debug: Replaced verify_block@0.ops[26]: 'v-load x#0' with 'l-load x#0'
-debug: Inserted verify_block@0.ops[11]: 'l-store-copy aggregate%encoded_element%1#0 1'
-debug: Replaced verify_block@0.ops[17]: 'v-load aggregate%encoded_element%1#0' with 'l-load aggregate%encoded_element%1#0'
+debug: Inserted verify_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced verify_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted verify_block@0.ops[11]: 'l-store-copy mul%0#0 0'
+debug: Replaced verify_block@0.ops[13]: 'v-load mul%0#0' with 'l-load mul%0#0'
+debug: Inserted verify_block@0.ops[19]: 'l-store-copy len%0#0 0'
+debug: Replaced verify_block@0.ops[21]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted verify_block@0.ops[24]: 'l-store-copy eq%0#0 0'
+debug: Replaced verify_block@0.ops[26]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted verify_block@0.ops[50]: 'l-store-copy tmp%2#1 0'
+debug: Replaced verify_block@0.ops[52]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted verify_block@0.ops[55]: 'l-store-copy tmp%3#0 0'
+debug: Replaced verify_block@0.ops[57]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted verify_block@0.ops[59]: 'l-store-copy aggregate%length%0#0 0'
+debug: Replaced verify_block@0.ops[61]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
+debug: Inserted verify_block@0.ops[63]: 'l-store-copy aggregate%as_bytes%0#0 0'
+debug: Replaced verify_block@0.ops[65]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
+debug: Inserted verify_block@0.ops[67]: 'l-store-copy aggregate%length_uint16%0#0 0'
+debug: Replaced verify_block@0.ops[69]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
+debug: Inserted verify_block@0.ops[76]: 'l-store-copy tmp%3#0 0'
+debug: Replaced verify_block@0.ops[78]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted verify_block@0.ops[38]: 'l-store-copy aggregate%encoded_element%2#0 0'
+debug: Replaced verify_block@0.ops[41]: 'v-load aggregate%encoded_element%2#0' with 'l-load aggregate%encoded_element%2#0'
+debug: Inserted verify_block@0.ops[73]: 'l-store-copy aggregate%encoded_value%0#0 0'
+debug: Replaced verify_block@0.ops[76]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Inserted verify_block@0.ops[34]: 'l-store-copy proof#0 0'
+debug: Replaced verify_block@0.ops[37]: 'v-load proof#0' with 'l-load proof#0'
+debug: Inserted verify_block@0.ops[43]: 'l-store-copy aggregate%encoded_element%2#0 1'
+debug: Replaced verify_block@0.ops[46]: 'v-load aggregate%encoded_element%2#0' with 'l-load aggregate%encoded_element%2#0'
+debug: Inserted verify_block@0.ops[48]: 'l-store-copy x#0 1'
+debug: Replaced verify_block@0.ops[51]: 'v-load x#0' with 'l-load x#0'
+debug: Inserted verify_block@0.ops[36]: 'l-store-copy aggregate%encoded_element%1#0 1'
+debug: Replaced verify_block@0.ops[42]: 'v-load aggregate%encoded_element%1#0' with 'l-load aggregate%encoded_element%1#0'
+debug: Inserted verify_block@0.ops[16]: 'l-store-copy add%0#0 0'
+debug: Replaced verify_block@0.ops[23]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted verify_block@0.ops[30]: 'l-store-copy proof#0 0'
+debug: Replaced verify_block@0.ops[35]: 'v-load proof#0' with 'l-load proof#0'
+debug: Inserted verify_block@0.ops[48]: 'l-store-copy y#0 1'
+debug: Replaced verify_block@0.ops[56]: 'v-load y#0' with 'l-load y#0'
+debug: Inserted verify_block@0.ops[54]: 'l-store-copy z#0 2'
+debug: Replaced verify_block@0.ops[62]: 'v-load z#0' with 'l-load z#0'
+debug: Inserted verify_block@0.ops[19]: 'l-store-copy proof#0 1'
+debug: Replaced verify_block@0.ops[30]: 'v-load proof#0' with 'l-load proof#0'
+debug: Inserted verify_block@0.ops[68]: 'l-store-copy tmp%3#0 0'
+debug: Replaced verify_block@0.ops[81]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted verify_block@0.ops[4]: 'l-store-copy proof#0 0'
-debug: Replaced verify_block@0.ops[9]: 'v-load proof#0' with 'l-load proof#0'
-debug: Inserted verify_block@0.ops[22]: 'l-store-copy y#0 1'
-debug: Replaced verify_block@0.ops[30]: 'v-load y#0' with 'l-load y#0'
-debug: Inserted verify_block@0.ops[28]: 'l-store-copy z#0 2'
-debug: Replaced verify_block@0.ops[36]: 'v-load z#0' with 'l-load z#0'
-debug: Inserted verify_block@0.ops[41]: 'l-store-copy tmp%3#0 0'
-debug: Replaced verify_block@0.ops[54]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted verify_block@0.ops[8]: 'l-store-copy x#0 1'
-debug: Replaced verify_block@0.ops[26]: 'v-load x#0' with 'l-load x#0'
+debug: Replaced verify_block@0.ops[19]: 'v-load proof#0' with 'l-load proof#0'
+debug: Inserted verify_block@0.ops[36]: 'l-store-copy x#0 1'
+debug: Replaced verify_block@0.ops[54]: 'v-load x#0' with 'l-load x#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
 regression_tests/jira_ak_752.py:13:6 debug: optimizing TEAL subroutine ops test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:
@@ -6353,13 +6376,14 @@ regression_tests/jira_241.py:5:6 debug: inlining call to test_cases.regression_t
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, wrong_size#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(bool8)%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, wrong_size#0
 debug: selected wrong_size#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable wrong_size#0
-debug: Removing unused variable reinterpret_Encoded(bool8)%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6382,13 +6406,14 @@ regression_tests/jira_241.py:9:6 debug: inlining call to test_cases.regression_t
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, wrong_size#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(bool8)%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, wrong_size#0
 debug: selected wrong_size#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable wrong_size#0
-debug: Removing unused variable reinterpret_Encoded(bool8)%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6471,13 +6496,9 @@ debug: removing unused subroutine test_cases.regression_tests.jira_241.Jira241.o
 debug: Unused subroutines removed
 debug: Output IR to regression_tests/out/Jira241.ir/Jira241.approval.001.ssa.opt.ir
 debug: Begin optimization pass 2/100
-debug: marking trivial method test_cases.regression_tests.jira_241.Jira241.oh_no[routing] as inlineable
-debug: marking trivial method test_cases.regression_tests.jira_241.Jira241.oh_yes[routing] as inlineable
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: inlining call to test_cases.regression_tests.jira_241.Jira241.__algopy_default_create in algopy.arc4.ARC4Contract.approval_program
-regression_tests/jira_241.py:9:6 debug: inlining call to test_cases.regression_tests.jira_241.Jira241.oh_yes[routing] in algopy.arc4.ARC4Contract.approval_program
-regression_tests/jira_241.py:5:6 debug: inlining call to test_cases.regression_tests.jira_241.Jira241.oh_no[routing] in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -6496,16 +6517,10 @@ debug: Replaced predecessor block@3 with block@2 in block@4
 debug: Replaced predecessor block@3 with block@2 in block@5
 debug: Replaced predecessor block@3 with block@2 in block@8
 debug: Merged linear block@3 into block@2
-debug: Merged linear block@14 into block@4
-debug: Merged linear block@12 into block@5
 debug: Replaced predecessor block@10 with block@9 in block@11
 debug: Merged linear block@10 into block@9
 debug: Merged linear block@11 into block@9
 debug: Optimizer: Remove Linear Jumps
-debug: Removing jump block block@15
-debug: Removing jump block block@13
-debug: branching to block@15 will be replaced with block@8
-debug: branching to block@13 will be replaced with block@8
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -6573,13 +6588,51 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]
-debug: removing unused subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]
 debug: removing unused subroutine test_cases.regression_tests.jira_241.Jira241.__algopy_default_create
 debug: Unused subroutines removed
 debug: Output IR to regression_tests/out/Jira241.ir/Jira241.approval.002.ssa.opt.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
@@ -6649,6 +6702,46 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: optimizing clear program of test_cases.regression_tests.jira_241.Jira241 at level 1
 debug: Begin optimization pass 1/100
@@ -6675,6 +6768,8 @@ debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.regression_tests.jira_241.Jira241
 debug: auto reserving slots in algopy.arc4.ARC4Contract.approval_program, []
+regression_tests/jira_241.py:5:6 debug: auto reserving slots in test_cases.regression_tests.jira_241.Jira241.oh_no[routing], []
+regression_tests/jira_241.py:9:6 debug: auto reserving slots in test_cases.regression_tests.jira_241.Jira241.oh_yes[routing], []
 debug: Slot allocation not required
 debug: Output IR to regression_tests/out/Jira241.ir/Jira241.approval.300.ssa.slot.ir
 debug: removing local static slots in clear program of test_cases.regression_tests.jira_241.Jira241
@@ -6682,11 +6777,29 @@ debug: auto reserving slots in algopy.arc4.ARC4Contract.clear_state_program, []
 debug: Slot allocation not required
 debug: Output IR to regression_tests/out/Jira241.ir/Jira241.clear.300.ssa.slot.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.approval_program
+debug: splitting critical edge block@2->block@8
+debug: Replaced predecessor block@2 with block@10 in block@8
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy 'root_operand'
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
+debug: Performing post-SSA optimizations at level 1
+debug: Removing jump block block@10
+debug: branching to block@10 will be replaced with block@8
+debug: Performing SSA IR destructuring for test_cases.regression_tests.jira_241.Jira241.oh_no[routing]
+debug: Converting to CSSA
+debug: Removing Phi nodes
+debug: Coalescing local variables in test_cases.regression_tests.jira_241.Jira241.oh_no[routing] using strategy 'root_operand'
+debug: Coalescing resulted in 0 replacement/s
+debug: Sequentializing parallel copies in test_cases.regression_tests.jira_241.Jira241.oh_no[routing]
+debug: Performing post-SSA optimizations at level 1
+debug: Performing SSA IR destructuring for test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]
+debug: Converting to CSSA
+debug: Removing Phi nodes
+debug: Coalescing local variables in test_cases.regression_tests.jira_241.Jira241.oh_yes[routing] using strategy 'root_operand'
+debug: Coalescing resulted in 0 replacement/s
+debug: Sequentializing parallel copies in test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]
 debug: Performing post-SSA optimizations at level 1
 debug: Output IR to regression_tests/out/Jira241.ir/Jira241.approval.400.destructured.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.clear_state_program
@@ -6717,12 +6830,36 @@ debug: Inserted main___algopy_default_create@9.ops[11]: 'l-store-copy tmp%10#0 0
 debug: Replaced main___algopy_default_create@9.ops[14]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted main___algopy_default_create@9.ops[5]: 'l-store-copy tmp%8#0 0'
 debug: Replaced main___algopy_default_create@9.ops[14]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
+debug: Inserted oh_no_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced oh_no_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted oh_no_block@0.ops[5]: 'l-store-copy len%0#0 0'
+debug: Replaced oh_no_block@0.ops[7]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted oh_no_block@0.ops[10]: 'l-store-copy eq%0#0 0'
+debug: Replaced oh_no_block@0.ops[12]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted oh_yes_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced oh_yes_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted oh_yes_block@0.ops[5]: 'l-store-copy len%0#0 0'
+debug: Replaced oh_yes_block@0.ops[7]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted oh_yes_block@0.ops[10]: 'l-store-copy eq%0#0 0'
+debug: Replaced oh_yes_block@0.ops[12]: 'v-load eq%0#0' with 'l-load eq%0#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
+regression_tests/jira_241.py:5:6 debug: optimizing TEAL subroutine ops test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
+regression_tests/jira_241.py:9:6 debug: optimizing TEAL subroutine ops test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.approval_program() -> uint64:
+debug: replacing `b main_after_if_else@8` with `err`
+debug: replacing `b main_after_if_else@8` with `err`
 debug: inlining single reference block main_block@0 into main
 debug: inlining single reference block main_abi_routing@2 into main
 debug: inlining single reference block main_after_if_else@8 into main
+debug: removing jump-chain block main_oh_no_route@4
+debug: removing jump-chain block main_oh_yes_route@5
+debug: branching to main_oh_no_route@4 will be replaced with oh_no
+debug: branching to main_oh_yes_route@5 will be replaced with oh_yes
+regression_tests/jira_241.py:5:6 debug: optimizing TEAL subroutine blocks test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
+debug: inlining single reference block oh_no_block@0 into oh_no
+regression_tests/jira_241.py:9:6 debug: optimizing TEAL subroutine blocks test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
+debug: inlining single reference block oh_yes_block@0 into oh_yes
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.clear_state_program() -> uint64:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.clear_state_program() -> uint64:
 debug: inlining single reference block main_block@0 into main
@@ -8685,13 +8822,15 @@ regression_tests/issue_434.py:6:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, c#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(uint64)%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, c#0
 debug: selected c#0 from equivalence set
 debug: Found equivalence set: tmp%7#0, x#0
 debug: selected x#0 from equivalence set
 debug: Found equivalence set: tmp%8#0, x#1
 debug: selected x#1 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9026,12 +9165,18 @@ debug: Inserted main___algopy_default_create@5.ops[11]: 'l-store-copy tmp%11#0 0
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main___algopy_default_create@5.ops[5]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted method_block@0.ops[1]: 'l-store-copy reinterpret_Encoded(uint64)%0#0 0'
-debug: Replaced method_block@0.ops[3]: 'v-load reinterpret_Encoded(uint64)%0#0' with 'l-load reinterpret_Encoded(uint64)%0#0'
+debug: Inserted method_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced method_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted method_block@0.ops[5]: 'l-store-copy len%0#0 0'
+debug: Replaced method_block@0.ops[7]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted method_block@0.ops[10]: 'l-store-copy eq%0#0 0'
+debug: Replaced method_block@0.ops[12]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted method_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced method_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted method_while_top@2.ops[1]: 'l-store-copy tmp%0#1 0'
 debug: Replaced method_while_top@2.ops[3]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted method_while_top@2.ops[6]: 'l-store-copy tmp%1#0 0'
-debug: Replaced method_while_top@2.ops[8]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted method_while_top@2.ops[6]: 'l-store-copy tmp%1#1 0'
+debug: Replaced method_while_top@2.ops[8]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted method_while_body@3.ops[1]: 'l-store-copy tmp%2#0 0'
 debug: Replaced method_while_body@3.ops[3]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted method_while_body@3.ops[11]: 'l-store-copy tmp%5#0 0'
@@ -9328,11 +9473,11 @@ regression_tests/issue_118.py:7:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: reinterpret_Encoded(len+uint256[])%0#0, values#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+uint256[])%0#0, values#0
 debug: selected values#0 from equivalence set
-debug: Found equivalence set: tmp%2#0, val1#0
+debug: Found equivalence set: tmp%2#1, val1#0
 debug: selected val1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9564,10 +9709,12 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_bool%0#0, aggregate%as_Encoded(bool8)%0#0, val1#0
 debug: selected val1#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%0#0, tmp%3#0
-debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, tmp%3#0
+debug: selected aggregate%array_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%5#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(bool1,(len+utf8[]))%0#0, tmp%6#0
@@ -9576,7 +9723,7 @@ debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%1#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%1#0, aggregate%as_Encoded(bool1,(len+utf8[]))%1#0, tmp%8#0
 debug: selected aggregate%concat%1#0 from equivalence set
-debug: Copy propagation made 8 modifications
+debug: Copy propagation made 9 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%0#0
@@ -9603,6 +9750,12 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 values#0 0u) with copy of existing registers [Register(source_location=regression_tests/issue_118.py:7:5-14, ir_type=uint64, name='aggregate%array_length%0', version=0)]
+debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
+debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: val1#0, aggregate%head%0#0, aggregate%head%2#0
+debug: selected val1#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -9635,8 +9788,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: val1#0, aggregate%head%0#0, aggregate%head%2#0
-debug: selected val1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%length%0#0
@@ -9790,29 +9941,41 @@ debug: Inserted main___algopy_default_create@5.ops[11]: 'l-store-copy tmp%11#0 0
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main___algopy_default_create@5.ops[5]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted verify_block@0.ops[3]: 'l-store-copy tmp%0#1 0'
-debug: Replaced verify_block@0.ops[5]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted verify_block@0.ops[17]: 'l-store-copy aggregate%array_length%0#0 0'
-debug: Replaced verify_block@0.ops[19]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
-debug: Inserted verify_block@0.ops[22]: 'l-store-copy tmp%4#0 0'
-debug: Replaced verify_block@0.ops[24]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted verify_block@0.ops[8]: 'l-store-copy tmp%1#1 0'
-debug: Replaced verify_block@0.ops[12]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted verify_block@0.ops[1]: 'l-store-copy values#0 0'
-debug: Replaced verify_block@0.ops[16]: 'v-load values#0' with 'l-load values#0'
+debug: Replaced verify_block@0.ops[3]: 'v-load values#0' with 'l-load values#0'
+debug: Inserted verify_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced verify_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted verify_block@0.ops[11]: 'l-store-copy mul%0#0 0'
+debug: Replaced verify_block@0.ops[13]: 'v-load mul%0#0' with 'l-load mul%0#0'
+debug: Inserted verify_block@0.ops[19]: 'l-store-copy len%0#0 0'
+debug: Replaced verify_block@0.ops[21]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted verify_block@0.ops[24]: 'l-store-copy eq%0#0 0'
+debug: Replaced verify_block@0.ops[26]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted verify_block@0.ops[29]: 'l-store-copy tmp%0#1 0'
+debug: Replaced verify_block@0.ops[31]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted verify_block@0.ops[43]: 'l-store-copy tmp%4#0 0'
+debug: Replaced verify_block@0.ops[45]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted verify_block@0.ops[34]: 'l-store-copy tmp%1#1 0'
+debug: Replaced verify_block@0.ops[38]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted verify_block@0.ops[16]: 'l-store-copy add%0#0 0'
+debug: Replaced verify_block@0.ops[23]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted verify_block@0.ops[4]: 'l-store-copy values#0 0'
+debug: Replaced verify_block@0.ops[19]: 'v-load values#0' with 'l-load values#0'
+debug: Inserted verify_block@0.ops[10]: 'l-store-copy aggregate%array_length%0#0 1'
+debug: Replaced verify_block@0.ops[44]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
 debug: Inserted verify_if_body@2.ops[3]: 'l-store-copy aggregate%concat%0#0 0'
 debug: Replaced verify_if_body@2.ops[5]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
 debug: Inserted verify_after_if_else@3.ops[3]: 'l-store-copy aggregate%concat%1#0 0'
 debug: Replaced verify_after_if_else@3.ops[5]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
-debug: Inserted verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[3]: 'l-store-copy tmp%1#0 0'
-debug: Replaced verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[5]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[3]: 'l-store-copy tmp%2#0 0'
+debug: Replaced verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[5]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: Found 2 edge set/s for test_cases.regression_tests.issue_118.Issue118.verify[routing]
-debug: Allocated 2 variable/s to x-stack: tmp%0#0, val1#0
+debug: Allocated 2 variable/s to x-stack: tmp%1#0, val1#0
 debug: shared x-stack for verify_block@0 -> verify_if_body@2: val1#0
 debug: shared x-stack for verify_block@0 -> verify_after_if_else@3: val1#0
-debug: shared x-stack for verify_if_body@2 -> verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4: tmp%0#0
-debug: shared x-stack for verify_after_if_else@3 -> verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4: tmp%0#0
+debug: shared x-stack for verify_if_body@2 -> verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4: tmp%1#0
+debug: shared x-stack for verify_after_if_else@3 -> verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4: tmp%1#0
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
 regression_tests/issue_118.py:7:6 debug: optimizing TEAL subroutine ops test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.approval_program() -> uint64:
@@ -9927,20 +10090,29 @@ regression_tests/branch_to_proto.py:5:6 debug: inlining call to test_cases.regre
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, message#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%2#0, as_Encoded(len+uint8[])%1#0
+debug: selected tmp%2#0 from equivalence set
+debug: Found equivalence set: tmp%4#0, as_Encoded(len+uint8[])%2#0
+debug: selected tmp%4#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, message#0
 debug: selected message#0 from equivalence set
-debug: Found equivalence set: tmp%1#0, proof#0
+debug: Found equivalence set: tmp%3#0, proof#0
 debug: selected proof#0 from equivalence set
-debug: Found equivalence set: tmp%2#0, pk#0
+debug: Found equivalence set: tmp%5#0, pk#0
 debug: selected pk#0 from equivalence set
-debug: Found equivalence set: tmp%0#1, tmp%3#0
+debug: Found equivalence set: tmp%0#1, tmp%6#0
 debug: selected tmp%0#1 from equivalence set
-debug: Found equivalence set: tmp%1#1, tmp%4#0
+debug: Found equivalence set: tmp%1#1, tmp%7#0
 debug: selected tmp%1#1 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (* length%1#0 1u) to length%1#0
+debug: Simplified (* length%2#0 1u) to length%2#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -10066,6 +10238,12 @@ regression_tests/branch_to_proto.py:7:9 debug: inlining call to _puya_lib.util.e
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
+debug: Found equivalence set: length%2#0, mul%2#0
+debug: selected length%2#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable required_budget#0
@@ -10257,11 +10435,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, length%1#0
+debug: selected aggregate%array_length%1#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
+debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded((len+uint8[]),bool1)%0#0, tmp%5#0
+debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded((len+uint8[]),bool1)%0#0, tmp%8#0
 debug: selected aggregate%concat%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%0#0
@@ -10416,7 +10600,8 @@ debug: Performing SSA IR destructuring for test_cases.regression_tests.branch_to
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing] using strategy 'root_operand'
-debug: Coalescing resulted in 0 replacement/s
+debug: Coalescing tmp%0#0 with [tmp%0#1]
+debug: Coalescing resulted in 3 replacement/s
 debug: Sequentializing parallel copies in test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]
 debug: Performing post-SSA optimizations at level 1
 debug: Output IR to regression_tests/out/VRFVerifier.ir/VRFVerifier.approval.400.destructured.ir
@@ -10450,20 +10635,56 @@ debug: Inserted main___algopy_default_create@5.ops[11]: 'l-store-copy tmp%11#0 0
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main___algopy_default_create@5.ops[5]: 'l-store-copy tmp%9#0 0'
 debug: Replaced main___algopy_default_create@5.ops[14]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted verify_block@0.ops[1]: 'l-store-copy reinterpret_Encoded(len+uint8[])%0#0 0'
-debug: Replaced verify_block@0.ops[3]: 'v-load reinterpret_Encoded(len+uint8[])%0#0' with 'l-load reinterpret_Encoded(len+uint8[])%0#0'
-debug: Inserted verify_block@0.ops[7]: 'l-store-copy reinterpret_Encoded(len+uint8[])%1#0 0'
-debug: Replaced verify_block@0.ops[9]: 'v-load reinterpret_Encoded(len+uint8[])%1#0' with 'l-load reinterpret_Encoded(len+uint8[])%1#0'
-debug: Inserted verify_block@0.ops[13]: 'l-store-copy reinterpret_Encoded(len+uint8[])%2#0 0'
-debug: Replaced verify_block@0.ops[15]: 'v-load reinterpret_Encoded(len+uint8[])%2#0' with 'l-load reinterpret_Encoded(len+uint8[])%2#0'
-debug: Inserted verify_while_top@2.ops[5]: 'l-store-copy tmp%2#0 0'
-debug: Replaced verify_while_top@2.ops[7]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted verify_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced verify_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted verify_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced verify_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted verify_block@0.ops[14]: 'l-store-copy len%0#0 0'
+debug: Replaced verify_block@0.ops[16]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted verify_block@0.ops[19]: 'l-store-copy eq%0#0 0'
+debug: Replaced verify_block@0.ops[21]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted verify_block@0.ops[27]: 'l-store-copy tmp%2#0 0'
+debug: Replaced verify_block@0.ops[29]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted verify_block@0.ops[32]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced verify_block@0.ops[34]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
+debug: Inserted verify_block@0.ops[40]: 'l-store-copy len%1#0 0'
+debug: Replaced verify_block@0.ops[42]: 'v-load len%1#0' with 'l-load len%1#0'
+debug: Inserted verify_block@0.ops[45]: 'l-store-copy eq%1#0 0'
+debug: Replaced verify_block@0.ops[47]: 'v-load eq%1#0' with 'l-load eq%1#0'
+debug: Inserted verify_block@0.ops[53]: 'l-store-copy tmp%4#0 0'
+debug: Replaced verify_block@0.ops[55]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted verify_block@0.ops[58]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced verify_block@0.ops[60]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted verify_block@0.ops[66]: 'l-store-copy len%2#0 0'
+debug: Replaced verify_block@0.ops[68]: 'v-load len%2#0' with 'l-load len%2#0'
+debug: Inserted verify_block@0.ops[71]: 'l-store-copy eq%2#0 0'
+debug: Replaced verify_block@0.ops[73]: 'v-load eq%2#0' with 'l-load eq%2#0'
+debug: Inserted verify_block@0.ops[11]: 'l-store-copy add%0#0 0'
+debug: Replaced verify_block@0.ops[18]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted verify_block@0.ops[38]: 'l-store-copy add%1#0 0'
+debug: Replaced verify_block@0.ops[45]: 'v-load add%1#0' with 'l-load add%1#0'
+debug: Inserted verify_block@0.ops[65]: 'l-store-copy add%2#0 0'
+debug: Replaced verify_block@0.ops[72]: 'v-load add%2#0' with 'l-load add%2#0'
+debug: Inserted verify_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced verify_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted verify_block@0.ops[32]: 'l-store-copy tmp%2#0 0'
+debug: Replaced verify_block@0.ops[42]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted verify_block@0.ops[60]: 'l-store-copy tmp%4#0 0'
+debug: Replaced verify_block@0.ops[70]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted verify_block@0.ops[15]: 'l-store-copy tmp%0#0 1'
+debug: Replaced verify_block@0.ops[26]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted verify_block@0.ops[44]: 'l-store-copy tmp%2#0 1'
+debug: Replaced verify_block@0.ops[55]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted verify_block@0.ops[73]: 'l-store-copy tmp%4#0 1'
+debug: Replaced verify_block@0.ops[84]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted verify_while_top@2.ops[5]: 'l-store-copy tmp%2#1 0'
+debug: Replaced verify_while_top@2.ops[7]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
 debug: Inserted verify_while_top@2.ops[1]: 'l-store-copy tmp%1#2 0'
 debug: Replaced verify_while_top@2.ops[4]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
 debug: Inserted verify_while_body@3.ops[10]: 'l-store-copy tmp%3#0 0'
 debug: Replaced verify_while_body@3.ops[12]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted verify_after_while@7.ops[5]: 'l-store-copy tmp%0#1 0'
-debug: Replaced verify_after_while@7.ops[7]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted verify_after_while@7.ops[5]: 'l-store-copy tmp%0#0 0'
+debug: Replaced verify_after_while@7.ops[7]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted verify_after_while@7.ops[9]: 'l-store-copy aggregate%length%0#0 0'
 debug: Replaced verify_after_while@7.ops[11]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
 debug: Inserted verify_after_while@7.ops[13]: 'l-store-copy aggregate%as_bytes%0#0 0'
@@ -10472,14 +10693,14 @@ debug: Inserted verify_after_while@7.ops[17]: 'l-store-copy aggregate%length_uin
 debug: Replaced verify_after_while@7.ops[19]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
 debug: Inserted verify_after_while@7.ops[31]: 'l-store-copy aggregate%head%1#0 0'
 debug: Replaced verify_after_while@7.ops[33]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
-debug: Inserted verify_after_while@7.ops[40]: 'l-store-copy tmp%6#0 0'
-debug: Replaced verify_after_while@7.ops[42]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
+debug: Inserted verify_after_while@7.ops[40]: 'l-store-copy tmp%9#0 0'
+debug: Replaced verify_after_while@7.ops[42]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
 debug: Inserted verify_after_while@7.ops[27]: 'l-store-copy aggregate%encoded_bool%0#0 0'
 debug: Replaced verify_after_while@7.ops[30]: 'v-load aggregate%encoded_bool%0#0' with 'l-load aggregate%encoded_bool%0#0'
 debug: Inserted verify_after_while@7.ops[37]: 'l-store-copy aggregate%concat%0#0 0'
 debug: Replaced verify_after_while@7.ops[40]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
-debug: Inserted verify_after_while@7.ops[8]: 'l-store-copy tmp%0#1 0'
-debug: Replaced verify_after_while@7.ops[21]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted verify_after_while@7.ops[8]: 'l-store-copy tmp%0#0 0'
+debug: Replaced verify_after_while@7.ops[21]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted verify_after_while@7.ops[23]: 'l-store-copy aggregate%encoded_value%0#0 0'
 debug: Replaced verify_after_while@7.ops[37]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
 debug: Inserted verify_after_while@7.ops[4]: 'l-store-copy tmp%1#1 1'
@@ -10584,14 +10805,17 @@ regression_tests/bool_only.py:5:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, inp#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, inp#0
 debug: selected inp#0 from equivalence set
-debug: Found equivalence set: tmp%2#1, tmp%1#0
+debug: Found equivalence set: tmp%2#1, tmp%2#0
 debug: selected tmp%2#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -10613,14 +10837,17 @@ regression_tests/bool_only.py:9:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, inp#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, inp#0
 debug: selected inp#0 from equivalence set
-debug: Found equivalence set: tmp%2#1, tmp%1#0
+debug: Found equivalence set: tmp%2#1, tmp%2#0
 debug: selected tmp%2#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -10900,6 +11127,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -10920,6 +11149,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -11114,9 +11345,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%2#0
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%3#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -11137,9 +11370,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%2#0
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0, tmp%3#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -11353,50 +11588,74 @@ debug: Inserted main___algopy_default_create@10.ops[11]: 'l-store-copy tmp%10#0 
 debug: Replaced main___algopy_default_create@10.ops[14]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted main___algopy_default_create@10.ops[5]: 'l-store-copy tmp%8#0 0'
 debug: Replaced main___algopy_default_create@10.ops[14]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted set_0_convert_block@0.ops[1]: 'l-store-copy reinterpret_Encoded(len+uint8[])%0#0 0'
-debug: Replaced set_0_convert_block@0.ops[3]: 'v-load reinterpret_Encoded(len+uint8[])%0#0' with 'l-load reinterpret_Encoded(len+uint8[])%0#0'
-debug: Inserted set_0_convert_block@0.ops[7]: 'l-store-copy tmp%0#1 0'
-debug: Replaced set_0_convert_block@0.ops[9]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted set_0_convert_block@0.ops[17]: 'l-store-copy tmp%2#1 0'
-debug: Replaced set_0_convert_block@0.ops[19]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted set_0_convert_block@0.ops[21]: 'l-store-copy aggregate%length%0#0 0'
-debug: Replaced set_0_convert_block@0.ops[23]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
-debug: Inserted set_0_convert_block@0.ops[25]: 'l-store-copy aggregate%as_bytes%0#0 0'
-debug: Replaced set_0_convert_block@0.ops[27]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
-debug: Inserted set_0_convert_block@0.ops[29]: 'l-store-copy aggregate%length_uint16%0#0 0'
-debug: Replaced set_0_convert_block@0.ops[31]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
-debug: Inserted set_0_convert_block@0.ops[38]: 'l-store-copy tmp%3#0 0'
-debug: Replaced set_0_convert_block@0.ops[40]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted set_0_convert_block@0.ops[34]: 'l-store-copy aggregate%encoded_value%0#0 0'
-debug: Replaced set_0_convert_block@0.ops[37]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted set_0_convert_block@0.ops[12]: 'l-store-copy tmp%1#1 0'
-debug: Replaced set_0_convert_block@0.ops[16]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted set_0_convert_block@0.ops[5]: 'l-store-copy inp#0 0'
-debug: Replaced set_0_convert_block@0.ops[15]: 'v-load inp#0' with 'l-load inp#0'
-debug: Inserted set_0_convert_block@0.ops[22]: 'l-store-copy tmp%2#1 0'
-debug: Replaced set_0_convert_block@0.ops[35]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted set_0_compare_block@0.ops[1]: 'l-store-copy reinterpret_Encoded(len+uint8[])%0#0 0'
-debug: Replaced set_0_compare_block@0.ops[3]: 'v-load reinterpret_Encoded(len+uint8[])%0#0' with 'l-load reinterpret_Encoded(len+uint8[])%0#0'
-debug: Inserted set_0_compare_block@0.ops[7]: 'l-store-copy tmp%0#1 0'
-debug: Replaced set_0_compare_block@0.ops[9]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted set_0_compare_block@0.ops[17]: 'l-store-copy tmp%2#1 0'
-debug: Replaced set_0_compare_block@0.ops[19]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted set_0_compare_block@0.ops[21]: 'l-store-copy aggregate%length%0#0 0'
-debug: Replaced set_0_compare_block@0.ops[23]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
-debug: Inserted set_0_compare_block@0.ops[25]: 'l-store-copy aggregate%as_bytes%0#0 0'
-debug: Replaced set_0_compare_block@0.ops[27]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
-debug: Inserted set_0_compare_block@0.ops[29]: 'l-store-copy aggregate%length_uint16%0#0 0'
-debug: Replaced set_0_compare_block@0.ops[31]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
-debug: Inserted set_0_compare_block@0.ops[38]: 'l-store-copy tmp%3#0 0'
-debug: Replaced set_0_compare_block@0.ops[40]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted set_0_compare_block@0.ops[34]: 'l-store-copy aggregate%encoded_value%0#0 0'
-debug: Replaced set_0_compare_block@0.ops[37]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted set_0_compare_block@0.ops[12]: 'l-store-copy tmp%1#1 0'
-debug: Replaced set_0_compare_block@0.ops[16]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted set_0_compare_block@0.ops[5]: 'l-store-copy inp#0 0'
-debug: Replaced set_0_compare_block@0.ops[15]: 'v-load inp#0' with 'l-load inp#0'
-debug: Inserted set_0_compare_block@0.ops[22]: 'l-store-copy tmp%2#1 0'
-debug: Replaced set_0_compare_block@0.ops[35]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted set_0_convert_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_convert_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted set_0_convert_block@0.ops[14]: 'l-store-copy len%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[16]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted set_0_convert_block@0.ops[19]: 'l-store-copy eq%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[21]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted set_0_convert_block@0.ops[27]: 'l-store-copy tmp%0#1 0'
+debug: Replaced set_0_convert_block@0.ops[29]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted set_0_convert_block@0.ops[37]: 'l-store-copy tmp%2#1 0'
+debug: Replaced set_0_convert_block@0.ops[39]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted set_0_convert_block@0.ops[41]: 'l-store-copy aggregate%length%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[43]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
+debug: Inserted set_0_convert_block@0.ops[45]: 'l-store-copy aggregate%as_bytes%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[47]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
+debug: Inserted set_0_convert_block@0.ops[49]: 'l-store-copy aggregate%length_uint16%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[51]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
+debug: Inserted set_0_convert_block@0.ops[58]: 'l-store-copy tmp%4#0 0'
+debug: Replaced set_0_convert_block@0.ops[60]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted set_0_convert_block@0.ops[54]: 'l-store-copy aggregate%encoded_value%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[57]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Inserted set_0_convert_block@0.ops[32]: 'l-store-copy tmp%1#1 0'
+debug: Replaced set_0_convert_block@0.ops[36]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted set_0_convert_block@0.ops[11]: 'l-store-copy add%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[18]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted set_0_convert_block@0.ops[26]: 'l-store-copy inp#0 0'
+debug: Replaced set_0_convert_block@0.ops[36]: 'v-load inp#0' with 'l-load inp#0'
+debug: Inserted set_0_convert_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced set_0_convert_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_convert_block@0.ops[15]: 'l-store-copy tmp%0#0 1'
+debug: Replaced set_0_convert_block@0.ops[26]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_convert_block@0.ops[45]: 'l-store-copy tmp%2#1 0'
+debug: Replaced set_0_convert_block@0.ops[58]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted set_0_compare_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_compare_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted set_0_compare_block@0.ops[14]: 'l-store-copy len%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[16]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted set_0_compare_block@0.ops[19]: 'l-store-copy eq%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[21]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted set_0_compare_block@0.ops[27]: 'l-store-copy tmp%0#1 0'
+debug: Replaced set_0_compare_block@0.ops[29]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted set_0_compare_block@0.ops[37]: 'l-store-copy tmp%2#1 0'
+debug: Replaced set_0_compare_block@0.ops[39]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted set_0_compare_block@0.ops[41]: 'l-store-copy aggregate%length%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[43]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
+debug: Inserted set_0_compare_block@0.ops[45]: 'l-store-copy aggregate%as_bytes%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[47]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
+debug: Inserted set_0_compare_block@0.ops[49]: 'l-store-copy aggregate%length_uint16%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[51]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
+debug: Inserted set_0_compare_block@0.ops[58]: 'l-store-copy tmp%4#0 0'
+debug: Replaced set_0_compare_block@0.ops[60]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted set_0_compare_block@0.ops[54]: 'l-store-copy aggregate%encoded_value%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[57]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Inserted set_0_compare_block@0.ops[32]: 'l-store-copy tmp%1#1 0'
+debug: Replaced set_0_compare_block@0.ops[36]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted set_0_compare_block@0.ops[11]: 'l-store-copy add%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[18]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted set_0_compare_block@0.ops[26]: 'l-store-copy inp#0 0'
+debug: Replaced set_0_compare_block@0.ops[36]: 'v-load inp#0' with 'l-load inp#0'
+debug: Inserted set_0_compare_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced set_0_compare_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_compare_block@0.ops[15]: 'l-store-copy tmp%0#0 1'
+debug: Replaced set_0_compare_block@0.ops[26]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted set_0_compare_block@0.ops[45]: 'l-store-copy tmp%2#1 0'
+debug: Replaced set_0_compare_block@0.ops[58]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
 debug: Inserted bool_only_properties_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
 debug: Replaced bool_only_properties_block@0.ops[6]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted bool_only_properties_block@0.ops[9]: 'l-store-copy tmp%1#0 0'
@@ -11509,13 +11768,15 @@ regression_tests/biguint_opt.py:5:6 debug: inlining call to test_cases.regressio
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, upper_bound#0
+debug: Found equivalence set: tmp%0#0, as_Encoded(uint64)%0#0
+debug: selected tmp%0#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, upper_bound#0
 debug: selected upper_bound#0 from equivalence set
 debug: Found equivalence set: tmp%3#1, abs_bound#1
 debug: selected abs_bound#1 from equivalence set
-debug: Found equivalence set: abs_bound#2, tmp%1#0
+debug: Found equivalence set: abs_bound#2, tmp%2#0
 debug: selected abs_bound#2 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable lower_bound#0
@@ -11863,7 +12124,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%2#0
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%3#0
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -12063,12 +12324,18 @@ debug: Inserted main___algopy_default_create@9.ops[11]: 'l-store-copy tmp%10#0 0
 debug: Replaced main___algopy_default_create@9.ops[14]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted main___algopy_default_create@9.ops[5]: 'l-store-copy tmp%8#0 0'
 debug: Replaced main___algopy_default_create@9.ops[14]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted get_abs_bound1_block@0.ops[1]: 'l-store-copy reinterpret_Encoded(uint64)%0#0 0'
-debug: Replaced get_abs_bound1_block@0.ops[3]: 'v-load reinterpret_Encoded(uint64)%0#0' with 'l-load reinterpret_Encoded(uint64)%0#0'
-debug: Inserted get_abs_bound1_block@0.ops[5]: 'l-store-copy upper_bound#0 0'
-debug: Replaced get_abs_bound1_block@0.ops[9]: 'v-load upper_bound#0' with 'l-load upper_bound#0'
-debug: Inserted get_abs_bound1_after_if_else@3.ops[6]: 'l-store-copy tmp%3#0 0'
-debug: Replaced get_abs_bound1_after_if_else@3.ops[8]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted get_abs_bound1_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
+debug: Replaced get_abs_bound1_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted get_abs_bound1_block@0.ops[5]: 'l-store-copy len%0#0 0'
+debug: Replaced get_abs_bound1_block@0.ops[7]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted get_abs_bound1_block@0.ops[10]: 'l-store-copy eq%0#0 0'
+debug: Replaced get_abs_bound1_block@0.ops[12]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted get_abs_bound1_block@0.ops[16]: 'l-store-copy upper_bound#0 0'
+debug: Replaced get_abs_bound1_block@0.ops[20]: 'v-load upper_bound#0' with 'l-load upper_bound#0'
+debug: Inserted get_abs_bound1_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced get_abs_bound1_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted get_abs_bound1_after_if_else@3.ops[6]: 'l-store-copy tmp%4#0 0'
+debug: Replaced get_abs_bound1_after_if_else@3.ops[8]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted get_abs_bound1_after_if_else@3.ops[2]: 'l-store-copy aggregate%val_as_bytes%0#0 0'
 debug: Replaced get_abs_bound1_after_if_else@3.ops[5]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
 debug: Inserted get_abs_bound2_block@0.ops[2]: 'l-store-copy abs_bound#0 0'

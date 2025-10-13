@@ -58,26 +58,39 @@ subroutine verify:
         // regression_tests/issue_118.py:7
         // @abimethod
         txna ApplicationArgs 1                                                         values#0
+        l-load-copy values#0 0                                                         values#0,values#0 (copy)
+        int 0                                                                          values#0,values#0 (copy),0
+        extract_uint16                                                                 values#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                       values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 32                                                                         values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
+        *                                                                              values#0,aggregate%array_length%0#0,mul%0#0
+        l-load mul%0#0 0                                                               values#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                          values#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                              values#0,aggregate%array_length%0#0,add%0#0
+        l-load values#0 2                                                              aggregate%array_length%0#0,add%0#0,values#0
+        len                                                                            aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                               aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                               aggregate%array_length%0#0,len%0#0,add%0#0
+        ==                                                                             aggregate%array_length%0#0,eq%0#0
+        l-load eq%0#0 0                                                                aggregate%array_length%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint256[])                          aggregate%array_length%0#0
         // regression_tests/issue_118.py:10
         // bool(Txn.num_app_args)
-        txn NumAppArgs                                                                 values#0,tmp%0#1
-        l-load tmp%0#1 0                                                               values#0,tmp%0#1
-        int 0                                                                          values#0,tmp%0#1,0
-        !=                                                                             values#0,tmp%1#1
+        txn NumAppArgs                                                                 aggregate%array_length%0#0,tmp%0#1
+        l-load tmp%0#1 0                                                               aggregate%array_length%0#0,tmp%0#1
+        int 0                                                                          aggregate%array_length%0#0,tmp%0#1,0
+        !=                                                                             aggregate%array_length%0#0,tmp%1#1
         // regression_tests/issue_118.py:9-11
         // val1 = Bool(
         //     bool(Txn.num_app_args)
         // )  # use a non constant value so the repeated expression is not simplified
-        byte 0x00                                                                      values#0,tmp%1#1,0x00
-        int 0                                                                          values#0,tmp%1#1,0x00,0
-        l-load tmp%1#1 2                                                               values#0,0x00,0,tmp%1#1
-        setbit                                                                         values#0,val1#0
-        v-store val1#0                                                                 values#0
+        byte 0x00                                                                      aggregate%array_length%0#0,tmp%1#1,0x00
+        int 0                                                                          aggregate%array_length%0#0,tmp%1#1,0x00,0
+        l-load tmp%1#1 2                                                               aggregate%array_length%0#0,0x00,0,tmp%1#1
+        setbit                                                                         aggregate%array_length%0#0,val1#0
+        v-store val1#0                                                                 aggregate%array_length%0#0
         // regression_tests/issue_118.py:12
         // if values.length != 2:
-        l-load values#0 0                                                              values#0
-        int 0                                                                          values#0,0
-        extract_uint16                                                                 aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                            aggregate%array_length%0#0
         int 2                                                                          aggregate%array_length%0#0,2
         !=                                                                             tmp%4#0
@@ -91,7 +104,7 @@ subroutine verify:
         byte 0x00030000                                                                val1#0,0x00030000
         concat                                                                         aggregate%concat%0#0
         l-load aggregate%concat%0#0 0                                                  aggregate%concat%0#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
         b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
@@ -103,7 +116,7 @@ subroutine verify:
         byte 0x00030000                                                                val1#0,0x00030000
         concat                                                                         aggregate%concat%1#0
         l-load aggregate%concat%1#0 0                                                  aggregate%concat%1#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
         b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
@@ -112,9 +125,9 @@ subroutine verify:
         // regression_tests/issue_118.py:7
         // @abimethod
         byte 0x151f7c75                                                                0x151f7c75
-        v-load tmp%0#0                                                                 0x151f7c75,tmp%0#0
-        concat                                                                         tmp%1#0
-        l-load tmp%1#0 0                                                               tmp%1#0
+        v-load tmp%1#0                                                                 0x151f7c75,tmp%1#0
+        concat                                                                         tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
         log
         int 1                                                                          1
         return

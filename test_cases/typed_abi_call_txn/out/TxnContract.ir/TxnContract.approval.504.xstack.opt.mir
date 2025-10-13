@@ -63,12 +63,34 @@ subroutine call_with_txn:
     call_with_txn_block@0:
         // typed_abi_call_txn/txn_contract.py:12
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                              tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                       tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                           tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                       tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                         tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            tmp%0#0,len%0#0,add%0#0
+        ==                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         tmp%0#0
+        l-load tmp%0#0 0                                                            tmp%0#0
         extract 2 0                                                                 a#0
-        txn GroupIndex                                                              a#0,tmp%1#0
-        int 1                                                                       a#0,tmp%1#0,1
+        txn GroupIndex                                                              a#0,tmp%2#0
+        int 1                                                                       a#0,tmp%2#0,1
         -                                                                           a#0,acfg#0
-        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                              a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0
+        int 2                                                                       a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0,2
+        +                                                                           a#0,acfg#0,tmp%3#0,add%1#0
+        l-load-copy tmp%3#0 1                                                       a#0,acfg#0,tmp%3#0,add%1#0,tmp%3#0 (copy)
+        len                                                                         a#0,acfg#0,tmp%3#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            a#0,acfg#0,tmp%3#0,len%1#0,add%1#0
+        ==                                                                          a#0,acfg#0,tmp%3#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         a#0,acfg#0,tmp%3#0
+        l-load tmp%3#0 0                                                            a#0,acfg#0,tmp%3#0
         extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:14
         // assert a == b"a", "a is not a"
@@ -85,8 +107,8 @@ subroutine call_with_txn:
         // typed_abi_call_txn/txn_contract.py:16
         // assert acfg.type == TransactionType.AssetConfig, "expected asset config"
         l-load-copy acfg#0 0                                                        acfg#0,acfg#0 (copy)
-        gtxns TypeEnum                                                              acfg#0,tmp%2#1
-        int acfg                                                                    acfg#0,tmp%2#1,acfg
+        gtxns TypeEnum                                                              acfg#0,tmp%2#0
+        int acfg                                                                    acfg#0,tmp%2#0,acfg
         ==                                                                          acfg#0,tmp%3#1
         assert // expected asset config                                             acfg#0
         // typed_abi_call_txn/txn_contract.py:17
@@ -101,7 +123,7 @@ subroutine call_with_txn:
         itob                                                                        aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                             aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                         0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                      tmp%5#0
+        concat                                                                      tmp%7#0
         log
         int 1                                                                       1
         return
@@ -112,17 +134,39 @@ subroutine call_with_acfg:
     call_with_acfg_block@0:
         // typed_abi_call_txn/txn_contract.py:20
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                              tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                       tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                           tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                       tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                         tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            tmp%0#0,len%0#0,add%0#0
+        ==                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         tmp%0#0
+        l-load tmp%0#0 0                                                            tmp%0#0
         extract 2 0                                                                 a#0
-        txn GroupIndex                                                              a#0,tmp%1#0
-        int 1                                                                       a#0,tmp%1#0,1
+        txn GroupIndex                                                              a#0,tmp%2#0
+        int 1                                                                       a#0,tmp%2#0,1
         -                                                                           a#0,acfg#0
         l-load-copy acfg#0 0                                                        a#0,acfg#0,acfg#0 (copy)
         gtxns TypeEnum                                                              a#0,acfg#0,gtxn_type%0#0
         int acfg                                                                    a#0,acfg#0,gtxn_type%0#0,acfg
         ==                                                                          a#0,acfg#0,gtxn_type_matches%0#0
         assert // transaction type is acfg                                          a#0,acfg#0
-        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                              a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0
+        int 2                                                                       a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0,2
+        +                                                                           a#0,acfg#0,tmp%3#0,add%1#0
+        l-load-copy tmp%3#0 1                                                       a#0,acfg#0,tmp%3#0,add%1#0,tmp%3#0 (copy)
+        len                                                                         a#0,acfg#0,tmp%3#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            a#0,acfg#0,tmp%3#0,len%1#0,add%1#0
+        ==                                                                          a#0,acfg#0,tmp%3#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         a#0,acfg#0,tmp%3#0
+        l-load tmp%3#0 0                                                            a#0,acfg#0,tmp%3#0
         extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:22
         // assert a == b"a", "a is not a"
@@ -139,16 +183,16 @@ subroutine call_with_acfg:
         // typed_abi_call_txn/txn_contract.py:24
         // assert acfg.created_asset.id, "expected asset id"
         l-load acfg#0 0                                                             acfg#0
-        gtxns CreatedAssetID                                                        tmp%2#1
-        l-load-copy tmp%2#1 0                                                       tmp%2#1,tmp%2#1 (copy)
-        assert // expected asset id                                                 tmp%2#1
+        gtxns CreatedAssetID                                                        tmp%2#0
+        l-load-copy tmp%2#0 0                                                       tmp%2#0,tmp%2#0 (copy)
+        assert // expected asset id                                                 tmp%2#0
         // typed_abi_call_txn/txn_contract.py:20
         // @arc4.abimethod
-        l-load tmp%2#1 0                                                            tmp%2#1
+        l-load tmp%2#0 0                                                            tmp%2#0
         itob                                                                        aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                             aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                         0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                      tmp%5#0
+        concat                                                                      tmp%7#0
         log
         int 1                                                                       1
         return
@@ -159,17 +203,39 @@ subroutine call_with_acfg_no_return:
     call_with_acfg_no_return_block@0:
         // typed_abi_call_txn/txn_contract.py:27
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                      reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                       tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                       tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                              tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                       tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                           tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                       tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                         tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                            tmp%0#0,len%0#0,add%0#0
+        ==                                                                          tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                         tmp%0#0
+        l-load tmp%0#0 0                                                            tmp%0#0
         extract 2 0                                                                 a#0
-        txn GroupIndex                                                              a#0,tmp%1#0
-        int 1                                                                       a#0,tmp%1#0,1
+        txn GroupIndex                                                              a#0,tmp%2#0
+        int 1                                                                       a#0,tmp%2#0,1
         -                                                                           a#0,acfg#0
         l-load-copy acfg#0 0                                                        a#0,acfg#0,acfg#0 (copy)
         gtxns TypeEnum                                                              a#0,acfg#0,gtxn_type%0#0
         int acfg                                                                    a#0,acfg#0,gtxn_type%0#0,acfg
         ==                                                                          a#0,acfg#0,gtxn_type_matches%0#0
         assert // transaction type is acfg                                          a#0,acfg#0
-        txna ApplicationArgs 2                                                      a#0,acfg#0,reinterpret_Encoded(len+uint8[])%1#0
+        txna ApplicationArgs 2                                                      a#0,acfg#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                       a#0,acfg#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                              a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0
+        int 2                                                                       a#0,acfg#0,tmp%3#0,aggregate%array_length%1#0,2
+        +                                                                           a#0,acfg#0,tmp%3#0,add%1#0
+        l-load-copy tmp%3#0 1                                                       a#0,acfg#0,tmp%3#0,add%1#0,tmp%3#0 (copy)
+        len                                                                         a#0,acfg#0,tmp%3#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                            a#0,acfg#0,tmp%3#0,len%1#0,add%1#0
+        ==                                                                          a#0,acfg#0,tmp%3#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                         a#0,acfg#0,tmp%3#0
+        l-load tmp%3#0 0                                                            a#0,acfg#0,tmp%3#0
         extract 2 0                                                                 a#0,acfg#0,b#0
         // typed_abi_call_txn/txn_contract.py:31
         // assert a == b"a", "a is not a"
@@ -186,7 +252,7 @@ subroutine call_with_acfg_no_return:
         // typed_abi_call_txn/txn_contract.py:33
         // assert acfg.created_asset.id, "expected asset id"
         l-load acfg#0 0                                                             acfg#0
-        gtxns CreatedAssetID                                                        tmp%2#1
+        gtxns CreatedAssetID                                                        tmp%2#0
         assert // expected asset id
         // typed_abi_call_txn/txn_contract.py:27
         // @arc4.abimethod

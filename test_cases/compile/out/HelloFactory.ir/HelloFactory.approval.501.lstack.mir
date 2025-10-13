@@ -157,7 +157,7 @@ subroutine test_compile_contract:
         // compiled = compile_contract(Hello)
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM= CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        byte CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         itxn_field ApprovalProgramPages
         // compile/factory.py:36
         // app_args=(arc4.arc4_signature("create(string)void"), arc4.String("hello")),
@@ -221,6 +221,19 @@ subroutine test_compile_contract:
         // result = arc4.String.from_log(txn.last_log)
         l-load-copy txn.LastLog#0 0                                                                  hello_app#0,txn.LastLog#0,txn.LastLog#0 (copy)
         extract 4 0                                                                                  hello_app#0,txn.LastLog#0,result#0
+        l-load-copy result#0 0                                                                       hello_app#0,txn.LastLog#0,result#0,result#0 (copy)
+        int 0                                                                                        hello_app#0,txn.LastLog#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,txn.LastLog#0,result#0,add%0#0
+        l-load-copy result#0 1                                                                       hello_app#0,txn.LastLog#0,result#0,add%0#0,result#0 (copy)
+        len                                                                                          hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,txn.LastLog#0,result#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,txn.LastLog#0,result#0
         l-load txn.LastLog#0 1                                                                       hello_app#0,result#0,txn.LastLog#0
         extract 0 4                                                                                  hello_app#0,result#0,tmp%4#0
         l-load tmp%4#0 0                                                                             hello_app#0,result#0,tmp%4#0
@@ -292,7 +305,7 @@ subroutine test_compile_contract_tmpl:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        byte CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         itxn_field ApprovalProgramPages
         // compile/factory.py:68
         // app_args=(arc4.arc4_signature("create()void"),),
@@ -360,6 +373,19 @@ subroutine test_compile_contract_tmpl:
         // result = arc4.String.from_log(txn.last_log)
         l-load-copy txn.LastLog#0 0                                                                  hello_app#0,txn.LastLog#0,txn.LastLog#0 (copy)
         extract 4 0                                                                                  hello_app#0,txn.LastLog#0,result#0
+        l-load-copy result#0 0                                                                       hello_app#0,txn.LastLog#0,result#0,result#0 (copy)
+        int 0                                                                                        hello_app#0,txn.LastLog#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,txn.LastLog#0,result#0,add%0#0
+        l-load-copy result#0 1                                                                       hello_app#0,txn.LastLog#0,result#0,add%0#0,result#0 (copy)
+        len                                                                                          hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,txn.LastLog#0,result#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,txn.LastLog#0,result#0
         l-load txn.LastLog#0 1                                                                       hello_app#0,result#0,txn.LastLog#0
         extract 0 4                                                                                  hello_app#0,result#0,tmp%3#0
         l-load tmp%3#0 0                                                                             hello_app#0,result#0,tmp%3#0
@@ -430,7 +456,7 @@ subroutine test_compile_contract_prfx:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw== CyYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==
+        byte CyACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw== CyACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         itxn_field ApprovalProgramPages
         // compile/factory.py:104
         // app_args=(arc4.arc4_signature("create()void"),),
@@ -492,6 +518,19 @@ subroutine test_compile_contract_prfx:
         // result = arc4.String.from_log(txn.last_log)
         l-load-copy txn.LastLog#0 0                                                                  hello_app#0,txn.LastLog#0,txn.LastLog#0 (copy)
         extract 4 0                                                                                  hello_app#0,txn.LastLog#0,result#0
+        l-load-copy result#0 0                                                                       hello_app#0,txn.LastLog#0,result#0,result#0 (copy)
+        int 0                                                                                        hello_app#0,txn.LastLog#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,txn.LastLog#0,result#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,txn.LastLog#0,result#0,add%0#0
+        l-load-copy result#0 1                                                                       hello_app#0,txn.LastLog#0,result#0,add%0#0,result#0 (copy)
+        len                                                                                          hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,txn.LastLog#0,result#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,txn.LastLog#0,result#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,txn.LastLog#0,result#0
         l-load txn.LastLog#0 1                                                                       hello_app#0,result#0,txn.LastLog#0
         extract 0 4                                                                                  hello_app#0,result#0,tmp%3#0
         l-load tmp%3#0 0                                                                             hello_app#0,result#0,tmp%3#0
@@ -614,6 +653,13 @@ subroutine test_compile_contract_large:
         // result = arc4.UInt64.from_log(txn.last_log)
         l-load-copy txn.LastLog#0 0                                                                  hello_app#0,txn.LastLog#0,txn.LastLog#0 (copy)
         extract 4 0                                                                                  hello_app#0,txn.LastLog#0,result#0
+        l-load-copy result#0 0                                                                       hello_app#0,txn.LastLog#0,result#0,result#0 (copy)
+        len                                                                                          hello_app#0,txn.LastLog#0,result#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,txn.LastLog#0,result#0,len%0#0
+        int 8                                                                                        hello_app#0,txn.LastLog#0,result#0,len%0#0,8
+        ==                                                                                           hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,txn.LastLog#0,result#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                 hello_app#0,txn.LastLog#0,result#0
         l-load txn.LastLog#0 1                                                                       hello_app#0,result#0,txn.LastLog#0
         extract 0 4                                                                                  hello_app#0,result#0,tmp%2#0
         l-load tmp%2#0 0                                                                             hello_app#0,result#0,tmp%2#0
@@ -674,7 +720,7 @@ subroutine test_arc4_create:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM= CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        byte CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         itxn_field ApprovalProgramPages
         method create(string)void                                                                    Method(create(string)void)
         itxn_field ApplicationArgs
@@ -701,6 +747,21 @@ subroutine test_arc4_create:
         itxn_field Fee                                                                               hello_app#0
         itxn_submit                                                                                  hello_app#0
         itxn LastLog                                                                                 hello_app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  hello_app#0,awst_tmp%0#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                                        hello_app#0,awst_tmp%0#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                                        hello_app#0,awst_tmp%0#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                                               hello_app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,awst_tmp%0#0,tmp%3#0,add%0#0
+        l-load tmp%3#0 1                                                                             hello_app#0,awst_tmp%0#0,add%0#0,tmp%3#0
+        len                                                                                          hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  hello_app#0,awst_tmp%0#0,tmp%4#0
         l-load tmp%4#0 0                                                                             hello_app#0,awst_tmp%0#0,tmp%4#0
@@ -756,7 +817,7 @@ subroutine test_arc4_create_tmpl:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        byte CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         itxn_field ApprovalProgramPages
         // compile/factory.py:181-184
         // hello_app = arc4.arc4_create(
@@ -786,6 +847,21 @@ subroutine test_arc4_create_tmpl:
         itxn_field Fee                                                                               hello_app#0
         itxn_submit                                                                                  hello_app#0
         itxn LastLog                                                                                 hello_app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  hello_app#0,awst_tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                               hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,awst_tmp%0#0,tmp%2#0,add%0#0
+        l-load tmp%2#0 1                                                                             hello_app#0,awst_tmp%0#0,add%0#0,tmp%2#0
+        len                                                                                          hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  hello_app#0,awst_tmp%0#0,tmp%3#0
         l-load tmp%3#0 0                                                                             hello_app#0,awst_tmp%0#0,tmp%3#0
@@ -843,7 +919,7 @@ subroutine test_arc4_create_prfx:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw== CyYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxG0EAPoAEJDeNPDYaAI4BACgxGRREMRhBAA6ABNCiggA2GgCOAQAkAIAETFxhujYaAI4BAAEAgQFDMRmBBRIxGBBDMRmBBBIxGBBDNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIEBQw==
+        byte CyACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw== CyACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAD2ABCQ3jTw2GgCOAQAnMRkURDEYQQAOgATQooIANhoAjgEAIwCABExcYbo2GgCOAQABACJDMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQw==
         itxn_field ApprovalProgramPages
         // compile/factory.py:204-207
         // hello_app = arc4.arc4_create(
@@ -873,6 +949,21 @@ subroutine test_arc4_create_prfx:
         itxn_field Fee                                                                               hello_app#0
         itxn_submit                                                                                  hello_app#0
         itxn LastLog                                                                                 hello_app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  hello_app#0,awst_tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                               hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                                        hello_app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                                            hello_app#0,awst_tmp%0#0,tmp%2#0,add%0#0
+        l-load tmp%2#0 1                                                                             hello_app#0,awst_tmp%0#0,add%0#0,tmp%2#0
+        len                                                                                          hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             hello_app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             hello_app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           hello_app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              hello_app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           hello_app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   hello_app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  hello_app#0,awst_tmp%0#0,tmp%3#0
         l-load tmp%3#0 0                                                                             hello_app#0,awst_tmp%0#0,tmp%3#0
@@ -944,6 +1035,13 @@ subroutine test_arc4_create_large:
         itxn LastLog                                                                                 app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  app#0,awst_tmp%0#0,tmp%1#0
+        l-load-copy tmp%1#0 0                                                                        app#0,awst_tmp%0#0,tmp%1#0,tmp%1#0 (copy)
+        len                                                                                          app#0,awst_tmp%0#0,tmp%1#0,len%0#0
+        l-load len%0#0 0                                                                             app#0,awst_tmp%0#0,tmp%1#0,len%0#0
+        int 8                                                                                        app#0,awst_tmp%0#0,tmp%1#0,len%0#0,8
+        ==                                                                                           app#0,awst_tmp%0#0,tmp%1#0,eq%0#0
+        l-load eq%0#0 0                                                                              app#0,awst_tmp%0#0,tmp%1#0,eq%0#0
+        assert // invalid number of bytes for uint64                                                 app#0,awst_tmp%0#0,tmp%1#0
         l-load awst_tmp%0#0 1                                                                        app#0,tmp%1#0,awst_tmp%0#0
         extract 0 4                                                                                  app#0,tmp%1#0,tmp%2#0
         l-load tmp%2#0 0                                                                             app#0,tmp%1#0,tmp%2#0
@@ -1013,7 +1111,7 @@ subroutine test_arc4_create_modified_compiled:
         // compiled = compile_contract(Hello)
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM= CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        byte CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         itxn_field ApprovalProgramPages
         // compile/factory.py:245-249
         // app = arc4.arc4_create(
@@ -1099,6 +1197,21 @@ subroutine test_arc4_create_modified_compiled:
         itxn_submit                                                                                  app#0
         itxn LastLog                                                                                 app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  app#0,awst_tmp%0#0,tmp%7#0
+        l-load-copy tmp%7#0 0                                                                        app#0,awst_tmp%0#0,tmp%7#0,tmp%7#0 (copy)
+        int 0                                                                                        app#0,awst_tmp%0#0,tmp%7#0,tmp%7#0 (copy),0
+        extract_uint16                                                                               app#0,awst_tmp%0#0,tmp%7#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          app#0,awst_tmp%0#0,tmp%7#0,aggregate%array_length%0#0
+        int 2                                                                                        app#0,awst_tmp%0#0,tmp%7#0,aggregate%array_length%0#0,2
+        +                                                                                            app#0,awst_tmp%0#0,tmp%7#0,add%0#0
+        l-load tmp%7#0 1                                                                             app#0,awst_tmp%0#0,add%0#0,tmp%7#0
+        len                                                                                          app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  app#0,awst_tmp%0#0,tmp%8#0
         l-load tmp%8#0 0                                                                             app#0,awst_tmp%0#0,tmp%8#0
         byte 0x151f7c75                                                                              app#0,awst_tmp%0#0,tmp%8#0,0x151f7c75
@@ -1183,7 +1296,7 @@ subroutine test_arc4_update:
         // ),
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD CyYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQA+gAQkN408NhoAjgEAKDEZFEQxGEEADoAE0KKCADYaAI4BACQAgARMXGG6NhoAjgEAAQCBAUMxGYEFEjEYEEMxGYEEEjEYEEM2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD
+        byte CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD CyACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAPYAEJDeNPDYaAI4BACcxGRREMRhBAA6ABNCiggA2GgCOAQAjAIAETFxhujYaAI4BAAEAIkMxGYEFEjEYEEMxGYEEEjEYEEM2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJD
         itxn_field ApprovalProgramPages
         // compile/factory.py:267
         // HelloTmpl,
@@ -1224,6 +1337,21 @@ subroutine test_arc4_update:
         itxn_submit                                                                                  app#0
         itxn LastLog                                                                                 app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  app#0,awst_tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                        app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                        app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                               app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                                        app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                                            app#0,awst_tmp%0#0,tmp%2#0,add%0#0
+        l-load tmp%2#0 1                                                                             app#0,awst_tmp%0#0,add%0#0,tmp%2#0
+        len                                                                                          app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  app#0,awst_tmp%0#0,tmp%3#0
         l-load tmp%3#0 0                                                                             app#0,awst_tmp%0#0,tmp%3#0
         byte 0x151f7c75                                                                              app#0,awst_tmp%0#0,tmp%3#0,0x151f7c75
@@ -1244,7 +1372,7 @@ subroutine test_arc4_update:
         itxn_begin                                                                                   app#0
         byte C4EBQw==                                                                                app#0,C4EBQw==
         itxn_field ClearStateProgramPages                                                            app#0
-        byte CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM= app#0,CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        byte CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD app#0,CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         itxn_field ApprovalProgramPages                                                              app#0
         int UpdateApplication                                                                        app#0,UpdateApplication
         itxn_field OnCompletion                                                                      app#0
@@ -1274,6 +1402,21 @@ subroutine test_arc4_update:
         itxn_field Fee                                                                               app#0
         itxn_submit                                                                                  app#0
         itxn LastLog                                                                                 app#0,awst_tmp%1#0
+        l-load-copy awst_tmp%1#0 0                                                                   app#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
+        extract 4 0                                                                                  app#0,awst_tmp%1#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                                        app#0,awst_tmp%1#0,tmp%8#0,tmp%8#0 (copy)
+        int 0                                                                                        app#0,awst_tmp%1#0,tmp%8#0,tmp%8#0 (copy),0
+        extract_uint16                                                                               app#0,awst_tmp%1#0,tmp%8#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                                          app#0,awst_tmp%1#0,tmp%8#0,aggregate%array_length%1#0
+        int 2                                                                                        app#0,awst_tmp%1#0,tmp%8#0,aggregate%array_length%1#0,2
+        +                                                                                            app#0,awst_tmp%1#0,tmp%8#0,add%1#0
+        l-load tmp%8#0 1                                                                             app#0,awst_tmp%1#0,add%1#0,tmp%8#0
+        len                                                                                          app#0,awst_tmp%1#0,add%1#0,len%1#0
+        l-load len%1#0 0                                                                             app#0,awst_tmp%1#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                                             app#0,awst_tmp%1#0,len%1#0,add%1#0
+        ==                                                                                           app#0,awst_tmp%1#0,eq%1#0
+        l-load eq%1#0 0                                                                              app#0,awst_tmp%1#0,eq%1#0
+        assert // invalid number of bytes for (len+utf8[])                                           app#0,awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   app#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 0 4                                                                                  app#0,awst_tmp%1#0,tmp%9#0
         l-load tmp%9#0 0                                                                             app#0,awst_tmp%1#0,tmp%9#0
@@ -1349,7 +1492,7 @@ subroutine test_other_constants:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCJDMRmBBRIxGBBDNhoBVwIAIyllRIABMKBJFSIJIlgjKGVEgAEgUE8CUExQIyplRFAjK2VEUEkVFlcGAkxQgAQVH3x1TFCwIkM= CyACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCJDMRmBBRIxGBBDNhoBVwIAIyllRIABMKBJFSIJIlgjKGVEgAEgUE8CUExQIyplRFAjK2VEUEkVFlcGAkxQgAQVH3x1TFCwIkM=
+        byte CyACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCNDMRmBBRIxGBBDNhoBSSJZgQIISwEVEkRXAgAiKWVEgAEwoEkVIwkjWCIoZUSAASBQTwJQTFAiKmVEUCIrZURQSRUWVwYCTFCABBUffHVMULAjQw== CyACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eABCQ3jTw2GgCOAQA2MRkURDEYQQAOgARbDCN1NhoAjgEAKQCABNkoWnQ2GgCOAQABAIAMFR98dQAAAAAAAAABsCNDMRmBBRIxGBBDNhoBSSJZgQIISwEVEkRXAgAiKWVEgAEwoEkVIwkjWCIoZUSAASBQTwJQTFAiKmVEUCIrZURQSRUWVwYCTFCABBUffHVMULAjQw==
         itxn_field ApprovalProgramPages
         // compile/factory.py:300
         // HelloOtherConstants,
@@ -1391,6 +1534,21 @@ subroutine test_other_constants:
         itxn_field Fee                                                                               app#0
         itxn_submit                                                                                  app#0
         itxn LastLog                                                                                 app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  app#0,awst_tmp%0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                        app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                                        app#0,awst_tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                                               app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                                        app#0,awst_tmp%0#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                                            app#0,awst_tmp%0#0,tmp%2#0,add%0#0
+        l-load tmp%2#0 1                                                                             app#0,awst_tmp%0#0,add%0#0,tmp%2#0
+        len                                                                                          app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                                          app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  app#0,awst_tmp%0#0,tmp%3#0
         l-load tmp%3#0 0                                                                             app#0,awst_tmp%0#0,tmp%3#0
@@ -1459,7 +1617,7 @@ subroutine test_abi_call_create_params:
         itxn_field GlobalNumByteSlice
         byte C4EBQw==                                                                                C4EBQw==
         itxn_field ClearStateProgramPages
-        byte CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM= CyYBCGdyZWV0aW5nMRhAAAQogABnMRtBADuABCQ3jTw2GgCOAQAlMRkURDEYQQAOgATQooIANhoAjgEALQCABCDfOlQ2GgCOAQATADEZgQUSMRgQQzEZgQQSMRgQQzYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=
+        byte CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD
         itxn_field ApprovalProgramPages
         // compile/factory.py:326-336
         // app = arc4.abi_call(
@@ -1512,6 +1670,21 @@ subroutine test_abi_call_create_params:
         itxn_field Fee                                                                               app#0
         itxn_submit                                                                                  app#0
         itxn LastLog                                                                                 app#0,awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  app#0,awst_tmp%0#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                                        app#0,awst_tmp%0#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                                        app#0,awst_tmp%0#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                                               app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                          app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0
+        int 2                                                                                        app#0,awst_tmp%0#0,tmp%3#0,aggregate%array_length%0#0,2
+        +                                                                                            app#0,awst_tmp%0#0,tmp%3#0,add%0#0
+        l-load tmp%3#0 1                                                                             app#0,awst_tmp%0#0,add%0#0,tmp%3#0
+        len                                                                                          app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                             app#0,awst_tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                             app#0,awst_tmp%0#0,len%0#0,add%0#0
+        ==                                                                                           app#0,awst_tmp%0#0,eq%0#0
+        l-load eq%0#0 0                                                                              app#0,awst_tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                                           app#0,awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   app#0,awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  app#0,awst_tmp%0#0,tmp%4#0
         l-load tmp%4#0 0                                                                             app#0,awst_tmp%0#0,tmp%4#0

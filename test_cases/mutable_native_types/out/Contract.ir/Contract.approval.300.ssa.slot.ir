@@ -126,10 +126,13 @@ subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(ui
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing]() -> void:
     block@0: // L131
         let pay#0: Encoded(uint8[32],uint64,uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len pay#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for (uint8[32],uint64,uint64)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
-        let tmp%0#0: bool = (< maybe_value%0#0 2u)
-        (assert tmp%0#0) // too many payments
+        let tmp%0#1: bool = (< maybe_value%0#0 2u)
+        (assert tmp%0#1) // too many payments
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%write_offset%0#0: uint64 = (* maybe_value%0#0 48u)
@@ -143,10 +146,16 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing
 
 subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[routing]() -> void:
     block@0: // L137
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let amt#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let amt#0: uint64 = (btoi tmp%2#0)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#1: bool = (< index#0 maybe_value%0#0)
@@ -165,8 +174,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[r
 
 subroutine test_cases.mutable_native_types.contract.Contract.create_storage[routing]() -> void:
     block@0: // L142
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let box_key#0: uint64 = (btoi tmp%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         (app_global_put 0x70 maybe_value%0#0)
@@ -174,8 +186,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         (assert maybe_exists%1#0) // check self.nested exists
         let tmp%0#1: account = (txn Sender)
         (app_local_put tmp%0#1 0x6c maybe_value%1#0)
-        let tmp%1#0: bool = (box_create "box" 2064u)
-        (assert tmp%1#0) // expected box to not exist
+        let tmp%1#1: bool = (box_create "box" 2064u)
+        (assert tmp%1#1) // expected box to not exist
         let aggregate%extract%0#0: bytes = ((extract 0 16) maybe_value%1#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
@@ -204,8 +216,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routin
 
 subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[routing]() -> void:
     block@0: // L161
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let box_key#0: uint64 = (btoi tmp%0#0)
         (app_global_del 0x70)
         let tmp%0#1: account = (txn Sender)
         (app_local_del tmp%0#1 0x6c)
@@ -217,9 +232,15 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[rout
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]() -> void:
     block@0: // L168
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let box_key#0: uint64 = (btoi tmp%0#0)
         let a#0: Encoded(uint64,uint64) = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len a#0)
+        let eq%1#0: bool = (== len%1#0 16u)
+        (assert eq%1#0) // invalid number of bytes for (uint64,uint64)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let aggregate%updated_data%0#0: bytes = ((replace2 0) maybe_value%0#0 a#0)
@@ -292,6 +313,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
     block@0: // L197
         let arr#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len arr#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
         let tmp%1#1: bool = (! aggregate%array_length%0#0)
         (assert tmp%1#1) // expected empty array
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
@@ -313,12 +339,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%15#0)
         let fixed_struct#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let concat%1#0: Encoded(len+(uint64,uint64)[]) = (concat arr#0 fixed_struct#0) // on error: max array length exceeded
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%0#0)
+        let add%0#1: uint64 = (+ aggregate%array_length%0#0 1u)
+        let as_bytes%1#0: bytes[8] = (itob add%0#1)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let arr2#1: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 arr2#1 0u)
-        let tmp%19#0: bool = (== aggregate%array_length%2#0 1u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 arr2#1 0u)
+        let tmp%19#0: bool = (== aggregate%array_length%3#0 1u)
         (assert tmp%19#0) // expected array to have 1 item
         let tmp%21#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#1)
         let tmp%22#0: bool = (== tmp%21#0 7u)
@@ -333,8 +359,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let arr8#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let concat%2#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0000 aggregate%array_trimmed%0#0) // on error: max array length exceeded
         let extract_to_end%2#0: bytes = ((extract 2 0) concat%2#0)
-        let len%0#0: uint64 = (len extract_to_end%2#0)
-        let div_floor%0#0: uint64 = (/ len%0#0 16u)
+        let len%0#1: uint64 = (len extract_to_end%2#0)
+        let div_floor%0#0: uint64 = (/ len%0#1 16u)
         let as_bytes%2#0: bytes[8] = (itob div_floor%0#0)
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let arr8#1: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
@@ -364,8 +390,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let tmp%35#0: bool = (== tmp%34#0 21u)
         (assert tmp%35#0) // expected sum to be 21
         let length_minus_1#0: uint64 = (- array_length#0 1u)
-        let tmp%2#1: bytes = (itob length_minus_1#0)
-        let tmp%3#1: bytes = ((extract 6 0) tmp%2#1)
+        let tmp%2#2: bytes = (itob length_minus_1#0)
+        let tmp%3#1: bytes = ((extract 6 0) tmp%2#2)
         let result#0: bytes = ((replace2 0) arr2#3 tmp%3#1)
         let tmp%5#1: uint64 = (len result#0)
         let item_location#0: uint64 = (- tmp%5#1 16u)
@@ -392,13 +418,16 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let aggregate%bytes_len%3#0: uint64 = (len fixed_struct#0)
         let aggregate%array_len%3#0: uint64 = (/ aggregate%bytes_len%3#0 16u)
         (assert aggregate%array_len%3#0)
-        let tmp%1#0: bytes = (concat 0x151f7c75 result#1)
-        (log tmp%1#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 result#1)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]() -> void:
     block@0: // L261
         let arg#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
         switch arg#0 {0x00000000000000010000000000000002 => block@2, * => block@3}
     block@2: // switch_case_0_L265
         let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0: bool = 1u
@@ -407,8 +436,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[r
         let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#1: bool = 0u
         goto block@4
     block@4: // after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_struct_L261
-        let tmp%0#0: bool = φ(test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 <- block@2, test_cases.mutable_native_types.contract.Contract.test_match_struct%0#1 <- block@3)
-        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
-        (log tmp%2#0)
+        let tmp%1#0: bool = φ(test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0 <- block@2, test_cases.mutable_native_types.contract.Contract.test_match_struct%0#1 <- block@3)
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
+        (log tmp%3#0)
         exit 1u

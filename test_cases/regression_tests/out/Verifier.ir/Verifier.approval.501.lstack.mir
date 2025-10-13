@@ -58,6 +58,22 @@ subroutine verify:
         // regression_tests/jira_ak_752.py:13
         // @abimethod
         txna ApplicationArgs 1                                                                        proof#0
+        l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
+        int 0                                                                                         proof#0,proof#0 (copy),0
+        extract_uint16                                                                                proof#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                           proof#0,aggregate%array_length%0#0
+        int 32                                                                                        proof#0,aggregate%array_length%0#0,32
+        *                                                                                             proof#0,mul%0#0
+        l-load mul%0#0 0                                                                              proof#0,mul%0#0
+        int 2                                                                                         proof#0,mul%0#0,2
+        +                                                                                             proof#0,add%0#0
+        l-load-copy proof#0 1                                                                         proof#0,add%0#0,proof#0 (copy)
+        len                                                                                           proof#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                              proof#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                              proof#0,len%0#0,add%0#0
+        ==                                                                                            proof#0,eq%0#0
+        l-load eq%0#0 0                                                                               proof#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[32][])                                       proof#0
         // regression_tests/jira_ak_752.py:18
         // x = proof[8].bytes  # ok
         l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
@@ -82,9 +98,9 @@ subroutine verify:
         // return x + y + z
         l-load x#0 2                                                                                  y#0,z#0,x#0
         l-load y#0 2                                                                                  z#0,x#0,y#0
-        concat                                                                                        z#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              z#0,tmp%2#0
-        l-load z#0 1                                                                                  tmp%2#0,z#0
+        concat                                                                                        z#0,tmp%2#1
+        l-load tmp%2#1 0                                                                              z#0,tmp%2#1
+        l-load z#0 1                                                                                  tmp%2#1,z#0
         concat                                                                                        tmp%3#0
         // regression_tests/jira_ak_752.py:13
         // @abimethod
@@ -99,8 +115,8 @@ subroutine verify:
         concat                                                                                        aggregate%encoded_value%0#0
         byte 0x151f7c75                                                                               aggregate%encoded_value%0#0,0x151f7c75
         l-load aggregate%encoded_value%0#0 1                                                          0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                                        tmp%2#0
-        l-load tmp%2#0 0                                                                              tmp%2#0
+        concat                                                                                        tmp%3#0
+        l-load tmp%3#0 0                                                                              tmp%3#0
         log
         int 1                                                                                         1
         return

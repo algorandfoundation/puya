@@ -137,19 +137,28 @@ subroutine opt_into_asset:
     opt_into_asset_block@0:
         // auction/contract.py:25
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                       tmp%0#0
+        len                                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                       len%0#0
+        int 8                                                                                len%0#0,8
+        ==                                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                        eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                       tmp%0#0
         btoi                                                                                 asset#0
         v-store asset#0
         // auction/contract.py:28
         // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
         txn Sender                                                                           tmp%0#1
         v-store tmp%0#1
-        global CreatorAddress                                                                tmp%1#0
-        v-store tmp%1#0
+        global CreatorAddress                                                                tmp%1#1
+        v-store tmp%1#1
         v-load tmp%0#1                                                                       tmp%0#1
-        v-load tmp%1#0                                                                       tmp%0#1,tmp%1#0
+        v-load tmp%1#1                                                                       tmp%0#1,tmp%1#1
         ==                                                                                   tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                       tmp%2#0
@@ -210,20 +219,38 @@ subroutine start_auction:
     start_auction_block@0:
         // auction/contract.py:40
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                       tmp%0#0
+        len                                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                       len%0#0
+        int 8                                                                                len%0#0,8
+        ==                                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                        eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                       tmp%0#0
         btoi                                                                                 starting_price#0
         v-store starting_price#0
-        txna ApplicationArgs 2                                                               reinterpret_Encoded(uint64)%1#0
-        v-store reinterpret_Encoded(uint64)%1#0
-        v-load reinterpret_Encoded(uint64)%1#0                                               reinterpret_Encoded(uint64)%1#0
-        btoi                                                                                 length#0
-        v-store length#0
-        txn GroupIndex                                                                       tmp%2#0
+        txna ApplicationArgs 2                                                               tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                       tmp%2#0
-        int 1                                                                                tmp%2#0,1
+        len                                                                                  len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                                       len%1#0
+        int 8                                                                                len%1#0,8
+        ==                                                                                   eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                        eq%1#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%2#0                                                                       tmp%2#0
+        btoi                                                                                 length#0
+        v-store length#0
+        txn GroupIndex                                                                       tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                       tmp%4#0
+        int 1                                                                                tmp%4#0,1
         -                                                                                    axfer#0
         v-store axfer#0
         v-load axfer#0                                                                       axfer#0
@@ -257,19 +284,19 @@ subroutine start_auction:
         v-load maybe_exists%0#0                                                              maybe_exists%0#0
         assert // check self.auction_end exists
         v-load maybe_value%0#0                                                               maybe_value%0#0
-        !                                                                                    tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                       tmp%3#0
+        !                                                                                    tmp%3#1
+        v-store tmp%3#1
+        v-load tmp%3#1                                                                       tmp%3#1
         assert // auction already started
         // auction/contract.py:54
         // axfer.asset_receiver == Global.current_application_address
         v-load axfer#0                                                                       axfer#0
-        gtxns AssetReceiver                                                                  tmp%4#0
-        v-store tmp%4#0
+        gtxns AssetReceiver                                                                  tmp%4#1
+        v-store tmp%4#1
         global CurrentApplicationAddress                                                     tmp%5#0
         v-store tmp%5#0
-        v-load tmp%4#0                                                                       tmp%4#0
-        v-load tmp%5#0                                                                       tmp%4#0,tmp%5#0
+        v-load tmp%4#1                                                                       tmp%4#1
+        v-load tmp%5#0                                                                       tmp%4#1,tmp%5#0
         ==                                                                                   tmp%6#0
         v-store tmp%6#0
         // auction/contract.py:53-55
@@ -506,9 +533,18 @@ subroutine claim_asset:
     claim_asset_block@0:
         // auction/contract.py:97
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
-        v-store reinterpret_Encoded(uint64)%0#0
-        v-load reinterpret_Encoded(uint64)%0#0                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                       tmp%0#0
+        len                                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                       len%0#0
+        int 8                                                                                len%0#0,8
+        ==                                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                        eq%0#0
+        assert // invalid number of bytes for uint64
+        v-load tmp%0#0                                                                       tmp%0#0
         btoi                                                                                 asset#0
         v-store asset#0
         // auction/contract.py:99
@@ -524,9 +560,9 @@ subroutine claim_asset:
         assert // check self.auction_end exists
         v-load tmp%0#1                                                                       tmp%0#1
         v-load maybe_value%0#0                                                               tmp%0#1,maybe_value%0#0
-        >                                                                                    tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                       tmp%1#0
+        >                                                                                    tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                       tmp%1#1
         assert // auction has not ended
         // auction/contract.py:101-106
         // itxn.AssetTransfer(

@@ -85,12 +85,19 @@ subroutine test_cases.intrinsics.optimizations.Optimizations.keccak256[routing](
 
 subroutine test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> void:
     block@0: // L21
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
-        let (tmp%1#0: bytes, tmp%2#0: bytes, tmp%3#0: bytes, tmp%4#0: bytes) = test_cases.intrinsics.optimizations.Optimizations.all(tmp%0#0)
-        let tmp%5#0: Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[])) = bytes_encode<((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))>(tmp%1#0, tmp%2#0, tmp%3#0, tmp%4#0)
-        let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
-        (log tmp%6#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let (tmp%2#0: bytes, tmp%3#0: bytes, tmp%4#0: bytes, tmp%5#0: bytes) = test_cases.intrinsics.optimizations.Optimizations.all(tmp%1#0)
+        let tmp%6#0: Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[])) = bytes_encode<((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))>(tmp%2#0, tmp%3#0, tmp%4#0, tmp%5#0)
+        let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+        (log tmp%7#0)
         exit 1u
 
 subroutine test_cases.intrinsics.optimizations.Optimizations.sha256() -> bytes:

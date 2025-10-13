@@ -27,9 +27,12 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() -> void:
     block@0: // L20
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
-        let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let move.0#0: uint64 = (extract_uint64 tmp%0#0 0u)
+        let move.1#0: uint64 = (extract_uint64 tmp%0#0 8u)
         let tmp%0#1: uint64 = (txn ApplicationID)
         goto tmp%0#1 ? block@2 : block@5
     block@2: // if_body_L25
@@ -44,8 +47,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
         (app_global_del "winner")
         goto block@5
     block@5: // after_if_else_L22
-        let tmp%2#0: account = (txn Sender)
-        (app_global_put "host" tmp%2#0)
+        let tmp%2#1: account = (txn Sender)
+        (app_global_put "host" tmp%2#1)
         let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
         (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
         let tmp%3#0: bool = (< move.0#0 3u)
@@ -73,9 +76,12 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -> void:
     block@0: // L37
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
-        let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let move.0#0: uint64 = (extract_uint64 tmp%0#0 0u)
+        let move.1#0: uint64 = (extract_uint64 tmp%0#0 8u)
         let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         let tmp%0#1: bool = (! maybe_exists%0#0)
         (assert tmp%0#1) // Host already has a challenger
@@ -96,9 +102,12 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() 
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> void:
     block@0: // L47
-        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
-        let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        let move.0#0: uint64 = (extract_uint64 tmp%0#0 0u)
+        let move.1#0: uint64 = (extract_uint64 tmp%0#0 8u)
         let (_%0#0: Encoded(uint8), maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
         let tmp%0#1: bool = (! maybe_exists%0#0)
         (assert tmp%0#1) // Game is already finished

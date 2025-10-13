@@ -224,6 +224,11 @@ store_tuple_in_box:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     extract 0 8
     dig 1
     intc_3 // 8
@@ -249,14 +254,18 @@ store_tuple_in_box:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[routing]() -> void:
 is_tuple_in_box:
-    // tuple_support/nested_tuples.py:75
-    // return key in self.box
-    bytec_1 // "box"
     // tuple_support/nested_tuples.py:73
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // tuple_support/nested_tuples.py:75
     // return key in self.box
+    bytec_1 // "box"
+    swap
     concat
     box_len
     bury 1
@@ -276,14 +285,18 @@ is_tuple_in_box:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box[routing]() -> void:
 load_tuple_from_box:
-    // tuple_support/nested_tuples.py:79
-    // return self.box[key]
-    bytec_1 // "box"
     // tuple_support/nested_tuples.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // tuple_support/nested_tuples.py:79
     // return self.box[key]
+    bytec_1 // "box"
+    swap
     concat
     box_get
     assert // check self.box entry exists
@@ -299,14 +312,18 @@ load_tuple_from_box:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box[routing]() -> void:
 maybe_load_tuple_from_box:
-    // tuple_support/nested_tuples.py:83
-    // maybe_value, exists = self.box.maybe(key)
-    bytec_1 // "box"
     // tuple_support/nested_tuples.py:81
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
+    bytec_1 // "box"
+    swap
     concat
     box_get
     dup
@@ -350,14 +367,18 @@ maybe_load_tuple_from_box_ternary_false@3:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default[routing]() -> void:
 load_tuple_from_box_or_default:
-    // tuple_support/nested_tuples.py:88
-    // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
-    bytec_1 // "box"
     // tuple_support/nested_tuples.py:86
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     // tuple_support/nested_tuples.py:88
     // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
+    bytec_1 // "box"
+    swap
     concat
     pushint 4 // 4
     intc_2 // 2
@@ -399,6 +420,15 @@ load_tuple_from_local_state_or_default:
     // tuple_support/nested_tuples.py:90
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     // tuple_support/nested_tuples.py:92
     // local = LocalState(SimpleTup, key=echo(key))

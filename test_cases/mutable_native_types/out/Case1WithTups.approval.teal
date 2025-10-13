@@ -93,6 +93,11 @@ add_tup:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     intc_1 // 0
     extract_uint64
     swap
@@ -108,6 +113,11 @@ get_tup:
     // mutable_native_types/case1_with_tups.py:63
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case1_with_tups.py:65
     // assert index < self.tup_bag.value.count, "index out of bounds"
@@ -214,11 +224,19 @@ add_many_tups:
     // mutable_native_types/case1_with_tups.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    dup
-    // mutable_native_types/case1_with_tups.py:79
-    // for tup in tups:
+    dupn 2
     intc_1 // 0
     extract_uint16
+    dup
+    cover 2
+    intc_3 // 16
+    *
+    pushint 2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
     intc_1 // 0
 
 add_many_tups_for_header@2:
@@ -263,6 +281,11 @@ add_fixed_tups:
     // mutable_native_types/case1_with_tups.py:82
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 48 // 48
+    ==
+    assert // invalid number of bytes for (uint64,uint64)[3]
     intc_1 // 0
 
 add_fixed_tups_for_header@2:
@@ -305,6 +328,11 @@ set_a:
     // mutable_native_types/case1_with_tups.py:87
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case1_with_tups.py:89
     // self._check_owner()
@@ -377,6 +405,11 @@ set_b:
     // mutable_native_types/case1_with_tups.py:94
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case1_with_tups.py:96
     // self._check_owner()
@@ -448,6 +481,11 @@ get_3_tups:
     // mutable_native_types/case1_with_tups.py:101
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // mutable_native_types/case1_with_tups.py:103
     // assert self.tup_bag.value.count >= start + 3, "not enough items"

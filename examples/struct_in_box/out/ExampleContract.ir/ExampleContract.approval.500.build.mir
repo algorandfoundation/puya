@@ -123,8 +123,26 @@ subroutine attach_asset_to_user:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                user_id#0
         v-store user_id#0
-        txna ApplicationArgs 2                                                reinterpret_Encoded(uint64)%1#0
-        v-store reinterpret_Encoded(uint64)%1#0
+        v-load user_id#0                                                      user_id#0
+        len                                                                   len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                        len%0#0
+        int 8                                                                 len%0#0,8
+        ==                                                                    eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                         eq%0#0
+        assert // invalid number of bytes for uint64
+        txna ApplicationArgs 2                                                tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                        tmp%1#0
+        len                                                                   len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                        len%1#0
+        int 8                                                                 len%1#0,8
+        ==                                                                    eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                         eq%1#0
+        assert // invalid number of bytes for uint64
         // struct_in_box/contract.py:13
         // box_data, exists = op.Box.get(user_id.bytes)
         v-load user_id#0                                                      user_id#0
@@ -138,7 +156,7 @@ subroutine attach_asset_to_user:
         // struct_in_box/contract.py:38
         // user.asset = arc4.UInt64(asset.id)
         v-load box_data#0                                                     box_data#0
-        v-load reinterpret_Encoded(uint64)%1#0                                box_data#0,reinterpret_Encoded(uint64)%1#0
+        v-load tmp%1#0                                                        box_data#0,tmp%1#0
         replace2 10                                                           user#1
         v-store user#1
         // struct_in_box/contract.py:19
@@ -169,6 +187,15 @@ subroutine get_user:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                user_id#0
         v-store user_id#0
+        v-load user_id#0                                                      user_id#0
+        len                                                                   len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                        len%0#0
+        int 8                                                                 len%0#0,8
+        ==                                                                    eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                         eq%0#0
+        assert // invalid number of bytes for uint64
         // struct_in_box/contract.py:13
         // box_data, exists = op.Box.get(user_id.bytes)
         v-load user_id#0                                                      user_id#0
@@ -183,9 +210,9 @@ subroutine get_user:
         // @arc4.abimethod()
         byte 0x151f7c75                                                       0x151f7c75
         v-load box_data#0                                                     0x151f7c75,box_data#0
-        concat                                                                tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                        tmp%1#0
+        concat                                                                tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                        tmp%2#0
         log
         int 1                                                                 1
         return

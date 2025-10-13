@@ -42,30 +42,47 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
     block@0: // L15
         let a1#0: bytes[32] = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len a1#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
         let a2#0: bytes[32] = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len a2#0)
+        let eq%1#0: bool = (== len%1#0 32u)
+        (assert eq%1#0) // invalid number of bytes for uint8[32]
         let tmp%0#1: bytes = (concat a1#0 a2#0)
         let tmp%1#1: bytes[32] = (sha512_256 tmp%0#1)
-        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%1#1)
-        (log tmp%4#0)
+        let tmp%6#0: bytes = (concat 0x151f7c75 tmp%1#1)
+        (log tmp%6#0)
         exit 1u
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
     block@0: // L19
-        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%1#0: bytes[32] = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_Encoded(uint8[32])%0#0)
-        let aggregate%length%0#0: uint64 = (len tmp%1#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let tmp%2#0: bytes[32] = tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(tmp%0#0)
+        let aggregate%length%0#0: uint64 = (len tmp%2#0)
         let aggregate%lengths_equal%0#0: bool = (== aggregate%length%0#0 32u)
         (assert aggregate%lengths_equal%0#0) // invalid size
-        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%3#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
     block@0: // L23
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let b#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let length#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let b#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let length#0: uint64 = (btoi tmp%2#0)
         let tmp%0#1: uint64 = (len b#0)
         let tmp%1#1: bool = (== tmp%0#1 length#0)
         (assert tmp%1#1)
@@ -74,10 +91,12 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[ro
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
     block@0: // L27
         let b#0: bytes[32] = (txna ApplicationArgs 1)
-        let tmp%0#1: uint64 = (len b#0)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
-        let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%3#0)
+        let len%0#0: uint64 = (len b#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob len%0#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:

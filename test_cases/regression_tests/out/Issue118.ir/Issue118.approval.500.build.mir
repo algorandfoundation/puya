@@ -70,6 +70,27 @@ subroutine verify:
         // @abimethod
         txna ApplicationArgs 1                                                         values#0
         v-store values#0
+        v-load values#0                                                                values#0
+        int 0                                                                          values#0,0
+        extract_uint16                                                                 aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
+        int 32                                                                         aggregate%array_length%0#0,32
+        *                                                                              mul%0#0
+        v-store mul%0#0
+        v-load mul%0#0                                                                 mul%0#0
+        int 2                                                                          mul%0#0,2
+        +                                                                              add%0#0
+        v-store add%0#0
+        v-load values#0                                                                values#0
+        len                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                 len%0#0
+        v-load add%0#0                                                                 len%0#0,add%0#0
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid number of bytes for (len+uint256[])
         // regression_tests/issue_118.py:10
         // bool(Txn.num_app_args)
         txn NumAppArgs                                                                 tmp%0#1
@@ -89,10 +110,6 @@ subroutine verify:
         v-store val1#0
         // regression_tests/issue_118.py:12
         // if values.length != 2:
-        v-load values#0                                                                values#0
-        int 0                                                                          values#0,0
-        extract_uint16                                                                 aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
         int 2                                                                          aggregate%array_length%0#0,2
         !=                                                                             tmp%4#0
@@ -108,7 +125,7 @@ subroutine verify:
         concat                                                                         aggregate%concat%0#0
         v-store aggregate%concat%0#0
         v-load aggregate%concat%0#0                                                    aggregate%concat%0#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
         b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
@@ -121,7 +138,7 @@ subroutine verify:
         concat                                                                         aggregate%concat%1#0
         v-store aggregate%concat%1#0
         v-load aggregate%concat%1#0                                                    aggregate%concat%1#0
-        v-store tmp%0#0
+        v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
         b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
@@ -130,10 +147,10 @@ subroutine verify:
         // regression_tests/issue_118.py:7
         // @abimethod
         byte 0x151f7c75                                                                0x151f7c75
-        v-load tmp%0#0                                                                 0x151f7c75,tmp%0#0
-        concat                                                                         tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                 tmp%1#0
+        v-load tmp%1#0                                                                 0x151f7c75,tmp%1#0
+        concat                                                                         tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                 tmp%2#0
         log
         int 1                                                                          1
         return

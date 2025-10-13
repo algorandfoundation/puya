@@ -131,10 +131,30 @@ test_array:
     // array/static_size.py:41
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/static_size.py:43
     // self.count = UInt64(0)
@@ -453,6 +473,11 @@ test_extend_from_tuple:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+    dup
     extract 0 16
     swap
     extract 16 16
@@ -521,14 +546,18 @@ test_extend_from_arc4_tuple:
     // array/static_size.py:69
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    dup
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
     // array/static_size.py:74
     // arr.extend(some_more)
-    dup
+    dig 1
     pop
     // array/static_size.py:75
     // return arr.freeze()
-    dup
-    len
     intc_3 // 16
     /
     itob
@@ -552,6 +581,11 @@ test_bool_array:
     // array/static_size.py:77
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     // array/static_size.py:79
@@ -676,6 +710,11 @@ test_arc4_conversion:
     // array/static_size.py:96
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     // array/static_size.py:98
@@ -792,6 +831,17 @@ sum_array:
     // array/static_size.py:114
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 8
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     // array/static_size.py:117
     // arr.extend(arc4_arr)
     extract 2 0

@@ -117,14 +117,20 @@ subroutine opt_into_asset:
     opt_into_asset_block@0:
         // auction/contract.py:25
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                                  tmp%0#0,len%0#0
+        int 8                                                                                tmp%0#0,len%0#0,8
+        ==                                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                         tmp%0#0
+        l-load tmp%0#0 0                                                                     tmp%0#0
         btoi                                                                                 asset#0
         // auction/contract.py:28
         // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
         txn Sender                                                                           asset#0,tmp%0#1
-        global CreatorAddress                                                                asset#0,tmp%0#1,tmp%1#0
-        l-load tmp%0#1 1                                                                     asset#0,tmp%1#0,tmp%0#1
-        l-load tmp%1#0 1                                                                     asset#0,tmp%0#1,tmp%1#0
+        global CreatorAddress                                                                asset#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                     asset#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                     asset#0,tmp%0#1,tmp%1#1
         ==                                                                                   asset#0,tmp%2#0
         assert // Only creator can opt in to ASA                                             asset#0
         // auction/contract.py:30
@@ -177,12 +183,24 @@ subroutine start_auction:
     start_auction_block@0:
         // auction/contract.py:40
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                                  tmp%0#0,len%0#0
+        int 8                                                                                tmp%0#0,len%0#0,8
+        ==                                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                         tmp%0#0
+        l-load tmp%0#0 0                                                                     tmp%0#0
         btoi                                                                                 starting_price#0
-        txna ApplicationArgs 2                                                               starting_price#0,reinterpret_Encoded(uint64)%1#0
+        txna ApplicationArgs 2                                                               starting_price#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                starting_price#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                  starting_price#0,tmp%2#0,len%1#0
+        int 8                                                                                starting_price#0,tmp%2#0,len%1#0,8
+        ==                                                                                   starting_price#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for uint64                                         starting_price#0,tmp%2#0
+        l-load tmp%2#0 0                                                                     starting_price#0,tmp%2#0
         btoi                                                                                 starting_price#0,length#0
-        txn GroupIndex                                                                       starting_price#0,length#0,tmp%2#0
-        int 1                                                                                starting_price#0,length#0,tmp%2#0,1
+        txn GroupIndex                                                                       starting_price#0,length#0,tmp%4#0
+        int 1                                                                                starting_price#0,length#0,tmp%4#0,1
         -                                                                                    starting_price#0,length#0,axfer#0
         l-load-copy axfer#0 0                                                                starting_price#0,length#0,axfer#0,axfer#0 (copy)
         gtxns TypeEnum                                                                       starting_price#0,length#0,axfer#0,gtxn_type%0#0
@@ -204,15 +222,15 @@ subroutine start_auction:
         app_global_get_ex                                                                    starting_price#0,length#0,axfer#0,maybe_value%0#0,maybe_exists%0#0
         assert // check self.auction_end exists                                              starting_price#0,length#0,axfer#0,maybe_value%0#0
         l-load maybe_value%0#0 0                                                             starting_price#0,length#0,axfer#0,maybe_value%0#0
-        !                                                                                    starting_price#0,length#0,axfer#0,tmp%3#0
+        !                                                                                    starting_price#0,length#0,axfer#0,tmp%3#1
         assert // auction already started                                                    starting_price#0,length#0,axfer#0
         // auction/contract.py:54
         // axfer.asset_receiver == Global.current_application_address
         l-load-copy axfer#0 0                                                                starting_price#0,length#0,axfer#0,axfer#0 (copy)
-        gtxns AssetReceiver                                                                  starting_price#0,length#0,axfer#0,tmp%4#0
-        global CurrentApplicationAddress                                                     starting_price#0,length#0,axfer#0,tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                                                     starting_price#0,length#0,axfer#0,tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                                                     starting_price#0,length#0,axfer#0,tmp%4#0,tmp%5#0
+        gtxns AssetReceiver                                                                  starting_price#0,length#0,axfer#0,tmp%4#1
+        global CurrentApplicationAddress                                                     starting_price#0,length#0,axfer#0,tmp%4#1,tmp%5#0
+        l-load tmp%4#1 1                                                                     starting_price#0,length#0,axfer#0,tmp%5#0,tmp%4#1
+        l-load tmp%5#0 1                                                                     starting_price#0,length#0,axfer#0,tmp%4#1,tmp%5#0
         ==                                                                                   starting_price#0,length#0,axfer#0,tmp%6#0
         // auction/contract.py:53-55
         // assert (
@@ -403,7 +421,13 @@ subroutine claim_asset:
     claim_asset_block@0:
         // auction/contract.py:97
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                                  tmp%0#0,len%0#0
+        int 8                                                                                tmp%0#0,len%0#0,8
+        ==                                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                         tmp%0#0
+        l-load tmp%0#0 0                                                                     tmp%0#0
         btoi                                                                                 asset#0
         // auction/contract.py:99
         // assert Global.latest_timestamp > self.auction_end, "auction has not ended"
@@ -414,7 +438,7 @@ subroutine claim_asset:
         assert // check self.auction_end exists                                              asset#0,tmp%0#1,maybe_value%0#0
         l-load tmp%0#1 1                                                                     asset#0,maybe_value%0#0,tmp%0#1
         l-load maybe_value%0#0 1                                                             asset#0,tmp%0#1,maybe_value%0#0
-        >                                                                                    asset#0,tmp%1#0
+        >                                                                                    asset#0,tmp%1#1
         assert // auction has not ended                                                      asset#0
         // auction/contract.py:101-106
         // itxn.AssetTransfer(

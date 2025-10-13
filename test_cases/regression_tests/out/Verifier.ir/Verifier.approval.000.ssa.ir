@@ -36,11 +36,18 @@ subroutine test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__
 
 subroutine test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:
     block@0: // L13
-        let reinterpret_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
-        let tmp%0#0: bytes = test_cases.regression_tests.jira_ak_752.Verifier.verify(reinterpret_Encoded(len+uint8[32][])%0#0)
-        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
-        (log tmp%2#0)
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[32][])
+        let as_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = tmp%0#0
+        let tmp%1#0: bytes = test_cases.regression_tests.jira_ak_752.Verifier.verify(as_Encoded(len+uint8[32][])%0#0)
+        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: Encoded(len+uint8[32][])) -> bytes:

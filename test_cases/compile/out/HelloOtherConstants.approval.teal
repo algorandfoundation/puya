@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 0 1
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
     txn ApplicationID
     bnz main_after_if_else@2
@@ -57,7 +57,7 @@ main_create_route@10:
     // @arc4.abimethod(create="require")
     pushbytes 0x151f7c750000000000000001
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_delete_route@4:
@@ -76,10 +76,19 @@ greet:
     // compile/apps.py:91
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     // compile/apps.py:93
     // num_alpha = (self.num + 48).bytes[-1]
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "num"
     app_global_get_ex
     assert // check self.num exists
@@ -87,13 +96,13 @@ greet:
     b+
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     -
-    intc_0 // 1
+    intc_1 // 1
     extract3
     // compile/apps.py:95
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
@@ -103,12 +112,12 @@ greet:
     concat
     swap
     concat
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "address"
     app_global_get_ex
     assert // check self.address exists
     concat
-    intc_1 // 0
+    intc_0 // 0
     bytec_3 // "method"
     app_global_get_ex
     assert // check self.method exists
@@ -125,5 +134,5 @@ greet:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return

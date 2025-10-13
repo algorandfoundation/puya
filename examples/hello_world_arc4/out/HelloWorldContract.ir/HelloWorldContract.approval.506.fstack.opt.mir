@@ -51,24 +51,35 @@ subroutine hello:
     hello_block@0:
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                 reinterpret_Encoded(len+utf8[])%0#0
+        txna ApplicationArgs 1                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                  tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                  tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                         tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                  tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                      tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                  tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                    tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                       tmp%0#0,len%0#0,add%0#0
+        ==                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+utf8[])                     tmp%0#0
+        l-load tmp%0#0 0                                                       tmp%0#0
         extract 2 0                                                            name#0
         // hello_world_arc4/contract.py:12
         // return "Hello, " + name
         byte "Hello, "                                                         name#0,"Hello, "
         l-load name#0 1                                                        "Hello, ",name#0
-        concat                                                                 tmp%0#1
+        concat                                                                 tmp%0#0
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        l-load-copy tmp%0#1 0                                                  tmp%0#1,tmp%0#1 (copy)
-        len                                                                    tmp%0#1,aggregate%length%0#0
-        itob                                                                   tmp%0#1,aggregate%as_bytes%0#0
-        extract 6 2                                                            tmp%0#1,aggregate%length_uint16%0#0
-        l-load tmp%0#1 1                                                       aggregate%length_uint16%0#0,tmp%0#1
+        l-load-copy tmp%0#0 0                                                  tmp%0#0,tmp%0#0 (copy)
+        len                                                                    tmp%0#0,aggregate%length%0#0
+        itob                                                                   tmp%0#0,aggregate%as_bytes%0#0
+        extract 6 2                                                            tmp%0#0,aggregate%length_uint16%0#0
+        l-load tmp%0#0 1                                                       aggregate%length_uint16%0#0,tmp%0#0
         concat                                                                 aggregate%encoded_value%0#0
         byte 0x151f7c75                                                        aggregate%encoded_value%0#0,0x151f7c75
         l-load aggregate%encoded_value%0#0 1                                   0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                 tmp%3#0
+        concat                                                                 tmp%4#0
         log
         int 1                                                                  1
         return

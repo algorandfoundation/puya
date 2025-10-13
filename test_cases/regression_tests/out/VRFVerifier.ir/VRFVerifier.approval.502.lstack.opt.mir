@@ -51,13 +51,46 @@ subroutine verify:
     verify_block@0:
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                 reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 1                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                  tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                  tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                         tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                  tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                      tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                  tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                    tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                       tmp%0#0,len%0#0,add%0#0
+        ==                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (len+uint8[])                    tmp%0#0
+        l-load tmp%0#0 0                                                       tmp%0#0
         extract 2 0                                                            message#0
         v-store message#0
-        txna ApplicationArgs 2                                                 reinterpret_Encoded(len+uint8[])%1#0
+        txna ApplicationArgs 2                                                 tmp%2#0
+        l-load-copy tmp%2#0 0                                                  tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                  tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16                                                         tmp%2#0,aggregate%array_length%1#0
+        int 2                                                                  tmp%2#0,aggregate%array_length%1#0,2
+        +                                                                      tmp%2#0,add%1#0
+        l-load-copy tmp%2#0 1                                                  tmp%2#0,add%1#0,tmp%2#0 (copy)
+        len                                                                    tmp%2#0,add%1#0,len%1#0
+        l-load add%1#0 1                                                       tmp%2#0,len%1#0,add%1#0
+        ==                                                                     tmp%2#0,eq%1#0
+        assert // invalid number of bytes for (len+uint8[])                    tmp%2#0
+        l-load tmp%2#0 0                                                       tmp%2#0
         extract 2 0                                                            proof#0
         v-store proof#0
-        txna ApplicationArgs 3                                                 reinterpret_Encoded(len+uint8[])%2#0
+        txna ApplicationArgs 3                                                 tmp%4#0
+        l-load-copy tmp%4#0 0                                                  tmp%4#0,tmp%4#0 (copy)
+        int 0                                                                  tmp%4#0,tmp%4#0 (copy),0
+        extract_uint16                                                         tmp%4#0,aggregate%array_length%2#0
+        int 2                                                                  tmp%4#0,aggregate%array_length%2#0,2
+        +                                                                      tmp%4#0,add%2#0
+        l-load-copy tmp%4#0 1                                                  tmp%4#0,add%2#0,tmp%4#0 (copy)
+        len                                                                    tmp%4#0,add%2#0,len%2#0
+        l-load add%2#0 1                                                       tmp%4#0,len%2#0,add%2#0
+        ==                                                                     tmp%4#0,eq%2#0
+        assert // invalid number of bytes for (len+uint8[])                    tmp%4#0
+        l-load tmp%4#0 0                                                       tmp%4#0
         extract 2 0                                                            pk#0
         v-store pk#0
         b verify_while_top@2
@@ -66,7 +99,7 @@ subroutine verify:
         global OpcodeBudget                                                    tmp%1#2
         int 10010                                                              tmp%1#2,10010
         l-load tmp%1#2 1                                                       10010,tmp%1#2
-        >                                                                      tmp%2#0
+        >                                                                      tmp%2#1
         bz verify_after_while@7 ; b verify_while_body@3
 
     verify_while_body@3:
@@ -90,14 +123,14 @@ subroutine verify:
         v-load message#0                                                       message#0
         v-load proof#0                                                         message#0,proof#0
         v-load pk#0                                                            message#0,proof#0,pk#0
-        vrf_verify VrfAlgorand                                                 tmp%0#1,tmp%1#1
+        vrf_verify VrfAlgorand                                                 tmp%0#0,tmp%1#1
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        l-load-copy tmp%0#1 1                                                  tmp%0#1,tmp%1#1,tmp%0#1 (copy)
-        len                                                                    tmp%0#1,tmp%1#1,aggregate%length%0#0
-        itob                                                                   tmp%0#1,tmp%1#1,aggregate%as_bytes%0#0
-        extract 6 2                                                            tmp%0#1,tmp%1#1,aggregate%length_uint16%0#0
-        l-load tmp%0#1 2                                                       tmp%1#1,aggregate%length_uint16%0#0,tmp%0#1
+        l-load-copy tmp%0#0 1                                                  tmp%0#0,tmp%1#1,tmp%0#0 (copy)
+        len                                                                    tmp%0#0,tmp%1#1,aggregate%length%0#0
+        itob                                                                   tmp%0#0,tmp%1#1,aggregate%as_bytes%0#0
+        extract 6 2                                                            tmp%0#0,tmp%1#1,aggregate%length_uint16%0#0
+        l-load tmp%0#0 2                                                       tmp%1#1,aggregate%length_uint16%0#0,tmp%0#0
         concat                                                                 tmp%1#1,aggregate%encoded_value%0#0
         byte 0x00                                                              tmp%1#1,aggregate%encoded_value%0#0,0x00
         int 0                                                                  tmp%1#1,aggregate%encoded_value%0#0,0x00,0
@@ -110,7 +143,7 @@ subroutine verify:
         concat                                                                 aggregate%concat%0#0
         byte 0x151f7c75                                                        aggregate%concat%0#0,0x151f7c75
         l-load aggregate%concat%0#0 1                                          0x151f7c75,aggregate%concat%0#0
-        concat                                                                 tmp%6#0
+        concat                                                                 tmp%9#0
         log
         int 1                                                                  1
         return

@@ -11,19 +11,32 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "set_boxes(uint64,byte[],string)void" => block@6, method "check_keys()void" => block@7, method "create_many_ints()void" => block@8, method "set_many_ints(uint64,uint64)void" => block@9, method "sum_many_ints()uint64" => block@152, method "delete_boxes()void" => block@11, method "indirect_extract_and_replace()void" => block@12, method "read_boxes()(uint64,byte[],string,uint64)" => block@13, method "boxes_exist()(bool,bool,bool,bool)" => block@14, method "create_dynamic_arr_struct()void" => block@15, method "delete_dynamic_arr_struct()void" => block@16, method "append_dynamic_arr_struct(uint64)uint64" => block@17, method "pop_dynamic_arr_struct(uint64)uint64" => block@18, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@19, method "nested_write(uint64,uint64)void" => block@20, method "nested_read(uint64,uint64,uint64)uint64" => block@21, method "sum_dynamic_arr_struct()uint64" => block@22, method "create_bools()void" => block@23, method "set_bool(uint64,bool)void" => block@24, method "sum_bools(uint64)uint64" => block@25, method "create_dynamic_box()void" => block@26, method "delete_dynamic_box()void" => block@27, method "append_dynamic_box(uint64)uint64" => block@28, method "pop_dynamic_box(uint64)uint64" => block@29, method "sum_dynamic_box()uint64" => block@30, method "write_dynamic_box(uint64,uint64)void" => block@31, method "write_dynamic_arr_struct(uint64,uint64)void" => block@32, method "slice_box()void" => block@33, method "arc4_box()void" => block@34, method "test_box_ref()void" => block@35, method "box_map_test()void" => block@36, method "box_map_set(uint64,string)void" => block@37, method "box_map_get(uint64)string" => block@38, method "box_map_del(uint64)void" => block@39, method "box_map_exists(uint64)bool" => block@40, * => block@43}
     block@6: // set_boxes_route_L94
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let a#0: uint64 = (btoi tmp%0#3)
         let b#1: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 b#1 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len b#1)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
         let c#1: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 c#1 0u)
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%2#0: uint64 = (len c#1)
+        let eq%2#0: bool = (== len%2#0 add%1#0)
+        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
         let encoded_value%0#0: bytes[8] = (itob a#0)
         (box_put "box_a" encoded_value%0#0)
         (box_del "b")
         (box_put "b" b#1)
         (box_del 0x424f585f43)
         (box_put 0x424f585f43 c#1)
-        let tmp%0#27: bytes = ((extract 2 0) b#1)
+        let tmp%0#3: bytes = ((extract 2 0) b#1)
         (box_del "box_d")
-        (box_put "box_d" tmp%0#27)
+        (box_put "box_d" tmp%0#3)
         (box_create "box_large" 6160u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 42u)
         (box_replace "box_large" 4096u aggregate%val_as_bytes%0#0)
@@ -38,16 +51,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#1: bool = (== value%0#0 8u)
         (assert tmp%6#1)
         let (value%1#1: uint64, check%1#1: bool) = (box_len "b")
-        let tmp%7#0: uint64 = (len b#1)
-        let tmp%8#0: bool = (== value%1#1 tmp%7#0)
+        let tmp%8#0: bool = (== value%1#1 len%1#0)
         (assert tmp%8#0)
         let (value%2#1: uint64, check%2#1: bool) = (box_len 0x424f585f43)
         (assert check%2#1) // check self.box_c exists
-        let tmp%9#0: uint64 = (len c#1)
-        let tmp%10#0: bool = (== value%2#1 tmp%9#0)
+        let tmp%10#0: bool = (== value%2#1 len%2#0)
         (assert tmp%10#0)
         let (value%3#1: uint64, check%3#1: bool) = (box_len "box_d")
-        let tmp%12#3: uint64 = (len tmp%0#27)
+        let tmp%12#3: uint64 = (len tmp%0#3)
         let tmp%13#3: bool = (== value%3#1 tmp%12#3)
         (assert tmp%13#3)
         let tmp%14#3: bytes = (box_extract 0x424f585f43 0u 1u)
@@ -56,7 +67,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%15#0)
         let tmp%18#2: uint64 = (- value%2#1 1u)
         let tmp%19#1: bytes = (box_extract 0x424f585f43 tmp%18#2 1u)
-        let tmp%21#0: uint64 = (- tmp%9#0 1u)
+        let tmp%21#0: uint64 = (- len%2#0 1u)
         let extract%1#0: bytes = (extract3 c#1 tmp%21#0 1u)
         let tmp%22#0: bool = (== tmp%19#1 extract%1#0)
         (assert tmp%22#0)
@@ -64,17 +75,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%26#0: uint64 = (select value%2#1 1u tmp%25#0)
         let tmp%27#0: uint64 = (- value%2#1 tmp%26#0)
         let tmp%29#0: bytes = (box_extract 0x424f585f43 0u tmp%27#0)
-        let is_out_of_bounds%0#0: bool = (>= 1u tmp%9#0)
-        let bounded_offset%0#0: uint64 = (select 1u tmp%9#0 is_out_of_bounds%0#0)
-        let bounded_index%0#0: uint64 = (- tmp%9#0 bounded_offset%0#0)
+        let is_out_of_bounds%0#0: bool = (>= 1u len%2#0)
+        let bounded_offset%0#0: uint64 = (select 1u len%2#0 is_out_of_bounds%0#0)
+        let bounded_index%0#0: uint64 = (- len%2#0 bounded_offset%0#0)
         let tmp%30#0: bytes = (substring3 c#1 0u bounded_index%0#0)
         let tmp%31#0: bool = (== tmp%29#0 tmp%30#0)
         (assert tmp%31#0)
         let tmp%34#0: bool = (< 2u value%2#1)
         let tmp%35#0: uint64 = (select value%2#1 2u tmp%34#0)
         let tmp%37#0: bytes = (box_extract 0x424f585f43 0u tmp%35#0)
-        let is_out_of_bounds%1#0: bool = (>= 2u tmp%9#0)
-        let bounded_index%1#0: uint64 = (select 2u tmp%9#0 is_out_of_bounds%1#0)
+        let is_out_of_bounds%1#0: bool = (>= 2u len%2#0)
+        let bounded_index%1#0: uint64 = (select 2u len%2#0 is_out_of_bounds%1#0)
         let tmp%38#0: bytes = (substring3 c#1 0u bounded_index%1#0)
         let tmp%39#0: bool = (== tmp%37#0 tmp%38#0)
         (assert tmp%39#0)
@@ -85,7 +96,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%45#0: uint64 = (- value%3#1 1u)
         let tmp%46#0: bytes = (box_extract "box_d" tmp%45#0 1u)
         let tmp%49#0: uint64 = (- tmp%12#3 1u)
-        let extract%3#0: bytes = (extract3 tmp%0#27 tmp%49#0 1u)
+        let extract%3#0: bytes = (extract3 tmp%0#3 tmp%49#0 1u)
         let tmp%50#0: bool = (== tmp%46#0 extract%3#0)
         (assert tmp%50#0)
         let tmp%53#0: bool = (< 1u value%3#1)
@@ -95,7 +106,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let is_out_of_bounds%2#0: bool = (>= 1u tmp%12#3)
         let bounded_offset%1#0: uint64 = (select 1u tmp%12#3 is_out_of_bounds%2#0)
         let bounded_index%2#0: uint64 = (- tmp%12#3 bounded_offset%1#0)
-        let tmp%59#0: bytes = (substring3 tmp%0#27 0u bounded_index%2#0)
+        let tmp%59#0: bytes = (substring3 tmp%0#3 0u bounded_index%2#0)
         let tmp%60#0: bool = (== tmp%57#0 tmp%59#0)
         (assert tmp%60#0)
         let tmp%63#0: bool = (< 5u value%3#1)
@@ -103,7 +114,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%66#0: bytes = (box_extract "box_d" 0u tmp%64#0)
         let is_out_of_bounds%3#0: bool = (>= 5u tmp%12#3)
         let bounded_index%3#0: uint64 = (select 5u tmp%12#3 is_out_of_bounds%3#0)
-        let tmp%68#0: bytes = (substring3 tmp%0#27 0u bounded_index%3#0)
+        let tmp%68#0: bytes = (substring3 tmp%0#3 0u bounded_index%3#0)
         let tmp%69#0: bool = (== tmp%66#0 tmp%68#0)
         (assert tmp%69#0)
         let tmp%72#0: bool = (< 2u value%3#1)
@@ -111,7 +122,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%75#0: bytes = (box_extract "box_d" 0u tmp%73#0)
         let is_out_of_bounds%4#0: bool = (>= 2u tmp%12#3)
         let bounded_index%4#0: uint64 = (select 2u tmp%12#3 is_out_of_bounds%4#0)
-        let tmp%77#0: bytes = (substring3 tmp%0#27 0u bounded_index%4#0)
+        let tmp%77#0: bytes = (substring3 tmp%0#3 0u bounded_index%4#0)
         let tmp%78#0: bool = (== tmp%75#0 tmp%77#0)
         (assert tmp%78#0)
         let (value%4#0: uint64, check%4#0: bool) = (box_len "box_large")
@@ -124,16 +135,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_create "many_ints" 4104u)
         exit 1u
     block@9: // set_many_ints_route_L141
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let box%element_offset%0#0: uint64 = (* index#0 8u)
-        (box_replace "many_ints" box%element_offset%0#0 reinterpret_Encoded(uint64)%1#0)
+        (box_replace "many_ints" box%element_offset%0#0 tmp%2#1)
         exit 1u
     block@152: // while_top_L20
         let tmp%1#8: uint64 = (global OpcodeBudget)
-        let tmp%2#24: bool = (> 10510u tmp%1#8)
-        goto tmp%2#24 ? block@153 : block@157
+        let tmp%2#25: bool = (> 10510u tmp%1#8)
+        goto tmp%2#25 ? block@153 : block@157
     block@153: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -161,8 +178,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@130
     block@132: // after_for_L149
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob total#0)
-        let tmp%2#7: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
-        (log tmp%2#7)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
+        (log tmp%2#1)
         exit 1u
     block@11: // delete_boxes_route_L153
         (box_del "box_a")
@@ -171,19 +188,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let (maybe_value%0#0: bytes, a_exists#0: bool) = (box_get "box_a")
         let a#0: uint64 = (btoi maybe_value%0#0)
         let state_get%0#2: uint64 = (select 42u a#0 a_exists#0)
-        let tmp%0#4: bool = (== state_get%0#2 42u)
-        (assert tmp%0#4)
+        let tmp%0#8: bool = (== state_get%0#2 42u)
+        (assert tmp%0#8)
         let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (box_get "b")
         let state_get%1#0: bytes = (select 0x00023432 maybe_value%1#1 maybe_exists%1#1)
-        let tmp%2#7: bytes = ((extract 2 0) state_get%1#0)
-        let tmp%3#0: bool = (== tmp%2#7 0x3432)
+        let tmp%2#1: bytes = ((extract 2 0) state_get%1#0)
+        let tmp%3#0: bool = (== tmp%2#1 0x3432)
         (assert tmp%3#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#2: bool) = (box_get 0x424f585f43)
         let state_get%2#0: bytes = (select 0x00023432 maybe_value%2#0 maybe_exists%2#2)
         let tmp%6#1: bool = (== state_get%2#0 0x00023432)
         (assert tmp%6#1)
-        let tmp%7#5: bool = (! a_exists#0)
-        (assert tmp%7#5)
+        let tmp%7#6: bool = (! a_exists#0)
+        (assert tmp%7#6)
         let tmp%8#0: bool = (! a#0)
         (assert tmp%8#0)
         (box_del "box_large")
@@ -203,16 +220,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#8: uint64 = (- tmp%0#1 1u)
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (box_get "b")
         (assert aggregate%box_get%7#0) // check self.box_b exists
-        let tmp%2#7: bytes = ((extract 2 0) aggregate%box_get%6#0)
+        let tmp%2#1: bytes = ((extract 2 0) aggregate%box_get%6#0)
         let (aggregate%box_get%8#0: bytes, aggregate%box_get%9#0: bool) = (box_get 0x424f585f43)
         (assert aggregate%box_get%9#0) // check self.box_c exists
         let box%box_extract%0#0: bytes = (box_extract "box_large" 4096u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%1#8)
-        let aggregate%length%2#0: uint64 = (len tmp%2#7)
+        let aggregate%length%2#0: uint64 = (len tmp%2#1)
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%2#7)
+        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%2#1)
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%3#0 0x0014)
         let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%2#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 20u aggregate%data_length%0#0)
@@ -223,8 +240,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%4#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 aggregate%encoded_value%2#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%box_get%8#0)
-        let tmp%5#5: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
-        (log tmp%5#5)
+        let tmp%5#8: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
+        (log tmp%5#8)
         exit 1u
     block@14: // boxes_exist_route_L181
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
@@ -235,8 +252,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%set_bit%0#0: bytes[1] = (setbit aggregate%encoded_bool%0#0 1u maybe_exists%1#1)
         let aggregate%set_bit%1#0: bytes[1] = (setbit aggregate%set_bit%0#0 2u maybe_exists%2#2)
         let aggregate%set_bit%2#0: bytes[1] = (setbit aggregate%set_bit%1#0 3u maybe_exists%3#1)
-        let tmp%5#5: bytes = (concat 0x151f7c75 aggregate%set_bit%2#0)
-        (log tmp%5#5)
+        let tmp%5#8: bytes = (concat 0x151f7c75 aggregate%set_bit%2#0)
+        (log tmp%5#8)
         exit 1u
     block@15: // create_dynamic_arr_struct_route_L185
         let tmp%0#1: uint64 = (txn NumAppArgs)
@@ -254,12 +271,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_del "dynamic_arr_struct")
         exit 1u
     block@17: // append_dynamic_arr_struct_route_L198
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let times#0: uint64 = (btoi tmp%0#3)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 10u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%0#4: bool = (== values%0#0 2u)
-        (assert tmp%0#4) // expected 2
+        let tmp%0#8: bool = (== values%0#0 2u)
+        (assert tmp%0#8) // expected 2
         let box%box_extract%1#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let arr_len#0: uint64 = (btoi box%box_extract%1#0)
         let box%box_extract%2#1: bytes = (box_extract "dynamic_arr_struct" 18u 2u)
@@ -320,12 +340,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%16#0: bool = (! box%array_length%3#0)
         (assert tmp%16#0) // expected arr2 length to be correct
         let aggregate%val_as_bytes%10#0: bytes[8] = (itob box%array_length%2#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%10#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%10#0)
+        (log tmp%4#1)
         exit 1u
     block@18: // pop_dynamic_arr_struct_route_L230
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let times#0: uint64 = (btoi tmp%0#3)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%0#0)
         let arr_len#0: uint64 = (- box%array_length%0#0 times#0)
@@ -349,8 +372,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert aggregate%no_overflow%3#0) // overflow
         let aggregate%uint16%3#0: bytes = ((extract 6 2) aggregate%val_as_bytes%12#0)
         (box_replace "dynamic_arr_struct" 18u aggregate%uint16%3#0)
-        let tmp%8#4: uint64 = (* times#0 8u)
-        (box_splice "dynamic_arr_struct" head_and_dyn_arr#0 tmp%8#4 0x)
+        let tmp%8#5: uint64 = (* times#0 8u)
+        (box_splice "dynamic_arr_struct" head_and_dyn_arr#0 tmp%8#5 0x)
         let tmp%1#8: uint64 = (* arr2_len#0 8u)
         let dyn_arr2_index#1: uint64 = (+ 2u tmp%1#8)
         let size#0: uint64 = (+ head_and_dyn_arr#0 dyn_arr2_index#1)
@@ -358,8 +381,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%box_extract%3#1: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%array_length%2#0: uint64 = (btoi box%box_extract%3#1)
         let aggregate%val_as_bytes%13#0: bytes[8] = (itob box%array_length%2#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%13#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%13#0)
+        (log tmp%4#1)
         exit 1u
     block@19: // set_nested_struct_route_L252
         let struct#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = (txna ApplicationArgs 1)
@@ -373,11 +396,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_replace "box" 4098u struct_bytes#0)
         exit 1u
     block@20: // nested_write_route_L266
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let value#2: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        (box_replace "box" 4098u reinterpret_Encoded(uint64)%1#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let value#2: uint64 = (btoi tmp%2#1)
+        (box_replace "box" 4098u tmp%2#1)
         let tmp%0#1: uint64 = (+ value#2 1u)
         let aggregate%val_as_bytes%15#0: bytes[8] = (itob tmp%0#1)
         (box_replace "box" 4110u aggregate%val_as_bytes%15#0)
@@ -439,12 +468,21 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_replace "box" box%offset%20#0 aggregate%val_as_bytes%19#0)
         exit 1u
     block@21: // nested_read_route_L276
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let i1#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let i2#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let i3#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let i1#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let i2#0: uint64 = (btoi tmp%2#1)
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let i3#0: uint64 = (btoi tmp%4#1)
         let box%box_extract%0#0: bytes = (box_extract "box" 4098u 8u)
         let a#0: uint64 = (btoi box%box_extract%0#0)
         let box%box_extract%1#0: bytes = (box_extract "box" 4110u 8u)
@@ -509,14 +547,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#6: uint64 = (+ tmp%2#0 d#0)
         let tmp%4#0: uint64 = (+ tmp%3#6 woah_arr_arr#0)
         let aggregate%val_as_bytes%20#0: bytes[8] = (itob tmp%4#0)
-        let tmp%5#5: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%20#0)
-        (log tmp%5#5)
+        let tmp%8#4: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%20#0)
+        (log tmp%8#4)
         exit 1u
     block@22: // sum_dynamic_arr_struct_route_L288
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%0#4: bool = (== values%0#0 1u)
-        (assert tmp%0#4) // expected 1
+        let tmp%0#8: bool = (== values%0#0 1u)
+        (assert tmp%0#8) // expected 1
         let box%box_extract%1#0: bytes = (box_extract "dynamic_arr_struct" 10u 8u)
         let values%1#0: uint64 = (btoi box%box_extract%1#0)
         let tmp%1#2: bool = (== values%1#0 2u)
@@ -564,17 +602,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@100
     block@102: // after_for_L295
         let aggregate%val_as_bytes%21#0: bytes[8] = (itob total#0)
-        let tmp%2#7: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%21#0)
-        (log tmp%2#7)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%21#0)
+        (log tmp%2#1)
         exit 1u
     block@23: // create_bools_route_L299
         (box_create "too_many_bools" 4125u)
         exit 1u
     block@24: // set_bool_route_L303
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 2)
-        let value#6: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for bool8
+        let value#6: bool = (getbit tmp%2#1 0u)
         let box%element_byte_offset%0#0: uint64 = (/ index#0 8u)
         let box%element_bit_offset%0#0: uint64 = (% index#0 8u)
         let box%box_extract%0#0: bytes = (box_extract "too_many_bools" box%element_byte_offset%0#0 1u)
@@ -584,8 +628,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_replace "too_many_bools" box%element_byte_offset%0#0 aggregate%updated_target%0#0)
         exit 1u
     block@25: // sum_bools_route_L307
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let stop_at_total#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let stop_at_total#0: uint64 = (btoi tmp%0#3)
         let total#0: uint64 = 0u
         let (aggregate%box_get%10#0: uint64, aggregate%box_get%11#0: bool) = (box_len "too_many_bools")
         (assert aggregate%box_get%11#0) // check self.too_many_bools exists
@@ -611,8 +658,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@84
     block@90: // after_for_L310
         let aggregate%val_as_bytes%22#0: bytes[8] = (itob total#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%22#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%22#0)
+        (log tmp%4#1)
         exit 1u
     block@26: // create_dynamic_box_route_L317
         (box_del "dynamic_box")
@@ -622,8 +669,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_del "dynamic_box")
         exit 1u
     block@28: // append_dynamic_box_route_L325
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let times#0: uint64 = (btoi tmp%0#3)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let arr_len#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%1#8: uint64 = (+ arr_len#0 times#0)
@@ -655,12 +705,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%box_extract%1#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%1#0)
         let aggregate%val_as_bytes%25#0: bytes[8] = (itob box%array_length%0#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%25#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%25#0)
+        (log tmp%4#1)
         exit 1u
     block@29: // pop_dynamic_box_route_L340
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let times#0: uint64 = (btoi tmp%0#3)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let tmp%0#1: uint64 = (btoi box%box_extract%0#0)
         let arr_len#0: uint64 = (- tmp%0#1 times#0)
@@ -676,8 +729,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%box_extract%1#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%1#0)
         let aggregate%val_as_bytes%27#0: bytes[8] = (itob box%array_length%0#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%27#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%27#0)
+        (log tmp%4#1)
         exit 1u
     block@30: // sum_dynamic_box_route_L351
         let total#0: uint64 = 0u
@@ -698,36 +751,48 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@68
     block@70: // after_for_L354
         let aggregate%val_as_bytes%28#0: bytes[8] = (itob total#0)
-        let tmp%2#7: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%28#0)
-        (log tmp%2#7)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%28#0)
+        (log tmp%2#1)
         exit 1u
     block@31: // write_dynamic_box_route_L358
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let box%element_offset%0#0: uint64 = (* index#0 8u)
         let box%offset%0#1: uint64 = (+ 2u box%element_offset%0#0)
-        (box_replace "dynamic_box" box%offset%0#1 reinterpret_Encoded(uint64)%1#0)
+        (box_replace "dynamic_box" box%offset%0#1 tmp%2#1)
         exit 1u
     block@32: // write_dynamic_arr_struct_route_L362
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let index#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
         let box%index_ok%0#0: bool = (< index#0 box%btoi%0#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* index#0 8u)
         let box%offset%1#0: uint64 = (+ 22u box%element_offset%0#0)
-        (box_replace "dynamic_arr_struct" box%offset%1#0 reinterpret_Encoded(uint64)%1#0)
+        (box_replace "dynamic_arr_struct" box%offset%1#0 tmp%2#1)
         exit 1u
     block@33: // slice_box_route_L366
         (box_del "0")
         (box_put "0" 0x54657374696e672074657374696e6720313233)
         let (tmp%0#1: uint64, tmp%1#2: bool) = (box_len "0")
         let tmp%3#6: uint64 = (select tmp%0#1 0u tmp%0#1)
-        let tmp%4#2: bool = (< 7u tmp%0#1)
-        let tmp%5#2: uint64 = (select tmp%0#1 7u tmp%4#2)
+        let tmp%4#4: bool = (< 7u tmp%0#1)
+        let tmp%5#2: uint64 = (select tmp%0#1 7u tmp%4#4)
         let tmp%6#2: uint64 = (- tmp%5#2 tmp%3#6)
         let tmp%7#3: bytes = (box_extract "0" tmp%3#6 tmp%6#2)
         let tmp%8#0: bool = (== tmp%7#3 0x54657374696e67)
@@ -749,10 +814,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@35: // test_box_ref_route_L385
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "blob")
-        let tmp%0#4: bool = (! maybe_exists%0#0)
-        (assert tmp%0#4) // no data
-        let tmp%4#2: bool = (box_create "blob" 32u)
-        (assert tmp%4#2)
+        let tmp%0#8: bool = (! maybe_exists%0#0)
+        (assert tmp%0#8) // no data
+        let tmp%4#4: bool = (box_create "blob" 32u)
+        (assert tmp%4#4)
         let sender_bytes#0: bytes = (txn Sender)
         let app_address#0: bytes = (global CurrentApplicationAddress)
         (box_replace "blob" 0u sender_bytes#0)
@@ -802,17 +867,28 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_del encoded_value%5#0)
         exit 1u
     block@37: // box_map_set_route_L457
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 2)
-        let value#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let key#0: uint64 = (btoi tmp%0#3)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%2#1 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+utf8[])
+        let value#0: string = ((extract 2 0) tmp%2#1)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         (box_del encoded_value%0#0)
         (box_put encoded_value%0#0 value#0)
         exit 1u
     block@38: // box_map_get_route_L461
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let key#0: uint64 = (btoi tmp%0#3)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let (aggregate%box_get%22#0: bytes, aggregate%box_get%23#0: bool) = (box_get encoded_value%0#0)
         (assert aggregate%box_get%23#0) // check self.box_map entry exists
@@ -820,23 +896,29 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%length%4#0)
         let aggregate%length_uint16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
         let aggregate%encoded_value%4#0: bytes = (concat aggregate%length_uint16%4#0 aggregate%box_get%22#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%4#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%4#0)
+        (log tmp%4#1)
         exit 1u
     block@39: // box_map_del_route_L465
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let key#0: uint64 = (btoi tmp%0#3)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         (box_del encoded_value%0#0)
         exit 1u
     block@40: // box_map_exists_route_L469
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%0#3: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#3)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let key#0: uint64 = (btoi tmp%0#3)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#0)
         let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
-        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_bool%1#0)
-        (log tmp%3#1)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%encoded_bool%1#0)
+        (log tmp%4#1)
         exit 1u
     block@43: // after_if_else_L79
         fail

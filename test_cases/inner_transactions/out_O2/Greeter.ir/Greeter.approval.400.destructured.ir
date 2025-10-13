@@ -35,6 +35,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@7: // log_greetings_route_L23
         let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 name#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len name#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         itxn_begin
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
         (assert maybe_exists%0#0) // check self.hello_app exists
@@ -45,6 +50,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
+        let greeting#0: Encoded(len+utf8[]) = ((extract 4 0) hello_call.LastLog#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 greeting#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len greeting#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
         let tmp%1#2: bytes = ((extract 0 4) hello_call.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#2 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return

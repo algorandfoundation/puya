@@ -133,6 +133,15 @@ main_test_immutable_arc4_route@26:
     intc_0 // 0
     extract_uint16
     dup
+    pushint 16 // 16
+    *
+    intc_2 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
+    dup
     assert // expected non empty array
     intc_1 // 1
     -
@@ -220,6 +229,11 @@ main_test_dynamic_concat_with_arc4_tuple_route@23:
 main_test_concat_with_native_tuple_route@22:
     txna ApplicationArgs 1
     dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    dup
     extract 0 8
     swap
     extract 8 8
@@ -237,8 +251,14 @@ main_test_concat_with_native_tuple_route@22:
     return
 
 main_test_concat_with_arc4_tuple_route@21:
-    bytec 9 // 0x000200000000000000010000000000000002
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    bytec 9 // 0x000200000000000000010000000000000002
+    swap
     concat // on error: max array length exceeded
     dup
     extract 2 0
@@ -257,7 +277,23 @@ main_test_concat_with_arc4_tuple_route@21:
 
 main_test_convert_to_array_and_back_route@20:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 9 // 9
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 18
     extract 2 0
@@ -319,6 +355,11 @@ main_after_for@57:
 
 main_test_dynamic_tuple_return_route@19:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 17
     pushbytes 0x000100020000000000000000000a000548656c6c6f
@@ -376,6 +417,11 @@ main_after_for@77:
 
 main_test_tuple_return_route@18:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 17
     pushbytes 0x0001000000000000000080
@@ -427,6 +473,11 @@ main_for_header@65:
 
 main_test_bool_return_route@17:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 17
     pushbytes 0x0005a8
@@ -461,6 +512,11 @@ main_for_header@70:
 
 main_test_uint64_return_route@16:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 17
     pushbytes 0x0003000000000000000100000000000000020000000000000003
@@ -498,23 +554,63 @@ main_sum_uints_and_lengths_and_trues_route@15:
     txna ApplicationArgs 1
     dup
     bury 39
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 23
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     txna ApplicationArgs 2
+    dup
     bury 38
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 22
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+bool1[])
     txna ApplicationArgs 3
+    dup
     bury 37
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    bury 21
+    pushint 9 // 9
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 4
-    bury 36
+    bury 35
+    intc_0 // 0
+    bury 3
     intc_0 // 0
     bury 4
     intc_0 // 0
     bury 5
     intc_0 // 0
     bury 6
-    intc_0 // 0
-    bury 7
-    intc_0 // 0
-    extract_uint16
-    bury 21
     intc_0 // 0
     bury 12
 
@@ -540,10 +636,6 @@ main_for_header@80:
     b main_for_header@80
 
 main_after_for@82:
-    dig 36
-    intc_0 // 0
-    extract_uint16
-    bury 20
     intc_0 // 0
     bury 10
 
@@ -572,10 +664,6 @@ main_after_if_else@86:
     b main_for_header@83
 
 main_after_for@87:
-    dig 35
-    intc_0 // 0
-    extract_uint16
-    bury 19
     intc_0 // 0
     bury 9
 
@@ -912,6 +1000,11 @@ main_after_for@102:
 
 main_test_nested_array_route@13:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 16
     txna ApplicationArgs 2
@@ -1068,8 +1161,20 @@ main_after_for@113:
     return
 
 main_test_implicit_conversion_emit_route@12:
-    pushbytes 0xfa40c0530002
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
+    pushbytes 0xfa40c0530002
+    swap
     concat
     log
     intc_1 // 1
@@ -1077,6 +1182,17 @@ main_test_implicit_conversion_emit_route@12:
 
 main_test_implicit_conversion_log_route@11:
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     log
     intc_1 // 1
     return
@@ -1742,6 +1858,11 @@ main_after_for@143:
 
 main_test_bool_array_route@6:
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     bury 7
     bytec_0 // 0x0000

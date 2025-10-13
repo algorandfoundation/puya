@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64
+    intcblock 1 64 0 2
     // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -32,16 +32,44 @@ build_tuple:
     // named_tuples/contract.py:22
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    dup
+    intc_1 // 64
+    ==
+    assert // invalid number of bytes for uint512
     txna ApplicationArgs 3
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
-    extract 2 0
-    uncover 3
-    itob
-    dig 3
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
     len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
+    extract 2 0
+    uncover 4
+    itob
+    uncover 3
     intc_1 // 64
     <=
     assert // overflow
@@ -98,7 +126,7 @@ build_tuple_side_effects:
     log
     // named_tuples/contract.py:39
     // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
-    pushint 2 // 2
+    intc_3 // 2
     // named_tuples/contract.py:51
     // log(value)
     itob
@@ -124,7 +152,7 @@ test_tuple:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    pushint 0 // 0
+    intc_2 // 0
     extract_uint64
     dig 1
     extract 8 64

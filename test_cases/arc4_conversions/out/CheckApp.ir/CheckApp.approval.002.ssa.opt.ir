@@ -70,8 +70,16 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]() -> void:
     block@0: // L235
         let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -79,8 +87,18 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]()
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[routing]() -> void:
     block@0: // L239
         let value#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
+        let length%0#0: uint64 = array_len(value#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%1#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -88,8 +106,18 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[rou
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_string[routing]() -> void:
     block@0: // L243
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let length%0#0: uint64 = array_len(value#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%1#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -97,8 +125,16 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_string[routing]()
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_biguint[routing]() -> void:
     block@0: // L247
         let value#0: Encoded(uint512) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for uint512
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -106,8 +142,16 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_biguint[routing](
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]() -> void:
     block@0: // L251
         let value#0: Encoded(bool8) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool8
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -115,8 +159,19 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]() -
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64[routing]() -> void:
     block@0: // L255
         let value#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%1#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -124,8 +179,16 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64[r
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin64_3[routing]() -> void:
     block@0: // L261
         let value#0: Encoded(uint64[3]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 24u)
+        (assert eq%0#0) // invalid number of bytes for uint64[3]
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -133,8 +196,19 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin6
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct[routing]() -> void:
     block@0: // L267
         let value#0: Encoded(len+(uint64,uint8[32])[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 40u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint8[32])[])
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = array_len(tmp%1#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -142,8 +216,16 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct[
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_struct[routing]() -> void:
     block@0: // L273
         let value#0: Encoded((uint64,uint8[32])[3]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 120u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint8[32])[3]
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -151,8 +233,13 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_stru
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_struct[routing]() -> void:
     block@0: // L279
         let value#0: Encoded(len+(uint64,uint8[32],(len+uint8[]))[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -160,8 +247,13 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_str
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct[routing]() -> void:
     block@0: // L285
         let value#0: Encoded((uint64,uint8[32],(len+uint8[]))[3]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let expected#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let expected#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
         exit 1u
@@ -169,7 +261,10 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_bytes[routing]() -> void:
     block@0: // L291
         let bytes32#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let tmp%0#0: account = (txn Sender)
-        let tmp%1#0: bool = (== bytes32#0 tmp%0#0)
+        let len%0#0: uint64 = (len bytes32#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let tmp%0#1: account = (txn Sender)
+        let tmp%1#0: bool = (== bytes32#0 tmp%0#1)
         (assert tmp%1#0) // expected to encode correctly
         exit 1u

@@ -360,11 +360,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let txn.RejectVersion#0: uint64 = itxn[txn#0].RejectVersion
-        let tmp%3#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%3#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%3#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%3#0
         let tmp%4#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
-        let result#0: Encoded(len+utf8[]) = tmp%3#0
+        let result#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -654,11 +661,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let txn.RejectVersion#0: uint64 = itxn[txn#0].RejectVersion
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let result#0: Encoded(len+utf8[]) = tmp%2#0
+        let result#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -941,11 +955,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let txn.RejectVersion#0: uint64 = itxn[txn#0].RejectVersion
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let result#0: Encoded(len+utf8[]) = tmp%2#0
+        let result#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1225,11 +1246,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let txn.RejectVersion#0: uint64 = itxn[txn#0].RejectVersion
-        let tmp%1#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
+        let tmp%1#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%1#0
         let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
-        let result#0: Encoded(uint64) = tmp%1#0
+        let result#0: Encoded(uint64) = as_Encoded(uint64)%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1460,11 +1485,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
     block@2: // next_txn_L166
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%3#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%3#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%3#0
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
-        let tmp%6#0: string = decode_bytes<string>(tmp%3#0)
+        let tmp%6#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%6#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -1756,11 +1788,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
     block@2: // next_txn_L187
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: string = decode_bytes<string>(tmp%2#0)
+        let tmp%5#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%5#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2052,11 +2091,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
     block@2: // next_txn_L210
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: string = decode_bytes<string>(tmp%2#0)
+        let tmp%5#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%5#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2342,11 +2388,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
     block@2: // next_txn_L227
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%1#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%1#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%1#0
         let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
-        let tmp%4#0: uint64 = decode_bytes<uint64>(tmp%1#0)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let result#0: uint64 = tmp%4#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2658,11 +2708,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
     block@2: // next_txn_L256
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%7#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%7#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%7#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%7#0
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
-        let tmp%10#0: string = decode_bytes<string>(tmp%7#0)
+        let tmp%10#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%10#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2953,11 +3010,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
     block@2: // next_txn_L280
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: string = decode_bytes<string>(tmp%2#0)
+        let tmp%5#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%5#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -3167,11 +3231,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
     block@4: // next_txn_L287
         itxn_submit
         let awst_tmp%1#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%8#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%1#0)
+        let tmp%8#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = array_len(tmp%8#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%8#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = tmp%8#0
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
         (assert tmp%10#0) // application log value is not the result of an ABI return
-        let tmp%11#0: string = decode_bytes<string>(tmp%8#0)
+        let tmp%11#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%1#0)
         let result#1: string = tmp%11#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#1: bool = 1u
@@ -3462,11 +3533,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
     block@2: // next_txn_L314
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%2#0: Encoded(len+uint8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%2#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: bytes = decode_bytes<bytes>(tmp%2#0)
+        let tmp%5#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
         let result#0: bytes = tmp%5#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -3764,11 +3842,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
     block@2: // next_txn_L338
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%3#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%3#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%3#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%3#0
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
-        let tmp%6#0: string = decode_bytes<string>(tmp%3#0)
+        let tmp%6#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%6#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u

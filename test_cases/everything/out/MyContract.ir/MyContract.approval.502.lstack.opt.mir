@@ -127,21 +127,32 @@ subroutine register:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
         txna ApplicationArgs 1                                                          name#0
-        v-store name#0
+        l-store-copy name#0 0                                                           name#0,name#0 (copy)
+        v-store name#0                                                                  name#0
+        l-load-copy name#0 0                                                            name#0,name#0 (copy)
+        int 0                                                                           name#0,name#0 (copy),0
+        extract_uint16                                                                  name#0,aggregate%array_length%0#0
+        int 2                                                                           name#0,aggregate%array_length%0#0,2
+        +                                                                               name#0,add%0#0
+        l-load name#0 1                                                                 add%0#0,name#0
+        len                                                                             add%0#0,len%0#0
+        l-load add%0#0 1                                                                len%0#0,add%0#0
+        ==                                                                              eq%0#0
+        assert // invalid number of bytes for (len+utf8[])
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        txn Sender                                                                      tmp%0#1
+        txn Sender                                                                      tmp%0#2
         // everything/contract.py:25
         // addr = Account(BANNED)
-        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               tmp%0#1,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         !=                                                                              tmp%2#0
         assert // You are banned, goodbye
         // everything/contract.py:50
         // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                                                tmp%0#0
-        int OptIn                                                                       tmp%0#0,OptIn
+        txn OnCompletion                                                                tmp%0#1
+        int OptIn                                                                       tmp%0#1,OptIn
         ==                                                                              tmp%1#0
         bz register_after_if_else@5 ; b register_if_body@2
 
@@ -274,7 +285,17 @@ subroutine calculate:
         // everything/contract.py:64
         // @abimethod
         txna ApplicationArgs 1                                                          a#0
+        l-load-copy a#0 0                                                               a#0,a#0 (copy)
+        len                                                                             a#0,len%0#0
+        int 8                                                                           a#0,len%0#0,8
+        ==                                                                              a#0,eq%0#0
+        assert // invalid number of bytes for uint64                                    a#0
         txna ApplicationArgs 2                                                          a#0,b#0
+        l-load-copy b#0 0                                                               a#0,b#0,b#0 (copy)
+        len                                                                             a#0,b#0,len%1#0
+        int 8                                                                           a#0,b#0,len%1#0,8
+        ==                                                                              a#0,b#0,eq%1#0
+        assert // invalid number of bytes for uint64                                    a#0,b#0
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         l-load a#0 1                                                                    b#0,a#0
@@ -283,17 +304,17 @@ subroutine calculate:
         btoi                                                                            tmp%0#0,tmp%1#2
         l-load tmp%0#0 1                                                                tmp%1#2,tmp%0#0
         l-load-copy tmp%1#2 1                                                           tmp%1#2,tmp%0#0,tmp%1#2 (copy)
-        +                                                                               tmp%1#2,tmp%2#1
+        +                                                                               tmp%1#2,tmp%2#2
         // everything/contract.py:67
         // return arc4_UInt64(c.as_uint64() * b.as_uint64())
-        l-load tmp%1#2 1                                                                tmp%2#1,tmp%1#2
-        *                                                                               tmp%3#0
+        l-load tmp%1#2 1                                                                tmp%2#2,tmp%1#2
+        *                                                                               tmp%3#1
         itob                                                                            aggregate%val_as_bytes%0#0
         // everything/contract.py:64
         // @abimethod
         byte 0x151f7c75                                                                 aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                             0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                          tmp%1#0
+        concat                                                                          tmp%3#0
         log
         int 1                                                                           1
         return

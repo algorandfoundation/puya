@@ -977,6 +977,11 @@ test_bool_array:
     // array/immutable.py:155
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/immutable.py:157
     // arr = ImmutableArray[bool]()
@@ -1928,6 +1933,17 @@ test_implicit_conversion_log:
     // array/immutable.py:250
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     // array/immutable.py:252
     // log(arr)
     log
@@ -1939,14 +1955,24 @@ test_implicit_conversion_log:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit[routing]() -> void:
 test_implicit_conversion_emit:
-    // array/immutable.py:256
-    // arc4.emit("emit_test", arr)
-    pushbytes 0xfa40c0530002
     // array/immutable.py:254
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     // array/immutable.py:256
     // arc4.emit("emit_test", arr)
+    pushbytes 0xfa40c0530002
+    swap
     concat
     log
     // array/immutable.py:254
@@ -1964,6 +1990,11 @@ test_nested_array:
     // array/immutable.py:258
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
     // array/immutable.py:262-263
@@ -2441,34 +2472,67 @@ test_bit_packed_tuples_after_for@5:
 // test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues[routing]() -> void:
 sum_uints_and_lengths_and_trues:
     bytec_0 // ""
-    dupn 6
+    dupn 4
     // array/immutable.py:341
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+uint64[])
     txna ApplicationArgs 2
+    dupn 2
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 2
+    pushint 7 // 7
+    +
+    intc_3 // 8
+    /
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+bool1[])
     txna ApplicationArgs 3
+    dupn 2
+    intc_0 // 0
+    extract_uint16
+    dup
+    cover 2
+    pushint 9 // 9
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 4
     // array/immutable.py:349
     // sum1 = sum2 = sum3 = sum4 = UInt64()
     intc_0 // 0
-    dupn 3
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    txna ApplicationArgs 1
-    // array/immutable.py:350
-    // for i in arr1:
-    intc_0 // 0
-    extract_uint16
-    intc_0 // 0
+    dupn 4
 
 sum_uints_and_lengths_and_trues_for_header@2:
     // array/immutable.py:350
     // for i in arr1:
     dup
-    dig 2
+    dig 11
     <
     bz sum_uints_and_lengths_and_trues_after_for@5
-    dig 9
+    dig 11
     extract 2 0
     dig 1
     dup
@@ -2478,35 +2542,29 @@ sum_uints_and_lengths_and_trues_for_header@2:
     extract_uint64
     // array/immutable.py:351
     // sum1 += i
-    dig 4
+    dig 3
     +
-    bury 4
+    bury 3
     intc_1 // 1
     +
     bury 1
     b sum_uints_and_lengths_and_trues_for_header@2
 
 sum_uints_and_lengths_and_trues_after_for@5:
-    // array/immutable.py:352
-    // for b in arr2:
-    dig 8
     intc_0 // 0
-    extract_uint16
-    bury 17
-    intc_0 // 0
-    bury 13
+    bury 15
 
 sum_uints_and_lengths_and_trues_for_header@6:
     // array/immutable.py:352
     // for b in arr2:
-    dig 12
-    dig 17
+    dig 14
+    dig 9
     <
     bz sum_uints_and_lengths_and_trues_after_for@11
-    dig 12
+    dig 14
     pushint 16 // 16
     +
-    dig 9
+    dig 10
     swap
     getbit
     // array/immutable.py:353
@@ -2514,38 +2572,32 @@ sum_uints_and_lengths_and_trues_for_header@6:
     bz sum_uints_and_lengths_and_trues_after_if_else@9
     // array/immutable.py:354
     // sum2 += 1
-    dig 3
+    dig 2
     intc_1 // 1
     +
-    bury 4
+    bury 3
 
 sum_uints_and_lengths_and_trues_after_if_else@9:
-    dig 12
+    dig 14
     intc_1 // 1
     +
-    bury 13
+    bury 15
     b sum_uints_and_lengths_and_trues_for_header@6
 
 sum_uints_and_lengths_and_trues_after_for@11:
-    // array/immutable.py:355
-    // for tup in arr3:
-    dig 7
     intc_0 // 0
-    extract_uint16
-    bury 16
-    intc_0 // 0
-    bury 12
+    bury 14
 
 sum_uints_and_lengths_and_trues_for_header@12:
     // array/immutable.py:355
     // for tup in arr3:
-    dig 11
-    dig 16
+    dig 13
+    dig 7
     <
     bz sum_uints_and_lengths_and_trues_after_for@19
     dig 7
     extract 2 0
-    dig 12
+    dig 14
     pushint 9 // 9
     *
     pushint 9 // 9
@@ -2559,62 +2611,62 @@ sum_uints_and_lengths_and_trues_for_header@12:
     uncover 2
     pushint 65 // 65
     getbit
-    bury 13
+    bury 15
     // array/immutable.py:356
     // sum3 += tup.foo
-    dig 6
+    dig 5
     uncover 2
     +
-    bury 6
+    bury 5
     // array/immutable.py:357
     // if tup.bar:
     bz sum_uints_and_lengths_and_trues_after_if_else@15
     // array/immutable.py:358
     // sum3 += 1
-    dig 4
+    dig 3
     intc_1 // 1
     +
-    bury 5
+    bury 4
 
 sum_uints_and_lengths_and_trues_after_if_else@15:
     // array/immutable.py:359
     // if tup.baz:
-    dig 10
+    dig 12
     bz sum_uints_and_lengths_and_trues_after_if_else@17
     // array/immutable.py:360
     // sum3 += 1
-    dig 4
+    dig 3
     intc_1 // 1
     +
-    bury 5
+    bury 4
 
 sum_uints_and_lengths_and_trues_after_if_else@17:
-    dig 11
+    dig 13
     intc_1 // 1
     +
-    bury 12
+    bury 14
     b sum_uints_and_lengths_and_trues_for_header@12
 
 sum_uints_and_lengths_and_trues_after_for@19:
     // array/immutable.py:361
     // for idx, dyn_tup in uenumerate(arr4):
-    dig 6
+    dig 5
     intc_0 // 0
     extract_uint16
-    bury 15
+    bury 17
     intc_0 // 0
-    bury 14
+    bury 16
 
 sum_uints_and_lengths_and_trues_for_header@20:
     // array/immutable.py:361
     // for idx, dyn_tup in uenumerate(arr4):
-    dig 13
     dig 15
+    dig 17
     <
     bz sum_uints_and_lengths_and_trues_after_for@23
-    dig 6
+    dig 5
     extract 2 0
-    dig 14
+    dig 16
     dup
     cover 2
     intc_2 // 2
@@ -2625,7 +2677,7 @@ sum_uints_and_lengths_and_trues_for_header@20:
     dig 2
     intc_1 // 1
     +
-    dig 18
+    dig 20
     dig 1
     - // on error: index access is out of bounds
     dig 3
@@ -2656,7 +2708,7 @@ sum_uints_and_lengths_and_trues_for_header@20:
     extract 2 0
     // array/immutable.py:362
     // sum4 += dyn_tup.foo
-    dig 9
+    dig 8
     uncover 2
     +
     // array/immutable.py:363
@@ -2666,27 +2718,27 @@ sum_uints_and_lengths_and_trues_for_header@20:
     swap
     dig 1
     +
-    bury 9
+    bury 8
     // array/immutable.py:364
     // assert dyn_tup.bar.bytes.length == idx, "expected string length to match index"
     uncover 2
     ==
     assert // expected string length to match index
-    bury 14
+    bury 16
     b sum_uints_and_lengths_and_trues_for_header@20
 
 sum_uints_and_lengths_and_trues_after_for@23:
     // array/immutable.py:341
     // @arc4.abimethod()
-    dig 2
+    dig 1
     itob
+    dig 3
+    itob
+    concat
     dig 4
     itob
     concat
     dig 5
-    itob
-    concat
-    dig 6
     itob
     concat
     bytec_1 // 0x151f7c75
@@ -2702,6 +2754,11 @@ test_uint64_return:
     // array/immutable.py:368
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/immutable.py:370
     // arr = ImmutableArray((UInt64(1), UInt64(2), UInt64(3)))
@@ -2757,6 +2814,11 @@ test_bool_return:
     // array/immutable.py:375
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/immutable.py:377
     // arr = ImmutableArray((True, False, True, False, True))
@@ -2811,6 +2873,11 @@ test_tuple_return:
     // array/immutable.py:382
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/immutable.py:384
     // arr = ImmutableArray((MyTuple(UInt64(), True, False),))
@@ -2882,6 +2949,11 @@ test_dynamic_tuple_return:
     // array/immutable.py:389
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // array/immutable.py:391
     // arr = ImmutableArray((MyDynamicSizedTuple(UInt64(), String("Hello")),))
@@ -2951,7 +3023,23 @@ test_convert_to_array_and_back:
     // array/immutable.py:396
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 9 // 9
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     swap
     // array/immutable.py:401
@@ -3025,14 +3113,20 @@ test_convert_to_array_and_back_after_for@5:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple[routing]() -> void:
 test_concat_with_arc4_tuple:
-    // array/immutable.py:410
-    // prefix = ImmutableArray((arc4.UInt64(1), arc4.UInt64(2)))
-    bytec 8 // 0x000200000000000000010000000000000002
     // array/immutable.py:406
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
+    // array/immutable.py:410
+    // prefix = ImmutableArray((arc4.UInt64(1), arc4.UInt64(2)))
+    bytec 8 // 0x000200000000000000010000000000000002
     // array/immutable.py:411
     // result = prefix + arg
+    swap
     concat // on error: max array length exceeded
     dup
     extract 2 0
@@ -3057,6 +3151,11 @@ test_concat_with_native_tuple:
     // array/immutable.py:414
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 16 // 16
+    ==
+    assert // invalid number of bytes for (uint64,uint64)
     dup
     extract 0 8
     swap
@@ -3189,11 +3288,20 @@ test_immutable_arc4:
     // array/immutable.py:444
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    // array/immutable.py:446
-    // assert imm, "expected non empty array"
     dup
     intc_0 // 0
     extract_uint16
+    dup
+    pushint 16 // 16
+    *
+    intc_2 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for (len+(uint64,uint64)[])
+    // array/immutable.py:446
+    // assert imm, "expected non empty array"
     dup
     assert // expected non empty array
     // array/immutable.py:447

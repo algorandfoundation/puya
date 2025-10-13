@@ -181,7 +181,13 @@ subroutine add_tup:
     add_tup_block@0:
         // mutable_native_types/case3_with_mutable_struct.py:49
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint64,uint64)%0#0
+        txna ApplicationArgs 1                                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                                  tmp%0#0,tmp%0#0 (copy)
+        len                                                                                    tmp%0#0,len%0#0
+        int 16                                                                                 tmp%0#0,len%0#0,16
+        ==                                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)                                  tmp%0#0
+        l-load tmp%0#0 0                                                                       tmp%0#0
         callsub test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup add_tup%0#0
         pop 1
         int 1                                                                                  1
@@ -193,7 +199,13 @@ subroutine get_tup:
     get_tup_block@0:
         // mutable_native_types/case3_with_mutable_struct.py:56
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                                  tmp%0#0,tmp%0#0 (copy)
+        len                                                                                    tmp%0#0,len%0#0
+        int 8                                                                                  tmp%0#0,len%0#0,8
+        ==                                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                           tmp%0#0
+        l-load tmp%0#0 0                                                                       tmp%0#0
         btoi                                                                                   index#0
         // mutable_native_types/case3_with_mutable_struct.py:58
         // assert index < self.tup_bag.value.count, "index out of bounds"
@@ -223,7 +235,7 @@ subroutine get_tup:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                        aggregate%encoded_element%0#0,0x151f7c75
         l-load aggregate%encoded_element%0#0 1                                                 0x151f7c75,aggregate%encoded_element%0#0
-        concat                                                                                 tmp%2#0
+        concat                                                                                 tmp%3#0
         log
         int 1                                                                                  1
         return
@@ -325,12 +337,23 @@ subroutine add_many_tups:
         txna ApplicationArgs 1                                                                 tups#0
         l-store-copy tups#0 0                                                                  tups#0,tups#0 (copy)
         f-store tups#0                                                                         (𝕗) tups#0 | tups#0
+        l-load-copy tups#0 0                                                                   (𝕗) tups#0 | tups#0,tups#0 (copy)
+        int 0                                                                                  (𝕗) tups#0 | tups#0,tups#0 (copy),0
+        extract_uint16                                                                         (𝕗) tups#0 | tups#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                              (𝕗) tups#0 | tups#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        f-store aggregate%array_length%0#0                                                     (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                    (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,aggregate%array_length%0#0
+        int 16                                                                                 (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,aggregate%array_length%0#0,16
+        *                                                                                      (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,mul%0#0
+        int 2                                                                                  (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,mul%0#0,2
+        +                                                                                      (𝕗) tups#0,aggregate%array_length%0#0 | tups#0,add%0#0
+        l-load tups#0 1                                                                        (𝕗) tups#0,aggregate%array_length%0#0 | add%0#0,tups#0
+        len                                                                                    (𝕗) tups#0,aggregate%array_length%0#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                       (𝕗) tups#0,aggregate%array_length%0#0 | len%0#0,add%0#0
+        ==                                                                                     (𝕗) tups#0,aggregate%array_length%0#0 | eq%0#0
+        assert // invalid number of bytes for (len+(uint64,uint64)[])                          (𝕗) tups#0,aggregate%array_length%0#0 |
         // mutable_native_types/case3_with_mutable_struct.py:72
         // for i in urange(tups.length):
-        l-load tups#0 0                                                                        (𝕗) tups#0 | tups#0
-        int 0                                                                                  (𝕗) tups#0 | tups#0,0
-        extract_uint16                                                                         (𝕗) tups#0 | aggregate%array_length%0#0
-        f-store aggregate%array_length%0#0                                                     (𝕗) tups#0,aggregate%array_length%0#0 |
         int 0                                                                                  (𝕗) tups#0,aggregate%array_length%0#0 | value_internal%0#0
         f-store i#0                                                                            (𝕗) tups#0,aggregate%array_length%0#0,i#0 |
         b add_many_tups_for_header@2                                                           (𝕗) tups#0,aggregate%array_length%0#0,i#0 |
@@ -379,7 +402,13 @@ subroutine add_fixed_tups:
         // mutable_native_types/case3_with_mutable_struct.py:75
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                 tups#0
-        f-store tups#0                                                                         (𝕗) tups#0 |
+        l-store-copy tups#0 0                                                                  tups#0,tups#0 (copy)
+        f-store tups#0                                                                         (𝕗) tups#0 | tups#0
+        l-load tups#0 0                                                                        (𝕗) tups#0 | tups#0
+        len                                                                                    (𝕗) tups#0 | len%0#0
+        int 48                                                                                 (𝕗) tups#0 | len%0#0,48
+        ==                                                                                     (𝕗) tups#0 | eq%0#0
+        assert // invalid number of bytes for (uint64,uint64)[3]                               (𝕗) tups#0 |
         // mutable_native_types/case3_with_mutable_struct.py:77
         // for i in urange(tups.length):
         int 0                                                                                  (𝕗) tups#0 | value_internal%0#0
@@ -427,62 +456,68 @@ subroutine set_a:
     set_a_block@0:
         // mutable_native_types/case3_with_mutable_struct.py:80
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint64)%0#0
-        f-store reinterpret_Encoded(uint64)%0#0                                                (𝕗) reinterpret_Encoded(uint64)%0#0 |
+        txna ApplicationArgs 1                                                                 tmp%0#0
+        l-store-copy tmp%0#0 0                                                                 tmp%0#0,tmp%0#0 (copy)
+        f-store tmp%0#0                                                                        (𝕗) tmp%0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                       (𝕗) tmp%0#0 | tmp%0#0
+        len                                                                                    (𝕗) tmp%0#0 | len%0#0
+        int 8                                                                                  (𝕗) tmp%0#0 | len%0#0,8
+        ==                                                                                     (𝕗) tmp%0#0 | eq%0#0
+        assert // invalid number of bytes for uint64                                           (𝕗) tmp%0#0 |
         // mutable_native_types/case3_with_mutable_struct.py:82
         // self._check_owner()
-        callsub _check_owner                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0 |
+        callsub _check_owner                                                                   (𝕗) tmp%0#0 |
         // mutable_native_types/case3_with_mutable_struct.py:83
         // for i in urange(self.tup_bag.value.count):
-        byte "tup_bag"                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag"
-        int 0                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag",0
-        int 8                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag",0,8
-        box_extract                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0 | box%box_extract%0#0
-        btoi                                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0 | values%0#0
-        f-store values%0#0                                                                     (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0 |
-        int 0                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0 | value_internal%0#0
-        f-store i#0                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
-        b set_a_for_header@2                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        byte "tup_bag"                                                                         (𝕗) tmp%0#0 | "tup_bag"
+        int 0                                                                                  (𝕗) tmp%0#0 | "tup_bag",0
+        int 8                                                                                  (𝕗) tmp%0#0 | "tup_bag",0,8
+        box_extract                                                                            (𝕗) tmp%0#0 | box%box_extract%0#0
+        btoi                                                                                   (𝕗) tmp%0#0 | values%0#0
+        f-store values%0#0                                                                     (𝕗) tmp%0#0,values%0#0 |
+        int 0                                                                                  (𝕗) tmp%0#0,values%0#0 | value_internal%0#0
+        f-store i#0                                                                            (𝕗) tmp%0#0,values%0#0,i#0 |
+        b set_a_for_header@2                                                                   (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_a_for_header@2:                                                                        (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_a_for_header@2:                                                                        (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:83
         // for i in urange(self.tup_bag.value.count):
-        f-load i#0                                                                             (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        f-load values%0#0                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,values%0#0
-        <                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | continue_looping%0#0
-        bz set_a_after_for@5 ; b set_a_for_body@3                                              (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        f-load i#0                                                                             (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        f-load values%0#0                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,values%0#0
+        <                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | continue_looping%0#0
+        bz set_a_after_for@5 ; b set_a_for_body@3                                              (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_a_for_body@3:                                                                          (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_a_for_body@3:                                                                          (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:84
         // self.tup_bag.value.items[i].a = a
-        f-load i#0                                                                             (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        l-store-copy i#0 0                                                                     (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy)
-        int 8                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy),8
-        <                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%index_ok%0#0
-        assert // index out of bounds                                                          (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        l-load-copy i#0 0                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy)
-        int 16                                                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy),16
-        *                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0
-        int 8                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0,8
-        l-load box%element_offset%0#0 1                                                        (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,8,box%element_offset%0#0
-        +                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%offset%2#0
-        byte "tup_bag"                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%offset%2#0,"tup_bag"
-        l-load box%offset%2#0 1                                                                (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%2#0
-        f-load reinterpret_Encoded(uint64)%0#0                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%2#0,reinterpret_Encoded(uint64)%0#0
-        box_replace                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
+        f-load i#0                                                                             (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        l-store-copy i#0 0                                                                     (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy)
+        int 8                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy),8
+        <                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%index_ok%0#0
+        assert // index out of bounds                                                          (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        l-load-copy i#0 0                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy)
+        int 16                                                                                 (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy),16
+        *                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0
+        int 8                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0,8
+        l-load box%element_offset%0#0 1                                                        (𝕗) tmp%0#0,values%0#0,i#0 | i#0,8,box%element_offset%0#0
+        +                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%offset%2#0
+        byte "tup_bag"                                                                         (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%offset%2#0,"tup_bag"
+        l-load box%offset%2#0 1                                                                (𝕗) tmp%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%2#0
+        f-load tmp%0#0                                                                         (𝕗) tmp%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%2#0,tmp%0#0
+        box_replace                                                                            (𝕗) tmp%0#0,values%0#0,i#0 | i#0
         // mutable_native_types/case3_with_mutable_struct.py:83
         // for i in urange(self.tup_bag.value.count):
-        l-load i#0 0                                                                           (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        int 1                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,1
-        +                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | value_internal%0#0
-        f-store i#0                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
-        b set_a_for_header@2                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        l-load i#0 0                                                                           (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        int 1                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | i#0,1
+        +                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | value_internal%0#0
+        f-store i#0                                                                            (𝕗) tmp%0#0,values%0#0,i#0 |
+        b set_a_for_header@2                                                                   (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_a_after_for@5:                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_a_after_for@5:                                                                         (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:80
         // @arc4.abimethod()
-        int 1                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | 1
-        return                                                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        int 1                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | 1
+        return                                                                                 (𝕗) tmp%0#0,values%0#0,i#0 |
 
 
 // test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b[routing]() -> void:
@@ -490,61 +525,67 @@ subroutine set_b:
     set_b_block@0:
         // mutable_native_types/case3_with_mutable_struct.py:86
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint64)%0#0
-        f-store reinterpret_Encoded(uint64)%0#0                                                (𝕗) reinterpret_Encoded(uint64)%0#0 |
+        txna ApplicationArgs 1                                                                 tmp%0#0
+        l-store-copy tmp%0#0 0                                                                 tmp%0#0,tmp%0#0 (copy)
+        f-store tmp%0#0                                                                        (𝕗) tmp%0#0 | tmp%0#0
+        l-load tmp%0#0 0                                                                       (𝕗) tmp%0#0 | tmp%0#0
+        len                                                                                    (𝕗) tmp%0#0 | len%0#0
+        int 8                                                                                  (𝕗) tmp%0#0 | len%0#0,8
+        ==                                                                                     (𝕗) tmp%0#0 | eq%0#0
+        assert // invalid number of bytes for uint64                                           (𝕗) tmp%0#0 |
         // mutable_native_types/case3_with_mutable_struct.py:88
         // self._check_owner()
-        callsub _check_owner                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0 |
+        callsub _check_owner                                                                   (𝕗) tmp%0#0 |
         // mutable_native_types/case3_with_mutable_struct.py:89
         // for i in urange(self.tup_bag.value.count):
-        byte "tup_bag"                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag"
-        int 0                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag",0
-        int 8                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0 | "tup_bag",0,8
-        box_extract                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0 | box%box_extract%0#0
-        btoi                                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0 | values%0#0
-        f-store values%0#0                                                                     (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0 |
-        int 0                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0 | value_internal%0#0
-        f-store i#0                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
-        b set_b_for_header@2                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        byte "tup_bag"                                                                         (𝕗) tmp%0#0 | "tup_bag"
+        int 0                                                                                  (𝕗) tmp%0#0 | "tup_bag",0
+        int 8                                                                                  (𝕗) tmp%0#0 | "tup_bag",0,8
+        box_extract                                                                            (𝕗) tmp%0#0 | box%box_extract%0#0
+        btoi                                                                                   (𝕗) tmp%0#0 | values%0#0
+        f-store values%0#0                                                                     (𝕗) tmp%0#0,values%0#0 |
+        int 0                                                                                  (𝕗) tmp%0#0,values%0#0 | value_internal%0#0
+        f-store i#0                                                                            (𝕗) tmp%0#0,values%0#0,i#0 |
+        b set_b_for_header@2                                                                   (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_b_for_header@2:                                                                        (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_b_for_header@2:                                                                        (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:89
         // for i in urange(self.tup_bag.value.count):
-        f-load i#0                                                                             (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        f-load values%0#0                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,values%0#0
-        <                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | continue_looping%0#0
-        bz set_b_after_for@5 ; b set_b_for_body@3                                              (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        f-load i#0                                                                             (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        f-load values%0#0                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,values%0#0
+        <                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | continue_looping%0#0
+        bz set_b_after_for@5 ; b set_b_for_body@3                                              (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_b_for_body@3:                                                                          (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_b_for_body@3:                                                                          (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:90
         // self.tup_bag.value.items[i].b = b
-        f-load i#0                                                                             (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        l-store-copy i#0 0                                                                     (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy)
-        int 8                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy),8
-        <                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%index_ok%0#0
-        assert // index out of bounds                                                          (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        l-load-copy i#0 0                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy)
-        int 16                                                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,i#0 (copy),16
-        *                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0
-        int 16                                                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0,16
-        +                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%offset%3#0
-        byte "tup_bag"                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,box%offset%3#0,"tup_bag"
-        l-load box%offset%3#0 1                                                                (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%3#0
-        f-load reinterpret_Encoded(uint64)%0#0                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%3#0,reinterpret_Encoded(uint64)%0#0
-        box_replace                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
+        f-load i#0                                                                             (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        l-store-copy i#0 0                                                                     (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy)
+        int 8                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy),8
+        <                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%index_ok%0#0
+        assert // index out of bounds                                                          (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        l-load-copy i#0 0                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy)
+        int 16                                                                                 (𝕗) tmp%0#0,values%0#0,i#0 | i#0,i#0 (copy),16
+        *                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0
+        int 16                                                                                 (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%element_offset%0#0,16
+        +                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%offset%3#0
+        byte "tup_bag"                                                                         (𝕗) tmp%0#0,values%0#0,i#0 | i#0,box%offset%3#0,"tup_bag"
+        l-load box%offset%3#0 1                                                                (𝕗) tmp%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%3#0
+        f-load tmp%0#0                                                                         (𝕗) tmp%0#0,values%0#0,i#0 | i#0,"tup_bag",box%offset%3#0,tmp%0#0
+        box_replace                                                                            (𝕗) tmp%0#0,values%0#0,i#0 | i#0
         // mutable_native_types/case3_with_mutable_struct.py:89
         // for i in urange(self.tup_bag.value.count):
-        l-load i#0 0                                                                           (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0
-        int 1                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | i#0,1
-        +                                                                                      (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | value_internal%0#0
-        f-store i#0                                                                            (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
-        b set_b_for_header@2                                                                   (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        l-load i#0 0                                                                           (𝕗) tmp%0#0,values%0#0,i#0 | i#0
+        int 1                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | i#0,1
+        +                                                                                      (𝕗) tmp%0#0,values%0#0,i#0 | value_internal%0#0
+        f-store i#0                                                                            (𝕗) tmp%0#0,values%0#0,i#0 |
+        b set_b_for_header@2                                                                   (𝕗) tmp%0#0,values%0#0,i#0 |
 
-    set_b_after_for@5:                                                                         (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+    set_b_after_for@5:                                                                         (𝕗) tmp%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:86
         // @arc4.abimethod()
-        int 1                                                                                  (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 | 1
-        return                                                                                 (𝕗) reinterpret_Encoded(uint64)%0#0,values%0#0,i#0 |
+        int 1                                                                                  (𝕗) tmp%0#0,values%0#0,i#0 | 1
+        return                                                                                 (𝕗) tmp%0#0,values%0#0,i#0 |
 
 
 // test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups[routing]() -> void:
@@ -552,7 +593,13 @@ subroutine get_3_tups:
     get_3_tups_block@0:
         // mutable_native_types/case3_with_mutable_struct.py:92
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                 reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 1                                                                 tmp%0#0
+        l-load-copy tmp%0#0 0                                                                  tmp%0#0,tmp%0#0 (copy)
+        len                                                                                    tmp%0#0,len%0#0
+        int 8                                                                                  tmp%0#0,len%0#0,8
+        ==                                                                                     tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                                           tmp%0#0
+        l-load tmp%0#0 0                                                                       tmp%0#0
         btoi                                                                                   start#0
         // mutable_native_types/case3_with_mutable_struct.py:94
         // assert self.tup_bag.value.count >= start + 3, "not enough items"
@@ -598,8 +645,8 @@ subroutine get_3_tups:
         // items[start + 2].copy(),
         l-load start#0 3                                                                       box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,start#0
         int 2                                                                                  box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,start#0,2
-        +                                                                                      box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#0
-        int 16                                                                                 box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#0,16
+        +                                                                                      box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#1
+        int 16                                                                                 box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,tmp%3#1,16
         *                                                                                      box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,aggregate%bytes_offset%2#0
         l-load box%box_extract%2#0 3                                                           aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,aggregate%bytes_offset%2#0,box%box_extract%2#0
         l-load aggregate%bytes_offset%2#0 1                                                    aggregate%encoded_element%0#0,aggregate%encoded_element%1#0,box%box_extract%2#0,aggregate%bytes_offset%2#0
@@ -622,7 +669,7 @@ subroutine get_3_tups:
         // @arc4.abimethod()
         byte 0x151f7c75                                                                        aggregate%head%2#0,0x151f7c75
         l-load aggregate%head%2#0 1                                                            0x151f7c75,aggregate%head%2#0
-        concat                                                                                 tmp%2#0
+        concat                                                                                 tmp%3#0
         log
         int 1                                                                                  1
         return

@@ -10,11 +10,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (&& tmp%3#0 tmp%4#0)
         (assert tmp%6#0) // OnCompletion must be one of NoOp, OptIn && can only call when not creating
         let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%0#5: account = (txn Sender)
-        let tmp%2#5: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
-        (assert tmp%2#5) // You are banned, goodbye
-        let tmp%0#4: uint64 = (txn OnCompletion)
-        let tmp%1#6: bool = (== tmp%0#4 OptIn)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 name#0 0u)
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len name#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let tmp%0#6: account = (txn Sender)
+        let tmp%2#6: bool = (!= tmp%0#6 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        (assert tmp%2#6) // You are banned, goodbye
+        let tmp%0#5: uint64 = (txn OnCompletion)
+        let tmp%1#6: bool = (== tmp%0#5 OptIn)
         goto tmp%1#6 ? block@27 : block@29
     block@27: // if_body_L51
         let (sender_name#0: Encoded(len+utf8[]), sender_name_existed#0: bool) = (app_local_get_ex 0u 0u "name")
@@ -49,9 +54,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%16#0: bytes = (txna ApplicationArgs 0)
         switch tmp%16#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@14}
     block@8: // say_hello_route_L56
-        let tmp%0#5: account = (txn Sender)
-        let tmp%2#5: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
-        (assert tmp%2#5) // You are banned, goodbye
+        let tmp%0#6: account = (txn Sender)
+        let tmp%2#6: bool = (!= tmp%0#6 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        (assert tmp%2#6) // You are banned, goodbye
         let (name#0: Encoded(len+utf8[]), exists#0: bool) = (app_local_get_ex 0u 0u "name")
         goto exists#0 ? block@21 : block@20
     block@20: // if_body_L61
@@ -75,29 +80,35 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: bytes = replace%1#0
         goto block@22
     block@22: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
-        let tmp%1#2: bytes = (concat 0x151f7c75 tmp%0#1)
-        (log tmp%1#2)
+        let tmp%1#4: bytes = (concat 0x151f7c75 tmp%0#1)
+        (log tmp%1#4)
         exit 1u
     block@9: // calculate_route_L64
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len a#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%0#4: uint64 = (btoi a#0)
+        let len%1#0: uint64 = (len b#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let tmp%0#5: uint64 = (btoi a#0)
         let tmp%1#1: uint64 = (btoi b#0)
-        let tmp%2#0: uint64 = (+ tmp%0#4 tmp%1#1)
+        let tmp%2#0: uint64 = (+ tmp%0#5 tmp%1#1)
         let tmp%3#0: uint64 = (* tmp%2#0 tmp%1#1)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
-        let tmp%1#2: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
-        (log tmp%1#2)
+        let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
+        (log tmp%3#1)
         exit 1u
     block@11: // create_NoOp_L37
         let tmp%17#0: bytes = (txna ApplicationArgs 0)
         switch tmp%17#0 {method "create()void" => block@12, * => block@14}
     block@12: // create_route_L41
-        let tmp%0#5: account = (txn Sender)
-        let tmp%2#5: bool = (!= tmp%0#5 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
-        (assert tmp%2#5) // You are banned, goodbye
-        let tmp%0#5: account = (txn Sender)
-        (app_global_put "creator" tmp%0#5)
+        let tmp%0#6: account = (txn Sender)
+        let tmp%2#6: bool = (!= tmp%0#6 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        (assert tmp%2#6) // You are banned, goodbye
+        let tmp%0#6: account = (txn Sender)
+        (app_global_put "creator" tmp%0#6)
         (app_global_put "counter" 0u)
         exit 1u
     block@14: // after_if_else_L37

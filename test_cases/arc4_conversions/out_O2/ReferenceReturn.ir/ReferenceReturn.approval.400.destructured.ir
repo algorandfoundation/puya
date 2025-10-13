@@ -11,33 +11,60 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "acc_ret()address" => block@4, method "asset_ret()uint64" => block@5, method "app_ret()uint64" => block@5, method "store(address,uint64,uint64)void" => block@7, method "store_apps(uint64[])void" => block@8, method "store_assets(uint64[])void" => block@9, method "store_accounts(address[])void" => block@10, method "return_apps()uint64[]" => block@11, method "return_assets()uint64[]" => block@12, method "return_accounts()address[]" => block@13, * => block@16}
     block@4: // acc_ret_route_L5
-        let tmp%0#3: account = (txn Sender)
-        let tmp%2#3: bytes = (concat 0x151f7c75 tmp%0#3)
-        (log tmp%2#3)
+        let tmp%0#4: account = (txn Sender)
+        let tmp%2#1: bytes = (concat 0x151f7c75 tmp%0#4)
+        (log tmp%2#1)
         exit 1u
     block@5: // asset_ret_route_L9
         (log 0x151f7c7500000000000004d2)
         exit 1u
     block@7: // store_route_L17
         let acc#0: account = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let app#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let asset#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
+        let len%0#0: uint64 = (len acc#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let app#0: uint64 = (btoi tmp%2#1)
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let asset#0: uint64 = (btoi tmp%4#1)
         (app_global_put "acc" acc#0)
         (app_global_put "asset" asset#0)
         (app_global_put "app" app#0)
         exit 1u
     block@8: // store_apps_route_L23
         let apps#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 apps#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len apps#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
         (app_global_put "apps" apps#0)
         exit 1u
     block@9: // store_assets_route_L27
         let assets#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 assets#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%1#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len assets#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
         (app_global_put "assets" assets#0)
         exit 1u
     block@10: // store_accounts_route_L31
         let accounts#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 accounts#0 0u)
+        let mul%0#0: uint64 = (* aggregate%array_length%2#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len accounts#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+uint8[32][])
         (app_global_put "accounts" accounts#0)
         exit 1u
     block@11: // return_apps_route_L35

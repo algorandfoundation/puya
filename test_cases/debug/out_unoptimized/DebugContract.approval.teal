@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 TMPL_A_MULT
+    intcblock 0 1 8 TMPL_A_MULT
     bytecblock 0x30313233343536373839 "" " "
     b main_block@0
 
@@ -192,10 +192,25 @@ test_block@0:
     // debug/contract.py:5
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     uncover 2
     uncover 2
@@ -226,7 +241,7 @@ test_cases.debug.contract.DebugContract.test_block@0:
     // debug/contract.py:7
     // a = x * TemplateVar[UInt64]("A_MULT")
     frame_dig -3
-    intc_2 // TMPL_A_MULT
+    intc_3 // TMPL_A_MULT
     *
     // debug/contract.py:8
     // b = x + y

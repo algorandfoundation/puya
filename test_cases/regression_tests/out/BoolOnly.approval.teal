@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 2
     bytecblock 0x151f7c75
     // regression_tests/bool_only.py:4
     // class BoolOnly(arc4.ARC4Contract):
@@ -33,6 +33,15 @@ set_0_convert:
     // regression_tests/bool_only.py:5
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // regression_tests/bool_only.py:7
     // return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
@@ -63,6 +72,15 @@ set_0_compare:
     // regression_tests/bool_only.py:9
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     // regression_tests/bool_only.py:11
     // return op.setbit_bytes(inp, 0, Txn.num_app_args > 0)
@@ -117,7 +135,7 @@ bool_only_properties:
     itxn_field Nonparticipation
     // regression_tests/bool_only.py:20
     // itxn.KeyRegistration(
-    pushint 2 // keyreg
+    intc_2 // keyreg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

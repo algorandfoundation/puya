@@ -67,6 +67,9 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:
     block@0: // L53
         let arg#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
         (app_global_put "fixed_struct" arg#0)
         exit 1u
 
@@ -81,6 +84,9 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[rout
 subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]() -> void:
     block@0: // L61
         let arg#0: Encoded((uint64,uint64),uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%0#0: bool = (== len%0#0 24u)
+        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),uint64)
         (app_global_put "nested_struct" arg#0)
         exit 1u
 
@@ -109,6 +115,9 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[ro
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]() -> void:
     block@0: // L77
         let arg#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
         (app_global_put "fixed_arr" arg#0)
         exit 1u
 
@@ -123,6 +132,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing
 subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]() -> void:
     block@0: // L85
         let arg#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 arg#0 0u)
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
         (app_global_put "native_arr" arg#0)
         exit 1u
 
