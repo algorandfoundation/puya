@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.1.0'></a>
+## v5.1.0 (2025-10-13)
+
+### Added
+
+- added language server code fix for .copy() requirements
+
 <a id='changelog-v5.0.1'></a>
 ## v5.0.1 (2025-10-06)
 
