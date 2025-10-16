@@ -59,7 +59,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#1: bool = (== tmp%2#1 1u)
         (assert tmp%3#1) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#1: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%4#1)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%5#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#1: bool = (== tmp%5#1 0x151f7c75)
         (assert tmp%6#1) // application log value is not the result of an ABI return

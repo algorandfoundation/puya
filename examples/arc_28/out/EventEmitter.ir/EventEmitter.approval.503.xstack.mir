@@ -26,12 +26,22 @@ subroutine main:
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 1                                                        tmp%7#0
+        l-load-copy tmp%7#0 0                                                         tmp%7#0,tmp%7#0 (copy)
+        len                                                                           tmp%7#0,value_len%0#0
+        int 8                                                                         tmp%7#0,value_len%0#0,8
+        ==                                                                            tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                             tmp%7#0
+        txna ApplicationArgs 2                                                        tmp%7#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                         tmp%7#0,tmp%8#0,tmp%8#0 (copy)
+        len                                                                           tmp%7#0,tmp%8#0,value_len%1#0
+        int 8                                                                         tmp%7#0,tmp%8#0,value_len%1#0,8
+        ==                                                                            tmp%7#0,tmp%8#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                             tmp%7#0,tmp%8#0
         // arc_28/contract.py:12
         // @arc4.abimethod
-        l-load reinterpret_bytes[8]%0#0 1                                             reinterpret_bytes[8]%1#0,reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%1#0 1                                             reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        l-load tmp%7#0 1                                                              tmp%8#0,tmp%7#0
+        l-load tmp%8#0 1                                                              tmp%7#0,tmp%8#0
         callsub emit_swapped
         int 1                                                                         examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |
@@ -40,19 +50,29 @@ subroutine main:
     main_emit_ufixed_route@4:
         // arc_28/contract.py:18
         // @arc4.abimethod()
-        txn OnCompletion                                                              tmp%7#0
-        !                                                                             tmp%8#0
+        txn OnCompletion                                                              tmp%9#0
+        !                                                                             tmp%10#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%9#0
+        txn ApplicationID                                                             tmp%11#0
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[32]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[32]%0#0,reinterpret_bytes[8]%2#0
+        txna ApplicationArgs 1                                                        tmp%13#0
+        l-load-copy tmp%13#0 0                                                        tmp%13#0,tmp%13#0 (copy)
+        len                                                                           tmp%13#0,value_len%2#0
+        int 32                                                                        tmp%13#0,value_len%2#0,32
+        ==                                                                            tmp%13#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.ufixed256x16                       tmp%13#0
+        txna ApplicationArgs 2                                                        tmp%13#0,tmp%14#0
+        l-load-copy tmp%14#0 0                                                        tmp%13#0,tmp%14#0,tmp%14#0 (copy)
+        len                                                                           tmp%13#0,tmp%14#0,value_len%3#0
+        int 8                                                                         tmp%13#0,tmp%14#0,value_len%3#0,8
+        ==                                                                            tmp%13#0,tmp%14#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.ufixed64x2                         tmp%13#0,tmp%14#0
         // arc_28/contract.py:18
         // @arc4.abimethod()
-        l-load reinterpret_bytes[32]%0#0 1                                            reinterpret_bytes[8]%2#0,reinterpret_bytes[32]%0#0
-        l-load reinterpret_bytes[8]%2#0 1                                             reinterpret_bytes[32]%0#0,reinterpret_bytes[8]%2#0
+        l-load tmp%13#0 1                                                             tmp%14#0,tmp%13#0
+        l-load tmp%14#0 1                                                             tmp%13#0,tmp%14#0
         callsub emit_ufixed
         int 1                                                                         examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |
@@ -61,12 +81,12 @@ subroutine main:
     main_bare_routing@7:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txn OnCompletion                                                              tmp%11#0
+        txn OnCompletion                                                              tmp%15#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                             tmp%12#0
-        !                                                                             tmp%13#0
+        txn ApplicationID                                                             tmp%16#0
+        !                                                                             tmp%17#0
         assert // can only call when creating
         int 1                                                                         examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |

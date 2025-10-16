@@ -58,6 +58,19 @@ subroutine main:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         txna ApplicationArgs 1                                                            tmp%12#0
+        l-load-copy tmp%12#0 0                                                            tmp%12#0,tmp%12#0 (copy)
+        int 0                                                                             tmp%12#0,tmp%12#0 (copy),0
+        extract_uint16                                                                    tmp%12#0,length%0#0
+        l-load length%0#0 0                                                               tmp%12#0,length%0#0
+        int 2                                                                             tmp%12#0,length%0#0,2
+        +                                                                                 tmp%12#0,num_bytes_with_header%0#0
+        l-load-copy tmp%12#0 1                                                            tmp%12#0,num_bytes_with_header%0#0,tmp%12#0 (copy)
+        len                                                                               tmp%12#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load value_len%0#0 0                                                            tmp%12#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                tmp%12#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                tmp%12#0,size_is_correct%0#0
+        l-load size_is_correct%0#0 0                                                      tmp%12#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>              tmp%12#0
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
         l-load tmp%12#0 0                                                                 tmp%12#0
@@ -104,17 +117,31 @@ subroutine main:
         assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 1                                                            reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                            reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 1                                                            tmp%23#0
+        l-load-copy tmp%23#0 0                                                            tmp%23#0,tmp%23#0 (copy)
+        len                                                                               tmp%23#0,value_len%1#0
+        l-load value_len%1#0 0                                                            tmp%23#0,value_len%1#0
+        int 8                                                                             tmp%23#0,value_len%1#0,8
+        ==                                                                                tmp%23#0,size_is_correct%1#0
+        l-load size_is_correct%1#0 0                                                      tmp%23#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                                 tmp%23#0
+        txna ApplicationArgs 2                                                            tmp%23#0,tmp%24#0
+        l-load-copy tmp%24#0 0                                                            tmp%23#0,tmp%24#0,tmp%24#0 (copy)
+        len                                                                               tmp%23#0,tmp%24#0,value_len%2#0
+        l-load value_len%2#0 0                                                            tmp%23#0,tmp%24#0,value_len%2#0
+        int 8                                                                             tmp%23#0,tmp%24#0,value_len%2#0,8
+        ==                                                                                tmp%23#0,tmp%24#0,size_is_correct%2#0
+        l-load size_is_correct%2#0 0                                                      tmp%23#0,tmp%24#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint64                                 tmp%23#0,tmp%24#0
         // everything/contract.py:64
         // @abimethod
-        l-load reinterpret_bytes[8]%0#0 1                                                 reinterpret_bytes[8]%1#0,reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%1#0 1                                                 reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
-        callsub calculate                                                                 tmp%23#0
-        byte 0x151f7c75                                                                   tmp%23#0,0x151f7c75
-        l-load tmp%23#0 1                                                                 0x151f7c75,tmp%23#0
-        concat                                                                            tmp%24#0
-        l-load tmp%24#0 0                                                                 tmp%24#0
+        l-load tmp%23#0 1                                                                 tmp%24#0,tmp%23#0
+        l-load tmp%24#0 1                                                                 tmp%23#0,tmp%24#0
+        callsub calculate                                                                 tmp%25#0
+        byte 0x151f7c75                                                                   tmp%25#0,0x151f7c75
+        l-load tmp%25#0 1                                                                 0x151f7c75,tmp%25#0
+        concat                                                                            tmp%26#0
+        l-load tmp%26#0 0                                                                 tmp%26#0
         log
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -125,14 +152,14 @@ subroutine main:
     main_close_out_route@9:
         // everything/contract.py:69
         // @abimethod(allow_actions=["CloseOut"])
-        txn OnCompletion                                                                  tmp%25#0
-        l-load tmp%25#0 0                                                                 tmp%25#0
-        int CloseOut                                                                      tmp%25#0,CloseOut
-        ==                                                                                tmp%26#0
-        l-load tmp%26#0 0                                                                 tmp%26#0
-        assert // OnCompletion is not CloseOut
-        txn ApplicationID                                                                 tmp%27#0
+        txn OnCompletion                                                                  tmp%27#0
         l-load tmp%27#0 0                                                                 tmp%27#0
+        int CloseOut                                                                      tmp%27#0,CloseOut
+        ==                                                                                tmp%28#0
+        l-load tmp%28#0 0                                                                 tmp%28#0
+        assert // OnCompletion is not CloseOut
+        txn ApplicationID                                                                 tmp%29#0
+        l-load tmp%29#0 0                                                                 tmp%29#0
         assert // can only call when not creating
         callsub close_out
         int 1                                                                             1

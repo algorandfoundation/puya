@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 1
+    intcblock 0 1 6
     bytecblock 0x098101 0x31 0x32 0x33
     pushbytes ""
     txn NumAppArgs
@@ -27,6 +27,11 @@ main_test_branching_array_call_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
     pushbytes 0x00
     !=
     dup
@@ -41,7 +46,7 @@ main_test_branching_array_call_route@3:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -60,7 +65,7 @@ main_after_if_else@17:
     assert // correct args used 2
 
 main_after_if_else@20:
-    intc_2 // 1
+    intc_1 // 1
     bury 1
     b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11
 
@@ -93,7 +98,7 @@ main_else_body@16:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -106,6 +111,6 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
+    intc_1 // 1
     bury 1
     b main_after_inlined_test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__@11

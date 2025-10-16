@@ -3,7 +3,7 @@
 
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 2 8
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -23,7 +23,7 @@ main_close_out_route@9:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
-    pushint 2 // CloseOut
+    intc_2 // CloseOut
     ==
     assert // OnCompletion is not CloseOut
     txn ApplicationID
@@ -43,7 +43,17 @@ main_calculate_route@8:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     // everything/contract.py:64
     // @abimethod
     callsub calculate
@@ -84,6 +94,15 @@ main_register_route@6:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     callsub register

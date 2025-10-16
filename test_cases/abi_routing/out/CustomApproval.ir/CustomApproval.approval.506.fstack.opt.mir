@@ -64,15 +64,21 @@ subroutine main:
         assert // can only call when not creating                                                     (𝕗) result#0 |
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
-        txna ApplicationArgs 1                                                                        (𝕗) result#0 | reinterpret_bytes[8]%0#0
-        btoi                                                                                          (𝕗) result#0 | tmp%7#0
+        txna ApplicationArgs 1                                                                        (𝕗) result#0 | tmp%7#0
+        l-load-copy tmp%7#0 0                                                                         (𝕗) result#0 | tmp%7#0,tmp%7#0 (copy)
+        len                                                                                           (𝕗) result#0 | tmp%7#0,value_len%0#0
+        int 8                                                                                         (𝕗) result#0 | tmp%7#0,value_len%0#0,8
+        ==                                                                                            (𝕗) result#0 | tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                             (𝕗) result#0 | tmp%7#0
+        l-load tmp%7#0 0                                                                              (𝕗) result#0 | tmp%7#0
+        btoi                                                                                          (𝕗) result#0 | tmp%8#0
         // abi_routing/custom_approval.py:23
         // @arc4.abimethod
         callsub add_one                                                                               (𝕗) result#0 | to_encode%0#0
         itob                                                                                          (𝕗) result#0 | val_as_bytes%0#0
         byte 0x151f7c75                                                                               (𝕗) result#0 | val_as_bytes%0#0,0x151f7c75
         l-load val_as_bytes%0#0 1                                                                     (𝕗) result#0 | 0x151f7c75,val_as_bytes%0#0
-        concat                                                                                        (𝕗) result#0 | tmp%8#0
+        concat                                                                                        (𝕗) result#0 | tmp%9#0
         log                                                                                           (𝕗) result#0 |
         int 1                                                                                         (𝕗) result#0 | result#0
         f-store result#0                                                                              (𝕗) result#0 |
@@ -81,12 +87,12 @@ subroutine main:
     main_bare_routing@12:                                                                             (𝕗) result#0 |
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
-        txn OnCompletion                                                                              (𝕗) result#0 | tmp%9#0
+        txn OnCompletion                                                                              (𝕗) result#0 | tmp%10#0
         bz main___algopy_default_create@13 ; b main_after_if_else@14                                  (𝕗) result#0 |
 
     main___algopy_default_create@13:                                                                  (𝕗) result#0 |
-        txn ApplicationID                                                                             (𝕗) result#0 | tmp%10#0
-        !                                                                                             (𝕗) result#0 | tmp%11#0
+        txn ApplicationID                                                                             (𝕗) result#0 | tmp%11#0
+        !                                                                                             (𝕗) result#0 | tmp%12#0
         assert // can only call when creating                                                         (𝕗) result#0 |
         int 1                                                                                         (𝕗) result#0 | result#0
         f-store result#0                                                                              (𝕗) result#0 |

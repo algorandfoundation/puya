@@ -363,10 +363,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes = reinterpret_bytes%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -650,10 +657,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes = reinterpret_bytes%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -930,10 +944,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
         let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes = reinterpret_bytes%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1207,11 +1228,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes[8] = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes[8] = tmp%0#0
+        let result#0: bytes[8] = reinterpret_bytes[8]%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1437,10 +1462,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -1727,10 +1759,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2017,10 +2056,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2301,11 +2347,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
     block@2: // next_txn_L227
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: uint64 = (btoi tmp%0#0)
+        let tmp%3#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         let result#0: uint64 = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2615,10 +2665,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let num_bytes%0#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%4#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%4#0
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
-        let tmp%7#0: bytes = ((extract 2 0) tmp%4#0)
+        let tmp%7#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%7#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -2904,10 +2961,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -3114,10 +3178,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         itxn_submit
         let awst_tmp%1#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%5#0 0u)
+        let num_bytes%1#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let tmp%8#0: bytes = ((extract 2 0) tmp%5#0)
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_bytes%1#0)
         let result#1: bytes = tmp%8#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#1: bool = 1u
@@ -3403,10 +3474,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -3702,10 +3780,17 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result#0: bytes = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u

@@ -59,14 +59,34 @@ subroutine main:
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                                reinterpret_bytes[8]%0#0,tmp%11#0
-        l-load tmp%11#0 0                                                                     reinterpret_bytes[8]%0#0,tmp%11#0
-        extract 2 0                                                                           reinterpret_bytes[8]%0#0,tmp%12#0
+        txna ApplicationArgs 1                                                                tmp%11#0
+        l-load-copy tmp%11#0 0                                                                tmp%11#0,tmp%11#0 (copy)
+        len                                                                                   tmp%11#0,value_len%0#0
+        l-load value_len%0#0 0                                                                tmp%11#0,value_len%0#0
+        int 8                                                                                 tmp%11#0,value_len%0#0,8
+        ==                                                                                    tmp%11#0,size_is_correct%0#0
+        l-load size_is_correct%0#0 0                                                          tmp%11#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                     tmp%11#0
+        txna ApplicationArgs 2                                                                tmp%11#0,tmp%12#0
+        l-load-copy tmp%12#0 0                                                                tmp%11#0,tmp%12#0,tmp%12#0 (copy)
+        int 0                                                                                 tmp%11#0,tmp%12#0,tmp%12#0 (copy),0
+        extract_uint16                                                                        tmp%11#0,tmp%12#0,length%0#0
+        l-load length%0#0 0                                                                   tmp%11#0,tmp%12#0,length%0#0
+        int 2                                                                                 tmp%11#0,tmp%12#0,length%0#0,2
+        +                                                                                     tmp%11#0,tmp%12#0,num_bytes_with_header%0#0
+        l-load-copy tmp%12#0 1                                                                tmp%11#0,tmp%12#0,num_bytes_with_header%0#0,tmp%12#0 (copy)
+        len                                                                                   tmp%11#0,tmp%12#0,num_bytes_with_header%0#0,value_len%1#0
+        l-load value_len%1#0 0                                                                tmp%11#0,tmp%12#0,num_bytes_with_header%0#0,value_len%1#0
+        l-load num_bytes_with_header%0#0 1                                                    tmp%11#0,tmp%12#0,value_len%1#0,num_bytes_with_header%0#0
+        ==                                                                                    tmp%11#0,tmp%12#0,size_is_correct%1#0
+        l-load size_is_correct%1#0 0                                                          tmp%11#0,tmp%12#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%11#0,tmp%12#0
+        l-load tmp%12#0 0                                                                     tmp%11#0,tmp%12#0
+        extract 2 0                                                                           tmp%11#0,tmp%13#0
         // arc4_conversions/contract.py:235
         // @arc4.abimethod
-        l-load reinterpret_bytes[8]%0#0 1                                                     tmp%12#0,reinterpret_bytes[8]%0#0
-        l-load tmp%12#0 1                                                                     reinterpret_bytes[8]%0#0,tmp%12#0
+        l-load tmp%11#0 1                                                                     tmp%13#0,tmp%11#0
+        l-load tmp%13#0 1                                                                     tmp%11#0,tmp%13#0
         callsub check_uint64
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -77,24 +97,50 @@ subroutine main:
     main_check_dynamic_bytes_route@5:
         // arc4_conversions/contract.py:239
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%13#0
-        l-load tmp%13#0 0                                                                     tmp%13#0
-        !                                                                                     tmp%14#0
+        txn OnCompletion                                                                      tmp%14#0
         l-load tmp%14#0 0                                                                     tmp%14#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%15#0
+        !                                                                                     tmp%15#0
         l-load tmp%15#0 0                                                                     tmp%15#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                     tmp%16#0
+        l-load tmp%16#0 0                                                                     tmp%16#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%17#0
-        txna ApplicationArgs 2                                                                tmp%17#0,tmp%18#0
-        l-load tmp%18#0 0                                                                     tmp%17#0,tmp%18#0
-        extract 2 0                                                                           tmp%17#0,tmp%19#0
+        txna ApplicationArgs 1                                                                tmp%18#0
+        l-load-copy tmp%18#0 0                                                                tmp%18#0,tmp%18#0 (copy)
+        int 0                                                                                 tmp%18#0,tmp%18#0 (copy),0
+        extract_uint16                                                                        tmp%18#0,length%1#0
+        l-load length%1#0 0                                                                   tmp%18#0,length%1#0
+        int 2                                                                                 tmp%18#0,length%1#0,2
+        +                                                                                     tmp%18#0,num_bytes_with_header%1#0
+        l-load-copy tmp%18#0 1                                                                tmp%18#0,num_bytes_with_header%1#0,tmp%18#0 (copy)
+        len                                                                                   tmp%18#0,num_bytes_with_header%1#0,value_len%2#0
+        l-load value_len%2#0 0                                                                tmp%18#0,num_bytes_with_header%1#0,value_len%2#0
+        l-load num_bytes_with_header%1#0 1                                                    tmp%18#0,value_len%2#0,num_bytes_with_header%1#0
+        ==                                                                                    tmp%18#0,size_is_correct%2#0
+        l-load size_is_correct%2#0 0                                                          tmp%18#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%18#0
+        txna ApplicationArgs 2                                                                tmp%18#0,tmp%19#0
+        l-load-copy tmp%19#0 0                                                                tmp%18#0,tmp%19#0,tmp%19#0 (copy)
+        int 0                                                                                 tmp%18#0,tmp%19#0,tmp%19#0 (copy),0
+        extract_uint16                                                                        tmp%18#0,tmp%19#0,length%2#0
+        l-load length%2#0 0                                                                   tmp%18#0,tmp%19#0,length%2#0
+        int 2                                                                                 tmp%18#0,tmp%19#0,length%2#0,2
+        +                                                                                     tmp%18#0,tmp%19#0,num_bytes_with_header%2#0
+        l-load-copy tmp%19#0 1                                                                tmp%18#0,tmp%19#0,num_bytes_with_header%2#0,tmp%19#0 (copy)
+        len                                                                                   tmp%18#0,tmp%19#0,num_bytes_with_header%2#0,value_len%3#0
+        l-load value_len%3#0 0                                                                tmp%18#0,tmp%19#0,num_bytes_with_header%2#0,value_len%3#0
+        l-load num_bytes_with_header%2#0 1                                                    tmp%18#0,tmp%19#0,value_len%3#0,num_bytes_with_header%2#0
+        ==                                                                                    tmp%18#0,tmp%19#0,size_is_correct%3#0
+        l-load size_is_correct%3#0 0                                                          tmp%18#0,tmp%19#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%18#0,tmp%19#0
+        l-load tmp%19#0 0                                                                     tmp%18#0,tmp%19#0
+        extract 2 0                                                                           tmp%18#0,tmp%20#0
         // arc4_conversions/contract.py:239
         // @arc4.abimethod
-        l-load tmp%17#0 1                                                                     tmp%19#0,tmp%17#0
-        l-load tmp%19#0 1                                                                     tmp%17#0,tmp%19#0
+        l-load tmp%18#0 1                                                                     tmp%20#0,tmp%18#0
+        l-load tmp%20#0 1                                                                     tmp%18#0,tmp%20#0
         callsub check_dynamic_bytes
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -105,24 +151,50 @@ subroutine main:
     main_check_string_route@6:
         // arc4_conversions/contract.py:243
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%20#0
-        l-load tmp%20#0 0                                                                     tmp%20#0
-        !                                                                                     tmp%21#0
+        txn OnCompletion                                                                      tmp%21#0
         l-load tmp%21#0 0                                                                     tmp%21#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%22#0
+        !                                                                                     tmp%22#0
         l-load tmp%22#0 0                                                                     tmp%22#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                     tmp%23#0
+        l-load tmp%23#0 0                                                                     tmp%23#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%24#0
-        txna ApplicationArgs 2                                                                tmp%24#0,tmp%25#0
-        l-load tmp%25#0 0                                                                     tmp%24#0,tmp%25#0
-        extract 2 0                                                                           tmp%24#0,tmp%26#0
+        txna ApplicationArgs 1                                                                tmp%25#0
+        l-load-copy tmp%25#0 0                                                                tmp%25#0,tmp%25#0 (copy)
+        int 0                                                                                 tmp%25#0,tmp%25#0 (copy),0
+        extract_uint16                                                                        tmp%25#0,length%3#0
+        l-load length%3#0 0                                                                   tmp%25#0,length%3#0
+        int 2                                                                                 tmp%25#0,length%3#0,2
+        +                                                                                     tmp%25#0,num_bytes_with_header%3#0
+        l-load-copy tmp%25#0 1                                                                tmp%25#0,num_bytes_with_header%3#0,tmp%25#0 (copy)
+        len                                                                                   tmp%25#0,num_bytes_with_header%3#0,value_len%4#0
+        l-load value_len%4#0 0                                                                tmp%25#0,num_bytes_with_header%3#0,value_len%4#0
+        l-load num_bytes_with_header%3#0 1                                                    tmp%25#0,value_len%4#0,num_bytes_with_header%3#0
+        ==                                                                                    tmp%25#0,size_is_correct%4#0
+        l-load size_is_correct%4#0 0                                                          tmp%25#0,size_is_correct%4#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%25#0
+        txna ApplicationArgs 2                                                                tmp%25#0,tmp%26#0
+        l-load-copy tmp%26#0 0                                                                tmp%25#0,tmp%26#0,tmp%26#0 (copy)
+        int 0                                                                                 tmp%25#0,tmp%26#0,tmp%26#0 (copy),0
+        extract_uint16                                                                        tmp%25#0,tmp%26#0,length%4#0
+        l-load length%4#0 0                                                                   tmp%25#0,tmp%26#0,length%4#0
+        int 2                                                                                 tmp%25#0,tmp%26#0,length%4#0,2
+        +                                                                                     tmp%25#0,tmp%26#0,num_bytes_with_header%4#0
+        l-load-copy tmp%26#0 1                                                                tmp%25#0,tmp%26#0,num_bytes_with_header%4#0,tmp%26#0 (copy)
+        len                                                                                   tmp%25#0,tmp%26#0,num_bytes_with_header%4#0,value_len%5#0
+        l-load value_len%5#0 0                                                                tmp%25#0,tmp%26#0,num_bytes_with_header%4#0,value_len%5#0
+        l-load num_bytes_with_header%4#0 1                                                    tmp%25#0,tmp%26#0,value_len%5#0,num_bytes_with_header%4#0
+        ==                                                                                    tmp%25#0,tmp%26#0,size_is_correct%5#0
+        l-load size_is_correct%5#0 0                                                          tmp%25#0,tmp%26#0,size_is_correct%5#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%25#0,tmp%26#0
+        l-load tmp%26#0 0                                                                     tmp%25#0,tmp%26#0
+        extract 2 0                                                                           tmp%25#0,tmp%27#0
         // arc4_conversions/contract.py:243
         // @arc4.abimethod
-        l-load tmp%24#0 1                                                                     tmp%26#0,tmp%24#0
-        l-load tmp%26#0 1                                                                     tmp%24#0,tmp%26#0
+        l-load tmp%25#0 1                                                                     tmp%27#0,tmp%25#0
+        l-load tmp%27#0 1                                                                     tmp%25#0,tmp%27#0
         callsub check_string
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -133,24 +205,44 @@ subroutine main:
     main_check_biguint_route@7:
         // arc4_conversions/contract.py:247
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%27#0
-        l-load tmp%27#0 0                                                                     tmp%27#0
-        !                                                                                     tmp%28#0
+        txn OnCompletion                                                                      tmp%28#0
         l-load tmp%28#0 0                                                                     tmp%28#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%29#0
+        !                                                                                     tmp%29#0
         l-load tmp%29#0 0                                                                     tmp%29#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                     tmp%30#0
+        l-load tmp%30#0 0                                                                     tmp%30#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[64]%0#0
-        txna ApplicationArgs 2                                                                reinterpret_bytes[64]%0#0,tmp%31#0
-        l-load tmp%31#0 0                                                                     reinterpret_bytes[64]%0#0,tmp%31#0
-        extract 2 0                                                                           reinterpret_bytes[64]%0#0,tmp%32#0
+        txna ApplicationArgs 1                                                                tmp%32#0
+        l-load-copy tmp%32#0 0                                                                tmp%32#0,tmp%32#0 (copy)
+        len                                                                                   tmp%32#0,value_len%6#0
+        l-load value_len%6#0 0                                                                tmp%32#0,value_len%6#0
+        int 64                                                                                tmp%32#0,value_len%6#0,64
+        ==                                                                                    tmp%32#0,size_is_correct%6#0
+        l-load size_is_correct%6#0 0                                                          tmp%32#0,size_is_correct%6#0
+        assert // invalid number of bytes for arc4.uint512                                    tmp%32#0
+        txna ApplicationArgs 2                                                                tmp%32#0,tmp%33#0
+        l-load-copy tmp%33#0 0                                                                tmp%32#0,tmp%33#0,tmp%33#0 (copy)
+        int 0                                                                                 tmp%32#0,tmp%33#0,tmp%33#0 (copy),0
+        extract_uint16                                                                        tmp%32#0,tmp%33#0,length%5#0
+        l-load length%5#0 0                                                                   tmp%32#0,tmp%33#0,length%5#0
+        int 2                                                                                 tmp%32#0,tmp%33#0,length%5#0,2
+        +                                                                                     tmp%32#0,tmp%33#0,num_bytes_with_header%5#0
+        l-load-copy tmp%33#0 1                                                                tmp%32#0,tmp%33#0,num_bytes_with_header%5#0,tmp%33#0 (copy)
+        len                                                                                   tmp%32#0,tmp%33#0,num_bytes_with_header%5#0,value_len%7#0
+        l-load value_len%7#0 0                                                                tmp%32#0,tmp%33#0,num_bytes_with_header%5#0,value_len%7#0
+        l-load num_bytes_with_header%5#0 1                                                    tmp%32#0,tmp%33#0,value_len%7#0,num_bytes_with_header%5#0
+        ==                                                                                    tmp%32#0,tmp%33#0,size_is_correct%7#0
+        l-load size_is_correct%7#0 0                                                          tmp%32#0,tmp%33#0,size_is_correct%7#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%32#0,tmp%33#0
+        l-load tmp%33#0 0                                                                     tmp%32#0,tmp%33#0
+        extract 2 0                                                                           tmp%32#0,tmp%34#0
         // arc4_conversions/contract.py:247
         // @arc4.abimethod
-        l-load reinterpret_bytes[64]%0#0 1                                                    tmp%32#0,reinterpret_bytes[64]%0#0
-        l-load tmp%32#0 1                                                                     reinterpret_bytes[64]%0#0,tmp%32#0
+        l-load tmp%32#0 1                                                                     tmp%34#0,tmp%32#0
+        l-load tmp%34#0 1                                                                     tmp%32#0,tmp%34#0
         callsub check_biguint
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -161,24 +253,44 @@ subroutine main:
     main_check_bool_route@8:
         // arc4_conversions/contract.py:251
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%33#0
-        l-load tmp%33#0 0                                                                     tmp%33#0
-        !                                                                                     tmp%34#0
-        l-load tmp%34#0 0                                                                     tmp%34#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%35#0
+        txn OnCompletion                                                                      tmp%35#0
         l-load tmp%35#0 0                                                                     tmp%35#0
+        !                                                                                     tmp%36#0
+        l-load tmp%36#0 0                                                                     tmp%36#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                     tmp%37#0
+        l-load tmp%37#0 0                                                                     tmp%37#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[1]%0#0
-        txna ApplicationArgs 2                                                                reinterpret_bytes[1]%0#0,tmp%37#0
-        l-load tmp%37#0 0                                                                     reinterpret_bytes[1]%0#0,tmp%37#0
-        extract 2 0                                                                           reinterpret_bytes[1]%0#0,tmp%38#0
+        txna ApplicationArgs 1                                                                tmp%39#0
+        l-load-copy tmp%39#0 0                                                                tmp%39#0,tmp%39#0 (copy)
+        len                                                                                   tmp%39#0,value_len%8#0
+        l-load value_len%8#0 0                                                                tmp%39#0,value_len%8#0
+        int 1                                                                                 tmp%39#0,value_len%8#0,1
+        ==                                                                                    tmp%39#0,size_is_correct%8#0
+        l-load size_is_correct%8#0 0                                                          tmp%39#0,size_is_correct%8#0
+        assert // invalid number of bytes for arc4.bool                                       tmp%39#0
+        txna ApplicationArgs 2                                                                tmp%39#0,tmp%40#0
+        l-load-copy tmp%40#0 0                                                                tmp%39#0,tmp%40#0,tmp%40#0 (copy)
+        int 0                                                                                 tmp%39#0,tmp%40#0,tmp%40#0 (copy),0
+        extract_uint16                                                                        tmp%39#0,tmp%40#0,length%6#0
+        l-load length%6#0 0                                                                   tmp%39#0,tmp%40#0,length%6#0
+        int 2                                                                                 tmp%39#0,tmp%40#0,length%6#0,2
+        +                                                                                     tmp%39#0,tmp%40#0,num_bytes_with_header%6#0
+        l-load-copy tmp%40#0 1                                                                tmp%39#0,tmp%40#0,num_bytes_with_header%6#0,tmp%40#0 (copy)
+        len                                                                                   tmp%39#0,tmp%40#0,num_bytes_with_header%6#0,value_len%9#0
+        l-load value_len%9#0 0                                                                tmp%39#0,tmp%40#0,num_bytes_with_header%6#0,value_len%9#0
+        l-load num_bytes_with_header%6#0 1                                                    tmp%39#0,tmp%40#0,value_len%9#0,num_bytes_with_header%6#0
+        ==                                                                                    tmp%39#0,tmp%40#0,size_is_correct%9#0
+        l-load size_is_correct%9#0 0                                                          tmp%39#0,tmp%40#0,size_is_correct%9#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%39#0,tmp%40#0
+        l-load tmp%40#0 0                                                                     tmp%39#0,tmp%40#0
+        extract 2 0                                                                           tmp%39#0,tmp%41#0
         // arc4_conversions/contract.py:251
         // @arc4.abimethod
-        l-load reinterpret_bytes[1]%0#0 1                                                     tmp%38#0,reinterpret_bytes[1]%0#0
-        l-load tmp%38#0 1                                                                     reinterpret_bytes[1]%0#0,tmp%38#0
+        l-load tmp%39#0 1                                                                     tmp%41#0,tmp%39#0
+        l-load tmp%41#0 1                                                                     tmp%39#0,tmp%41#0
         callsub check_bool
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -189,24 +301,53 @@ subroutine main:
     main_check_dyn_array_uin64_route@9:
         // arc4_conversions/contract.py:255
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%39#0
-        l-load tmp%39#0 0                                                                     tmp%39#0
-        !                                                                                     tmp%40#0
-        l-load tmp%40#0 0                                                                     tmp%40#0
+        txn OnCompletion                                                                      tmp%42#0
+        l-load tmp%42#0 0                                                                     tmp%42#0
+        !                                                                                     tmp%43#0
+        l-load tmp%43#0 0                                                                     tmp%43#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%41#0
-        l-load tmp%41#0 0                                                                     tmp%41#0
+        txn ApplicationID                                                                     tmp%44#0
+        l-load tmp%44#0 0                                                                     tmp%44#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%43#0
-        txna ApplicationArgs 2                                                                tmp%43#0,tmp%44#0
-        l-load tmp%44#0 0                                                                     tmp%43#0,tmp%44#0
-        extract 2 0                                                                           tmp%43#0,tmp%45#0
+        txna ApplicationArgs 1                                                                tmp%46#0
+        l-load-copy tmp%46#0 0                                                                tmp%46#0,tmp%46#0 (copy)
+        int 0                                                                                 tmp%46#0,tmp%46#0 (copy),0
+        extract_uint16                                                                        tmp%46#0,length%7#0
+        l-load length%7#0 0                                                                   tmp%46#0,length%7#0
+        int 8                                                                                 tmp%46#0,length%7#0,8
+        *                                                                                     tmp%46#0,num_bytes%7#0
+        l-load num_bytes%7#0 0                                                                tmp%46#0,num_bytes%7#0
+        int 2                                                                                 tmp%46#0,num_bytes%7#0,2
+        +                                                                                     tmp%46#0,num_bytes_with_header%7#0
+        l-load-copy tmp%46#0 1                                                                tmp%46#0,num_bytes_with_header%7#0,tmp%46#0 (copy)
+        len                                                                                   tmp%46#0,num_bytes_with_header%7#0,value_len%10#0
+        l-load value_len%10#0 0                                                               tmp%46#0,num_bytes_with_header%7#0,value_len%10#0
+        l-load num_bytes_with_header%7#0 1                                                    tmp%46#0,value_len%10#0,num_bytes_with_header%7#0
+        ==                                                                                    tmp%46#0,size_is_correct%10#0
+        l-load size_is_correct%10#0 0                                                         tmp%46#0,size_is_correct%10#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>                 tmp%46#0
+        txna ApplicationArgs 2                                                                tmp%46#0,tmp%47#0
+        l-load-copy tmp%47#0 0                                                                tmp%46#0,tmp%47#0,tmp%47#0 (copy)
+        int 0                                                                                 tmp%46#0,tmp%47#0,tmp%47#0 (copy),0
+        extract_uint16                                                                        tmp%46#0,tmp%47#0,length%8#0
+        l-load length%8#0 0                                                                   tmp%46#0,tmp%47#0,length%8#0
+        int 2                                                                                 tmp%46#0,tmp%47#0,length%8#0,2
+        +                                                                                     tmp%46#0,tmp%47#0,num_bytes_with_header%8#0
+        l-load-copy tmp%47#0 1                                                                tmp%46#0,tmp%47#0,num_bytes_with_header%8#0,tmp%47#0 (copy)
+        len                                                                                   tmp%46#0,tmp%47#0,num_bytes_with_header%8#0,value_len%11#0
+        l-load value_len%11#0 0                                                               tmp%46#0,tmp%47#0,num_bytes_with_header%8#0,value_len%11#0
+        l-load num_bytes_with_header%8#0 1                                                    tmp%46#0,tmp%47#0,value_len%11#0,num_bytes_with_header%8#0
+        ==                                                                                    tmp%46#0,tmp%47#0,size_is_correct%11#0
+        l-load size_is_correct%11#0 0                                                         tmp%46#0,tmp%47#0,size_is_correct%11#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%46#0,tmp%47#0
+        l-load tmp%47#0 0                                                                     tmp%46#0,tmp%47#0
+        extract 2 0                                                                           tmp%46#0,tmp%48#0
         // arc4_conversions/contract.py:255
         // @arc4.abimethod
-        l-load tmp%43#0 1                                                                     tmp%45#0,tmp%43#0
-        l-load tmp%45#0 1                                                                     tmp%43#0,tmp%45#0
+        l-load tmp%46#0 1                                                                     tmp%48#0,tmp%46#0
+        l-load tmp%48#0 1                                                                     tmp%46#0,tmp%48#0
         callsub check_dyn_array_uin64
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -217,24 +358,44 @@ subroutine main:
     main_check_static_array_uin64_3_route@10:
         // arc4_conversions/contract.py:261
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%46#0
-        l-load tmp%46#0 0                                                                     tmp%46#0
-        !                                                                                     tmp%47#0
-        l-load tmp%47#0 0                                                                     tmp%47#0
+        txn OnCompletion                                                                      tmp%49#0
+        l-load tmp%49#0 0                                                                     tmp%49#0
+        !                                                                                     tmp%50#0
+        l-load tmp%50#0 0                                                                     tmp%50#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%48#0
-        l-load tmp%48#0 0                                                                     tmp%48#0
+        txn ApplicationID                                                                     tmp%51#0
+        l-load tmp%51#0 0                                                                     tmp%51#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[24]%0#0
-        txna ApplicationArgs 2                                                                reinterpret_bytes[24]%0#0,tmp%50#0
-        l-load tmp%50#0 0                                                                     reinterpret_bytes[24]%0#0,tmp%50#0
-        extract 2 0                                                                           reinterpret_bytes[24]%0#0,tmp%51#0
+        txna ApplicationArgs 1                                                                tmp%53#0
+        l-load-copy tmp%53#0 0                                                                tmp%53#0,tmp%53#0 (copy)
+        len                                                                                   tmp%53#0,value_len%12#0
+        l-load value_len%12#0 0                                                               tmp%53#0,value_len%12#0
+        int 24                                                                                tmp%53#0,value_len%12#0,24
+        ==                                                                                    tmp%53#0,size_is_correct%12#0
+        l-load size_is_correct%12#0 0                                                         tmp%53#0,size_is_correct%12#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint64, 3>               tmp%53#0
+        txna ApplicationArgs 2                                                                tmp%53#0,tmp%54#0
+        l-load-copy tmp%54#0 0                                                                tmp%53#0,tmp%54#0,tmp%54#0 (copy)
+        int 0                                                                                 tmp%53#0,tmp%54#0,tmp%54#0 (copy),0
+        extract_uint16                                                                        tmp%53#0,tmp%54#0,length%9#0
+        l-load length%9#0 0                                                                   tmp%53#0,tmp%54#0,length%9#0
+        int 2                                                                                 tmp%53#0,tmp%54#0,length%9#0,2
+        +                                                                                     tmp%53#0,tmp%54#0,num_bytes_with_header%9#0
+        l-load-copy tmp%54#0 1                                                                tmp%53#0,tmp%54#0,num_bytes_with_header%9#0,tmp%54#0 (copy)
+        len                                                                                   tmp%53#0,tmp%54#0,num_bytes_with_header%9#0,value_len%13#0
+        l-load value_len%13#0 0                                                               tmp%53#0,tmp%54#0,num_bytes_with_header%9#0,value_len%13#0
+        l-load num_bytes_with_header%9#0 1                                                    tmp%53#0,tmp%54#0,value_len%13#0,num_bytes_with_header%9#0
+        ==                                                                                    tmp%53#0,tmp%54#0,size_is_correct%13#0
+        l-load size_is_correct%13#0 0                                                         tmp%53#0,tmp%54#0,size_is_correct%13#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%53#0,tmp%54#0
+        l-load tmp%54#0 0                                                                     tmp%53#0,tmp%54#0
+        extract 2 0                                                                           tmp%53#0,tmp%55#0
         // arc4_conversions/contract.py:261
         // @arc4.abimethod
-        l-load reinterpret_bytes[24]%0#0 1                                                    tmp%51#0,reinterpret_bytes[24]%0#0
-        l-load tmp%51#0 1                                                                     reinterpret_bytes[24]%0#0,tmp%51#0
+        l-load tmp%53#0 1                                                                     tmp%55#0,tmp%53#0
+        l-load tmp%55#0 1                                                                     tmp%53#0,tmp%55#0
         callsub check_static_array_uin64_3
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -245,24 +406,53 @@ subroutine main:
     main_check_dyn_array_struct_route@11:
         // arc4_conversions/contract.py:267
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%52#0
-        l-load tmp%52#0 0                                                                     tmp%52#0
-        !                                                                                     tmp%53#0
-        l-load tmp%53#0 0                                                                     tmp%53#0
+        txn OnCompletion                                                                      tmp%56#0
+        l-load tmp%56#0 0                                                                     tmp%56#0
+        !                                                                                     tmp%57#0
+        l-load tmp%57#0 0                                                                     tmp%57#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%54#0
-        l-load tmp%54#0 0                                                                     tmp%54#0
+        txn ApplicationID                                                                     tmp%58#0
+        l-load tmp%58#0 0                                                                     tmp%58#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%56#0
-        txna ApplicationArgs 2                                                                tmp%56#0,tmp%57#0
-        l-load tmp%57#0 0                                                                     tmp%56#0,tmp%57#0
-        extract 2 0                                                                           tmp%56#0,tmp%58#0
+        txna ApplicationArgs 1                                                                tmp%60#0
+        l-load-copy tmp%60#0 0                                                                tmp%60#0,tmp%60#0 (copy)
+        int 0                                                                                 tmp%60#0,tmp%60#0 (copy),0
+        extract_uint16                                                                        tmp%60#0,length%10#0
+        l-load length%10#0 0                                                                  tmp%60#0,length%10#0
+        int 40                                                                                tmp%60#0,length%10#0,40
+        *                                                                                     tmp%60#0,num_bytes%10#0
+        l-load num_bytes%10#0 0                                                               tmp%60#0,num_bytes%10#0
+        int 2                                                                                 tmp%60#0,num_bytes%10#0,2
+        +                                                                                     tmp%60#0,num_bytes_with_header%10#0
+        l-load-copy tmp%60#0 1                                                                tmp%60#0,num_bytes_with_header%10#0,tmp%60#0 (copy)
+        len                                                                                   tmp%60#0,num_bytes_with_header%10#0,value_len%14#0
+        l-load value_len%14#0 0                                                               tmp%60#0,num_bytes_with_header%10#0,value_len%14#0
+        l-load num_bytes_with_header%10#0 1                                                   tmp%60#0,value_len%14#0,num_bytes_with_header%10#0
+        ==                                                                                    tmp%60#0,size_is_correct%14#0
+        l-load size_is_correct%14#0 0                                                         tmp%60#0,size_is_correct%14#0
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4> tmp%60#0
+        txna ApplicationArgs 2                                                                tmp%60#0,tmp%61#0
+        l-load-copy tmp%61#0 0                                                                tmp%60#0,tmp%61#0,tmp%61#0 (copy)
+        int 0                                                                                 tmp%60#0,tmp%61#0,tmp%61#0 (copy),0
+        extract_uint16                                                                        tmp%60#0,tmp%61#0,length%11#0
+        l-load length%11#0 0                                                                  tmp%60#0,tmp%61#0,length%11#0
+        int 2                                                                                 tmp%60#0,tmp%61#0,length%11#0,2
+        +                                                                                     tmp%60#0,tmp%61#0,num_bytes_with_header%11#0
+        l-load-copy tmp%61#0 1                                                                tmp%60#0,tmp%61#0,num_bytes_with_header%11#0,tmp%61#0 (copy)
+        len                                                                                   tmp%60#0,tmp%61#0,num_bytes_with_header%11#0,value_len%15#0
+        l-load value_len%15#0 0                                                               tmp%60#0,tmp%61#0,num_bytes_with_header%11#0,value_len%15#0
+        l-load num_bytes_with_header%11#0 1                                                   tmp%60#0,tmp%61#0,value_len%15#0,num_bytes_with_header%11#0
+        ==                                                                                    tmp%60#0,tmp%61#0,size_is_correct%15#0
+        l-load size_is_correct%15#0 0                                                         tmp%60#0,tmp%61#0,size_is_correct%15#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%60#0,tmp%61#0
+        l-load tmp%61#0 0                                                                     tmp%60#0,tmp%61#0
+        extract 2 0                                                                           tmp%60#0,tmp%62#0
         // arc4_conversions/contract.py:267
         // @arc4.abimethod
-        l-load tmp%56#0 1                                                                     tmp%58#0,tmp%56#0
-        l-load tmp%58#0 1                                                                     tmp%56#0,tmp%58#0
+        l-load tmp%60#0 1                                                                     tmp%62#0,tmp%60#0
+        l-load tmp%62#0 1                                                                     tmp%60#0,tmp%62#0
         callsub check_dyn_array_struct
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -273,24 +463,44 @@ subroutine main:
     main_check_static_array_struct_route@12:
         // arc4_conversions/contract.py:273
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%59#0
-        l-load tmp%59#0 0                                                                     tmp%59#0
-        !                                                                                     tmp%60#0
-        l-load tmp%60#0 0                                                                     tmp%60#0
+        txn OnCompletion                                                                      tmp%63#0
+        l-load tmp%63#0 0                                                                     tmp%63#0
+        !                                                                                     tmp%64#0
+        l-load tmp%64#0 0                                                                     tmp%64#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%61#0
-        l-load tmp%61#0 0                                                                     tmp%61#0
+        txn ApplicationID                                                                     tmp%65#0
+        l-load tmp%65#0 0                                                                     tmp%65#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[120]%0#0
-        txna ApplicationArgs 2                                                                reinterpret_bytes[120]%0#0,tmp%63#0
-        l-load tmp%63#0 0                                                                     reinterpret_bytes[120]%0#0,tmp%63#0
-        extract 2 0                                                                           reinterpret_bytes[120]%0#0,tmp%64#0
+        txna ApplicationArgs 1                                                                tmp%67#0
+        l-load-copy tmp%67#0 0                                                                tmp%67#0,tmp%67#0 (copy)
+        len                                                                                   tmp%67#0,value_len%16#0
+        l-load value_len%16#0 0                                                               tmp%67#0,value_len%16#0
+        int 120                                                                               tmp%67#0,value_len%16#0,120
+        ==                                                                                    tmp%67#0,size_is_correct%16#0
+        l-load size_is_correct%16#0 0                                                         tmp%67#0,size_is_correct%16#0
+        assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3> tmp%67#0
+        txna ApplicationArgs 2                                                                tmp%67#0,tmp%68#0
+        l-load-copy tmp%68#0 0                                                                tmp%67#0,tmp%68#0,tmp%68#0 (copy)
+        int 0                                                                                 tmp%67#0,tmp%68#0,tmp%68#0 (copy),0
+        extract_uint16                                                                        tmp%67#0,tmp%68#0,length%12#0
+        l-load length%12#0 0                                                                  tmp%67#0,tmp%68#0,length%12#0
+        int 2                                                                                 tmp%67#0,tmp%68#0,length%12#0,2
+        +                                                                                     tmp%67#0,tmp%68#0,num_bytes_with_header%12#0
+        l-load-copy tmp%68#0 1                                                                tmp%67#0,tmp%68#0,num_bytes_with_header%12#0,tmp%68#0 (copy)
+        len                                                                                   tmp%67#0,tmp%68#0,num_bytes_with_header%12#0,value_len%17#0
+        l-load value_len%17#0 0                                                               tmp%67#0,tmp%68#0,num_bytes_with_header%12#0,value_len%17#0
+        l-load num_bytes_with_header%12#0 1                                                   tmp%67#0,tmp%68#0,value_len%17#0,num_bytes_with_header%12#0
+        ==                                                                                    tmp%67#0,tmp%68#0,size_is_correct%17#0
+        l-load size_is_correct%17#0 0                                                         tmp%67#0,tmp%68#0,size_is_correct%17#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%67#0,tmp%68#0
+        l-load tmp%68#0 0                                                                     tmp%67#0,tmp%68#0
+        extract 2 0                                                                           tmp%67#0,tmp%69#0
         // arc4_conversions/contract.py:273
         // @arc4.abimethod
-        l-load reinterpret_bytes[120]%0#0 1                                                   tmp%64#0,reinterpret_bytes[120]%0#0
-        l-load tmp%64#0 1                                                                     reinterpret_bytes[120]%0#0,tmp%64#0
+        l-load tmp%67#0 1                                                                     tmp%69#0,tmp%67#0
+        l-load tmp%69#0 1                                                                     tmp%67#0,tmp%69#0
         callsub check_static_array_struct
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -301,24 +511,37 @@ subroutine main:
     main_check_dyn_array_dyn_struct_route@13:
         // arc4_conversions/contract.py:279
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%65#0
-        l-load tmp%65#0 0                                                                     tmp%65#0
-        !                                                                                     tmp%66#0
-        l-load tmp%66#0 0                                                                     tmp%66#0
+        txn OnCompletion                                                                      tmp%70#0
+        l-load tmp%70#0 0                                                                     tmp%70#0
+        !                                                                                     tmp%71#0
+        l-load tmp%71#0 0                                                                     tmp%71#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%67#0
-        l-load tmp%67#0 0                                                                     tmp%67#0
+        txn ApplicationID                                                                     tmp%72#0
+        l-load tmp%72#0 0                                                                     tmp%72#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%69#0
-        txna ApplicationArgs 2                                                                tmp%69#0,tmp%70#0
-        l-load tmp%70#0 0                                                                     tmp%69#0,tmp%70#0
-        extract 2 0                                                                           tmp%69#0,tmp%71#0
+        txna ApplicationArgs 1                                                                tmp%74#0
+        txna ApplicationArgs 2                                                                tmp%74#0,tmp%75#0
+        l-load-copy tmp%75#0 0                                                                tmp%74#0,tmp%75#0,tmp%75#0 (copy)
+        int 0                                                                                 tmp%74#0,tmp%75#0,tmp%75#0 (copy),0
+        extract_uint16                                                                        tmp%74#0,tmp%75#0,length%13#0
+        l-load length%13#0 0                                                                  tmp%74#0,tmp%75#0,length%13#0
+        int 2                                                                                 tmp%74#0,tmp%75#0,length%13#0,2
+        +                                                                                     tmp%74#0,tmp%75#0,num_bytes_with_header%13#0
+        l-load-copy tmp%75#0 1                                                                tmp%74#0,tmp%75#0,num_bytes_with_header%13#0,tmp%75#0 (copy)
+        len                                                                                   tmp%74#0,tmp%75#0,num_bytes_with_header%13#0,value_len%18#0
+        l-load value_len%18#0 0                                                               tmp%74#0,tmp%75#0,num_bytes_with_header%13#0,value_len%18#0
+        l-load num_bytes_with_header%13#0 1                                                   tmp%74#0,tmp%75#0,value_len%18#0,num_bytes_with_header%13#0
+        ==                                                                                    tmp%74#0,tmp%75#0,size_is_correct%18#0
+        l-load size_is_correct%18#0 0                                                         tmp%74#0,tmp%75#0,size_is_correct%18#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%74#0,tmp%75#0
+        l-load tmp%75#0 0                                                                     tmp%74#0,tmp%75#0
+        extract 2 0                                                                           tmp%74#0,tmp%76#0
         // arc4_conversions/contract.py:279
         // @arc4.abimethod
-        l-load tmp%69#0 1                                                                     tmp%71#0,tmp%69#0
-        l-load tmp%71#0 1                                                                     tmp%69#0,tmp%71#0
+        l-load tmp%74#0 1                                                                     tmp%76#0,tmp%74#0
+        l-load tmp%76#0 1                                                                     tmp%74#0,tmp%76#0
         callsub check_dyn_array_dyn_struct
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -329,24 +552,37 @@ subroutine main:
     main_check_static_array_dyn_struct_route@14:
         // arc4_conversions/contract.py:285
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%72#0
-        l-load tmp%72#0 0                                                                     tmp%72#0
-        !                                                                                     tmp%73#0
-        l-load tmp%73#0 0                                                                     tmp%73#0
+        txn OnCompletion                                                                      tmp%77#0
+        l-load tmp%77#0 0                                                                     tmp%77#0
+        !                                                                                     tmp%78#0
+        l-load tmp%78#0 0                                                                     tmp%78#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%74#0
-        l-load tmp%74#0 0                                                                     tmp%74#0
+        txn ApplicationID                                                                     tmp%79#0
+        l-load tmp%79#0 0                                                                     tmp%79#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                tmp%76#0
-        txna ApplicationArgs 2                                                                tmp%76#0,tmp%77#0
-        l-load tmp%77#0 0                                                                     tmp%76#0,tmp%77#0
-        extract 2 0                                                                           tmp%76#0,tmp%78#0
+        txna ApplicationArgs 1                                                                tmp%81#0
+        txna ApplicationArgs 2                                                                tmp%81#0,tmp%82#0
+        l-load-copy tmp%82#0 0                                                                tmp%81#0,tmp%82#0,tmp%82#0 (copy)
+        int 0                                                                                 tmp%81#0,tmp%82#0,tmp%82#0 (copy),0
+        extract_uint16                                                                        tmp%81#0,tmp%82#0,length%14#0
+        l-load length%14#0 0                                                                  tmp%81#0,tmp%82#0,length%14#0
+        int 2                                                                                 tmp%81#0,tmp%82#0,length%14#0,2
+        +                                                                                     tmp%81#0,tmp%82#0,num_bytes_with_header%14#0
+        l-load-copy tmp%82#0 1                                                                tmp%81#0,tmp%82#0,num_bytes_with_header%14#0,tmp%82#0 (copy)
+        len                                                                                   tmp%81#0,tmp%82#0,num_bytes_with_header%14#0,value_len%19#0
+        l-load value_len%19#0 0                                                               tmp%81#0,tmp%82#0,num_bytes_with_header%14#0,value_len%19#0
+        l-load num_bytes_with_header%14#0 1                                                   tmp%81#0,tmp%82#0,value_len%19#0,num_bytes_with_header%14#0
+        ==                                                                                    tmp%81#0,tmp%82#0,size_is_correct%19#0
+        l-load size_is_correct%19#0 0                                                         tmp%81#0,tmp%82#0,size_is_correct%19#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                  tmp%81#0,tmp%82#0
+        l-load tmp%82#0 0                                                                     tmp%81#0,tmp%82#0
+        extract 2 0                                                                           tmp%81#0,tmp%83#0
         // arc4_conversions/contract.py:285
         // @arc4.abimethod
-        l-load tmp%76#0 1                                                                     tmp%78#0,tmp%76#0
-        l-load tmp%78#0 1                                                                     tmp%76#0,tmp%78#0
+        l-load tmp%81#0 1                                                                     tmp%83#0,tmp%81#0
+        l-load tmp%83#0 1                                                                     tmp%81#0,tmp%83#0
         callsub check_static_array_dyn_struct
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -357,20 +593,27 @@ subroutine main:
     main_check_static_bytes_route@15:
         // arc4_conversions/contract.py:291
         // @arc4.abimethod
-        txn OnCompletion                                                                      tmp%79#0
-        l-load tmp%79#0 0                                                                     tmp%79#0
-        !                                                                                     tmp%80#0
-        l-load tmp%80#0 0                                                                     tmp%80#0
+        txn OnCompletion                                                                      tmp%84#0
+        l-load tmp%84#0 0                                                                     tmp%84#0
+        !                                                                                     tmp%85#0
+        l-load tmp%85#0 0                                                                     tmp%85#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                     tmp%81#0
-        l-load tmp%81#0 0                                                                     tmp%81#0
+        txn ApplicationID                                                                     tmp%86#0
+        l-load tmp%86#0 0                                                                     tmp%86#0
         assert // can only call when not creating
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                reinterpret_bytes[32]%0#0
+        txna ApplicationArgs 1                                                                tmp%88#0
+        l-load-copy tmp%88#0 0                                                                tmp%88#0,tmp%88#0 (copy)
+        len                                                                                   tmp%88#0,value_len%20#0
+        l-load value_len%20#0 0                                                               tmp%88#0,value_len%20#0
+        int 32                                                                                tmp%88#0,value_len%20#0,32
+        ==                                                                                    tmp%88#0,size_is_correct%20#0
+        l-load size_is_correct%20#0 0                                                         tmp%88#0,size_is_correct%20#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>               tmp%88#0
         // arc4_conversions/contract.py:291
         // @arc4.abimethod
-        l-load reinterpret_bytes[32]%0#0 0                                                    reinterpret_bytes[32]%0#0
+        l-load tmp%88#0 0                                                                     tmp%88#0
         callsub check_static_bytes
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0
@@ -381,15 +624,15 @@ subroutine main:
     main_bare_routing@18:
         // arc4_conversions/contract.py:230
         // class CheckApp(arc4.ARC4Contract):
-        txn OnCompletion                                                                      tmp%83#0
-        l-load tmp%83#0 0                                                                     tmp%83#0
+        txn OnCompletion                                                                      tmp%89#0
+        l-load tmp%89#0 0                                                                     tmp%89#0
         bz main___algopy_default_create@19 ; b main_after_if_else@22
 
     main___algopy_default_create@19:
-        txn ApplicationID                                                                     tmp%84#0
-        l-load tmp%84#0 0                                                                     tmp%84#0
-        !                                                                                     tmp%85#0
-        l-load tmp%85#0 0                                                                     tmp%85#0
+        txn ApplicationID                                                                     tmp%90#0
+        l-load tmp%90#0 0                                                                     tmp%90#0
+        !                                                                                     tmp%91#0
+        l-load tmp%91#0 0                                                                     tmp%91#0
         assert // can only call when creating
         int 1                                                                                 1
         l-store test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 0      test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0

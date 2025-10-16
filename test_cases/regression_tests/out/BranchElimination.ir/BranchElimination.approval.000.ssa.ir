@@ -48,20 +48,25 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.__puya_
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         (assert tmp%15#0) // can only call when not creating
         let tmp%16#0: bytes = (txna ApplicationArgs 1)
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 2)
-        test_cases.regression_tests.leftover_branch.BranchElimination.calculate(tmp%16#0, reinterpret_bytes[8]%0#0)
+        let reinterpret_bytes%0#0: bytes = tmp%16#0
+        let tmp%17#0: bytes = (txna ApplicationArgs 2)
+        let value_len%0#0: uint64 = (len tmp%17#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%17#0
+        test_cases.regression_tests.leftover_branch.BranchElimination.calculate(reinterpret_bytes%0#0, reinterpret_bytes[8]%0#0)
         return 1u
     block@5: // switch_case_default_L4
         goto block@6
     block@6: // switch_case_next_L4
         goto block@11
     block@7: // bare_routing_L4
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        switch tmp%17#0 {0u => block@8, * => block@9}
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        switch tmp%18#0 {0u => block@8, * => block@9}
     block@8: // __algopy_default_create_L1
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (== tmp%18#0 0u)
-        (assert tmp%19#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (== tmp%19#0 0u)
+        (assert tmp%20#0) // can only call when creating
         test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create()
         return 1u
     block@9: // switch_case_default_L4

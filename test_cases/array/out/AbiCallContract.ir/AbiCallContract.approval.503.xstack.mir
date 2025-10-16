@@ -25,14 +25,32 @@ subroutine main:
         assert // can only call when not creating
         // array/unused_opt_allowed.py:12
         // class AbiCallContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                      reinterpret_encoded_uint64[]%0#0
-        txna ApplicationArgs 2                                                                      reinterpret_encoded_uint64[]%0#0,reinterpret_bytes[1]%0#0
-        btoi                                                                                        reinterpret_encoded_uint64[]%0#0,tmp%7#0
-        txnas Applications                                                                          reinterpret_encoded_uint64[]%0#0,tmp%8#0
+        txna ApplicationArgs 1                                                                      tmp%7#0
+        l-load-copy tmp%7#0 0                                                                       tmp%7#0,tmp%7#0 (copy)
+        int 0                                                                                       tmp%7#0,tmp%7#0 (copy),0
+        extract_uint16                                                                              tmp%7#0,length%0#0
+        int 8                                                                                       tmp%7#0,length%0#0,8
+        *                                                                                           tmp%7#0,num_bytes%0#0
+        int 2                                                                                       tmp%7#0,num_bytes%0#0,2
+        +                                                                                           tmp%7#0,num_bytes_with_header%0#0
+        l-load-copy tmp%7#0 1                                                                       tmp%7#0,num_bytes_with_header%0#0,tmp%7#0 (copy)
+        len                                                                                         tmp%7#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                          tmp%7#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                          tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>                       tmp%7#0
+        txna ApplicationArgs 2                                                                      tmp%7#0,tmp%8#0
+        l-load-copy tmp%8#0 0                                                                       tmp%7#0,tmp%8#0,tmp%8#0 (copy)
+        len                                                                                         tmp%7#0,tmp%8#0,value_len%1#0
+        int 1                                                                                       tmp%7#0,tmp%8#0,value_len%1#0,1
+        ==                                                                                          tmp%7#0,tmp%8#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint8                                            tmp%7#0,tmp%8#0
+        l-load tmp%8#0 0                                                                            tmp%7#0,tmp%8#0
+        btoi                                                                                        tmp%7#0,tmp%9#0
+        txnas Applications                                                                          tmp%7#0,tmp%10#0
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
-        l-load reinterpret_encoded_uint64[]%0#0 1                                                   tmp%8#0,reinterpret_encoded_uint64[]%0#0
-        l-load tmp%8#0 1                                                                            reinterpret_encoded_uint64[]%0#0,tmp%8#0
+        l-load tmp%7#0 1                                                                            tmp%10#0,tmp%7#0
+        l-load tmp%10#0 1                                                                           tmp%7#0,tmp%10#0
         callsub test_implicit_conversion_abi_call
         int 1                                                                                       test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |
@@ -41,12 +59,12 @@ subroutine main:
     main_bare_routing@6:
         // array/unused_opt_allowed.py:12
         // class AbiCallContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                            tmp%9#0
+        txn OnCompletion                                                                            tmp%11#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                           tmp%10#0
-        !                                                                                           tmp%11#0
+        txn ApplicationID                                                                           tmp%12#0
+        !                                                                                           tmp%13#0
         assert // can only call when creating
         int 1                                                                                       test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                             (𝕏) tmp%0#0 |

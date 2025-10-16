@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 2 8
     bytecblock 0x151f7c75 0x151f7c7500000000000004d2 "apps" "assets" "accounts"
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
@@ -78,6 +78,17 @@ main_store_accounts_route@9:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    pushint 32 // 32
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
     // arc4_conversions/reference.py:31
     // @arc4.abimethod
     callsub store_accounts
@@ -95,6 +106,17 @@ main_store_assets_route@8:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     // arc4_conversions/reference.py:27
     // @arc4.abimethod
     callsub store_assets
@@ -112,6 +134,17 @@ main_store_apps_route@7:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     // arc4_conversions/reference.py:23
     // @arc4.abimethod
     callsub store_apps
@@ -129,12 +162,27 @@ main_store_route@6:
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Accounts
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     // arc4_conversions/reference.py:17

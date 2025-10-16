@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 1
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0x02bece11 // method "hello(string)string"
@@ -10,7 +11,7 @@ main:
     match main_hello_route@3
 
 main_after_if_else@10:
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_hello_route@3:
@@ -20,6 +21,15 @@ main_hello_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     pushbytes "Hello, "
     swap
@@ -34,7 +44,7 @@ main_hello_route@3:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 main_bare_routing@6:
@@ -43,5 +53,5 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    intc_1 // 1
     return

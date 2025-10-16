@@ -29,12 +29,19 @@ subroutine main:
         assert // can only call when not creating
         // regression_tests/issue_434.py:4
         // class Issue434(ARC4Contract):
-        txna ApplicationArgs 1                                                                 reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%0#0 0                                                      reinterpret_bytes[8]%0#0
-        btoi                                                                                   tmp%7#0
+        txna ApplicationArgs 1                                                                 tmp%7#0
+        l-load-copy tmp%7#0 0                                                                  tmp%7#0,tmp%7#0 (copy)
+        len                                                                                    tmp%7#0,value_len%0#0
+        l-load value_len%0#0 0                                                                 tmp%7#0,value_len%0#0
+        int 8                                                                                  tmp%7#0,value_len%0#0,8
+        ==                                                                                     tmp%7#0,size_is_correct%0#0
+        l-load size_is_correct%0#0 0                                                           tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                      tmp%7#0
+        l-load tmp%7#0 0                                                                       tmp%7#0
+        btoi                                                                                   tmp%8#0
         // regression_tests/issue_434.py:6
         // @arc4.abimethod
-        l-load tmp%7#0 0                                                                       tmp%7#0
+        l-load tmp%8#0 0                                                                       tmp%8#0
         callsub method
         int 1                                                                                  1
         l-store test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__%0#0 0 test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__%0#0
@@ -45,15 +52,15 @@ subroutine main:
     main_bare_routing@6:
         // regression_tests/issue_434.py:4
         // class Issue434(ARC4Contract):
-        txn OnCompletion                                                                       tmp%8#0
-        l-load tmp%8#0 0                                                                       tmp%8#0
+        txn OnCompletion                                                                       tmp%9#0
+        l-load tmp%9#0 0                                                                       tmp%9#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                      tmp%9#0
-        l-load tmp%9#0 0                                                                       tmp%9#0
-        !                                                                                      tmp%10#0
+        txn ApplicationID                                                                      tmp%10#0
         l-load tmp%10#0 0                                                                      tmp%10#0
+        !                                                                                      tmp%11#0
+        l-load tmp%11#0 0                                                                      tmp%11#0
         assert // can only call when creating
         int 1                                                                                  1
         l-store test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__%0#0 0 test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__%0#0

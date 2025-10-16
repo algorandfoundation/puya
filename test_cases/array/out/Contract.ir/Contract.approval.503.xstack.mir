@@ -125,8 +125,14 @@ subroutine main:
         assert // can only call when not creating
         // array/uint64.py:4
         // class Contract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[8]%0#0
-        btoi                                                                          tmp%35#0
+        txna ApplicationArgs 1                                                        tmp%35#0
+        l-load-copy tmp%35#0 0                                                        tmp%35#0,tmp%35#0 (copy)
+        len                                                                           tmp%35#0,value_len%0#0
+        int 8                                                                         tmp%35#0,value_len%0#0,8
+        ==                                                                            tmp%35#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                             tmp%35#0
+        l-load tmp%35#0 0                                                             tmp%35#0
+        btoi                                                                          tmp%36#0
         // array/uint64.py:116
         // @arc4.abimethod()
         callsub test_allocations
@@ -137,10 +143,10 @@ subroutine main:
     main_test_iteration_route@11:
         // array/uint64.py:122
         // @arc4.abimethod()
-        txn OnCompletion                                                              tmp%36#0
-        !                                                                             tmp%37#0
+        txn OnCompletion                                                              tmp%37#0
+        !                                                                             tmp%38#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%38#0
+        txn ApplicationID                                                             tmp%39#0
         assert // can only call when not creating
         callsub test_iteration
         int 1                                                                         test_cases.array.uint64.Contract.__puya_arc4_router__%0#0
@@ -150,10 +156,10 @@ subroutine main:
     main_test_quicksort_route@12:
         // array/uint64.py:156
         // @arc4.abimethod()
-        txn OnCompletion                                                              tmp%40#0
-        !                                                                             tmp%41#0
+        txn OnCompletion                                                              tmp%41#0
+        !                                                                             tmp%42#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%42#0
+        txn ApplicationID                                                             tmp%43#0
         assert // can only call when not creating
         callsub test_quicksort
         int 1                                                                         test_cases.array.uint64.Contract.__puya_arc4_router__%0#0
@@ -163,10 +169,10 @@ subroutine main:
     main_test_unobserved_write_route@13:
         // array/uint64.py:173
         // @arc4.abimethod()
-        txn OnCompletion                                                              tmp%44#0
-        !                                                                             tmp%45#0
+        txn OnCompletion                                                              tmp%45#0
+        !                                                                             tmp%46#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%46#0
+        txn ApplicationID                                                             tmp%47#0
         assert // can only call when not creating
         callsub test_unobserved_write
         int 1                                                                         test_cases.array.uint64.Contract.__puya_arc4_router__%0#0
@@ -176,12 +182,12 @@ subroutine main:
     main_bare_routing@16:
         // array/uint64.py:4
         // class Contract(arc4.ARC4Contract):
-        txn OnCompletion                                                              tmp%48#0
+        txn OnCompletion                                                              tmp%49#0
         bz main___algopy_default_create@17 ; b main_after_if_else@20
 
     main___algopy_default_create@17:
-        txn ApplicationID                                                             tmp%49#0
-        !                                                                             tmp%50#0
+        txn ApplicationID                                                             tmp%50#0
+        !                                                                             tmp%51#0
         assert // can only call when creating
         int 1                                                                         test_cases.array.uint64.Contract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |

@@ -149,7 +149,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAc4IDBCDfOlQEJDeNPATQooIANhoAjgMAOgAvAAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAiABTSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAASI0OBBDEZjgEAA0L/njEYRCNDigEAKIv/Z4mKAQEiKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -165,6 +165,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -184,7 +189,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAYYIDBExcYboEJDeNPATQooIANhoAjgMAOwAwAAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCAIgAOEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/sDEYRCJDigEBIyhlRIABIFCL/1CJ)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -199,6 +204,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -218,7 +228,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAGGCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADsAMAACI0MxGRREMRhENhoBSSNZgQIISwEVEkRXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7AxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -233,6 +243,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -264,6 +279,9 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes[8] = ((extract 4 0) txn.LastLog#0)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -283,7 +301,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAc4IDBCDfOlQEJDeNPATQooIANhoAjgMAOgAvAAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAiABTSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAASI0OBBDEZjgEAA0L/njEYRCNDigEAKIv/Z4mKAQEiKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -298,6 +316,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -318,7 +342,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAYYIDBExcYboEJDeNPATQooIANhoAjgMAOwAwAAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCAIgAOEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/sDEYRCJDigEBIyhlRIABIFCL/1CJ)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -332,6 +356,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -352,7 +382,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAFaCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADAAJQACI0MxGRREMRhENhoBVwIAiAA4SRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+7MRhEIkOKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAGGCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADsAMAACI0MxGRREMRhENhoBSSNZgQIISwEVEkRXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7AxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -366,6 +396,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -397,7 +433,10 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -421,7 +460,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field GlobalNumUint) 4u)
         ((itxn_field GlobalNumByteSlice) 6u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAc4IDBCDfOlQEJDeNPATQooIANhoAjgMAOgAvAAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAiABTSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAASI0OBBDEZjgEAA0L/njEYRCNDigEAKIv/Z4mKAQEiKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -452,6 +491,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%1#0 2u)
+        let value_len%0#0: uint64 = (len tmp%4#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
@@ -476,7 +521,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         ((itxn_field GlobalNumByteSlice) 2u)
         ((itxn_field ExtraProgramPages) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAVoIDBExcYboEJDeNPATQooIANhoAjgMAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIADhJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/7sxGEQiQ4oBASMoZUSAASBQi/9QiQ==)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAYYIDBExcYboEJDeNPATQooIANhoAjgMAOwAwAAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCAIgAOEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/sDEYRCJDigEBIyhlRIABIFCL/1CJ)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -490,6 +535,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -498,7 +549,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         (assert tmp%4#0)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAc4IDBCDfOlQEJDeNPATQooIANhoAjgMAOgAvAAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAiABTSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAASI0OBBDEZjgEAA0L/njEYRCNDigEAKIv/Z4mKAQEiKGVEgAEgUIv/UIk=)
         ((itxn_field OnCompletion) UpdateApplication)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field TypeEnum) appl)
@@ -512,6 +563,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%5#0 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
@@ -532,7 +589,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 4u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAMAAlAAIiQzEZFEQxGEQ2GgFXAgCIADdJFRZXBgJMUIAEFR98dUxQsCNDMRmBBRJEMRhEI0MxGRREMRgURIAMFR98dQAAAAAAAAABsCNDigEBIillRIABMKBJFSMJI1giKGVEgAEgUIv/UExQIiplRFAiK2VEUIk=)
+        ((itxn_field ApprovalProgramPages) CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAOwAwAAIiQzEZFEQxGEQ2GgFJIlmBAghLARUSRFcCAIgAN0kVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBREgAwVH3x1AAAAAAAAAAGwI0OKAQEiKWVEgAEwoEkVIwkjWCIoZUSAASBQi/9QTFAiKmVEUCIrZURQiQ==)
         ((itxn_field ApplicationArgs) method "create()uint64")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -546,6 +603,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -566,7 +629,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAc4IDBCDfOlQEJDeNPATQooIANhoAjgMAOgAvAAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAiABTSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAASI0OBBDEZjgEAA0L/njEYRCNDigEAKIv/Z4mKAQEiKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -581,6 +644,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%1#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return

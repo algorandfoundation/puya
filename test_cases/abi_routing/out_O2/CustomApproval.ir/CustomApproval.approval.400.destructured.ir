@@ -31,22 +31,25 @@ main test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_w
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let x#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let x#0: uint64 = (btoi tmp%7#0)
         let tmp%0#1: uint64 = (+ x#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
-        let tmp%8#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%8#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%9#0)
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 1u
         let result#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
         goto block@15
     block@12: // bare_routing_L6
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        goto tmp%9#0 ? block@14 : block@13
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        goto tmp%10#0 ? block@14 : block@13
     block@13: // __algopy_default_create_L1
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // can only call when creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // can only call when creating
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 1u
         let result#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
         goto block@15

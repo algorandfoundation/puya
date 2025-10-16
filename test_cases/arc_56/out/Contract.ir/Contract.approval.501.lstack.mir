@@ -158,13 +158,20 @@ subroutine main:
         assert // can only call when not creating
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
-        txna ApplicationArgs 1                                                           reinterpret_bytes[1]%0#0
-        l-load reinterpret_bytes[1]%0#0 0                                                reinterpret_bytes[1]%0#0
-        int 0                                                                            reinterpret_bytes[1]%0#0,0
-        getbit                                                                           tmp%33#0
+        txna ApplicationArgs 1                                                           tmp%33#0
+        l-load-copy tmp%33#0 0                                                           tmp%33#0,tmp%33#0 (copy)
+        len                                                                              tmp%33#0,value_len%0#0
+        l-load value_len%0#0 0                                                           tmp%33#0,value_len%0#0
+        int 1                                                                            tmp%33#0,value_len%0#0,1
+        ==                                                                               tmp%33#0,size_is_correct%0#0
+        l-load size_is_correct%0#0 0                                                     tmp%33#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.bool                                  tmp%33#0
+        l-load tmp%33#0 0                                                                tmp%33#0
+        int 0                                                                            tmp%33#0,0
+        getbit                                                                           tmp%34#0
         // arc_56/contract.py:114
         // @arc4.abimethod()
-        l-load tmp%33#0 0                                                                tmp%33#0
+        l-load tmp%34#0 0                                                                tmp%34#0
         callsub conditional_emit
         int 1                                                                            1
         l-store test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0           test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0
@@ -175,13 +182,13 @@ subroutine main:
     main_template_value_route@11:
         // arc_56/contract.py:123
         // @arc4.abimethod()
-        txn OnCompletion                                                                 tmp%34#0
-        l-load tmp%34#0 0                                                                tmp%34#0
-        !                                                                                tmp%35#0
+        txn OnCompletion                                                                 tmp%35#0
         l-load tmp%35#0 0                                                                tmp%35#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                tmp%36#0
+        !                                                                                tmp%36#0
         l-load tmp%36#0 0                                                                tmp%36#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                tmp%37#0
+        l-load tmp%37#0 0                                                                tmp%37#0
         assert // can only call when not creating
         // arc_56/contract.py:126
         // TemplateVar[SharedStruct]("STRUCT"),
@@ -238,8 +245,8 @@ subroutine main:
         concat                                                                           encoded_tuple_buffer%6#0
         byte 0x151f7c75                                                                  encoded_tuple_buffer%6#0,0x151f7c75
         l-load encoded_tuple_buffer%6#0 1                                                0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                           tmp%38#0
-        l-load tmp%38#0 0                                                                tmp%38#0
+        concat                                                                           tmp%39#0
+        l-load tmp%39#0 0                                                                tmp%39#0
         log
         int 1                                                                            1
         l-store test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0           test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0
@@ -262,47 +269,95 @@ subroutine main:
         //         "i": echo_number(UInt64(1234)),
         //     }
         // )
-        txn OnCompletion                                                                 tmp%39#0
-        l-load tmp%39#0 0                                                                tmp%39#0
-        !                                                                                tmp%40#0
+        txn OnCompletion                                                                 tmp%40#0
         l-load tmp%40#0 0                                                                tmp%40#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                tmp%41#0
+        !                                                                                tmp%41#0
         l-load tmp%41#0 0                                                                tmp%41#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                tmp%42#0
+        l-load tmp%42#0 0                                                                tmp%42#0
         assert // can only call when not creating
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
-        txna ApplicationArgs 1                                                           reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                           reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
-        l-load reinterpret_bytes[8]%1#0 0                                                reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
-        btoi                                                                             reinterpret_bytes[8]%0#0,tmp%43#0
-        txna ApplicationArgs 3                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%44#0
-        l-load tmp%44#0 0                                                                reinterpret_bytes[8]%0#0,tmp%43#0,tmp%44#0
-        extract 2 0                                                                      reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0
-        txna ApplicationArgs 4                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0
-        txna ApplicationArgs 5                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0
-        l-load-copy tmp%46#0 0                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,tmp%46#0 (copy)
-        int 0                                                                            reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,tmp%46#0 (copy),0
-        extract_uint64                                                                   reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0
-        l-load-copy tmp%46#0 1                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0,tmp%46#0 (copy)
-        int 8                                                                            reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0,tmp%46#0 (copy),8
-        extract_uint16                                                                   reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0,item_start_offset%0#0
-        l-load-copy tmp%46#0 2                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0,item_start_offset%0#0,tmp%46#0 (copy)
-        len                                                                              reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,tmp%46#0,item0%1#0,item_start_offset%0#0,item_end_offset%0#0
-        l-load tmp%46#0 3                                                                reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item_start_offset%0#0,item_end_offset%0#0,tmp%46#0
-        l-load item_start_offset%0#0 2                                                   reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item_end_offset%0#0,tmp%46#0,item_start_offset%0#0
-        l-load item_end_offset%0#0 2                                                     reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,tmp%46#0,item_start_offset%0#0,item_end_offset%0#0
-        substring3                                                                       reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%0#0
-        l-load item1%0#0 0                                                               reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%0#0
-        extract 2 0                                                                      reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0
-        txna ApplicationArgs 6                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0
-        txna ApplicationArgs 7                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0
-        txna ApplicationArgs 8                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,reinterpret_bytes[8]%2#0
-        l-load reinterpret_bytes[8]%2#0 0                                                reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,reinterpret_bytes[8]%2#0
-        btoi                                                                             reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0
-        txna ApplicationArgs 9                                                           reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,reinterpret_bytes[8]%3#0
-        l-load reinterpret_bytes[8]%3#0 0                                                reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,reinterpret_bytes[8]%3#0
-        btoi                                                                             reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0
+        txna ApplicationArgs 1                                                           tmp%44#0
+        l-load-copy tmp%44#0 0                                                           tmp%44#0,tmp%44#0 (copy)
+        len                                                                              tmp%44#0,value_len%1#0
+        l-load value_len%1#0 0                                                           tmp%44#0,value_len%1#0
+        int 8                                                                            tmp%44#0,value_len%1#0,8
+        ==                                                                               tmp%44#0,size_is_correct%1#0
+        l-load size_is_correct%1#0 0                                                     tmp%44#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                                tmp%44#0
+        txna ApplicationArgs 2                                                           tmp%44#0,tmp%45#0
+        l-load-copy tmp%45#0 0                                                           tmp%44#0,tmp%45#0,tmp%45#0 (copy)
+        len                                                                              tmp%44#0,tmp%45#0,value_len%2#0
+        l-load value_len%2#0 0                                                           tmp%44#0,tmp%45#0,value_len%2#0
+        int 8                                                                            tmp%44#0,tmp%45#0,value_len%2#0,8
+        ==                                                                               tmp%44#0,tmp%45#0,size_is_correct%2#0
+        l-load size_is_correct%2#0 0                                                     tmp%44#0,tmp%45#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint64                                tmp%44#0,tmp%45#0
+        l-load tmp%45#0 0                                                                tmp%44#0,tmp%45#0
+        btoi                                                                             tmp%44#0,tmp%46#0
+        txna ApplicationArgs 3                                                           tmp%44#0,tmp%46#0,tmp%47#0
+        l-load-copy tmp%47#0 0                                                           tmp%44#0,tmp%46#0,tmp%47#0,tmp%47#0 (copy)
+        int 0                                                                            tmp%44#0,tmp%46#0,tmp%47#0,tmp%47#0 (copy),0
+        extract_uint16                                                                   tmp%44#0,tmp%46#0,tmp%47#0,length%1#0
+        l-load length%1#0 0                                                              tmp%44#0,tmp%46#0,tmp%47#0,length%1#0
+        int 2                                                                            tmp%44#0,tmp%46#0,tmp%47#0,length%1#0,2
+        +                                                                                tmp%44#0,tmp%46#0,tmp%47#0,num_bytes_with_header%0#0
+        l-load-copy tmp%47#0 1                                                           tmp%44#0,tmp%46#0,tmp%47#0,num_bytes_with_header%0#0,tmp%47#0 (copy)
+        len                                                                              tmp%44#0,tmp%46#0,tmp%47#0,num_bytes_with_header%0#0,value_len%3#0
+        l-load value_len%3#0 0                                                           tmp%44#0,tmp%46#0,tmp%47#0,num_bytes_with_header%0#0,value_len%3#0
+        l-load num_bytes_with_header%0#0 1                                               tmp%44#0,tmp%46#0,tmp%47#0,value_len%3#0,num_bytes_with_header%0#0
+        ==                                                                               tmp%44#0,tmp%46#0,tmp%47#0,size_is_correct%3#0
+        l-load size_is_correct%3#0 0                                                     tmp%44#0,tmp%46#0,tmp%47#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>             tmp%44#0,tmp%46#0,tmp%47#0
+        l-load tmp%47#0 0                                                                tmp%44#0,tmp%46#0,tmp%47#0
+        extract 2 0                                                                      tmp%44#0,tmp%46#0,tmp%48#0
+        txna ApplicationArgs 4                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0
+        l-load-copy tmp%49#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%49#0 (copy)
+        len                                                                              tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,value_len%4#0
+        l-load value_len%4#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,value_len%4#0
+        int 16                                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,value_len%4#0,16
+        ==                                                                               tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,size_is_correct%4#0
+        l-load size_is_correct%4#0 0                                                     tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,size_is_correct%4#0
+        assert // invalid number of bytes for test_cases.arc_56.contract.EventOnly       tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0
+        txna ApplicationArgs 5                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0
+        l-load-copy tmp%50#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,tmp%50#0 (copy)
+        int 0                                                                            tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,tmp%50#0 (copy),0
+        extract_uint64                                                                   tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0
+        l-load-copy tmp%50#0 1                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0,tmp%50#0 (copy)
+        int 8                                                                            tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0,tmp%50#0 (copy),8
+        extract_uint16                                                                   tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0,item_start_offset%0#0
+        l-load-copy tmp%50#0 2                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0,item_start_offset%0#0,tmp%50#0 (copy)
+        len                                                                              tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,tmp%50#0,item0%1#0,item_start_offset%0#0,item_end_offset%0#0
+        l-load tmp%50#0 3                                                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item_start_offset%0#0,item_end_offset%0#0,tmp%50#0
+        l-load item_start_offset%0#0 2                                                   tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item_end_offset%0#0,tmp%50#0,item_start_offset%0#0
+        l-load item_end_offset%0#0 2                                                     tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,tmp%50#0,item_start_offset%0#0,item_end_offset%0#0
+        substring3                                                                       tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%0#0
+        l-load item1%0#0 0                                                               tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%0#0
+        extract 2 0                                                                      tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0
+        txna ApplicationArgs 6                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0
+        txna ApplicationArgs 7                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0
+        txna ApplicationArgs 8                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0
+        l-load-copy tmp%53#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,tmp%53#0 (copy)
+        len                                                                              tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,value_len%5#0
+        l-load value_len%5#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,value_len%5#0
+        int 8                                                                            tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,value_len%5#0,8
+        ==                                                                               tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,size_is_correct%5#0
+        l-load size_is_correct%5#0 0                                                     tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0,size_is_correct%5#0
+        assert // invalid number of bytes for arc4.uint64                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0
+        l-load tmp%53#0 0                                                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%53#0
+        btoi                                                                             tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0
+        txna ApplicationArgs 9                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0
+        l-load-copy tmp%55#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,tmp%55#0 (copy)
+        len                                                                              tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,value_len%6#0
+        l-load value_len%6#0 0                                                           tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,value_len%6#0
+        int 8                                                                            tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,value_len%6#0,8
+        ==                                                                               tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,size_is_correct%6#0
+        l-load size_is_correct%6#0 0                                                     tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0,size_is_correct%6#0
+        assert // invalid number of bytes for arc4.uint64                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0
+        l-load tmp%55#0 0                                                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%55#0
+        btoi                                                                             tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0
         // arc_56/contract.py:132-144
         // @arc4.abimethod(
         //     default_args={
@@ -317,16 +372,16 @@ subroutine main:
         //         "i": echo_number(UInt64(1234)),
         //     }
         // )
-        l-load reinterpret_bytes[8]%0#0 9                                                tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0
-        l-load tmp%43#0 9                                                                tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0
-        l-load tmp%45#0 9                                                                reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0
-        l-load reinterpret_bytes[16]%0#0 9                                               item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0
-        l-load item0%1#0 9                                                               item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0
-        l-load item1%1#0 9                                                               tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0
-        l-load tmp%47#0 9                                                                tmp%48#0,tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0
-        l-load tmp%48#0 9                                                                tmp%49#0,tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0
-        l-load tmp%49#0 9                                                                tmp%50#0,reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0
-        l-load tmp%50#0 9                                                                reinterpret_bytes[8]%0#0,tmp%43#0,tmp%45#0,reinterpret_bytes[16]%0#0,item0%1#0,item1%1#0,tmp%47#0,tmp%48#0,tmp%49#0,tmp%50#0
+        l-load tmp%44#0 9                                                                tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0
+        l-load tmp%46#0 9                                                                tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0
+        l-load tmp%48#0 9                                                                tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0
+        l-load tmp%49#0 9                                                                item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0
+        l-load item0%1#0 9                                                               item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0
+        l-load item1%1#0 9                                                               tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0
+        l-load tmp%51#0 9                                                                tmp%52#0,tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0
+        l-load tmp%52#0 9                                                                tmp%54#0,tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0
+        l-load tmp%54#0 9                                                                tmp%56#0,tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0
+        l-load tmp%56#0 9                                                                tmp%44#0,tmp%46#0,tmp%48#0,tmp%49#0,item0%1#0,item1%1#0,tmp%51#0,tmp%52#0,tmp%54#0,tmp%56#0
         callsub with_constant_defaults
         int 1                                                                            1
         l-store test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0           test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0
@@ -337,8 +392,8 @@ subroutine main:
     main_bare_routing@13:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
-        txn OnCompletion                                                                 tmp%51#0
-        l-load tmp%51#0 0                                                                tmp%51#0
+        txn OnCompletion                                                                 tmp%57#0
+        l-load tmp%57#0 0                                                                tmp%57#0
         switch main_bare_create@14 main_bare_create@14 main_after_if_else@16 main_after_if_else@16 main_after_if_else@16 main_transient@15 ; b main_after_if_else@16 
 
     main_bare_create@14:
@@ -353,10 +408,10 @@ subroutine main:
     main_transient@15:
         // arc_56/contract.py:85
         // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
-        txn ApplicationID                                                                tmp%52#0
-        l-load tmp%52#0 0                                                                tmp%52#0
-        !                                                                                tmp%53#0
-        l-load tmp%53#0 0                                                                tmp%53#0
+        txn ApplicationID                                                                tmp%58#0
+        l-load tmp%58#0 0                                                                tmp%58#0
+        !                                                                                tmp%59#0
+        l-load tmp%59#0 0                                                                tmp%59#0
         assert // can only call when creating
         int 1                                                                            1
         l-store test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0           test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0

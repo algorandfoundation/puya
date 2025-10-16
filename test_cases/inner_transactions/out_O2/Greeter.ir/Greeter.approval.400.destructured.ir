@@ -42,6 +42,11 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0) // can only call when not creating
         let name#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 name#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len name#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         itxn_begin
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
         (assert maybe_exists%0#0) // check self.hello_app exists
@@ -52,6 +57,12 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
+        let greeting#0: bytes = ((extract 4 0) hello_call.LastLog#0)
+        let length%0#0: uint64 = (extract_uint16 greeting#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len greeting#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) hello_call.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return

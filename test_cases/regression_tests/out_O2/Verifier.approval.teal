@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 32 1
     txn NumAppArgs
     bz main_bare_routing@6
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
@@ -10,7 +11,7 @@ main:
     match main_verify_route@3
 
 main_after_if_else@10:
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_verify_route@3:
@@ -21,7 +22,19 @@ main_verify_route@3:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    pushints 258 32 // 258, 32
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 32
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    dup
+    pushint 258 // 258
+    intc_1 // 32
     extract3
     dig 1
     extract 194 32
@@ -47,7 +60,7 @@ main_verify_route@3:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_2 // 1
     return
 
 main_bare_routing@6:
@@ -56,5 +69,5 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    intc_2 // 1
     return

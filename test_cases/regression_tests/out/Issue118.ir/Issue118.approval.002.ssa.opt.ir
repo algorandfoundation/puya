@@ -12,6 +12,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 32u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint256>
         let tmp%8#0: bytes = test_cases.regression_tests.issue_118.Issue118.verify(tmp%7#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%9#0)

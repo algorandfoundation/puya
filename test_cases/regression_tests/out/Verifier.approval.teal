@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 0 32 1
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txn NumAppArgs
@@ -14,7 +15,7 @@ main:
 main_after_if_else@10:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
-    pushint 0 // 0
+    intc_0 // 0
     return
 
 main_verify_route@3:
@@ -28,6 +29,17 @@ main_verify_route@3:
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 32
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
     // regression_tests/jira_ak_752.py:13
     // @abimethod
     callsub verify
@@ -41,7 +53,7 @@ main_verify_route@3:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_2 // 1
     return
 
 main_bare_routing@6:
@@ -52,7 +64,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    intc_2 // 1
     return
 
 
@@ -68,7 +80,8 @@ verify:
     // regression_tests/jira_ak_752.py:18
     // x = proof[8].bytes  # ok
     frame_dig -1
-    pushints 258 32 // 258, 32
+    pushint 258 // 258
+    intc_1 // 32
     extract3
     // regression_tests/jira_ak_752.py:19
     // y = proof[6].bytes + proof[7].bytes  # ok

@@ -63,9 +63,15 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%0#0
-        btoi                                                                                 tmp%7#0
-        txnas Assets                                                                         tmp%8#0
+        txna ApplicationArgs 1                                                               tmp%7#0
+        l-load-copy tmp%7#0 0                                                                tmp%7#0,tmp%7#0 (copy)
+        len                                                                                  tmp%7#0,value_len%0#0
+        int 1                                                                                tmp%7#0,value_len%0#0,1
+        ==                                                                                   tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint8                                     tmp%7#0
+        l-load tmp%7#0 0                                                                     tmp%7#0
+        btoi                                                                                 tmp%8#0
+        txnas Assets                                                                         tmp%9#0
         // auction/contract.py:25
         // @arc4.abimethod
         callsub opt_into_asset
@@ -76,30 +82,42 @@ subroutine main:
     main_start_auction_route@6:
         // auction/contract.py:40
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%9#0
-        !                                                                                    tmp%10#0
+        txn OnCompletion                                                                     tmp%10#0
+        !                                                                                    tmp%11#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%11#0
+        txn ApplicationID                                                                    tmp%12#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[8]%0#0
-        btoi                                                                                 tmp%13#0
-        txna ApplicationArgs 2                                                               tmp%13#0,reinterpret_bytes[8]%1#0
-        btoi                                                                                 tmp%13#0,tmp%14#0
-        txn GroupIndex                                                                       tmp%13#0,tmp%14#0,tmp%15#0
-        int 1                                                                                tmp%13#0,tmp%14#0,tmp%15#0,1
-        -                                                                                    tmp%13#0,tmp%14#0,gtxn_idx%0#0
-        l-load-copy gtxn_idx%0#0 0                                                           tmp%13#0,tmp%14#0,gtxn_idx%0#0,gtxn_idx%0#0 (copy)
-        gtxns TypeEnum                                                                       tmp%13#0,tmp%14#0,gtxn_idx%0#0,gtxn_type%0#0
-        int axfer                                                                            tmp%13#0,tmp%14#0,gtxn_idx%0#0,gtxn_type%0#0,axfer
-        ==                                                                                   tmp%13#0,tmp%14#0,gtxn_idx%0#0,gtxn_type_matches%0#0
-        assert // transaction type is axfer                                                  tmp%13#0,tmp%14#0,gtxn_idx%0#0
+        txna ApplicationArgs 1                                                               tmp%14#0
+        l-load-copy tmp%14#0 0                                                               tmp%14#0,tmp%14#0 (copy)
+        len                                                                                  tmp%14#0,value_len%1#0
+        int 8                                                                                tmp%14#0,value_len%1#0,8
+        ==                                                                                   tmp%14#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                                    tmp%14#0
+        l-load tmp%14#0 0                                                                    tmp%14#0
+        btoi                                                                                 tmp%15#0
+        txna ApplicationArgs 2                                                               tmp%15#0,tmp%16#0
+        l-load-copy tmp%16#0 0                                                               tmp%15#0,tmp%16#0,tmp%16#0 (copy)
+        len                                                                                  tmp%15#0,tmp%16#0,value_len%2#0
+        int 8                                                                                tmp%15#0,tmp%16#0,value_len%2#0,8
+        ==                                                                                   tmp%15#0,tmp%16#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint64                                    tmp%15#0,tmp%16#0
+        l-load tmp%16#0 0                                                                    tmp%15#0,tmp%16#0
+        btoi                                                                                 tmp%15#0,tmp%17#0
+        txn GroupIndex                                                                       tmp%15#0,tmp%17#0,tmp%18#0
+        int 1                                                                                tmp%15#0,tmp%17#0,tmp%18#0,1
+        -                                                                                    tmp%15#0,tmp%17#0,gtxn_idx%0#0
+        l-load-copy gtxn_idx%0#0 0                                                           tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_idx%0#0 (copy)
+        gtxns TypeEnum                                                                       tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type%0#0
+        int axfer                                                                            tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type%0#0,axfer
+        ==                                                                                   tmp%15#0,tmp%17#0,gtxn_idx%0#0,gtxn_type_matches%0#0
+        assert // transaction type is axfer                                                  tmp%15#0,tmp%17#0,gtxn_idx%0#0
         // auction/contract.py:40
         // @arc4.abimethod
-        l-load tmp%13#0 2                                                                    tmp%14#0,gtxn_idx%0#0,tmp%13#0
-        l-load tmp%14#0 2                                                                    gtxn_idx%0#0,tmp%13#0,tmp%14#0
-        l-load gtxn_idx%0#0 2                                                                tmp%13#0,tmp%14#0,gtxn_idx%0#0
+        l-load tmp%15#0 2                                                                    tmp%17#0,gtxn_idx%0#0,tmp%15#0
+        l-load tmp%17#0 2                                                                    gtxn_idx%0#0,tmp%15#0,tmp%17#0
+        l-load gtxn_idx%0#0 2                                                                tmp%15#0,tmp%17#0,gtxn_idx%0#0
         callsub start_auction
         int 1                                                                                tmp%0#0
         x-store tmp%0#0                                                                      (𝕏) tmp%0#0 |
@@ -108,10 +126,10 @@ subroutine main:
     main_opt_in_route@7:
         // auction/contract.py:62
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%16#0
-        !                                                                                    tmp%17#0
+        txn OnCompletion                                                                     tmp%19#0
+        !                                                                                    tmp%20#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%18#0
+        txn ApplicationID                                                                    tmp%21#0
         assert // can only call when not creating
         int 1                                                                                tmp%0#0
         x-store tmp%0#0                                                                      (𝕏) tmp%0#0 |
@@ -120,15 +138,15 @@ subroutine main:
     main_bid_route@8:
         // auction/contract.py:66
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%20#0
-        !                                                                                    tmp%21#0
+        txn OnCompletion                                                                     tmp%23#0
+        !                                                                                    tmp%24#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%22#0
+        txn ApplicationID                                                                    tmp%25#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn GroupIndex                                                                       tmp%24#0
-        int 1                                                                                tmp%24#0,1
+        txn GroupIndex                                                                       tmp%27#0
+        int 1                                                                                tmp%27#0,1
         -                                                                                    gtxn_idx%1#0
         l-load-copy gtxn_idx%1#0 0                                                           gtxn_idx%1#0,gtxn_idx%1#0 (copy)
         gtxns TypeEnum                                                                       gtxn_idx%1#0,gtxn_type%1#0
@@ -146,10 +164,10 @@ subroutine main:
     main_claim_bids_route@9:
         // auction/contract.py:82
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%25#0
-        !                                                                                    tmp%26#0
+        txn OnCompletion                                                                     tmp%28#0
+        !                                                                                    tmp%29#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%27#0
+        txn ApplicationID                                                                    tmp%30#0
         assert // can only call when not creating
         callsub claim_bids
         int 1                                                                                tmp%0#0
@@ -159,16 +177,22 @@ subroutine main:
     main_claim_asset_route@10:
         // auction/contract.py:97
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%29#0
-        !                                                                                    tmp%30#0
+        txn OnCompletion                                                                     tmp%32#0
+        !                                                                                    tmp%33#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%31#0
+        txn ApplicationID                                                                    tmp%34#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%1#0
-        btoi                                                                                 tmp%33#0
-        txnas Assets                                                                         tmp%34#0
+        txna ApplicationArgs 1                                                               tmp%36#0
+        l-load-copy tmp%36#0 0                                                               tmp%36#0,tmp%36#0 (copy)
+        len                                                                                  tmp%36#0,value_len%3#0
+        int 1                                                                                tmp%36#0,value_len%3#0,1
+        ==                                                                                   tmp%36#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.uint8                                     tmp%36#0
+        l-load tmp%36#0 0                                                                    tmp%36#0
+        btoi                                                                                 tmp%37#0
+        txnas Assets                                                                         tmp%38#0
         // auction/contract.py:97
         // @arc4.abimethod
         callsub claim_asset
@@ -179,12 +203,12 @@ subroutine main:
     main_bare_routing@11:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn OnCompletion                                                                     tmp%35#0
+        txn OnCompletion                                                                     tmp%39#0
         bz main___algopy_default_create@12 ; b main_after_if_else@13
 
     main___algopy_default_create@12:
-        txn ApplicationID                                                                    tmp%36#0
-        !                                                                                    tmp%37#0
+        txn ApplicationID                                                                    tmp%40#0
+        !                                                                                    tmp%41#0
         assert // can only call when creating
         int 1                                                                                tmp%0#0
         x-store tmp%0#0                                                                      (𝕏) tmp%0#0 |

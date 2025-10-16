@@ -43,17 +43,45 @@ subroutine main:
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
         txna ApplicationArgs 1                                                                       tmp%7#0
+        l-load-copy tmp%7#0 0                                                                        tmp%7#0,tmp%7#0 (copy)
+        int 0                                                                                        tmp%7#0,tmp%7#0 (copy),0
+        extract_uint16                                                                               tmp%7#0,length%0#0
+        int 2                                                                                        tmp%7#0,length%0#0,2
+        +                                                                                            tmp%7#0,num_bytes_with_header%0#0
+        l-load-copy tmp%7#0 1                                                                        tmp%7#0,num_bytes_with_header%0#0,tmp%7#0 (copy)
+        len                                                                                          tmp%7#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           tmp%7#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         tmp%7#0
+        l-load tmp%7#0 0                                                                             tmp%7#0
         extract 2 0                                                                                  tmp%8#0
         txna ApplicationArgs 2                                                                       tmp%8#0,tmp%9#0
+        l-load-copy tmp%9#0 0                                                                        tmp%8#0,tmp%9#0,tmp%9#0 (copy)
+        int 0                                                                                        tmp%8#0,tmp%9#0,tmp%9#0 (copy),0
+        extract_uint16                                                                               tmp%8#0,tmp%9#0,length%1#0
+        int 2                                                                                        tmp%8#0,tmp%9#0,length%1#0,2
+        +                                                                                            tmp%8#0,tmp%9#0,num_bytes_with_header%1#0
+        l-load-copy tmp%9#0 1                                                                        tmp%8#0,tmp%9#0,num_bytes_with_header%1#0,tmp%9#0 (copy)
+        len                                                                                          tmp%8#0,tmp%9#0,num_bytes_with_header%1#0,value_len%1#0
+        l-load num_bytes_with_header%1#0 1                                                           tmp%8#0,tmp%9#0,value_len%1#0,num_bytes_with_header%1#0
+        ==                                                                                           tmp%8#0,tmp%9#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         tmp%8#0,tmp%9#0
+        l-load tmp%9#0 0                                                                             tmp%8#0,tmp%9#0
         extract 2 0                                                                                  tmp%8#0,tmp%10#0
-        txna ApplicationArgs 3                                                                       tmp%8#0,tmp%10#0,reinterpret_bytes[1]%0#0
-        btoi                                                                                         tmp%8#0,tmp%10#0,tmp%11#0
-        txnas Applications                                                                           tmp%8#0,tmp%10#0,tmp%12#0
+        txna ApplicationArgs 3                                                                       tmp%8#0,tmp%10#0,tmp%11#0
+        l-load-copy tmp%11#0 0                                                                       tmp%8#0,tmp%10#0,tmp%11#0,tmp%11#0 (copy)
+        len                                                                                          tmp%8#0,tmp%10#0,tmp%11#0,value_len%2#0
+        int 1                                                                                        tmp%8#0,tmp%10#0,tmp%11#0,value_len%2#0,1
+        ==                                                                                           tmp%8#0,tmp%10#0,tmp%11#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%8#0,tmp%10#0,tmp%11#0
+        l-load tmp%11#0 0                                                                            tmp%8#0,tmp%10#0,tmp%11#0
+        btoi                                                                                         tmp%8#0,tmp%10#0,tmp%12#0
+        txnas Applications                                                                           tmp%8#0,tmp%10#0,tmp%13#0
         // typed_abi_call/typed_c2c.py:24
         // @arc4.abimethod
-        l-load tmp%8#0 2                                                                             tmp%10#0,tmp%12#0,tmp%8#0
-        l-load tmp%10#0 2                                                                            tmp%12#0,tmp%8#0,tmp%10#0
-        l-load tmp%12#0 2                                                                            tmp%8#0,tmp%10#0,tmp%12#0
+        l-load tmp%8#0 2                                                                             tmp%10#0,tmp%13#0,tmp%8#0
+        l-load tmp%10#0 2                                                                            tmp%13#0,tmp%8#0,tmp%10#0
+        l-load tmp%13#0 2                                                                            tmp%8#0,tmp%10#0,tmp%13#0
         callsub test_is_a_b
         int 1                                                                                        test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
@@ -62,16 +90,22 @@ subroutine main:
     main_test_method_selector_kinds_route@4:
         // typed_abi_call/typed_c2c.py:33
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%13#0
-        !                                                                                            tmp%14#0
+        txn OnCompletion                                                                             tmp%14#0
+        !                                                                                            tmp%15#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%15#0
+        txn ApplicationID                                                                            tmp%16#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%1#0
-        btoi                                                                                         tmp%17#0
-        txnas Applications                                                                           tmp%18#0
+        txna ApplicationArgs 1                                                                       tmp%18#0
+        l-load-copy tmp%18#0 0                                                                       tmp%18#0,tmp%18#0 (copy)
+        len                                                                                          tmp%18#0,value_len%3#0
+        int 1                                                                                        tmp%18#0,value_len%3#0,1
+        ==                                                                                           tmp%18#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%18#0
+        l-load tmp%18#0 0                                                                            tmp%18#0
+        btoi                                                                                         tmp%19#0
+        txnas Applications                                                                           tmp%20#0
         // typed_abi_call/typed_c2c.py:33
         // @arc4.abimethod()
         callsub test_method_selector_kinds
@@ -82,16 +116,22 @@ subroutine main:
     main_test_method_overload_route@5:
         // typed_abi_call/typed_c2c.py:47
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%19#0
-        !                                                                                            tmp%20#0
+        txn OnCompletion                                                                             tmp%21#0
+        !                                                                                            tmp%22#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%21#0
+        txn ApplicationID                                                                            tmp%23#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%2#0
-        btoi                                                                                         tmp%23#0
-        txnas Applications                                                                           tmp%24#0
+        txna ApplicationArgs 1                                                                       tmp%25#0
+        l-load-copy tmp%25#0 0                                                                       tmp%25#0,tmp%25#0 (copy)
+        len                                                                                          tmp%25#0,value_len%4#0
+        int 1                                                                                        tmp%25#0,value_len%4#0,1
+        ==                                                                                           tmp%25#0,size_is_correct%4#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%25#0
+        l-load tmp%25#0 0                                                                            tmp%25#0
+        btoi                                                                                         tmp%26#0
+        txnas Applications                                                                           tmp%27#0
         // typed_abi_call/typed_c2c.py:47
         // @arc4.abimethod()
         callsub test_method_overload
@@ -102,16 +142,22 @@ subroutine main:
     main_test_arg_conversion_route@6:
         // typed_abi_call/typed_c2c.py:62
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%25#0
-        !                                                                                            tmp%26#0
+        txn OnCompletion                                                                             tmp%28#0
+        !                                                                                            tmp%29#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%27#0
+        txn ApplicationID                                                                            tmp%30#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%3#0
-        btoi                                                                                         tmp%29#0
-        txnas Applications                                                                           tmp%30#0
+        txna ApplicationArgs 1                                                                       tmp%32#0
+        l-load-copy tmp%32#0 0                                                                       tmp%32#0,tmp%32#0 (copy)
+        len                                                                                          tmp%32#0,value_len%5#0
+        int 1                                                                                        tmp%32#0,value_len%5#0,1
+        ==                                                                                           tmp%32#0,size_is_correct%5#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%32#0
+        l-load tmp%32#0 0                                                                            tmp%32#0
+        btoi                                                                                         tmp%33#0
+        txnas Applications                                                                           tmp%34#0
         // typed_abi_call/typed_c2c.py:62
         // @arc4.abimethod()
         callsub test_arg_conversion
@@ -122,16 +168,22 @@ subroutine main:
     main_test_15plus_args_route@7:
         // typed_abi_call/typed_c2c.py:79
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%31#0
-        !                                                                                            tmp%32#0
+        txn OnCompletion                                                                             tmp%35#0
+        !                                                                                            tmp%36#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%33#0
+        txn ApplicationID                                                                            tmp%37#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%4#0
-        btoi                                                                                         tmp%35#0
-        txnas Applications                                                                           tmp%36#0
+        txna ApplicationArgs 1                                                                       tmp%39#0
+        l-load-copy tmp%39#0 0                                                                       tmp%39#0,tmp%39#0 (copy)
+        len                                                                                          tmp%39#0,value_len%6#0
+        int 1                                                                                        tmp%39#0,value_len%6#0,1
+        ==                                                                                           tmp%39#0,size_is_correct%6#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%39#0
+        l-load tmp%39#0 0                                                                            tmp%39#0
+        btoi                                                                                         tmp%40#0
+        txnas Applications                                                                           tmp%41#0
         // typed_abi_call/typed_c2c.py:79
         // @arc4.abimethod()
         callsub test_15plus_args
@@ -142,16 +194,22 @@ subroutine main:
     main_test_void_route@8:
         // typed_abi_call/typed_c2c.py:107
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%37#0
-        !                                                                                            tmp%38#0
+        txn OnCompletion                                                                             tmp%42#0
+        !                                                                                            tmp%43#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%39#0
+        txn ApplicationID                                                                            tmp%44#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%5#0
-        btoi                                                                                         tmp%41#0
-        txnas Applications                                                                           tmp%42#0
+        txna ApplicationArgs 1                                                                       tmp%46#0
+        l-load-copy tmp%46#0 0                                                                       tmp%46#0,tmp%46#0 (copy)
+        len                                                                                          tmp%46#0,value_len%7#0
+        int 1                                                                                        tmp%46#0,value_len%7#0,1
+        ==                                                                                           tmp%46#0,size_is_correct%7#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%46#0
+        l-load tmp%46#0 0                                                                            tmp%46#0
+        btoi                                                                                         tmp%47#0
+        txnas Applications                                                                           tmp%48#0
         // typed_abi_call/typed_c2c.py:107
         // @arc4.abimethod()
         callsub test_void
@@ -162,23 +220,35 @@ subroutine main:
     main_test_ref_types_route@9:
         // typed_abi_call/typed_c2c.py:121
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%43#0
-        !                                                                                            tmp%44#0
+        txn OnCompletion                                                                             tmp%49#0
+        !                                                                                            tmp%50#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%45#0
+        txn ApplicationID                                                                            tmp%51#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%6#0
-        btoi                                                                                         tmp%47#0
-        txnas Applications                                                                           tmp%48#0
-        txna ApplicationArgs 2                                                                       tmp%48#0,reinterpret_bytes[1]%7#0
-        btoi                                                                                         tmp%48#0,tmp%49#0
-        txnas Assets                                                                                 tmp%48#0,tmp%50#0
+        txna ApplicationArgs 1                                                                       tmp%53#0
+        l-load-copy tmp%53#0 0                                                                       tmp%53#0,tmp%53#0 (copy)
+        len                                                                                          tmp%53#0,value_len%8#0
+        int 1                                                                                        tmp%53#0,value_len%8#0,1
+        ==                                                                                           tmp%53#0,size_is_correct%8#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%53#0
+        l-load tmp%53#0 0                                                                            tmp%53#0
+        btoi                                                                                         tmp%54#0
+        txnas Applications                                                                           tmp%55#0
+        txna ApplicationArgs 2                                                                       tmp%55#0,tmp%56#0
+        l-load-copy tmp%56#0 0                                                                       tmp%55#0,tmp%56#0,tmp%56#0 (copy)
+        len                                                                                          tmp%55#0,tmp%56#0,value_len%9#0
+        int 1                                                                                        tmp%55#0,tmp%56#0,value_len%9#0,1
+        ==                                                                                           tmp%55#0,tmp%56#0,size_is_correct%9#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%55#0,tmp%56#0
+        l-load tmp%56#0 0                                                                            tmp%55#0,tmp%56#0
+        btoi                                                                                         tmp%55#0,tmp%57#0
+        txnas Assets                                                                                 tmp%55#0,tmp%58#0
         // typed_abi_call/typed_c2c.py:121
         // @arc4.abimethod()
-        l-load tmp%48#0 1                                                                            tmp%50#0,tmp%48#0
-        l-load tmp%50#0 1                                                                            tmp%48#0,tmp%50#0
+        l-load tmp%55#0 1                                                                            tmp%58#0,tmp%55#0
+        l-load tmp%58#0 1                                                                            tmp%55#0,tmp%58#0
         callsub test_ref_types
         int 1                                                                                        test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
@@ -187,16 +257,22 @@ subroutine main:
     main_test_account_to_address_route@10:
         // typed_abi_call/typed_c2c.py:135
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%51#0
-        !                                                                                            tmp%52#0
+        txn OnCompletion                                                                             tmp%59#0
+        !                                                                                            tmp%60#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%53#0
+        txn ApplicationID                                                                            tmp%61#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%8#0
-        btoi                                                                                         tmp%55#0
-        txnas Applications                                                                           tmp%56#0
+        txna ApplicationArgs 1                                                                       tmp%63#0
+        l-load-copy tmp%63#0 0                                                                       tmp%63#0,tmp%63#0 (copy)
+        len                                                                                          tmp%63#0,value_len%10#0
+        int 1                                                                                        tmp%63#0,value_len%10#0,1
+        ==                                                                                           tmp%63#0,size_is_correct%10#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%63#0
+        l-load tmp%63#0 0                                                                            tmp%63#0
+        btoi                                                                                         tmp%64#0
+        txnas Applications                                                                           tmp%65#0
         // typed_abi_call/typed_c2c.py:135
         // @arc4.abimethod()
         callsub test_account_to_address
@@ -207,16 +283,22 @@ subroutine main:
     main_test_native_string_route@11:
         // typed_abi_call/typed_c2c.py:144
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%57#0
-        !                                                                                            tmp%58#0
+        txn OnCompletion                                                                             tmp%66#0
+        !                                                                                            tmp%67#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%59#0
+        txn ApplicationID                                                                            tmp%68#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%9#0
-        btoi                                                                                         tmp%61#0
-        txnas Applications                                                                           tmp%62#0
+        txna ApplicationArgs 1                                                                       tmp%70#0
+        l-load-copy tmp%70#0 0                                                                       tmp%70#0,tmp%70#0 (copy)
+        len                                                                                          tmp%70#0,value_len%11#0
+        int 1                                                                                        tmp%70#0,value_len%11#0,1
+        ==                                                                                           tmp%70#0,size_is_correct%11#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%70#0
+        l-load tmp%70#0 0                                                                            tmp%70#0
+        btoi                                                                                         tmp%71#0
+        txnas Applications                                                                           tmp%72#0
         // typed_abi_call/typed_c2c.py:144
         // @arc4.abimethod()
         callsub test_native_string
@@ -227,16 +309,22 @@ subroutine main:
     main_test_native_bytes_route@12:
         // typed_abi_call/typed_c2c.py:155
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%63#0
-        !                                                                                            tmp%64#0
+        txn OnCompletion                                                                             tmp%73#0
+        !                                                                                            tmp%74#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%65#0
+        txn ApplicationID                                                                            tmp%75#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%10#0
-        btoi                                                                                         tmp%67#0
-        txnas Applications                                                                           tmp%68#0
+        txna ApplicationArgs 1                                                                       tmp%77#0
+        l-load-copy tmp%77#0 0                                                                       tmp%77#0,tmp%77#0 (copy)
+        len                                                                                          tmp%77#0,value_len%12#0
+        int 1                                                                                        tmp%77#0,value_len%12#0,1
+        ==                                                                                           tmp%77#0,size_is_correct%12#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%77#0
+        l-load tmp%77#0 0                                                                            tmp%77#0
+        btoi                                                                                         tmp%78#0
+        txnas Applications                                                                           tmp%79#0
         // typed_abi_call/typed_c2c.py:155
         // @arc4.abimethod()
         callsub test_native_bytes
@@ -247,16 +335,22 @@ subroutine main:
     main_test_native_uint64_route@13:
         // typed_abi_call/typed_c2c.py:168
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%69#0
-        !                                                                                            tmp%70#0
+        txn OnCompletion                                                                             tmp%80#0
+        !                                                                                            tmp%81#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%71#0
+        txn ApplicationID                                                                            tmp%82#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%11#0
-        btoi                                                                                         tmp%73#0
-        txnas Applications                                                                           tmp%74#0
+        txna ApplicationArgs 1                                                                       tmp%84#0
+        l-load-copy tmp%84#0 0                                                                       tmp%84#0,tmp%84#0 (copy)
+        len                                                                                          tmp%84#0,value_len%13#0
+        int 1                                                                                        tmp%84#0,value_len%13#0,1
+        ==                                                                                           tmp%84#0,size_is_correct%13#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%84#0
+        l-load tmp%84#0 0                                                                            tmp%84#0
+        btoi                                                                                         tmp%85#0
+        txnas Applications                                                                           tmp%86#0
         // typed_abi_call/typed_c2c.py:168
         // @arc4.abimethod()
         callsub test_native_uint64
@@ -267,16 +361,22 @@ subroutine main:
     main_test_native_biguint_route@14:
         // typed_abi_call/typed_c2c.py:179
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%75#0
-        !                                                                                            tmp%76#0
+        txn OnCompletion                                                                             tmp%87#0
+        !                                                                                            tmp%88#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%77#0
+        txn ApplicationID                                                                            tmp%89#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%12#0
-        btoi                                                                                         tmp%79#0
-        txnas Applications                                                                           tmp%80#0
+        txna ApplicationArgs 1                                                                       tmp%91#0
+        l-load-copy tmp%91#0 0                                                                       tmp%91#0,tmp%91#0 (copy)
+        len                                                                                          tmp%91#0,value_len%14#0
+        int 1                                                                                        tmp%91#0,value_len%14#0,1
+        ==                                                                                           tmp%91#0,size_is_correct%14#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%91#0
+        l-load tmp%91#0 0                                                                            tmp%91#0
+        btoi                                                                                         tmp%92#0
+        txnas Applications                                                                           tmp%93#0
         // typed_abi_call/typed_c2c.py:179
         // @arc4.abimethod()
         callsub test_native_biguint
@@ -287,16 +387,22 @@ subroutine main:
     main_test_native_tuple_route@15:
         // typed_abi_call/typed_c2c.py:190
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%81#0
-        !                                                                                            tmp%82#0
+        txn OnCompletion                                                                             tmp%94#0
+        !                                                                                            tmp%95#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%83#0
+        txn ApplicationID                                                                            tmp%96#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%13#0
-        btoi                                                                                         tmp%85#0
-        txnas Applications                                                                           tmp%86#0
+        txna ApplicationArgs 1                                                                       tmp%98#0
+        l-load-copy tmp%98#0 0                                                                       tmp%98#0,tmp%98#0 (copy)
+        len                                                                                          tmp%98#0,value_len%15#0
+        int 1                                                                                        tmp%98#0,value_len%15#0,1
+        ==                                                                                           tmp%98#0,size_is_correct%15#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%98#0
+        l-load tmp%98#0 0                                                                            tmp%98#0
+        btoi                                                                                         tmp%99#0
+        txnas Applications                                                                           tmp%100#0
         // typed_abi_call/typed_c2c.py:190
         // @arc4.abimethod()
         callsub test_native_tuple
@@ -307,16 +413,22 @@ subroutine main:
     main_test_native_tuple_method_ref_route@16:
         // typed_abi_call/typed_c2c.py:249
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%87#0
-        !                                                                                            tmp%88#0
+        txn OnCompletion                                                                             tmp%101#0
+        !                                                                                            tmp%102#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%89#0
+        txn ApplicationID                                                                            tmp%103#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%14#0
-        btoi                                                                                         tmp%91#0
-        txnas Applications                                                                           tmp%92#0
+        txna ApplicationArgs 1                                                                       tmp%105#0
+        l-load-copy tmp%105#0 0                                                                      tmp%105#0,tmp%105#0 (copy)
+        len                                                                                          tmp%105#0,value_len%16#0
+        int 1                                                                                        tmp%105#0,value_len%16#0,1
+        ==                                                                                           tmp%105#0,size_is_correct%16#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%105#0
+        l-load tmp%105#0 0                                                                           tmp%105#0
+        btoi                                                                                         tmp%106#0
+        txnas Applications                                                                           tmp%107#0
         // typed_abi_call/typed_c2c.py:249
         // @arc4.abimethod()
         callsub test_native_tuple_method_ref
@@ -327,16 +439,22 @@ subroutine main:
     main_test_nested_tuples_route@17:
         // typed_abi_call/typed_c2c.py:299
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%93#0
-        !                                                                                            tmp%94#0
+        txn OnCompletion                                                                             tmp%108#0
+        !                                                                                            tmp%109#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%95#0
+        txn ApplicationID                                                                            tmp%110#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%15#0
-        btoi                                                                                         tmp%97#0
-        txnas Applications                                                                           tmp%98#0
+        txna ApplicationArgs 1                                                                       tmp%112#0
+        l-load-copy tmp%112#0 0                                                                      tmp%112#0,tmp%112#0 (copy)
+        len                                                                                          tmp%112#0,value_len%17#0
+        int 1                                                                                        tmp%112#0,value_len%17#0,1
+        ==                                                                                           tmp%112#0,size_is_correct%17#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%112#0
+        l-load tmp%112#0 0                                                                           tmp%112#0
+        btoi                                                                                         tmp%113#0
+        txnas Applications                                                                           tmp%114#0
         // typed_abi_call/typed_c2c.py:299
         // @arc4.abimethod()
         callsub test_nested_tuples
@@ -347,16 +465,22 @@ subroutine main:
     main_test_no_args_route@18:
         // typed_abi_call/typed_c2c.py:345
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%99#0
-        !                                                                                            tmp%100#0
+        txn OnCompletion                                                                             tmp%115#0
+        !                                                                                            tmp%116#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%101#0
+        txn ApplicationID                                                                            tmp%117#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%16#0
-        btoi                                                                                         tmp%103#0
-        txnas Applications                                                                           tmp%104#0
+        txna ApplicationArgs 1                                                                       tmp%119#0
+        l-load-copy tmp%119#0 0                                                                      tmp%119#0,tmp%119#0 (copy)
+        len                                                                                          tmp%119#0,value_len%18#0
+        int 1                                                                                        tmp%119#0,value_len%18#0,1
+        ==                                                                                           tmp%119#0,size_is_correct%18#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%119#0
+        l-load tmp%119#0 0                                                                           tmp%119#0
+        btoi                                                                                         tmp%120#0
+        txnas Applications                                                                           tmp%121#0
         // typed_abi_call/typed_c2c.py:345
         // @arc4.abimethod()
         callsub test_no_args
@@ -367,16 +491,22 @@ subroutine main:
     main_test_named_tuples_route@19:
         // typed_abi_call/typed_c2c.py:355
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%105#0
-        !                                                                                            tmp%106#0
+        txn OnCompletion                                                                             tmp%122#0
+        !                                                                                            tmp%123#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%107#0
+        txn ApplicationID                                                                            tmp%124#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%17#0
-        btoi                                                                                         tmp%109#0
-        txnas Applications                                                                           tmp%110#0
+        txna ApplicationArgs 1                                                                       tmp%126#0
+        l-load-copy tmp%126#0 0                                                                      tmp%126#0,tmp%126#0 (copy)
+        len                                                                                          tmp%126#0,value_len%19#0
+        int 1                                                                                        tmp%126#0,value_len%19#0,1
+        ==                                                                                           tmp%126#0,size_is_correct%19#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%126#0
+        l-load tmp%126#0 0                                                                           tmp%126#0
+        btoi                                                                                         tmp%127#0
+        txnas Applications                                                                           tmp%128#0
         // typed_abi_call/typed_c2c.py:355
         // @arc4.abimethod()
         callsub test_named_tuples
@@ -387,16 +517,22 @@ subroutine main:
     main_test_arc4_struct_route@20:
         // typed_abi_call/typed_c2c.py:372
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%111#0
-        !                                                                                            tmp%112#0
+        txn OnCompletion                                                                             tmp%129#0
+        !                                                                                            tmp%130#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%113#0
+        txn ApplicationID                                                                            tmp%131#0
         assert // can only call when not creating
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[1]%18#0
-        btoi                                                                                         tmp%115#0
-        txnas Applications                                                                           tmp%116#0
+        txna ApplicationArgs 1                                                                       tmp%133#0
+        l-load-copy tmp%133#0 0                                                                      tmp%133#0,tmp%133#0 (copy)
+        len                                                                                          tmp%133#0,value_len%20#0
+        int 1                                                                                        tmp%133#0,value_len%20#0,1
+        ==                                                                                           tmp%133#0,size_is_correct%20#0
+        assert // invalid number of bytes for arc4.uint8                                             tmp%133#0
+        l-load tmp%133#0 0                                                                           tmp%133#0
+        btoi                                                                                         tmp%134#0
+        txnas Applications                                                                           tmp%135#0
         // typed_abi_call/typed_c2c.py:372
         // @arc4.abimethod()
         callsub test_arc4_struct
@@ -407,12 +543,12 @@ subroutine main:
     main_bare_routing@23:
         // typed_abi_call/typed_c2c.py:23
         // class Greeter(ARC4Contract):
-        txn OnCompletion                                                                             tmp%117#0
+        txn OnCompletion                                                                             tmp%136#0
         bz main___algopy_default_create@24 ; b main_after_if_else@27
 
     main___algopy_default_create@24:
-        txn ApplicationID                                                                            tmp%118#0
-        !                                                                                            tmp%119#0
+        txn ApplicationID                                                                            tmp%137#0
+        !                                                                                            tmp%138#0
         assert // can only call when creating
         int 1                                                                                        test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
@@ -500,6 +636,16 @@ subroutine test_method_selector_kinds:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%0#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%0#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%0#0,result#0,length%0#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%0#0,result#0,length%0#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%0#0,result#0,num_bytes_with_header%0#0
+        l-load-copy result#0 1                                                                       (𝕡) app#0 | awst_tmp%0#0,result#0,num_bytes_with_header%0#0,result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,result#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           (𝕡) app#0 | awst_tmp%0#0,result#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,result#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%0#0,result#0
         l-load awst_tmp%0#0 1                                                                        (𝕡) app#0 | result#0,awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | result#0,tmp%2#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result#0,tmp%2#0,0x151f7c75
@@ -528,6 +674,16 @@ subroutine test_method_selector_kinds:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%1#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%1#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%1#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%1#0,result#0,length%1#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%1#0,result#0,length%1#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%1#0,result#0,num_bytes_with_header%1#0
+        l-load-copy result#0 1                                                                       (𝕡) app#0 | awst_tmp%1#0,result#0,num_bytes_with_header%1#0,result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%1#0,result#0,num_bytes_with_header%1#0,value_len%1#0
+        l-load num_bytes_with_header%1#0 1                                                           (𝕡) app#0 | awst_tmp%1#0,result#0,value_len%1#0,num_bytes_with_header%1#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%1#0,result#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%1#0,result#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | result#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | result#0,tmp%6#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result#0,tmp%6#0,0x151f7c75
@@ -556,6 +712,16 @@ subroutine test_method_selector_kinds:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%2#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%2#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%2#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%2#0,result#0,length%2#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%2#0,result#0,length%2#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%2#0,result#0,num_bytes_with_header%2#0
+        l-load-copy result#0 1                                                                       (𝕡) app#0 | awst_tmp%2#0,result#0,num_bytes_with_header%2#0,result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%2#0,result#0,num_bytes_with_header%2#0,value_len%2#0
+        l-load num_bytes_with_header%2#0 1                                                           (𝕡) app#0 | awst_tmp%2#0,result#0,value_len%2#0,num_bytes_with_header%2#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%2#0,result#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%2#0,result#0
         l-load awst_tmp%2#0 1                                                                        (𝕡) app#0 | result#0,awst_tmp%2#0
         extract 0 4                                                                                  (𝕡) app#0 | result#0,tmp%10#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result#0,tmp%10#0,0x151f7c75
@@ -584,6 +750,16 @@ subroutine test_method_selector_kinds:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%3#0
         l-load-copy awst_tmp%3#0 0                                                                   (𝕡) app#0 | awst_tmp%3#0,awst_tmp%3#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%3#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%3#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%3#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%3#0,result#0,length%3#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%3#0,result#0,length%3#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%3#0,result#0,num_bytes_with_header%3#0
+        l-load-copy result#0 1                                                                       (𝕡) app#0 | awst_tmp%3#0,result#0,num_bytes_with_header%3#0,result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%3#0,result#0,num_bytes_with_header%3#0,value_len%3#0
+        l-load num_bytes_with_header%3#0 1                                                           (𝕡) app#0 | awst_tmp%3#0,result#0,value_len%3#0,num_bytes_with_header%3#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%3#0,result#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%3#0,result#0
         l-load awst_tmp%3#0 1                                                                        (𝕡) app#0 | result#0,awst_tmp%3#0
         extract 0 4                                                                                  (𝕡) app#0 | result#0,tmp%14#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result#0,tmp%14#0,0x151f7c75
@@ -612,6 +788,16 @@ subroutine test_method_selector_kinds:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%4#0
         l-load-copy awst_tmp%4#0 0                                                                   (𝕡) app#0 | awst_tmp%4#0,awst_tmp%4#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%4#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%4#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%4#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%4#0,result#0,length%4#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%4#0,result#0,length%4#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%4#0,result#0,num_bytes_with_header%4#0
+        l-load-copy result#0 1                                                                       (𝕡) app#0 | awst_tmp%4#0,result#0,num_bytes_with_header%4#0,result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%4#0,result#0,num_bytes_with_header%4#0,value_len%4#0
+        l-load num_bytes_with_header%4#0 1                                                           (𝕡) app#0 | awst_tmp%4#0,result#0,value_len%4#0,num_bytes_with_header%4#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%4#0,result#0,size_is_correct%4#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%4#0,result#0
         l-load awst_tmp%4#0 1                                                                        (𝕡) app#0 | result#0,awst_tmp%4#0
         extract 0 4                                                                                  (𝕡) app#0 | result#0,tmp%18#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result#0,tmp%18#0,0x151f7c75
@@ -644,6 +830,19 @@ subroutine test_method_overload:
         itxn_field Fee                                                                               (𝕡) app#0 |
         itxn_submit                                                                                  (𝕡) app#0 |
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%0#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%0#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,num_bytes_with_header%0#0
+        l-load tmp%0#0 1                                                                             (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,tmp%0#0
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           (𝕡) app#0 | awst_tmp%0#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%0#0
+        l-load awst_tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%1#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | tmp%2#0
@@ -653,6 +852,16 @@ subroutine test_method_overload:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%1#0,tmp%3#0
+        l-load-copy tmp%3#0 0                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,tmp%3#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,length%1#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,length%1#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,num_bytes_with_header%1#0
+        l-load-copy tmp%3#0 1                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,num_bytes_with_header%1#0,tmp%3#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,num_bytes_with_header%1#0,value_len%1#0
+        l-load num_bytes_with_header%1#0 1                                                           (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,value_len%1#0,num_bytes_with_header%1#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%1#0,tmp%3#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%1#0,tmp%3#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | tmp%3#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%3#0,tmp%4#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%3#0,tmp%4#0,0x151f7c75
@@ -681,6 +890,16 @@ subroutine test_method_overload:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%2#0,tmp%7#0
+        l-load-copy tmp%7#0 0                                                                        (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,tmp%7#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,tmp%7#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,length%2#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,length%2#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,num_bytes_with_header%2#0
+        l-load-copy tmp%7#0 1                                                                        (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,num_bytes_with_header%2#0,tmp%7#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,num_bytes_with_header%2#0,value_len%2#0
+        l-load num_bytes_with_header%2#0 1                                                           (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,value_len%2#0,num_bytes_with_header%2#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%2#0,tmp%7#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%2#0,tmp%7#0
         l-load awst_tmp%2#0 1                                                                        (𝕡) app#0 | tmp%7#0,awst_tmp%2#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%7#0,tmp%8#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%7#0,tmp%8#0,0x151f7c75
@@ -707,6 +926,16 @@ subroutine test_method_overload:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%3#0
         l-load-copy awst_tmp%3#0 0                                                                   (𝕡) app#0 | awst_tmp%3#0,awst_tmp%3#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%3#0,result.0#0
+        l-load-copy result.0#0 0                                                                     (𝕡) app#0 | awst_tmp%3#0,result.0#0,result.0#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%3#0,result.0#0,result.0#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%3#0,result.0#0,length%3#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%3#0,result.0#0,length%3#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%3#0,result.0#0,num_bytes_with_header%3#0
+        l-load-copy result.0#0 1                                                                     (𝕡) app#0 | awst_tmp%3#0,result.0#0,num_bytes_with_header%3#0,result.0#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%3#0,result.0#0,num_bytes_with_header%3#0,value_len%3#0
+        l-load num_bytes_with_header%3#0 1                                                           (𝕡) app#0 | awst_tmp%3#0,result.0#0,value_len%3#0,num_bytes_with_header%3#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%3#0,result.0#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%3#0,result.0#0
         l-load awst_tmp%3#0 1                                                                        (𝕡) app#0 | result.0#0,awst_tmp%3#0
         extract 0 4                                                                                  (𝕡) app#0 | result.0#0,tmp%12#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result.0#0,tmp%12#0,0x151f7c75
@@ -723,6 +952,16 @@ subroutine test_method_overload:
         // assert arc4.String.from_log(result[1].last_log) == "echo: tuple"
         l-load-copy result.1.LastLog#0 0                                                             (𝕡) app#0 | result.1.LastLog#0,result.1.LastLog#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | result.1.LastLog#0,tmp%15#0
+        l-load-copy tmp%15#0 0                                                                       (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,tmp%15#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,tmp%15#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,length%4#0
+        int 2                                                                                        (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,length%4#0,2
+        +                                                                                            (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,num_bytes_with_header%4#0
+        l-load-copy tmp%15#0 1                                                                       (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,num_bytes_with_header%4#0,tmp%15#0 (copy)
+        len                                                                                          (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,num_bytes_with_header%4#0,value_len%4#0
+        l-load num_bytes_with_header%4#0 1                                                           (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,value_len%4#0,num_bytes_with_header%4#0
+        ==                                                                                           (𝕡) app#0 | result.1.LastLog#0,tmp%15#0,size_is_correct%4#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | result.1.LastLog#0,tmp%15#0
         l-load result.1.LastLog#0 1                                                                  (𝕡) app#0 | tmp%15#0,result.1.LastLog#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%15#0,tmp%16#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%15#0,tmp%16#0,0x151f7c75
@@ -751,6 +990,16 @@ subroutine test_method_overload:
         // assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
         l-load-copy txn_result.LastLog#0 0                                                           (𝕡) app#0 | txn_result.LastLog#0,txn_result.LastLog#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0
+        l-load-copy tmp%19#0 0                                                                       (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,tmp%19#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,tmp%19#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,length%5#0
+        int 2                                                                                        (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,length%5#0,2
+        +                                                                                            (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,num_bytes_with_header%5#0
+        l-load-copy tmp%19#0 1                                                                       (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,num_bytes_with_header%5#0,tmp%19#0 (copy)
+        len                                                                                          (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,num_bytes_with_header%5#0,value_len%5#0
+        l-load num_bytes_with_header%5#0 1                                                           (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,value_len%5#0,num_bytes_with_header%5#0
+        ==                                                                                           (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0,size_is_correct%5#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | txn_result.LastLog#0,tmp%19#0
         l-load txn_result.LastLog#0 1                                                                (𝕡) app#0 | tmp%19#0,txn_result.LastLog#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%19#0,tmp%20#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%19#0,tmp%20#0,0x151f7c75
@@ -1002,6 +1251,18 @@ subroutine test_15plus_args:
         itxn_submit                                                                                  (𝕡) app#0 |
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,result#0
+        l-load-copy result#0 0                                                                       (𝕡) app#0 | awst_tmp%0#0,result#0,result#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%0#0,result#0,result#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%0#0,result#0,length%0#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%0#0,result#0,length%0#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%0#0,result#0,num_bytes_with_header%0#0
+        l-load result#0 1                                                                            (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,result#0
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           (𝕡) app#0 | awst_tmp%0#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | awst_tmp%0#0,tmp%1#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%2#0
@@ -1251,6 +1512,18 @@ subroutine test_native_string:
         itxn_submit                                                                                  (𝕡) app#0 |
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%0#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%0#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,num_bytes_with_header%0#0
+        l-load tmp%0#0 1                                                                             (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,tmp%0#0
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           (𝕡) app#0 | awst_tmp%0#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | awst_tmp%0#0,tmp%1#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%2#0
@@ -1279,6 +1552,18 @@ subroutine test_native_string:
         itxn_submit                                                                                  (𝕡) app#0 | result1#0
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0
+        l-load-copy tmp%5#0 0                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,tmp%5#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,tmp%5#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,length%2#0
+        int 2                                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,length%2#0,2
+        +                                                                                            (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,num_bytes_with_header%1#0
+        l-load tmp%5#0 1                                                                             (𝕡) app#0 | result1#0,awst_tmp%1#0,num_bytes_with_header%1#0,tmp%5#0
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%1#0,num_bytes_with_header%1#0,value_len%1#0
+        l-load num_bytes_with_header%1#0 1                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,value_len%1#0,num_bytes_with_header%1#0
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | result1#0,awst_tmp%1#0
+        l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%6#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%6#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%7#0
@@ -1305,6 +1590,18 @@ subroutine test_native_string:
         itxn_field Fee                                                                               (𝕡) app#0 | result1#0
         itxn_submit                                                                                  (𝕡) app#0 | result1#0
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%2#0
+        l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0
+        l-load-copy tmp%10#0 0                                                                       (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,tmp%10#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,tmp%10#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,length%3#0
+        int 2                                                                                        (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,length%3#0,2
+        +                                                                                            (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,num_bytes_with_header%2#0
+        l-load tmp%10#0 1                                                                            (𝕡) app#0 | result1#0,awst_tmp%2#0,num_bytes_with_header%2#0,tmp%10#0
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%2#0,num_bytes_with_header%2#0,value_len%2#0
+        l-load num_bytes_with_header%2#0 1                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,value_len%2#0,num_bytes_with_header%2#0
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | result1#0,awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%11#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%11#0,0x151f7c75
@@ -1339,6 +1636,18 @@ subroutine test_native_bytes:
         itxn_submit                                                                                  (𝕡) app#0 |
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%1#0
+        int 2                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,length%1#0,2
+        +                                                                                            (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,num_bytes_with_header%0#0
+        l-load tmp%0#0 1                                                                             (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,tmp%0#0
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                           (𝕡) app#0 | awst_tmp%0#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | awst_tmp%0#0,tmp%1#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%2#0
@@ -1366,6 +1675,18 @@ subroutine test_native_bytes:
         itxn_field Fee                                                                               (𝕡) app#0 | result1#0
         itxn_submit                                                                                  (𝕡) app#0 | result1#0
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%1#0
+        l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0
+        l-load-copy tmp%5#0 0                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,tmp%5#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,tmp%5#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,length%3#0
+        int 2                                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,length%3#0,2
+        +                                                                                            (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,num_bytes_with_header%1#0
+        l-load tmp%5#0 1                                                                             (𝕡) app#0 | result1#0,awst_tmp%1#0,num_bytes_with_header%1#0,tmp%5#0
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%1#0,num_bytes_with_header%1#0,value_len%1#0
+        l-load num_bytes_with_header%1#0 1                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,value_len%1#0,num_bytes_with_header%1#0
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | result1#0,awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%6#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%6#0,0x151f7c75
@@ -1402,6 +1723,18 @@ subroutine test_native_bytes:
         itxn_submit                                                                                  (𝕡) app#0 | result1#0
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0
+        l-load-copy tmp%10#0 0                                                                       (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,tmp%10#0 (copy)
+        int 0                                                                                        (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,tmp%10#0 (copy),0
+        extract_uint16                                                                               (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,length%5#0
+        int 2                                                                                        (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,length%5#0,2
+        +                                                                                            (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,num_bytes_with_header%2#0
+        l-load tmp%10#0 1                                                                            (𝕡) app#0 | result1#0,awst_tmp%2#0,num_bytes_with_header%2#0,tmp%10#0
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%2#0,num_bytes_with_header%2#0,value_len%2#0
+        l-load num_bytes_with_header%2#0 1                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,value_len%2#0,num_bytes_with_header%2#0
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         (𝕡) app#0 | result1#0,awst_tmp%2#0
+        l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%11#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%11#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%12#0
@@ -1436,6 +1769,11 @@ subroutine test_native_uint64:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0
+        int 8                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0,8
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
         l-load awst_tmp%0#0 1                                                                        (𝕡) app#0 | tmp%0#0,awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%0#0,tmp%1#0,0x151f7c75
@@ -1468,6 +1806,11 @@ subroutine test_native_uint64:
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0
+        l-load-copy tmp%5#0 0                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,tmp%5#0 (copy)
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,value_len%1#0
+        int 8                                                                                        (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,value_len%1#0,8
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | result1#0,awst_tmp%1#0,tmp%5#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | result1#0,tmp%5#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,tmp%5#0,tmp%6#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,tmp%5#0,tmp%6#0,0x151f7c75
@@ -1497,6 +1840,11 @@ subroutine test_native_uint64:
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0
+        l-load-copy tmp%10#0 0                                                                       (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,tmp%10#0 (copy)
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,value_len%2#0
+        int 8                                                                                        (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,value_len%2#0,8
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | result1#0,awst_tmp%2#0,tmp%10#0
         l-load awst_tmp%2#0 1                                                                        (𝕡) app#0 | result1#0,tmp%10#0,awst_tmp%2#0
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,tmp%10#0,tmp%11#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,tmp%10#0,tmp%11#0,0x151f7c75
@@ -1532,6 +1880,11 @@ subroutine test_native_biguint:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,result1#0
+        l-load-copy result1#0 0                                                                      (𝕡) app#0 | awst_tmp%0#0,result1#0,result1#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,result1#0,value_len%0#0
+        int 64                                                                                       (𝕡) app#0 | awst_tmp%0#0,result1#0,value_len%0#0,64
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,result1#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint512                                           (𝕡) app#0 | awst_tmp%0#0,result1#0
         l-load awst_tmp%0#0 1                                                                        (𝕡) app#0 | result1#0,awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,tmp%1#0,0x151f7c75
@@ -1560,6 +1913,11 @@ subroutine test_native_biguint:
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0
+        l-load-copy result2#0 0                                                                      (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0,result2#0 (copy)
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0,value_len%2#0
+        int 64                                                                                       (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0,value_len%2#0,64
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint512                                           (𝕡) app#0 | result1#0,awst_tmp%1#0,result2#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | result1#0,result2#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,result2#0,tmp%5#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,result2#0,tmp%5#0,0x151f7c75
@@ -1588,6 +1946,11 @@ subroutine test_native_biguint:
         itxn LastLog                                                                                 (𝕡) app#0 | result1#0,awst_tmp%2#0
         l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | result1#0,awst_tmp%2#0,awst_tmp%2#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0
+        l-load-copy result3#0 0                                                                      (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0,result3#0 (copy)
+        len                                                                                          (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0,value_len%3#0
+        int 64                                                                                       (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0,value_len%3#0,64
+        ==                                                                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint512                                           (𝕡) app#0 | result1#0,awst_tmp%2#0,result3#0
         l-load awst_tmp%2#0 1                                                                        (𝕡) app#0 | result1#0,result3#0,awst_tmp%2#0
         extract 0 4                                                                                  (𝕡) app#0 | result1#0,result3#0,tmp%9#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | result1#0,result3#0,tmp%9#0,0x151f7c75
@@ -2739,6 +3102,11 @@ subroutine test_no_args:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0
+        int 8                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0,8
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
         l-load awst_tmp%0#0 1                                                                        (𝕡) app#0 | tmp%0#0,awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%0#0,tmp%1#0,0x151f7c75
@@ -2766,6 +3134,11 @@ subroutine test_no_args:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%1#0,arc4_result#0
+        l-load-copy arc4_result#0 0                                                                  (𝕡) app#0 | awst_tmp%1#0,arc4_result#0,arc4_result#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%1#0,arc4_result#0,value_len%1#0
+        int 8                                                                                        (𝕡) app#0 | awst_tmp%1#0,arc4_result#0,value_len%1#0,8
+        ==                                                                                           (𝕡) app#0 | awst_tmp%1#0,arc4_result#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | awst_tmp%1#0,arc4_result#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | arc4_result#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | arc4_result#0,tmp%6#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | arc4_result#0,tmp%6#0,0x151f7c75
@@ -2790,6 +3163,13 @@ subroutine test_no_args:
         itxn_field Fee                                                                               (𝕡) app#0 |
         itxn_submit                                                                                  (𝕡) app#0 |
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%2#0
+        l-load-copy awst_tmp%2#0 0                                                                   (𝕡) app#0 | awst_tmp%2#0,awst_tmp%2#0 (copy)
+        extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%2#0,tmp%9#0
+        len                                                                                          (𝕡) app#0 | awst_tmp%2#0,value_len%2#0
+        int 8                                                                                        (𝕡) app#0 | awst_tmp%2#0,value_len%2#0,8
+        ==                                                                                           (𝕡) app#0 | awst_tmp%2#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | awst_tmp%2#0
+        l-load awst_tmp%2#0 0                                                                        (𝕡) app#0 | awst_tmp%2#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%10#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%10#0,0x151f7c75
         ==                                                                                           (𝕡) app#0 | tmp%11#0
@@ -2799,6 +3179,11 @@ subroutine test_no_args:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%3#0
         l-load-copy awst_tmp%3#0 0                                                                   (𝕡) app#0 | awst_tmp%3#0,awst_tmp%3#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%3#0,tmp%13#0
+        l-load-copy tmp%13#0 0                                                                       (𝕡) app#0 | awst_tmp%3#0,tmp%13#0,tmp%13#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%3#0,tmp%13#0,value_len%3#0
+        int 8                                                                                        (𝕡) app#0 | awst_tmp%3#0,tmp%13#0,value_len%3#0,8
+        ==                                                                                           (𝕡) app#0 | awst_tmp%3#0,tmp%13#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.uint64                                            (𝕡) app#0 | awst_tmp%3#0,tmp%13#0
         l-load awst_tmp%3#0 1                                                                        (𝕡) app#0 | tmp%13#0,awst_tmp%3#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%13#0,tmp%14#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%13#0,tmp%14#0,0x151f7c75
@@ -2849,6 +3234,11 @@ subroutine test_named_tuples:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                                   (𝕡) app#0 | awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0
+        int 1                                                                                        (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,value_len%0#0,1
+        ==                                                                                           (𝕡) app#0 | awst_tmp%0#0,tmp%0#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.bool                                              (𝕡) app#0 | awst_tmp%0#0,tmp%0#0
         l-load awst_tmp%0#0 1                                                                        (𝕡) app#0 | tmp%0#0,awst_tmp%0#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%0#0,tmp%1#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%0#0,tmp%1#0,0x151f7c75
@@ -2895,6 +3285,11 @@ subroutine test_named_tuples:
         itxn LastLog                                                                                 (𝕡) app#0 | awst_tmp%1#0
         l-load-copy awst_tmp%1#0 0                                                                   (𝕡) app#0 | awst_tmp%1#0,awst_tmp%1#0 (copy)
         extract 4 0                                                                                  (𝕡) app#0 | awst_tmp%1#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                                          (𝕡) app#0 | awst_tmp%1#0,tmp%4#0,value_len%1#0
+        int 1                                                                                        (𝕡) app#0 | awst_tmp%1#0,tmp%4#0,value_len%1#0,1
+        ==                                                                                           (𝕡) app#0 | awst_tmp%1#0,tmp%4#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.bool                                              (𝕡) app#0 | awst_tmp%1#0,tmp%4#0
         l-load awst_tmp%1#0 1                                                                        (𝕡) app#0 | tmp%4#0,awst_tmp%1#0
         extract 0 4                                                                                  (𝕡) app#0 | tmp%4#0,tmp%5#0
         byte 0x151f7c75                                                                              (𝕡) app#0 | tmp%4#0,tmp%5#0,0x151f7c75

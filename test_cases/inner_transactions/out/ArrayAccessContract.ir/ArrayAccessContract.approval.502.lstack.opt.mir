@@ -25,9 +25,15 @@ subroutine main:
         assert // can only call when not creating
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                                 reinterpret_bytes[1]%0#0
+        txna ApplicationArgs 1                                                                                 tmp%7#0
+        l-load-copy tmp%7#0 0                                                                                  tmp%7#0,tmp%7#0 (copy)
+        len                                                                                                    tmp%7#0,value_len%0#0
+        int 1                                                                                                  tmp%7#0,value_len%0#0,1
+        ==                                                                                                     tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.bool                                                        tmp%7#0
         // inner_transactions/array_access.py:21
         // @arc4.abimethod
+        l-load tmp%7#0 0                                                                                       tmp%7#0
         callsub test_branching_array_call
         int 1                                                                                                  test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -36,12 +42,12 @@ subroutine main:
     main_bare_routing@6:
         // inner_transactions/array_access.py:20
         // class ArrayAccessContract(ARC4Contract):
-        txn OnCompletion                                                                                       tmp%7#0
+        txn OnCompletion                                                                                       tmp%8#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                                      tmp%8#0
-        !                                                                                                      tmp%9#0
+        txn ApplicationID                                                                                      tmp%9#0
+        !                                                                                                      tmp%10#0
         assert // can only call when creating
         int 1                                                                                                  test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#0
         v-store tmp%0#0
