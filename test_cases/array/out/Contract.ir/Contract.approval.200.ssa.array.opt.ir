@@ -733,7 +733,7 @@ subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let num#0: uint64 = (btoi tmp%0#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
@@ -864,7 +864,7 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let as_bytes%1#0: bytes[8] = (itob div_floor%0#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let combined_arr#0: Encoded(len+uint64[]) = ((replace2 0) concat%3#0 as_u16_bytes%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 combined_arr#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 combined_arr#0 0u) // on error: invalid array length header
         let tmp%11#0: bool = (== aggregate%array_length%0#0 10u)
         (assert tmp%11#0)
         let aggregate%total_length%0#0: uint64 = (len combined_arr#0)

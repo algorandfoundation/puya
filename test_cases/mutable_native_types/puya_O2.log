@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_values=True, validate_abi_dynamic_severity=<LogLevel.warning: 30>, paths=['mutable_native_types'], resource_encoding='value', output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_values=True, paths=['mutable_native_types'], resource_encoding='value', output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
 mutable_native_types/contract.py:244:9 warning: expression result is ignored
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -1716,7 +1716,6 @@ debug: Sealing block@0
 debug: Terminated block@0
 debug: Building IR for function test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]
 debug: Sealing block@0
-mutable_native_types/abi_call.py:69:6 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@0
 debug: Building IR for function test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]
 debug: Sealing block@0
@@ -1957,12 +1956,10 @@ debug: Terminated block@1
 debug: Sealing block@2
 debug: Terminated block@2
 debug: Sealing block@3
-mutable_native_types/abi_call.py:165:21 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@3
 debug: Sealing block@4
 debug: Terminated block@4
 debug: Sealing block@5
-mutable_native_types/abi_call.py:181:21 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@5
 debug: Sealing block@6
 debug: Terminated block@6
@@ -4997,7 +4994,7 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0003
 debug: Simplified (concat 0x0003 aggregate%val_as_bytes%17#0) to 0x00030000000000000000
 debug: Simplified (concat 0x00030000000000000000 aggregate%val_as_bytes%18#0) to 0x000300000000000000000000000000000001
 debug: Simplified (concat 0x000300000000000000000000000000000001 aggregate%val_as_bytes%19#0) to 0x0003000000000000000000000000000000010000000000000002
-debug: Simplified (extract_uint16 0x0003000000000000000000000000000000010000000000000002 0u) to 3u
+debug: Simplified (extract_uint16 0x0003000000000000000000000000000000010000000000000002 0u) // on error: invalid array length header to 3u
 debug: Simplified (== 3u 3u) to 1u
 debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
@@ -5075,8 +5072,8 @@ debug: Replacing redundant declaration let aggregate%val_as_bytes%24#0: bytes[8]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%25#0: bytes[8] = (itob 2u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:106:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%10', version=0)]
 debug: Replacing redundant declaration let aggregate%bytes_offset%8#0: uint64 = (* index#0 48u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:140:8-32, ir_type=uint64, name='aggregate%bytes_offset%7', version=0)]
 debug: Replacing redundant declaration let aggregate%write_offset%4#0: uint64 = (* index#0 48u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:140:8-32, ir_type=uint64, name='aggregate%bytes_offset%7', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%2#0: uint64 = (extract_uint16 arr#0 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:197:5-21, ir_type=uint64, name='aggregate%array_length%1', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#0 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:197:5-21, ir_type=uint64, name='aggregate%array_length%1', version=0)]
+debug: Replacing redundant declaration let aggregate%array_length%2#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=mutable_native_types/contract.py:197:5-21, ir_type=uint64, name='aggregate%array_length%1', version=0)]
+debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=mutable_native_types/contract.py:197:5-21, ir_type=uint64, name='aggregate%array_length%1', version=0)]
 debug: Replacing redundant declaration let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:197:5-21, ir_type=uint64, name='aggregate%array_length%1', version=0)]
 debug: Replacing redundant declaration let extract_to_end%1#0: bytes = ((extract 2 0) arr2#1) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:224:35-42, ir_type=bytes, name='aggregate%array_trimmed%0', version=0)]
 debug: Replacing redundant declaration let array_length#0: uint64 = (extract_uint16 arr2#3 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:239:15-26, ir_type=uint64, name='aggregate%array_length%5', version=0)]
@@ -9052,7 +9049,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%bytes_offset%2#0: uint64 = (* i#5 16u) with copy of existing registers [Register(source_location=mutable_native_types/case3_with_mutable_struct.py:65-66:18-26, ir_type=uint64, name='aggregate%bytes_offset%1', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) with copy of existing registers [Register(source_location=mutable_native_types/case3_with_mutable_struct.py:70:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=mutable_native_types/case3_with_mutable_struct.py:70:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
 debug: Replacing redundant declaration let aggregate%total_length%0#0: uint64 = (len tups#1) with copy of existing registers [Register(source_location=mutable_native_types/case3_with_mutable_struct.py:70:5-21, ir_type=uint64, name='len%0', version=4)]
 debug: Found equivalence set: aggregate%bytes_offset%1#0, aggregate%bytes_offset%2#0
 debug: selected aggregate%bytes_offset%1#0 from equivalence set
@@ -12456,7 +12453,7 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%bytes_offset%2#0: uint64 = (* i#3 16u) with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:65-66:18-26, ir_type=uint64, name='aggregate%bytes_offset%1', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:70:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:70:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
 debug: Replacing redundant declaration let aggregate%total_length%0#0: uint64 = (len tups#1) with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:70:5-21, ir_type=uint64, name='len%0', version=4)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%3#0: bytes[8] = ((extract 8 8) aggregate%encoded_element%5#0) with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:84-85:18-59, ir_type=bytes, name='aggregate%extract%2', version=0)]
 debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#2 16u) with copy of existing registers [Register(source_location=mutable_native_types/case2_with_immutable_struct.py:84-85:18-59, ir_type=uint64, name='aggregate%bytes_offset%5', version=0)]
@@ -15980,7 +15977,7 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) with copy of existing registers [Register(source_location=mutable_native_types/case1_with_tups.py:77:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 tups#1 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=mutable_native_types/case1_with_tups.py:77:5-21, ir_type=uint64, name='aggregate%array_length%0', version=0)]
 debug: Replacing redundant declaration let aggregate%total_length%0#0: uint64 = (len tups#1) with copy of existing registers [Register(source_location=mutable_native_types/case1_with_tups.py:77:5-21, ir_type=uint64, name='len%0', version=4)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%3#0: bytes[8] = ((extract 8 8) aggregate%encoded_element%4#0) with copy of existing registers [Register(source_location=mutable_native_types/case1_with_tups.py:91:18-45, ir_type=bytes, name='aggregate%extract%9', version=0)]
 debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#2 16u) with copy of existing registers [Register(source_location=mutable_native_types/case1_with_tups.py:91:18-45, ir_type=uint64, name='aggregate%bytes_offset%4', version=0)]
@@ -17000,6 +16997,9 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (&& tmp%4#0 tmp%6#0) to (&& tmp%4#0 tmp%5#0)
 debug: Simplified (== tmp%8#0 NoOp) to (! tmp%8#0)
+debug: Simplified (* length%0#1 1u) to length%0#1
+debug: Simplified (+ 22u add%0#1) to (+ length%0#1 24u)
+debug: Simplified (* length%1#0 1u) to length%1#0
 debug: Simplified (== tmp%13#0 NoOp) to (! tmp%13#0)
 debug: Simplified (== tmp%15#0 0u) to (! tmp%15#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -17200,10 +17200,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0, arg#0
 debug: selected arg#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 22u add%0#0) to (+ length%0#0 24u)
+debug: Simplified (* length%1#0 1u) to length%1#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -17704,12 +17707,17 @@ mutable_native_types/abi_call.py:49:6 debug: inlining call to test_cases.mutable
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: length%0#1, mul%0#1
+debug: selected length%0#1 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
 debug: Removing unused variable tmp%1#1
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%11#0
+debug: Removing unused variable add%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -17885,8 +17893,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable add%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -18108,9 +18121,21 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: Found equivalence set: aggregate%substring3%0#0, tmp%1#5
+debug: selected aggregate%substring3%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#1
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Found equivalence set: aggregate%substring3%1#0, tmp%2#1
+debug: selected aggregate%substring3%1#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, length%1#0
+debug: selected aggregate%array_length%1#0 from equivalence set
+debug: Found equivalence set: aggregate%substring3%2#0, tmp%3#1
+debug: selected aggregate%substring3%2#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
+debug: selected aggregate%array_length%2#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, length%0#0
+debug: selected aggregate%array_length%3#0 from equivalence set
+debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -18121,6 +18146,21 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 arg#2 16u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='extract_uint16%0', version=0)]
+debug: Replacing redundant declaration let extract_uint16%1#0: uint64 = (extract_uint16 arg#2 18u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='aggregate%extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 arg#2 18u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='aggregate%extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let extract_uint16%2#0: uint64 = (extract_uint16 arg#2 20u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='aggregate%extract_uint16%3', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 arg#2 20u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='aggregate%extract_uint16%3', version=0)]
+debug: Replacing redundant declaration let len%0#2: uint64 = (len arg#2) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:69:5-21, ir_type=uint64, name='aggregate%len%0', version=0)]
+debug: Found equivalence set: extract_uint16%0#0, aggregate%extract_uint16%0#0
+debug: selected extract_uint16%0#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%1#0, extract_uint16%1#0, aggregate%extract_uint16%2#0
+debug: selected aggregate%extract_uint16%1#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%3#0, extract_uint16%2#0, aggregate%extract_uint16%4#0
+debug: selected aggregate%extract_uint16%3#0 from equivalence set
+debug: Found equivalence set: aggregate%len%0#0, len%0#2
+debug: selected aggregate%len%0#0 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -18182,12 +18222,12 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy 'root_operand'
 debug: Coalescing arg#0 with [arg#4, arg#3, arg#2, arg#1, arg#0]
-debug: Coalescing len%0#0 with [len%0#3, len%0#2, len%0#1]
-debug: Coalescing eq%0#0 with [eq%0#3, eq%0#2, eq%0#1]
+debug: Coalescing len%0#0 with [len%0#4, len%0#3, len%0#1]
+debug: Coalescing eq%0#0 with [eq%0#4, eq%0#3, eq%0#2, eq%0#1]
 debug: Coalescing maybe_value%0#0 with [maybe_value%0#5, maybe_value%0#4, maybe_value%0#3, maybe_value%0#2, maybe_value%0#1]
 debug: Coalescing maybe_exists%0#0 with [maybe_exists%0#5, maybe_exists%0#4, maybe_exists%0#3, maybe_exists%0#2, maybe_exists%0#1]
-debug: Coalescing tmp%1#2 with [tmp%1#6, tmp%1#5, tmp%1#4, tmp%1#3]
-debug: Coalescing resulted in 55 replacement/s
+debug: Coalescing tmp%1#2 with [tmp%1#7, tmp%1#6, tmp%1#4, tmp%1#3]
+debug: Coalescing resulted in 64 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 2
 debug: Output IR to mutable_native_types/out_O2/CallMe.ir/CallMe.approval.400.destructured.ir
@@ -18248,7 +18288,77 @@ debug: Replaced main_nested_struct_ret_route@11.ops[6]: 'v-load maybe_exists%0#0
 debug: Inserted main_nested_struct_ret_route@11.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced main_nested_struct_ret_route@11.ops[10]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted main_dynamic_struct_arg_route@12.ops[1]: 'l-store-copy arg#0 0'
-debug: Replaced main_dynamic_struct_arg_route@12.ops[4]: 'v-load arg#0' with 'l-load arg#0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[3]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[6]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[8]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[11]: 'l-store-copy eq%0#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[13]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[23]: 'l-store-copy aggregate%substring3%0#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[25]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[28]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[30]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[37]: 'l-store-copy eq%1#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[39]: 'v-load eq%1#0' with 'l-load eq%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[49]: 'l-store-copy aggregate%substring3%1#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[51]: 'v-load aggregate%substring3%1#0' with 'l-load aggregate%substring3%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[54]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[56]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[67]: 'l-store-copy eq%2#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[69]: 'v-load eq%2#0' with 'l-load eq%2#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[78]: 'l-store-copy aggregate%substring3%2#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[80]: 'v-load aggregate%substring3%2#0' with 'l-load aggregate%substring3%2#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[83]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[85]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[88]: 'l-store-copy mul%2#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[90]: 'v-load mul%2#0' with 'l-load mul%2#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[101]: 'l-store-copy eq%3#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[103]: 'v-load eq%3#0' with 'l-load eq%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[33]: 'l-store-copy add%1#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[36]: 'v-load add%1#0' with 'l-load add%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[60]: 'l-store-copy add%2#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[63]: 'v-load add%2#0' with 'l-load add%2#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[65]: 'l-store-copy add%3#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[68]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[96]: 'l-store-copy add%4#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[99]: 'v-load add%4#0' with 'l-load add%4#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[101]: 'l-store-copy add%5#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[104]: 'v-load add%5#0' with 'l-load add%5#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[18]: 'l-store-copy aggregate%extract_uint16%1#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[22]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[46]: 'l-store-copy aggregate%extract_uint16%3#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[50]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[77]: 'l-store-copy arg#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[80]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[79]: 'l-store-copy aggregate%len%0#0 1'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[83]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[16]: 'l-store-copy arg#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[21]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[45]: 'l-store-copy arg#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[50]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[4]: 'l-store-copy arg#0 0'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[16]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[73]: 'l-store-copy aggregate%extract_uint16%3#0 1'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[86]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[10]: 'l-store-copy extract_uint16%0#0 1'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[24]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[26]: 'l-store-copy aggregate%extract_uint16%1#0 2'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[40]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[41]: 'l-store-copy aggregate%extract_uint16%1#0 1'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[55]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[57]: 'l-store-copy aggregate%extract_uint16%3#0 2'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[76]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[24]: 'l-store-copy arg#0 2'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[49]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[93]: 'l-store-copy aggregate%len%0#0 2'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[117]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[44]: 'l-store-copy add%1#0 3'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[73]: 'v-load add%1#0' with 'l-load add%1#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[57]: 'l-store-copy arg#0 3'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[87]: 'v-load arg#0' with 'l-load arg#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[82]: 'l-store-copy add%3#0 3'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[115]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted main_dynamic_struct_arg_route@12.ops[94]: 'l-store-copy arg#0 3'
+debug: Replaced main_dynamic_struct_arg_route@12.ops[129]: 'v-load arg#0' with 'l-load arg#0'
 debug: Inserted main_dynamic_struct_ret_route@13.ops[10]: 'l-store-copy tmp%1#2 0'
 debug: Replaced main_dynamic_struct_ret_route@13.ops[12]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
 debug: Inserted main_dynamic_struct_ret_route@13.ops[3]: 'l-store-copy maybe_exists%0#0 1'
@@ -18271,8 +18381,8 @@ debug: Inserted main_fixed_arr_ret_route@15.ops[5]: 'l-store-copy maybe_value%0#
 debug: Replaced main_fixed_arr_ret_route@15.ops[10]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted main_native_arr_arg_route@16.ops[1]: 'l-store-copy arg#0 0'
 debug: Replaced main_native_arr_arg_route@16.ops[3]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_native_arr_arg_route@16.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
-debug: Replaced main_native_arr_arg_route@16.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted main_native_arr_arg_route@16.ops[6]: 'l-store-copy aggregate%array_length%3#0 0'
+debug: Replaced main_native_arr_arg_route@16.ops[8]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
 debug: Inserted main_native_arr_arg_route@16.ops[11]: 'l-store-copy mul%0#0 0'
 debug: Replaced main_native_arr_arg_route@16.ops[13]: 'v-load mul%0#0' with 'l-load mul%0#0'
 debug: Inserted main_native_arr_arg_route@16.ops[19]: 'l-store-copy len%0#0 0'
@@ -19600,11 +19710,11 @@ debug: Found equivalence set: tmp%12#0, dynamic_struct#0, inner_txn_params%1%%pa
 debug: selected dynamic_struct#0 from equivalence set
 debug: Found equivalence set: tmp%13#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0, res#0
 debug: selected res#0 from equivalence set
-debug: Found equivalence set: tmp%24#0, dynamic_struct#1, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
+debug: Found equivalence set: tmp%27#0, dynamic_struct#1, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
 debug: selected dynamic_struct#1 from equivalence set
-debug: Found equivalence set: tmp%25#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0, res#1
+debug: Found equivalence set: tmp%28#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0, res#1
 debug: selected res#1 from equivalence set
-debug: Copy propagation made 12 modifications
+debug: Copy propagation made 26 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable inner_txn_params%0#0
@@ -20135,6 +20245,12 @@ debug: Removing unused variable inner_txn_params%5%%ApprovalProgramPages_length#
 debug: Removing unused variable inner_txn_params%5%%ClearStateProgramPages_length#0
 debug: Removing unused variable inner_txn_params%5%%RejectVersion_length#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 22u add%0#0) to (+ length%0#0 24u)
+debug: Simplified (* length%1#0 1u) to length%1#0
+debug: Simplified (* length%3#0 1u) to length%3#0
+debug: Simplified (+ 22u add%6#0) to (+ length%3#0 24u)
+debug: Simplified (* length%4#0 1u) to length%4#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -20158,8 +20274,16 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>(fixed_struct#0) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
 debug: Found equivalence set: encoded_array%0#0, encoded_array%1#0
 debug: selected encoded_array%0#0 from equivalence set
+debug: Found equivalence set: length%3#0, mul%3#0
+debug: selected length%3#0 from equivalence set
+debug: Found equivalence set: length%4#0, mul%4#0
+debug: selected length%4#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -23122,11 +23246,11 @@ debug: Found equivalence set: tmp%12#0, dynamic_struct#0, inner_txn_params%1%%pa
 debug: selected dynamic_struct#0 from equivalence set
 debug: Found equivalence set: tmp%13#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0, res#0
 debug: selected res#0 from equivalence set
-debug: Found equivalence set: tmp%24#0, dynamic_struct#1, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
+debug: Found equivalence set: tmp%27#0, dynamic_struct#1, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
 debug: selected dynamic_struct#1 from equivalence set
-debug: Found equivalence set: tmp%25#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0, res#1
+debug: Found equivalence set: tmp%28#0, as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0, res#1
 debug: selected res#1 from equivalence set
-debug: Copy propagation made 12 modifications
+debug: Copy propagation made 26 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable inner_txn_params%0#0
@@ -23657,6 +23781,12 @@ debug: Removing unused variable inner_txn_params%5%%ApprovalProgramPages_length#
 debug: Removing unused variable inner_txn_params%5%%ClearStateProgramPages_length#0
 debug: Removing unused variable inner_txn_params%5%%RejectVersion_length#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 22u add%0#0) to (+ length%0#0 24u)
+debug: Simplified (* length%1#0 1u) to length%1#0
+debug: Simplified (* length%3#0 1u) to length%3#0
+debug: Simplified (+ 22u add%6#0) to (+ length%3#0 24u)
+debug: Simplified (* length%4#0 1u) to length%4#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -23676,8 +23806,16 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>(fixed_struct#0) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
 debug: Found equivalence set: encoded_array%0#0, encoded_array%1#0
 debug: selected encoded_array%0#0 from equivalence set
+debug: Found equivalence set: length%3#0, mul%3#0
+debug: selected length%3#0 from equivalence set
+debug: Found equivalence set: length%4#0, mul%4#0
+debug: selected length%4#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -25552,6 +25690,8 @@ debug: Removing unused variable inner_txn_params%0%%param_GlobalNumByteSlice_idx
 debug: Removing unused variable inner_txn_params%0%%param_GlobalNumUint_idx_0#3
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumByteSlice_idx_0#3
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumUint_idx_0#3
+debug: Removing unused variable add%0#1
+debug: Removing unused variable add%6#0
 debug: Removing unused variable inner_txn_params%0%%param_ApprovalProgramPages_idx_0#2
 debug: Removing unused variable inner_txn_params%0%%param_ApprovalProgramPages_idx_1#2
 debug: Removing unused variable inner_txn_params%0%%param_ClearStateProgramPages_idx_0#2
@@ -25705,6 +25845,8 @@ debug: Removing unused variable inner_txn_params%0%%param_GlobalNumByteSlice_idx
 debug: Removing unused variable inner_txn_params%0%%param_GlobalNumUint_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumUint_idx_0#0
+debug: Removing unused variable add%0#0
+debug: Removing unused variable add%6#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -25945,6 +26087,18 @@ debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%1#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%2#0, aggregate%as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0, dynamic_struct#1
 debug: selected dynamic_struct#1 from equivalence set
+debug: Found equivalence set: aggregate%substring3%0#0, tmp%14#1
+debug: selected aggregate%substring3%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#1
+debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%substring3%1#0, tmp%15#3
+debug: selected aggregate%substring3%1#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, length%1#1
+debug: selected aggregate%array_length%1#0 from equivalence set
+debug: Found equivalence set: aggregate%substring3%2#0, tmp%16#3
+debug: selected aggregate%substring3%2#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
+debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%14#0, aggregate%as_Encoded(uint64)%14#0
 debug: selected aggregate%val_as_bytes%14#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%15#0, aggregate%as_Encoded(uint64)%15#0
@@ -25955,6 +26109,18 @@ debug: Found equivalence set: aggregate%encoded_value%3#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%3#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%5#0, aggregate%as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0, dynamic_struct#2
 debug: selected dynamic_struct#2 from equivalence set
+debug: Found equivalence set: aggregate%substring3%3#0, tmp%29#0
+debug: selected aggregate%substring3%3#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, length%3#0
+debug: selected aggregate%array_length%3#0 from equivalence set
+debug: Found equivalence set: aggregate%substring3%4#0, tmp%30#0
+debug: selected aggregate%substring3%4#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%4#0, length%4#0
+debug: selected aggregate%array_length%4#0 from equivalence set
+debug: Found equivalence set: aggregate%substring3%5#0, tmp%31#0
+debug: selected aggregate%substring3%5#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%5#0, length%5#0
+debug: selected aggregate%array_length%5#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%16#0, aggregate%as_Encoded(uint64)%16#0
 debug: selected aggregate%val_as_bytes%16#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%17#0, aggregate%as_Encoded(uint64)%17#0
@@ -25979,8 +26145,8 @@ debug: Found equivalence set: aggregate%head%36#0, aggregate%as_Encoded(uint64,u
 debug: selected fixed_struct#1 from equivalence set
 debug: Found equivalence set: aggregate%head%39#0, aggregate%as_Encoded(len+(uint64,uint64)[])%1#0, native_arr#1
 debug: selected native_arr#1 from equivalence set
-debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
-debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%6#0, length%0#0
+debug: selected aggregate%array_length%6#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%22#0, aggregate%as_Encoded(uint64)%22#0
 debug: selected aggregate%val_as_bytes%22#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%23#0, aggregate%as_Encoded(uint64)%23#0
@@ -25989,8 +26155,8 @@ debug: Found equivalence set: aggregate%head%41#0, aggregate%as_Encoded(uint64,u
 debug: selected fixed_struct#2 from equivalence set
 debug: Found equivalence set: aggregate%head%44#0, aggregate%as_Encoded(len+(uint64,uint64)[])%2#0, native_arr#2
 debug: selected native_arr#2 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, length%1#0
-debug: selected aggregate%array_length%1#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%7#0, length%1#0
+debug: selected aggregate%array_length%7#0 from equivalence set
 debug: Found equivalence set: aggregate%len_u16%3#0, aggregate%as_Encoded(len+(uint64,uint64)[])%3#0, native_arr#0
 debug: selected native_arr#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%24#0, aggregate%as_Encoded(uint64)%24#0
@@ -26003,7 +26169,7 @@ debug: Found equivalence set: aggregate%encoded_value%5#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%5#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%8#0, aggregate%as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%2#0, dynamic_struct#0
 debug: selected dynamic_struct#0 from equivalence set
-debug: Copy propagation made 63 modifications
+debug: Copy propagation made 75 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%2#0
@@ -26030,7 +26196,7 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0005
 debug: Simplified (concat 0x0005 "Hello") to 0x000548656c6c6f
 debug: Simplified (len 0x000548656c6c6f) to 7u
 debug: Simplified (concat 0x aggregate%val_as_bytes%14#0) to aggregate%val_as_bytes%14#0
-debug: Simplified (len tmp%23#0) to 8u
+debug: Simplified (len tmp%26#0) to 8u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0008
 debug: Simplified ((extract 6 2) aggregate%as_bytes%7#0) to 0x0016
 debug: Simplified (len "Hello") to 5u
@@ -26074,9 +26240,21 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 res#4 16u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='extract_uint16%0', version=0)]
+debug: Replacing redundant declaration let extract_uint16%1#0: uint64 = (extract_uint16 res#4 18u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='aggregate%extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 res#4 18u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='aggregate%extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let extract_uint16%2#0: uint64 = (extract_uint16 res#4 20u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='aggregate%extract_uint16%3', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 res#4 20u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='aggregate%extract_uint16%3', version=0)]
+debug: Replacing redundant declaration let len%0#2: uint64 = (len res#4) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:165:20-72, ir_type=uint64, name='aggregate%len%0', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%6#0: bytes[8] = (itob 8u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:157-163:25-9, ir_type=bytes[8], name='aggregate%as_bytes%1', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%7#0: bytes[8] = (itob 22u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:157-163:25-9, ir_type=bytes[8], name='aggregate%as_bytes%2', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%8#0: bytes[8] = (itob 5u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:157-163:25-9, ir_type=bytes[8], name='aggregate%as_bytes%3', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%5#0: uint64 = (extract_uint16 res#5 16u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='extract_uint16%3', version=0)]
+debug: Replacing redundant declaration let extract_uint16%4#0: uint64 = (extract_uint16 res#5 18u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='aggregate%extract_uint16%6', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%7#0: uint64 = (extract_uint16 res#5 18u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='aggregate%extract_uint16%6', version=0)]
+debug: Replacing redundant declaration let extract_uint16%5#0: uint64 = (extract_uint16 res#5 20u) // on error: invalid tuple encoding with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='aggregate%extract_uint16%8', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%9#0: uint64 = (extract_uint16 res#5 20u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='aggregate%extract_uint16%8', version=0)]
+debug: Replacing redundant declaration let len%1#2: uint64 = (len res#5) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:181-183:20-9, ir_type=uint64, name='aggregate%len%1', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%12#0: bytes[8] = (itob 3u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:220:21-76, ir_type=bytes[8], name='aggregate%as_bytes%11', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%24#0: bytes[8] = (itob 0u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=bytes[8], name='aggregate%as_bytes%13', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%25#0: bytes[8] = (itob 0u) with copy of existing registers [Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=bytes[8], name='aggregate%as_bytes%13', version=0)]
@@ -26098,6 +26276,14 @@ debug: Found equivalence set: aggregate%val_as_bytes%10#0, aggregate%head%12#0
 debug: selected aggregate%val_as_bytes%10#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%12#0, aggregate%head%15#0
 debug: selected aggregate%val_as_bytes%12#0 from equivalence set
+debug: Found equivalence set: extract_uint16%0#0, aggregate%extract_uint16%0#0
+debug: selected extract_uint16%0#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%1#0, extract_uint16%1#0, aggregate%extract_uint16%2#0
+debug: selected aggregate%extract_uint16%1#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%3#0, extract_uint16%2#0, aggregate%extract_uint16%4#0
+debug: selected aggregate%extract_uint16%3#0 from equivalence set
+debug: Found equivalence set: aggregate%len%0#0, len%0#2
+debug: selected aggregate%len%0#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%14#0, aggregate%head%20#0
 debug: selected aggregate%val_as_bytes%14#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%1#0, aggregate%as_bytes%6#0
@@ -26106,6 +26292,14 @@ debug: Found equivalence set: aggregate%as_bytes%2#0, aggregate%as_bytes%7#0
 debug: selected aggregate%as_bytes%2#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%3#0, aggregate%as_bytes%8#0
 debug: selected aggregate%as_bytes%3#0 from equivalence set
+debug: Found equivalence set: extract_uint16%3#0, aggregate%extract_uint16%5#0
+debug: selected extract_uint16%3#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%6#0, extract_uint16%4#0, aggregate%extract_uint16%7#0
+debug: selected aggregate%extract_uint16%6#0 from equivalence set
+debug: Found equivalence set: aggregate%extract_uint16%8#0, extract_uint16%5#0, aggregate%extract_uint16%9#0
+debug: selected aggregate%extract_uint16%8#0 from equivalence set
+debug: Found equivalence set: aggregate%len%1#0, len%1#2
+debug: selected aggregate%len%1#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%16#0, aggregate%head%25#0
 debug: selected aggregate%val_as_bytes%16#0 from equivalence set
 debug: Found equivalence set: fixed_struct#3, aggregate%head%27#0
@@ -26122,6 +26316,7 @@ debug: Found equivalence set: aggregate%as_bytes%11#0, aggregate%as_bytes%12#0
 debug: selected aggregate%as_bytes%11#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%13#0, aggregate%val_as_bytes%24#0, aggregate%head%45#0, aggregate%val_as_bytes%25#0, aggregate%as_bytes%14#0, aggregate%as_bytes%16#0
 debug: selected aggregate%as_bytes%13#0 from equivalence set
+debug: Copy propagation made 12 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -26259,8 +26454,8 @@ debug: Coalescing tmp%3#1 with [tmp%3#5, tmp%3#4, tmp%3#3, tmp%3#2]
 debug: Coalescing fixed_struct#0 with [fixed_struct#6, fixed_struct#7, fixed_struct#5, fixed_struct#3, fixed_struct#4, fixed_struct#1, fixed_struct#2]
 debug: Coalescing awst_tmp%0#0 with [awst_tmp%0#4, awst_tmp%0#3, awst_tmp%0#2, awst_tmp%0#1]
 debug: Coalescing res#0 with [res#8, res#9, res#6, res#7, res#4, res#5, res#2, res#3, res#0, res#1]
-debug: Coalescing len%0#0 with [len%0#3, len%0#2, len%0#1]
-debug: Coalescing eq%0#0 with [eq%0#3, eq%0#2, eq%0#1]
+debug: Coalescing len%0#0 with [len%0#4, len%0#3, len%0#1]
+debug: Coalescing eq%0#0 with [eq%0#4, eq%0#3, eq%0#2, eq%0#1]
 debug: Coalescing tmp%7#1 with [tmp%7#5, tmp%7#3, tmp%7#2]
 debug: Coalescing tmp%8#0 with [tmp%8#5, tmp%8#3, tmp%8#2]
 debug: Coalescing tmp%9#0 with [tmp%9#5, tmp%9#3, tmp%9#2, tmp%9#1]
@@ -26268,10 +26463,10 @@ debug: Coalescing tmp%10#2 with [tmp%10#6, tmp%10#4, tmp%10#3]
 debug: Coalescing tmp%11#1 with [tmp%11#5, tmp%11#2]
 debug: Coalescing tmp%12#0 with [tmp%12#3, tmp%12#2, tmp%12#1]
 debug: Coalescing awst_tmp%1#0 with [awst_tmp%1#4, awst_tmp%1#3, awst_tmp%1#2, awst_tmp%1#1]
-debug: Coalescing len%1#0 with [len%1#3, len%1#2, len%1#1]
-debug: Coalescing eq%1#0 with [eq%1#3, eq%1#2, eq%1#1]
+debug: Coalescing len%1#0 with [len%1#4, len%1#3, len%1#1]
+debug: Coalescing eq%1#0 with [eq%1#4, eq%1#3, eq%1#2, eq%1#1]
 debug: Coalescing tmp%15#1 with [tmp%15#5, tmp%15#2]
-debug: Coalescing tmp%16#0 with [tmp%16#5, tmp%16#3, tmp%16#2, tmp%16#1]
+debug: Coalescing tmp%16#0 with [tmp%16#5, tmp%16#2, tmp%16#1]
 debug: Coalescing tmp%17#1 with [tmp%17#5, tmp%17#2]
 debug: Coalescing tmp%5#2 with [tmp%5#3]
 debug: Coalescing tmp%6#3 with [tmp%6#4]
@@ -26279,16 +26474,16 @@ debug: Coalescing nested_struct#0 with [nested_struct#1, nested_struct#2]
 debug: Coalescing tmp%10#0 with [tmp%10#5, tmp%10#1]
 debug: Coalescing tmp%11#0 with [tmp%11#4]
 debug: Coalescing tmp%15#0 with [tmp%15#4]
-debug: Coalescing tmp%17#3 with [tmp%17#4]
-debug: Coalescing tmp%18#0 with [tmp%18#1]
 debug: Coalescing tmp%21#0 with [tmp%21#2]
 debug: Coalescing tmp%22#0 with [tmp%22#2]
 debug: Coalescing tmp%7#0 with [tmp%7#4]
 debug: Coalescing dynamic_struct#1 with [dynamic_struct#2]
-debug: Coalescing tmp%14#0 with [tmp%14#1]
+debug: Coalescing add%1#0 with [add%1#1]
+debug: Coalescing tmp%17#0 with [tmp%17#3]
+debug: Coalescing tmp%19#0 with [tmp%19#1]
 debug: Coalescing fixed_arr#0 with [fixed_arr#1, fixed_arr#2]
 debug: Coalescing native_arr#1 with [native_arr#2]
-debug: Coalescing resulted in 268 replacement/s
+debug: Coalescing resulted in 285 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 2
 debug: Output IR to mutable_native_types/out_O2/TestAbiCall.ir/TestAbiCall.approval.400.destructured.ir
@@ -26414,10 +26609,10 @@ debug: Inserted main_test_nested_struct_route@5.ops[112]: 'l-store-copy tmp%12#0
 debug: Replaced main_test_nested_struct_route@5.ops[114]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
 debug: Inserted main_test_nested_struct_route@5.ops[119]: 'l-store-copy tmp%14#2 0'
 debug: Replaced main_test_nested_struct_route@5.ops[121]: 'v-load tmp%14#2' with 'l-load tmp%14#2'
-debug: Inserted main_test_nested_struct_route@5.ops[136]: 'l-store-copy tmp%17#3 0'
-debug: Replaced main_test_nested_struct_route@5.ops[138]: 'v-load tmp%17#3' with 'l-load tmp%17#3'
-debug: Inserted main_test_nested_struct_route@5.ops[141]: 'l-store-copy tmp%18#0 0'
-debug: Replaced main_test_nested_struct_route@5.ops[143]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted main_test_nested_struct_route@5.ops[136]: 'l-store-copy tmp%17#4 0'
+debug: Replaced main_test_nested_struct_route@5.ops[138]: 'v-load tmp%17#4' with 'l-load tmp%17#4'
+debug: Inserted main_test_nested_struct_route@5.ops[141]: 'l-store-copy tmp%18#1 0'
+debug: Replaced main_test_nested_struct_route@5.ops[143]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
 debug: Inserted main_test_nested_struct_route@5.ops[173]: 'l-store-copy awst_tmp%1#0 0'
 debug: Replaced main_test_nested_struct_route@5.ops[175]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
 debug: Inserted main_test_nested_struct_route@5.ops[177]: 'l-store-copy res#0 0'
@@ -26510,42 +26705,94 @@ debug: Inserted main_test_dynamic_struct_route@6.ops[129]: 'l-store-copy aggrega
 debug: Replaced main_test_dynamic_struct_route@6.ops[131]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[158]: 'l-store-copy awst_tmp%0#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[160]: 'v-load awst_tmp%0#0' with 'l-load awst_tmp%0#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[165]: 'l-store-copy tmp%14#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[167]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[170]: 'l-store-copy tmp%15#3 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[172]: 'v-load tmp%15#3' with 'l-load tmp%15#3'
-debug: Inserted main_test_dynamic_struct_route@6.ops[177]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[179]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[182]: 'l-store-copy tmp%17#3 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[184]: 'v-load tmp%17#3' with 'l-load tmp%17#3'
-debug: Inserted main_test_dynamic_struct_route@6.ops[189]: 'l-store-copy tmp%19#1 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[191]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[196]: 'l-store-copy tmp%21#1 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[198]: 'v-load tmp%21#1' with 'l-load tmp%21#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[201]: 'l-store-copy tmp%22#1 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[203]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[230]: 'l-store-copy aggregate%current_tail_offset%3#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[232]: 'v-load aggregate%current_tail_offset%3#0' with 'l-load aggregate%current_tail_offset%3#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[234]: 'l-store-copy aggregate%as_bytes%9#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[236]: 'v-load aggregate%as_bytes%9#0' with 'l-load aggregate%as_bytes%9#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[246]: 'l-store-copy aggregate%current_tail_offset%4#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[248]: 'v-load aggregate%current_tail_offset%4#0' with 'l-load aggregate%current_tail_offset%4#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[250]: 'l-store-copy aggregate%as_bytes%10#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[252]: 'v-load aggregate%as_bytes%10#0' with 'l-load aggregate%as_bytes%10#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[258]: 'l-store-copy aggregate%head%24#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[260]: 'v-load aggregate%head%24#0' with 'l-load aggregate%head%24#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[263]: 'l-store-copy aggregate%concat%3#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[265]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[268]: 'l-store-copy aggregate%concat%4#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[270]: 'v-load aggregate%concat%4#0' with 'l-load aggregate%concat%4#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[297]: 'l-store-copy awst_tmp%1#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[299]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[304]: 'l-store-copy tmp%26#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[306]: 'v-load tmp%26#0' with 'l-load tmp%26#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[309]: 'l-store-copy tmp%27#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[311]: 'v-load tmp%27#0' with 'l-load tmp%27#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[316]: 'l-store-copy tmp%28#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[318]: 'v-load tmp%28#0' with 'l-load tmp%28#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[162]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[164]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[167]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[169]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[172]: 'l-store-copy eq%0#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[174]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[184]: 'l-store-copy aggregate%substring3%0#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[186]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[189]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[191]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[198]: 'l-store-copy eq%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[200]: 'v-load eq%1#0' with 'l-load eq%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[210]: 'l-store-copy aggregate%substring3%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[212]: 'v-load aggregate%substring3%1#0' with 'l-load aggregate%substring3%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[215]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[217]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[228]: 'l-store-copy eq%2#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[230]: 'v-load eq%2#0' with 'l-load eq%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[239]: 'l-store-copy aggregate%substring3%2#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[241]: 'v-load aggregate%substring3%2#0' with 'l-load aggregate%substring3%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[244]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[246]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[249]: 'l-store-copy mul%2#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[251]: 'v-load mul%2#0' with 'l-load mul%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[262]: 'l-store-copy eq%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[264]: 'v-load eq%3#0' with 'l-load eq%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[268]: 'l-store-copy tmp%17#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[270]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[273]: 'l-store-copy tmp%18#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[275]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[280]: 'l-store-copy tmp%19#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[282]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[285]: 'l-store-copy tmp%20#1 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[287]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[292]: 'l-store-copy tmp%22#1 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[294]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[299]: 'l-store-copy tmp%24#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[301]: 'v-load tmp%24#0' with 'l-load tmp%24#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[304]: 'l-store-copy tmp%25#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[306]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[333]: 'l-store-copy aggregate%current_tail_offset%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[335]: 'v-load aggregate%current_tail_offset%3#0' with 'l-load aggregate%current_tail_offset%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[337]: 'l-store-copy aggregate%as_bytes%9#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[339]: 'v-load aggregate%as_bytes%9#0' with 'l-load aggregate%as_bytes%9#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[349]: 'l-store-copy aggregate%current_tail_offset%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[351]: 'v-load aggregate%current_tail_offset%4#0' with 'l-load aggregate%current_tail_offset%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[353]: 'l-store-copy aggregate%as_bytes%10#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[355]: 'v-load aggregate%as_bytes%10#0' with 'l-load aggregate%as_bytes%10#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[361]: 'l-store-copy aggregate%head%24#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[363]: 'v-load aggregate%head%24#0' with 'l-load aggregate%head%24#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[366]: 'l-store-copy aggregate%concat%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[368]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[371]: 'l-store-copy aggregate%concat%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[373]: 'v-load aggregate%concat%4#0' with 'l-load aggregate%concat%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[400]: 'l-store-copy awst_tmp%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[402]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[404]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[406]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[409]: 'l-store-copy extract_uint16%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[411]: 'v-load extract_uint16%3#0' with 'l-load extract_uint16%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[414]: 'l-store-copy eq%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[416]: 'v-load eq%4#0' with 'l-load eq%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[426]: 'l-store-copy aggregate%substring3%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[428]: 'v-load aggregate%substring3%3#0' with 'l-load aggregate%substring3%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[431]: 'l-store-copy aggregate%array_length%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[433]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[440]: 'l-store-copy eq%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[442]: 'v-load eq%5#0' with 'l-load eq%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[452]: 'l-store-copy aggregate%substring3%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[454]: 'v-load aggregate%substring3%4#0' with 'l-load aggregate%substring3%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[457]: 'l-store-copy aggregate%array_length%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[459]: 'v-load aggregate%array_length%4#0' with 'l-load aggregate%array_length%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[470]: 'l-store-copy eq%6#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[472]: 'v-load eq%6#0' with 'l-load eq%6#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[481]: 'l-store-copy aggregate%substring3%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[483]: 'v-load aggregate%substring3%5#0' with 'l-load aggregate%substring3%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[486]: 'l-store-copy aggregate%array_length%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[488]: 'v-load aggregate%array_length%5#0' with 'l-load aggregate%array_length%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[491]: 'l-store-copy mul%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[493]: 'v-load mul%5#0' with 'l-load mul%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[504]: 'l-store-copy eq%7#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[506]: 'v-load eq%7#0' with 'l-load eq%7#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[510]: 'l-store-copy tmp%32#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[512]: 'v-load tmp%32#0' with 'l-load tmp%32#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[515]: 'l-store-copy tmp%33#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[517]: 'v-load tmp%33#0' with 'l-load tmp%33#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[522]: 'l-store-copy tmp%34#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[524]: 'v-load tmp%34#0' with 'l-load tmp%34#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[33]: 'l-store-copy aggregate%val_as_bytes%11#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[36]: 'v-load aggregate%val_as_bytes%11#0' with 'l-load aggregate%val_as_bytes%11#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[73]: 'l-store-copy aggregate%val_as_bytes%13#0 0'
@@ -26556,92 +26803,180 @@ debug: Inserted main_test_dynamic_struct_route@6.ops[102]: 'l-store-copy aggrega
 debug: Replaced main_test_dynamic_struct_route@6.ops[105]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[119]: 'l-store-copy aggregate%offset_as_uint16%2#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[122]: 'v-load aggregate%offset_as_uint16%2#0' with 'l-load aggregate%offset_as_uint16%2#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[216]: 'l-store-copy aggregate%val_as_bytes%15#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[219]: 'v-load aggregate%val_as_bytes%15#0' with 'l-load aggregate%val_as_bytes%15#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[232]: 'l-store-copy aggregate%data_length%3#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[235]: 'v-load aggregate%data_length%3#0' with 'l-load aggregate%data_length%3#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[245]: 'l-store-copy aggregate%offset_as_uint16%4#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[248]: 'v-load aggregate%offset_as_uint16%4#0' with 'l-load aggregate%offset_as_uint16%4#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[262]: 'l-store-copy aggregate%offset_as_uint16%5#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[265]: 'v-load aggregate%offset_as_uint16%5#0' with 'l-load aggregate%offset_as_uint16%5#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[166]: 'l-store-copy awst_tmp%0#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[169]: 'v-load awst_tmp%0#0' with 'l-load awst_tmp%0#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[310]: 'l-store-copy awst_tmp%1#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[313]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[199]: 'l-store-copy add%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[202]: 'v-load add%1#0' with 'l-load add%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[226]: 'l-store-copy add%2#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[229]: 'v-load add%2#0' with 'l-load add%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[231]: 'l-store-copy add%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[234]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[262]: 'l-store-copy add%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[265]: 'v-load add%4#0' with 'l-load add%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[267]: 'l-store-copy add%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[270]: 'v-load add%5#0' with 'l-load add%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[324]: 'l-store-copy aggregate%val_as_bytes%15#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[327]: 'v-load aggregate%val_as_bytes%15#0' with 'l-load aggregate%val_as_bytes%15#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[340]: 'l-store-copy aggregate%data_length%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[343]: 'v-load aggregate%data_length%3#0' with 'l-load aggregate%data_length%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[353]: 'l-store-copy aggregate%offset_as_uint16%4#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[356]: 'v-load aggregate%offset_as_uint16%4#0' with 'l-load aggregate%offset_as_uint16%4#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[370]: 'l-store-copy aggregate%offset_as_uint16%5#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[373]: 'v-load aggregate%offset_as_uint16%5#0' with 'l-load aggregate%offset_as_uint16%5#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[450]: 'l-store-copy add%7#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[453]: 'v-load add%7#0' with 'l-load add%7#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[477]: 'l-store-copy add%8#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[480]: 'v-load add%8#0' with 'l-load add%8#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[482]: 'l-store-copy add%9#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[485]: 'v-load add%9#0' with 'l-load add%9#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[513]: 'l-store-copy add%10#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[516]: 'v-load add%10#0' with 'l-load add%10#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[518]: 'l-store-copy add%11#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[521]: 'v-load add%11#0' with 'l-load add%11#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[184]: 'l-store-copy aggregate%extract_uint16%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[188]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[212]: 'l-store-copy aggregate%extract_uint16%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[216]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[243]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[246]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[245]: 'l-store-copy aggregate%len%0#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[249]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[439]: 'l-store-copy aggregate%extract_uint16%6#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[443]: 'v-load aggregate%extract_uint16%6#0' with 'l-load aggregate%extract_uint16%6#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[467]: 'l-store-copy aggregate%extract_uint16%8#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[471]: 'v-load aggregate%extract_uint16%8#0' with 'l-load aggregate%extract_uint16%8#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[498]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[501]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[500]: 'l-store-copy aggregate%len%1#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[504]: 'v-load aggregate%len%1#0' with 'l-load aggregate%len%1#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[27]: 'l-store-copy tmp%3#1 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[32]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
 debug: Inserted main_test_dynamic_struct_route@6.ops[31]: 'l-store-copy aggregate%val_as_bytes%10#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[37]: 'v-load aggregate%val_as_bytes%10#0' with 'l-load aggregate%val_as_bytes%10#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[72]: 'l-store-copy aggregate%val_as_bytes%12#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[78]: 'v-load aggregate%val_as_bytes%12#0' with 'l-load aggregate%val_as_bytes%12#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[217]: 'l-store-copy aggregate%val_as_bytes%14#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[223]: 'v-load aggregate%val_as_bytes%14#0' with 'l-load aggregate%val_as_bytes%14#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[185]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[190]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[214]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[219]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[330]: 'l-store-copy aggregate%val_as_bytes%14#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[336]: 'v-load aggregate%val_as_bytes%14#0' with 'l-load aggregate%val_as_bytes%14#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[443]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[448]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[472]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[477]: 'v-load res#0' with 'l-load res#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[81]: 'l-store-copy aggregate%head%16#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[87]: 'v-load aggregate%head%16#0' with 'l-load aggregate%head%16#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[86]: 'l-store-copy aggregate%encoded_value%0#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[92]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[228]: 'l-store-copy aggregate%head%21#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[234]: 'v-load aggregate%head%21#0' with 'l-load aggregate%head%21#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[233]: 'l-store-copy aggregate%encoded_value%2#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[239]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[341]: 'l-store-copy aggregate%head%21#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[347]: 'v-load aggregate%head%21#0' with 'l-load aggregate%head%21#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[346]: 'l-store-copy aggregate%encoded_value%2#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[352]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[144]: 'l-store-copy dynamic_struct#1 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[151]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[292]: 'l-store-copy dynamic_struct#1 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[299]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[405]: 'l-store-copy dynamic_struct#1 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[412]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
 debug: Inserted main_test_dynamic_struct_route@6.ops[20]: 'l-store-copy tmp%1#1 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[30]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted main_test_dynamic_struct_route@6.ops[103]: 'l-store-copy aggregate%current_tail_offset%0#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[115]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[176]: 'l-store-copy res#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[189]: 'v-load res#0' with 'l-load res#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[253]: 'l-store-copy aggregate%current_tail_offset%3#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[265]: 'v-load aggregate%current_tail_offset%3#0' with 'l-load aggregate%current_tail_offset%3#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[326]: 'l-store-copy res#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[339]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[178]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[190]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[247]: 'l-store-copy aggregate%extract_uint16%3#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[260]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[367]: 'l-store-copy aggregate%current_tail_offset%3#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[379]: 'v-load aggregate%current_tail_offset%3#0' with 'l-load aggregate%current_tail_offset%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[442]: 'l-store-copy res#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[454]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[511]: 'l-store-copy aggregate%extract_uint16%8#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[524]: 'v-load aggregate%extract_uint16%8#0' with 'l-load aggregate%extract_uint16%8#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[114]: 'l-store-copy aggregate%head%18#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[129]: 'v-load aggregate%head%18#0' with 'l-load aggregate%head%18#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[265]: 'l-store-copy aggregate%head%23#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[280]: 'v-load aggregate%head%23#0' with 'l-load aggregate%head%23#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[185]: 'l-store-copy extract_uint16%0#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[199]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[201]: 'l-store-copy aggregate%extract_uint16%1#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[215]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[216]: 'l-store-copy aggregate%extract_uint16%1#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[230]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[382]: 'l-store-copy aggregate%head%23#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[397]: 'v-load aggregate%head%23#0' with 'l-load aggregate%head%23#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[453]: 'l-store-copy extract_uint16%3#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[467]: 'v-load extract_uint16%3#0' with 'l-load extract_uint16%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[469]: 'l-store-copy aggregate%extract_uint16%6#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[483]: 'v-load aggregate%extract_uint16%6#0' with 'l-load aggregate%extract_uint16%6#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[484]: 'l-store-copy aggregate%extract_uint16%6#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[498]: 'v-load aggregate%extract_uint16%6#0' with 'l-load aggregate%extract_uint16%6#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[151]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[163]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[222]: 'l-store-copy tmp%23#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[238]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[304]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[316]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[211]: 'l-store-copy tmp%20#1 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[229]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[339]: 'l-store-copy tmp%26#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[355]: 'v-load tmp%26#0' with 'l-load tmp%26#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[421]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[433]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[328]: 'l-store-copy tmp%23#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[346]: 'v-load tmp%23#0' with 'l-load tmp%23#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[92]: 'l-store-copy aggregate%head%17#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[112]: 'v-load aggregate%head%17#0' with 'l-load aggregate%head%17#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[247]: 'l-store-copy aggregate%head%22#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[267]: 'v-load aggregate%head%22#0' with 'l-load aggregate%head%22#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[364]: 'l-store-copy aggregate%head%22#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[384]: 'v-load aggregate%head%22#0' with 'l-load aggregate%head%22#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[234]: 'l-store-copy aggregate%extract_uint16%3#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[253]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[507]: 'l-store-copy aggregate%extract_uint16%8#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[526]: 'v-load aggregate%extract_uint16%8#0' with 'l-load aggregate%extract_uint16%8#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[66]: 'l-store-copy tmp%11#3 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[86]: 'v-load tmp%11#3' with 'l-load tmp%11#3'
-debug: Inserted main_test_dynamic_struct_route@6.ops[206]: 'l-store-copy tmp%18#0 0'
-debug: Replaced main_test_dynamic_struct_route@6.ops[228]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[324]: 'l-store-copy tmp%21#1 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[346]: 'v-load tmp%21#1' with 'l-load tmp%21#1'
 debug: Inserted main_test_dynamic_struct_route@6.ops[55]: 'l-store-copy tmp%8#4 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[77]: 'v-load tmp%8#4' with 'l-load tmp%8#4'
+debug: Inserted main_test_dynamic_struct_route@6.ops[203]: 'l-store-copy res#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[228]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[272]: 'l-store-copy aggregate%len%0#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[296]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[479]: 'l-store-copy res#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[504]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[548]: 'l-store-copy aggregate%len%1#0 2'
+debug: Replaced main_test_dynamic_struct_route@6.ops[572]: 'v-load aggregate%len%1#0' with 'l-load aggregate%len%1#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[48]: 'l-store-copy tmp%6#3 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[74]: 'v-load tmp%6#3' with 'l-load tmp%6#3'
+debug: Inserted main_test_dynamic_struct_route@6.ops[224]: 'l-store-copy add%1#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[253]: 'v-load add%1#0' with 'l-load add%1#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[501]: 'l-store-copy add%7#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[530]: 'v-load add%7#0' with 'l-load add%7#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[41]: 'l-store-copy fixed_struct#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[72]: 'v-load fixed_struct#0' with 'l-load fixed_struct#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[238]: 'l-store-copy res#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[268]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[516]: 'l-store-copy res#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[546]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[263]: 'l-store-copy add%3#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[296]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[542]: 'l-store-copy add%9#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[575]: 'v-load add%9#0' with 'l-load add%9#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[99]: 'l-store-copy aggregate%encoded_value%0#0 1'
 debug: Replaced main_test_dynamic_struct_route@6.ops[141]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[162]: 'l-store-copy dynamic_struct#1 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[199]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[257]: 'l-store-copy aggregate%encoded_value%2#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[299]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
-debug: Inserted main_test_dynamic_struct_route@6.ops[320]: 'l-store-copy dynamic_struct#1 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[357]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
-debug: Inserted main_test_dynamic_struct_route@6.ops[329]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[367]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[379]: 'l-store-copy aggregate%encoded_value%2#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[421]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[276]: 'l-store-copy res#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[321]: 'v-load res#0' with 'l-load res#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[557]: 'l-store-copy res#0 3'
+debug: Replaced main_test_dynamic_struct_route@6.ops[602]: 'v-load res#0' with 'l-load res#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[74]: 'l-store-copy aggregate%head%14#0 3'
 debug: Replaced main_test_dynamic_struct_route@6.ops[152]: 'v-load aggregate%head%14#0' with 'l-load aggregate%head%14#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[183]: 'l-store-copy awst_tmp%0#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[312]: 'v-load awst_tmp%0#0' with 'l-load awst_tmp%0#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[465]: 'l-store-copy awst_tmp%1#0 0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[594]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[13]: 'l-store-copy create_txn.CreatedApplicationID#0 0'
 debug: Replaced main_test_dynamic_struct_route@6.ops[158]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
+debug: Inserted main_test_dynamic_struct_route@6.ops[164]: 'l-store-copy dynamic_struct#1 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[326]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[447]: 'l-store-copy dynamic_struct#1 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[609]: 'v-load dynamic_struct#1' with 'l-load dynamic_struct#1'
+debug: Inserted main_test_dynamic_struct_route@6.ops[456]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
+debug: Replaced main_test_dynamic_struct_route@6.ops[619]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[173]: 'l-store-copy create_txn.CreatedApplicationID#0 1'
-debug: Replaced main_test_dynamic_struct_route@6.ops[317]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[442]: 'v-load create_txn.CreatedApplicationID#0' with 'l-load create_txn.CreatedApplicationID#0'
 debug: Inserted main_test_dynamic_struct_route@6.ops[154]: 'l-store-copy aggregate%head%14#0 2'
-debug: Replaced main_test_dynamic_struct_route@6.ops[313]: 'v-load aggregate%head%14#0' with 'l-load aggregate%head%14#0'
+debug: Replaced main_test_dynamic_struct_route@6.ops[438]: 'v-load aggregate%head%14#0' with 'l-load aggregate%head%14#0'
 debug: Inserted main_test_fixed_array_route@7.ops[15]: 'l-store-copy tmp%0#1 0'
 debug: Replaced main_test_fixed_array_route@7.ops[17]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted main_test_fixed_array_route@7.ops[22]: 'l-store-copy tmp%2#0 0'
@@ -26748,8 +27083,8 @@ debug: Inserted main_test_native_array_route@8.ops[75]: 'l-store-copy awst_tmp%0
 debug: Replaced main_test_native_array_route@8.ops[77]: 'v-load awst_tmp%0#0' with 'l-load awst_tmp%0#0'
 debug: Inserted main_test_native_array_route@8.ops[79]: 'l-store-copy res#0 0'
 debug: Replaced main_test_native_array_route@8.ops[81]: 'v-load res#0' with 'l-load res#0'
-debug: Inserted main_test_native_array_route@8.ops[84]: 'l-store-copy aggregate%array_length%0#0 0'
-debug: Replaced main_test_native_array_route@8.ops[86]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted main_test_native_array_route@8.ops[84]: 'l-store-copy aggregate%array_length%6#0 0'
+debug: Replaced main_test_native_array_route@8.ops[86]: 'v-load aggregate%array_length%6#0' with 'l-load aggregate%array_length%6#0'
 debug: Inserted main_test_native_array_route@8.ops[89]: 'l-store-copy mul%0#0 0'
 debug: Replaced main_test_native_array_route@8.ops[91]: 'v-load mul%0#0' with 'l-load mul%0#0'
 debug: Inserted main_test_native_array_route@8.ops[97]: 'l-store-copy len%0#0 0'
@@ -26774,8 +27109,8 @@ debug: Inserted main_test_native_array_route@8.ops[185]: 'l-store-copy awst_tmp%
 debug: Replaced main_test_native_array_route@8.ops[187]: 'v-load awst_tmp%1#0' with 'l-load awst_tmp%1#0'
 debug: Inserted main_test_native_array_route@8.ops[189]: 'l-store-copy res#0 0'
 debug: Replaced main_test_native_array_route@8.ops[191]: 'v-load res#0' with 'l-load res#0'
-debug: Inserted main_test_native_array_route@8.ops[194]: 'l-store-copy aggregate%array_length%1#0 0'
-debug: Replaced main_test_native_array_route@8.ops[196]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
+debug: Inserted main_test_native_array_route@8.ops[194]: 'l-store-copy aggregate%array_length%7#0 0'
+debug: Replaced main_test_native_array_route@8.ops[196]: 'v-load aggregate%array_length%7#0' with 'l-load aggregate%array_length%7#0'
 debug: Inserted main_test_native_array_route@8.ops[199]: 'l-store-copy mul%1#0 0'
 debug: Replaced main_test_native_array_route@8.ops[201]: 'v-load mul%1#0' with 'l-load mul%1#0'
 debug: Inserted main_test_native_array_route@8.ops[207]: 'l-store-copy len%1#0 0'

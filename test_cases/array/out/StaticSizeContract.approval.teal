@@ -137,26 +137,26 @@ test_array:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 3
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     // array/static_size.py:43
     // self.count = UInt64(0)
@@ -478,7 +478,7 @@ test_extend_from_tuple:
     len
     pushint 32 // 32
     ==
-    assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+    assert // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>
     dup
     extract 0 16
     swap
@@ -520,7 +520,7 @@ test_extend_from_tuple:
     // assert result[-1] == last
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -553,7 +553,7 @@ test_extend_from_arc4_tuple:
     dup
     pushint 32 // 32
     ==
-    assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+    assert // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>
     // array/static_size.py:74
     // arr.extend(some_more)
     dig 1
@@ -587,7 +587,7 @@ test_bool_array:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     // array/static_size.py:79
@@ -716,7 +716,7 @@ test_arc4_conversion:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     // array/static_size.py:98
@@ -835,7 +835,7 @@ sum_array:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_2 // 8
     *
     pushint 2 // 2
@@ -843,7 +843,7 @@ sum_array:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     // array/static_size.py:117
     // arr.extend(arc4_arr)
     extract 2 0
@@ -936,7 +936,7 @@ test_arc4_bool:
     // assert dyn_arr.length == 2, "expected correct length"
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dup
     cover 3
     dup
