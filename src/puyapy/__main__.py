@@ -7,12 +7,13 @@ import cyclopts
 
 from puya.algo_constants import MAINNET_AVM_VERSION, SUPPORTED_AVM_VERSIONS
 from puya.errors import PuyaExitError
-from puya.log import LogLevel, configure_logging
+from puya.log import LogLevel, configure_logging, get_logger
 from puya.options import LocalsCoalescingStrategy
 from puyapy.compile import compile_to_teal
 from puyapy.options import PuyaPyOptions
 from puyapy.template import parse_template_key_value
 
+logger = get_logger(__name__)
 _app = cyclopts.App(help_on_error=True, version=f"puyapy {version('puyapy')}")
 
 _outputs_group = cyclopts.Group(
@@ -79,8 +80,9 @@ def puyapy(
     ] = LocalsCoalescingStrategy.root_operand,
     validate_abi_values: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
     validate_abi_dynamic_severity: Annotated[
-        LogLevel, cyclopts.Parameter(group=_compilation_group)
-    ] = LogLevel.warning,
+        LogLevel,
+        cyclopts.Parameter(group=_compilation_group, show=False),
+    ] = LogLevel.notset,
     # templating
     template_var: Annotated[
         Sequence[str],
@@ -138,15 +140,20 @@ def puyapy(
                            passed directly.
         validate_abi_values: Validates ABI transaction arguments by ensuring they are the correct
                              size
-        validate_abi_dynamic_severity: Severity level for unvalidatable dynamic ABI types
         out_dir: Path for outputting artefacts
         log_level: Minimum level to log to console
     """
     args = locals()
+    args.pop("validate_abi_dynamic_severity")
     args.pop("template_var")
     cli_template_definitions = dict(parse_template_key_value(t) for t in template_var)
     options = PuyaPyOptions(**args, cli_template_definitions=cli_template_definitions)
     configure_logging(min_log_level=options.log_level)
+    if validate_abi_dynamic_severity != LogLevel.notset:
+        logger.warning(
+            "the --validate-abi-dynamic-severity option is deprecated,"
+            " it has no effect and will be removed in a future version"
+        )
     try:
         compile_to_teal(options)
     except PuyaExitError as ex:
