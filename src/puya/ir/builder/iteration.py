@@ -1,5 +1,6 @@
+import contextlib
 import typing
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 
 from puya import log
 from puya.awst import (
@@ -439,6 +440,62 @@ def _iterate_urange_with_reversal(
                     source_location=range_loc,
                 )
             context.block_builder.goto(body)
+
+    context.block_builder.activate_block(next_block)
+
+
+@contextlib.contextmanager
+def iterate_and_yield_range(
+    context: IRFunctionBuildContext,
+    end: Value,
+    loc: SourceLocation,
+) -> Iterator[Value]:
+    body = context.block_builder.mkblock(loc, "for_body")
+    header, footer, next_block = context.block_builder.mkblocks(
+        "for_header", "for_footer", "after_for", source_location=loc
+    )
+
+    index = assign_temp(
+        context,
+        source=UInt64Constant(value=0, source_location=None),
+        temp_description="index",
+        source_location=None,
+    )
+    context.block_builder.goto(header)
+
+    with context.block_builder.activate_open_block(header):
+        index = _refresh_mutated_variable(context, index)
+        continue_looping = assign_intrinsic_op(
+            context,
+            target="continue_looping",
+            op=AVMOp.lt,
+            args=[index, end],
+            source_location=loc,
+        )
+
+        context.block_builder.terminate(
+            ConditionalBranch(
+                condition=continue_looping,
+                non_zero=body,
+                zero=next_block,
+                source_location=loc,
+            )
+        )
+
+        context.block_builder.activate_block(body)
+        with context.block_builder.enter_loop(on_continue=footer, on_break=next_block):
+            yield index
+        context.block_builder.goto(footer)
+
+        if context.block_builder.try_activate_block(footer):
+            _reassign_with_intrinsic_op(
+                context,
+                target=index,
+                op=AVMOp.add,
+                args=[index, 1],
+                source_location=None,
+            )
+            context.block_builder.goto(header)
 
     context.block_builder.activate_block(next_block)
 

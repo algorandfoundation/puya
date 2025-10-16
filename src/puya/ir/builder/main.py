@@ -35,7 +35,7 @@ from puya.ir.builder import (
     storage,
 )
 from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
 from puya.ir.types_ import wtype_to_ir_type
@@ -163,53 +163,123 @@ class FunctionIRBuilder(
         ir_type = wtype_to_ir_type(expr.wtype, loc)
         assert isinstance(ir_type, types.EncodedType), "expected EncodedType fom ARC4 Type"
         value = self.visit_and_materialise_single(expr.value)
-
         if expr.validate:
-            encoding = ir_type.encoding
-            match encoding:
-                case encodings.Encoding(num_bytes=num_bytes) if num_bytes is not None:
-                    value_len = factory.len(value)
-                    size_is_correct = factory.eq(value_len, num_bytes)
-                    assert_value(
-                        self.context,
-                        size_is_correct,
-                        error_message=f"invalid number of bytes for {encoding}",
-                        source_location=loc,
-                    )
-                case encodings.ArrayEncoding(length_header=True) as arr if arr.element.is_fixed:
-                    length = factory.materialise_single(
-                        ir.ArrayLength(
-                            base=value,
-                            base_type=ir_type,
-                            array_encoding=encoding,
-                            source_location=loc,
-                        ),
-                        "length",
-                    )
-                    if arr.element.is_bit:
-                        num_bits = factory.mul(length, arr.element.checked_num_bits)
-                        num_bytes_value = factory.add(num_bits, 7)
-                        num_bytes_value = factory.div_floor(num_bytes_value, 8)
-                    else:
-                        num_bytes_value = factory.mul(length, arr.element.checked_num_bytes)
-                    num_bytes_value = factory.add(num_bytes_value, 2)
-                    value_len = factory.len(value)
-                    size_is_correct = factory.eq(value_len, num_bytes_value)
-                    assert_value(
-                        self.context,
-                        size_is_correct,
-                        error_message=f"invalid number of bytes for {encoding}",
-                        source_location=loc,
-                    )
-                case _:
-                    logger.log(
-                        self.context.options.validate_abi_dynamic_severity,
-                        "nested dynamic types cannot be automatically"
-                        " checked for expected byte size",
-                        location=loc,
-                    )
+            expected_size = self._get_expected_size(value, ir_type, loc)
+            value_len = factory.len(value)
+            size_is_correct = factory.eq(value_len, expected_size)
+            factory.assert_value(
+                size_is_correct, error_message=f"invalid number of bytes for {expr.wtype}"
+            )
         # return value as required type
         return factory.as_ir_type(value, ir_type)
+
+    def _get_expected_size(
+        self, value: ir.Value, ir_type: types.EncodedType, loc: SourceLocation
+    ) -> ir.Value:
+        factory = OpFactory(self.context, loc)
+        encoding = ir_type.encoding
+        match encoding:
+            case _ if encoding.is_fixed:
+                return factory.constant(encoding.checked_num_bytes)
+            case encodings.ArrayEncoding() as arr if arr.element.is_fixed:
+                length = factory.materialise_single(
+                    ir.ArrayLength(
+                        base=value,
+                        base_type=ir_type,
+                        array_encoding=encoding,
+                        source_location=loc,
+                    ),
+                    "length",
+                )
+                if arr.element.is_bit:
+                    num_bits = factory.mul(length, arr.element.checked_num_bits)
+                    num_bytes_value: ir.Value = factory.add(num_bits, 7)
+                    num_bytes_value = factory.div_floor(num_bytes_value, 8)
+                else:
+                    num_bytes_value = factory.mul(length, arr.element.checked_num_bytes)
+                if arr.length_header:
+                    num_bytes_value = factory.add(num_bytes_value, 2)
+                return num_bytes_value
+            case encodings.ArrayEncoding(element=element) as arr if element.is_dynamic:
+                length = factory.materialise_single(
+                    ir.ArrayLength(
+                        base=value,
+                        base_type=ir_type,
+                        array_encoding=encoding,
+                        source_location=loc,
+                    ),
+                    "length",
+                )
+                num_bytes_reg = factory.mul(length, 2, "num_bytes")
+                if not arr.length_header:
+                    array_data = value
+                else:
+                    array_data = factory.extract_to_end(value, 2, "array_data")
+                el_ir_type = types.EncodedType(arr.element)
+                with iteration.iterate_and_yield_range(self.context, length, loc) as index:
+                    num_bytes_reg = _refresh_mutated_value(self.context, num_bytes_reg)
+                    head_offset_bytes = factory.mul(index, 2, "head_offset_bytes")
+                    item_offset = factory.extract_uint16(
+                        array_data,
+                        head_offset_bytes,
+                        "item_offset",
+                        error_message="invalid array encoding",
+                    )
+                    offset_is_correct = factory.eq(
+                        item_offset,
+                        num_bytes_reg,
+                        "offset_is_correct",
+                    )
+                    factory.assert_value(
+                        offset_is_correct, error_message=f"invalid tail pointer for {arr}"
+                    )
+                    item = factory.materialise_single(
+                        ir.ExtractValue(
+                            base=value,
+                            base_type=ir_type,
+                            ir_type=el_ir_type,
+                            indexes=(index,),
+                            source_location=loc,
+                            check_bounds=False,
+                        )
+                    )
+                    element_num_bytes = self._get_expected_size(item, el_ir_type, loc)
+                    # while in a loop need to ensure we update the following variables and don't
+                    # create new temporaries
+                    _increment_and_reassign(self.context, num_bytes_reg, element_num_bytes, loc)
+                num_bytes_reg = _refresh_mutated_value(self.context, num_bytes_reg)
+                if encoding.length_header:
+                    num_bytes_reg = factory.add(num_bytes_reg, 2, "num_bytes")
+                return num_bytes_reg
+            case encodings.TupleEncoding(is_dynamic=True):
+                num_bytes_value = factory.constant(encoding.get_head_bit_offset(None) // 8)
+                for idx, el in enumerate(encoding.elements):
+                    if el.is_dynamic:
+                        offset_index = encoding.get_head_bit_offset(idx) // 8
+                        offset = factory.extract_uint16(
+                            value, offset_index, error_message="invalid tuple encoding"
+                        )
+                        offset_is_correct = factory.eq(offset, num_bytes_value)
+                        factory.assert_value(
+                            offset_is_correct,
+                            error_message=f"invalid tail pointer at index {idx} of {encoding}",
+                        )
+                        el_ir_type = types.EncodedType(el)
+                        item = factory.materialise_single(
+                            ir.ExtractValue(
+                                base=value,
+                                base_type=ir_type,
+                                ir_type=el_ir_type,
+                                indexes=(idx,),
+                                source_location=loc,
+                                check_bounds=False,
+                            )
+                        )
+                        element_num_bytes = self._get_expected_size(item, el_ir_type, loc)
+                        num_bytes_value = factory.add(num_bytes_value, element_num_bytes)
+                return num_bytes_value
+            case _:
+                raise InternalError(f"unexpected encoding: {encoding}", loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         loc = size_of.source_location
@@ -1171,7 +1241,7 @@ class FunctionIRBuilder(
             match wtype:
                 case wtypes.void_wtype:
                     pass
-                case _ if (isinstance(wtype, WInnerTransaction | WInnerTransactionFields)):
+                case _ if isinstance(wtype, WInnerTransaction | WInnerTransactionFields):
                     # inner transaction wtypes aren't true expressions
                     pass
                 case _:
@@ -1686,3 +1756,27 @@ def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:
                 f"Expected either constant or None for index, got {type(expr).__name__}",
                 expr.source_location,
             )
+
+
+def _refresh_mutated_value(context: IRFunctionBuildContext, value: ir.Register) -> ir.Register:
+    # TODO: consolidate with iteration version
+    return context.ssa.read_variable(value.name, value.ir_type, context.block_builder.active_block)
+
+
+def _increment_and_reassign(
+    context: IRFunctionBuildContext, lhs: ir.Register, value: ir.Value, loc: SourceLocation
+) -> ir.Register:
+    """increments the variable associated with lhs by value"""
+    intrinsic = ir.Intrinsic(
+        op=AVMOp.add,
+        args=[_refresh_mutated_value(context, lhs), value],
+        source_location=loc,
+    )
+    return assign(
+        context,
+        source=intrinsic,
+        name=lhs.name,
+        ir_type=lhs.ir_type,
+        register_location=lhs.source_location,
+        assignment_location=loc,
+    )
