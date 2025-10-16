@@ -97,7 +97,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[rout
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg(as_Encoded(uint64,uint64)%0#0)
         exit 1u
@@ -114,7 +114,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[rou
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 24u)
-        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
         let as_Encoded((uint64,uint64),uint64)%0#0: Encoded((uint64,uint64),uint64) = tmp%0#0
         test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg(as_Encoded((uint64,uint64),uint64)%0#0)
         exit 1u
@@ -129,6 +129,33 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[rou
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]() -> void:
     block@0: // L69
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 16u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 22u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%1#0: Encoded(len+uint8[]) = extract_value(tmp%0#0, 2)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 22u add%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 18u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%2#0: Encoded(len+utf8[]) = extract_value(tmp%0#0, 3)
+        let length%1#0: uint64 = array_len(tmp%2#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%2#0: uint64 = (+ mul%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%0#0 20u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%3#0)
+        (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%3#0: Encoded(len+(uint64,uint64)[]) = extract_value(tmp%0#0, 4)
+        let length%2#0: uint64 = array_len(tmp%3#0)
+        let mul%2#0: uint64 = (* length%2#0 16u)
+        let add%4#0: uint64 = (+ mul%2#0 2u)
+        let add%5#0: uint64 = (+ add%3#0 add%4#0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%3#0: bool = (== len%0#0 add%5#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%0#0
         test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg(as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0)
         exit 1u
@@ -145,7 +172,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
         let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%0#0
         test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(as_Encoded((uint64,uint64)[3])%0#0)
         exit 1u
@@ -165,7 +192,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routin
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%0#0
         test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg(as_Encoded(len+(uint64,uint64)[])%0#0)
         exit 1u

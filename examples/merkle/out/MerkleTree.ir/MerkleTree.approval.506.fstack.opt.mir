@@ -54,7 +54,7 @@ subroutine create:
         len                                                                                    root#0,len%0#0
         int 32                                                                                 root#0,len%0#0,32
         ==                                                                                     root#0,eq%0#0
-        assert // invalid number of bytes for uint8[32]                                        root#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                root#0
         // merkle/contract.py:12
         // self.root = root.bytes
         byte "root"                                                                            root#0,"root"
@@ -76,7 +76,7 @@ subroutine verify:
         f-store proof#0                                                                        (𝕗) proof#0 | proof#0
         l-load-copy proof#0 0                                                                  (𝕗) proof#0 | proof#0,proof#0 (copy)
         int 0                                                                                  (𝕗) proof#0 | proof#0,proof#0 (copy),0
-        extract_uint16                                                                         (𝕗) proof#0 | proof#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                (𝕗) proof#0 | proof#0,aggregate%array_length%0#0
         l-store-copy aggregate%array_length%0#0 0                                              (𝕗) proof#0 | proof#0,aggregate%array_length%0#0,aggregate%array_length%0#0
         f-store aggregate%array_length%0#0                                                     (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                    (𝕗) proof#0,aggregate%array_length%0#0 | proof#0,aggregate%array_length%0#0
@@ -88,13 +88,13 @@ subroutine verify:
         len                                                                                    (𝕗) proof#0,aggregate%array_length%0#0 | add%0#0,len%0#0
         l-load add%0#0 1                                                                       (𝕗) proof#0,aggregate%array_length%0#0 | len%0#0,add%0#0
         ==                                                                                     (𝕗) proof#0,aggregate%array_length%0#0 | eq%0#0
-        assert // invalid number of bytes for (len+uint8[32][])                                (𝕗) proof#0,aggregate%array_length%0#0 |
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> (𝕗) proof#0,aggregate%array_length%0#0 | 
         txna ApplicationArgs 2                                                                 (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0
         l-load-copy leaf#0 0                                                                   (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,leaf#0 (copy)
         len                                                                                    (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,len%1#0
         int 32                                                                                 (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,len%1#0,32
         ==                                                                                     (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,eq%1#0
-        assert // invalid number of bytes for uint8[32]                                        (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
         int 0                                                                                  (𝕗) proof#0,aggregate%array_length%0#0 | leaf#0,0

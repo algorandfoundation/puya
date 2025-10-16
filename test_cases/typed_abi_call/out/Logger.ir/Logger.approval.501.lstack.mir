@@ -205,7 +205,7 @@ subroutine is_a_b:
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
         int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%array_length%0#0
         int 2                                                                                    tmp%0#0,aggregate%array_length%0#0,2
         +                                                                                        tmp%0#0,add%0#0
@@ -215,13 +215,13 @@ subroutine is_a_b:
         l-load add%0#0 1                                                                         tmp%0#0,len%0#0,add%0#0
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for (len+uint8[])                                      tmp%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         extract 2 0                                                                              a#0
         txna ApplicationArgs 2                                                                   a#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                                    a#0,tmp%2#0,tmp%2#0 (copy)
         int 0                                                                                    a#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16                                                                           a#0,tmp%2#0,aggregate%array_length%1#0
+        extract_uint16 // on error: invalid array length header                                  a#0,tmp%2#0,aggregate%array_length%1#0
         l-load aggregate%array_length%1#0 0                                                      a#0,tmp%2#0,aggregate%array_length%1#0
         int 2                                                                                    a#0,tmp%2#0,aggregate%array_length%1#0,2
         +                                                                                        a#0,tmp%2#0,add%1#0
@@ -231,7 +231,7 @@ subroutine is_a_b:
         l-load add%1#0 1                                                                         a#0,tmp%2#0,len%1#0,add%1#0
         ==                                                                                       a#0,tmp%2#0,eq%1#0
         l-load eq%1#0 0                                                                          a#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for (len+uint8[])                                      a#0,tmp%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     a#0,tmp%2#0
         l-load tmp%2#0 0                                                                         a#0,tmp%2#0
         extract 2 0                                                                              a#0,b#0
         // typed_abi_call/logger.py:34
@@ -262,7 +262,7 @@ subroutine echo:
         txna ApplicationArgs 1                                                                   value#0
         l-load-copy value#0 0                                                                    value#0,value#0 (copy)
         int 0                                                                                    value#0,value#0 (copy),0
-        extract_uint16                                                                           value#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  value#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      value#0,aggregate%array_length%0#0
         int 2                                                                                    value#0,aggregate%array_length%0#0,2
         +                                                                                        value#0,add%0#0
@@ -272,7 +272,7 @@ subroutine echo:
         l-load add%0#0 1                                                                         value#0,len%0#0,add%0#0
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for (len+utf8[])                                       value#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     value#0
         // typed_abi_call/logger.py:39
         // return "echo: " + value
         l-load value#0 0                                                                         value#0
@@ -314,7 +314,7 @@ subroutine log_uint64:
         int 8                                                                                    value#0,len%0#0,8
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for uint64                                             value#0
+        assert // invalid number of bytes for arc4.uint64                                        value#0
         // typed_abi_call/logger.py:47
         // log(value)
         l-load value#0 0                                                                         value#0
@@ -337,7 +337,7 @@ subroutine log_uint512:
         int 64                                                                                   value#0,len%0#0,64
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for uint512                                            value#0
+        assert // invalid number of bytes for arc4.uint512                                       value#0
         // typed_abi_call/logger.py:51
         // log(value)
         l-load value#0 0                                                                         value#0
@@ -356,7 +356,7 @@ subroutine log_string:
         txna ApplicationArgs 1                                                                   value#0
         l-load-copy value#0 0                                                                    value#0,value#0 (copy)
         int 0                                                                                    value#0,value#0 (copy),0
-        extract_uint16                                                                           value#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  value#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      value#0,aggregate%array_length%0#0
         int 2                                                                                    value#0,aggregate%array_length%0#0,2
         +                                                                                        value#0,add%0#0
@@ -366,7 +366,7 @@ subroutine log_string:
         l-load add%0#0 1                                                                         value#0,len%0#0,add%0#0
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for (len+utf8[])                                       value#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     value#0
         // typed_abi_call/logger.py:55
         // log(value.native)  # decode to remove header
         l-load value#0 0                                                                         value#0
@@ -391,7 +391,7 @@ subroutine log_bool:
         int 1                                                                                    value#0,len%0#0,1
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for bool8                                              value#0
+        assert // invalid number of bytes for arc4.bool                                          value#0
         // typed_abi_call/logger.py:59
         // log(Bytes(b"True") if value.native else Bytes(b"False"))
         l-load value#0 0                                                                         value#0
@@ -417,7 +417,7 @@ subroutine log_bytes:
         txna ApplicationArgs 1                                                                   value#0
         l-load-copy value#0 0                                                                    value#0,value#0 (copy)
         int 0                                                                                    value#0,value#0 (copy),0
-        extract_uint16                                                                           value#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  value#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      value#0,aggregate%array_length%0#0
         int 2                                                                                    value#0,aggregate%array_length%0#0,2
         +                                                                                        value#0,add%0#0
@@ -427,7 +427,7 @@ subroutine log_bytes:
         l-load add%0#0 1                                                                         value#0,len%0#0,add%0#0
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for (len+uint8[])                                      value#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     value#0
         // typed_abi_call/logger.py:63
         // log(value.native)
         l-load value#0 0                                                                         value#0
@@ -452,7 +452,7 @@ subroutine log_asset_account_app:
         int 8                                                                                    tmp%0#0,len%0#0,8
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for uint64                                             tmp%0#0
+        assert // invalid number of bytes for arc4.uint64                                        tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         btoi                                                                                     asset#0
         txna ApplicationArgs 2                                                                   asset#0,account#0
@@ -462,7 +462,7 @@ subroutine log_asset_account_app:
         int 32                                                                                   asset#0,account#0,len%1#0,32
         ==                                                                                       asset#0,account#0,eq%1#0
         l-load eq%1#0 0                                                                          asset#0,account#0,eq%1#0
-        assert // invalid number of bytes for uint8[32]                                          asset#0,account#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                  asset#0,account#0
         txna ApplicationArgs 3                                                                   asset#0,account#0,tmp%4#0
         l-load-copy tmp%4#0 0                                                                    asset#0,account#0,tmp%4#0,tmp%4#0 (copy)
         len                                                                                      asset#0,account#0,tmp%4#0,len%2#0
@@ -470,7 +470,7 @@ subroutine log_asset_account_app:
         int 8                                                                                    asset#0,account#0,tmp%4#0,len%2#0,8
         ==                                                                                       asset#0,account#0,tmp%4#0,eq%2#0
         l-load eq%2#0 0                                                                          asset#0,account#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for uint64                                             asset#0,account#0,tmp%4#0
+        assert // invalid number of bytes for arc4.uint64                                        asset#0,account#0,tmp%4#0
         l-load tmp%4#0 0                                                                         asset#0,account#0,tmp%4#0
         btoi                                                                                     asset#0,account#0,app#0
         // typed_abi_call/logger.py:67
@@ -509,7 +509,7 @@ subroutine log_address:
         int 32                                                                                   address#0,len%0#0,32
         ==                                                                                       address#0,eq%0#0
         l-load eq%0#0 0                                                                          address#0,eq%0#0
-        assert // invalid number of bytes for uint8[32]                                          address#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                  address#0
         // typed_abi_call/logger.py:71
         // log(address)
         l-load address#0 0                                                                       address#0
@@ -528,7 +528,7 @@ subroutine echo_native_string:
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
         int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%array_length%0#0
         int 2                                                                                    tmp%0#0,aggregate%array_length%0#0,2
         +                                                                                        tmp%0#0,add%0#0
@@ -538,7 +538,7 @@ subroutine echo_native_string:
         l-load add%0#0 1                                                                         tmp%0#0,len%0#0,add%0#0
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for (len+utf8[])                                       tmp%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         extract 2 0                                                                              value#0
         // typed_abi_call/logger.py:75
@@ -574,7 +574,7 @@ subroutine echo_native_bytes:
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
         int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%array_length%0#0
         int 2                                                                                    tmp%0#0,aggregate%array_length%0#0,2
         +                                                                                        tmp%0#0,add%0#0
@@ -584,7 +584,7 @@ subroutine echo_native_bytes:
         l-load add%0#0 1                                                                         tmp%0#0,len%0#0,add%0#0
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for (len+uint8[])                                      tmp%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         extract 2 0                                                                              value#0
         // typed_abi_call/logger.py:79
@@ -624,7 +624,7 @@ subroutine echo_native_uint64:
         int 8                                                                                    tmp%0#0,len%0#0,8
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for uint64                                             tmp%0#0
+        assert // invalid number of bytes for arc4.uint64                                        tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         btoi                                                                                     value#0
         // typed_abi_call/logger.py:83
@@ -657,7 +657,7 @@ subroutine echo_native_biguint:
         int 64                                                                                   value#0,len%0#0,64
         ==                                                                                       value#0,eq%0#0
         l-load eq%0#0 0                                                                          value#0,eq%0#0
-        assert // invalid number of bytes for uint512                                            value#0
+        assert // invalid number of bytes for arc4.uint512                                       value#0
         // typed_abi_call/logger.py:87
         // return value + 1
         l-load value#0 0                                                                         value#0
@@ -700,7 +700,7 @@ subroutine echo_resource_by_index:
         int 1                                                                                    tmp%0#0,len%0#0,1
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for uint8                                              tmp%0#0
+        assert // invalid number of bytes for arc4.uint8                                         tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         btoi                                                                                     tmp%1#0
         l-load tmp%1#0 0                                                                         tmp%1#0
@@ -712,7 +712,7 @@ subroutine echo_resource_by_index:
         int 1                                                                                    asset#0,tmp%3#0,len%1#0,1
         ==                                                                                       asset#0,tmp%3#0,eq%1#0
         l-load eq%1#0 0                                                                          asset#0,tmp%3#0,eq%1#0
-        assert // invalid number of bytes for uint8                                              asset#0,tmp%3#0
+        assert // invalid number of bytes for arc4.uint8                                         asset#0,tmp%3#0
         l-load tmp%3#0 0                                                                         asset#0,tmp%3#0
         btoi                                                                                     asset#0,tmp%4#0
         l-load tmp%4#0 0                                                                         asset#0,tmp%4#0
@@ -724,7 +724,7 @@ subroutine echo_resource_by_index:
         int 1                                                                                    asset#0,app#0,tmp%6#0,len%2#0,1
         ==                                                                                       asset#0,app#0,tmp%6#0,eq%2#0
         l-load eq%2#0 0                                                                          asset#0,app#0,tmp%6#0,eq%2#0
-        assert // invalid number of bytes for uint8                                              asset#0,app#0,tmp%6#0
+        assert // invalid number of bytes for arc4.uint8                                         asset#0,app#0,tmp%6#0
         l-load tmp%6#0 0                                                                         asset#0,app#0,tmp%6#0
         btoi                                                                                     asset#0,app#0,tmp%7#0
         l-load tmp%7#0 0                                                                         asset#0,app#0,tmp%7#0
@@ -808,7 +808,7 @@ subroutine echo_resource_by_value:
         int 8                                                                                    tmp%0#0,len%0#0,8
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for uint64                                             tmp%0#0
+        assert // invalid number of bytes for arc4.uint64                                        tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         btoi                                                                                     asset#0
         txna ApplicationArgs 2                                                                   asset#0,tmp%2#0
@@ -818,7 +818,7 @@ subroutine echo_resource_by_value:
         int 8                                                                                    asset#0,tmp%2#0,len%1#0,8
         ==                                                                                       asset#0,tmp%2#0,eq%1#0
         l-load eq%1#0 0                                                                          asset#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for uint64                                             asset#0,tmp%2#0
+        assert // invalid number of bytes for arc4.uint64                                        asset#0,tmp%2#0
         l-load tmp%2#0 0                                                                         asset#0,tmp%2#0
         btoi                                                                                     asset#0,app#0
         txna ApplicationArgs 3                                                                   asset#0,app#0,acc#0
@@ -828,7 +828,7 @@ subroutine echo_resource_by_value:
         int 32                                                                                   asset#0,app#0,acc#0,len%2#0,32
         ==                                                                                       asset#0,app#0,acc#0,eq%2#0
         l-load eq%2#0 0                                                                          asset#0,app#0,acc#0,eq%2#0
-        assert // invalid number of bytes for uint8[32]                                          asset#0,app#0,acc#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                  asset#0,app#0,acc#0
         // typed_abi_call/logger.py:109
         // asset_id = op.btoi(Txn.application_args(1))
         txna ApplicationArgs 1                                                                   asset#0,app#0,acc#0,tmp%0#0
@@ -894,7 +894,7 @@ subroutine echo_native_tuple:
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
         int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%array_length%0#0
         int 2                                                                                    tmp%0#0,aggregate%array_length%0#0,2
         +                                                                                        tmp%0#0,add%0#0
@@ -904,13 +904,13 @@ subroutine echo_native_tuple:
         l-load add%0#0 1                                                                         tmp%0#0,len%0#0,add%0#0
         ==                                                                                       tmp%0#0,eq%0#0
         l-load eq%0#0 0                                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for (len+utf8[])                                       tmp%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     tmp%0#0
         l-load tmp%0#0 0                                                                         tmp%0#0
         extract 2 0                                                                              s#0
         txna ApplicationArgs 2                                                                   s#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                                    s#0,tmp%2#0,tmp%2#0 (copy)
         int 0                                                                                    s#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16                                                                           s#0,tmp%2#0,aggregate%array_length%1#0
+        extract_uint16 // on error: invalid array length header                                  s#0,tmp%2#0,aggregate%array_length%1#0
         l-load aggregate%array_length%1#0 0                                                      s#0,tmp%2#0,aggregate%array_length%1#0
         int 2                                                                                    s#0,tmp%2#0,aggregate%array_length%1#0,2
         +                                                                                        s#0,tmp%2#0,add%1#0
@@ -920,7 +920,7 @@ subroutine echo_native_tuple:
         l-load add%1#0 1                                                                         s#0,tmp%2#0,len%1#0,add%1#0
         ==                                                                                       s#0,tmp%2#0,eq%1#0
         l-load eq%1#0 0                                                                          s#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for (len+uint8[])                                      s#0,tmp%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     s#0,tmp%2#0
         l-load tmp%2#0 0                                                                         s#0,tmp%2#0
         extract 2 0                                                                              s#0,b#0
         txna ApplicationArgs 3                                                                   s#0,b#0,tmp%4#0
@@ -930,7 +930,7 @@ subroutine echo_native_tuple:
         int 8                                                                                    s#0,b#0,tmp%4#0,len%2#0,8
         ==                                                                                       s#0,b#0,tmp%4#0,eq%2#0
         l-load eq%2#0 0                                                                          s#0,b#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for uint64                                             s#0,b#0,tmp%4#0
+        assert // invalid number of bytes for arc4.uint64                                        s#0,b#0,tmp%4#0
         l-load tmp%4#0 0                                                                         s#0,b#0,tmp%4#0
         btoi                                                                                     s#0,b#0,u#0
         txna ApplicationArgs 4                                                                   s#0,b#0,u#0,bu#0
@@ -940,7 +940,7 @@ subroutine echo_native_tuple:
         int 64                                                                                   s#0,b#0,u#0,bu#0,len%3#0,64
         ==                                                                                       s#0,b#0,u#0,bu#0,eq%3#0
         l-load eq%3#0 0                                                                          s#0,b#0,u#0,bu#0,eq%3#0
-        assert // invalid number of bytes for uint512                                            s#0,b#0,u#0,bu#0
+        assert // invalid number of bytes for arc4.uint512                                       s#0,b#0,u#0,bu#0
         // typed_abi_call/logger.py:121
         // return "echo: " + s, b"echo: " + b, u + 1, bu + 1
         byte "echo: "                                                                            s#0,b#0,u#0,bu#0,"echo: "
@@ -1030,84 +1030,141 @@ subroutine echo_nested_tuple:
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
         int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%extract_uint16%0#0
-        l-load-copy tmp%0#0 1                                                                    tmp%0#0,aggregate%extract_uint16%0#0,tmp%0#0 (copy)
-        int 2                                                                                    tmp%0#0,aggregate%extract_uint16%0#0,tmp%0#0 (copy),2
-        extract_uint16                                                                           tmp%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
-        l-load-copy tmp%0#0 2                                                                    tmp%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy)
-        l-load aggregate%extract_uint16%0#0 2                                                    tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),aggregate%extract_uint16%0#0
-        l-load-copy aggregate%extract_uint16%1#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0 (copy)
+        extract_uint16 // on error: invalid tuple encoding                                       tmp%0#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                         tmp%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 4                                                                                    tmp%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),4
+        ==                                                                                       tmp%0#0,extract_uint16%0#0,eq%0#0
+        l-load eq%0#0 0                                                                          tmp%0#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) tmp%0#0,extract_uint16%0#0
+        l-load-copy tmp%0#0 1                                                                    tmp%0#0,extract_uint16%0#0,tmp%0#0 (copy)
+        int 2                                                                                    tmp%0#0,extract_uint16%0#0,tmp%0#0 (copy),2
+        extract_uint16                                                                           tmp%0#0,extract_uint16%0#0,aggregate%extract_uint16%1#0
+        l-load-copy tmp%0#0 2                                                                    tmp%0#0,extract_uint16%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy)
+        l-load extract_uint16%0#0 2                                                              tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),extract_uint16%0#0
+        l-load-copy aggregate%extract_uint16%1#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),extract_uint16%0#0,aggregate%extract_uint16%1#0 (copy)
         substring3                                                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0
         l-load-copy aggregate%substring3%0#0 0                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
         int 0                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),0
-        extract_uint16                                                                           tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%2#0
-        l-load-copy aggregate%substring3%0#0 1                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%2#0,aggregate%substring3%0#0 (copy)
-        int 2                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%2#0,aggregate%substring3%0#0 (copy),2
-        extract_uint16                                                                           tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%2#0,aggregate%extract_uint16%3#0
-        l-load-copy aggregate%substring3%0#0 2                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%2#0,aggregate%extract_uint16%3#0,aggregate%substring3%0#0 (copy)
-        l-load aggregate%extract_uint16%2#0 2                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,aggregate%substring3%0#0 (copy),aggregate%extract_uint16%2#0
-        l-load-copy aggregate%extract_uint16%3#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,aggregate%substring3%0#0 (copy),aggregate%extract_uint16%2#0,aggregate%extract_uint16%3#0 (copy)
-        substring3                                                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,aggregate%substring3%1#0
-        l-load aggregate%substring3%1#0 0                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,aggregate%substring3%1#0
-        extract 2 0                                                                              tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,tuple_of_tuples.0.0#0
-        l-load-copy aggregate%substring3%0#0 2                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,tuple_of_tuples.0.0#0,aggregate%substring3%0#0 (copy)
-        len                                                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,tuple_of_tuples.0.0#0,aggregate%len%0#0
-        l-load aggregate%substring3%0#0 3                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%extract_uint16%3#0,tuple_of_tuples.0.0#0,aggregate%len%0#0,aggregate%substring3%0#0
-        l-load aggregate%extract_uint16%3#0 3                                                    tmp%0#0,aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0
-        l-load aggregate%len%0#0 2                                                               tmp%0#0,aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,aggregate%substring3%0#0,aggregate%extract_uint16%3#0,aggregate%len%0#0
-        substring3                                                                               tmp%0#0,aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0
-        l-load-copy tmp%0#0 3                                                                    tmp%0#0,aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tmp%0#0 (copy)
-        len                                                                                      tmp%0#0,aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%len%1#0
-        l-load tmp%0#0 4                                                                         aggregate%extract_uint16%1#0,tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%len%1#0,tmp%0#0
-        l-load aggregate%extract_uint16%1#0 4                                                    tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%len%1#0,tmp%0#0,aggregate%extract_uint16%1#0
-        l-load aggregate%len%1#0 2                                                               tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tmp%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
-        substring3                                                                               tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0
-        l-load-copy aggregate%substring3%3#0 0                                                   tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,aggregate%substring3%3#0 (copy)
-        int 0                                                                                    tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,aggregate%substring3%3#0 (copy),0
-        extract_uint64                                                                           tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0
-        l-load-copy aggregate%substring3%3#0 1                                                   tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%substring3%3#0 (copy)
-        int 16                                                                                   tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%substring3%3#0 (copy),16
-        extract_uint16                                                                           tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%extract_uint16%6#0
-        l-load-copy aggregate%substring3%3#0 2                                                   tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%extract_uint16%6#0,aggregate%substring3%3#0 (copy)
-        len                                                                                      tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%extract_uint16%6#0,aggregate%len%2#0
-        l-load-copy aggregate%substring3%3#0 3                                                   tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%extract_uint16%6#0,aggregate%len%2#0,aggregate%substring3%3#0 (copy)
-        l-load aggregate%extract_uint16%6#0 2                                                    tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%len%2#0,aggregate%substring3%3#0 (copy),aggregate%extract_uint16%6#0
-        l-load aggregate%len%2#0 2                                                               tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%substring3%3#0 (copy),aggregate%extract_uint16%6#0,aggregate%len%2#0
-        substring3                                                                               tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%substring3%4#0
-        l-load aggregate%substring3%4#0 0                                                        tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,aggregate%substring3%4#0
-        extract 2 0                                                                              tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0
+        extract_uint16 // on error: invalid tuple encoding                                       tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0
+        l-load-copy extract_uint16%1#0 0                                                         tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
+        int 4                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,extract_uint16%1#0 (copy),4
+        ==                                                                                       tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,eq%1#0
+        l-load eq%1#0 0                                                                          tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,eq%1#0
+        assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))                 tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0
+        l-load-copy aggregate%substring3%0#0 1                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,aggregate%substring3%0#0 (copy)
+        int 2                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,aggregate%substring3%0#0 (copy),2
+        extract_uint16                                                                           tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,aggregate%extract_uint16%5#0
+        l-load-copy aggregate%substring3%0#0 2                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,extract_uint16%1#0,aggregate%extract_uint16%5#0,aggregate%substring3%0#0 (copy)
+        l-load extract_uint16%1#0 2                                                              tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%0#0 (copy),extract_uint16%1#0
+        l-load-copy aggregate%extract_uint16%5#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%0#0 (copy),extract_uint16%1#0,aggregate%extract_uint16%5#0 (copy)
+        substring3                                                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0
+        l-load-copy aggregate%substring3%2#0 0                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy)
+        int 0                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,aggregate%array_length%0#0
+        int 6                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,aggregate%array_length%0#0,6
+        +                                                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0
+        l-load-copy aggregate%extract_uint16%5#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,aggregate%extract_uint16%5#0 (copy)
+        l-load-copy add%1#0 1                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,aggregate%extract_uint16%5#0 (copy),add%1#0 (copy)
+        ==                                                                                       tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,eq%2#0
+        l-load eq%2#0 0                                                                          tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,eq%2#0
+        assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))                 tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0
+        l-load-copy aggregate%substring3%0#0 3                                                   tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,aggregate%substring3%0#0 (copy)
+        len                                                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,aggregate%len%0#0
+        l-load aggregate%substring3%0#0 4                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%extract_uint16%5#0,aggregate%substring3%2#0,add%1#0,aggregate%len%0#0,aggregate%substring3%0#0
+        l-load aggregate%extract_uint16%5#0 4                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0
+        l-load aggregate%len%0#0 2                                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,aggregate%substring3%0#0,aggregate%extract_uint16%5#0,aggregate%len%0#0
+        substring3                                                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0
+        l-load-copy tuple_of_tuples.0.1#0 0                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,tuple_of_tuples.0.1#0 (copy)
+        int 0                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,tuple_of_tuples.0.1#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,aggregate%array_length%1#0
+        int 2                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,aggregate%array_length%1#0,2
+        +                                                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,add%1#0,tuple_of_tuples.0.1#0,add%2#0
+        l-load add%1#0 2                                                                         tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%2#0,add%1#0
+        l-load add%2#0 1                                                                         tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%1#0,add%2#0
+        +                                                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%3#0
+        int 4                                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%3#0,4
+        l-load add%3#0 1                                                                         tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,4,add%3#0
+        +                                                                                        tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0
+        l-load-copy aggregate%extract_uint16%1#0 3                                               tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%extract_uint16%1#0 (copy)
+        l-load-copy add%4#0 1                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%extract_uint16%1#0 (copy),add%4#0 (copy)
+        ==                                                                                       tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,eq%3#0
+        l-load eq%3#0 0                                                                          tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,eq%3#0
+        assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0
+        l-load-copy tmp%0#0 4                                                                    tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,tmp%0#0 (copy)
+        len                                                                                      tmp%0#0,aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0
+        l-load tmp%0#0 5                                                                         aggregate%extract_uint16%1#0,aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,tmp%0#0
+        l-load aggregate%extract_uint16%1#0 5                                                    aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,tmp%0#0,aggregate%extract_uint16%1#0
+        l-load-copy aggregate%len%1#0 2                                                          aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,tmp%0#0,aggregate%extract_uint16%1#0,aggregate%len%1#0 (copy)
+        substring3                                                                               aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0
+        l-load-copy aggregate%substring3%5#0 0                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%5#0 (copy)
+        int 16                                                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%5#0 (copy),16
+        extract_uint16 // on error: invalid tuple encoding                                       aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0
+        l-load-copy extract_uint16%4#0 0                                                         aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,extract_uint16%4#0 (copy)
+        int 18                                                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,extract_uint16%4#0 (copy),18
+        ==                                                                                       aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,eq%4#0
+        l-load eq%4#0 0                                                                          aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,eq%4#0
+        assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))               aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0
+        l-load-copy aggregate%substring3%5#0 1                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,aggregate%substring3%5#0 (copy)
+        len                                                                                      aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,aggregate%len%3#0
+        l-load-copy aggregate%substring3%5#0 2                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,extract_uint16%4#0,aggregate%len%3#0,aggregate%substring3%5#0 (copy)
+        l-load extract_uint16%4#0 2                                                              aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%len%3#0,aggregate%substring3%5#0 (copy),extract_uint16%4#0
+        l-load aggregate%len%3#0 2                                                               aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%5#0 (copy),extract_uint16%4#0,aggregate%len%3#0
+        substring3                                                                               aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0
+        l-load-copy aggregate%substring3%7#0 0                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%substring3%7#0 (copy)
+        int 0                                                                                    aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%substring3%7#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                  aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%array_length%2#0
+        l-load aggregate%array_length%2#0 0                                                      aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%array_length%2#0
+        int 20                                                                                   aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%array_length%2#0,20
+        +                                                                                        aggregate%substring3%2#0,tuple_of_tuples.0.1#0,add%4#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,add%6#0
+        l-load add%4#0 4                                                                         aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,add%6#0,add%4#0
+        l-load add%6#0 1                                                                         aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,add%4#0,add%6#0
+        +                                                                                        aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%len%1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,add%7#0
+        l-load aggregate%len%1#0 3                                                               aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,add%7#0,aggregate%len%1#0
+        l-load add%7#0 1                                                                         aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%len%1#0,add%7#0
+        ==                                                                                       aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,eq%5#0
+        l-load eq%5#0 0                                                                          aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,eq%5#0
+        assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>> aggregate%substring3%2#0,tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0
+        l-load aggregate%substring3%2#0 3                                                        tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,aggregate%substring3%2#0
+        extract 2 0                                                                              tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,tuple_of_tuples.0.0#0
+        l-load-copy aggregate%substring3%5#0 2                                                   tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,tuple_of_tuples.0.0#0,aggregate%substring3%5#0 (copy)
+        int 0                                                                                    tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,tuple_of_tuples.0.0#0,aggregate%substring3%5#0 (copy),0
+        extract_uint64                                                                           tuple_of_tuples.0.1#0,aggregate%substring3%5#0,aggregate%substring3%7#0,tuple_of_tuples.0.0#0,tuple_of_tuples.1.0#0
+        l-load aggregate%substring3%7#0 2                                                        tuple_of_tuples.0.1#0,aggregate%substring3%5#0,tuple_of_tuples.0.0#0,tuple_of_tuples.1.0#0,aggregate%substring3%7#0
+        extract 2 0                                                                              tuple_of_tuples.0.1#0,aggregate%substring3%5#0,tuple_of_tuples.0.0#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0
         // typed_abi_call/logger.py:128
         // return ("echo: " + string, "echo: " + arc4_string), (
-        byte "echo: "                                                                            tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: "
-        l-load tuple_of_tuples.0.0#0 5                                                           tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: ",tuple_of_tuples.0.0#0
-        concat                                                                                   tuple_of_tuples.0.1#0,aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0
-        l-load tuple_of_tuples.0.1#0 4                                                           aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,tuple_of_tuples.0.1#0
-        extract 2 0                                                                              aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0
-        byte 0x00066563686f3a20                                                                  aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0,0x00066563686f3a20
-        l-load extract_to_end%0#0 1                                                              aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,0x00066563686f3a20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                            aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0
-        l-load-copy concat%0#0 0                                                                 aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                              aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,extract_to_end%1#0
-        l-load extract_to_end%1#0 0                                                              aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,extract_to_end%1#0
-        len                                                                                      aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,len%0#0
-        l-load len%0#0 0                                                                         aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,len%0#0
-        itob                                                                                     aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                                    aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                              aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                      aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                               aggregate%substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0
+        byte "echo: "                                                                            tuple_of_tuples.0.1#0,aggregate%substring3%5#0,tuple_of_tuples.0.0#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: "
+        l-load tuple_of_tuples.0.0#0 3                                                           tuple_of_tuples.0.1#0,aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: ",tuple_of_tuples.0.0#0
+        concat                                                                                   tuple_of_tuples.0.1#0,aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0
+        l-load tuple_of_tuples.0.1#0 4                                                           aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,tuple_of_tuples.0.1#0
+        extract 2 0                                                                              aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0
+        byte 0x00066563686f3a20                                                                  aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0,0x00066563686f3a20
+        l-load extract_to_end%0#0 1                                                              aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,0x00066563686f3a20,extract_to_end%0#0
+        concat // on error: max array length exceeded                                            aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0
+        l-load-copy concat%0#0 0                                                                 aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,concat%0#0 (copy)
+        extract 2 0                                                                              aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,extract_to_end%1#0
+        l-load extract_to_end%1#0 0                                                              aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,extract_to_end%1#0
+        len                                                                                      aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,len%0#1
+        l-load len%0#1 0                                                                         aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,len%0#1
+        itob                                                                                     aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                    aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                              aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                      aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                               aggregate%substring3%5#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0
         // typed_abi_call/logger.py:129
         // u64 + 1,
-        l-load tuple_of_tuples.1.0#0 3                                                           aggregate%substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0
-        int 1                                                                                    aggregate%substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0,1
-        +                                                                                        aggregate%substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1
+        l-load tuple_of_tuples.1.0#0 3                                                           aggregate%substring3%5#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0
+        int 1                                                                                    aggregate%substring3%5#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0,1
+        +                                                                                        aggregate%substring3%5#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1
         // typed_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
-        l-load aggregate%substring3%3#0 4                                                        tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%substring3%3#0
+        l-load aggregate%substring3%5#0 4                                                        tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%substring3%5#0
         // typed_abi_call/logger.py:123
         // @arc4.abimethod
-        int 8                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%substring3%3#0,8
+        int 8                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%substring3%5#0,8
         // typed_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
         extract_uint64                                                                           tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,tmp%3#1
@@ -1190,8 +1247,8 @@ subroutine echo_nested_tuple:
         concat                                                                                   aggregate%concat%4#0
         byte 0x151f7c75                                                                          aggregate%concat%4#0,0x151f7c75
         l-load aggregate%concat%4#0 1                                                            0x151f7c75,aggregate%concat%4#0
-        concat                                                                                   tmp%12#0
-        l-load tmp%12#0 0                                                                        tmp%12#0
+        concat                                                                                   tmp%17#0
+        l-load tmp%17#0 0                                                                        tmp%17#0
         log
         int 1                                                                                    1
         return
@@ -1209,7 +1266,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%0#0,8
         ==                                                                                       eq%0#0
         l-load eq%0#0 0                                                                          eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 2                                                                   _a2#0
         l-load _a2#0 0                                                                           _a2#0
         len                                                                                      len%1#0
@@ -1217,7 +1274,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%1#0,8
         ==                                                                                       eq%1#0
         l-load eq%1#0 0                                                                          eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 3                                                                   _a3#0
         l-load _a3#0 0                                                                           _a3#0
         len                                                                                      len%2#0
@@ -1225,7 +1282,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%2#0,8
         ==                                                                                       eq%2#0
         l-load eq%2#0 0                                                                          eq%2#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 4                                                                   _a4#0
         l-load _a4#0 0                                                                           _a4#0
         len                                                                                      len%3#0
@@ -1233,7 +1290,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%3#0,8
         ==                                                                                       eq%3#0
         l-load eq%3#0 0                                                                          eq%3#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 5                                                                   _a5#0
         l-load _a5#0 0                                                                           _a5#0
         len                                                                                      len%4#0
@@ -1241,7 +1298,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%4#0,8
         ==                                                                                       eq%4#0
         l-load eq%4#0 0                                                                          eq%4#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 6                                                                   _a6#0
         l-load _a6#0 0                                                                           _a6#0
         len                                                                                      len%5#0
@@ -1249,7 +1306,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%5#0,8
         ==                                                                                       eq%5#0
         l-load eq%5#0 0                                                                          eq%5#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 7                                                                   _a7#0
         l-load _a7#0 0                                                                           _a7#0
         len                                                                                      len%6#0
@@ -1257,7 +1314,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%6#0,8
         ==                                                                                       eq%6#0
         l-load eq%6#0 0                                                                          eq%6#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 8                                                                   _a8#0
         l-load _a8#0 0                                                                           _a8#0
         len                                                                                      len%7#0
@@ -1265,7 +1322,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%7#0,8
         ==                                                                                       eq%7#0
         l-load eq%7#0 0                                                                          eq%7#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 9                                                                   _a9#0
         l-load _a9#0 0                                                                           _a9#0
         len                                                                                      len%8#0
@@ -1273,7 +1330,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%8#0,8
         ==                                                                                       eq%8#0
         l-load eq%8#0 0                                                                          eq%8#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 10                                                                  _a10#0
         l-load _a10#0 0                                                                          _a10#0
         len                                                                                      len%9#0
@@ -1281,7 +1338,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%9#0,8
         ==                                                                                       eq%9#0
         l-load eq%9#0 0                                                                          eq%9#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 11                                                                  _a11#0
         l-load _a11#0 0                                                                          _a11#0
         len                                                                                      len%10#0
@@ -1289,7 +1346,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%10#0,8
         ==                                                                                       eq%10#0
         l-load eq%10#0 0                                                                         eq%10#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 12                                                                  _a12#0
         l-load _a12#0 0                                                                          _a12#0
         len                                                                                      len%11#0
@@ -1297,7 +1354,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%11#0,8
         ==                                                                                       eq%11#0
         l-load eq%11#0 0                                                                         eq%11#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 13                                                                  _a13#0
         l-load _a13#0 0                                                                          _a13#0
         len                                                                                      len%12#0
@@ -1305,7 +1362,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%12#0,8
         ==                                                                                       eq%12#0
         l-load eq%12#0 0                                                                         eq%12#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 14                                                                  _a14#0
         l-load _a14#0 0                                                                          _a14#0
         len                                                                                      len%13#0
@@ -1313,7 +1370,7 @@ subroutine return_args_after_14th:
         int 8                                                                                    len%13#0,8
         ==                                                                                       eq%13#0
         l-load eq%13#0 0                                                                         eq%13#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 15                                                                  tmp%14#0
         l-load-copy tmp%14#0 0                                                                   tmp%14#0,tmp%14#0 (copy)
         len                                                                                      tmp%14#0,len%14#0
@@ -1321,7 +1378,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    tmp%14#0,len%14#0,9
         ==                                                                                       tmp%14#0,eq%14#0
         l-load eq%14#0 0                                                                         tmp%14#0,eq%14#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) tmp%14#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> tmp%14#0
         l-load tmp%14#0 0                                                                        tmp%14#0
         extract 0 1                                                                              a15#0
         txna ApplicationArgs 15                                                                  a15#0,tmp%15#0
@@ -1331,7 +1388,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    a15#0,tmp%15#0,len%15#0,9
         ==                                                                                       a15#0,tmp%15#0,eq%15#0
         l-load eq%15#0 0                                                                         a15#0,tmp%15#0,eq%15#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) a15#0,tmp%15#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> a15#0,tmp%15#0
         l-load tmp%15#0 0                                                                        a15#0,tmp%15#0
         extract 1 1                                                                              a15#0,a16#0
         txna ApplicationArgs 15                                                                  a15#0,a16#0,tmp%16#0
@@ -1341,7 +1398,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    a15#0,a16#0,tmp%16#0,len%16#0,9
         ==                                                                                       a15#0,a16#0,tmp%16#0,eq%16#0
         l-load eq%16#0 0                                                                         a15#0,a16#0,tmp%16#0,eq%16#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) a15#0,a16#0,tmp%16#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> a15#0,a16#0,tmp%16#0
         l-load tmp%16#0 0                                                                        a15#0,a16#0,tmp%16#0
         extract 2 1                                                                              a15#0,a16#0,a17#0
         txna ApplicationArgs 15                                                                  a15#0,a16#0,a17#0,tmp%17#0
@@ -1351,7 +1408,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    a15#0,a16#0,a17#0,tmp%17#0,len%17#0,9
         ==                                                                                       a15#0,a16#0,a17#0,tmp%17#0,eq%17#0
         l-load eq%17#0 0                                                                         a15#0,a16#0,a17#0,tmp%17#0,eq%17#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) a15#0,a16#0,a17#0,tmp%17#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> a15#0,a16#0,a17#0,tmp%17#0
         l-load tmp%17#0 0                                                                        a15#0,a16#0,a17#0,tmp%17#0
         extract 3 1                                                                              a15#0,a16#0,a17#0,a18#0
         txna ApplicationArgs 15                                                                  a15#0,a16#0,a17#0,a18#0,tmp%18#0
@@ -1361,7 +1418,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    a15#0,a16#0,a17#0,a18#0,tmp%18#0,len%18#0,9
         ==                                                                                       a15#0,a16#0,a17#0,a18#0,tmp%18#0,eq%18#0
         l-load eq%18#0 0                                                                         a15#0,a16#0,a17#0,a18#0,tmp%18#0,eq%18#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) a15#0,a16#0,a17#0,a18#0,tmp%18#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> a15#0,a16#0,a17#0,a18#0,tmp%18#0
         l-load tmp%18#0 0                                                                        a15#0,a16#0,a17#0,a18#0,tmp%18#0
         extract 4 4                                                                              a15#0,a16#0,a17#0,a18#0,a19#0
         txna ApplicationArgs 15                                                                  a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0
@@ -1371,7 +1428,7 @@ subroutine return_args_after_14th:
         int 9                                                                                    a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0,len%19#0,9
         ==                                                                                       a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0,eq%19#0
         l-load eq%19#0 0                                                                         a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0,eq%19#0
-        assert // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0
         l-load tmp%19#0 0                                                                        a15#0,a16#0,a17#0,a18#0,a19#0,tmp%19#0
         extract 8 1                                                                              a15#0,a16#0,a17#0,a18#0,a19#0,a20#0
         // typed_abi_call/logger.py:158
@@ -1428,33 +1485,65 @@ subroutine logs_are_equal:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                                    tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint64                                                                           tmp%0#0,log_1.level#0
-        l-load-copy tmp%0#0 1                                                                    tmp%0#0,log_1.level#0,tmp%0#0 (copy)
-        int 8                                                                                    tmp%0#0,log_1.level#0,tmp%0#0 (copy),8
-        extract_uint16                                                                           tmp%0#0,log_1.level#0,aggregate%extract_uint16%0#0
-        l-load-copy tmp%0#0 2                                                                    tmp%0#0,log_1.level#0,aggregate%extract_uint16%0#0,tmp%0#0 (copy)
-        len                                                                                      tmp%0#0,log_1.level#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        l-load tmp%0#0 3                                                                         log_1.level#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,tmp%0#0
-        l-load aggregate%extract_uint16%0#0 2                                                    log_1.level#0,aggregate%len%0#0,tmp%0#0,aggregate%extract_uint16%0#0
-        l-load aggregate%len%0#0 2                                                               log_1.level#0,tmp%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                               log_1.level#0,aggregate%substring3%0#0
-        l-load aggregate%substring3%0#0 0                                                        log_1.level#0,aggregate%substring3%0#0
+        int 8                                                                                    tmp%0#0,tmp%0#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                       tmp%0#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                         tmp%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 10                                                                                   tmp%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
+        ==                                                                                       tmp%0#0,extract_uint16%0#0,eq%0#0
+        l-load eq%0#0 0                                                                          tmp%0#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                       tmp%0#0,extract_uint16%0#0
+        l-load-copy tmp%0#0 1                                                                    tmp%0#0,extract_uint16%0#0,tmp%0#0 (copy)
+        len                                                                                      tmp%0#0,extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy tmp%0#0 2                                                                    tmp%0#0,extract_uint16%0#0,aggregate%len%0#0,tmp%0#0 (copy)
+        l-load extract_uint16%0#0 2                                                              tmp%0#0,aggregate%len%0#0,tmp%0#0 (copy),extract_uint16%0#0
+        l-load-copy aggregate%len%0#0 2                                                          tmp%0#0,aggregate%len%0#0,tmp%0#0 (copy),extract_uint16%0#0,aggregate%len%0#0 (copy)
+        substring3                                                                               tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0
+        l-load-copy aggregate%substring3%0#0 0                                                   tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
+        int 0                                                                                    tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                  tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                      tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%array_length%0#0
+        int 12                                                                                   tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,aggregate%array_length%0#0,12
+        +                                                                                        tmp%0#0,aggregate%len%0#0,aggregate%substring3%0#0,add%1#0
+        l-load aggregate%len%0#0 2                                                               tmp%0#0,aggregate%substring3%0#0,add%1#0,aggregate%len%0#0
+        l-load add%1#0 1                                                                         tmp%0#0,aggregate%substring3%0#0,aggregate%len%0#0,add%1#0
+        ==                                                                                       tmp%0#0,aggregate%substring3%0#0,eq%1#0
+        l-load eq%1#0 0                                                                          tmp%0#0,aggregate%substring3%0#0,eq%1#0
+        assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogMessage tmp%0#0,aggregate%substring3%0#0
+        l-load tmp%0#0 1                                                                         aggregate%substring3%0#0,tmp%0#0
+        int 0                                                                                    aggregate%substring3%0#0,tmp%0#0,0
+        extract_uint64                                                                           aggregate%substring3%0#0,log_1.level#0
+        l-load aggregate%substring3%0#0 1                                                        log_1.level#0,aggregate%substring3%0#0
         extract 2 0                                                                              log_1.level#0,log_1.message#0
-        txna ApplicationArgs 2                                                                   log_1.level#0,log_1.message#0,tmp%3#0
-        l-load-copy tmp%3#0 0                                                                    log_1.level#0,log_1.message#0,tmp%3#0,tmp%3#0 (copy)
-        int 0                                                                                    log_1.level#0,log_1.message#0,tmp%3#0,tmp%3#0 (copy),0
-        extract_uint64                                                                           log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0
-        l-load-copy tmp%3#0 1                                                                    log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0,tmp%3#0 (copy)
-        int 8                                                                                    log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0,tmp%3#0 (copy),8
-        extract_uint16                                                                           log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0,aggregate%extract_uint16%1#0
-        l-load-copy tmp%3#0 2                                                                    log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0,aggregate%extract_uint16%1#0,tmp%3#0 (copy)
-        len                                                                                      log_1.level#0,log_1.message#0,tmp%3#0,log_2.level#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
-        l-load tmp%3#0 3                                                                         log_1.level#0,log_1.message#0,log_2.level#0,aggregate%extract_uint16%1#0,aggregate%len%1#0,tmp%3#0
-        l-load aggregate%extract_uint16%1#0 2                                                    log_1.level#0,log_1.message#0,log_2.level#0,aggregate%len%1#0,tmp%3#0,aggregate%extract_uint16%1#0
-        l-load aggregate%len%1#0 2                                                               log_1.level#0,log_1.message#0,log_2.level#0,tmp%3#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
-        substring3                                                                               log_1.level#0,log_1.message#0,log_2.level#0,aggregate%substring3%1#0
-        l-load aggregate%substring3%1#0 0                                                        log_1.level#0,log_1.message#0,log_2.level#0,aggregate%substring3%1#0
+        txna ApplicationArgs 2                                                                   log_1.level#0,log_1.message#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                                    log_1.level#0,log_1.message#0,tmp%4#0,tmp%4#0 (copy)
+        int 8                                                                                    log_1.level#0,log_1.message#0,tmp%4#0,tmp%4#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                       log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0
+        l-load-copy extract_uint16%1#0 0                                                         log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
+        int 10                                                                                   log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,extract_uint16%1#0 (copy),10
+        ==                                                                                       log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,eq%2#0
+        l-load eq%2#0 0                                                                          log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,eq%2#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                       log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0
+        l-load-copy tmp%4#0 1                                                                    log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,tmp%4#0 (copy)
+        len                                                                                      log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,aggregate%len%2#0
+        l-load-copy tmp%4#0 2                                                                    log_1.level#0,log_1.message#0,tmp%4#0,extract_uint16%1#0,aggregate%len%2#0,tmp%4#0 (copy)
+        l-load extract_uint16%1#0 2                                                              log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,tmp%4#0 (copy),extract_uint16%1#0
+        l-load-copy aggregate%len%2#0 2                                                          log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,tmp%4#0 (copy),extract_uint16%1#0,aggregate%len%2#0 (copy)
+        substring3                                                                               log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0
+        l-load-copy aggregate%substring3%2#0 0                                                   log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy)
+        int 0                                                                                    log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                  log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                                      log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,aggregate%array_length%1#0
+        int 12                                                                                   log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,aggregate%array_length%1#0,12
+        +                                                                                        log_1.level#0,log_1.message#0,tmp%4#0,aggregate%len%2#0,aggregate%substring3%2#0,add%3#0
+        l-load aggregate%len%2#0 2                                                               log_1.level#0,log_1.message#0,tmp%4#0,aggregate%substring3%2#0,add%3#0,aggregate%len%2#0
+        l-load add%3#0 1                                                                         log_1.level#0,log_1.message#0,tmp%4#0,aggregate%substring3%2#0,aggregate%len%2#0,add%3#0
+        ==                                                                                       log_1.level#0,log_1.message#0,tmp%4#0,aggregate%substring3%2#0,eq%3#0
+        l-load eq%3#0 0                                                                          log_1.level#0,log_1.message#0,tmp%4#0,aggregate%substring3%2#0,eq%3#0
+        assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogMessage log_1.level#0,log_1.message#0,tmp%4#0,aggregate%substring3%2#0
+        l-load tmp%4#0 1                                                                         log_1.level#0,log_1.message#0,aggregate%substring3%2#0,tmp%4#0
+        int 0                                                                                    log_1.level#0,log_1.message#0,aggregate%substring3%2#0,tmp%4#0,0
+        extract_uint64                                                                           log_1.level#0,log_1.message#0,aggregate%substring3%2#0,log_2.level#0
+        l-load aggregate%substring3%2#0 1                                                        log_1.level#0,log_1.message#0,log_2.level#0,aggregate%substring3%2#0
         extract 2 0                                                                              log_1.level#0,log_1.message#0,log_2.level#0,log_2.message#0
         // typed_abi_call/logger.py:164
         // return log_1 == log_2
@@ -1475,8 +1564,8 @@ subroutine logs_are_equal:
         setbit                                                                                   aggregate%encoded_bool%0#0
         byte 0x151f7c75                                                                          aggregate%encoded_bool%0#0,0x151f7c75
         l-load aggregate%encoded_bool%0#0 1                                                      0x151f7c75,aggregate%encoded_bool%0#0
-        concat                                                                                   tmp%8#0
-        l-load tmp%8#0 0                                                                         tmp%8#0
+        concat                                                                                   tmp%10#0
+        l-load tmp%10#0 0                                                                        tmp%10#0
         log
         int 1                                                                                    1
         return
@@ -1488,10 +1577,35 @@ subroutine echo_log_struct:
         // typed_abi_call/logger.py:166
         // @arc4.abimethod
         txna ApplicationArgs 1                                                                   log#0
+        l-load-copy log#0 0                                                                      log#0,log#0 (copy)
+        int 8                                                                                    log#0,log#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                       log#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                         log#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 10                                                                                   log#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
+        ==                                                                                       log#0,extract_uint16%0#0,eq%0#0
+        l-load eq%0#0 0                                                                          log#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                       log#0,extract_uint16%0#0
+        l-load-copy log#0 1                                                                      log#0,extract_uint16%0#0,log#0 (copy)
+        len                                                                                      log#0,extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy log#0 2                                                                      log#0,extract_uint16%0#0,aggregate%len%0#0,log#0 (copy)
+        l-load extract_uint16%0#0 2                                                              log#0,aggregate%len%0#0,log#0 (copy),extract_uint16%0#0
+        l-load-copy aggregate%len%0#0 2                                                          log#0,aggregate%len%0#0,log#0 (copy),extract_uint16%0#0,aggregate%len%0#0 (copy)
+        substring3                                                                               log#0,aggregate%len%0#0,aggregate%substring3%0#0
+        l-load aggregate%substring3%0#0 0                                                        log#0,aggregate%len%0#0,aggregate%substring3%0#0
+        int 0                                                                                    log#0,aggregate%len%0#0,aggregate%substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                                  log#0,aggregate%len%0#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                      log#0,aggregate%len%0#0,aggregate%array_length%0#0
+        int 12                                                                                   log#0,aggregate%len%0#0,aggregate%array_length%0#0,12
+        +                                                                                        log#0,aggregate%len%0#0,add%1#0
+        l-load aggregate%len%0#0 1                                                               log#0,add%1#0,aggregate%len%0#0
+        l-load add%1#0 1                                                                         log#0,aggregate%len%0#0,add%1#0
+        ==                                                                                       log#0,eq%1#0
+        l-load eq%1#0 0                                                                          log#0,eq%1#0
+        assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct         log#0
         byte 0x151f7c75                                                                          log#0,0x151f7c75
         l-load log#0 1                                                                           0x151f7c75,log#0
-        concat                                                                                   tmp%2#0
-        l-load tmp%2#0 0                                                                         tmp%2#0
+        concat                                                                                   tmp%3#0
+        l-load tmp%3#0 0                                                                         tmp%3#0
         log
         int 1                                                                                    1
         return

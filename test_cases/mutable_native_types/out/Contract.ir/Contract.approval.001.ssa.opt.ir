@@ -359,7 +359,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing
         let pay#0: Encoded(uint8[32],uint64,uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len pay#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for (uint8[32],uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.contract.Payment
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#1: bool = (< maybe_value%0#0 2u)
@@ -381,12 +381,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[r
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let amt#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
@@ -408,7 +408,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let box_key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
@@ -457,7 +457,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[rout
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let box_key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         (app_global_del 0x70)
         let tmp%0#1: account = (txn Sender)
@@ -473,12 +473,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let box_key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let a#0: Encoded(uint64,uint64) = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len a#0)
         let eq%1#0: bool = (== len%1#0 16u)
-        (assert eq%1#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%1#0) // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%0#0, 0, a#0)
@@ -560,7 +560,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len arr#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
         let tmp%0#1: uint64 = array_len(arr#0)
         let tmp%1#1: bool = (! tmp%0#1)
         (assert tmp%1#1) // expected empty array
@@ -701,7 +701,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[r
         let arg#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
         let tmp%0#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(1u, 2u)
         switch arg#0 {tmp%0#1 => block@2, * => block@3}
     block@2: // switch_case_0_L265

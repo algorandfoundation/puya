@@ -25,7 +25,7 @@ main_verify_route@3:
     bury 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dup
     bury 4
     intc_1 // 32
@@ -35,13 +35,13 @@ main_verify_route@3:
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     intc_0 // 0
     bytec_0 // "root"
     app_global_get_ex
@@ -114,7 +114,7 @@ main_create_route@6:
     len
     intc_1 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     bytec_0 // "root"
     swap
     app_global_put

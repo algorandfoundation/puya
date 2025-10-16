@@ -170,7 +170,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
         let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 0u)
         let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%0#0 1u) // on error: index access is out of bounds
         let aggregate%end_of_array%0#0: uint64 = (len aggregate%array_head_and_tail%0#0)
@@ -187,7 +187,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 maybe_value%1#0 0u) // on error: invalid array length header
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 0u)
         let aggregate%has_next%1#0: uint64 = (- aggregate%array_length%2#0 1u) // on error: index access is out of bounds
         let aggregate%end_of_array%1#0: uint64 = (len aggregate%array_head_and_tail%1#0)
@@ -203,7 +203,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
         (assert aggregate%box_get%1#0) // check self.box exists
         let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) aggregate%box_get%0#0)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%box_get%0#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%box_get%0#0 0u) // on error: invalid array length header
         let aggregate%item_offset%4#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 0u)
         let aggregate%has_next%2#0: uint64 = (- aggregate%array_length%4#0 1u) // on error: index access is out of bounds
         let aggregate%end_of_array%2#0: uint64 = (len aggregate%array_head_and_tail%2#0)
@@ -222,7 +222,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#0) // check self.map entry exists
         let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) aggregate%box_get%2#0)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 aggregate%box_get%2#0 0u)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 aggregate%box_get%2#0 0u) // on error: invalid array length header
         let aggregate%item_offset%6#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%3#0 0u)
         let aggregate%has_next%3#0: uint64 = (- aggregate%array_length%6#0 1u) // on error: index access is out of bounds
         let aggregate%end_of_array%3#0: uint64 = (len aggregate%array_head_and_tail%3#0)

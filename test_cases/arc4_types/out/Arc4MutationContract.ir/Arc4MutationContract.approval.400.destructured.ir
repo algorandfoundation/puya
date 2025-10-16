@@ -4,7 +4,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%6#1: bool = (== dynamic_bool_array#1 0x0004a0)
         (assert tmp%6#1)
         let extract_to_end%0#1: bytes = ((extract 2 0) dynamic_bool_array#1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#1 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#1 0u) // on error: invalid array length header
         let dynamic_bool_array#1: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#1, extract_to_end%0#1, aggregate%array_length%0#0, 1u)
         let tmp%21#0: bool = (== dynamic_bool_array#1 0x0008aa)
         (assert tmp%21#0)
@@ -25,7 +25,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%5#2: bool = (== dynamic_string_array#1 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%5#2)
         let extract_to_end%0#1: bytes = ((extract 2 0) dynamic_string_array#1)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#1 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#1 0u) // on error: invalid array length header
         let start_of_tail%0#0: uint64 = (* aggregate%array_length%1#0 2u)
         let total_length%1#1: uint64 = (len extract_to_end%0#1)
         let data%0#0: bytes = (substring3 extract_to_end%0#1 start_of_tail%0#0 total_length%1#1)
@@ -33,7 +33,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%7#2: bool = (== dynamic_string_array#1 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%7#2)
         let dynamic_string_array#1: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172, 0x000548656c6c6f, 3u)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#1 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#1 0u) // on error: invalid array length header
         let aggregate%lt%2#0: bool = (< 5u aggregate%array_length%4#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let dynamic_string_array#1: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#1, 0x000548656c6c6f, 5u)
@@ -54,7 +54,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%2#3: bool = (== array_of_array#1 0x00020004000700010a000110)
         (assert tmp%2#3)
         let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array_of_array#1)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 array_of_array#1 0u)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 array_of_array#1 0u) // on error: invalid array length header
         (assert aggregate%array_length%6#0) // index access is out of bounds
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 0u)
         let aggregate%item_length%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset%2#0)
@@ -70,7 +70,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%4#3: bool = (== array_of_array#1 0x00020004000800020aff000110)
         (assert tmp%4#3)
         let aggregate%array_head_and_tail%4#0: bytes = ((extract 2 0) array_of_array#1)
-        let aggregate%array_length%9#0: uint64 = (extract_uint16 array_of_array#1 0u)
+        let aggregate%array_length%9#0: uint64 = (extract_uint16 array_of_array#1 0u) // on error: invalid array length header
         (assert aggregate%array_length%9#0) // index access is out of bounds
         let aggregate%item_offset%4#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%4#0 0u)
         let aggregate%item_length%4#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%4#0 aggregate%item_offset%4#0)

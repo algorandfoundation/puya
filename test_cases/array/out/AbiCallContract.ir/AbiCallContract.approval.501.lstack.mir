@@ -60,7 +60,7 @@ subroutine test_implicit_conversion_abi_call:
         txna ApplicationArgs 1                                                                    arr#0
         l-load-copy arr#0 0                                                                       arr#0,arr#0 (copy)
         int 0                                                                                     arr#0,arr#0 (copy),0
-        extract_uint16                                                                            arr#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                   arr#0,aggregate%array_length%0#0
         l-load aggregate%array_length%0#0 0                                                       arr#0,aggregate%array_length%0#0
         int 8                                                                                     arr#0,aggregate%array_length%0#0,8
         *                                                                                         arr#0,mul%0#0
@@ -73,7 +73,7 @@ subroutine test_implicit_conversion_abi_call:
         l-load add%0#0 1                                                                          arr#0,len%0#0,add%0#0
         ==                                                                                        arr#0,eq%0#0
         l-load eq%0#0 0                                                                           arr#0,eq%0#0
-        assert // invalid number of bytes for (len+uint64[])                                      arr#0
+        assert // invalid number of bytes for arc4.dynamic_array<uint64>                          arr#0
         txna ApplicationArgs 2                                                                    arr#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                                     arr#0,tmp%1#0,tmp%1#0 (copy)
         len                                                                                       arr#0,tmp%1#0,len%1#0
@@ -81,7 +81,7 @@ subroutine test_implicit_conversion_abi_call:
         int 8                                                                                     arr#0,tmp%1#0,len%1#0,8
         ==                                                                                        arr#0,tmp%1#0,eq%1#0
         l-load eq%1#0 0                                                                           arr#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for uint64                                              arr#0,tmp%1#0
+        assert // invalid number of bytes for arc4.uint64                                         arr#0,tmp%1#0
         l-load tmp%1#0 0                                                                          arr#0,tmp%1#0
         btoi                                                                                      arr#0,app#0
         l-store-copy app#0 0                                                                      arr#0,app#0,app#0 (copy)

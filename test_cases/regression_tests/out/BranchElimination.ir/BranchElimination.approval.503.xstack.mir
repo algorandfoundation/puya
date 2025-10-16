@@ -214,35 +214,109 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         txna ApplicationArgs 1                                             nested_list#0
-        l-store-copy nested_list#0 0                                       nested_list#0,nested_list#0 (copy)
-        v-store nested_list#0                                              nested_list#0
-        txna ApplicationArgs 2                                             nested_list#0,threshold#0
-        l-store-copy threshold#0 0                                         nested_list#0,threshold#0,threshold#0 (copy)
-        v-store threshold#0                                                nested_list#0,threshold#0
-        l-load threshold#0 0                                               nested_list#0,threshold#0
-        len                                                                nested_list#0,len%0#0
-        int 8                                                              nested_list#0,len%0#0,8
-        ==                                                                 nested_list#0,eq%0#0
-        assert // invalid number of bytes for uint64                       nested_list#0
+        l-load-copy nested_list#0 0                                        nested_list#0,nested_list#0 (copy)
+        int 0                                                              nested_list#0,nested_list#0 (copy),0
+        extract_uint16 // on error: invalid array length header            nested_list#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                          nested_list#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                 nested_list#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                nested_list#0,aggregate%array_length%0#0
+        int 2                                                              nested_list#0,aggregate%array_length%0#0,2
+        *                                                                  nested_list#0,num_bytes%0#0
+        v-store num_bytes%0#0                                              nested_list#0
+        l-load-copy nested_list#0 0                                        nested_list#0,nested_list#0 (copy)
+        len                                                                nested_list#0,total_length%0#0
+        v-store total_length%0#0                                           nested_list#0
+        l-load nested_list#0 0                                             nested_list#0
+        extract 2 0                                                        array_data%0#0
+        v-store array_data%0#0
+        int 0                                                              0
+        v-store index%0#0
+        b calculate_for_header@1
+
+    calculate_for_header@1:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load index%0#0                                                   index%0#0
+        v-load aggregate%array_length%0#0                                  index%0#0,aggregate%array_length%0#0
+        <                                                                  continue_looping%0#0
+        bz calculate_after_for@4 ; b calculate_for_body@2
+
+    calculate_for_body@2:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load index%0#0                                                   index%0#0
+        l-store-copy index%0#0 0                                           index%0#0,index%0#0 (copy)
+        int 2                                                              index%0#0,index%0#0 (copy),2
+        *                                                                  index%0#0,head_offset_bytes%0#0
+        v-load array_data%0#0                                              index%0#0,head_offset_bytes%0#0,array_data%0#0
+        l-store-copy array_data%0#0 1                                      index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
+        l-load head_offset_bytes%0#0 1                                     index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                 index%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy item_offset%0#0 0                                      index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
+        v-load num_bytes%0#0                                               index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
+        l-store-copy num_bytes%0#0 3                                       index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
+        ==                                                                 index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])          index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy array_data%0#0 1                                       index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
+        l-load-copy item_offset%0#0 1                                      index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy),item_offset%0#0 (copy)
+        extract_uint16                                                     index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_length%0#0
+        int 8                                                              index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_length%0#0,8
+        *                                                                  index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_length_in_bytes%0#0
+        int 2                                                              index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_length_in_bytes%0#0,2
+        +                                                                  index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_head_tail_length%0#0
+        l-load array_data%0#0 2                                            index%0#0,num_bytes%0#0,item_offset%0#0,aggregate%item_head_tail_length%0#0,array_data%0#0
+        l-load item_offset%0#0 2                                           index%0#0,num_bytes%0#0,aggregate%item_head_tail_length%0#0,array_data%0#0,item_offset%0#0
+        l-load aggregate%item_head_tail_length%0#0 2                       index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,aggregate%item_head_tail_length%0#0
+        extract3                                                           index%0#0,num_bytes%0#0,aggregate%item%0#0
+        int 0                                                              index%0#0,num_bytes%0#0,aggregate%item%0#0,0
+        extract_uint16 // on error: invalid array length header            index%0#0,num_bytes%0#0,aggregate%array_length%1#0
+        int 8                                                              index%0#0,num_bytes%0#0,aggregate%array_length%1#0,8
+        *                                                                  index%0#0,num_bytes%0#0,mul%0#0
+        int 2                                                              index%0#0,num_bytes%0#0,mul%0#0,2
+        +                                                                  index%0#0,num_bytes%0#0,add%0#0
+        l-load num_bytes%0#0 1                                             index%0#0,add%0#0,num_bytes%0#0
+        l-load add%0#0 1                                                   index%0#0,num_bytes%0#0,add%0#0
+        +                                                                  index%0#0,num_bytes%0#0
+        v-store num_bytes%0#0                                              index%0#0
+        l-load index%0#0 0                                                 index%0#0
+        int 1                                                              index%0#0,1
+        +                                                                  index%0#0
+        v-store index%0#0
+        b calculate_for_header@1
+
+    calculate_after_for@4:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load num_bytes%0#0                                               num_bytes%0#0
+        int 2                                                              num_bytes%0#0,2
+        +                                                                  num_bytes%1#0
+        v-load total_length%0#0                                            num_bytes%1#0,total_length%0#0
+        l-load num_bytes%1#0 1                                             total_length%0#0,num_bytes%1#0
+        ==                                                                 eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>> 
+        txna ApplicationArgs 2                                             threshold#0
+        l-store-copy threshold#0 0                                         threshold#0,threshold#0 (copy)
+        v-store threshold#0                                                threshold#0
+        l-load threshold#0 0                                               threshold#0
+        len                                                                len%1#0
+        int 8                                                              len%1#0,8
+        ==                                                                 eq%1#0
+        assert // invalid number of bytes for arc4.uint64
         // regression_tests/leftover_branch.py:35
         // total = UInt64(0)
-        int 0                                                              nested_list#0,0
-        v-store total#0                                                    nested_list#0
+        int 0                                                              0
+        v-store total#0
         // regression_tests/leftover_branch.py:36
         // num_boosts = UInt64(0)
-        int 0                                                              nested_list#0,0
-        v-store num_boosts#0                                               nested_list#0
+        int 0                                                              0
+        v-store num_boosts#0
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
-        l-load nested_list#0 0                                             nested_list#0
-        int 0                                                              nested_list#0,0
-        extract_uint16                                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
         int 0                                                              value_internal%0#0
         v-store i#0
-        b calculate_for_header@2
+        b calculate_for_header@6
 
-    calculate_for_header@2:
+    calculate_for_header@6:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                         i#0
@@ -251,31 +325,30 @@ subroutine calculate:
         l-store-copy continue_looping%0#0 0                                continue_looping%0#0,continue_looping%0#0 (copy)
         v-store continue_looping%0#0                                       continue_looping%0#0
         l-load continue_looping%0#0 0                                      continue_looping%0#0
-        bz calculate_after_for@15 ; b calculate_for_body@3
+        bz calculate_after_for@19 ; b calculate_for_body@7
 
-    calculate_for_body@3:
+    calculate_for_body@7:
         // regression_tests/leftover_branch.py:39
         // inner_list = nested_list[i].copy()
-        v-load nested_list#0                                               nested_list#0
-        extract 2 0                                                        aggregate%array_head_and_tail%0#0
-        v-load continue_looping%0#0                                        aggregate%array_head_and_tail%0#0,continue_looping%0#0
-        assert // index access is out of bounds                            aggregate%array_head_and_tail%0#0
-        v-load i#0                                                         aggregate%array_head_and_tail%0#0,i#0
-        int 2                                                              aggregate%array_head_and_tail%0#0,i#0,2
-        *                                                                  aggregate%array_head_and_tail%0#0,aggregate%item_offset_offset%0#0
-        l-load-copy aggregate%array_head_and_tail%0#0 1                    aggregate%array_head_and_tail%0#0,aggregate%item_offset_offset%0#0,aggregate%array_head_and_tail%0#0 (copy)
-        l-load aggregate%item_offset_offset%0#0 1                          aggregate%array_head_and_tail%0#0,aggregate%array_head_and_tail%0#0 (copy),aggregate%item_offset_offset%0#0
-        extract_uint16                                                     aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
-        l-load-copy aggregate%array_head_and_tail%0#0 1                    aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%array_head_and_tail%0#0 (copy)
-        l-load-copy aggregate%item_offset%0#0 1                            aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%array_head_and_tail%0#0 (copy),aggregate%item_offset%0#0 (copy)
-        extract_uint16                                                     aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_length%0#0
-        int 8                                                              aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_length%0#0,8
-        *                                                                  aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_length_in_bytes%0#0
-        int 2                                                              aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_length_in_bytes%0#0,2
-        +                                                                  aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
-        l-load aggregate%array_head_and_tail%0#0 2                         aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0,aggregate%array_head_and_tail%0#0
-        l-load aggregate%item_offset%0#0 2                                 aggregate%item_head_tail_length%0#0,aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
-        l-load aggregate%item_head_tail_length%0#0 2                       aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
+        v-load continue_looping%0#0                                        continue_looping%0#0
+        assert // index access is out of bounds
+        v-load i#0                                                         i#0
+        int 2                                                              i#0,2
+        *                                                                  aggregate%item_offset_offset%1#0
+        v-load array_data%0#0                                              aggregate%item_offset_offset%1#0,array_data%0#0
+        l-store-copy array_data%0#0 1                                      array_data%0#0,aggregate%item_offset_offset%1#0,array_data%0#0 (copy)
+        l-load aggregate%item_offset_offset%1#0 1                          array_data%0#0,array_data%0#0 (copy),aggregate%item_offset_offset%1#0
+        extract_uint16                                                     array_data%0#0,aggregate%item_offset%1#0
+        l-load-copy array_data%0#0 1                                       array_data%0#0,aggregate%item_offset%1#0,array_data%0#0 (copy)
+        l-load-copy aggregate%item_offset%1#0 1                            array_data%0#0,aggregate%item_offset%1#0,array_data%0#0 (copy),aggregate%item_offset%1#0 (copy)
+        extract_uint16                                                     array_data%0#0,aggregate%item_offset%1#0,aggregate%item_length%1#0
+        int 8                                                              array_data%0#0,aggregate%item_offset%1#0,aggregate%item_length%1#0,8
+        *                                                                  array_data%0#0,aggregate%item_offset%1#0,aggregate%item_length_in_bytes%1#0
+        int 2                                                              array_data%0#0,aggregate%item_offset%1#0,aggregate%item_length_in_bytes%1#0,2
+        +                                                                  array_data%0#0,aggregate%item_offset%1#0,aggregate%item_head_tail_length%1#0
+        l-load array_data%0#0 2                                            aggregate%item_offset%1#0,aggregate%item_head_tail_length%1#0,array_data%0#0
+        l-load aggregate%item_offset%1#0 2                                 aggregate%item_head_tail_length%1#0,array_data%0#0,aggregate%item_offset%1#0
+        l-load aggregate%item_head_tail_length%1#0 2                       array_data%0#0,aggregate%item_offset%1#0,aggregate%item_head_tail_length%1#0
         extract3                                                           inner_list#0
         l-store-copy inner_list#0 0                                        inner_list#0,inner_list#0 (copy)
         v-store inner_list#0                                               inner_list#0
@@ -283,28 +356,28 @@ subroutine calculate:
         // last_inner_list_index = inner_list.length - 1
         l-load inner_list#0 0                                              inner_list#0
         int 0                                                              inner_list#0,0
-        extract_uint16                                                     aggregate%array_length%2#0
-        l-store-copy aggregate%array_length%2#0 0                          aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
-        v-store aggregate%array_length%2#0                                 aggregate%array_length%2#0
-        l-load aggregate%array_length%2#0 0                                aggregate%array_length%2#0
-        int 1                                                              aggregate%array_length%2#0,1
+        extract_uint16 // on error: invalid array length header            aggregate%array_length%4#0
+        l-store-copy aggregate%array_length%4#0 0                          aggregate%array_length%4#0,aggregate%array_length%4#0 (copy)
+        v-store aggregate%array_length%4#0                                 aggregate%array_length%4#0
+        l-load aggregate%array_length%4#0 0                                aggregate%array_length%4#0
+        int 1                                                              aggregate%array_length%4#0,1
         -                                                                  last_inner_list_index#0
         v-store last_inner_list_index#0
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         int 0                                                              value_internal%1#0
         v-store j#0
-        b calculate_for_header@4
+        b calculate_for_header@8
 
-    calculate_for_header@4:
+    calculate_for_header@8:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                         j#0
-        v-load aggregate%array_length%2#0                                  j#0,aggregate%array_length%2#0
+        v-load aggregate%array_length%4#0                                  j#0,aggregate%array_length%4#0
         <                                                                  continue_looping%1#0
-        bz calculate_after_for@13 ; b calculate_for_body@5
+        bz calculate_after_for@17 ; b calculate_for_body@9
 
-    calculate_for_body@5:
+    calculate_for_body@9:
         // regression_tests/leftover_branch.py:42
         // value = inner_list[j]
         v-load inner_list#0                                                inner_list#0
@@ -325,9 +398,9 @@ subroutine calculate:
         l-load value#0 0                                                   value#0
         v-load threshold#0                                                 value#0,threshold#0
         b>=                                                                tmp%4#0
-        bz calculate_after_if_else@11 ; b calculate_if_body@6
+        bz calculate_after_if_else@15 ; b calculate_if_body@10
 
-    calculate_if_body@6:
+    calculate_if_body@10:
         // regression_tests/leftover_branch.py:44
         // has_next = j < last_inner_list_index
         v-load j#0                                                         j#0
@@ -335,9 +408,9 @@ subroutine calculate:
         <                                                                  has_next#0
         // regression_tests/leftover_branch.py:45
         // if has_next:
-        bz calculate_after_if_else@11 ; b calculate_if_body@7
+        bz calculate_after_if_else@15 ; b calculate_if_body@11
 
-    calculate_if_body@7:
+    calculate_if_body@11:
         // regression_tests/leftover_branch.py:46
         // total += 1
         v-load total#0                                                     total#0
@@ -360,9 +433,9 @@ subroutine calculate:
         v-load value#0                                                     next_value#0,value#0
         l-load next_value#0 1                                              value#0,next_value#0
         b<                                                                 tmp%8#0
-        bz calculate_after_if_else@11 ; b calculate_if_body@8
+        bz calculate_after_if_else@15 ; b calculate_if_body@12
 
-    calculate_if_body@8:
+    calculate_if_body@12:
         // regression_tests/leftover_branch.py:49
         // total *= 2
         v-load total#0                                                     total#0
@@ -375,27 +448,27 @@ subroutine calculate:
         int 1                                                              num_boosts#0,1
         +                                                                  num_boosts#0
         v-store num_boosts#0
-        b calculate_after_if_else@11
+        b calculate_after_if_else@15
 
-    calculate_after_if_else@11:
+    calculate_after_if_else@15:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                         j#0
         int 1                                                              j#0,1
         +                                                                  value_internal%1#0
         v-store j#0
-        b calculate_for_header@4
+        b calculate_for_header@8
 
-    calculate_after_for@13:
+    calculate_after_for@17:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                         i#0
         int 1                                                              i#0,1
         +                                                                  value_internal%0#0
         v-store i#0
-        b calculate_for_header@2
+        b calculate_for_header@6
 
-    calculate_after_for@15:
+    calculate_after_for@19:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         int 1                                                              1

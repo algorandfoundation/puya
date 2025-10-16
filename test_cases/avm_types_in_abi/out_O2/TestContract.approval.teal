@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 64 2
+    intcblock 0 1 2 64
     bytecblock 0x151f7c75
     txn OnCompletion
     !
@@ -21,14 +21,14 @@ main_tuple_of_arc4_route@3:
     len
     pushint 33 // 33
     ==
-    assert // invalid number of bytes for (uint8,uint8[32])
+    assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.static_array<arc4.uint8, 32>>
     dup
     extract 0 1
     dig 1
     extract 1 32
     swap
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert
     len
@@ -39,7 +39,7 @@ main_tuple_of_arc4_route@3:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_create_NoOp@5:
@@ -52,73 +52,98 @@ main_create_route@6:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
-    intc_1 // 0
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
     getbit
     txna ApplicationArgs 2
     dup
     len
     pushint 8 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 3
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_3 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
     dup
     len
     dup
-    intc_2 // 64
+    intc_3 // 64
     ==
-    assert // invalid number of bytes for uint512
+    assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 5
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_3 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 6
     dup
-    intc_1 // 0
-    getbit
-    dig 1
-    intc_0 // 1
-    extract_uint64
-    dig 2
     pushint 9 // 9
-    extract_uint16
-    dig 3
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 77 // 77
+    ==
+    assert // invalid tail pointer at index 2 of (bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))
+    dig 1
     pushint 75 // 75
     extract_uint16
-    dig 4
+    dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
-    dig 4
-    extract 11 64
-    dig 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 79 // 79
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 4 of (bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))
+    dig 3
     len
-    uncover 6
+    dig 4
     uncover 4
-    uncover 2
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.bool,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.uint512,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    intc_0 // 0
+    getbit
+    dig 3
+    intc_1 // 1
+    extract_uint64
+    uncover 3
+    extract 2 0
+    uncover 4
+    extract 11 64
+    uncover 4
     extract 2 0
     dig 10
     uncover 5
@@ -141,7 +166,7 @@ main_create_route@6:
     &&
     assert
     pushbytes 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 7
     setbit
     uncover 5
@@ -161,10 +186,10 @@ main_create_route@6:
     pushint 77 // 77
     +
     uncover 4
-    intc_2 // 64
+    intc_3 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_3 // 64
     bzero
     uncover 5
     b|
@@ -191,5 +216,5 @@ main_create_route@6:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return

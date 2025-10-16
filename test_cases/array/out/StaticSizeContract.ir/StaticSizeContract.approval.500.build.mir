@@ -236,7 +236,7 @@ subroutine test_array:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 2                                                                    tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                            tmp%1#0
@@ -247,7 +247,7 @@ subroutine test_array:
         ==                                                                                        eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                             eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%1#0                                                                            tmp%1#0
         btoi                                                                                      y1#0
         v-store y1#0
@@ -261,7 +261,7 @@ subroutine test_array:
         ==                                                                                        eq%2#0
         v-store eq%2#0
         v-load eq%2#0                                                                             eq%2#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         txna ApplicationArgs 4                                                                    tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                            tmp%4#0
@@ -272,7 +272,7 @@ subroutine test_array:
         ==                                                                                        eq%3#0
         v-store eq%3#0
         v-load eq%3#0                                                                             eq%3#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%4#0                                                                            tmp%4#0
         btoi                                                                                      y2#0
         v-store y2#0
@@ -782,7 +782,7 @@ subroutine test_extend_from_tuple:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+        assert // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More> 
         v-load tmp%0#0                                                                            tmp%0#0
         extract 0 16                                                                              some_more.0#0
         v-store some_more.0#0
@@ -843,7 +843,7 @@ subroutine test_extend_from_tuple:
         // assert result[-1] == last
         v-load result#0                                                                           result#0
         int 0                                                                                     result#0,0
-        extract_uint16                                                                            aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                   aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
         int 1                                                                                     aggregate%array_length%0#0,1
@@ -894,7 +894,7 @@ subroutine test_extend_from_arc4_tuple:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+        assert // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More> 
         // array/static_size.py:74
         // arr.extend(some_more)
         v-load some_more#0                                                                        some_more#0
@@ -942,7 +942,7 @@ subroutine test_bool_array:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                            tmp%0#0
         btoi                                                                                      length#0
         v-store length#0
@@ -1139,7 +1139,7 @@ subroutine test_arc4_conversion:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                            tmp%0#0
         btoi                                                                                      length#0
         v-store length#0
@@ -1322,7 +1322,7 @@ subroutine sum_array:
         v-store arc4_arr#0
         v-load arc4_arr#0                                                                         arc4_arr#0
         int 0                                                                                     arc4_arr#0,0
-        extract_uint16                                                                            aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                   aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
         int 8                                                                                     aggregate%array_length%0#0,8
@@ -1340,7 +1340,7 @@ subroutine sum_array:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for (len+uint64[])
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         // array/static_size.py:117
         // arr.extend(arc4_arr)
         v-load arc4_arr#0                                                                         arc4_arr#0
@@ -1474,7 +1474,7 @@ subroutine test_arc4_bool:
         // assert dyn_arr.length == 2, "expected correct length"
         v-load dyn_arr#1                                                                          dyn_arr#1
         int 0                                                                                     dyn_arr#1,0
-        extract_uint16                                                                            aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                   aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
         int 2                                                                                     aggregate%array_length%0#0,2

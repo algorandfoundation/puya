@@ -326,7 +326,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() ->
         let encoded_array%5#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%2#0
         let total_length%0#0: uint64 = (len encoded_array%5#0)
         let extract_to_end%0#0: bytes = (substring3 encoded_array%5#0 2u total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded_array%5#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded_array%5#0 0u) // on error: invalid array length header
         let tmp%8#0: uint64 = aggregate%array_length%0#0
         let start_of_tail%0#0: uint64 = (* tmp%8#0 2u)
         let total_length%1#0: uint64 = (len extract_to_end%0#0)
@@ -368,7 +368,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         (assert tmp%2#0)
         let aggregate%total_length%0#0: uint64 = (len array_of_array#0)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 array_of_array#0 2u aggregate%total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 array_of_array#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 array_of_array#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%0#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* 0u 2u)
@@ -388,10 +388,10 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 array_of_array#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 array_of_array#0 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< 0u aggregate%array_length%1#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 array_of_array#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 array_of_array#0 0u) // on error: invalid array length header
         let aggregate%lt%2#0: bool = (< 0u aggregate%array_length%2#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, as_Encoded(len+uint8[])%0#0, 0u)
@@ -401,7 +401,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         (assert tmp%4#0)
         let aggregate%total_length%2#0: uint64 = (len array_of_array#0)
         let aggregate%array_head_and_tail%2#0: bytes = (substring3 array_of_array#0 2u aggregate%total_length%2#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 array_of_array#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 array_of_array#0 0u) // on error: invalid array length header
         let aggregate%lt%3#0: bool = (< 0u aggregate%array_length%3#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%item_offset_offset%2#0: uint64 = (* 0u 2u)
@@ -413,7 +413,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let aggregate%write_offset%0#0: uint64 = (* 1u 1u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
         let aggregate%updated_array%1#0: bytes = (replace3 aggregate%item%2#0 aggregate%write_offset_with_length_header%0#0 0x00) // on error: index access is out of bounds
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 array_of_array#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 array_of_array#0 0u) // on error: invalid array length header
         let aggregate%lt%4#0: bool = (< 0u aggregate%array_length%4#0)
         (assert aggregate%lt%4#0) // index access is out of bounds
         let aggregate%updated_array%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#0, aggregate%updated_array%1#0, 0u)
@@ -509,10 +509,10 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let aggregate%get_bit%1#0: bool = (getbit tmp%4#0 0u)
         let aggregate%as_Encoded(bool1)%0#0: Encoded(bool1) = aggregate%get_bit%1#0
         let encoded_value%0#0: Encoded(bool1) = aggregate%as_Encoded(bool1)%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%0#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< 0u aggregate%array_length%1#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%write_offset_with_length_header%1#0: uint64 = (+ 0u 16u)
@@ -851,7 +851,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_boo
         (assert tmp%11#0)
         let total_length%0#0: uint64 = (len dynamic_bool_array#0)
         let extract_to_end%0#0: bytes = (substring3 dynamic_bool_array#0 2u total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%0#0
         let as_Encoded(len+bool1[])%1#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, extract_to_end%0#0, tmp%12#0, 1u)
         let dynamic_bool_array#0: Encoded(len+bool1[]) = as_Encoded(len+bool1[])%1#0
@@ -1072,7 +1072,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         (assert tmp%5#0)
         let total_length%0#0: uint64 = (len dynamic_string_array#0)
         let extract_to_end%0#0: bytes = (substring3 dynamic_string_array#0 2u total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let tmp%6#0: uint64 = aggregate%array_length%0#0
         let start_of_tail%0#0: uint64 = (* tmp%6#0 2u)
         let total_length%1#0: uint64 = (len extract_to_end%0#0)
@@ -1182,19 +1182,19 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let aggregate%as_Encoded(len+(len+utf8[])[])%2#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%17#0
         let encoded_array%2#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%2#0
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = encoded_array%2#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< 3u aggregate%array_length%1#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< 3u aggregate%array_length%2#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#0, hello#0, 3u)
         let updated_array%0#0: Encoded(len+(len+utf8[])[]) = aggregate%updated_array%0#0
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = updated_array%0#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let aggregate%lt%2#0: bool = (< 5u aggregate%array_length%3#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let aggregate%lt%3#0: bool = (< 5u aggregate%array_length%4#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#0, hello#0, 5u)

@@ -24,7 +24,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arg#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
         (app_global_put "fixed_struct" arg#0)
         exit 1u
     block@9: // fixed_struct_ret_route_L57
@@ -37,7 +37,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arg#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 24u)
-        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
         (app_global_put "nested_struct" arg#0)
         exit 1u
     block@11: // nested_struct_ret_route_L65
@@ -48,6 +48,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@12: // dynamic_struct_arg_route_L69
         let arg#0: bytes = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 16u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 22u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 arg#0 18u)
+        let aggregate%substring3%0#0: bytes = (substring3 arg#0 extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%0#0 24u)
+        let eq%1#0: bool = (== aggregate%extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 arg#0 20u)
+        let aggregate%substring3%1#0: bytes = (substring3 arg#0 aggregate%extract_uint16%1#0 aggregate%extract_uint16%3#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%substring3%1#0 0u) // on error: invalid array length header
+        let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let eq%2#0: bool = (== aggregate%extract_uint16%3#0 add%3#0)
+        (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let aggregate%len%0#0: uint64 = (len arg#0)
+        let aggregate%substring3%2#0: bytes = (substring3 arg#0 aggregate%extract_uint16%3#0 aggregate%len%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
+        let mul%2#0: uint64 = (* aggregate%array_length%2#0 16u)
+        let add%4#0: uint64 = (+ mul%2#0 2u)
+        let add%5#0: uint64 = (+ add%3#0 add%4#0)
+        let eq%3#0: bool = (== aggregate%len%0#0 add%5#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         (app_global_put "dynamic_struct" arg#0)
         exit 1u
     block@13: // dynamic_struct_ret_route_L73
@@ -60,7 +84,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arg#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
         (app_global_put "fixed_arr" arg#0)
         exit 1u
     block@15: // fixed_arr_ret_route_L81
@@ -71,12 +95,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@16: // native_arr_arg_route_L85
         let arg#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 arg#0 0u)
-        let mul%0#0: uint64 = (* aggregate%array_length%0#0 16u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 arg#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* aggregate%array_length%3#0 16u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len arg#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
         (app_global_put "native_arr" arg#0)
         exit 1u
     block@17: // native_arr_ret_route_L89

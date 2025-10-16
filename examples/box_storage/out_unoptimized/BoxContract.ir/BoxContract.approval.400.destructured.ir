@@ -274,26 +274,26 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
         let tmp%3#0: bytes = (txna ApplicationArgs 3)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let mul%1#0: uint64 = (* length%1#0 1u)
         let add%1#0: uint64 = (+ mul%1#0 2u)
         let len%2#0: uint64 = (len tmp%3#0)
         let eq%2#0: bool = (== len%2#0 add%1#0)
-        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%3#0
         examples.box_storage.contract.BoxContract.set_boxes(tmp%1#0, as_Encoded(len+uint8[])%0#0, as_Encoded(len+utf8[])%0#0)
         exit 1u
@@ -313,13 +313,13 @@ subroutine examples.box_storage.contract.BoxContract.set_many_ints[routing]() ->
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.set_many_ints(tmp%1#0, tmp%3#0)
@@ -404,7 +404,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[r
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(tmp%1#0)
@@ -420,7 +420,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(tmp%1#0)
@@ -434,6 +434,146 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
 subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
     block@0: // L252
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 20u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 10u)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let tmp%1#0: Encoded(uint64,(len+(len+uint64[])[]),uint64) = aggregate%substring3%0#0
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%1#0 8u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 18u)
+        (assert eq%1#0) // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%1#0 8u)
+        let aggregate%len%0#0: uint64 = (len tmp%1#0)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%1#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
+        let tmp%2#0: Encoded(len+(len+uint64[])[]) = aggregate%substring3%1#0
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let num_bytes%0#0: uint64 = (* length%0#0 2u)
+        let total_length%0#0: uint64 = (len tmp%2#0)
+        let array_data%0#0: bytes = (substring3 tmp%2#0 2u total_length%0#0)
+        let index%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L252
+        let continue_looping%0#0: bool = (< index%0#0 length%0#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L252
+        let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (len+(len+uint64[])[])
+        let aggregate%total_length%0#0: uint64 = (len tmp%2#0)
+        let aggregate%array_head_and_tail%0#0: bytes = (substring3 tmp%2#0 2u aggregate%total_length%0#0)
+        let aggregate%item_offset_offset%0#0: uint64 = (* index%0#0 2u)
+        let aggregate%item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset_offset%0#0)
+        let aggregate%item_length%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0)
+        let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
+        let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
+        let aggregate%item%0#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
+        let tmp%3#0: Encoded(len+uint64[]) = aggregate%item%0#0
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%0#0: uint64 = (* length%1#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%0#0)
+        goto block@3
+    block@3: // for_footer_L252
+        let index%0#0: uint64 = (+ index%0#0 1u)
+        goto block@1
+    block@4: // after_for_L252
+        let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
+        let add%1#0: uint64 = (+ 18u num_bytes%1#0)
+        let add%2#0: uint64 = (+ 20u add%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%0#0 10u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%2#0)
+        (assert eq%2#0) // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 tmp%0#0 10u)
+        let aggregate%len%1#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%2#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%3#0 aggregate%len%1#0)
+        let tmp%4#0: Encoded(len+(uint64,(len+(len+uint64[])[]),uint64)[]) = aggregate%substring3%2#0
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
+        let length%2#0: uint64 = aggregate%array_length%2#0
+        let num_bytes%2#0: uint64 = (* length%2#0 2u)
+        let total_length%1#0: uint64 = (len tmp%4#0)
+        let array_data%1#0: bytes = (substring3 tmp%4#0 2u total_length%1#0)
+        let index%1#0: uint64 = 0u
+        goto block@5
+    block@5: // for_header_L252
+        let continue_looping%1#0: bool = (< index%1#0 length%2#0)
+        goto continue_looping%1#0 ? block@6 : block@12
+    block@6: // for_body_L252
+        let head_offset_bytes%1#0: uint64 = (* index%1#0 2u)
+        let item_offset%1#0: uint64 = (extract_uint16 array_data%1#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%1#0: bool = (== item_offset%1#0 num_bytes%2#0)
+        (assert offset_is_correct%1#0) // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[])
+        let aggregate%total_length%1#0: uint64 = (len tmp%4#0)
+        let aggregate%array_head_and_tail%1#0: bytes = (substring3 tmp%4#0 2u aggregate%total_length%1#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
+        let aggregate%item_offset_offset%1#0: uint64 = (* index%1#0 2u)
+        let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
+        let aggregate%next_index%0#0: uint64 = (+ index%1#0 1u)
+        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%3#0 aggregate%next_index%0#0) // on error: index access is out of bounds
+        let aggregate%end_of_array%0#0: uint64 = (len aggregate%array_head_and_tail%1#0)
+        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
+        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%next_item_offset_offset%0#0)
+        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
+        let aggregate%substring3%3#0: bytes = (substring3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%end_offset%0#0)
+        let tmp%5#0: Encoded(uint64,(len+(len+uint64[])[]),uint64) = aggregate%substring3%3#0
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%5#0 8u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%3#0 18u)
+        (assert eq%3#0) // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+        let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 tmp%5#0 8u)
+        let aggregate%len%2#0: uint64 = (len tmp%5#0)
+        let aggregate%substring3%4#0: bytes = (substring3 tmp%5#0 aggregate%extract_uint16%4#0 aggregate%len%2#0)
+        let tmp%6#0: Encoded(len+(len+uint64[])[]) = aggregate%substring3%4#0
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%6#0 0u) // on error: invalid array length header
+        let length%3#0: uint64 = aggregate%array_length%4#0
+        let num_bytes%3#0: uint64 = (* length%3#0 2u)
+        let total_length%2#0: uint64 = (len tmp%6#0)
+        let array_data%2#0: bytes = (substring3 tmp%6#0 2u total_length%2#0)
+        let index%2#0: uint64 = 0u
+        goto block@7
+    block@7: // for_header_L252
+        let continue_looping%2#0: bool = (< index%2#0 length%3#0)
+        goto continue_looping%2#0 ? block@8 : block@10
+    block@8: // for_body_L252
+        let head_offset_bytes%2#0: uint64 = (* index%2#0 2u)
+        let item_offset%2#0: uint64 = (extract_uint16 array_data%2#0 head_offset_bytes%2#0) // on error: invalid array encoding
+        let offset_is_correct%2#0: bool = (== item_offset%2#0 num_bytes%3#0)
+        (assert offset_is_correct%2#0) // invalid tail pointer for (len+(len+uint64[])[])
+        let aggregate%total_length%2#0: uint64 = (len tmp%6#0)
+        let aggregate%array_head_and_tail%2#0: bytes = (substring3 tmp%6#0 2u aggregate%total_length%2#0)
+        let aggregate%item_offset_offset%2#0: uint64 = (* index%2#0 2u)
+        let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset_offset%2#0)
+        let aggregate%item_length%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset%2#0)
+        let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%1#0 8u)
+        let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%1#0 2u)
+        let aggregate%item%1#0: bytes = (extract3 aggregate%array_head_and_tail%2#0 aggregate%item_offset%2#0 aggregate%item_head_tail_length%1#0)
+        let tmp%7#0: Encoded(len+uint64[]) = aggregate%item%1#0
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 tmp%7#0 0u) // on error: invalid array length header
+        let length%4#0: uint64 = aggregate%array_length%5#0
+        let mul%1#0: uint64 = (* length%4#0 8u)
+        let add%3#0: uint64 = (+ mul%1#0 2u)
+        let num_bytes%3#0: uint64 = (+ num_bytes%3#0 add%3#0)
+        goto block@9
+    block@9: // for_footer_L252
+        let index%2#0: uint64 = (+ index%2#0 1u)
+        goto block@7
+    block@10: // after_for_L252
+        let num_bytes%4#0: uint64 = (+ num_bytes%3#0 2u)
+        let add%4#0: uint64 = (+ 18u num_bytes%4#0)
+        let num_bytes%2#0: uint64 = (+ num_bytes%2#0 add%4#0)
+        goto block@11
+    block@11: // for_footer_L252
+        let index%1#0: uint64 = (+ index%1#0 1u)
+        goto block@5
+    block@12: // after_for_L252
+        let num_bytes%5#0: uint64 = (+ num_bytes%2#0 2u)
+        let add%5#0: uint64 = (+ add%2#0 num_bytes%5#0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%4#0: bool = (== len%0#0 add%5#0)
+        (assert eq%4#0) // invalid number of bytes for examples.box_storage.contract.NestedStruct
         let as_Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)%0#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = tmp%0#0
         examples.box_storage.contract.BoxContract.set_nested_struct(as_Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)%0#0)
         exit 1u
@@ -443,13 +583,13 @@ subroutine examples.box_storage.contract.BoxContract.nested_write[routing]() -> 
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.nested_write(tmp%1#0, tmp%3#0)
@@ -460,19 +600,19 @@ subroutine examples.box_storage.contract.BoxContract.nested_read[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%2#0: Encoded(uint64) = tmp%4#0
         let tmp%5#0: uint64 = (btoi as_Encoded(uint64)%2#0)
         let tmp%6#0: uint64 = examples.box_storage.contract.BoxContract.nested_read(tmp%1#0, tmp%3#0, tmp%5#0)
@@ -503,13 +643,13 @@ subroutine examples.box_storage.contract.BoxContract.set_bool[routing]() -> void
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for bool8
+        (assert eq%1#0) // invalid number of bytes for arc4.bool
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%2#0
         let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
         let tmp%3#0: bool = aggregate%get_bit%0#0
@@ -521,7 +661,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_bools[routing]() -> voi
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.sum_bools(tmp%1#0)
@@ -547,7 +687,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box[routing]
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.append_dynamic_box(tmp%1#0)
@@ -563,7 +703,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]() 
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.pop_dynamic_box(tmp%1#0)
@@ -589,13 +729,13 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_box[routing](
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.write_dynamic_box(tmp%1#0, tmp%3#0)
@@ -606,13 +746,13 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_arr_struct[ro
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.write_dynamic_arr_struct(tmp%1#0, tmp%3#0)
@@ -643,17 +783,17 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
         examples.box_storage.contract.BoxContract.box_map_set(tmp%1#0, tmp%3#0)
@@ -664,7 +804,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_get[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: string = examples.box_storage.contract.BoxContract.box_map_get(tmp%1#0)
@@ -683,7 +823,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_del[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         examples.box_storage.contract.BoxContract.box_map_del(tmp%1#0)
@@ -694,7 +834,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_exists[routing]() -
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bool = examples.box_storage.contract.BoxContract.box_map_exists(tmp%1#0)
@@ -741,9 +881,9 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "b")
         (assert aggregate%box_get%5#0) // check self.box_b exists
         let storage_value%2#0: bytes = aggregate%box_get%4#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%2#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%2#0 0u) // on error: invalid array length header
         let tmp%2#0: uint64 = aggregate%array_length%0#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 b_value#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 b_value#0 0u) // on error: invalid array length header
         let tmp%3#0: uint64 = aggregate%array_length%1#0
         let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
         (assert tmp%4#0) // direct reference should match copy
@@ -1077,7 +1217,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 storage_value%1#0 18u)
         let aggregate%substring3%0#0: bytes = (substring3 storage_value%1#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let tuple_item%1#0: Encoded(len+uint64[]) = aggregate%substring3%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%1#0 0u) // on error: invalid array length header
         let tmp%1#0: uint64 = aggregate%array_length%0#0
         let arr_len#0: uint64 = tmp%1#0
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "dynamic_arr_struct")
@@ -1087,7 +1227,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%len%0#0: uint64 = (len storage_value%2#0)
         let aggregate%substring3%1#0: bytes = (substring3 storage_value%2#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
         let tuple_item%2#0: Encoded(len+uint64[]) = aggregate%substring3%1#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%2#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%2#0 0u) // on error: invalid array length header
         let tmp%2#0: uint64 = aggregate%array_length%1#0
         let arr2_len#0: uint64 = tmp%2#0
         let tmp%3#0: uint64 = (+ arr_len#0 times#0)
@@ -1225,7 +1365,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 storage_value%6#0 18u)
         let aggregate%substring3%2#0: bytes = (substring3 storage_value%6#0 aggregate%extract_uint16%3#0 aggregate%extract_uint16%4#0)
         let tuple_item%3#0: Encoded(len+uint64[]) = aggregate%substring3%2#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%3#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%3#0 0u) // on error: invalid array length header
         let tmp%13#0: uint64 = aggregate%array_length%2#0
         let tmp%14#0: bool = (== tmp%13#0 arr_len#0)
         (assert tmp%14#0) // expected arr length to be correct
@@ -1236,7 +1376,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%len%1#0: uint64 = (len storage_value%7#0)
         let aggregate%substring3%3#0: bytes = (substring3 storage_value%7#0 aggregate%extract_uint16%5#0 aggregate%len%1#0)
         let tuple_item%4#0: Encoded(len+uint64[]) = aggregate%substring3%3#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 tuple_item%4#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tuple_item%4#0 0u) // on error: invalid array length header
         let tmp%15#0: uint64 = aggregate%array_length%3#0
         let tmp%16#0: bool = (== tmp%15#0 0u)
         (assert tmp%16#0) // expected arr2 length to be correct
@@ -1247,7 +1387,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let aggregate%extract_uint16%7#0: uint64 = (extract_uint16 storage_value%8#0 18u)
         let aggregate%substring3%4#0: bytes = (substring3 storage_value%8#0 aggregate%extract_uint16%6#0 aggregate%extract_uint16%7#0)
         let tuple_item%5#0: Encoded(len+uint64[]) = aggregate%substring3%4#0
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 tuple_item%5#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tuple_item%5#0 0u) // on error: invalid array length header
         let tmp%17#0: uint64 = aggregate%array_length%4#0
         return tmp%17#0
 
@@ -1260,7 +1400,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(time
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 storage_value%0#0 18u)
         let aggregate%substring3%0#0: bytes = (substring3 storage_value%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let tuple_item%0#0: Encoded(len+uint64[]) = aggregate%substring3%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%0#0 0u) // on error: invalid array length header
         let tmp%0#0: uint64 = aggregate%array_length%0#0
         let tmp%1#0: uint64 = (- tmp%0#0 times#0)
         let arr_len#0: uint64 = tmp%1#0
@@ -1271,7 +1411,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(time
         let aggregate%len%0#0: uint64 = (len storage_value%1#0)
         let aggregate%substring3%1#0: bytes = (substring3 storage_value%1#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
         let tuple_item%1#0: Encoded(len+uint64[]) = aggregate%substring3%1#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%1#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%1#0 0u) // on error: invalid array length header
         let tmp%2#0: uint64 = aggregate%array_length%1#0
         let arr2_len#0: uint64 = tmp%2#0
         let arr_size#0: uint64 = arr_len#0
@@ -1380,7 +1520,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(time
         let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 storage_value%4#0 18u)
         let aggregate%substring3%2#0: bytes = (substring3 storage_value%4#0 aggregate%extract_uint16%3#0 aggregate%extract_uint16%4#0)
         let tuple_item%2#0: Encoded(len+uint64[]) = aggregate%substring3%2#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%2#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%2#0 0u) // on error: invalid array length header
         let tmp%10#0: uint64 = aggregate%array_length%2#0
         return tmp%10#0
 
@@ -1462,7 +1602,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%substring3%4#0: bytes = (substring3 aggregate%substring3%3#0 aggregate%extract_uint16%5#0 aggregate%len%3#0)
         let aggregate%total_length%0#0: uint64 = (len aggregate%substring3%4#0)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 aggregate%substring3%4#0 2u aggregate%total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%4#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%4#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< index#0 aggregate%array_length%0#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* index#0 2u)
@@ -1474,7 +1614,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%write_offset%0#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
         let aggregate%updated_array%0#0: bytes = (replace3 aggregate%item%0#0 aggregate%write_offset_with_length_header%0#0 encoded_value%2#0) // on error: index access is out of bounds
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%substring3%4#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%substring3%4#0 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< index#0 aggregate%array_length%1#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(aggregate%substring3%4#0, aggregate%updated_array%0#0, index#0)
@@ -1587,7 +1727,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%substring3%10#0: bytes = (substring3 aggregate%substring3%9#0 aggregate%extract_uint16%13#0 aggregate%len%7#0)
         let aggregate%total_length%5#0: uint64 = (len aggregate%substring3%10#0)
         let aggregate%array_head_and_tail%1#0: bytes = (substring3 aggregate%substring3%10#0 2u aggregate%total_length%5#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 aggregate%substring3%10#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 aggregate%substring3%10#0 0u) // on error: invalid array length header
         let aggregate%item_offset_offset%1#0: uint64 = (* index#0 2u)
         let aggregate%item_offset%10#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
         let aggregate%next_index%0#0: uint64 = (+ index#0 1u)
@@ -1602,7 +1742,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%substring3%12#0: bytes = (substring3 aggregate%substring3%11#0 aggregate%extract_uint16%14#0 aggregate%len%8#0)
         let aggregate%total_length%6#0: uint64 = (len aggregate%substring3%12#0)
         let aggregate%array_head_and_tail%2#0: bytes = (substring3 aggregate%substring3%12#0 2u aggregate%total_length%6#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u) // on error: invalid array length header
         let aggregate%lt%2#0: bool = (< index#0 aggregate%array_length%3#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%item_offset_offset%2#0: uint64 = (* index#0 2u)
@@ -1614,14 +1754,14 @@ subroutine examples.box_storage.contract.BoxContract.nested_write(index: uint64,
         let aggregate%write_offset%1#0: uint64 = (* index#0 8u)
         let aggregate%write_offset_with_length_header%1#0: uint64 = (+ aggregate%write_offset%1#0 2u)
         let aggregate%updated_array%2#0: bytes = (replace3 aggregate%item%1#0 aggregate%write_offset_with_length_header%1#0 encoded_value%5#0) // on error: index access is out of bounds
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u) // on error: invalid array length header
         let aggregate%lt%3#0: bool = (< index#0 aggregate%array_length%4#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%updated_array%3#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(aggregate%substring3%12#0, aggregate%updated_array%2#0, index#0)
         let aggregate%item_offset%12#0: uint64 = (extract_uint16 aggregate%substring3%11#0 8u)
         let aggregate%data_up_to_item%9#0: bytes = (extract3 aggregate%substring3%11#0 0u aggregate%item_offset%12#0)
         let aggregate%updated_data%19#0: bytes = (concat aggregate%data_up_to_item%9#0 aggregate%updated_array%3#0)
-        let aggregate%array_length%5#0: uint64 = (extract_uint16 aggregate%substring3%10#0 0u)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 aggregate%substring3%10#0 0u) // on error: invalid array length header
         let aggregate%lt%4#0: bool = (< index#0 aggregate%array_length%5#0)
         (assert aggregate%lt%4#0) // index access is out of bounds
         let aggregate%updated_array%4#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(aggregate%substring3%10#0, aggregate%updated_data%19#0, index#0)
@@ -1677,7 +1817,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2:
         let tuple_item%6#0: Encoded(len+(len+uint64[])[]) = aggregate%substring3%4#0
         let aggregate%total_length%0#0: uint64 = (len tuple_item%6#0)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 tuple_item%6#0 2u aggregate%total_length%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%6#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%6#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< i1#0 aggregate%array_length%0#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* i1#0 2u)
@@ -1737,7 +1877,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2:
         let tuple_item%14#0: Encoded(len+(uint64,(len+(len+uint64[])[]),uint64)[]) = aggregate%substring3%10#0
         let aggregate%total_length%2#0: uint64 = (len tuple_item%14#0)
         let aggregate%array_head_and_tail%1#0: bytes = (substring3 tuple_item%14#0 2u aggregate%total_length%2#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%14#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%14#0 0u) // on error: invalid array length header
         let aggregate%item_offset_offset%1#0: uint64 = (* i1#0 2u)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
         let aggregate%next_index%0#0: uint64 = (+ i1#0 1u)
@@ -1754,7 +1894,7 @@ subroutine examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2:
         let tuple_item%15#0: Encoded(len+(len+uint64[])[]) = aggregate%substring3%12#0
         let aggregate%total_length%3#0: uint64 = (len tuple_item%15#0)
         let aggregate%array_head_and_tail%2#0: bytes = (substring3 tuple_item%15#0 2u aggregate%total_length%3#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%15#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tuple_item%15#0 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< i2#0 aggregate%array_length%2#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%item_offset_offset%2#0: uint64 = (* i2#0 2u)
@@ -1817,7 +1957,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() ->
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 storage_value%4#0 18u)
         let aggregate%substring3%0#0: bytes = (substring3 storage_value%4#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let tuple_item%4#0: Encoded(len+uint64[]) = aggregate%substring3%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%4#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tuple_item%4#0 0u) // on error: invalid array length header
         let array_length%0#0: uint64 = aggregate%array_length%0#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
@@ -1846,7 +1986,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() ->
         let aggregate%len%0#0: uint64 = (len storage_value%5#0)
         let aggregate%substring3%1#0: bytes = (substring3 storage_value%5#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
         let tuple_item%5#0: Encoded(len+uint64[]) = aggregate%substring3%1#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%5#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tuple_item%5#0 0u) // on error: invalid array length header
         let array_length%1#0: uint64 = aggregate%array_length%1#0
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
@@ -2000,7 +2140,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (box_get "dynamic_box")
         (assert aggregate%box_get%7#0) // check self.dynamic_box exists
         let storage_value%3#0: bytes = aggregate%box_get%6#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%3#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%3#0 0u) // on error: invalid array length header
         let tmp%6#0: uint64 = aggregate%array_length%0#0
         return tmp%6#0
 
@@ -2033,7 +2173,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box(times: uint
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "dynamic_box")
         (assert aggregate%box_get%5#0) // check self.dynamic_box exists
         let storage_value%2#0: bytes = aggregate%box_get%4#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%2#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%2#0 0u) // on error: invalid array length header
         let tmp%5#0: uint64 = aggregate%array_length%0#0
         return tmp%5#0
 
@@ -2043,7 +2183,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_box() -> uint64
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "dynamic_box")
         (assert aggregate%box_get%1#0) // check self.dynamic_box exists
         let storage_value%0#0: bytes = aggregate%box_get%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 storage_value%0#0 0u) // on error: invalid array length header
         let array_length%0#0: uint64 = aggregate%array_length%0#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1

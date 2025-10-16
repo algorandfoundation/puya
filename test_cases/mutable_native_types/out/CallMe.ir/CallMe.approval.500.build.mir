@@ -175,7 +175,7 @@ subroutine fixed_struct_arg:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for (uint64,uint64)
+        assert // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct 
         // mutable_native_types/abi_call.py:55
         // self.fixed_struct.value = arg
         byte "fixed_struct"                                                            "fixed_struct"
@@ -226,7 +226,7 @@ subroutine nested_struct_arg:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for ((uint64,uint64),uint64)
+        assert // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct 
         // mutable_native_types/abi_call.py:63
         // self.nested_struct.value = arg
         byte "nested_struct"                                                           "nested_struct"
@@ -269,6 +269,96 @@ subroutine dynamic_struct_arg:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                         arg#0
         v-store arg#0
+        v-load arg#0                                                                   arg#0
+        int 16                                                                         arg#0,16
+        extract_uint16 // on error: invalid tuple encoding                             extract_uint16%0#0
+        v-store extract_uint16%0#0
+        v-load extract_uint16%0#0                                                      extract_uint16%0#0
+        int 22                                                                         extract_uint16%0#0,22
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) 
+        v-load arg#0                                                                   arg#0
+        int 18                                                                         arg#0,18
+        extract_uint16                                                                 aggregate%extract_uint16%1#0
+        v-store aggregate%extract_uint16%1#0
+        v-load arg#0                                                                   arg#0
+        v-load extract_uint16%0#0                                                      arg#0,extract_uint16%0#0
+        v-load aggregate%extract_uint16%1#0                                            arg#0,extract_uint16%0#0,aggregate%extract_uint16%1#0
+        substring3                                                                     aggregate%substring3%0#0
+        v-store aggregate%substring3%0#0
+        v-load aggregate%substring3%0#0                                                aggregate%substring3%0#0
+        int 0                                                                          aggregate%substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
+        int 24                                                                         aggregate%array_length%0#0,24
+        +                                                                              add%1#0
+        v-store add%1#0
+        v-load aggregate%extract_uint16%1#0                                            aggregate%extract_uint16%1#0
+        v-load add%1#0                                                                 aggregate%extract_uint16%1#0,add%1#0
+        ==                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                  eq%1#0
+        assert // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) 
+        v-load arg#0                                                                   arg#0
+        int 20                                                                         arg#0,20
+        extract_uint16                                                                 aggregate%extract_uint16%3#0
+        v-store aggregate%extract_uint16%3#0
+        v-load arg#0                                                                   arg#0
+        v-load aggregate%extract_uint16%1#0                                            arg#0,aggregate%extract_uint16%1#0
+        v-load aggregate%extract_uint16%3#0                                            arg#0,aggregate%extract_uint16%1#0,aggregate%extract_uint16%3#0
+        substring3                                                                     aggregate%substring3%1#0
+        v-store aggregate%substring3%1#0
+        v-load aggregate%substring3%1#0                                                aggregate%substring3%1#0
+        int 0                                                                          aggregate%substring3%1#0,0
+        extract_uint16 // on error: invalid array length header                        aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                              aggregate%array_length%1#0
+        int 2                                                                          aggregate%array_length%1#0,2
+        +                                                                              add%2#0
+        v-store add%2#0
+        v-load add%1#0                                                                 add%1#0
+        v-load add%2#0                                                                 add%1#0,add%2#0
+        +                                                                              add%3#0
+        v-store add%3#0
+        v-load aggregate%extract_uint16%3#0                                            aggregate%extract_uint16%3#0
+        v-load add%3#0                                                                 aggregate%extract_uint16%3#0,add%3#0
+        ==                                                                             eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                  eq%2#0
+        assert // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) 
+        v-load arg#0                                                                   arg#0
+        len                                                                            aggregate%len%0#0
+        v-store aggregate%len%0#0
+        v-load arg#0                                                                   arg#0
+        v-load aggregate%extract_uint16%3#0                                            arg#0,aggregate%extract_uint16%3#0
+        v-load aggregate%len%0#0                                                       arg#0,aggregate%extract_uint16%3#0,aggregate%len%0#0
+        substring3                                                                     aggregate%substring3%2#0
+        v-store aggregate%substring3%2#0
+        v-load aggregate%substring3%2#0                                                aggregate%substring3%2#0
+        int 0                                                                          aggregate%substring3%2#0,0
+        extract_uint16 // on error: invalid array length header                        aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                              aggregate%array_length%2#0
+        int 16                                                                         aggregate%array_length%2#0,16
+        *                                                                              mul%2#0
+        v-store mul%2#0
+        v-load mul%2#0                                                                 mul%2#0
+        int 2                                                                          mul%2#0,2
+        +                                                                              add%4#0
+        v-store add%4#0
+        v-load add%3#0                                                                 add%3#0
+        v-load add%4#0                                                                 add%3#0,add%4#0
+        +                                                                              add%5#0
+        v-store add%5#0
+        v-load aggregate%len%0#0                                                       aggregate%len%0#0
+        v-load add%5#0                                                                 aggregate%len%0#0,add%5#0
+        ==                                                                             eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                  eq%3#0
+        assert // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct 
         // mutable_native_types/abi_call.py:71
         // self.dynamic_struct.value = arg.copy()
         byte "dynamic_struct"                                                          "dynamic_struct"
@@ -319,7 +409,7 @@ subroutine fixed_arr_arg:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for (uint64,uint64)[3]
+        assert // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> 
         // mutable_native_types/abi_call.py:79
         // self.fixed_arr.value = arg.copy()
         byte "fixed_arr"                                                               "fixed_arr"
@@ -364,7 +454,7 @@ subroutine native_arr_arg:
         v-store arg#0
         v-load arg#0                                                                   arg#0
         int 0                                                                          arg#0,0
-        extract_uint16                                                                 aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
         int 16                                                                         aggregate%array_length%0#0,16
@@ -382,7 +472,7 @@ subroutine native_arr_arg:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for (len+(uint64,uint64)[])
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> 
         // mutable_native_types/abi_call.py:87
         // self.native_arr.value = arg.copy()
         byte "native_arr"                                                              "native_arr"

@@ -102,18 +102,18 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
     block@0: // L13
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%1#0
         let tmp%2#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(as_Encoded(len+uint64[])%0#0, tmp%2#0)

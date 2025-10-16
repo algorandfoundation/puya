@@ -7,7 +7,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%head%1#0
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
         let total#0: uint64 = 0u
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_uint8_array#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_uint8_array#0 0u) // on error: invalid array length header
         let array_length%0#0: uint64 = aggregate%array_length%0#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
@@ -34,7 +34,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%head%2#0: bytes = (concat aggregate%len_u16%1#0 0x0001)
         let aggregate%as_Encoded(len+uint16[])%0#0: Encoded(len+uint16[]) = aggregate%head%2#0
         let aliased_dynamic#0: Encoded(len+uint16[]) = aggregate%as_Encoded(len+uint16[])%0#0
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 aliased_dynamic#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 aliased_dynamic#0 0u) // on error: invalid array length header
         let array_length%1#0: uint64 = aggregate%array_length%1#0
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
@@ -84,13 +84,13 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 tmp%7#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%1#0
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%0#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let tmp%8#0: uint64 = aggregate%array_length%2#0
         let tmp%9#0: bool = (== tmp%8#0 2u)
         (assert tmp%9#0)
         let aggregate%total_length%2#0: uint64 = (len dynamic_string_array#0)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 dynamic_string_array#0 2u aggregate%total_length%2#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%3#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* 0u 2u)
@@ -103,7 +103,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%11#0: bool = (== array_item%2#0 tmp%6#0)
         (assert tmp%11#0)
         let result#0: string = ""
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
         let array_length%2#0: uint64 = aggregate%array_length%4#0
         let item_index_internal%2#0: uint64 = 0u
         goto block@9

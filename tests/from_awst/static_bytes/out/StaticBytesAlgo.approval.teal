@@ -35,13 +35,13 @@ hashAddresses:
     len
     intc_0 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
     intc_0 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     concat
     sha512_256
     bytec_0 // 0x151f7c75
@@ -59,7 +59,7 @@ receiveB32:
     len
     intc_0 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     dup
     len
@@ -79,20 +79,20 @@ receiveBytes:
     txna ApplicationArgs 1
     dup
     pushint 0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
     pushint 8 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     swap
     len
@@ -107,7 +107,7 @@ returnLength:
     dup
     intc_0 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     itob
     bytec_0 // 0x151f7c75
     swap

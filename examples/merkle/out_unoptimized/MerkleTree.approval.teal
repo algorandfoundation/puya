@@ -81,7 +81,7 @@ compute_root_hash_block@0:
     // for idx in urange(proof.length):
     frame_dig -2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_2 // 1
     assert // Step cannot be zero
     intc_0 // 0
@@ -195,7 +195,7 @@ create_block@0:
     len
     intc_1 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub examples.merkle.contract.MerkleTree.create
     intc_2 // 1
     return
@@ -211,7 +211,7 @@ verify_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 32
     *
     intc_3 // 2
@@ -219,13 +219,13 @@ verify_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub examples.merkle.contract.MerkleTree.verify
     pushbytes 0x00
     intc_0 // 0

@@ -5,8 +5,10 @@
 main:
     intcblock 2 1 8 0 4098 4096 4138
     bytecblock "dynamic_arr_struct" "box" 0x424f585f43 "dynamic_box" 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "0" "many_ints" 0x68656c6c6f 0x00023432 "default" "box_ref" 0x0014 0x068101
+    intc_3 // 0
+    dupn 3
     pushbytes ""
-    dupn 8
+    dupn 21
     txn NumAppArgs
     bz main___algopy_default_create@44
     txn OnCompletion
@@ -16,7 +18,7 @@ main:
     assert
     pushbytess 0x7d37296e 0x33325d3d 0x0199408d 0x772059ca 0x01263df6 0xd566c632 0xfabcb885 0xa6174812 0xf13dd937 0x5ab60f2e 0xf07a0064 0x78f9af3f 0x5cbb9dcc 0x996497ae 0x6cec72ff 0x6f9d1075 0x0d22b441 0x59ef3760 0xaa666b96 0xdfbdd636 0x41427cd1 0x2a141f6c 0x7e843744 0x25600b57 0x29ea595d 0x11453152 0xced1221e 0x04ef4971 0x23ecb32c 0xeef75816 0xb532913a 0xc29f1669 0x9c888c09 0xe6f68506 0x8ee2c364 // method "set_boxes(uint64,byte[],string)void", method "check_keys()void", method "create_many_ints()void", method "set_many_ints(uint64,uint64)void", method "sum_many_ints()uint64", method "delete_boxes()void", method "indirect_extract_and_replace()void", method "read_boxes()(uint64,byte[],string,uint64)", method "boxes_exist()(bool,bool,bool,bool)", method "create_dynamic_arr_struct()void", method "delete_dynamic_arr_struct()void", method "append_dynamic_arr_struct(uint64)uint64", method "pop_dynamic_arr_struct(uint64)uint64", method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void", method "nested_write(uint64,uint64)void", method "nested_read(uint64,uint64,uint64)uint64", method "sum_dynamic_arr_struct()uint64", method "create_bools()void", method "set_bool(uint64,bool)void", method "sum_bools(uint64)uint64", method "create_dynamic_box()void", method "delete_dynamic_box()void", method "append_dynamic_box(uint64)uint64", method "pop_dynamic_box(uint64)uint64", method "sum_dynamic_box()uint64", method "write_dynamic_box(uint64,uint64)void", method "write_dynamic_arr_struct(uint64,uint64)void", method "slice_box()void", method "arc4_box()void", method "test_box_ref()void", method "box_map_test()void", method "box_map_set(uint64,string)void", method "box_map_get(uint64)string", method "box_map_del(uint64)void", method "box_map_exists(uint64)bool"
     txna ApplicationArgs 0
-    match main_set_boxes_route@6 main_check_keys_route@7 main_create_many_ints_route@8 main_set_many_ints_route@9 main_while_top@152 main_delete_boxes_route@11 main_indirect_extract_and_replace_route@12 main_read_boxes_route@13 main_boxes_exist_route@14 main_create_dynamic_arr_struct_route@15 main_delete_dynamic_arr_struct_route@16 main_append_dynamic_arr_struct_route@17 main_pop_dynamic_arr_struct_route@18 main_set_nested_struct_route@19 main_nested_write_route@20 main_nested_read_route@21 main_sum_dynamic_arr_struct_route@22 main_create_bools_route@23 main_set_bool_route@24 main_sum_bools_route@25 main_create_dynamic_box_route@26 main_delete_dynamic_box_route@27 main_append_dynamic_box_route@28 main_pop_dynamic_box_route@29 main_sum_dynamic_box_route@30 main_write_dynamic_box_route@31 main_write_dynamic_arr_struct_route@32 main_slice_box_route@33 main_arc4_box_route@34 main_test_box_ref_route@35 main_box_map_test_route@36 main_box_map_set_route@37 main_box_map_get_route@38 main_box_map_del_route@39 main_box_map_exists_route@40
+    match main_set_boxes_route@6 main_check_keys_route@7 main_create_many_ints_route@8 main_set_many_ints_route@9 main_while_top@161 main_delete_boxes_route@11 main_indirect_extract_and_replace_route@12 main_read_boxes_route@13 main_boxes_exist_route@14 main_create_dynamic_arr_struct_route@15 main_delete_dynamic_arr_struct_route@16 main_append_dynamic_arr_struct_route@17 main_pop_dynamic_arr_struct_route@18 main_set_nested_struct_route@19 main_nested_write_route@20 main_nested_read_route@21 main_sum_dynamic_arr_struct_route@22 main_create_bools_route@23 main_set_bool_route@24 main_sum_bools_route@25 main_create_dynamic_box_route@26 main_delete_dynamic_box_route@27 main_append_dynamic_box_route@28 main_pop_dynamic_box_route@29 main_sum_dynamic_box_route@30 main_write_dynamic_box_route@31 main_write_dynamic_arr_struct_route@32 main_slice_box_route@33 main_arc4_box_route@34 main_test_box_ref_route@35 main_box_map_test_route@36 main_box_map_set_route@37 main_box_map_get_route@38 main_box_map_del_route@39 main_box_map_exists_route@40
     err
 
 main_box_map_exists_route@40:
@@ -25,7 +27,7 @@ main_box_map_exists_route@40:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     itob
     box_len
@@ -47,7 +49,7 @@ main_box_map_del_route@39:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     itob
     box_del
@@ -61,7 +63,7 @@ main_box_map_get_route@38:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     itob
     box_get
@@ -85,18 +87,18 @@ main_box_map_set_route@37:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     intc_3 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     swap
     itob
@@ -301,14 +303,14 @@ main_write_dynamic_arr_struct_route@32:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     bytec_0 // "dynamic_arr_struct"
     pushint 20 // 20
     intc_0 // 2
@@ -335,14 +337,14 @@ main_write_dynamic_box_route@31:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     swap
     intc_2 // 8
     *
@@ -363,16 +365,16 @@ main_sum_dynamic_box_route@30:
     intc_0 // 2
     box_extract
     btoi
-    bury 8
+    bury 14
     intc_3 // 0
-    bury 5
+    bury 8
 
 main_for_header@68:
-    dig 4
-    dig 8
+    dig 7
+    dig 14
     <
     bz main_after_for@70
-    dig 4
+    dig 7
     dup
     intc_2 // 8
     *
@@ -388,7 +390,7 @@ main_for_header@68:
     bury 2
     intc_1 // 1
     +
-    bury 5
+    bury 8
     b main_for_header@68
 
 main_after_for@70:
@@ -407,7 +409,7 @@ main_pop_dynamic_box_route@29:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     bytec_3 // "dynamic_box"
     intc_3 // 0
@@ -454,7 +456,7 @@ main_append_dynamic_box_route@28:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     bury 3
@@ -464,7 +466,7 @@ main_append_dynamic_box_route@28:
     box_extract
     btoi
     dup
-    bury 11
+    bury 17
     +
     intc_2 // 8
     *
@@ -474,17 +476,17 @@ main_append_dynamic_box_route@28:
     swap
     box_resize
     intc_3 // 0
-    bury 6
+    bury 12
 
 main_for_header@75:
-    dig 5
+    dig 11
     dig 2
     <
     bz main_after_for@77
-    dig 5
+    dig 11
     dup
     itob
-    dig 10
+    dig 16
     dup
     cover 2
     intc_2 // 8
@@ -497,14 +499,14 @@ main_for_header@75:
     box_replace
     intc_1 // 1
     +
-    bury 10
+    bury 16
     intc_1 // 1
     +
-    bury 6
+    bury 12
     b main_for_header@75
 
 main_after_for@77:
-    dig 8
+    dig 14
     itob
     dup
     bitlen
@@ -552,7 +554,7 @@ main_sum_bools_route@25:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     bury 3
     intc_3 // 0
@@ -562,14 +564,14 @@ main_sum_bools_route@25:
     bury 1
     assert // check self.too_many_bools exists
     intc_3 // 0
-    bury 5
+    bury 8
 
 main_for_header@84:
-    dig 4
+    dig 7
     pushint 33000 // 33000
     <
     bz main_after_for@90
-    dig 4
+    dig 7
     dup
     intc_2 // 8
     /
@@ -593,10 +595,10 @@ main_after_if_else@87:
     dig 3
     ==
     bnz main_after_for@90
-    dig 4
+    dig 7
     intc_1 // 1
     +
-    bury 5
+    bury 8
     b main_for_header@84
 
 main_after_for@90:
@@ -615,14 +617,14 @@ main_set_bool_route@24:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_3 // 0
     getbit
     dig 1
@@ -682,13 +684,13 @@ main_sum_dynamic_arr_struct_route@22:
     intc_0 // 2
     box_extract
     btoi
-    bury 8
+    bury 14
     intc_3 // 0
-    bury 5
+    bury 8
 
 main_for_header@97:
-    dig 4
-    dig 8
+    dig 7
+    dig 14
     <
     bz main_after_for@99
     bytec_0 // "dynamic_arr_struct"
@@ -696,7 +698,7 @@ main_for_header@97:
     intc_0 // 2
     box_extract
     btoi
-    dig 5
+    dig 8
     dup
     uncover 2
     <
@@ -716,7 +718,7 @@ main_for_header@97:
     bury 2
     intc_1 // 1
     +
-    bury 5
+    bury 8
     b main_for_header@97
 
 main_after_for@99:
@@ -730,13 +732,13 @@ main_after_for@99:
     intc_0 // 2
     box_extract
     btoi
-    bury 7
+    bury 13
     intc_3 // 0
-    bury 4
+    bury 7
 
 main_for_header@100:
-    dig 3
-    dig 7
+    dig 6
+    dig 13
     <
     bz main_after_for@102
     bytec_0 // "dynamic_arr_struct"
@@ -746,7 +748,7 @@ main_for_header@100:
     btoi
     intc_0 // 2
     +
-    dig 4
+    dig 7
     dup
     cover 2
     intc_2 // 8
@@ -762,7 +764,7 @@ main_for_header@100:
     bury 2
     intc_1 // 1
     +
-    bury 4
+    bury 7
     b main_for_header@100
 
 main_after_for@102:
@@ -781,21 +783,21 @@ main_nested_read_route@21:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 3
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     bytec_1 // "box"
     intc 4 // 4098
@@ -949,14 +951,14 @@ main_nested_write_route@20:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     dup
     btoi
     bytec_1 // "box"
@@ -1104,6 +1106,235 @@ main_nested_write_route@20:
 
 main_set_nested_struct_route@19:
     txna ApplicationArgs 1
+    dup
+    bury 24
+    dup
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 20 // 20
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+    dig 1
+    pushint 10 // 10
+    extract_uint16
+    dup
+    bury 21
+    substring3
+    dup
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+    dig 1
+    len
+    substring3
+    dup
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 23
+    intc_0 // 2
+    *
+    bury 7
+    extract 2 0
+    bury 26
+    intc_3 // 0
+    bury 11
+
+main_for_header@109:
+    dig 10
+    dig 21
+    <
+    bz main_after_for@111
+    dig 10
+    dup
+    intc_0 // 2
+    *
+    dig 27
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 9
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint64[])[])
+    dup2
+    extract_uint16
+    intc_2 // 8
+    *
+    intc_0 // 2
+    +
+    extract3
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 8
+    *
+    intc_0 // 2
+    +
+    +
+    bury 7
+    intc_1 // 1
+    +
+    bury 11
+    b main_for_header@109
+
+main_after_for@111:
+    dig 5
+    pushint 40 // 40
+    +
+    dup
+    bury 23
+    dig 18
+    dup
+    uncover 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+    dig 23
+    dup
+    len
+    dup
+    cover 2
+    bury 20
+    cover 2
+    substring3
+    dup
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 22
+    intc_0 // 2
+    *
+    bury 6
+    extract 2 0
+    bury 25
+    intc_3 // 0
+    bury 10
+
+main_for_header@112:
+    dig 9
+    dig 20
+    <
+    bz main_after_for@117
+    dig 9
+    dup
+    intc_0 // 2
+    *
+    dig 26
+    dup
+    cover 3
+    swap
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 8
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[])
+    swap
+    intc_1 // 1
+    +
+    dup
+    bury 19
+    dig 22
+    dig 1
+    - // on error: index access is out of bounds
+    dig 3
+    len
+    uncover 2
+    intc_0 // 2
+    *
+    dig 4
+    swap
+    extract_uint16
+    uncover 2
+    select
+    substring3
+    dup
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+    dig 1
+    len
+    substring3
+    dup
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 21
+    intc_0 // 2
+    *
+    bury 5
+    extract 2 0
+    bury 24
+    intc_3 // 0
+    bury 9
+
+main_for_header@114:
+    dig 8
+    dig 19
+    <
+    bz main_after_for@116
+    dig 8
+    dup
+    intc_0 // 2
+    *
+    dig 25
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint64[])[])
+    dup2
+    extract_uint16
+    intc_2 // 8
+    *
+    intc_0 // 2
+    +
+    extract3
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 8
+    *
+    intc_0 // 2
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 9
+    b main_for_header@114
+
+main_after_for@116:
+    dig 3
+    pushint 20 // 20
+    +
+    dig 5
+    +
+    bury 5
+    dig 15
+    bury 10
+    b main_for_header@112
+
+main_after_for@117:
+    dig 4
+    intc_0 // 2
+    +
+    dig 22
+    +
+    dig 17
+    ==
+    assert // invalid number of bytes for examples.box_storage.contract.NestedStruct
+    dig 22
     intc_3 // 0
     extract_uint64
     assert // struct.a is truthy
@@ -1133,7 +1364,7 @@ main_pop_dynamic_arr_struct_route@18:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     bytec_0 // "dynamic_arr_struct"
     pushint 20 // 20
@@ -1222,7 +1453,7 @@ main_append_dynamic_arr_struct_route@17:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     bury 3
@@ -1240,7 +1471,7 @@ main_append_dynamic_arr_struct_route@17:
     box_extract
     btoi
     dup
-    bury 11
+    bury 17
     bytec_0 // "dynamic_arr_struct"
     pushint 18 // 18
     intc_0 // 2
@@ -1281,17 +1512,17 @@ main_append_dynamic_arr_struct_route@17:
     uncover 3
     box_splice
     intc_3 // 0
-    bury 6
+    bury 12
 
-main_for_header@113:
-    dig 5
+main_for_header@122:
+    dig 11
     dig 2
     <
-    bz main_after_for@115
-    dig 5
+    bz main_after_for@124
+    dig 11
     dup
     itob
-    dig 10
+    dig 16
     dup
     cover 2
     intc_2 // 8
@@ -1304,14 +1535,14 @@ main_for_header@113:
     box_replace
     intc_1 // 1
     +
-    bury 10
+    bury 16
     intc_1 // 1
     +
-    bury 6
-    b main_for_header@113
+    bury 12
+    b main_for_header@122
 
-main_after_for@115:
-    dig 8
+main_after_for@124:
+    dig 14
     dup
     itob
     dup
@@ -1555,11 +1786,11 @@ main_delete_boxes_route@11:
     intc_1 // 1
     return
 
-main_while_top@152:
+main_while_top@161:
     pushint 10510 // 10510
     global OpcodeBudget
     >
-    bz main_after_while@157
+    bz main_after_while@166
     itxn_begin
     pushint 6 // appl
     itxn_field TypeEnum
@@ -1572,9 +1803,9 @@ main_while_top@152:
     intc_3 // 0
     itxn_field Fee
     itxn_submit
-    b main_while_top@152
+    b main_while_top@161
 
-main_after_while@157:
+main_after_while@166:
     intc_3 // 0
     bury 1
     bytec 12 // "many_ints"
@@ -1582,14 +1813,14 @@ main_after_while@157:
     bury 1
     assert // check self.many_ints exists
     intc_3 // 0
-    bury 5
+    bury 8
 
-main_for_header@130:
-    dig 4
+main_for_header@139:
+    dig 7
     pushint 513 // 513
     <
-    bz main_after_for@132
-    dig 4
+    bz main_after_for@141
+    dig 7
     dup
     intc_2 // 8
     *
@@ -1603,10 +1834,10 @@ main_for_header@130:
     bury 2
     intc_1 // 1
     +
-    bury 5
-    b main_for_header@130
+    bury 8
+    b main_for_header@139
 
-main_after_for@132:
+main_after_for@141:
     dup
     itob
     bytec 4 // 0x151f7c75
@@ -1622,14 +1853,14 @@ main_set_many_ints_route@9:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     swap
     intc_2 // 8
     *
@@ -1658,12 +1889,12 @@ main_set_boxes_route@6:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     intc_3 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 2
     +
     dig 1
@@ -1671,11 +1902,11 @@ main_set_boxes_route@6:
     dup
     uncover 2
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 3
     dup
     intc_3 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 2
     +
     dig 1
@@ -1683,7 +1914,7 @@ main_set_boxes_route@6:
     dup
     uncover 2
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     uncover 4
     itob
     bytec 7 // "box_a"

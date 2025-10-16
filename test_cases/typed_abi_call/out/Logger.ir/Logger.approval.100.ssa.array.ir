@@ -87,20 +87,20 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]() -> void:
     block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let a#0: bytes = ((extract 2 0) tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let b#0: bytes = ((extract 2 0) tmp%2#0)
         let tmp%0#1: bool = (== a#0 0x61)
         (assert tmp%0#1) // a is not a
@@ -111,12 +111,12 @@ subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]() -> void:
 subroutine test_cases.typed_abi_call.logger.Logger.echo[routing]() -> void:
     block@0: // L37
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let aggregate%length%0#0: uint64 = (len "echo: ")
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
@@ -148,7 +148,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_uint64[routing]() -> void
         let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         (log value#0)
         exit 1u
 
@@ -157,19 +157,19 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_uint512[routing]() -> voi
         let value#0: Encoded(uint512) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 64u)
-        (assert eq%0#0) // invalid number of bytes for uint512
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
         (log value#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call.logger.Logger.log_string[routing]() -> void:
     block@0: // L53
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%0#1: string = ((extract 2 0) value#0)
         (log tmp%0#1)
         exit 1u
@@ -179,7 +179,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_bool[routing]() -> void:
         let value#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for bool8
+        (assert eq%0#0) // invalid number of bytes for arc4.bool
         let aggregate%get_bit%0#0: bool = (getbit value#0 0u)
         let tmp%0#1: bool = aggregate%get_bit%0#0
         let select%0#0: bytes = (select 0x46616c7365 0x54727565 tmp%0#1)
@@ -189,12 +189,12 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_bool[routing]() -> void:
 subroutine test_cases.typed_abi_call.logger.Logger.log_bytes[routing]() -> void:
     block@0: // L61
         let value#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%0#1: bytes = ((extract 2 0) value#0)
         (log tmp%0#1)
         exit 1u
@@ -204,17 +204,17 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_asset_account_app[routing
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let asset#0: uint64 = (btoi tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for uint8[32]
+        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let account#0: account = tmp%2#0
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%4#0)
         let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset#0)
         (assert check%0#0) // asset exists
@@ -230,19 +230,19 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_address[routing]() -> voi
         let address#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len address#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         (log address#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call.logger.Logger.echo_native_string[routing]() -> void:
     block@0: // L73
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let value#0: string = ((extract 2 0) tmp%0#0)
         let tmp%0#1: bytes = (concat "echo: " value#0)
         let aggregate%length%0#0: uint64 = (len tmp%0#1)
@@ -258,12 +258,12 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_string[routing]()
 subroutine test_cases.typed_abi_call.logger.Logger.echo_native_bytes[routing]() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let value#0: bytes = ((extract 2 0) tmp%0#0)
         let tmp%0#1: bytes = (concat 0x6563686f3a20 value#0)
         let aggregate%length%0#0: uint64 = (len tmp%0#1)
@@ -281,7 +281,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_uint64[routing]()
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let value#0: uint64 = (btoi tmp%0#0)
         let tmp%0#1: uint64 = (+ value#0 1u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
@@ -296,7 +296,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_biguint[routing](
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 64u)
-        (assert eq%0#0) // invalid number of bytes for uint512
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let value#0: biguint = tmp%0#0
         let tmp%0#1: biguint = (b+ value#0 1b)
         let aggregate%value_len%0#0: uint64 = (len tmp%0#1)
@@ -315,19 +315,19 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_resource_by_index[routin
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for uint8
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
         let tmp%1#0: uint64 = (btoi tmp%0#0)
         let asset#0: uint64 = ((txnas Assets) tmp%1#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%3#0)
         let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for uint8
+        (assert eq%1#0) // invalid number of bytes for arc4.uint8
         let tmp%4#0: uint64 = (btoi tmp%3#0)
         let app#0: uint64 = ((txnas Applications) tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%6#0)
         let eq%2#0: bool = (== len%2#0 1u)
-        (assert eq%2#0) // invalid number of bytes for uint8
+        (assert eq%2#0) // invalid number of bytes for arc4.uint8
         let tmp%7#0: uint64 = (btoi tmp%6#0)
         let acc#0: account = ((txnas Accounts) tmp%7#0)
         let tmp%0#1: bytes = (txna ApplicationArgs 1)
@@ -364,17 +364,17 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_resource_by_value[routin
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let asset#0: uint64 = (btoi tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 32u)
-        (assert eq%2#0) // invalid number of bytes for uint8[32]
+        (assert eq%2#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let acc#0: account = tmp%4#0
         let tmp%0#1: bytes = (txna ApplicationArgs 1)
         let asset_id#0: uint64 = (btoi tmp%0#1)
@@ -404,30 +404,30 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_resource_by_value[routin
 subroutine test_cases.typed_abi_call.logger.Logger.echo_native_tuple[routing]() -> void:
     block@0: // L117
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let s#0: string = ((extract 2 0) tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let b#0: bytes = ((extract 2 0) tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let u#0: uint64 = (btoi tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 4)
         let len%3#0: uint64 = (len tmp%6#0)
         let eq%3#0: bool = (== len%3#0 64u)
-        (assert eq%3#0) // invalid number of bytes for uint512
+        (assert eq%3#0) // invalid number of bytes for arc4.uint512
         let bu#0: biguint = tmp%6#0
         let tmp%0#1: bytes = (concat "echo: " s#0)
         let tmp%1#1: bytes = (concat 0x6563686f3a20 b#0)
@@ -474,27 +474,86 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_tuple[routing]() 
 subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple[routing]() -> void:
     block@0: // L123
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 4u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 2u)
         let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
-        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u)
-        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 aggregate%substring3%0#0 2u)
-        let aggregate%substring3%1#0: bytes = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%2#0 aggregate%extract_uint16%3#0)
-        let aggregate%item0%0#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
-        let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 aggregate%substring3%0#0 2u)
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%4#0 aggregate%len%0#0)
-        let aggregate%extract_uint16%5#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let tmp%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%substring3%0#0
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 4u)
+        (assert eq%1#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%2#0 aggregate%extract_uint16%3#0)
+        let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 aggregate%substring3%1#0 0u)
+        let aggregate%extract_uint16%5#0: uint64 = (extract_uint16 aggregate%substring3%1#0 2u)
+        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%1#0 aggregate%extract_uint16%4#0 aggregate%extract_uint16%5#0)
+        let tmp%2#0: Encoded(len+utf8[]) = aggregate%substring3%2#0
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%1#0: uint64 = (+ length%0#0 6u)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%1#0 2u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%1#0)
+        (assert eq%2#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+        let aggregate%extract_uint16%6#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%extract_uint16%7#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let aggregate%substring3%3#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%6#0 aggregate%extract_uint16%7#0)
+        let aggregate%extract_uint16%8#0: uint64 = (extract_uint16 aggregate%substring3%3#0 2u)
+        let aggregate%len%0#0: uint64 = (len aggregate%substring3%3#0)
+        let aggregate%substring3%4#0: bytes = (substring3 aggregate%substring3%3#0 aggregate%extract_uint16%8#0 aggregate%len%0#0)
+        let tmp%3#0: Encoded(len+utf8[]) = aggregate%substring3%4#0
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let add%2#0: uint64 = (+ length%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let add%4#0: uint64 = (+ 4u add%3#0)
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%3#0 add%4#0)
+        (assert eq%3#0) // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let aggregate%extract_uint16%9#0: uint64 = (extract_uint16 tmp%0#0 2u)
         let aggregate%len%1#0: uint64 = (len tmp%0#0)
-        let aggregate%substring3%3#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%5#0 aggregate%len%1#0)
-        let aggregate%extract%0#0: bytes = (extract3 aggregate%substring3%3#0 0u 8u)
+        let aggregate%substring3%5#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%9#0 aggregate%len%1#0)
+        let tmp%4#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%substring3%5#0
+        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%4#0 16u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%4#0 18u)
+        (assert eq%4#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
+        let aggregate%extract_uint16%10#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let aggregate%len%2#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%6#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%10#0 aggregate%len%2#0)
+        let aggregate%extract_uint16%11#0: uint64 = (extract_uint16 aggregate%substring3%6#0 16u)
+        let aggregate%len%3#0: uint64 = (len aggregate%substring3%6#0)
+        let aggregate%substring3%7#0: bytes = (substring3 aggregate%substring3%6#0 aggregate%extract_uint16%11#0 aggregate%len%3#0)
+        let tmp%5#0: Encoded(len+uint8[]) = aggregate%substring3%7#0
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%5#0 0u) // on error: invalid array length header
+        let length%2#0: uint64 = aggregate%array_length%2#0
+        let add%6#0: uint64 = (+ length%2#0 20u)
+        let add%7#0: uint64 = (+ add%4#0 add%6#0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%5#0: bool = (== len%0#0 add%7#0)
+        (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+        let aggregate%extract_uint16%12#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%extract_uint16%13#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let aggregate%substring3%8#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%12#0 aggregate%extract_uint16%13#0)
+        let aggregate%extract_uint16%14#0: uint64 = (extract_uint16 aggregate%substring3%8#0 0u)
+        let aggregate%extract_uint16%15#0: uint64 = (extract_uint16 aggregate%substring3%8#0 2u)
+        let aggregate%substring3%9#0: bytes = (substring3 aggregate%substring3%8#0 aggregate%extract_uint16%14#0 aggregate%extract_uint16%15#0)
+        let aggregate%item0%0#0: bytes = ((extract 2 0) aggregate%substring3%9#0)
+        let aggregate%extract_uint16%16#0: uint64 = (extract_uint16 aggregate%substring3%8#0 2u)
+        let aggregate%len%4#0: uint64 = (len aggregate%substring3%8#0)
+        let aggregate%substring3%10#0: bytes = (substring3 aggregate%substring3%8#0 aggregate%extract_uint16%16#0 aggregate%len%4#0)
+        let aggregate%extract_uint16%17#0: uint64 = (extract_uint16 tmp%0#0 2u)
+        let aggregate%len%5#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%11#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%17#0 aggregate%len%5#0)
+        let aggregate%extract%0#0: bytes = (extract3 aggregate%substring3%11#0 0u 8u)
         let aggregate%item0%1#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%extract%1#0: bytes = (extract3 aggregate%substring3%3#0 8u 8u)
-        let aggregate%extract_uint16%6#0: uint64 = (extract_uint16 aggregate%substring3%3#0 16u)
-        let aggregate%len%2#0: uint64 = (len aggregate%substring3%3#0)
-        let aggregate%substring3%4#0: bytes = (substring3 aggregate%substring3%3#0 aggregate%extract_uint16%6#0 aggregate%len%2#0)
-        let aggregate%item2%0#0: bytes = ((extract 2 0) aggregate%substring3%4#0)
-        let (tuple_of_tuples.0.0#0: string, tuple_of_tuples.0.1#0: Encoded(len+utf8[]), tuple_of_tuples.1.0#0: uint64, tuple_of_tuples.1.1#0: Encoded(uint64), tuple_of_tuples.1.2#0: bytes) = (aggregate%item0%0#0, aggregate%substring3%2#0, aggregate%item0%1#0, aggregate%extract%1#0, aggregate%item2%0#0)
+        let aggregate%extract%1#0: bytes = (extract3 aggregate%substring3%11#0 8u 8u)
+        let aggregate%extract_uint16%18#0: uint64 = (extract_uint16 aggregate%substring3%11#0 16u)
+        let aggregate%len%6#0: uint64 = (len aggregate%substring3%11#0)
+        let aggregate%substring3%12#0: bytes = (substring3 aggregate%substring3%11#0 aggregate%extract_uint16%18#0 aggregate%len%6#0)
+        let aggregate%item2%0#0: bytes = ((extract 2 0) aggregate%substring3%12#0)
+        let (tuple_of_tuples.0.0#0: string, tuple_of_tuples.0.1#0: Encoded(len+utf8[]), tuple_of_tuples.1.0#0: uint64, tuple_of_tuples.1.1#0: Encoded(uint64), tuple_of_tuples.1.2#0: bytes) = (aggregate%item0%0#0, aggregate%substring3%10#0, aggregate%item0%1#0, aggregate%extract%1#0, aggregate%item2%0#0)
         let tmp%0#1: bytes = (concat "echo: " tuple_of_tuples.0.0#0)
         let aggregate%length%0#0: uint64 = (len "echo: ")
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
@@ -505,8 +564,8 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple[routing]() 
         let extract_to_end%0#0: bytes = ((extract 2 0) tuple_of_tuples.0.1#0)
         let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#1 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#0)
+        let len%0#1: uint64 = (len extract_to_end%1#0)
+        let as_bytes%0#0: bytes[8] = (itob len%0#1)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let tmp%2#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
@@ -563,9 +622,9 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple[routing]() 
         let aggregate%concat%3#0: bytes = (concat aggregate%head%6#0 aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
         let aggregate%concat%4#0: bytes = (concat aggregate%concat%3#0 aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0)
         let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%4#0
-        let tmp%11#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0
-        let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
-        (log tmp%12#0)
+        let tmp%16#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0
+        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
+        (log tmp%17#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th[routing]() -> void:
@@ -573,93 +632,93 @@ subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th[routin
         let _a1#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len _a1#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let _a2#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len _a2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let _a3#0: Encoded(uint64) = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len _a3#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let _a4#0: Encoded(uint64) = (txna ApplicationArgs 4)
         let len%3#0: uint64 = (len _a4#0)
         let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for uint64
+        (assert eq%3#0) // invalid number of bytes for arc4.uint64
         let _a5#0: Encoded(uint64) = (txna ApplicationArgs 5)
         let len%4#0: uint64 = (len _a5#0)
         let eq%4#0: bool = (== len%4#0 8u)
-        (assert eq%4#0) // invalid number of bytes for uint64
+        (assert eq%4#0) // invalid number of bytes for arc4.uint64
         let _a6#0: Encoded(uint64) = (txna ApplicationArgs 6)
         let len%5#0: uint64 = (len _a6#0)
         let eq%5#0: bool = (== len%5#0 8u)
-        (assert eq%5#0) // invalid number of bytes for uint64
+        (assert eq%5#0) // invalid number of bytes for arc4.uint64
         let _a7#0: Encoded(uint64) = (txna ApplicationArgs 7)
         let len%6#0: uint64 = (len _a7#0)
         let eq%6#0: bool = (== len%6#0 8u)
-        (assert eq%6#0) // invalid number of bytes for uint64
+        (assert eq%6#0) // invalid number of bytes for arc4.uint64
         let _a8#0: Encoded(uint64) = (txna ApplicationArgs 8)
         let len%7#0: uint64 = (len _a8#0)
         let eq%7#0: bool = (== len%7#0 8u)
-        (assert eq%7#0) // invalid number of bytes for uint64
+        (assert eq%7#0) // invalid number of bytes for arc4.uint64
         let _a9#0: Encoded(uint64) = (txna ApplicationArgs 9)
         let len%8#0: uint64 = (len _a9#0)
         let eq%8#0: bool = (== len%8#0 8u)
-        (assert eq%8#0) // invalid number of bytes for uint64
+        (assert eq%8#0) // invalid number of bytes for arc4.uint64
         let _a10#0: Encoded(uint64) = (txna ApplicationArgs 10)
         let len%9#0: uint64 = (len _a10#0)
         let eq%9#0: bool = (== len%9#0 8u)
-        (assert eq%9#0) // invalid number of bytes for uint64
+        (assert eq%9#0) // invalid number of bytes for arc4.uint64
         let _a11#0: Encoded(uint64) = (txna ApplicationArgs 11)
         let len%10#0: uint64 = (len _a11#0)
         let eq%10#0: bool = (== len%10#0 8u)
-        (assert eq%10#0) // invalid number of bytes for uint64
+        (assert eq%10#0) // invalid number of bytes for arc4.uint64
         let _a12#0: Encoded(uint64) = (txna ApplicationArgs 12)
         let len%11#0: uint64 = (len _a12#0)
         let eq%11#0: bool = (== len%11#0 8u)
-        (assert eq%11#0) // invalid number of bytes for uint64
+        (assert eq%11#0) // invalid number of bytes for arc4.uint64
         let _a13#0: Encoded(uint64) = (txna ApplicationArgs 13)
         let len%12#0: uint64 = (len _a13#0)
         let eq%12#0: bool = (== len%12#0 8u)
-        (assert eq%12#0) // invalid number of bytes for uint64
+        (assert eq%12#0) // invalid number of bytes for arc4.uint64
         let _a14#0: Encoded(uint64) = (txna ApplicationArgs 14)
         let len%13#0: uint64 = (len _a14#0)
         let eq%13#0: bool = (== len%13#0 8u)
-        (assert eq%13#0) // invalid number of bytes for uint64
+        (assert eq%13#0) // invalid number of bytes for arc4.uint64
         let tmp%14#0: bytes = (txna ApplicationArgs 15)
         let len%14#0: uint64 = (len tmp%14#0)
         let eq%14#0: bool = (== len%14#0 9u)
-        (assert eq%14#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%14#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%0#0: bytes = (extract3 tmp%14#0 0u 1u)
         let a15#0: Encoded(uint8) = aggregate%extract%0#0
         let tmp%15#0: bytes = (txna ApplicationArgs 15)
         let len%15#0: uint64 = (len tmp%15#0)
         let eq%15#0: bool = (== len%15#0 9u)
-        (assert eq%15#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%15#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%1#0: bytes = (extract3 tmp%15#0 1u 1u)
         let a16#0: Encoded(uint8) = aggregate%extract%1#0
         let tmp%16#0: bytes = (txna ApplicationArgs 15)
         let len%16#0: uint64 = (len tmp%16#0)
         let eq%16#0: bool = (== len%16#0 9u)
-        (assert eq%16#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%16#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%2#0: bytes = (extract3 tmp%16#0 2u 1u)
         let a17#0: Encoded(uint8) = aggregate%extract%2#0
         let tmp%17#0: bytes = (txna ApplicationArgs 15)
         let len%17#0: uint64 = (len tmp%17#0)
         let eq%17#0: bool = (== len%17#0 9u)
-        (assert eq%17#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%17#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%3#0: bytes = (extract3 tmp%17#0 3u 1u)
         let a18#0: Encoded(uint8) = aggregate%extract%3#0
         let tmp%18#0: bytes = (txna ApplicationArgs 15)
         let len%18#0: uint64 = (len tmp%18#0)
         let eq%18#0: bool = (== len%18#0 9u)
-        (assert eq%18#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%18#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%4#0: bytes = (extract3 tmp%18#0 4u 4u)
         let a19#0: Encoded(uint8,uint8,uint8,uint8) = aggregate%extract%4#0
         let tmp%19#0: bytes = (txna ApplicationArgs 15)
         let len%19#0: uint64 = (len tmp%19#0)
         let eq%19#0: bool = (== len%19#0 9u)
-        (assert eq%19#0) // invalid number of bytes for (uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)
+        (assert eq%19#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>
         let aggregate%extract%5#0: bytes = (extract3 tmp%19#0 8u 1u)
         let a20#0: Encoded(uint8) = aggregate%extract%5#0
         let aggregate%head%0#0: bytes = (concat 0x a15#0)
@@ -686,34 +745,73 @@ subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th[routin
 subroutine test_cases.typed_abi_call.logger.Logger.logs_are_equal[routing]() -> void:
     block@0: // L162
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
-        let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u)
         let aggregate%len%0#0: uint64 = (len tmp%0#0)
         let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%item1%0#0: bytes = ((extract 2 0) aggregate%substring3%0#0)
+        let tmp%1#0: Encoded(len+utf8[]) = aggregate%substring3%0#0
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%1#0: uint64 = (+ length%0#0 12u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%1#0: bool = (== len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogMessage
+        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
+        let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 8u)
+        let aggregate%len%1#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%1#0 aggregate%len%1#0)
+        let aggregate%item1%0#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
         let (log_1.level#0: uint64, log_1.message#0: string) = (aggregate%item0%0#0, aggregate%item1%0#0)
-        let tmp%3#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%extract%1#0: bytes = (extract3 tmp%3#0 0u 8u)
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%4#0 8u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%1#0 10u)
+        (assert eq%2#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%4#0 8u)
+        let aggregate%len%2#0: uint64 = (len tmp%4#0)
+        let aggregate%substring3%2#0: bytes = (substring3 tmp%4#0 aggregate%extract_uint16%2#0 aggregate%len%2#0)
+        let tmp%5#0: Encoded(len+utf8[]) = aggregate%substring3%2#0
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%5#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let add%3#0: uint64 = (+ length%1#0 12u)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%3#0: bool = (== len%1#0 add%3#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogMessage
+        let aggregate%extract%1#0: bytes = (extract3 tmp%4#0 0u 8u)
         let aggregate%item0%1#0: uint64 = (btoi aggregate%extract%1#0)
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%3#0 8u)
-        let aggregate%len%1#0: uint64 = (len tmp%3#0)
-        let aggregate%substring3%1#0: bytes = (substring3 tmp%3#0 aggregate%extract_uint16%1#0 aggregate%len%1#0)
-        let aggregate%item1%1#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
+        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 tmp%4#0 8u)
+        let aggregate%len%3#0: uint64 = (len tmp%4#0)
+        let aggregate%substring3%3#0: bytes = (substring3 tmp%4#0 aggregate%extract_uint16%3#0 aggregate%len%3#0)
+        let aggregate%item1%1#0: bytes = ((extract 2 0) aggregate%substring3%3#0)
         let (log_2.level#0: uint64, log_2.message#0: string) = (aggregate%item0%1#0, aggregate%item1%1#0)
         let tmp%0#1: bool = (== log_1.level#0 log_2.level#0)
         let tmp%1#1: bool = (== log_1.message#0 log_2.message#0)
         let tmp%2#1: bool = (&& tmp%0#1 tmp%1#1)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%2#1)
         let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
-        let tmp%7#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
-        let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
-        (log tmp%8#0)
+        let tmp%9#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
+        (log tmp%10#0)
         exit 1u
 
 subroutine test_cases.typed_abi_call.logger.Logger.echo_log_struct[routing]() -> void:
     block@0: // L166
         let log#0: Encoded(uint64,(len+utf8[])) = (txna ApplicationArgs 1)
-        let tmp%2#0: bytes = (concat 0x151f7c75 log#0)
-        (log tmp%2#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 log#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 log#0 8u)
+        let aggregate%len%0#0: uint64 = (len log#0)
+        let aggregate%substring3%0#0: bytes = (substring3 log#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let tmp%1#0: Encoded(len+utf8[]) = aggregate%substring3%0#0
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%1#0: uint64 = (+ length%0#0 12u)
+        let len%0#0: uint64 = (len log#0)
+        let eq%1#0: bool = (== len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+        let tmp%3#0: bytes = (concat 0x151f7c75 log#0)
+        (log tmp%3#0)
         exit 1u

@@ -60,7 +60,7 @@ subroutine verify:
         txna ApplicationArgs 1                                                         values#0
         l-load-copy values#0 0                                                         values#0,values#0 (copy)
         int 0                                                                          values#0,values#0 (copy),0
-        extract_uint16                                                                 values#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                        values#0,aggregate%array_length%0#0
         l-load-copy aggregate%array_length%0#0 0                                       values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
         int 32                                                                         values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
         *                                                                              values#0,aggregate%array_length%0#0,mul%0#0
@@ -73,7 +73,7 @@ subroutine verify:
         l-load add%0#0 1                                                               aggregate%array_length%0#0,len%0#0,add%0#0
         ==                                                                             aggregate%array_length%0#0,eq%0#0
         l-load eq%0#0 0                                                                aggregate%array_length%0#0,eq%0#0
-        assert // invalid number of bytes for (len+uint256[])                          aggregate%array_length%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint256>         aggregate%array_length%0#0
         // regression_tests/issue_118.py:10
         // bool(Txn.num_app_args)
         txn NumAppArgs                                                                 aggregate%array_length%0#0,tmp%0#1

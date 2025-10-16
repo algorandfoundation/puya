@@ -27,12 +27,12 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:
     block@0: // L13
         let proof#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u) // on error: invalid array length header
         let mul%0#0: uint64 = (* aggregate%array_length%0#0 32u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len proof#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[32][])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
         let x#0: bytes = (extract3 proof#0 258u 32u)
         let aggregate%encoded_element%1#0: bytes = ((extract 194 32) proof#0)
         let aggregate%encoded_element%2#0: bytes = ((extract 226 32) proof#0)

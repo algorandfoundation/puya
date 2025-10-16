@@ -127,7 +127,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%11#0: bool = (== dynamic_bool_array#1 encoded_array%1#1)
         (assert tmp%11#0)
         let extract_to_end%0#1: bytes = ((extract 2 0) dynamic_bool_array#1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#1 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#1 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%0#0
         let dynamic_bool_array#2: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#1, extract_to_end%0#1, tmp%12#0, 1u)
         let aggregate%as_bytes%7#0: bytes[8] = (itob 8u)
@@ -253,7 +253,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%5#2: bool = (== dynamic_string_array#1 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%5#2)
         let extract_to_end%0#2: bytes = ((extract 2 0) dynamic_string_array#1)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#1 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#1 0u) // on error: invalid array length header
         let tmp%6#2: uint64 = aggregate%array_length%1#0
         let start_of_tail%0#0: uint64 = (* tmp%6#2 2u)
         let total_length%1#1: uint64 = (len extract_to_end%0#2)
@@ -315,7 +315,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         (assert tmp%7#2)
         let aggregate%total_length%0#0: uint64 = (len dynamic_string_array#3)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 dynamic_string_array#3 2u aggregate%total_length%0#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#3 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#3 0u) // on error: invalid array length header
         let aggregate%lt%0#0: bool = (< 3u aggregate%array_length%2#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* 3u 2u)
@@ -324,14 +324,14 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 1u)
         let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
         let aggregate%item%0#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#3 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#3 0u) // on error: invalid array length header
         let aggregate%lt%1#0: bool = (< 3u aggregate%array_length%3#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#3, hello#0, 3u)
         let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = aggregate%updated_array%0#0
         let aggregate%total_length%1#0: uint64 = (len dynamic_string_array#4)
         let aggregate%array_head_and_tail%1#0: bytes = (substring3 dynamic_string_array#4 2u aggregate%total_length%1#0)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#4 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#4 0u) // on error: invalid array length header
         let aggregate%lt%2#0: bool = (< 5u aggregate%array_length%4#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%item_offset_offset%1#0: uint64 = (* 5u 2u)
@@ -340,7 +340,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%1#0 1u)
         let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%1#0 2u)
         let aggregate%item%1#0: bytes = (extract3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%item_head_tail_length%1#0)
-        let aggregate%array_length%5#0: uint64 = (extract_uint16 dynamic_string_array#4 0u)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 dynamic_string_array#4 0u) // on error: invalid array length header
         let aggregate%lt%3#0: bool = (< 5u aggregate%array_length%5#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#4, hello#0, 5u)
@@ -471,7 +471,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         (assert tmp%2#3)
         let aggregate%total_length%2#0: uint64 = (len array_of_array#2)
         let aggregate%array_head_and_tail%2#0: bytes = (substring3 array_of_array#2 2u aggregate%total_length%2#0)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 array_of_array#2 0u)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 array_of_array#2 0u) // on error: invalid array length header
         let aggregate%lt%4#0: bool = (< 0u aggregate%array_length%6#0)
         (assert aggregate%lt%4#0) // index access is out of bounds
         let aggregate%item_offset_offset%2#0: uint64 = (* 0u 2u)
@@ -492,7 +492,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let replace%0#1: bytes = ((replace2 0) concat%2#1 as_u16_bytes%0#1)
         let aggregate%total_length%3#0: uint64 = (len array_of_array#2)
         let aggregate%array_head_and_tail%3#0: bytes = (substring3 array_of_array#2 2u aggregate%total_length%3#0)
-        let aggregate%array_length%7#0: uint64 = (extract_uint16 array_of_array#2 0u)
+        let aggregate%array_length%7#0: uint64 = (extract_uint16 array_of_array#2 0u) // on error: invalid array length header
         let aggregate%lt%5#0: bool = (< 0u aggregate%array_length%7#0)
         (assert aggregate%lt%5#0) // index access is out of bounds
         let aggregate%item_offset_offset%3#0: uint64 = (* 0u 2u)
@@ -501,7 +501,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%item_length_in_bytes%3#0: uint64 = (* aggregate%item_length%3#0 1u)
         let aggregate%item_head_tail_length%3#0: uint64 = (+ aggregate%item_length_in_bytes%3#0 2u)
         let aggregate%item%3#0: bytes = (extract3 aggregate%array_head_and_tail%3#0 aggregate%item_offset%3#0 aggregate%item_head_tail_length%3#0)
-        let aggregate%array_length%8#0: uint64 = (extract_uint16 array_of_array#2 0u)
+        let aggregate%array_length%8#0: uint64 = (extract_uint16 array_of_array#2 0u) // on error: invalid array length header
         let aggregate%lt%6#0: bool = (< 0u aggregate%array_length%8#0)
         (assert aggregate%lt%6#0) // index access is out of bounds
         let aggregate%updated_array%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#2, replace%0#1, 0u)
@@ -510,7 +510,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         (assert tmp%4#3)
         let aggregate%total_length%4#0: uint64 = (len array_of_array#3)
         let aggregate%array_head_and_tail%4#0: bytes = (substring3 array_of_array#3 2u aggregate%total_length%4#0)
-        let aggregate%array_length%9#0: uint64 = (extract_uint16 array_of_array#3 0u)
+        let aggregate%array_length%9#0: uint64 = (extract_uint16 array_of_array#3 0u) // on error: invalid array length header
         let aggregate%lt%7#0: bool = (< 0u aggregate%array_length%9#0)
         (assert aggregate%lt%7#0) // index access is out of bounds
         let aggregate%item_offset_offset%4#0: uint64 = (* 0u 2u)
@@ -526,7 +526,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%write_offset%0#0: uint64 = (* 1u 1u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
         let aggregate%updated_array%3#0: bytes = (replace3 aggregate%item%4#0 aggregate%write_offset_with_length_header%0#0 0x00) // on error: index access is out of bounds
-        let aggregate%array_length%10#0: uint64 = (extract_uint16 array_of_array#3 0u)
+        let aggregate%array_length%10#0: uint64 = (extract_uint16 array_of_array#3 0u) // on error: invalid array length header
         let aggregate%lt%8#0: bool = (< 0u aggregate%array_length%10#0)
         (assert aggregate%lt%8#0) // index access is out of bounds
         let aggregate%updated_array%4#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, aggregate%updated_array%3#0, 0u)
@@ -593,12 +593,12 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%get_bit%24#0: bool = (getbit tmp%1#1 0u)
         let aggregate%as_Encoded(bool1)%0#0: Encoded(bool1) = aggregate%get_bit%24#0
         let encoded_value%0#0: Encoded(bool1) = aggregate%as_Encoded(bool1)%0#0
-        let aggregate%array_length%11#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let aggregate%array_length%11#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u) // on error: invalid array length header
         let aggregate%lt%9#0: bool = (< 0u aggregate%array_length%11#0)
         (assert aggregate%lt%9#0) // index access is out of bounds
         let aggregate%add%0#0: uint64 = (+ 0u 16u)
         let aggregate%get_bit%25#0: bool = (getbit dynamic_bool_array#0 aggregate%add%0#0)
-        let aggregate%array_length%12#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let aggregate%array_length%12#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u) // on error: invalid array length header
         let aggregate%lt%10#0: bool = (< 0u aggregate%array_length%12#0)
         (assert aggregate%lt%10#0) // index access is out of bounds
         let aggregate%write_offset_with_length_header%2#0: uint64 = (+ 0u 16u)
@@ -788,7 +788,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%as_Encoded(len+(len+utf8[])[])%5#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%31#0
         let encoded_array%5#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%5#0
         let extract_to_end%0#3: bytes = ((extract 2 0) encoded_array%5#0)
-        let aggregate%array_length%13#0: uint64 = (extract_uint16 encoded_array%5#0 0u)
+        let aggregate%array_length%13#0: uint64 = (extract_uint16 encoded_array%5#0 0u) // on error: invalid array length header
         let tmp%8#5: uint64 = aggregate%array_length%13#0
         let start_of_tail%0#1: uint64 = (* tmp%8#5 2u)
         let total_length%1#2: uint64 = (len extract_to_end%0#3)

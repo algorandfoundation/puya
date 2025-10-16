@@ -73,29 +73,110 @@ subroutine test_cases.arc_56.contract.Contract.create[routing]() -> void:
 subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
     block@0: // L88
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 12u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%1#0: Encoded(len+utf8[]) = extract_value(arg#0, 1)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let add%1#0: uint64 = (+ length%0#0 14u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 10u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%2#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 3u)
+        (assert eq%2#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+        let tmp%3#0: Encoded(len+uint8[]) = extract_value(arg#0, 2, 0)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let mul%1#0: uint64 = length%1#0
+        let add%2#0: uint64 = (+ length%1#0 2u)
+        let add%3#0: uint64 = (+ length%1#0 5u)
+        let add%4#0: uint64 = (+ add%1#0 add%3#0)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let shared#0: Encoded((len+uint8[]),uint8) = (txna ApplicationArgs 2)
+        let extract_uint16%3#0: uint64 = (extract_uint16 shared#0 0u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%3#0 3u)
+        (assert eq%4#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+        let tmp%5#0: Encoded(len+uint8[]) = extract_value(shared#0, 0)
+        let length%2#0: uint64 = array_len(tmp%5#0)
+        let mul%2#0: uint64 = length%2#0
+        let add%5#0: uint64 = (+ length%2#0 2u)
+        let add%6#0: uint64 = (+ length%2#0 5u)
+        let len%1#0: uint64 = (len shared#0)
+        let eq%5#0: bool = (== len%1#0 add%6#0)
+        (assert eq%5#0) // invalid number of bytes for test_cases.arc_56.contract.SharedStruct
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
         let tmp%0#1: bool = (== tuple_item%0#0 shared#0)
         (assert tmp%0#1) // this might error
-        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(42u)
-        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
-        (log tmp%4#0)
+        let tmp%7#0: Encoded(uint64) = bytes_encode<uint64>(42u)
+        let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
+        (log tmp%8#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
     block@0: // L94
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 12u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%1#0: Encoded(len+utf8[]) = extract_value(arg#0, 1)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let add%1#0: uint64 = (+ length%0#0 14u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 10u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%2#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 3u)
+        (assert eq%2#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+        let tmp%3#0: Encoded(len+uint8[]) = extract_value(arg#0, 2, 0)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let add%2#0: uint64 = (+ length%1#0 2u)
+        let add%3#0: uint64 = (+ length%1#0 5u)
+        let add%4#0: uint64 = (+ add%1#0 add%3#0)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
         let (echo%0#0: Encoded((len+uint8[]),uint8), echo%1#0: Encoded((len+uint8[]),uint8)) = test_cases.arc_56.contract.echo(tuple_item%0#0)
         let tmp%0#1: bool = (== tuple_item%0#0 echo%0#0)
         (assert tmp%0#1) // this won't error
-        let tmp%2#0: bytes = (concat 0x151f7c75 tuple_item%0#0)
-        (log tmp%2#0)
+        let tmp%5#0: bytes = (concat 0x151f7c75 tuple_item%0#0)
+        (log tmp%5#0)
         exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
     block@0: // L99
         let arg#0: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) = (txna ApplicationArgs 1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 12u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%1#0: Encoded(len+utf8[]) = extract_value(arg#0, 1)
+        let length%0#0: uint64 = array_len(tmp%1#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let add%1#0: uint64 = (+ length%0#0 14u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 10u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+        let tmp%2#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 3u)
+        (assert eq%2#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+        let tmp%3#0: Encoded(len+uint8[]) = extract_value(arg#0, 2, 0)
+        let length%1#0: uint64 = array_len(tmp%3#0)
+        let mul%1#0: uint64 = length%1#0
+        let add%2#0: uint64 = (+ length%1#0 2u)
+        let add%3#0: uint64 = (+ length%1#0 5u)
+        let add%4#0: uint64 = (+ add%1#0 add%3#0)
+        let len%0#0: uint64 = (len arg#0)
+        let eq%3#0: bool = (== len%0#0 add%4#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
         let tuple_item%0#0: Encoded(uint64) = extract_value(arg#0, 0)
         let tmp%0#1: bool = (== tuple_item%0#0 0x00)
         (assert tmp%0#1) // this will error
@@ -120,7 +201,7 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> vo
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for bool8
+        (assert eq%0#0) // invalid number of bytes for arc4.bool
         let should_emit#0: bool = decode_bytes<bool>(tmp%0#0)
         goto should_emit#0 ? block@2 : block@3
     block@2: // if_body_L116
@@ -150,38 +231,97 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let b#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 3)
         let length%0#0: uint64 = array_len(tmp%3#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%2#0: uint64 = (len tmp%3#0)
         let eq%2#0: bool = (== len%2#0 add%0#0)
-        (assert eq%2#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let c#0: bytes = decode_bytes<bytes>(tmp%3#0)
         let d#0: Encoded(uint64,uint64) = (txna ApplicationArgs 4)
         let len%3#0: uint64 = (len d#0)
         let eq%3#0: bool = (== len%3#0 16u)
-        (assert eq%3#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%3#0) // invalid number of bytes for test_cases.arc_56.contract.EventOnly
         let tmp%6#0: bytes = (txna ApplicationArgs 5)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%6#0 8u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%4#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let tmp%7#0: Encoded(len+utf8[]) = extract_value(tmp%6#0, 1)
+        let length%1#0: uint64 = array_len(tmp%7#0)
+        let add%1#0: uint64 = (+ length%1#0 2u)
+        let add%2#0: uint64 = (+ length%1#0 12u)
+        let len%4#0: uint64 = (len tmp%6#0)
+        let eq%5#0: bool = (== len%4#0 add%2#0)
+        (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>>
         let (e.0#0: uint64, e.1#0: string) = decode_bytes<(uint64,string,)>(tmp%6#0)
         let f#0: Encoded((len+utf8[])[2]) = (txna ApplicationArgs 6)
+        let length%2#0: uint64 = array_len(f#0)
+        let num_bytes%0#0: uint64 = (* length%2#0 2u)
+        let index%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L131
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
+        let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
+        let continue_looping%0#0: bool = (< index%0#1 length%2#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L131
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 f#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (len+utf8[])[2]
+        let tmp%11#0: Encoded(len+utf8[]) = extract_value(f#0, index%0#1)
+        let length%3#0: uint64 = array_len(tmp%11#0)
+        let add%3#0: uint64 = (+ length%3#0 2u)
+        let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%3#0)
+        let index%0#2: uint64 = (+ index%0#1 1u)
+        goto block@1
+    block@4: // after_for_L131
+        let len%5#0: uint64 = (len f#0)
+        let eq%6#0: bool = (== len%5#0 num_bytes%0#1)
+        (assert eq%6#0) // invalid number of bytes for arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>
         let g#0: Encoded(len+(len+utf8[])[]) = (txna ApplicationArgs 7)
-        let tmp%11#0: bytes = (txna ApplicationArgs 8)
-        let len%4#0: uint64 = (len tmp%11#0)
-        let eq%4#0: bool = (== len%4#0 8u)
-        (assert eq%4#0) // invalid number of bytes for uint64
-        let h#0: uint64 = decode_bytes<uint64>(tmp%11#0)
-        let tmp%13#0: bytes = (txna ApplicationArgs 9)
-        let len%5#0: uint64 = (len tmp%13#0)
-        let eq%5#0: bool = (== len%5#0 8u)
-        (assert eq%5#0) // invalid number of bytes for uint64
-        let i#0: uint64 = decode_bytes<uint64>(tmp%13#0)
+        let length%4#0: uint64 = array_len(g#0)
+        let num_bytes%1#0: uint64 = (* length%4#0 2u)
+        let total_length%0#0: uint64 = (len g#0)
+        let array_data%0#0: bytes = ((extract 2 0) g#0)
+        let index%1#0: uint64 = 0u
+        goto block@5
+    block@5: // for_header_L131
+        let index%1#1: uint64 = φ(index%1#0 <- block@4, index%1#2 <- block@6)
+        let num_bytes%1#1: uint64 = φ(num_bytes%1#0 <- block@4, num_bytes%1#2 <- block@6)
+        let continue_looping%1#0: bool = (< index%1#1 length%4#0)
+        goto continue_looping%1#0 ? block@6 : block@8
+    block@6: // for_body_L131
+        let head_offset_bytes%1#0: uint64 = (* index%1#1 2u)
+        let item_offset%1#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%1#0: bool = (== item_offset%1#0 num_bytes%1#1)
+        (assert offset_is_correct%1#0) // invalid tail pointer for (len+(len+utf8[])[])
+        let tmp%13#0: Encoded(len+utf8[]) = extract_value(g#0, index%1#1)
+        let length%5#0: uint64 = array_len(tmp%13#0)
+        let add%4#0: uint64 = (+ length%5#0 2u)
+        let num_bytes%1#2: uint64 = (+ num_bytes%1#1 add%4#0)
+        let index%1#2: uint64 = (+ index%1#1 1u)
+        goto block@5
+    block@8: // after_for_L131
+        let num_bytes%2#0: uint64 = (+ num_bytes%1#1 2u)
+        let eq%7#0: bool = (== total_length%0#0 num_bytes%2#0)
+        (assert eq%7#0) // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
+        let tmp%14#0: bytes = (txna ApplicationArgs 8)
+        let len%7#0: uint64 = (len tmp%14#0)
+        let eq%8#0: bool = (== len%7#0 8u)
+        (assert eq%8#0) // invalid number of bytes for arc4.uint64
+        let h#0: uint64 = decode_bytes<uint64>(tmp%14#0)
+        let tmp%16#0: bytes = (txna ApplicationArgs 9)
+        let len%8#0: uint64 = (len tmp%16#0)
+        let eq%9#0: bool = (== len%8#0 8u)
+        (assert eq%9#0) // invalid number of bytes for arc4.uint64
+        let i#0: uint64 = decode_bytes<uint64>(tmp%16#0)
         let tmp%0#1: bool = (b!= a#0 0b)
         (assert tmp%0#1)
         let tmp%1#1: bool = (!= b#0 0u)
@@ -191,34 +331,34 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         (assert tmp%2#1)
         let tuple_item%0#0: Encoded(uint64) = extract_value(d#0, 0)
         let tmp%4#1: bool = (b!= tuple_item%0#0 0b)
-        goto tmp%4#1 ? block@3 : block@2
-    block@2: // or_contd_L159
+        goto tmp%4#1 ? block@11 : block@10
+    block@10: // or_contd_L159
         let tuple_item%1#0: Encoded(uint64) = extract_value(d#0, 1)
         let tmp%5#1: bool = (b!= tuple_item%1#0 0b)
-        goto tmp%5#1 ? block@3 : block@4
-    block@3: // bool_true_L159
+        goto tmp%5#1 ? block@11 : block@12
+    block@11: // bool_true_L159
         let or_result%0#0: bool = 1u
-        goto block@5
-    block@4: // bool_false_L159
+        goto block@13
+    block@12: // bool_false_L159
         let or_result%0#1: bool = 0u
-        goto block@5
-    block@5: // bool_merge_L159
-        let or_result%0#2: bool = φ(or_result%0#0 <- block@3, or_result%0#1 <- block@4)
+        goto block@13
+    block@13: // bool_merge_L159
+        let or_result%0#2: bool = φ(or_result%0#0 <- block@11, or_result%0#1 <- block@12)
         (assert or_result%0#2)
         let tmp%6#1: bool = (!= e.0#0 0u)
-        goto e.0#0 ? block@7 : block@6
-    block@6: // or_contd_L160
+        goto e.0#0 ? block@15 : block@14
+    block@14: // or_contd_L160
         let tmp%7#1: uint64 = (len e.1#0)
         let tmp%8#1: bool = (!= tmp%7#1 0u)
-        goto tmp%7#1 ? block@7 : block@8
-    block@7: // bool_true_L160
+        goto tmp%7#1 ? block@15 : block@16
+    block@15: // bool_true_L160
         let or_result%1#0: bool = 1u
-        goto block@9
-    block@8: // bool_false_L160
+        goto block@17
+    block@16: // bool_false_L160
         let or_result%1#1: bool = 0u
-        goto block@9
-    block@9: // bool_merge_L160
-        let or_result%1#2: bool = φ(or_result%1#0 <- block@7, or_result%1#1 <- block@8)
+        goto block@17
+    block@17: // bool_merge_L160
+        let or_result%1#2: bool = φ(or_result%1#0 <- block@15, or_result%1#1 <- block@16)
         (assert or_result%1#2)
         let array_item%0#0: Encoded(len+utf8[]) = extract_value(f#0, 0u)
         let tmp%9#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hi")

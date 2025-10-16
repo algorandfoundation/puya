@@ -343,7 +343,7 @@ subroutine set_boxes:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           a#0
         v-store a#0
@@ -351,7 +351,7 @@ subroutine set_boxes:
         v-store b#0
         v-load b#0                                                                                     b#0
         int 0                                                                                          b#0,0
-        extract_uint16                                                                                 aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                              aggregate%array_length%0#0
         int 2                                                                                          aggregate%array_length%0#0,2
@@ -365,12 +365,12 @@ subroutine set_boxes:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for (len+uint8[])
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         txna ApplicationArgs 3                                                                         c#0
         v-store c#0
         v-load c#0                                                                                     c#0
         int 0                                                                                          c#0,0
-        extract_uint16                                                                                 aggregate%array_length%1#0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%1#0
         v-store aggregate%array_length%1#0
         v-load aggregate%array_length%1#0                                                              aggregate%array_length%1#0
         int 2                                                                                          aggregate%array_length%1#0,2
@@ -384,7 +384,7 @@ subroutine set_boxes:
         ==                                                                                             eq%2#0
         v-store eq%2#0
         v-load eq%2#0                                                                                  eq%2#0
-        assert // invalid number of bytes for (len+utf8[])
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         // box_storage/contract.py:96
         // self.box_a.value = a
         v-load a#0                                                                                     a#0
@@ -828,7 +828,7 @@ subroutine set_many_ints:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           index#0
         v-store index#0
@@ -842,7 +842,7 @@ subroutine set_many_ints:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         // box_storage/contract.py:143
         // self.many_ints.value[index] = value
         v-load index#0                                                                                 index#0
@@ -1354,7 +1354,7 @@ subroutine append_dynamic_arr_struct:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           times#0
         v-store times#0
@@ -1691,7 +1691,7 @@ subroutine pop_dynamic_arr_struct:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           times#0
         v-store times#0
@@ -1874,6 +1874,347 @@ subroutine set_nested_struct:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                                         struct#0
         v-store struct#0
+        v-load struct#0                                                                                struct#0
+        int 8                                                                                          struct#0,8
+        extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%0#0
+        v-store extract_uint16%0#0
+        v-load extract_uint16%0#0                                                                      extract_uint16%0#0
+        int 20                                                                                         extract_uint16%0#0,20
+        ==                                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                                  eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) 
+        v-load struct#0                                                                                struct#0
+        int 10                                                                                         struct#0,10
+        extract_uint16                                                                                 aggregate%extract_uint16%1#0
+        v-store aggregate%extract_uint16%1#0
+        v-load struct#0                                                                                struct#0
+        v-load extract_uint16%0#0                                                                      struct#0,extract_uint16%0#0
+        v-load aggregate%extract_uint16%1#0                                                            struct#0,extract_uint16%0#0,aggregate%extract_uint16%1#0
+        substring3                                                                                     aggregate%substring3%0#0
+        v-store aggregate%substring3%0#0
+        v-load aggregate%substring3%0#0                                                                aggregate%substring3%0#0
+        int 8                                                                                          aggregate%substring3%0#0,8
+        extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%1#0
+        v-store extract_uint16%1#0
+        v-load extract_uint16%1#0                                                                      extract_uint16%1#0
+        int 18                                                                                         extract_uint16%1#0,18
+        ==                                                                                             eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                                  eq%1#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) 
+        v-load aggregate%substring3%0#0                                                                aggregate%substring3%0#0
+        len                                                                                            aggregate%len%0#0
+        v-store aggregate%len%0#0
+        v-load aggregate%substring3%0#0                                                                aggregate%substring3%0#0
+        v-load extract_uint16%1#0                                                                      aggregate%substring3%0#0,extract_uint16%1#0
+        v-load aggregate%len%0#0                                                                       aggregate%substring3%0#0,extract_uint16%1#0,aggregate%len%0#0
+        substring3                                                                                     aggregate%substring3%2#0
+        v-store aggregate%substring3%2#0
+        v-load aggregate%substring3%2#0                                                                aggregate%substring3%2#0
+        int 0                                                                                          aggregate%substring3%2#0,0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                              aggregate%array_length%0#0
+        int 2                                                                                          aggregate%array_length%0#0,2
+        *                                                                                              num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load aggregate%substring3%2#0                                                                aggregate%substring3%2#0
+        extract 2 0                                                                                    array_data%0#0
+        v-store array_data%0#0
+        int 0                                                                                          0
+        v-store index%0#0
+        b set_nested_struct_for_header@1
+
+    set_nested_struct_for_header@1:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%0#0                                                                               index%0#0
+        v-load aggregate%array_length%0#0                                                              index%0#0,aggregate%array_length%0#0
+        <                                                                                              continue_looping%0#0
+        v-store continue_looping%0#0
+        v-load continue_looping%0#0                                                                    continue_looping%0#0
+        bz set_nested_struct_after_for@4 ; b set_nested_struct_for_body@2
+
+    set_nested_struct_for_body@2:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%0#0                                                                               index%0#0
+        int 2                                                                                          index%0#0,2
+        *                                                                                              head_offset_bytes%0#0
+        v-store head_offset_bytes%0#0
+        v-load array_data%0#0                                                                          array_data%0#0
+        v-load head_offset_bytes%0#0                                                                   array_data%0#0,head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                                             item_offset%0#0
+        v-store item_offset%0#0
+        v-load item_offset%0#0                                                                         item_offset%0#0
+        v-load num_bytes%0#0                                                                           item_offset%0#0,num_bytes%0#0
+        ==                                                                                             offset_is_correct%0#0
+        v-store offset_is_correct%0#0
+        v-load offset_is_correct%0#0                                                                   offset_is_correct%0#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])
+        v-load array_data%0#0                                                                          array_data%0#0
+        v-load item_offset%0#0                                                                         array_data%0#0,item_offset%0#0
+        extract_uint16                                                                                 aggregate%item_length%0#0
+        v-store aggregate%item_length%0#0
+        v-load aggregate%item_length%0#0                                                               aggregate%item_length%0#0
+        int 8                                                                                          aggregate%item_length%0#0,8
+        *                                                                                              aggregate%item_length_in_bytes%0#0
+        v-store aggregate%item_length_in_bytes%0#0
+        v-load aggregate%item_length_in_bytes%0#0                                                      aggregate%item_length_in_bytes%0#0
+        int 2                                                                                          aggregate%item_length_in_bytes%0#0,2
+        +                                                                                              aggregate%item_head_tail_length%0#0
+        v-store aggregate%item_head_tail_length%0#0
+        v-load array_data%0#0                                                                          array_data%0#0
+        v-load item_offset%0#0                                                                         array_data%0#0,item_offset%0#0
+        v-load aggregate%item_head_tail_length%0#0                                                     array_data%0#0,item_offset%0#0,aggregate%item_head_tail_length%0#0
+        extract3                                                                                       aggregate%item%0#0
+        v-store aggregate%item%0#0
+        v-load aggregate%item%0#0                                                                      aggregate%item%0#0
+        int 0                                                                                          aggregate%item%0#0,0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                              aggregate%array_length%1#0
+        int 8                                                                                          aggregate%array_length%1#0,8
+        *                                                                                              mul%0#0
+        v-store mul%0#0
+        v-load mul%0#0                                                                                 mul%0#0
+        int 2                                                                                          mul%0#0,2
+        +                                                                                              add%0#0
+        v-store add%0#0
+        v-load num_bytes%0#0                                                                           num_bytes%0#0
+        v-load add%0#0                                                                                 num_bytes%0#0,add%0#0
+        +                                                                                              num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load index%0#0                                                                               index%0#0
+        int 1                                                                                          index%0#0,1
+        +                                                                                              index%0#0
+        v-store index%0#0
+        b set_nested_struct_for_header@1
+
+    set_nested_struct_after_for@4:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load num_bytes%0#0                                                                           num_bytes%0#0
+        int 40                                                                                         num_bytes%0#0,40
+        +                                                                                              add%2#0
+        v-store add%2#0
+        v-load aggregate%extract_uint16%1#0                                                            aggregate%extract_uint16%1#0
+        v-load add%2#0                                                                                 aggregate%extract_uint16%1#0,add%2#0
+        ==                                                                                             eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                                  eq%2#0
+        assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) 
+        v-load struct#0                                                                                struct#0
+        len                                                                                            aggregate%len%2#0
+        v-store aggregate%len%2#0
+        v-load struct#0                                                                                struct#0
+        v-load aggregate%extract_uint16%1#0                                                            struct#0,aggregate%extract_uint16%1#0
+        v-load aggregate%len%2#0                                                                       struct#0,aggregate%extract_uint16%1#0,aggregate%len%2#0
+        substring3                                                                                     aggregate%substring3%5#0
+        v-store aggregate%substring3%5#0
+        v-load aggregate%substring3%5#0                                                                aggregate%substring3%5#0
+        int 0                                                                                          aggregate%substring3%5#0,0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                              aggregate%array_length%2#0
+        int 2                                                                                          aggregate%array_length%2#0,2
+        *                                                                                              num_bytes%2#0
+        v-store num_bytes%2#0
+        v-load aggregate%substring3%5#0                                                                aggregate%substring3%5#0
+        extract 2 0                                                                                    array_data%1#0
+        v-store array_data%1#0
+        int 0                                                                                          0
+        v-store index%1#0
+        b set_nested_struct_for_header@5
+
+    set_nested_struct_for_header@5:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%1#0                                                                               index%1#0
+        v-load aggregate%array_length%2#0                                                              index%1#0,aggregate%array_length%2#0
+        <                                                                                              continue_looping%1#0
+        v-store continue_looping%1#0
+        v-load continue_looping%1#0                                                                    continue_looping%1#0
+        bz set_nested_struct_after_for@12 ; b set_nested_struct_for_body@6
+
+    set_nested_struct_for_body@6:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%1#0                                                                               index%1#0
+        int 2                                                                                          index%1#0,2
+        *                                                                                              head_offset_bytes%1#0
+        v-store head_offset_bytes%1#0
+        v-load array_data%1#0                                                                          array_data%1#0
+        v-load head_offset_bytes%1#0                                                                   array_data%1#0,head_offset_bytes%1#0
+        extract_uint16 // on error: invalid array encoding                                             item_offset%1#0
+        v-store item_offset%1#0
+        v-load item_offset%1#0                                                                         item_offset%1#0
+        v-load num_bytes%2#0                                                                           item_offset%1#0,num_bytes%2#0
+        ==                                                                                             offset_is_correct%1#0
+        v-store offset_is_correct%1#0
+        v-load offset_is_correct%1#0                                                                   offset_is_correct%1#0
+        assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[]) 
+        v-load index%1#0                                                                               index%1#0
+        int 1                                                                                          index%1#0,1
+        +                                                                                              aggregate%next_index%0#0
+        v-store aggregate%next_index%0#0
+        v-load aggregate%array_length%2#0                                                              aggregate%array_length%2#0
+        v-load aggregate%next_index%0#0                                                                aggregate%array_length%2#0,aggregate%next_index%0#0
+        - // on error: index access is out of bounds                                                   aggregate%has_next%0#0
+        v-store aggregate%has_next%0#0
+        v-load array_data%1#0                                                                          array_data%1#0
+        len                                                                                            aggregate%end_of_array%0#0
+        v-store aggregate%end_of_array%0#0
+        v-load aggregate%next_index%0#0                                                                aggregate%next_index%0#0
+        int 2                                                                                          aggregate%next_index%0#0,2
+        *                                                                                              aggregate%next_item_offset_offset%0#0
+        v-store aggregate%next_item_offset_offset%0#0
+        v-load array_data%1#0                                                                          array_data%1#0
+        v-load aggregate%next_item_offset_offset%0#0                                                   array_data%1#0,aggregate%next_item_offset_offset%0#0
+        extract_uint16                                                                                 aggregate%next_item_offset%0#0
+        v-store aggregate%next_item_offset%0#0
+        v-load aggregate%end_of_array%0#0                                                              aggregate%end_of_array%0#0
+        v-load aggregate%next_item_offset%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
+        v-load aggregate%has_next%0#0                                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
+        select                                                                                         aggregate%end_offset%0#0
+        v-store aggregate%end_offset%0#0
+        v-load array_data%1#0                                                                          array_data%1#0
+        v-load item_offset%1#0                                                                         array_data%1#0,item_offset%1#0
+        v-load aggregate%end_offset%0#0                                                                array_data%1#0,item_offset%1#0,aggregate%end_offset%0#0
+        substring3                                                                                     aggregate%substring3%7#0
+        v-store aggregate%substring3%7#0
+        v-load aggregate%substring3%7#0                                                                aggregate%substring3%7#0
+        int 8                                                                                          aggregate%substring3%7#0,8
+        extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%3#0
+        v-store extract_uint16%3#0
+        v-load extract_uint16%3#0                                                                      extract_uint16%3#0
+        int 18                                                                                         extract_uint16%3#0,18
+        ==                                                                                             eq%3#0
+        v-store eq%3#0
+        v-load eq%3#0                                                                                  eq%3#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64) 
+        v-load aggregate%substring3%7#0                                                                aggregate%substring3%7#0
+        len                                                                                            aggregate%len%5#0
+        v-store aggregate%len%5#0
+        v-load aggregate%substring3%7#0                                                                aggregate%substring3%7#0
+        v-load extract_uint16%3#0                                                                      aggregate%substring3%7#0,extract_uint16%3#0
+        v-load aggregate%len%5#0                                                                       aggregate%substring3%7#0,extract_uint16%3#0,aggregate%len%5#0
+        substring3                                                                                     aggregate%substring3%10#0
+        v-store aggregate%substring3%10#0
+        v-load aggregate%substring3%10#0                                                               aggregate%substring3%10#0
+        int 0                                                                                          aggregate%substring3%10#0,0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%5#0
+        v-store aggregate%array_length%5#0
+        v-load aggregate%array_length%5#0                                                              aggregate%array_length%5#0
+        int 2                                                                                          aggregate%array_length%5#0,2
+        *                                                                                              num_bytes%3#0
+        v-store num_bytes%3#0
+        v-load aggregate%substring3%10#0                                                               aggregate%substring3%10#0
+        extract 2 0                                                                                    array_data%2#0
+        v-store array_data%2#0
+        int 0                                                                                          0
+        v-store index%2#0
+        b set_nested_struct_for_header@7
+
+    set_nested_struct_for_header@7:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%2#0                                                                               index%2#0
+        v-load aggregate%array_length%5#0                                                              index%2#0,aggregate%array_length%5#0
+        <                                                                                              continue_looping%2#0
+        v-store continue_looping%2#0
+        v-load continue_looping%2#0                                                                    continue_looping%2#0
+        bz set_nested_struct_after_for@10 ; b set_nested_struct_for_body@8
+
+    set_nested_struct_for_body@8:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load index%2#0                                                                               index%2#0
+        int 2                                                                                          index%2#0,2
+        *                                                                                              head_offset_bytes%2#0
+        v-store head_offset_bytes%2#0
+        v-load array_data%2#0                                                                          array_data%2#0
+        v-load head_offset_bytes%2#0                                                                   array_data%2#0,head_offset_bytes%2#0
+        extract_uint16 // on error: invalid array encoding                                             item_offset%2#0
+        v-store item_offset%2#0
+        v-load item_offset%2#0                                                                         item_offset%2#0
+        v-load num_bytes%3#0                                                                           item_offset%2#0,num_bytes%3#0
+        ==                                                                                             offset_is_correct%2#0
+        v-store offset_is_correct%2#0
+        v-load offset_is_correct%2#0                                                                   offset_is_correct%2#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])
+        v-load array_data%2#0                                                                          array_data%2#0
+        v-load item_offset%2#0                                                                         array_data%2#0,item_offset%2#0
+        extract_uint16                                                                                 aggregate%item_length%1#0
+        v-store aggregate%item_length%1#0
+        v-load aggregate%item_length%1#0                                                               aggregate%item_length%1#0
+        int 8                                                                                          aggregate%item_length%1#0,8
+        *                                                                                              aggregate%item_length_in_bytes%1#0
+        v-store aggregate%item_length_in_bytes%1#0
+        v-load aggregate%item_length_in_bytes%1#0                                                      aggregate%item_length_in_bytes%1#0
+        int 2                                                                                          aggregate%item_length_in_bytes%1#0,2
+        +                                                                                              aggregate%item_head_tail_length%1#0
+        v-store aggregate%item_head_tail_length%1#0
+        v-load array_data%2#0                                                                          array_data%2#0
+        v-load item_offset%2#0                                                                         array_data%2#0,item_offset%2#0
+        v-load aggregate%item_head_tail_length%1#0                                                     array_data%2#0,item_offset%2#0,aggregate%item_head_tail_length%1#0
+        extract3                                                                                       aggregate%item%1#0
+        v-store aggregate%item%1#0
+        v-load aggregate%item%1#0                                                                      aggregate%item%1#0
+        int 0                                                                                          aggregate%item%1#0,0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%7#0
+        v-store aggregate%array_length%7#0
+        v-load aggregate%array_length%7#0                                                              aggregate%array_length%7#0
+        int 8                                                                                          aggregate%array_length%7#0,8
+        *                                                                                              mul%1#0
+        v-store mul%1#0
+        v-load mul%1#0                                                                                 mul%1#0
+        int 2                                                                                          mul%1#0,2
+        +                                                                                              add%3#0
+        v-store add%3#0
+        v-load num_bytes%3#0                                                                           num_bytes%3#0
+        v-load add%3#0                                                                                 num_bytes%3#0,add%3#0
+        +                                                                                              num_bytes%3#0
+        v-store num_bytes%3#0
+        v-load index%2#0                                                                               index%2#0
+        int 1                                                                                          index%2#0,1
+        +                                                                                              index%2#0
+        v-store index%2#0
+        b set_nested_struct_for_header@7
+
+    set_nested_struct_after_for@10:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load num_bytes%3#0                                                                           num_bytes%3#0
+        int 20                                                                                         num_bytes%3#0,20
+        +                                                                                              add%4#0
+        v-store add%4#0
+        v-load num_bytes%2#0                                                                           num_bytes%2#0
+        v-load add%4#0                                                                                 num_bytes%2#0,add%4#0
+        +                                                                                              num_bytes%2#0
+        v-store num_bytes%2#0
+        v-load aggregate%next_index%0#0                                                                aggregate%next_index%0#0
+        v-store index%1#0
+        b set_nested_struct_for_header@5
+
+    set_nested_struct_after_for@12:
+        // box_storage/contract.py:252
+        // @arc4.abimethod()
+        v-load num_bytes%2#0                                                                           num_bytes%2#0
+        int 2                                                                                          num_bytes%2#0,2
+        +                                                                                              num_bytes%5#0
+        v-store num_bytes%5#0
+        v-load add%2#0                                                                                 add%2#0
+        v-load num_bytes%5#0                                                                           add%2#0,num_bytes%5#0
+        +                                                                                              add%5#0
+        v-store add%5#0
+        v-load aggregate%len%2#0                                                                       aggregate%len%2#0
+        v-load add%5#0                                                                                 aggregate%len%2#0,add%5#0
+        ==                                                                                             eq%4#0
+        v-store eq%4#0
+        v-load eq%4#0                                                                                  eq%4#0
+        assert // invalid number of bytes for examples.box_storage.contract.NestedStruct
         // box_storage/contract.py:255
         // assert struct.a, "struct.a is truthy"
         v-load struct#0                                                                                struct#0
@@ -1897,14 +2238,14 @@ subroutine set_nested_struct:
         // box_storage/contract.py:260
         // box.create(size=tail_offset + struct_size)
         v-load struct_size#0                                                                           4098,struct_size#0
-        +                                                                                              tmp%3#0
-        v-store tmp%3#0
+        +                                                                                              tmp%3#1
+        v-store tmp%3#1
         // box_storage/contract.py:254
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     "box"
         // box_storage/contract.py:260
         // box.create(size=tail_offset + struct_size)
-        v-load tmp%3#0                                                                                 "box",tmp%3#0
+        v-load tmp%3#1                                                                                 "box",tmp%3#1
         box_create                                                                                     {box_create}
         pop 1
         // box_storage/contract.py:254
@@ -1946,7 +2287,7 @@ subroutine nested_write:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           index#0
         v-store index#0
@@ -1960,7 +2301,7 @@ subroutine nested_write:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%2#0                                                                                 tmp%2#0
         btoi                                                                                           value#0
         v-store value#0
@@ -2280,7 +2621,7 @@ subroutine nested_read:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           i1#0
         v-store i1#0
@@ -2294,7 +2635,7 @@ subroutine nested_read:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%2#0                                                                                 tmp%2#0
         btoi                                                                                           i2#0
         v-store i2#0
@@ -2308,7 +2649,7 @@ subroutine nested_read:
         ==                                                                                             eq%2#0
         v-store eq%2#0
         v-load eq%2#0                                                                                  eq%2#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%4#0                                                                                 tmp%4#0
         btoi                                                                                           i3#0
         v-store i3#0
@@ -2848,7 +3189,7 @@ subroutine set_bool:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           index#0
         v-store index#0
@@ -2862,7 +3203,7 @@ subroutine set_bool:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for bool8
+        assert // invalid number of bytes for arc4.bool
         v-load tmp%2#0                                                                                 tmp%2#0
         int 0                                                                                          tmp%2#0,0
         getbit                                                                                         value#0
@@ -2918,7 +3259,7 @@ subroutine sum_bools:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           stop_at_total#0
         v-store stop_at_total#0
@@ -3047,7 +3388,7 @@ subroutine append_dynamic_box:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           times#0
         v-store times#0
@@ -3202,7 +3543,7 @@ subroutine pop_dynamic_box:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           times#0
         v-store times#0
@@ -3378,7 +3719,7 @@ subroutine write_dynamic_box:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           index#0
         v-store index#0
@@ -3392,7 +3733,7 @@ subroutine write_dynamic_box:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         // box_storage/contract.py:360
         // self.dynamic_box.value[index] = value
         v-load index#0                                                                                 index#0
@@ -3428,7 +3769,7 @@ subroutine write_dynamic_arr_struct:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           index#0
         v-store index#0
@@ -3442,7 +3783,7 @@ subroutine write_dynamic_arr_struct:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         // box_storage/contract.py:364
         // self.dynamic_arr_struct.value.arr[index] = value
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
@@ -3884,7 +4225,7 @@ subroutine box_map_set:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           key#0
         v-store key#0
@@ -3892,7 +4233,7 @@ subroutine box_map_set:
         v-store tmp%2#0
         v-load tmp%2#0                                                                                 tmp%2#0
         int 0                                                                                          tmp%2#0,0
-        extract_uint16                                                                                 aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                        aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                              aggregate%array_length%0#0
         int 2                                                                                          aggregate%array_length%0#0,2
@@ -3906,7 +4247,7 @@ subroutine box_map_set:
         ==                                                                                             eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                  eq%1#0
-        assert // invalid number of bytes for (len+utf8[])
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         v-load tmp%2#0                                                                                 tmp%2#0
         extract 2 0                                                                                    value#0
         v-store value#0
@@ -3942,7 +4283,7 @@ subroutine box_map_get:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           key#0
         v-store key#0
@@ -3997,7 +4338,7 @@ subroutine box_map_del:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           key#0
         v-store key#0
@@ -4030,7 +4371,7 @@ subroutine box_map_exists:
         ==                                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                 tmp%0#0
         btoi                                                                                           key#0
         v-store key#0
