@@ -269,7 +269,11 @@ class OpFactory:
         return result
 
     def extract_uint16(
-        self, a: Value, b: Value | int, temp_desc: str = "extract_uint16"
+        self,
+        a: Value,
+        b: Value | int,
+        temp_desc: str = "extract_uint16",
+        error_message: str | None = None,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -277,6 +281,7 @@ class OpFactory:
             op=AVMOp.extract_uint16,
             args=[a, b],
             source_location=self.source_location,
+            error_message=error_message,
         )
         return result
 

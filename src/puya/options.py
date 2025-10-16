@@ -6,7 +6,6 @@ import attrs
 from immutabledict import immutabledict
 
 from puya.algo_constants import MAINNET_AVM_VERSION
-from puya.log import LogLevel
 
 
 class LocalsCoalescingStrategy(enum.StrEnum):
@@ -39,7 +38,6 @@ class PuyaOptions:
     optimizations_override: Mapping[str, bool] = attrs.field(default=immutabledict())
     expand_all_bytes: bool = False
     validate_abi_values: bool = True
-    validate_abi_dynamic_severity: LogLevel = LogLevel.warning
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:
