@@ -15,6 +15,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
+from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
 from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays, flow_control, mem, storage
@@ -78,6 +79,7 @@ from puya.ir.types_ import (
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
+from puya.utils import bits_to_bytes
 
 TExpression: typing.TypeAlias = ValueProvider | None
 TStatement: typing.TypeAlias = None
@@ -186,6 +188,67 @@ class FunctionIRBuilder(
         return arc4.encode_value_provider(
             self.context, value, expr.value.wtype, expr.wtype, expr.source_location
         )
+
+    def visit_arc4_from_bytes(self, expr: awst_nodes.ARC4FromBytes) -> TExpression:
+        loc = expr.source_location
+        factory = OpFactory(self.context, loc)
+        value = self.visit_and_materialise_single(expr.value)
+        wtype = expr.wtype
+
+        if expr.validate:
+            if is_arc4_static_size(wtype):
+                value_len = factory.len(value, "value_len")
+                expected_size = bits_to_bytes(get_arc4_static_bit_size(wtype))
+                size_is_correct = factory.eq(value_len, expected_size, "size_is_correct")
+                assert_value(
+                    self.context,
+                    size_is_correct,
+                    error_message=f"invalid number of bytes for {wtype}",
+                    source_location=loc,
+                )
+            elif isinstance(wtype, wtypes.ARC4DynamicArray) and is_arc4_static_size(
+                wtype.element_type
+            ):
+                length = factory.extract_uint16(value, 0, "length")
+                element_bit_size = get_arc4_static_bit_size(wtype.element_type)
+                if element_bit_size == 1:
+                    num_bits_7 = factory.add(length, 7, "num_bits_7")
+                    num_bytes_value = factory.div_floor(num_bits_7, 8, "num_bytes")
+                else:
+                    num_bytes_value = factory.mul(
+                        length, bits_to_bytes(element_bit_size), "num_bytes"
+                    )
+                num_bytes_value = factory.add(num_bytes_value, 2, "num_bytes_with_header")
+                value_len = factory.len(value, "value_len")
+                size_is_correct = factory.eq(value_len, num_bytes_value, "size_is_correct")
+                assert_value(
+                    self.context,
+                    size_is_correct,
+                    error_message=f"invalid number of bytes for {wtype}",
+                    source_location=loc,
+                )
+            else:
+                logger.log(
+                    self.context.options.validate_abi_dynamic_severity,
+                    "nested dynamic types cannot be automatically"
+                    " checked for expected byte size",
+                    location=loc,
+                )
+        # return value as required type
+        ir_type = wtype_to_ir_type(expr.wtype, loc)
+        target = mktemp(
+            self.context,
+            ir_type,
+            description=f"reinterpret_{ir_type.name}",
+            source_location=expr.source_location,
+        )
+        assign_targets(
+            self.context,
+            source=value,
+            targets=[target],
+            assignment_location=expr.source_location,
+        )
+        return target
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         wtype = size_of.size_wtype

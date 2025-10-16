@@ -271,7 +271,9 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         )
         for cm, md in arc4_methods.items()
     }
-    arc4_router_awst = arc4_router.create_abi_router(contract, routing_data)
+    arc4_router_awst = arc4_router.create_abi_router(
+        contract, routing_data, validate_args=ctx.options.validate_abi_values
+    )
     ctx.routers[contract.id] = ctx.subroutines[arc4_router_awst] = make_subroutine(
         arc4_router_awst, allow_implicits=False
     )

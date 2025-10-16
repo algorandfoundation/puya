@@ -893,6 +893,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return self._empty_actions_from_wtype(expr)
 
     @typing.override
+    def visit_arc4_from_bytes(self, expr: awst_nodes.ARC4FromBytes) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 

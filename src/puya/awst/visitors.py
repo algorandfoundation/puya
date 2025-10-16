@@ -181,6 +181,9 @@ class ExpressionVisitor[T](ABC):
     def visit_arc4_encode(self, expr: puya.awst.nodes.ARC4Encode) -> T: ...
 
     @abstractmethod
+    def visit_arc4_from_bytes(self, expr: puya.awst.nodes.ARC4FromBytes) -> T: ...
+
+    @abstractmethod
     def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> T: ...
 
     @abstractmethod

@@ -84,6 +84,10 @@ class FunctionTraverser(
         expr.value.accept(self)
 
     @typing.override
+    def visit_arc4_from_bytes(self, expr: awst_nodes.ARC4FromBytes) -> None:
+        expr.value.accept(self)
+
+    @typing.override
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> None:
         expr.left.accept(self)
         expr.right.accept(self)
