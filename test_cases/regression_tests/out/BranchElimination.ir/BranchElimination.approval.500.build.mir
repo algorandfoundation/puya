@@ -90,12 +90,21 @@ subroutine main:
         // class BranchElimination(ARC4Contract):
         txna ApplicationArgs 1                                                                                tmp%16#0
         v-store tmp%16#0
-        txna ApplicationArgs 2                                                                                reinterpret_bytes[8]%0#0
-        v-store reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 2                                                                                tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                                       tmp%17#0
+        len                                                                                                   value_len%0#0
+        v-store value_len%0#0
+        v-load value_len%0#0                                                                                  value_len%0#0
+        int 8                                                                                                 value_len%0#0,8
+        ==                                                                                                    size_is_correct%0#0
+        v-store size_is_correct%0#0
+        v-load size_is_correct%0#0                                                                            size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         v-load tmp%16#0                                                                                       tmp%16#0
-        v-load reinterpret_bytes[8]%0#0                                                                       tmp%16#0,reinterpret_bytes[8]%0#0
+        v-load tmp%17#0                                                                                       tmp%16#0,tmp%17#0
         callsub calculate
         int 1                                                                                                 1
         v-store test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0 
@@ -106,18 +115,18 @@ subroutine main:
     main_bare_routing@8:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                      tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                                       tmp%17#0
+        txn OnCompletion                                                                                      tmp%18#0
+        v-store tmp%18#0
+        v-load tmp%18#0                                                                                       tmp%18#0
         bz main___algopy_default_create@9 ; b main_after_if_else@12
 
     main___algopy_default_create@9:
-        txn ApplicationID                                                                                     tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                                                                       tmp%18#0
-        !                                                                                                     tmp%19#0
+        txn ApplicationID                                                                                     tmp%19#0
         v-store tmp%19#0
         v-load tmp%19#0                                                                                       tmp%19#0
+        !                                                                                                     tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                                                       tmp%20#0
         assert // can only call when creating
         int 1                                                                                                 1
         v-store test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0 

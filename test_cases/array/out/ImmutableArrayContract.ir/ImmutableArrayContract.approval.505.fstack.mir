@@ -73,8 +73,14 @@ subroutine main:
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%0#0
-        btoi                                                                                                                                                  tmp%15#0
+        txna ApplicationArgs 1                                                                                                                                tmp%15#0
+        l-load-copy tmp%15#0 0                                                                                                                                tmp%15#0,tmp%15#0 (copy)
+        len                                                                                                                                                   tmp%15#0,value_len%0#0
+        int 8                                                                                                                                                 tmp%15#0,value_len%0#0,8
+        ==                                                                                                                                                    tmp%15#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%15#0
+        l-load tmp%15#0 0                                                                                                                                     tmp%15#0
+        btoi                                                                                                                                                  tmp%16#0
         // array/immutable.py:143
         // @arc4.abimethod()
         callsub test_bool_array
@@ -85,10 +91,10 @@ subroutine main:
     main_test_fixed_size_tuple_array_route@6:
         // array/immutable.py:167
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%16#0
-        !                                                                                                                                                     tmp%17#0
+        txn OnCompletion                                                                                                                                      tmp%17#0
+        !                                                                                                                                                     tmp%18#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%18#0
+        txn ApplicationID                                                                                                                                     tmp%19#0
         assert // can only call when not creating
         callsub test_fixed_size_tuple_array
         int 1                                                                                                                                                 tmp%0#0
@@ -98,10 +104,10 @@ subroutine main:
     main_test_fixed_size_named_tuple_array_route@7:
         // array/immutable.py:185
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%20#0
-        !                                                                                                                                                     tmp%21#0
+        txn OnCompletion                                                                                                                                      tmp%21#0
+        !                                                                                                                                                     tmp%22#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%22#0
+        txn ApplicationID                                                                                                                                     tmp%23#0
         assert // can only call when not creating
         callsub test_fixed_size_named_tuple_array
         int 1                                                                                                                                                 tmp%0#0
@@ -111,10 +117,10 @@ subroutine main:
     main_test_dynamic_sized_tuple_array_route@8:
         // array/immutable.py:200
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%24#0
-        !                                                                                                                                                     tmp%25#0
+        txn OnCompletion                                                                                                                                      tmp%25#0
+        !                                                                                                                                                     tmp%26#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%26#0
+        txn ApplicationID                                                                                                                                     tmp%27#0
         assert // can only call when not creating
         callsub test_dynamic_sized_tuple_array
         int 1                                                                                                                                                 tmp%0#0
@@ -124,10 +130,10 @@ subroutine main:
     main_test_dynamic_sized_named_tuple_array_route@9:
         // array/immutable.py:219
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%28#0
-        !                                                                                                                                                     tmp%29#0
+        txn OnCompletion                                                                                                                                      tmp%29#0
+        !                                                                                                                                                     tmp%30#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%30#0
+        txn ApplicationID                                                                                                                                     tmp%31#0
         assert // can only call when not creating
         callsub test_dynamic_sized_named_tuple_array
         int 1                                                                                                                                                 tmp%0#0
@@ -137,16 +143,29 @@ subroutine main:
     main_test_implicit_conversion_log_route@10:
         // array/immutable.py:238
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%32#0
-        !                                                                                                                                                     tmp%33#0
+        txn OnCompletion                                                                                                                                      tmp%33#0
+        !                                                                                                                                                     tmp%34#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%34#0
+        txn ApplicationID                                                                                                                                     tmp%35#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_encoded_uint64[]%0#0
+        txna ApplicationArgs 1                                                                                                                                tmp%37#0
+        l-load-copy tmp%37#0 0                                                                                                                                tmp%37#0,tmp%37#0 (copy)
+        int 0                                                                                                                                                 tmp%37#0,tmp%37#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%37#0,length%0#0
+        int 8                                                                                                                                                 tmp%37#0,length%0#0,8
+        *                                                                                                                                                     tmp%37#0,num_bytes%0#0
+        int 2                                                                                                                                                 tmp%37#0,num_bytes%0#0,2
+        +                                                                                                                                                     tmp%37#0,num_bytes_with_header%0#0
+        l-load-copy tmp%37#0 1                                                                                                                                tmp%37#0,num_bytes_with_header%0#0,tmp%37#0 (copy)
+        len                                                                                                                                                   tmp%37#0,num_bytes_with_header%0#0,value_len%1#0
+        l-load num_bytes_with_header%0#0 1                                                                                                                    tmp%37#0,value_len%1#0,num_bytes_with_header%0#0
+        ==                                                                                                                                                    tmp%37#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>                                                                                 tmp%37#0
         // array/immutable.py:238
         // @arc4.abimethod()
+        l-load tmp%37#0 0                                                                                                                                     tmp%37#0
         callsub test_implicit_conversion_log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -155,16 +174,29 @@ subroutine main:
     main_test_implicit_conversion_emit_route@11:
         // array/immutable.py:242
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%36#0
-        !                                                                                                                                                     tmp%37#0
+        txn OnCompletion                                                                                                                                      tmp%38#0
+        !                                                                                                                                                     tmp%39#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%38#0
+        txn ApplicationID                                                                                                                                     tmp%40#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_encoded_uint64[]%1#0
+        txna ApplicationArgs 1                                                                                                                                tmp%42#0
+        l-load-copy tmp%42#0 0                                                                                                                                tmp%42#0,tmp%42#0 (copy)
+        int 0                                                                                                                                                 tmp%42#0,tmp%42#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%42#0,length%1#0
+        int 8                                                                                                                                                 tmp%42#0,length%1#0,8
+        *                                                                                                                                                     tmp%42#0,num_bytes%1#0
+        int 2                                                                                                                                                 tmp%42#0,num_bytes%1#0,2
+        +                                                                                                                                                     tmp%42#0,num_bytes_with_header%1#0
+        l-load-copy tmp%42#0 1                                                                                                                                tmp%42#0,num_bytes_with_header%1#0,tmp%42#0 (copy)
+        len                                                                                                                                                   tmp%42#0,num_bytes_with_header%1#0,value_len%2#0
+        l-load num_bytes_with_header%1#0 1                                                                                                                    tmp%42#0,value_len%2#0,num_bytes_with_header%1#0
+        ==                                                                                                                                                    tmp%42#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>                                                                                 tmp%42#0
         // array/immutable.py:242
         // @arc4.abimethod()
+        l-load tmp%42#0 0                                                                                                                                     tmp%42#0
         callsub test_implicit_conversion_emit
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -173,24 +205,30 @@ subroutine main:
     main_test_nested_array_route@12:
         // array/immutable.py:246
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%40#0
-        !                                                                                                                                                     tmp%41#0
+        txn OnCompletion                                                                                                                                      tmp%43#0
+        !                                                                                                                                                     tmp%44#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%42#0
+        txn ApplicationID                                                                                                                                     tmp%45#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%1#0
-        btoi                                                                                                                                                  tmp%44#0
-        txna ApplicationArgs 2                                                                                                                                tmp%44#0,reinterpret_encoded_uint64[][]%0#0
+        txna ApplicationArgs 1                                                                                                                                tmp%47#0
+        l-load-copy tmp%47#0 0                                                                                                                                tmp%47#0,tmp%47#0 (copy)
+        len                                                                                                                                                   tmp%47#0,value_len%3#0
+        int 8                                                                                                                                                 tmp%47#0,value_len%3#0,8
+        ==                                                                                                                                                    tmp%47#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%47#0
+        l-load tmp%47#0 0                                                                                                                                     tmp%47#0
+        btoi                                                                                                                                                  tmp%48#0
+        txna ApplicationArgs 2                                                                                                                                tmp%48#0,tmp%49#0
         // array/immutable.py:246
         // @arc4.abimethod()
-        l-load tmp%44#0 1                                                                                                                                     reinterpret_encoded_uint64[][]%0#0,tmp%44#0
-        l-load reinterpret_encoded_uint64[][]%0#0 1                                                                                                           tmp%44#0,reinterpret_encoded_uint64[][]%0#0
-        callsub test_nested_array                                                                                                                             tmp%45#0
-        byte 0x151f7c75                                                                                                                                       tmp%45#0,0x151f7c75
-        l-load tmp%45#0 1                                                                                                                                     0x151f7c75,tmp%45#0
-        concat                                                                                                                                                tmp%46#0
+        l-load tmp%48#0 1                                                                                                                                     tmp%49#0,tmp%48#0
+        l-load tmp%49#0 1                                                                                                                                     tmp%48#0,tmp%49#0
+        callsub test_nested_array                                                                                                                             tmp%50#0
+        byte 0x151f7c75                                                                                                                                       tmp%50#0,0x151f7c75
+        l-load tmp%50#0 1                                                                                                                                     0x151f7c75,tmp%50#0
+        concat                                                                                                                                                tmp%51#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -199,10 +237,10 @@ subroutine main:
     main_test_bit_packed_tuples_route@13:
         // array/immutable.py:264
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%47#0
-        !                                                                                                                                                     tmp%48#0
+        txn OnCompletion                                                                                                                                      tmp%52#0
+        !                                                                                                                                                     tmp%53#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%49#0
+        txn ApplicationID                                                                                                                                     tmp%54#0
         assert // can only call when not creating
         callsub test_bit_packed_tuples
         int 1                                                                                                                                                 tmp%0#0
@@ -212,23 +250,61 @@ subroutine main:
     main_sum_uints_and_lengths_and_trues_route@14:
         // array/immutable.py:329
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%51#0
-        !                                                                                                                                                     tmp%52#0
+        txn OnCompletion                                                                                                                                      tmp%56#0
+        !                                                                                                                                                     tmp%57#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%53#0
+        txn ApplicationID                                                                                                                                     tmp%58#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_encoded_uint64[]%2#0
-        txna ApplicationArgs 2                                                                                                                                reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0
-        txna ApplicationArgs 3                                                                                                                                reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0
-        txna ApplicationArgs 4                                                                                                                                reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0,reinterpret_(encoded_uint64,bytes)[]%0#0
+        txna ApplicationArgs 1                                                                                                                                tmp%60#0
+        l-load-copy tmp%60#0 0                                                                                                                                tmp%60#0,tmp%60#0 (copy)
+        int 0                                                                                                                                                 tmp%60#0,tmp%60#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%60#0,length%2#0
+        int 8                                                                                                                                                 tmp%60#0,length%2#0,8
+        *                                                                                                                                                     tmp%60#0,num_bytes%2#0
+        int 2                                                                                                                                                 tmp%60#0,num_bytes%2#0,2
+        +                                                                                                                                                     tmp%60#0,num_bytes_with_header%2#0
+        l-load-copy tmp%60#0 1                                                                                                                                tmp%60#0,num_bytes_with_header%2#0,tmp%60#0 (copy)
+        len                                                                                                                                                   tmp%60#0,num_bytes_with_header%2#0,value_len%4#0
+        l-load num_bytes_with_header%2#0 1                                                                                                                    tmp%60#0,value_len%4#0,num_bytes_with_header%2#0
+        ==                                                                                                                                                    tmp%60#0,size_is_correct%4#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>                                                                                 tmp%60#0
+        txna ApplicationArgs 2                                                                                                                                tmp%60#0,tmp%61#0
+        l-load-copy tmp%61#0 0                                                                                                                                tmp%60#0,tmp%61#0,tmp%61#0 (copy)
+        int 0                                                                                                                                                 tmp%60#0,tmp%61#0,tmp%61#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%60#0,tmp%61#0,length%3#0
+        int 7                                                                                                                                                 tmp%60#0,tmp%61#0,length%3#0,7
+        +                                                                                                                                                     tmp%60#0,tmp%61#0,num_bits_7%0#0
+        int 8                                                                                                                                                 tmp%60#0,tmp%61#0,num_bits_7%0#0,8
+        /                                                                                                                                                     tmp%60#0,tmp%61#0,num_bytes%3#0
+        int 2                                                                                                                                                 tmp%60#0,tmp%61#0,num_bytes%3#0,2
+        +                                                                                                                                                     tmp%60#0,tmp%61#0,num_bytes_with_header%3#0
+        l-load-copy tmp%61#0 1                                                                                                                                tmp%60#0,tmp%61#0,num_bytes_with_header%3#0,tmp%61#0 (copy)
+        len                                                                                                                                                   tmp%60#0,tmp%61#0,num_bytes_with_header%3#0,value_len%5#0
+        l-load num_bytes_with_header%3#0 1                                                                                                                    tmp%60#0,tmp%61#0,value_len%5#0,num_bytes_with_header%3#0
+        ==                                                                                                                                                    tmp%60#0,tmp%61#0,size_is_correct%5#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.bool>                                                                                   tmp%60#0,tmp%61#0
+        txna ApplicationArgs 3                                                                                                                                tmp%60#0,tmp%61#0,tmp%62#0
+        l-load-copy tmp%62#0 0                                                                                                                                tmp%60#0,tmp%61#0,tmp%62#0,tmp%62#0 (copy)
+        int 0                                                                                                                                                 tmp%60#0,tmp%61#0,tmp%62#0,tmp%62#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%60#0,tmp%61#0,tmp%62#0,length%4#0
+        int 9                                                                                                                                                 tmp%60#0,tmp%61#0,tmp%62#0,length%4#0,9
+        *                                                                                                                                                     tmp%60#0,tmp%61#0,tmp%62#0,num_bytes%4#0
+        int 2                                                                                                                                                 tmp%60#0,tmp%61#0,tmp%62#0,num_bytes%4#0,2
+        +                                                                                                                                                     tmp%60#0,tmp%61#0,tmp%62#0,num_bytes_with_header%4#0
+        l-load-copy tmp%62#0 1                                                                                                                                tmp%60#0,tmp%61#0,tmp%62#0,num_bytes_with_header%4#0,tmp%62#0 (copy)
+        len                                                                                                                                                   tmp%60#0,tmp%61#0,tmp%62#0,num_bytes_with_header%4#0,value_len%6#0
+        l-load num_bytes_with_header%4#0 1                                                                                                                    tmp%60#0,tmp%61#0,tmp%62#0,value_len%6#0,num_bytes_with_header%4#0
+        ==                                                                                                                                                    tmp%60#0,tmp%61#0,tmp%62#0,size_is_correct%6#0
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple> tmp%60#0,tmp%61#0,tmp%62#0
+        txna ApplicationArgs 4                                                                                                                                tmp%60#0,tmp%61#0,tmp%62#0,tmp%63#0
         // array/immutable.py:329
         // @arc4.abimethod()
-        l-load reinterpret_encoded_uint64[]%2#0 3                                                                                                             reinterpret_encoded_uint8[]%0#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0,reinterpret_(encoded_uint64,bytes)[]%0#0,reinterpret_encoded_uint64[]%2#0
-        l-load reinterpret_encoded_uint8[]%0#0 3                                                                                                              reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0,reinterpret_(encoded_uint64,bytes)[]%0#0,reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0
-        l-load reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0 3                                                                               reinterpret_(encoded_uint64,bytes)[]%0#0,reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0
-        l-load reinterpret_(encoded_uint64,bytes)[]%0#0 3                                                                                                     reinterpret_encoded_uint64[]%2#0,reinterpret_encoded_uint8[]%0#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0,reinterpret_(encoded_uint64,bytes)[]%0#0
+        l-load tmp%60#0 3                                                                                                                                     tmp%61#0,tmp%62#0,tmp%63#0,tmp%60#0
+        l-load tmp%61#0 3                                                                                                                                     tmp%62#0,tmp%63#0,tmp%60#0,tmp%61#0
+        l-load tmp%62#0 3                                                                                                                                     tmp%63#0,tmp%60#0,tmp%61#0,tmp%62#0
+        l-load tmp%63#0 3                                                                                                                                     tmp%60#0,tmp%61#0,tmp%62#0,tmp%63#0
         callsub sum_uints_and_lengths_and_trues                                                                                                               elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0
         l-load elements_to_encode%0#0 3                                                                                                                       elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,elements_to_encode%0#0
         itob                                                                                                                                                  elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0
@@ -247,7 +323,7 @@ subroutine main:
         concat                                                                                                                                                encoded_tuple_buffer%4#0
         byte 0x151f7c75                                                                                                                                       encoded_tuple_buffer%4#0,0x151f7c75
         l-load encoded_tuple_buffer%4#0 1                                                                                                                     0x151f7c75,encoded_tuple_buffer%4#0
-        concat                                                                                                                                                tmp%55#0
+        concat                                                                                                                                                tmp%64#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -256,21 +332,27 @@ subroutine main:
     main_test_uint64_return_route@15:
         // array/immutable.py:356
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%56#0
-        !                                                                                                                                                     tmp%57#0
+        txn OnCompletion                                                                                                                                      tmp%65#0
+        !                                                                                                                                                     tmp%66#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%58#0
+        txn ApplicationID                                                                                                                                     tmp%67#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%2#0
-        btoi                                                                                                                                                  tmp%60#0
+        txna ApplicationArgs 1                                                                                                                                tmp%69#0
+        l-load-copy tmp%69#0 0                                                                                                                                tmp%69#0,tmp%69#0 (copy)
+        len                                                                                                                                                   tmp%69#0,value_len%7#0
+        int 8                                                                                                                                                 tmp%69#0,value_len%7#0,8
+        ==                                                                                                                                                    tmp%69#0,size_is_correct%7#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%69#0
+        l-load tmp%69#0 0                                                                                                                                     tmp%69#0
+        btoi                                                                                                                                                  tmp%70#0
         // array/immutable.py:356
         // @arc4.abimethod()
-        callsub test_uint64_return                                                                                                                            tmp%61#0
-        byte 0x151f7c75                                                                                                                                       tmp%61#0,0x151f7c75
-        l-load tmp%61#0 1                                                                                                                                     0x151f7c75,tmp%61#0
-        concat                                                                                                                                                tmp%62#0
+        callsub test_uint64_return                                                                                                                            tmp%71#0
+        byte 0x151f7c75                                                                                                                                       tmp%71#0,0x151f7c75
+        l-load tmp%71#0 1                                                                                                                                     0x151f7c75,tmp%71#0
+        concat                                                                                                                                                tmp%72#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -279,21 +361,27 @@ subroutine main:
     main_test_bool_return_route@16:
         // array/immutable.py:363
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%63#0
-        !                                                                                                                                                     tmp%64#0
+        txn OnCompletion                                                                                                                                      tmp%73#0
+        !                                                                                                                                                     tmp%74#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%65#0
+        txn ApplicationID                                                                                                                                     tmp%75#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%3#0
-        btoi                                                                                                                                                  tmp%67#0
+        txna ApplicationArgs 1                                                                                                                                tmp%77#0
+        l-load-copy tmp%77#0 0                                                                                                                                tmp%77#0,tmp%77#0 (copy)
+        len                                                                                                                                                   tmp%77#0,value_len%8#0
+        int 8                                                                                                                                                 tmp%77#0,value_len%8#0,8
+        ==                                                                                                                                                    tmp%77#0,size_is_correct%8#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%77#0
+        l-load tmp%77#0 0                                                                                                                                     tmp%77#0
+        btoi                                                                                                                                                  tmp%78#0
         // array/immutable.py:363
         // @arc4.abimethod()
-        callsub test_bool_return                                                                                                                              tmp%68#0
-        byte 0x151f7c75                                                                                                                                       tmp%68#0,0x151f7c75
-        l-load tmp%68#0 1                                                                                                                                     0x151f7c75,tmp%68#0
-        concat                                                                                                                                                tmp%69#0
+        callsub test_bool_return                                                                                                                              tmp%79#0
+        byte 0x151f7c75                                                                                                                                       tmp%79#0,0x151f7c75
+        l-load tmp%79#0 1                                                                                                                                     0x151f7c75,tmp%79#0
+        concat                                                                                                                                                tmp%80#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -302,21 +390,27 @@ subroutine main:
     main_test_tuple_return_route@17:
         // array/immutable.py:370
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%70#0
-        !                                                                                                                                                     tmp%71#0
+        txn OnCompletion                                                                                                                                      tmp%81#0
+        !                                                                                                                                                     tmp%82#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%72#0
+        txn ApplicationID                                                                                                                                     tmp%83#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%4#0
-        btoi                                                                                                                                                  tmp%74#0
+        txna ApplicationArgs 1                                                                                                                                tmp%85#0
+        l-load-copy tmp%85#0 0                                                                                                                                tmp%85#0,tmp%85#0 (copy)
+        len                                                                                                                                                   tmp%85#0,value_len%9#0
+        int 8                                                                                                                                                 tmp%85#0,value_len%9#0,8
+        ==                                                                                                                                                    tmp%85#0,size_is_correct%9#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%85#0
+        l-load tmp%85#0 0                                                                                                                                     tmp%85#0
+        btoi                                                                                                                                                  tmp%86#0
         // array/immutable.py:370
         // @arc4.abimethod()
-        callsub test_tuple_return                                                                                                                             tmp%75#0
-        byte 0x151f7c75                                                                                                                                       tmp%75#0,0x151f7c75
-        l-load tmp%75#0 1                                                                                                                                     0x151f7c75,tmp%75#0
-        concat                                                                                                                                                tmp%76#0
+        callsub test_tuple_return                                                                                                                             tmp%87#0
+        byte 0x151f7c75                                                                                                                                       tmp%87#0,0x151f7c75
+        l-load tmp%87#0 1                                                                                                                                     0x151f7c75,tmp%87#0
+        concat                                                                                                                                                tmp%88#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -325,66 +419,24 @@ subroutine main:
     main_test_dynamic_tuple_return_route@18:
         // array/immutable.py:377
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%77#0
-        !                                                                                                                                                     tmp%78#0
+        txn OnCompletion                                                                                                                                      tmp%89#0
+        !                                                                                                                                                     tmp%90#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%79#0
+        txn ApplicationID                                                                                                                                     tmp%91#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[8]%5#0
-        btoi                                                                                                                                                  tmp%81#0
+        txna ApplicationArgs 1                                                                                                                                tmp%93#0
+        l-load-copy tmp%93#0 0                                                                                                                                tmp%93#0,tmp%93#0 (copy)
+        len                                                                                                                                                   tmp%93#0,value_len%10#0
+        int 8                                                                                                                                                 tmp%93#0,value_len%10#0,8
+        ==                                                                                                                                                    tmp%93#0,size_is_correct%10#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%93#0
+        l-load tmp%93#0 0                                                                                                                                     tmp%93#0
+        btoi                                                                                                                                                  tmp%94#0
         // array/immutable.py:377
         // @arc4.abimethod()
-        callsub test_dynamic_tuple_return                                                                                                                     tmp%82#0
-        byte 0x151f7c75                                                                                                                                       tmp%82#0,0x151f7c75
-        l-load tmp%82#0 1                                                                                                                                     0x151f7c75,tmp%82#0
-        concat                                                                                                                                                tmp%83#0
-        log
-        int 1                                                                                                                                                 tmp%0#0
-        x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__@33 (𝕏) tmp%0#0 | 
-
-    main_test_convert_to_array_and_back_route@19:
-        // array/immutable.py:384
-        // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%84#0
-        !                                                                                                                                                     tmp%85#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%86#0
-        assert // can only call when not creating
-        // array/immutable.py:81
-        // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0
-        txna ApplicationArgs 2                                                                                                                                reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0,reinterpret_bytes[8]%6#0
-        btoi                                                                                                                                                  reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0,tmp%88#0
-        // array/immutable.py:384
-        // @arc4.abimethod()
-        l-load reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0 1                                                                               tmp%88#0,reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0
-        l-load tmp%88#0 1                                                                                                                                     reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0,tmp%88#0
-        callsub test_convert_to_array_and_back                                                                                                                tmp%89#0
-        byte 0x151f7c75                                                                                                                                       tmp%89#0,0x151f7c75
-        l-load tmp%89#0 1                                                                                                                                     0x151f7c75,tmp%89#0
-        concat                                                                                                                                                tmp%90#0
-        log
-        int 1                                                                                                                                                 tmp%0#0
-        x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
-        b main_after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__@33 (𝕏) tmp%0#0 | 
-
-    main_test_concat_with_arc4_tuple_route@20:
-        // array/immutable.py:394
-        // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%91#0
-        !                                                                                                                                                     tmp%92#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%93#0
-        assert // can only call when not creating
-        // array/immutable.py:81
-        // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[16]%0#0
-        // array/immutable.py:394
-        // @arc4.abimethod()
-        callsub test_concat_with_arc4_tuple                                                                                                                   tmp%95#0
+        callsub test_dynamic_tuple_return                                                                                                                     tmp%95#0
         byte 0x151f7c75                                                                                                                                       tmp%95#0,0x151f7c75
         l-load tmp%95#0 1                                                                                                                                     0x151f7c75,tmp%95#0
         concat                                                                                                                                                tmp%96#0
@@ -393,8 +445,8 @@ subroutine main:
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
         b main_after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__@33 (𝕏) tmp%0#0 | 
 
-    main_test_concat_with_native_tuple_route@21:
-        // array/immutable.py:402
+    main_test_convert_to_array_and_back_route@19:
+        // array/immutable.py:384
         // @arc4.abimethod()
         txn OnCompletion                                                                                                                                      tmp%97#0
         !                                                                                                                                                     tmp%98#0
@@ -403,19 +455,96 @@ subroutine main:
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[16]%1#0
-        l-load-copy reinterpret_bytes[16]%1#0 0                                                                                                               reinterpret_bytes[16]%1#0,reinterpret_bytes[16]%1#0 (copy)
-        extract 0 8 // on error: Index access is out of bounds                                                                                                reinterpret_bytes[16]%1#0,item0%0#0
-        l-load reinterpret_bytes[16]%1#0 1                                                                                                                    item0%0#0,reinterpret_bytes[16]%1#0
+        txna ApplicationArgs 1                                                                                                                                tmp%101#0
+        l-load-copy tmp%101#0 0                                                                                                                               tmp%101#0,tmp%101#0 (copy)
+        int 0                                                                                                                                                 tmp%101#0,tmp%101#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%101#0,length%5#0
+        int 9                                                                                                                                                 tmp%101#0,length%5#0,9
+        *                                                                                                                                                     tmp%101#0,num_bytes%5#0
+        int 2                                                                                                                                                 tmp%101#0,num_bytes%5#0,2
+        +                                                                                                                                                     tmp%101#0,num_bytes_with_header%5#0
+        l-load-copy tmp%101#0 1                                                                                                                               tmp%101#0,num_bytes_with_header%5#0,tmp%101#0 (copy)
+        len                                                                                                                                                   tmp%101#0,num_bytes_with_header%5#0,value_len%11#0
+        l-load num_bytes_with_header%5#0 1                                                                                                                    tmp%101#0,value_len%11#0,num_bytes_with_header%5#0
+        ==                                                                                                                                                    tmp%101#0,size_is_correct%11#0
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple> tmp%101#0
+        txna ApplicationArgs 2                                                                                                                                tmp%101#0,tmp%102#0
+        l-load-copy tmp%102#0 0                                                                                                                               tmp%101#0,tmp%102#0,tmp%102#0 (copy)
+        len                                                                                                                                                   tmp%101#0,tmp%102#0,value_len%12#0
+        int 8                                                                                                                                                 tmp%101#0,tmp%102#0,value_len%12#0,8
+        ==                                                                                                                                                    tmp%101#0,tmp%102#0,size_is_correct%12#0
+        assert // invalid number of bytes for arc4.uint64                                                                                                     tmp%101#0,tmp%102#0
+        l-load tmp%102#0 0                                                                                                                                    tmp%101#0,tmp%102#0
+        btoi                                                                                                                                                  tmp%101#0,tmp%103#0
+        // array/immutable.py:384
+        // @arc4.abimethod()
+        l-load tmp%101#0 1                                                                                                                                    tmp%103#0,tmp%101#0
+        l-load tmp%103#0 1                                                                                                                                    tmp%101#0,tmp%103#0
+        callsub test_convert_to_array_and_back                                                                                                                tmp%104#0
+        byte 0x151f7c75                                                                                                                                       tmp%104#0,0x151f7c75
+        l-load tmp%104#0 1                                                                                                                                    0x151f7c75,tmp%104#0
+        concat                                                                                                                                                tmp%105#0
+        log
+        int 1                                                                                                                                                 tmp%0#0
+        x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__@33 (𝕏) tmp%0#0 | 
+
+    main_test_concat_with_arc4_tuple_route@20:
+        // array/immutable.py:394
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                                                                      tmp%106#0
+        !                                                                                                                                                     tmp%107#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                                                                     tmp%108#0
+        assert // can only call when not creating
+        // array/immutable.py:81
+        // class ImmutableArrayContract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                                                                                tmp%110#0
+        l-load-copy tmp%110#0 0                                                                                                                               tmp%110#0,tmp%110#0 (copy)
+        len                                                                                                                                                   tmp%110#0,value_len%13#0
+        int 16                                                                                                                                                tmp%110#0,value_len%13#0,16
+        ==                                                                                                                                                    tmp%110#0,size_is_correct%13#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>                                                                             tmp%110#0
+        // array/immutable.py:394
+        // @arc4.abimethod()
+        l-load tmp%110#0 0                                                                                                                                    tmp%110#0
+        callsub test_concat_with_arc4_tuple                                                                                                                   tmp%111#0
+        byte 0x151f7c75                                                                                                                                       tmp%111#0,0x151f7c75
+        l-load tmp%111#0 1                                                                                                                                    0x151f7c75,tmp%111#0
+        concat                                                                                                                                                tmp%112#0
+        log
+        int 1                                                                                                                                                 tmp%0#0
+        x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
+        b main_after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__@33 (𝕏) tmp%0#0 | 
+
+    main_test_concat_with_native_tuple_route@21:
+        // array/immutable.py:402
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                                                                      tmp%113#0
+        !                                                                                                                                                     tmp%114#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                                                                     tmp%115#0
+        assert // can only call when not creating
+        // array/immutable.py:81
+        // class ImmutableArrayContract(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                                                                                tmp%117#0
+        l-load-copy tmp%117#0 0                                                                                                                               tmp%117#0,tmp%117#0 (copy)
+        len                                                                                                                                                   tmp%117#0,value_len%14#0
+        int 16                                                                                                                                                tmp%117#0,value_len%14#0,16
+        ==                                                                                                                                                    tmp%117#0,size_is_correct%14#0
+        assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>                                                                             tmp%117#0
+        l-load-copy tmp%117#0 0                                                                                                                               tmp%117#0,tmp%117#0 (copy)
+        extract 0 8 // on error: Index access is out of bounds                                                                                                tmp%117#0,item0%0#0
+        l-load tmp%117#0 1                                                                                                                                    item0%0#0,tmp%117#0
         extract 8 8 // on error: Index access is out of bounds                                                                                                item0%0#0,item1%0#0
         // array/immutable.py:402
         // @arc4.abimethod()
         l-load item0%0#0 1                                                                                                                                    item1%0#0,item0%0#0
         l-load item1%0#0 1                                                                                                                                    item0%0#0,item1%0#0
-        callsub test_concat_with_native_tuple                                                                                                                 tmp%101#0
-        byte 0x151f7c75                                                                                                                                       tmp%101#0,0x151f7c75
-        l-load tmp%101#0 1                                                                                                                                    0x151f7c75,tmp%101#0
-        concat                                                                                                                                                tmp%102#0
+        callsub test_concat_with_native_tuple                                                                                                                 tmp%118#0
+        byte 0x151f7c75                                                                                                                                       tmp%118#0,0x151f7c75
+        l-load tmp%118#0 1                                                                                                                                    0x151f7c75,tmp%118#0
+        concat                                                                                                                                                tmp%119#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -424,20 +553,20 @@ subroutine main:
     main_test_dynamic_concat_with_arc4_tuple_route@22:
         // array/immutable.py:410
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%103#0
-        !                                                                                                                                                     tmp%104#0
+        txn OnCompletion                                                                                                                                      tmp%120#0
+        !                                                                                                                                                     tmp%121#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%105#0
+        txn ApplicationID                                                                                                                                     tmp%122#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                tmp%107#0
+        txna ApplicationArgs 1                                                                                                                                tmp%124#0
         // array/immutable.py:410
         // @arc4.abimethod()
-        callsub test_dynamic_concat_with_arc4_tuple                                                                                                           tmp%108#0
-        byte 0x151f7c75                                                                                                                                       tmp%108#0,0x151f7c75
-        l-load tmp%108#0 1                                                                                                                                    0x151f7c75,tmp%108#0
-        concat                                                                                                                                                tmp%109#0
+        callsub test_dynamic_concat_with_arc4_tuple                                                                                                           tmp%125#0
+        byte 0x151f7c75                                                                                                                                       tmp%125#0,0x151f7c75
+        l-load tmp%125#0 1                                                                                                                                    0x151f7c75,tmp%125#0
+        concat                                                                                                                                                tmp%126#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -446,38 +575,38 @@ subroutine main:
     main_test_dynamic_concat_with_native_tuple_route@23:
         // array/immutable.py:418
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%110#0
-        !                                                                                                                                                     tmp%111#0
+        txn OnCompletion                                                                                                                                      tmp%127#0
+        !                                                                                                                                                     tmp%128#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%112#0
+        txn ApplicationID                                                                                                                                     tmp%129#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                tmp%114#0
-        l-load-copy tmp%114#0 0                                                                                                                               tmp%114#0,tmp%114#0 (copy)
-        int 0                                                                                                                                                 tmp%114#0,tmp%114#0 (copy),0
-        extract_uint16                                                                                                                                        tmp%114#0,item_start_offset%0#0
-        l-load-copy tmp%114#0 1                                                                                                                               tmp%114#0,item_start_offset%0#0,tmp%114#0 (copy)
-        int 2                                                                                                                                                 tmp%114#0,item_start_offset%0#0,tmp%114#0 (copy),2
-        extract_uint16                                                                                                                                        tmp%114#0,item_start_offset%0#0,item_end_offset%0#0
-        l-load-copy tmp%114#0 2                                                                                                                               tmp%114#0,item_start_offset%0#0,item_end_offset%0#0,tmp%114#0 (copy)
-        l-load item_start_offset%0#0 2                                                                                                                        tmp%114#0,item_end_offset%0#0,tmp%114#0 (copy),item_start_offset%0#0
-        l-load-copy item_end_offset%0#0 2                                                                                                                     tmp%114#0,item_end_offset%0#0,tmp%114#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
-        substring3                                                                                                                                            tmp%114#0,item_end_offset%0#0,item0%1#0
-        l-load-copy tmp%114#0 2                                                                                                                               tmp%114#0,item_end_offset%0#0,item0%1#0,tmp%114#0 (copy)
-        len                                                                                                                                                   tmp%114#0,item_end_offset%0#0,item0%1#0,item_end_offset%1#0
-        l-load tmp%114#0 3                                                                                                                                    item_end_offset%0#0,item0%1#0,item_end_offset%1#0,tmp%114#0
-        l-load item_end_offset%0#0 3                                                                                                                          item0%1#0,item_end_offset%1#0,tmp%114#0,item_end_offset%0#0
-        l-load item_end_offset%1#0 2                                                                                                                          item0%1#0,tmp%114#0,item_end_offset%0#0,item_end_offset%1#0
+        txna ApplicationArgs 1                                                                                                                                tmp%131#0
+        l-load-copy tmp%131#0 0                                                                                                                               tmp%131#0,tmp%131#0 (copy)
+        int 0                                                                                                                                                 tmp%131#0,tmp%131#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%131#0,item_start_offset%0#0
+        l-load-copy tmp%131#0 1                                                                                                                               tmp%131#0,item_start_offset%0#0,tmp%131#0 (copy)
+        int 2                                                                                                                                                 tmp%131#0,item_start_offset%0#0,tmp%131#0 (copy),2
+        extract_uint16                                                                                                                                        tmp%131#0,item_start_offset%0#0,item_end_offset%0#0
+        l-load-copy tmp%131#0 2                                                                                                                               tmp%131#0,item_start_offset%0#0,item_end_offset%0#0,tmp%131#0 (copy)
+        l-load item_start_offset%0#0 2                                                                                                                        tmp%131#0,item_end_offset%0#0,tmp%131#0 (copy),item_start_offset%0#0
+        l-load-copy item_end_offset%0#0 2                                                                                                                     tmp%131#0,item_end_offset%0#0,tmp%131#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
+        substring3                                                                                                                                            tmp%131#0,item_end_offset%0#0,item0%1#0
+        l-load-copy tmp%131#0 2                                                                                                                               tmp%131#0,item_end_offset%0#0,item0%1#0,tmp%131#0 (copy)
+        len                                                                                                                                                   tmp%131#0,item_end_offset%0#0,item0%1#0,item_end_offset%1#0
+        l-load tmp%131#0 3                                                                                                                                    item_end_offset%0#0,item0%1#0,item_end_offset%1#0,tmp%131#0
+        l-load item_end_offset%0#0 3                                                                                                                          item0%1#0,item_end_offset%1#0,tmp%131#0,item_end_offset%0#0
+        l-load item_end_offset%1#0 2                                                                                                                          item0%1#0,tmp%131#0,item_end_offset%0#0,item_end_offset%1#0
         substring3                                                                                                                                            item0%1#0,item1%1#0
         // array/immutable.py:418
         // @arc4.abimethod()
         l-load item0%1#0 1                                                                                                                                    item1%1#0,item0%1#0
         l-load item1%1#0 1                                                                                                                                    item0%1#0,item1%1#0
-        callsub test_dynamic_concat_with_native_tuple                                                                                                         tmp%115#0
-        byte 0x151f7c75                                                                                                                                       tmp%115#0,0x151f7c75
-        l-load tmp%115#0 1                                                                                                                                    0x151f7c75,tmp%115#0
-        concat                                                                                                                                                tmp%116#0
+        callsub test_dynamic_concat_with_native_tuple                                                                                                         tmp%132#0
+        byte 0x151f7c75                                                                                                                                       tmp%132#0,0x151f7c75
+        l-load tmp%132#0 1                                                                                                                                    0x151f7c75,tmp%132#0
+        concat                                                                                                                                                tmp%133#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -486,23 +615,23 @@ subroutine main:
     main_test_concat_immutable_dynamic_route@24:
         // array/immutable.py:426
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%117#0
-        !                                                                                                                                                     tmp%118#0
+        txn OnCompletion                                                                                                                                      tmp%134#0
+        !                                                                                                                                                     tmp%135#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%119#0
+        txn ApplicationID                                                                                                                                     tmp%136#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_(encoded_uint64,bytes)[]%1#0
-        txna ApplicationArgs 2                                                                                                                                reinterpret_(encoded_uint64,bytes)[]%1#0,reinterpret_(encoded_uint64,bytes)[]%2#0
+        txna ApplicationArgs 1                                                                                                                                tmp%138#0
+        txna ApplicationArgs 2                                                                                                                                tmp%138#0,tmp%139#0
         // array/immutable.py:426
         // @arc4.abimethod()
-        l-load reinterpret_(encoded_uint64,bytes)[]%1#0 1                                                                                                     reinterpret_(encoded_uint64,bytes)[]%2#0,reinterpret_(encoded_uint64,bytes)[]%1#0
-        l-load reinterpret_(encoded_uint64,bytes)[]%2#0 1                                                                                                     reinterpret_(encoded_uint64,bytes)[]%1#0,reinterpret_(encoded_uint64,bytes)[]%2#0
-        callsub test_concat_immutable_dynamic                                                                                                                 tmp%121#0
-        byte 0x151f7c75                                                                                                                                       tmp%121#0,0x151f7c75
-        l-load tmp%121#0 1                                                                                                                                    0x151f7c75,tmp%121#0
-        concat                                                                                                                                                tmp%122#0
+        l-load tmp%138#0 1                                                                                                                                    tmp%139#0,tmp%138#0
+        l-load tmp%139#0 1                                                                                                                                    tmp%138#0,tmp%139#0
+        callsub test_concat_immutable_dynamic                                                                                                                 tmp%140#0
+        byte 0x151f7c75                                                                                                                                       tmp%140#0,0x151f7c75
+        l-load tmp%140#0 1                                                                                                                                    0x151f7c75,tmp%140#0
+        concat                                                                                                                                                tmp%141#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -511,20 +640,33 @@ subroutine main:
     main_test_immutable_arc4_route@25:
         // array/immutable.py:432
         // @arc4.abimethod()
-        txn OnCompletion                                                                                                                                      tmp%123#0
-        !                                                                                                                                                     tmp%124#0
+        txn OnCompletion                                                                                                                                      tmp%142#0
+        !                                                                                                                                                     tmp%143#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                                                                     tmp%125#0
+        txn ApplicationID                                                                                                                                     tmp%144#0
         assert // can only call when not creating
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                                                                reinterpret_bytes[16][]%0#0
+        txna ApplicationArgs 1                                                                                                                                tmp%146#0
+        l-load-copy tmp%146#0 0                                                                                                                               tmp%146#0,tmp%146#0 (copy)
+        int 0                                                                                                                                                 tmp%146#0,tmp%146#0 (copy),0
+        extract_uint16                                                                                                                                        tmp%146#0,length%6#0
+        int 16                                                                                                                                                tmp%146#0,length%6#0,16
+        *                                                                                                                                                     tmp%146#0,num_bytes%6#0
+        int 2                                                                                                                                                 tmp%146#0,num_bytes%6#0,2
+        +                                                                                                                                                     tmp%146#0,num_bytes_with_header%6#0
+        l-load-copy tmp%146#0 1                                                                                                                               tmp%146#0,num_bytes_with_header%6#0,tmp%146#0 (copy)
+        len                                                                                                                                                   tmp%146#0,num_bytes_with_header%6#0,value_len%15#0
+        l-load num_bytes_with_header%6#0 1                                                                                                                    tmp%146#0,value_len%15#0,num_bytes_with_header%6#0
+        ==                                                                                                                                                    tmp%146#0,size_is_correct%15#0
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct> tmp%146#0
         // array/immutable.py:432
         // @arc4.abimethod()
-        callsub test_immutable_arc4                                                                                                                           tmp%127#0
-        byte 0x151f7c75                                                                                                                                       tmp%127#0,0x151f7c75
-        l-load tmp%127#0 1                                                                                                                                    0x151f7c75,tmp%127#0
-        concat                                                                                                                                                tmp%128#0
+        l-load tmp%146#0 0                                                                                                                                    tmp%146#0
+        callsub test_immutable_arc4                                                                                                                           tmp%147#0
+        byte 0x151f7c75                                                                                                                                       tmp%147#0,0x151f7c75
+        l-load tmp%147#0 1                                                                                                                                    0x151f7c75,tmp%147#0
+        concat                                                                                                                                                tmp%148#0
         log
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |
@@ -533,12 +675,12 @@ subroutine main:
     main_bare_routing@28:
         // array/immutable.py:81
         // class ImmutableArrayContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                                                                                      tmp%129#0
+        txn OnCompletion                                                                                                                                      tmp%149#0
         bz main___algopy_default_create@29 ; b main_after_if_else@32
 
     main___algopy_default_create@29:
-        txn ApplicationID                                                                                                                                     tmp%130#0
-        !                                                                                                                                                     tmp%131#0
+        txn ApplicationID                                                                                                                                     tmp%150#0
+        !                                                                                                                                                     tmp%151#0
         assert // can only call when creating
         int 1                                                                                                                                                 tmp%0#0
         x-store tmp%0#0                                                                                                                                       (𝕏) tmp%0#0 |

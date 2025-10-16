@@ -20,20 +20,54 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let vote_id#0: bytes = ((extract 2 0) tmp%7#0)
         let tmp%9#0: bytes = (txna ApplicationArgs 2)
+        let length%1#0: uint64 = (extract_uint16 tmp%9#0 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%9#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let snapshot_public_key#0: bytes = ((extract 2 0) tmp%9#0)
         let tmp%11#0: bytes = (txna ApplicationArgs 3)
+        let length%2#0: uint64 = (extract_uint16 tmp%11#0 0u)
+        let num_bytes_with_header%2#0: uint64 = (+ length%2#0 2u)
+        let value_len%2#0: uint64 = (len tmp%11#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let metadata_ipfs_cid#0: bytes = ((extract 2 0) tmp%11#0)
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 4)
-        let start_time#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 5)
-        let end_time#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
+        let tmp%13#0: bytes = (txna ApplicationArgs 4)
+        let value_len%3#0: uint64 = (len tmp%13#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint64
+        let start_time#0: uint64 = (btoi tmp%13#0)
+        let tmp%15#0: bytes = (txna ApplicationArgs 5)
+        let value_len%4#0: uint64 = (len tmp%15#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 8u)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.uint64
+        let end_time#0: uint64 = (btoi tmp%15#0)
         let option_counts#0: bytes = (txna ApplicationArgs 6)
-        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 7)
-        let quorum#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
-        let tmp%17#0: bytes = (txna ApplicationArgs 8)
-        let nft_image_url#0: bytes = ((extract 2 0) tmp%17#0)
+        let length%3#0: uint64 = (extract_uint16 option_counts#0 0u)
+        let num_bytes_with_header%3#0: uint64 = (+ length%3#0 2u)
+        let value_len%5#0: uint64 = (len option_counts#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%3#0)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%18#0: bytes = (txna ApplicationArgs 7)
+        let value_len%6#0: uint64 = (len tmp%18#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 8u)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint64
+        let quorum#0: uint64 = (btoi tmp%18#0)
+        let tmp%20#0: bytes = (txna ApplicationArgs 8)
+        let length%4#0: uint64 = (extract_uint16 tmp%20#0 0u)
+        let num_bytes_with_header%4#0: uint64 = (+ length%4#0 2u)
+        let value_len%7#0: uint64 = (len tmp%20#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let nft_image_url#0: bytes = ((extract 2 0) tmp%20#0)
         let tmp%0#0: bool = (< start_time#0 end_time#0)
         (assert tmp%0#0) // End time should be after start time
         let tmp%1#4: uint64 = (global LatestTimestamp)
@@ -46,20 +80,19 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (app_global_put "end_time" end_time#0)
         (app_global_put "quorum" quorum#0)
         (app_global_put "nft_image_url" nft_image_url#0)
-        let tmp%0#2: uint64 = (extract_uint16 option_counts#0 0u)
-        (assert tmp%0#2) // option_counts should be non-empty
-        let tmp%3#1: bool = (<= tmp%0#2 112u)
+        (assert length%3#0) // option_counts should be non-empty
+        let tmp%3#1: bool = (<= length%3#0 112u)
         (assert tmp%3#1) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@30
     block@30: // for_header_L223
-        let continue_looping%0#0: bool = (< item_index_internal%0#0 tmp%0#2)
+        let continue_looping%0#0: bool = (< item_index_internal%0#0 length%3#0)
         goto continue_looping%0#0 ? block@31 : block@32
     block@31: // for_body_L224
         let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
-        let tmp%4#1: uint64 = (getbyte array_head_and_tail%0#0 item_index_internal%0#0)
-        let total_options#0: uint64 = (+ total_options#0 tmp%4#1)
+        let tmp%4#3: uint64 = (getbyte array_head_and_tail%0#0 item_index_internal%0#0)
+        let total_options#0: uint64 = (+ total_options#0 tmp%4#3)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@30
     block@32: // after_for_L223
@@ -71,13 +104,13 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
     block@6: // bootstrap_route_L82
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
-        let tmp%23#0: uint64 = (txn GroupIndex)
-        let fund_min_bal_req#0: uint64 = (- tmp%23#0 1u)
+        let tmp%22#0: uint64 = (txn OnCompletion)
+        let tmp%23#0: bool = (! tmp%22#0)
+        (assert tmp%23#0) // OnCompletion is not NoOp
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        (assert tmp%24#0) // can only call when not creating
+        let tmp%26#0: uint64 = (txn GroupIndex)
+        let fund_min_bal_req#0: uint64 = (- tmp%26#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) fund_min_bal_req#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
@@ -93,8 +126,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let (maybe_value%1#2: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "total_options")
         (assert maybe_exists%1#0) // check self.total_options exists
         let tally_box_size#0: uint64 = (* maybe_value%1#2 8u)
-        let tmp%4#1: uint64 = (* tally_box_size#0 400u)
-        let min_balance_req#0: uint64 = (+ 203900u tmp%4#1)
+        let tmp%4#3: uint64 = (* tally_box_size#0 400u)
+        let min_balance_req#0: uint64 = (+ 203900u tmp%4#3)
         let tmp%5#2: bytes = (itob min_balance_req#0)
         (log tmp%5#2)
         let tmp%6#3: uint64 = ((gtxns Amount) fund_min_bal_req#0)
@@ -106,11 +139,11 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
     block@7: // close_route_L110
-        let tmp%24#0: uint64 = (txn OnCompletion)
-        let tmp%25#0: bool = (! tmp%24#0)
-        (assert tmp%25#0) // OnCompletion is not NoOp
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        (assert tmp%26#0) // can only call when not creating
+        let tmp%27#0: uint64 = (txn OnCompletion)
+        let tmp%28#0: bool = (! tmp%27#0)
+        (assert tmp%28#0) // OnCompletion is not NoOp
+        let tmp%29#0: uint64 = (txn ApplicationID)
+        (assert tmp%29#0) // can only call when not creating
         _puya_lib.util.ensure_budget(20000u, 0u)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "close_time")
         let tmp%0#0: bool = (! maybe_exists%0#0)
@@ -179,8 +212,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         goto block@16
     block@16: // after_if_else_L138
         let note#0: bytes = note#17
-        let tmp%0#9: bytes = (box_extract "V" current_index#0 8u)
-        let votes_for_option#0: uint64 = (btoi tmp%0#9)
+        let tmp%0#8: bytes = (box_extract "V" current_index#0 8u)
+        let votes_for_option#0: uint64 = (btoi tmp%0#8)
         let tmp%16#2: bytes = examples.voting.voting.itoa(votes_for_option#0)
         let note#0: bytes = (concat note#0 tmp%16#2)
         let current_index#0: uint64 = (+ current_index#0 1u)
@@ -222,13 +255,18 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
     block@20: // get_preconditions_route_L160
-        let tmp%28#0: uint64 = (txn OnCompletion)
-        let tmp%29#0: bool = (! tmp%28#0)
-        (assert tmp%29#0) // OnCompletion is not NoOp
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        (assert tmp%30#0) // can only call when not creating
-        let tmp%32#0: bytes = (txna ApplicationArgs 1)
-        let signature#0: bytes = ((extract 2 0) tmp%32#0)
+        let tmp%31#0: uint64 = (txn OnCompletion)
+        let tmp%32#0: bool = (! tmp%31#0)
+        (assert tmp%32#0) // OnCompletion is not NoOp
+        let tmp%33#0: uint64 = (txn ApplicationID)
+        (assert tmp%33#0) // can only call when not creating
+        let tmp%35#0: bytes = (txna ApplicationArgs 1)
+        let length%5#0: uint64 = (extract_uint16 tmp%35#0 0u)
+        let num_bytes_with_header%5#0: uint64 = (+ length%5#0 2u)
+        let value_len%8#0: uint64 = (len tmp%35#0)
+        let size_is_correct%8#0: bool = (== value_len%8#0 num_bytes_with_header%5#0)
+        (assert size_is_correct%8#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let signature#0: bytes = ((extract 2 0) tmp%35#0)
         let to_encode%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         let to_encode%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
@@ -241,25 +279,35 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let encoded_tuple_buffer%2#0: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 val_as_bytes%2#0)
         let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 val_as_bytes%3#0)
-        let tmp%35#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%4#0)
-        (log tmp%35#0)
+        let tmp%38#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%4#0)
+        (log tmp%38#0)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
     block@21: // vote_route_L169
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (! tmp%36#0)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        (assert tmp%38#0) // can only call when not creating
-        let tmp%40#0: uint64 = (txn GroupIndex)
-        let fund_min_bal_req#0: uint64 = (- tmp%40#0 1u)
+        let tmp%39#0: uint64 = (txn OnCompletion)
+        let tmp%40#0: bool = (! tmp%39#0)
+        (assert tmp%40#0) // OnCompletion is not NoOp
+        let tmp%41#0: uint64 = (txn ApplicationID)
+        (assert tmp%41#0) // can only call when not creating
+        let tmp%43#0: uint64 = (txn GroupIndex)
+        let fund_min_bal_req#0: uint64 = (- tmp%43#0 1u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) fund_min_bal_req#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
-        let tmp%41#0: bytes = (txna ApplicationArgs 1)
-        let signature#0: bytes = ((extract 2 0) tmp%41#0)
+        let tmp%44#0: bytes = (txna ApplicationArgs 1)
+        let length%6#0: uint64 = (extract_uint16 tmp%44#0 0u)
+        let num_bytes_with_header%6#0: uint64 = (+ length%6#0 2u)
+        let value_len%9#0: uint64 = (len tmp%44#0)
+        let size_is_correct%9#0: bool = (== value_len%9#0 num_bytes_with_header%6#0)
+        (assert size_is_correct%9#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let signature#0: bytes = ((extract 2 0) tmp%44#0)
         let answer_ids#0: bytes = (txna ApplicationArgs 2)
+        let length%7#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let num_bytes_with_header%7#0: uint64 = (+ length%7#0 2u)
+        let value_len%10#0: uint64 = (len answer_ids#0)
+        let size_is_correct%10#0: bool = (== value_len%10#0 num_bytes_with_header%7#0)
+        (assert size_is_correct%10#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         _puya_lib.util.ensure_budget(7700u, 0u)
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
         (assert tmp%0#0) // Not allowed to vote
@@ -272,18 +320,17 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
-        let tmp%4#1: uint64 = (extract_uint16 answer_ids#0 0u)
-        let tmp%5#1: bool = (== tmp%4#1 questions_count#0)
+        let tmp%5#1: bool = (== length%7#0 questions_count#0)
         (assert tmp%5#1) // Number of answers incorrect
-        let tmp%8#1: uint64 = (+ 34u tmp%4#1)
+        let tmp%8#1: uint64 = (+ 34u length%7#0)
         let tmp%9#1: uint64 = (* tmp%8#1 400u)
         let min_bal_req#0: uint64 = (+ 2500u tmp%9#1)
         let tmp%10#1: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
         let tmp%11#0: bytes = (global CurrentApplicationAddress)
         let tmp%12#1: bool = (== tmp%10#1 tmp%11#0)
         (assert tmp%12#1) // Payment must be to app address
-        let tmp%13#1: bytes = (itob min_bal_req#0)
-        (log tmp%13#1)
+        let tmp%13#0: bytes = (itob min_bal_req#0)
+        (log tmp%13#0)
         let tmp%14#1: uint64 = ((gtxns Amount) fund_min_bal_req#0)
         let tmp%15#1: bool = (== tmp%14#1 min_bal_req#0)
         (assert tmp%15#1) // Payment must be the exact min balance
@@ -303,8 +350,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%18#1: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%18#1) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
-        let tmp%0#9: bytes = (box_extract "V" index#0 8u)
-        let current_vote#0: uint64 = (btoi tmp%0#9)
+        let tmp%0#8: bytes = (box_extract "V" index#0 8u)
+        let current_vote#0: uint64 = (btoi tmp%0#8)
         let tmp%0#2: uint64 = (+ current_vote#0 1u)
         let tmp%1#2: bytes = (itob tmp%0#2)
         (box_replace "V" index#0 tmp%1#2)

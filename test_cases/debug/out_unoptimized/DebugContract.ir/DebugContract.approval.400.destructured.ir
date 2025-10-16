@@ -15,16 +15,28 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
-        let tmp%8#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
-        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 3)
-        let tmp%9#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
-        let to_encode%0#0: uint64 = test_cases.debug.contract.DebugContract.test(tmp%7#0, tmp%8#0, tmp%9#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%7#0
+        let tmp%8#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let tmp%9#0: bytes = (txna ApplicationArgs 2)
+        let value_len%1#0: uint64 = (len tmp%9#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%1#0: bytes[8] = tmp%9#0
+        let tmp%10#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
+        let tmp%11#0: bytes = (txna ApplicationArgs 3)
+        let value_len%2#0: uint64 = (len tmp%11#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%2#0: bytes[8] = tmp%11#0
+        let tmp%12#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
+        let to_encode%0#0: uint64 = test_cases.debug.contract.DebugContract.test(tmp%8#0, tmp%10#0, tmp%12#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let tmp%10#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%10#0)
+        let tmp%13#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%13#0)
         let test_cases.debug.contract.DebugContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.debug.contract.DebugContract.__puya_arc4_router__%0#0
         goto block@11
@@ -33,12 +45,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@5: // switch_case_next_L4
         goto block@10
     block@6: // bare_routing_L4
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        switch tmp%11#0 {0u => block@7, * => block@8}
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        switch tmp%14#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (== tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (== tmp%15#0 0u)
+        (assert tmp%16#0) // can only call when creating
         goto block@12
     block@12: // L1
         goto block@13

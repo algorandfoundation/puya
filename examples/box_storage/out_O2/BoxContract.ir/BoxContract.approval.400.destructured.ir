@@ -11,10 +11,23 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let a#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let a#0: uint64 = (btoi tmp%7#0)
         let b#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = (extract_uint16 b#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%1#0: uint64 = (len b#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let c#0: bytes = (txna ApplicationArgs 3)
+        let length%1#0: uint64 = (extract_uint16 c#0 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%2#0: uint64 = (len c#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let encoded_value%0#0: bytes = (itob a#0)
         (box_put "box_a" encoded_value%0#0)
         (box_del "b")
@@ -40,47 +53,45 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%4#0)
         let (value%1#0: uint64, check%1#0: bool) = (box_len "b")
         (assert check%1#0) // check self.box_b exists
-        let tmp%5#0: uint64 = (len b#0)
-        let tmp%6#1: bool = (== value%1#0 tmp%5#0)
+        let tmp%6#1: bool = (== value%1#0 value_len%1#0)
         (assert tmp%6#1)
         let (value%2#0: uint64, check%2#0: bool) = (box_len 0x424f585f43)
         (assert check%2#0) // check self.box_c exists
-        let tmp%7#4: uint64 = (len c#0)
-        let tmp%8#3: bool = (== value%2#0 tmp%7#4)
+        let tmp%8#3: bool = (== value%2#0 value_len%2#0)
         (assert tmp%8#3)
         let (value%3#0: uint64, check%3#0: bool) = (box_len "box_d")
         (assert check%3#0) // check self.box_d exists
-        let tmp%10#0: uint64 = (len materialized_values%0#0)
-        let tmp%11#0: bool = (== value%3#0 tmp%10#0)
-        (assert tmp%11#0)
+        let tmp%10#3: uint64 = (len materialized_values%0#0)
+        let tmp%11#2: bool = (== value%3#0 tmp%10#3)
+        (assert tmp%11#2)
         let tmp%12#3: bytes = (box_extract 0x424f585f43 0u 1u)
         let tmp%13#3: bytes = ((extract 0 1) c#0)
         let tmp%14#1: bool = (== tmp%12#3 tmp%13#3)
         (assert tmp%14#1)
-        let (tmp%15#2: uint64, tmp%16#1: bool) = (box_len 0x424f585f43)
-        let tmp%17#3: uint64 = (- tmp%15#2 1u)
-        let tmp%18#2: bytes = (box_extract 0x424f585f43 tmp%17#3 1u)
-        let tmp%20#0: uint64 = (- tmp%7#4 1u)
-        let tmp%21#1: bytes = (extract3 c#0 tmp%20#0 1u)
+        let (tmp%15#0: uint64, tmp%16#0: bool) = (box_len 0x424f585f43)
+        let tmp%17#0: uint64 = (- tmp%15#0 1u)
+        let tmp%18#2: bytes = (box_extract 0x424f585f43 tmp%17#0 1u)
+        let tmp%20#1: uint64 = (- value_len%2#0 1u)
+        let tmp%21#1: bytes = (extract3 c#0 tmp%20#1 1u)
         let tmp%22#1: bool = (== tmp%18#2 tmp%21#1)
         (assert tmp%22#1)
-        let (tmp%23#0: uint64, tmp%24#0: bool) = (box_len 0x424f585f43)
-        let tmp%25#1: bool = (< 1u tmp%23#0)
-        let tmp%26#1: uint64 = (select tmp%23#0 1u tmp%25#1)
-        let tmp%27#1: uint64 = (- tmp%23#0 tmp%26#1)
+        let (tmp%23#1: uint64, tmp%24#1: bool) = (box_len 0x424f585f43)
+        let tmp%25#0: bool = (< 1u tmp%23#1)
+        let tmp%26#0: uint64 = (select tmp%23#1 1u tmp%25#0)
+        let tmp%27#1: uint64 = (- tmp%23#1 tmp%26#0)
         let tmp%29#1: bytes = (box_extract 0x424f585f43 0u tmp%27#1)
-        let is_out_of_bounds%0#0: bool = (>= 1u tmp%7#4)
-        let bounded_offset%0#0: uint64 = (select 1u tmp%7#4 is_out_of_bounds%0#0)
-        let bounded_index%0#0: uint64 = (- tmp%7#4 bounded_offset%0#0)
+        let is_out_of_bounds%0#0: bool = (>= 1u value_len%2#0)
+        let bounded_offset%0#0: uint64 = (select 1u value_len%2#0 is_out_of_bounds%0#0)
+        let bounded_index%0#0: uint64 = (- value_len%2#0 bounded_offset%0#0)
         let tmp%30#1: bytes = (substring3 c#0 0u bounded_index%0#0)
         let tmp%31#1: bool = (== tmp%29#1 tmp%30#1)
         (assert tmp%31#1)
-        let (tmp%32#0: uint64, tmp%33#0: bool) = (box_len 0x424f585f43)
-        let tmp%34#1: bool = (< 2u tmp%32#0)
-        let tmp%35#1: uint64 = (select tmp%32#0 2u tmp%34#1)
-        let tmp%37#1: bytes = (box_extract 0x424f585f43 0u tmp%35#1)
-        let is_out_of_bounds%1#0: bool = (>= 2u tmp%7#4)
-        let bounded_index%1#0: uint64 = (select 2u tmp%7#4 is_out_of_bounds%1#0)
+        let (tmp%32#1: uint64, tmp%33#1: bool) = (box_len 0x424f585f43)
+        let tmp%34#0: bool = (< 2u tmp%32#1)
+        let tmp%35#0: uint64 = (select tmp%32#1 2u tmp%34#0)
+        let tmp%37#1: bytes = (box_extract 0x424f585f43 0u tmp%35#0)
+        let is_out_of_bounds%1#0: bool = (>= 2u value_len%2#0)
+        let bounded_index%1#0: uint64 = (select 2u value_len%2#0 is_out_of_bounds%1#0)
         let tmp%38#1: bytes = (substring3 c#0 0u bounded_index%1#0)
         let tmp%39#1: bool = (== tmp%37#1 tmp%38#1)
         (assert tmp%39#1)
@@ -88,39 +99,39 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%42#1: bytes = ((extract 2 1) b#0)
         let tmp%43#1: bool = (== tmp%40#1 tmp%42#1)
         (assert tmp%43#1)
-        let (tmp%44#0: uint64, tmp%45#0: bool) = (box_len "box_d")
-        let tmp%46#0: uint64 = (- tmp%44#0 1u)
-        let tmp%47#1: bytes = (box_extract "box_d" tmp%46#0 1u)
-        let tmp%50#1: uint64 = (- tmp%10#0 1u)
-        let tmp%51#1: bytes = (extract3 materialized_values%0#0 tmp%50#1 1u)
-        let tmp%52#0: bool = (== tmp%47#1 tmp%51#1)
-        (assert tmp%52#0)
-        let (tmp%53#0: uint64, tmp%54#1: bool) = (box_len "box_d")
+        let (tmp%44#1: uint64, tmp%45#1: bool) = (box_len "box_d")
+        let tmp%46#1: uint64 = (- tmp%44#1 1u)
+        let tmp%47#1: bytes = (box_extract "box_d" tmp%46#1 1u)
+        let tmp%50#1: uint64 = (- tmp%10#3 1u)
+        let tmp%51#0: bytes = (extract3 materialized_values%0#0 tmp%50#1 1u)
+        let tmp%52#1: bool = (== tmp%47#1 tmp%51#0)
+        (assert tmp%52#1)
+        let (tmp%53#0: uint64, tmp%54#0: bool) = (box_len "box_d")
         let tmp%55#1: bool = (< 1u tmp%53#0)
         let tmp%56#1: uint64 = (select tmp%53#0 1u tmp%55#1)
-        let tmp%57#0: uint64 = (- tmp%53#0 tmp%56#1)
-        let tmp%59#1: bytes = (box_extract "box_d" 0u tmp%57#0)
-        let is_out_of_bounds%2#0: bool = (>= 1u tmp%10#0)
-        let bounded_offset%1#0: uint64 = (select 1u tmp%10#0 is_out_of_bounds%2#0)
-        let bounded_index%2#0: uint64 = (- tmp%10#0 bounded_offset%1#0)
+        let tmp%57#1: uint64 = (- tmp%53#0 tmp%56#1)
+        let tmp%59#0: bytes = (box_extract "box_d" 0u tmp%57#1)
+        let is_out_of_bounds%2#0: bool = (>= 1u tmp%10#3)
+        let bounded_offset%1#0: uint64 = (select 1u tmp%10#3 is_out_of_bounds%2#0)
+        let bounded_index%2#0: uint64 = (- tmp%10#3 bounded_offset%1#0)
         let tmp%61#1: bytes = (substring3 materialized_values%0#0 0u bounded_index%2#0)
-        let tmp%62#1: bool = (== tmp%59#1 tmp%61#1)
+        let tmp%62#1: bool = (== tmp%59#0 tmp%61#1)
         (assert tmp%62#1)
         let (tmp%63#1: uint64, tmp%64#1: bool) = (box_len "box_d")
         let tmp%65#1: bool = (< 5u tmp%63#1)
-        let tmp%66#1: uint64 = (select tmp%63#1 5u tmp%65#1)
-        let tmp%68#1: bytes = (box_extract "box_d" 0u tmp%66#1)
-        let is_out_of_bounds%3#0: bool = (>= 5u tmp%10#0)
-        let bounded_index%3#0: uint64 = (select 5u tmp%10#0 is_out_of_bounds%3#0)
-        let tmp%70#1: bytes = (substring3 materialized_values%0#0 0u bounded_index%3#0)
-        let tmp%71#0: bool = (== tmp%68#1 tmp%70#1)
-        (assert tmp%71#0)
-        let (tmp%72#0: uint64, tmp%73#0: bool) = (box_len "box_d")
-        let tmp%74#0: bool = (< 2u tmp%72#0)
-        let tmp%75#0: uint64 = (select tmp%72#0 2u tmp%74#0)
-        let tmp%77#0: bytes = (box_extract "box_d" 0u tmp%75#0)
-        let is_out_of_bounds%4#0: bool = (>= 2u tmp%10#0)
-        let bounded_index%4#0: uint64 = (select 2u tmp%10#0 is_out_of_bounds%4#0)
+        let tmp%66#0: uint64 = (select tmp%63#1 5u tmp%65#1)
+        let tmp%68#1: bytes = (box_extract "box_d" 0u tmp%66#0)
+        let is_out_of_bounds%3#0: bool = (>= 5u tmp%10#3)
+        let bounded_index%3#0: uint64 = (select 5u tmp%10#3 is_out_of_bounds%3#0)
+        let tmp%70#0: bytes = (substring3 materialized_values%0#0 0u bounded_index%3#0)
+        let tmp%71#1: bool = (== tmp%68#1 tmp%70#0)
+        (assert tmp%71#1)
+        let (tmp%72#1: uint64, tmp%73#1: bool) = (box_len "box_d")
+        let tmp%74#1: bool = (< 2u tmp%72#1)
+        let tmp%75#1: uint64 = (select tmp%72#1 2u tmp%74#1)
+        let tmp%77#0: bytes = (box_extract "box_d" 0u tmp%75#1)
+        let is_out_of_bounds%4#0: bool = (>= 2u tmp%10#3)
+        let bounded_index%4#0: uint64 = (select 2u tmp%10#3 is_out_of_bounds%4#0)
         let tmp%79#0: bytes = (substring3 materialized_values%0#0 0u bounded_index%4#0)
         let tmp%80#0: bool = (== tmp%77#0 tmp%79#0)
         (assert tmp%80#0)
@@ -132,20 +143,20 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@6: // check_keys_route_L78
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        (assert tmp%12#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@7: // delete_boxes_route_L85
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        (assert tmp%16#0) // can only call when not creating
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (! tmp%15#0)
+        (assert tmp%16#0) // OnCompletion is not NoOp
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
         (box_del "box_a")
         (box_del "b")
         (box_del 0x424f585f43)
@@ -172,11 +183,11 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@8: // read_boxes_route_L98
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: bool = (! tmp%18#0)
-        (assert tmp%19#0) // OnCompletion is not NoOp
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        (assert tmp%20#0) // can only call when not creating
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
         let large_e#0: bytes[8] = (box_extract "box_large" 4096u 8u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "box_a")
         (assert maybe_exists%0#0) // check Box exists
@@ -190,8 +201,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert maybe_exists%1#1) // check self.box_c exists
         let tmp%4#4: uint64 = (btoi large_e#0)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%2#5)
-        let length%0#0: uint64 = (len tmp%3#5)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length%2#0: uint64 = (len tmp%3#5)
+        let as_bytes%0#0: bytes[8] = (itob length%2#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%3#5)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%4#4)
@@ -204,17 +215,17 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 val_as_bytes%1#0)
         let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 encoded_value%0#0)
         let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 maybe_value%1#3)
-        let tmp%22#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
-        (log tmp%22#0)
+        let tmp%23#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
+        (log tmp%23#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@9: // boxes_exist_route_L111
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
+        let tmp%24#0: uint64 = (txn OnCompletion)
+        let tmp%25#0: bool = (! tmp%24#0)
+        (assert tmp%25#0) // OnCompletion is not NoOp
+        let tmp%26#0: uint64 = (txn ApplicationID)
+        (assert tmp%26#0) // can only call when not creating
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
         let (_%1#0: uint64, maybe_exists%1#1: bool) = (box_len "b")
         let (_%2#0: uint64, maybe_exists%2#0: bool) = (box_len 0x424f585f43)
@@ -229,17 +240,17 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let encoded_tuple_buffer%10#0: bytes = (setbit encoded_tuple_buffer%9#0 2u is_true%1#0)
         let is_true%2#0: uint64 = (getbit encoded_bool%3#0 0u)
         let encoded_tuple_buffer%11#0: bytes = (setbit encoded_tuple_buffer%10#0 3u is_true%2#0)
-        let tmp%27#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%11#0)
-        (log tmp%27#0)
+        let tmp%28#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%11#0)
+        (log tmp%28#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@10: // slice_box_route_L115
-        let tmp%28#0: uint64 = (txn OnCompletion)
-        let tmp%29#0: bool = (! tmp%28#0)
-        (assert tmp%29#0) // OnCompletion is not NoOp
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        (assert tmp%30#0) // can only call when not creating
+        let tmp%29#0: uint64 = (txn OnCompletion)
+        let tmp%30#0: bool = (! tmp%29#0)
+        (assert tmp%30#0) // OnCompletion is not NoOp
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        (assert tmp%31#0) // can only call when not creating
         (box_del "0")
         (box_put "0" 0x54657374696e672074657374696e6720313233)
         let (tmp%0#2: uint64, tmp%1#1: bool) = (box_len "0")
@@ -247,39 +258,39 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%4#0: bool = (< 7u tmp%0#2)
         let tmp%5#0: uint64 = (select tmp%0#2 7u tmp%4#0)
         let tmp%6#3: uint64 = (- tmp%5#0 tmp%3#0)
-        let tmp%7#2: bytes = (box_extract "0" tmp%3#0 tmp%6#3)
-        let tmp%8#3: bool = (== tmp%7#2 0x54657374696e67)
+        let tmp%7#0: bytes = (box_extract "0" tmp%3#0 tmp%6#3)
+        let tmp%8#3: bool = (== tmp%7#0 0x54657374696e67)
         (assert tmp%8#3)
         (box_del 0x424f585f43)
         (box_put 0x424f585f43 0x000548656c6c6f)
         let (tmp%9#3: uint64, tmp%10#1: bool) = (box_len 0x424f585f43)
-        let tmp%11#0: bool = (< 2u tmp%9#3)
-        let tmp%12#0: uint64 = (select tmp%9#3 2u tmp%11#0)
+        let tmp%11#2: bool = (< 2u tmp%9#3)
+        let tmp%12#2: uint64 = (select tmp%9#3 2u tmp%11#2)
         let tmp%13#1: bool = (< 10u tmp%9#3)
-        let tmp%14#0: uint64 = (select tmp%9#3 10u tmp%13#1)
-        let tmp%15#2: uint64 = (- tmp%14#0 tmp%12#0)
-        let tmp%16#2: bytes = (box_extract 0x424f585f43 tmp%12#0 tmp%15#2)
+        let tmp%14#2: uint64 = (select tmp%9#3 10u tmp%13#1)
+        let tmp%15#0: uint64 = (- tmp%14#2 tmp%12#2)
+        let tmp%16#2: bytes = (box_extract 0x424f585f43 tmp%12#2 tmp%15#0)
         let tmp%17#2: bool = (== tmp%16#2 0x48656c6c6f)
         (assert tmp%17#2)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@11: // arc4_box_route_L124
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (! tmp%32#0)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        (assert tmp%34#0) // can only call when not creating
+        let tmp%33#0: uint64 = (txn OnCompletion)
+        let tmp%34#0: bool = (! tmp%33#0)
+        (assert tmp%34#0) // OnCompletion is not NoOp
+        let tmp%35#0: uint64 = (txn ApplicationID)
+        (assert tmp%35#0) // can only call when not creating
         (box_put 0x64 0x00010203)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@12: // test_box_ref_route_L134
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (! tmp%36#0)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        (assert tmp%38#0) // can only call when not creating
+        let tmp%37#0: uint64 = (txn OnCompletion)
+        let tmp%38#0: bool = (! tmp%37#0)
+        (assert tmp%38#0) // OnCompletion is not NoOp
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        (assert tmp%39#0) // can only call when not creating
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "blob")
         let tmp%0#1: bool = (! maybe_exists%0#0)
         (assert tmp%0#1) // no data
@@ -303,15 +314,15 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_splice "blob" 0u 0u app_address#0)
         (box_replace "blob" 64u 0x68656c6c6f)
         let prefix#0: bytes = (box_extract "blob" 0u 69u)
-        let tmp%7#2: bytes = (concat app_address#0 sender_bytes#0)
-        let tmp%8#2: bytes = (concat tmp%7#2 0x68656c6c6f)
+        let tmp%7#0: bytes = (concat app_address#0 sender_bytes#0)
+        let tmp%8#2: bytes = (concat tmp%7#0 0x68656c6c6f)
         let tmp%9#2: bool = (== prefix#0 tmp%8#2)
         (assert tmp%9#2)
         let tmp%10#1: bool = (box_del "blob")
         (assert tmp%10#1)
         let (value#0: bytes, exists#0: bool) = (box_get "blob")
-        let tmp%12#1: bool = (! exists#0)
-        (assert tmp%12#1)
+        let tmp%12#0: bool = (! exists#0)
+        (assert tmp%12#0)
         let tmp%13#1: bool = (== value#0 0x)
         (assert tmp%13#1)
         let state_get%0#0: bytes = (select sender_bytes#0 value#0 exists#0)
@@ -323,8 +334,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert maybe_exists%7#0) // Blob exists
         let (value%0#0: uint64, check%0#0: bool) = (box_len "blob")
         (assert check%0#0) // check BoxRef exists
-        let tmp%16#1: bool = (== value%0#0 64u)
-        (assert tmp%16#1)
+        let tmp%16#0: bool = (== value%0#0 64u)
+        (assert tmp%16#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "blob")
         (assert check%0#0) // check BoxRef exists
         let tmp%18#1: bool = (== value%0#0 64u)
@@ -337,11 +348,11 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@13: // box_map_test_route_L182
-        let tmp%40#0: uint64 = (txn OnCompletion)
-        let tmp%41#0: bool = (! tmp%40#0)
-        (assert tmp%41#0) // OnCompletion is not NoOp
-        let tmp%42#0: uint64 = (txn ApplicationID)
-        (assert tmp%42#0) // can only call when not creating
+        let tmp%41#0: uint64 = (txn OnCompletion)
+        let tmp%42#0: bool = (! tmp%41#0)
+        (assert tmp%42#0) // OnCompletion is not NoOp
+        let tmp%43#0: uint64 = (txn ApplicationID)
+        (assert tmp%43#0) // can only call when not creating
         let box_0#0: bytes = (itob 0u)
         (box_del box_0#0)
         (box_put box_0#0 "Hmmmmm")
@@ -375,15 +386,23 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@14: // box_map_set_route_L206
-        let tmp%44#0: uint64 = (txn OnCompletion)
-        let tmp%45#0: bool = (! tmp%44#0)
-        (assert tmp%45#0) // OnCompletion is not NoOp
-        let tmp%46#0: uint64 = (txn ApplicationID)
-        (assert tmp%46#0) // can only call when not creating
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
-        let tmp%49#0: bytes = (txna ApplicationArgs 2)
-        let value#0: bytes = ((extract 2 0) tmp%49#0)
+        let tmp%45#0: uint64 = (txn OnCompletion)
+        let tmp%46#0: bool = (! tmp%45#0)
+        (assert tmp%46#0) // OnCompletion is not NoOp
+        let tmp%47#0: uint64 = (txn ApplicationID)
+        (assert tmp%47#0) // can only call when not creating
+        let tmp%49#0: bytes = (txna ApplicationArgs 1)
+        let value_len%3#0: uint64 = (len tmp%49#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint64
+        let key#0: uint64 = (btoi tmp%49#0)
+        let tmp%51#0: bytes = (txna ApplicationArgs 2)
+        let length%3#0: uint64 = (extract_uint16 tmp%51#0 0u)
+        let num_bytes_with_header%2#0: uint64 = (+ length%3#0 2u)
+        let value_len%4#0: uint64 = (len tmp%51#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#0: bytes = ((extract 2 0) tmp%51#0)
         let encoded_value%0#0: bytes = (itob key#0)
         (box_del encoded_value%0#0)
         (box_put encoded_value%0#0 value#0)
@@ -391,61 +410,70 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@15: // box_map_get_route_L210
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (! tmp%51#0)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        (assert tmp%53#0) // can only call when not creating
-        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
+        let tmp%53#0: uint64 = (txn OnCompletion)
+        let tmp%54#0: bool = (! tmp%53#0)
+        (assert tmp%54#0) // OnCompletion is not NoOp
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        (assert tmp%55#0) // can only call when not creating
+        let tmp%57#0: bytes = (txna ApplicationArgs 1)
+        let value_len%5#0: uint64 = (len tmp%57#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 8u)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.uint64
+        let key#0: uint64 = (btoi tmp%57#0)
         let encoded_value%0#0: bytes = (itob key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%0#0)
         (assert maybe_exists%0#0) // check self.box_map entry exists
-        let length%1#0: uint64 = (len maybe_value%0#0)
-        let as_bytes%3#0: bytes[8] = (itob length%1#0)
+        let length%4#0: uint64 = (len maybe_value%0#0)
+        let as_bytes%3#0: bytes[8] = (itob length%4#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 maybe_value%0#0)
-        let tmp%56#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
-        (log tmp%56#0)
+        let tmp%59#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
+        (log tmp%59#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@16: // box_map_del_route_L214
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (! tmp%57#0)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        (assert tmp%59#0) // can only call when not creating
-        let reinterpret_bytes[8]%3#0: bytes[8] = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
+        let tmp%60#0: uint64 = (txn OnCompletion)
+        let tmp%61#0: bool = (! tmp%60#0)
+        (assert tmp%61#0) // OnCompletion is not NoOp
+        let tmp%62#0: uint64 = (txn ApplicationID)
+        (assert tmp%62#0) // can only call when not creating
+        let tmp%64#0: bytes = (txna ApplicationArgs 1)
+        let value_len%6#0: uint64 = (len tmp%64#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 8u)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint64
+        let key#0: uint64 = (btoi tmp%64#0)
         let encoded_value%0#0: bytes = (itob key#0)
         (box_del encoded_value%0#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@17: // box_map_exists_route_L218
-        let tmp%62#0: uint64 = (txn OnCompletion)
-        let tmp%63#0: bool = (! tmp%62#0)
-        (assert tmp%63#0) // OnCompletion is not NoOp
-        let tmp%64#0: uint64 = (txn ApplicationID)
-        (assert tmp%64#0) // can only call when not creating
-        let reinterpret_bytes[8]%4#0: bytes[8] = (txna ApplicationArgs 1)
-        let key#0: uint64 = (btoi reinterpret_bytes[8]%4#0)
+        let tmp%66#0: uint64 = (txn OnCompletion)
+        let tmp%67#0: bool = (! tmp%66#0)
+        (assert tmp%67#0) // OnCompletion is not NoOp
+        let tmp%68#0: uint64 = (txn ApplicationID)
+        (assert tmp%68#0) // can only call when not creating
+        let tmp%70#0: bytes = (txna ApplicationArgs 1)
+        let value_len%7#0: uint64 = (len tmp%70#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 8u)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.uint64
+        let key#0: uint64 = (btoi tmp%70#0)
         let encoded_value%0#0: bytes = (itob key#0)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#0)
         let encoded_bool%4#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
-        let tmp%67#0: bytes = (concat 0x151f7c75 encoded_bool%4#0)
-        (log tmp%67#0)
+        let tmp%72#0: bytes = (concat 0x151f7c75 encoded_bool%4#0)
+        (log tmp%72#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21
     block@18: // bare_routing_L31
-        let tmp%68#0: uint64 = (txn OnCompletion)
-        goto tmp%68#0 ? block@20 : block@19
+        let tmp%73#0: uint64 = (txn OnCompletion)
+        goto tmp%73#0 ? block@20 : block@19
     block@19: // __algopy_default_create_L1
-        let tmp%69#0: uint64 = (txn ApplicationID)
-        let tmp%70#0: bool = (! tmp%69#0)
-        (assert tmp%70#0) // can only call when creating
+        let tmp%74#0: uint64 = (txn ApplicationID)
+        let tmp%75#0: bool = (! tmp%74#0)
+        (assert tmp%75#0) // can only call when creating
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         goto block@21

@@ -16,254 +16,344 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%7#0
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let tmp%9#0: bytes = (txna ApplicationArgs 2)
-        let tmp%10#0: bytes = ((extract 2 0) tmp%9#0)
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 3)
-        let tmp%11#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let tmp%12#0: uint64 = ((txnas Applications) tmp%11#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b(tmp%8#0, tmp%10#0, tmp%12#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%9#0 0u)
+        let num_bytes%1#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%9#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%9#0
+        let tmp%10#0: bytes = ((extract 2 0) reinterpret_bytes%1#0)
+        let tmp%11#0: bytes = (txna ApplicationArgs 3)
+        let value_len%2#0: uint64 = (len tmp%11#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 1u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%0#0: bytes[1] = tmp%11#0
+        let tmp%12#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
+        let tmp%13#0: uint64 = ((txnas Applications) tmp%12#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b(tmp%8#0, tmp%10#0, tmp%13#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@4: // test_method_selector_kinds_route_L33
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (== tmp%13#0 NoOp)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%16#0) // can only call when not creating
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%17#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
-        let tmp%18#0: uint64 = ((txnas Applications) tmp%17#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(tmp%18#0)
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        let tmp%15#0: bool = (== tmp%14#0 NoOp)
+        (assert tmp%15#0) // OnCompletion is not NoOp
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (!= tmp%16#0 0u)
+        (assert tmp%17#0) // can only call when not creating
+        let tmp%18#0: bytes = (txna ApplicationArgs 1)
+        let value_len%3#0: uint64 = (len tmp%18#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 1u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%1#0: bytes[1] = tmp%18#0
+        let tmp%19#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
+        let tmp%20#0: uint64 = ((txnas Applications) tmp%19#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(tmp%20#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@5: // test_method_overload_route_L47
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        let reinterpret_bytes[1]%2#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%23#0: uint64 = (btoi reinterpret_bytes[1]%2#0)
-        let tmp%24#0: uint64 = ((txnas Applications) tmp%23#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(tmp%24#0)
+        let tmp%21#0: uint64 = (txn OnCompletion)
+        let tmp%22#0: bool = (== tmp%21#0 NoOp)
+        (assert tmp%22#0) // OnCompletion is not NoOp
+        let tmp%23#0: uint64 = (txn ApplicationID)
+        let tmp%24#0: bool = (!= tmp%23#0 0u)
+        (assert tmp%24#0) // can only call when not creating
+        let tmp%25#0: bytes = (txna ApplicationArgs 1)
+        let value_len%4#0: uint64 = (len tmp%25#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 1u)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%2#0: bytes[1] = tmp%25#0
+        let tmp%26#0: uint64 = (btoi reinterpret_bytes[1]%2#0)
+        let tmp%27#0: uint64 = ((txnas Applications) tmp%26#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(tmp%27#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@6: // test_arg_conversion_route_L62
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (== tmp%25#0 NoOp)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        let tmp%28#0: bool = (!= tmp%27#0 0u)
-        (assert tmp%28#0) // can only call when not creating
-        let reinterpret_bytes[1]%3#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%29#0: uint64 = (btoi reinterpret_bytes[1]%3#0)
-        let tmp%30#0: uint64 = ((txnas Applications) tmp%29#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(tmp%30#0)
+        let tmp%28#0: uint64 = (txn OnCompletion)
+        let tmp%29#0: bool = (== tmp%28#0 NoOp)
+        (assert tmp%29#0) // OnCompletion is not NoOp
+        let tmp%30#0: uint64 = (txn ApplicationID)
+        let tmp%31#0: bool = (!= tmp%30#0 0u)
+        (assert tmp%31#0) // can only call when not creating
+        let tmp%32#0: bytes = (txna ApplicationArgs 1)
+        let value_len%5#0: uint64 = (len tmp%32#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 1u)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%3#0: bytes[1] = tmp%32#0
+        let tmp%33#0: uint64 = (btoi reinterpret_bytes[1]%3#0)
+        let tmp%34#0: uint64 = ((txnas Applications) tmp%33#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(tmp%34#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@7: // test_15plus_args_route_L79
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (== tmp%31#0 NoOp)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        let tmp%34#0: bool = (!= tmp%33#0 0u)
-        (assert tmp%34#0) // can only call when not creating
-        let reinterpret_bytes[1]%4#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%35#0: uint64 = (btoi reinterpret_bytes[1]%4#0)
-        let tmp%36#0: uint64 = ((txnas Applications) tmp%35#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(tmp%36#0)
+        let tmp%35#0: uint64 = (txn OnCompletion)
+        let tmp%36#0: bool = (== tmp%35#0 NoOp)
+        (assert tmp%36#0) // OnCompletion is not NoOp
+        let tmp%37#0: uint64 = (txn ApplicationID)
+        let tmp%38#0: bool = (!= tmp%37#0 0u)
+        (assert tmp%38#0) // can only call when not creating
+        let tmp%39#0: bytes = (txna ApplicationArgs 1)
+        let value_len%6#0: uint64 = (len tmp%39#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 1u)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%4#0: bytes[1] = tmp%39#0
+        let tmp%40#0: uint64 = (btoi reinterpret_bytes[1]%4#0)
+        let tmp%41#0: uint64 = ((txnas Applications) tmp%40#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(tmp%41#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@8: // test_void_route_L107
-        let tmp%37#0: uint64 = (txn OnCompletion)
-        let tmp%38#0: bool = (== tmp%37#0 NoOp)
-        (assert tmp%38#0) // OnCompletion is not NoOp
-        let tmp%39#0: uint64 = (txn ApplicationID)
-        let tmp%40#0: bool = (!= tmp%39#0 0u)
-        (assert tmp%40#0) // can only call when not creating
-        let reinterpret_bytes[1]%5#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%41#0: uint64 = (btoi reinterpret_bytes[1]%5#0)
-        let tmp%42#0: uint64 = ((txnas Applications) tmp%41#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_void(tmp%42#0)
+        let tmp%42#0: uint64 = (txn OnCompletion)
+        let tmp%43#0: bool = (== tmp%42#0 NoOp)
+        (assert tmp%43#0) // OnCompletion is not NoOp
+        let tmp%44#0: uint64 = (txn ApplicationID)
+        let tmp%45#0: bool = (!= tmp%44#0 0u)
+        (assert tmp%45#0) // can only call when not creating
+        let tmp%46#0: bytes = (txna ApplicationArgs 1)
+        let value_len%7#0: uint64 = (len tmp%46#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 1u)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%5#0: bytes[1] = tmp%46#0
+        let tmp%47#0: uint64 = (btoi reinterpret_bytes[1]%5#0)
+        let tmp%48#0: uint64 = ((txnas Applications) tmp%47#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_void(tmp%48#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@9: // test_ref_types_route_L121
-        let tmp%43#0: uint64 = (txn OnCompletion)
-        let tmp%44#0: bool = (== tmp%43#0 NoOp)
-        (assert tmp%44#0) // OnCompletion is not NoOp
-        let tmp%45#0: uint64 = (txn ApplicationID)
-        let tmp%46#0: bool = (!= tmp%45#0 0u)
-        (assert tmp%46#0) // can only call when not creating
-        let reinterpret_bytes[1]%6#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%47#0: uint64 = (btoi reinterpret_bytes[1]%6#0)
-        let tmp%48#0: uint64 = ((txnas Applications) tmp%47#0)
-        let reinterpret_bytes[1]%7#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%49#0: uint64 = (btoi reinterpret_bytes[1]%7#0)
-        let tmp%50#0: uint64 = ((txnas Assets) tmp%49#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(tmp%48#0, tmp%50#0)
+        let tmp%49#0: uint64 = (txn OnCompletion)
+        let tmp%50#0: bool = (== tmp%49#0 NoOp)
+        (assert tmp%50#0) // OnCompletion is not NoOp
+        let tmp%51#0: uint64 = (txn ApplicationID)
+        let tmp%52#0: bool = (!= tmp%51#0 0u)
+        (assert tmp%52#0) // can only call when not creating
+        let tmp%53#0: bytes = (txna ApplicationArgs 1)
+        let value_len%8#0: uint64 = (len tmp%53#0)
+        let size_is_correct%8#0: bool = (== value_len%8#0 1u)
+        (assert size_is_correct%8#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%6#0: bytes[1] = tmp%53#0
+        let tmp%54#0: uint64 = (btoi reinterpret_bytes[1]%6#0)
+        let tmp%55#0: uint64 = ((txnas Applications) tmp%54#0)
+        let tmp%56#0: bytes = (txna ApplicationArgs 2)
+        let value_len%9#0: uint64 = (len tmp%56#0)
+        let size_is_correct%9#0: bool = (== value_len%9#0 1u)
+        (assert size_is_correct%9#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%7#0: bytes[1] = tmp%56#0
+        let tmp%57#0: uint64 = (btoi reinterpret_bytes[1]%7#0)
+        let tmp%58#0: uint64 = ((txnas Assets) tmp%57#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(tmp%55#0, tmp%58#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@10: // test_account_to_address_route_L135
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (== tmp%51#0 NoOp)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        let tmp%54#0: bool = (!= tmp%53#0 0u)
-        (assert tmp%54#0) // can only call when not creating
-        let reinterpret_bytes[1]%8#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%55#0: uint64 = (btoi reinterpret_bytes[1]%8#0)
-        let tmp%56#0: uint64 = ((txnas Applications) tmp%55#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(tmp%56#0)
+        let tmp%59#0: uint64 = (txn OnCompletion)
+        let tmp%60#0: bool = (== tmp%59#0 NoOp)
+        (assert tmp%60#0) // OnCompletion is not NoOp
+        let tmp%61#0: uint64 = (txn ApplicationID)
+        let tmp%62#0: bool = (!= tmp%61#0 0u)
+        (assert tmp%62#0) // can only call when not creating
+        let tmp%63#0: bytes = (txna ApplicationArgs 1)
+        let value_len%10#0: uint64 = (len tmp%63#0)
+        let size_is_correct%10#0: bool = (== value_len%10#0 1u)
+        (assert size_is_correct%10#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%8#0: bytes[1] = tmp%63#0
+        let tmp%64#0: uint64 = (btoi reinterpret_bytes[1]%8#0)
+        let tmp%65#0: uint64 = ((txnas Applications) tmp%64#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(tmp%65#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@11: // test_native_string_route_L144
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (== tmp%57#0 NoOp)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        let tmp%60#0: bool = (!= tmp%59#0 0u)
-        (assert tmp%60#0) // can only call when not creating
-        let reinterpret_bytes[1]%9#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%61#0: uint64 = (btoi reinterpret_bytes[1]%9#0)
-        let tmp%62#0: uint64 = ((txnas Applications) tmp%61#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(tmp%62#0)
+        let tmp%66#0: uint64 = (txn OnCompletion)
+        let tmp%67#0: bool = (== tmp%66#0 NoOp)
+        (assert tmp%67#0) // OnCompletion is not NoOp
+        let tmp%68#0: uint64 = (txn ApplicationID)
+        let tmp%69#0: bool = (!= tmp%68#0 0u)
+        (assert tmp%69#0) // can only call when not creating
+        let tmp%70#0: bytes = (txna ApplicationArgs 1)
+        let value_len%11#0: uint64 = (len tmp%70#0)
+        let size_is_correct%11#0: bool = (== value_len%11#0 1u)
+        (assert size_is_correct%11#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%9#0: bytes[1] = tmp%70#0
+        let tmp%71#0: uint64 = (btoi reinterpret_bytes[1]%9#0)
+        let tmp%72#0: uint64 = ((txnas Applications) tmp%71#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(tmp%72#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@12: // test_native_bytes_route_L155
-        let tmp%63#0: uint64 = (txn OnCompletion)
-        let tmp%64#0: bool = (== tmp%63#0 NoOp)
-        (assert tmp%64#0) // OnCompletion is not NoOp
-        let tmp%65#0: uint64 = (txn ApplicationID)
-        let tmp%66#0: bool = (!= tmp%65#0 0u)
-        (assert tmp%66#0) // can only call when not creating
-        let reinterpret_bytes[1]%10#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%67#0: uint64 = (btoi reinterpret_bytes[1]%10#0)
-        let tmp%68#0: uint64 = ((txnas Applications) tmp%67#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(tmp%68#0)
+        let tmp%73#0: uint64 = (txn OnCompletion)
+        let tmp%74#0: bool = (== tmp%73#0 NoOp)
+        (assert tmp%74#0) // OnCompletion is not NoOp
+        let tmp%75#0: uint64 = (txn ApplicationID)
+        let tmp%76#0: bool = (!= tmp%75#0 0u)
+        (assert tmp%76#0) // can only call when not creating
+        let tmp%77#0: bytes = (txna ApplicationArgs 1)
+        let value_len%12#0: uint64 = (len tmp%77#0)
+        let size_is_correct%12#0: bool = (== value_len%12#0 1u)
+        (assert size_is_correct%12#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%10#0: bytes[1] = tmp%77#0
+        let tmp%78#0: uint64 = (btoi reinterpret_bytes[1]%10#0)
+        let tmp%79#0: uint64 = ((txnas Applications) tmp%78#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(tmp%79#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@13: // test_native_uint64_route_L168
-        let tmp%69#0: uint64 = (txn OnCompletion)
-        let tmp%70#0: bool = (== tmp%69#0 NoOp)
-        (assert tmp%70#0) // OnCompletion is not NoOp
-        let tmp%71#0: uint64 = (txn ApplicationID)
-        let tmp%72#0: bool = (!= tmp%71#0 0u)
-        (assert tmp%72#0) // can only call when not creating
-        let reinterpret_bytes[1]%11#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%73#0: uint64 = (btoi reinterpret_bytes[1]%11#0)
-        let tmp%74#0: uint64 = ((txnas Applications) tmp%73#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(tmp%74#0)
+        let tmp%80#0: uint64 = (txn OnCompletion)
+        let tmp%81#0: bool = (== tmp%80#0 NoOp)
+        (assert tmp%81#0) // OnCompletion is not NoOp
+        let tmp%82#0: uint64 = (txn ApplicationID)
+        let tmp%83#0: bool = (!= tmp%82#0 0u)
+        (assert tmp%83#0) // can only call when not creating
+        let tmp%84#0: bytes = (txna ApplicationArgs 1)
+        let value_len%13#0: uint64 = (len tmp%84#0)
+        let size_is_correct%13#0: bool = (== value_len%13#0 1u)
+        (assert size_is_correct%13#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%11#0: bytes[1] = tmp%84#0
+        let tmp%85#0: uint64 = (btoi reinterpret_bytes[1]%11#0)
+        let tmp%86#0: uint64 = ((txnas Applications) tmp%85#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(tmp%86#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@14: // test_native_biguint_route_L179
-        let tmp%75#0: uint64 = (txn OnCompletion)
-        let tmp%76#0: bool = (== tmp%75#0 NoOp)
-        (assert tmp%76#0) // OnCompletion is not NoOp
-        let tmp%77#0: uint64 = (txn ApplicationID)
-        let tmp%78#0: bool = (!= tmp%77#0 0u)
-        (assert tmp%78#0) // can only call when not creating
-        let reinterpret_bytes[1]%12#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%79#0: uint64 = (btoi reinterpret_bytes[1]%12#0)
-        let tmp%80#0: uint64 = ((txnas Applications) tmp%79#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(tmp%80#0)
-        let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
-        goto block@28
-    block@15: // test_native_tuple_route_L190
-        let tmp%81#0: uint64 = (txn OnCompletion)
-        let tmp%82#0: bool = (== tmp%81#0 NoOp)
-        (assert tmp%82#0) // OnCompletion is not NoOp
-        let tmp%83#0: uint64 = (txn ApplicationID)
-        let tmp%84#0: bool = (!= tmp%83#0 0u)
-        (assert tmp%84#0) // can only call when not creating
-        let reinterpret_bytes[1]%13#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%85#0: uint64 = (btoi reinterpret_bytes[1]%13#0)
-        let tmp%86#0: uint64 = ((txnas Applications) tmp%85#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(tmp%86#0)
-        let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
-        goto block@28
-    block@16: // test_native_tuple_method_ref_route_L249
         let tmp%87#0: uint64 = (txn OnCompletion)
         let tmp%88#0: bool = (== tmp%87#0 NoOp)
         (assert tmp%88#0) // OnCompletion is not NoOp
         let tmp%89#0: uint64 = (txn ApplicationID)
         let tmp%90#0: bool = (!= tmp%89#0 0u)
         (assert tmp%90#0) // can only call when not creating
-        let reinterpret_bytes[1]%14#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%91#0: uint64 = (btoi reinterpret_bytes[1]%14#0)
-        let tmp%92#0: uint64 = ((txnas Applications) tmp%91#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(tmp%92#0)
+        let tmp%91#0: bytes = (txna ApplicationArgs 1)
+        let value_len%14#0: uint64 = (len tmp%91#0)
+        let size_is_correct%14#0: bool = (== value_len%14#0 1u)
+        (assert size_is_correct%14#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%12#0: bytes[1] = tmp%91#0
+        let tmp%92#0: uint64 = (btoi reinterpret_bytes[1]%12#0)
+        let tmp%93#0: uint64 = ((txnas Applications) tmp%92#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(tmp%93#0)
+        let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
+        goto block@28
+    block@15: // test_native_tuple_route_L190
+        let tmp%94#0: uint64 = (txn OnCompletion)
+        let tmp%95#0: bool = (== tmp%94#0 NoOp)
+        (assert tmp%95#0) // OnCompletion is not NoOp
+        let tmp%96#0: uint64 = (txn ApplicationID)
+        let tmp%97#0: bool = (!= tmp%96#0 0u)
+        (assert tmp%97#0) // can only call when not creating
+        let tmp%98#0: bytes = (txna ApplicationArgs 1)
+        let value_len%15#0: uint64 = (len tmp%98#0)
+        let size_is_correct%15#0: bool = (== value_len%15#0 1u)
+        (assert size_is_correct%15#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%13#0: bytes[1] = tmp%98#0
+        let tmp%99#0: uint64 = (btoi reinterpret_bytes[1]%13#0)
+        let tmp%100#0: uint64 = ((txnas Applications) tmp%99#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(tmp%100#0)
+        let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
+        goto block@28
+    block@16: // test_native_tuple_method_ref_route_L249
+        let tmp%101#0: uint64 = (txn OnCompletion)
+        let tmp%102#0: bool = (== tmp%101#0 NoOp)
+        (assert tmp%102#0) // OnCompletion is not NoOp
+        let tmp%103#0: uint64 = (txn ApplicationID)
+        let tmp%104#0: bool = (!= tmp%103#0 0u)
+        (assert tmp%104#0) // can only call when not creating
+        let tmp%105#0: bytes = (txna ApplicationArgs 1)
+        let value_len%16#0: uint64 = (len tmp%105#0)
+        let size_is_correct%16#0: bool = (== value_len%16#0 1u)
+        (assert size_is_correct%16#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%14#0: bytes[1] = tmp%105#0
+        let tmp%106#0: uint64 = (btoi reinterpret_bytes[1]%14#0)
+        let tmp%107#0: uint64 = ((txnas Applications) tmp%106#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(tmp%107#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@17: // test_nested_tuples_route_L299
-        let tmp%93#0: uint64 = (txn OnCompletion)
-        let tmp%94#0: bool = (== tmp%93#0 NoOp)
-        (assert tmp%94#0) // OnCompletion is not NoOp
-        let tmp%95#0: uint64 = (txn ApplicationID)
-        let tmp%96#0: bool = (!= tmp%95#0 0u)
-        (assert tmp%96#0) // can only call when not creating
-        let reinterpret_bytes[1]%15#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%97#0: uint64 = (btoi reinterpret_bytes[1]%15#0)
-        let tmp%98#0: uint64 = ((txnas Applications) tmp%97#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(tmp%98#0)
+        let tmp%108#0: uint64 = (txn OnCompletion)
+        let tmp%109#0: bool = (== tmp%108#0 NoOp)
+        (assert tmp%109#0) // OnCompletion is not NoOp
+        let tmp%110#0: uint64 = (txn ApplicationID)
+        let tmp%111#0: bool = (!= tmp%110#0 0u)
+        (assert tmp%111#0) // can only call when not creating
+        let tmp%112#0: bytes = (txna ApplicationArgs 1)
+        let value_len%17#0: uint64 = (len tmp%112#0)
+        let size_is_correct%17#0: bool = (== value_len%17#0 1u)
+        (assert size_is_correct%17#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%15#0: bytes[1] = tmp%112#0
+        let tmp%113#0: uint64 = (btoi reinterpret_bytes[1]%15#0)
+        let tmp%114#0: uint64 = ((txnas Applications) tmp%113#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(tmp%114#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@18: // test_no_args_route_L345
-        let tmp%99#0: uint64 = (txn OnCompletion)
-        let tmp%100#0: bool = (== tmp%99#0 NoOp)
-        (assert tmp%100#0) // OnCompletion is not NoOp
-        let tmp%101#0: uint64 = (txn ApplicationID)
-        let tmp%102#0: bool = (!= tmp%101#0 0u)
-        (assert tmp%102#0) // can only call when not creating
-        let reinterpret_bytes[1]%16#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%103#0: uint64 = (btoi reinterpret_bytes[1]%16#0)
-        let tmp%104#0: uint64 = ((txnas Applications) tmp%103#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(tmp%104#0)
+        let tmp%115#0: uint64 = (txn OnCompletion)
+        let tmp%116#0: bool = (== tmp%115#0 NoOp)
+        (assert tmp%116#0) // OnCompletion is not NoOp
+        let tmp%117#0: uint64 = (txn ApplicationID)
+        let tmp%118#0: bool = (!= tmp%117#0 0u)
+        (assert tmp%118#0) // can only call when not creating
+        let tmp%119#0: bytes = (txna ApplicationArgs 1)
+        let value_len%18#0: uint64 = (len tmp%119#0)
+        let size_is_correct%18#0: bool = (== value_len%18#0 1u)
+        (assert size_is_correct%18#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%16#0: bytes[1] = tmp%119#0
+        let tmp%120#0: uint64 = (btoi reinterpret_bytes[1]%16#0)
+        let tmp%121#0: uint64 = ((txnas Applications) tmp%120#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(tmp%121#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@19: // test_named_tuples_route_L355
-        let tmp%105#0: uint64 = (txn OnCompletion)
-        let tmp%106#0: bool = (== tmp%105#0 NoOp)
-        (assert tmp%106#0) // OnCompletion is not NoOp
-        let tmp%107#0: uint64 = (txn ApplicationID)
-        let tmp%108#0: bool = (!= tmp%107#0 0u)
-        (assert tmp%108#0) // can only call when not creating
-        let reinterpret_bytes[1]%17#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%109#0: uint64 = (btoi reinterpret_bytes[1]%17#0)
-        let tmp%110#0: uint64 = ((txnas Applications) tmp%109#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(tmp%110#0)
+        let tmp%122#0: uint64 = (txn OnCompletion)
+        let tmp%123#0: bool = (== tmp%122#0 NoOp)
+        (assert tmp%123#0) // OnCompletion is not NoOp
+        let tmp%124#0: uint64 = (txn ApplicationID)
+        let tmp%125#0: bool = (!= tmp%124#0 0u)
+        (assert tmp%125#0) // can only call when not creating
+        let tmp%126#0: bytes = (txna ApplicationArgs 1)
+        let value_len%19#0: uint64 = (len tmp%126#0)
+        let size_is_correct%19#0: bool = (== value_len%19#0 1u)
+        (assert size_is_correct%19#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%17#0: bytes[1] = tmp%126#0
+        let tmp%127#0: uint64 = (btoi reinterpret_bytes[1]%17#0)
+        let tmp%128#0: uint64 = ((txnas Applications) tmp%127#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(tmp%128#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
     block@20: // test_arc4_struct_route_L372
-        let tmp%111#0: uint64 = (txn OnCompletion)
-        let tmp%112#0: bool = (== tmp%111#0 NoOp)
-        (assert tmp%112#0) // OnCompletion is not NoOp
-        let tmp%113#0: uint64 = (txn ApplicationID)
-        let tmp%114#0: bool = (!= tmp%113#0 0u)
-        (assert tmp%114#0) // can only call when not creating
-        let reinterpret_bytes[1]%18#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%115#0: uint64 = (btoi reinterpret_bytes[1]%18#0)
-        let tmp%116#0: uint64 = ((txnas Applications) tmp%115#0)
-        test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(tmp%116#0)
+        let tmp%129#0: uint64 = (txn OnCompletion)
+        let tmp%130#0: bool = (== tmp%129#0 NoOp)
+        (assert tmp%130#0) // OnCompletion is not NoOp
+        let tmp%131#0: uint64 = (txn ApplicationID)
+        let tmp%132#0: bool = (!= tmp%131#0 0u)
+        (assert tmp%132#0) // can only call when not creating
+        let tmp%133#0: bytes = (txna ApplicationArgs 1)
+        let value_len%20#0: uint64 = (len tmp%133#0)
+        let size_is_correct%20#0: bool = (== value_len%20#0 1u)
+        (assert size_is_correct%20#0) // invalid number of bytes for arc4.uint8
+        let reinterpret_bytes[1]%18#0: bytes[1] = tmp%133#0
+        let tmp%134#0: uint64 = (btoi reinterpret_bytes[1]%18#0)
+        let tmp%135#0: uint64 = ((txnas Applications) tmp%134#0)
+        test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(tmp%135#0)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0
         goto block@28
@@ -272,12 +362,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@22: // switch_case_next_L23
         goto block@27
     block@23: // bare_routing_L23
-        let tmp%117#0: uint64 = (txn OnCompletion)
-        switch tmp%117#0 {0u => block@24, * => block@25}
+        let tmp%136#0: uint64 = (txn OnCompletion)
+        switch tmp%136#0 {0u => block@24, * => block@25}
     block@24: // __algopy_default_create_L1
-        let tmp%118#0: uint64 = (txn ApplicationID)
-        let tmp%119#0: bool = (== tmp%118#0 0u)
-        (assert tmp%119#0) // can only call when creating
+        let tmp%137#0: uint64 = (txn ApplicationID)
+        let tmp%138#0: bool = (== tmp%137#0 0u)
+        (assert tmp%138#0) // can only call when creating
         goto block@29
     block@29: // L1
         goto block@30
@@ -337,10 +427,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%1#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%1#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%1#0
         let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%1#0
+        let result#0: bytes = reinterpret_bytes%0#0
         let tmp%4#0: bool = (== result#0 0x000b6563686f3a207465737431)
         (assert tmp%4#0)
         itxn_begin
@@ -355,10 +452,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%5#0 0u)
+        let num_bytes%1#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%5#0
+        let result#0: bytes = reinterpret_bytes%1#0
         let tmp%8#0: bool = (== result#0 0x000b6563686f3a207465737432)
         (assert tmp%8#0)
         itxn_begin
@@ -373,10 +477,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%9#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let length%2#0: uint64 = (extract_uint16 tmp%9#0 0u)
+        let num_bytes%2#0: uint64 = (* length%2#0 1u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
+        let value_len%2#0: uint64 = (len tmp%9#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%2#0: bytes = tmp%9#0
         let tmp%10#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%11#0: bool = (== tmp%10#0 0x151f7c75)
         (assert tmp%11#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%9#0
+        let result#0: bytes = reinterpret_bytes%2#0
         let tmp%12#0: bool = (== result#0 0x000b6563686f3a207465737433)
         (assert tmp%12#0)
         itxn_begin
@@ -391,10 +502,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%13#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let length%3#0: uint64 = (extract_uint16 tmp%13#0 0u)
+        let num_bytes%3#0: uint64 = (* length%3#0 1u)
+        let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
+        let value_len%3#0: uint64 = (len tmp%13#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 num_bytes_with_header%3#0)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%3#0: bytes = tmp%13#0
         let tmp%14#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
         (assert tmp%15#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%13#0
+        let result#0: bytes = reinterpret_bytes%3#0
         let tmp%16#0: bool = (== result#0 0x000b6563686f3a207465737434)
         (assert tmp%16#0)
         itxn_begin
@@ -409,10 +527,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         itxn_submit
         let awst_tmp%4#0: bytes = (itxn LastLog)
         let tmp%17#0: bytes = ((extract 4 0) awst_tmp%4#0)
+        let length%4#0: uint64 = (extract_uint16 tmp%17#0 0u)
+        let num_bytes%4#0: uint64 = (* length%4#0 1u)
+        let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
+        let value_len%4#0: uint64 = (len tmp%17#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%4#0: bytes = tmp%17#0
         let tmp%18#0: bytes = ((extract 0 4) awst_tmp%4#0)
         let tmp%19#0: bool = (== tmp%18#0 0x151f7c75)
         (assert tmp%19#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%17#0
+        let result#0: bytes = reinterpret_bytes%4#0
         let tmp%20#0: bool = (== result#0 0x000b6563686f3a207465737435)
         (assert tmp%20#0)
         return 
@@ -430,15 +555,29 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
     block@1: // next_txn_L49
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%3#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%3#0 0u)
+        let num_bytes%1#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%3#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%3#0
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
-        let tmp%6#0: bool = (== tmp%3#0 0x00146563686f3a207479706564202b2069676e6f7265)
+        let tmp%6#0: bool = (== reinterpret_bytes%1#0 0x00146563686f3a207479706564202b2069676e6f7265)
         (assert tmp%6#0)
         itxn_begin
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
@@ -452,10 +591,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let length%2#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes%2#0: uint64 = (* length%2#0 1u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
+        let value_len%2#0: uint64 = (len tmp%7#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%2#0: bytes = tmp%7#0
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
-        let tmp%10#0: bool = (== tmp%7#0 0x00166563686f3a20756e7479706564202b2069676e6f7265)
+        let tmp%10#0: bool = (== reinterpret_bytes%2#0 0x00166563686f3a20756e7479706564202b2069676e6f7265)
         (assert tmp%10#0)
         itxn_begin
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
@@ -469,18 +615,32 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%11#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let length%3#0: uint64 = (extract_uint16 tmp%11#0 0u)
+        let num_bytes%3#0: uint64 = (* length%3#0 1u)
+        let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
+        let value_len%3#0: uint64 = (len tmp%11#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 num_bytes_with_header%3#0)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%3#0: bytes = tmp%11#0
         let tmp%12#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%13#0: bool = (== tmp%12#0 0x151f7c75)
         (assert tmp%13#0) // application log value is not the result of an ABI return
-        let result.0#0: bytes = tmp%11#0
+        let result.0#0: bytes = reinterpret_bytes%3#0
         let result.1.LastLog#0: bytes = (itxn LastLog)
         let tmp%14#0: bool = (== result.0#0 0x000b6563686f3a207475706c65)
         (assert tmp%14#0)
         let tmp%15#0: bytes = ((extract 4 0) result.1.LastLog#0)
+        let length%4#0: uint64 = (extract_uint16 tmp%15#0 0u)
+        let num_bytes%4#0: uint64 = (* length%4#0 1u)
+        let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
+        let value_len%4#0: uint64 = (len tmp%15#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%4#0: bytes = tmp%15#0
         let tmp%16#0: bytes = ((extract 0 4) result.1.LastLog#0)
         let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
         (assert tmp%17#0) // application log value is not the result of an ABI return
-        let tmp%18#0: bool = (== tmp%15#0 0x000b6563686f3a207475706c65)
+        let tmp%18#0: bool = (== reinterpret_bytes%4#0 0x000b6563686f3a207475706c65)
         (assert tmp%18#0)
         itxn_begin
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
@@ -494,10 +654,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         itxn_submit
         let txn_result.LastLog#0: bytes = (itxn LastLog)
         let tmp%19#0: bytes = ((extract 4 0) txn_result.LastLog#0)
+        let length%5#0: uint64 = (extract_uint16 tmp%19#0 0u)
+        let num_bytes%5#0: uint64 = (* length%5#0 1u)
+        let num_bytes_with_header%5#0: uint64 = (+ num_bytes%5#0 2u)
+        let value_len%5#0: uint64 = (len tmp%19#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%5#0)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%5#0: bytes = tmp%19#0
         let tmp%20#0: bytes = ((extract 0 4) txn_result.LastLog#0)
         let tmp%21#0: bool = (== tmp%20#0 0x151f7c75)
         (assert tmp%21#0) // application log value is not the result of an ABI return
-        let tmp%22#0: bool = (== tmp%19#0 0x000d6563686f3a20756e7479706564)
+        let tmp%22#0: bool = (== reinterpret_bytes%5#0 0x000d6563686f3a20756e7479706564)
         (assert tmp%22#0)
         return 
 
@@ -618,10 +785,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uin
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes = reinterpret_bytes%0#0
         let tmp%3#0: bytes = ((extract 2 0) result#0)
         let tmp%4#0: bool = (== tmp%3#0 0x0f101112deadbeef14)
         (assert tmp%4#0)
@@ -750,16 +924,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result1#0: bytes = tmp%3#0
         let tmp%4#0: bool = (== result1#0 "echo: s")
         (assert tmp%4#0)
         itxn_begin
-        let length%0#0: uint64 = (len "s")
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length%1#0: uint64 = (len "s")
+        let as_bytes%0#0: bytes[8] = (itob length%1#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 "s")
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
@@ -774,10 +955,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%2#0: uint64 = (extract_uint16 tmp%5#0 0u)
+        let num_bytes%1#0: uint64 = (* length%2#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let tmp%8#0: bytes = ((extract 2 0) tmp%5#0)
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_bytes%1#0)
         let result2#0: bytes = tmp%8#0
         let tmp%9#0: bool = (== result2#0 result1#0)
         (assert tmp%9#0)
@@ -793,10 +981,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let length%3#0: uint64 = (extract_uint16 tmp%10#0 0u)
+        let num_bytes%2#0: uint64 = (* length%3#0 1u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
+        let value_len%2#0: uint64 = (len tmp%10#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%2#0: bytes = tmp%10#0
         let tmp%11#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%12#0: bool = (== tmp%11#0 0x151f7c75)
         (assert tmp%12#0) // application log value is not the result of an ABI return
-        let tmp%13#0: bytes = ((extract 2 0) tmp%10#0)
+        let tmp%13#0: bytes = ((extract 2 0) reinterpret_bytes%2#0)
         let result3#0: bytes = tmp%13#0
         let tmp%14#0: bool = (== result3#0 result1#0)
         (assert tmp%14#0)
@@ -821,16 +1016,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let num_bytes%0#0: uint64 = (* length%1#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
+        let tmp%3#0: bytes = ((extract 2 0) reinterpret_bytes%0#0)
         let result1#0: bytes = tmp%3#0
         let tmp%4#0: bool = (== result1#0 0x6563686f3a2062)
         (assert tmp%4#0)
         itxn_begin
-        let length%1#0: uint64 = (len 0x62)
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length%2#0: uint64 = (len 0x62)
+        let as_bytes%1#0: bytes[8] = (itob length%2#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x62)
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
@@ -845,16 +1047,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%3#0: uint64 = (extract_uint16 tmp%5#0 0u)
+        let num_bytes%1#0: uint64 = (* length%3#0 1u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%1#0: bytes = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let tmp%8#0: bytes = ((extract 2 0) tmp%5#0)
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_bytes%1#0)
         let result2#0: bytes = tmp%8#0
         let tmp%9#0: bool = (== result2#0 result1#0)
         (assert tmp%9#0)
         itxn_begin
-        let length%2#0: uint64 = (len 0x62)
-        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length%4#0: uint64 = (len 0x62)
+        let as_bytes%2#0: bytes[8] = (itob length%4#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x62)
         let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%2#0
@@ -869,10 +1078,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let length%5#0: uint64 = (extract_uint16 tmp%10#0 0u)
+        let num_bytes%2#0: uint64 = (* length%5#0 1u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
+        let value_len%2#0: uint64 = (len tmp%10#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let reinterpret_bytes%2#0: bytes = tmp%10#0
         let tmp%11#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%12#0: bool = (== tmp%11#0 0x151f7c75)
         (assert tmp%12#0) // application log value is not the result of an ABI return
-        let tmp%13#0: bytes = ((extract 2 0) tmp%10#0)
+        let tmp%13#0: bytes = ((extract 2 0) reinterpret_bytes%2#0)
         let result3#0: bytes = tmp%13#0
         let tmp%14#0: bool = (== result3#0 result1#0)
         (assert tmp%14#0)
@@ -891,11 +1107,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: u
     block@1: // next_txn_L170
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: uint64 = (btoi tmp%0#0)
+        let tmp%3#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         let result1#0: uint64 = tmp%3#0
         let tmp%4#0: bool = (== result1#0 2u)
         (assert tmp%4#0)
@@ -912,11 +1132,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: u
     block@2: // next_txn_L173
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%5#0: bytes[8] = ((extract 4 0) awst_tmp%1#0)
+        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%1#0: bytes[8] = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let tmp%8#0: uint64 = (btoi tmp%5#0)
+        let tmp%8#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
         let result2#0: uint64 = tmp%8#0
         let tmp%9#0: bool = (== result2#0 result1#0)
         (assert tmp%9#0)
@@ -931,11 +1155,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: u
     block@3: // next_txn_L176
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
-        let tmp%10#0: bytes[8] = ((extract 4 0) awst_tmp%2#0)
+        let tmp%10#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let value_len%2#0: uint64 = (len tmp%10#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%2#0: bytes[8] = tmp%10#0
         let tmp%11#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%12#0: bool = (== tmp%11#0 0x151f7c75)
         (assert tmp%12#0) // application log value is not the result of an ABI return
-        let tmp%13#0: uint64 = (btoi tmp%10#0)
+        let tmp%13#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
         let result3#0: uint64 = tmp%13#0
         let tmp%14#0: bool = (== result3#0 result1#0)
         (assert tmp%14#0)
@@ -954,16 +1182,20 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: 
     block@1: // next_txn_L181
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[64] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 64u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint512
+        let reinterpret_bytes[64]%0#0: bytes[64] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result1#0: biguint = tmp%0#0
+        let result1#0: biguint = reinterpret_bytes[64]%0#0
         let tmp%3#0: bool = (b== result1#0 3b)
         (assert tmp%3#0)
         itxn_begin
-        let value_len%0#0: uint64 = (len 2b)
-        let len_ok%0#0: bool = (<= value_len%0#0 64u)
+        let value_len%1#0: uint64 = (len 2b)
+        let len_ok%0#0: bool = (<= value_len%1#0 64u)
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 2b bzero%0#0)
@@ -978,11 +1210,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: 
     block@2: // next_txn_L184
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%4#0: bytes[64] = ((extract 4 0) awst_tmp%1#0)
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let value_len%2#0: uint64 = (len tmp%4#0)
+        let size_is_correct%1#0: bool = (== value_len%2#0 64u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint512
+        let reinterpret_bytes[64]%1#0: bytes[64] = tmp%4#0
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
-        let result2#0: biguint = tmp%4#0
+        let result2#0: biguint = reinterpret_bytes[64]%1#0
         let tmp%7#0: bool = (b== result2#0 result1#0)
         (assert tmp%7#0)
         itxn_begin
@@ -996,11 +1232,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: 
     block@3: // next_txn_L187
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
-        let tmp%8#0: bytes[64] = ((extract 4 0) awst_tmp%2#0)
+        let tmp%8#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let value_len%3#0: uint64 = (len tmp%8#0)
+        let size_is_correct%2#0: bool = (== value_len%3#0 64u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint512
+        let reinterpret_bytes[64]%2#0: bytes[64] = tmp%8#0
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
         (assert tmp%10#0) // application log value is not the result of an ABI return
-        let result3#0: biguint = tmp%8#0
+        let result3#0: biguint = reinterpret_bytes[64]%2#0
         let tmp%11#0: bool = (b== result3#0 result1#0)
         (assert tmp%11#0)
         return 
@@ -1027,10 +1267,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result1#0: bytes = tmp%0#0
+        let result1#0: bytes = reinterpret_bytes%0#0
         let item_start_offset%0#0: uint64 = (extract_uint16 result1#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 result1#0 2u)
         let item0%0#0: bytes = (substring3 result1#0 item_start_offset%0#0 item_end_offset%0#0)
@@ -1087,10 +1328,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let reinterpret_bytes%1#0: bytes = tmp%10#0
         let tmp%11#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%12#0: bool = (== tmp%11#0 0x151f7c75)
         (assert tmp%12#0) // application log value is not the result of an ABI return
-        let result2#0: bytes = tmp%10#0
+        let result2#0: bytes = reinterpret_bytes%1#0
         let tmp%13#0: bool = (== result1#0 result2#0)
         (assert tmp%13#0)
         itxn_begin
@@ -1113,10 +1355,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%14#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let reinterpret_bytes%2#0: bytes = tmp%14#0
         let tmp%15#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
         (assert tmp%16#0) // application log value is not the result of an ABI return
-        let result3#0: bytes = tmp%14#0
+        let result3#0: bytes = reinterpret_bytes%2#0
         let tmp%17#0: bool = (== result1#0 result3#0)
         (assert tmp%17#0)
         itxn_begin
@@ -1139,20 +1382,21 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%18#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let reinterpret_bytes%3#0: bytes = tmp%18#0
         let tmp%19#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%20#0: bool = (== tmp%19#0 0x151f7c75)
         (assert tmp%20#0) // application log value is not the result of an ABI return
-        let item_start_offset%2#0: uint64 = (extract_uint16 tmp%18#0 0u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 tmp%18#0 2u)
-        let item0%1#0: bytes = (substring3 tmp%18#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
+        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item0%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%2#0 item_end_offset%2#0)
         let item0%2#0: bytes = ((extract 2 0) item0%1#0)
-        let item_start_offset%3#0: uint64 = (extract_uint16 tmp%18#0 2u)
-        let item_end_offset%3#0: uint64 = (len tmp%18#0)
-        let item1%1#0: bytes = (substring3 tmp%18#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%3#0)
+        let item1%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%3#0 item_end_offset%3#0)
         let item1%2#0: bytes = ((extract 2 0) item1%1#0)
-        let item2%1#0: bytes = (extract3 tmp%18#0 4u 8u) // on error: Index access is out of bounds
+        let item2%1#0: bytes = (extract3 reinterpret_bytes%3#0 4u 8u) // on error: Index access is out of bounds
         let item2%2#0: uint64 = (btoi item2%1#0)
-        let item3%1#0: bytes = (extract3 tmp%18#0 12u 64u) // on error: Index access is out of bounds
+        let item3%1#0: bytes = (extract3 reinterpret_bytes%3#0 12u 64u) // on error: Index access is out of bounds
         let result_native.0#0: bytes = item0%2#0
         let result_native.1#0: bytes = item1%2#0
         let result_native.2#0: uint64 = item2%2#0
@@ -1200,20 +1444,21 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item0%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let item0%1#0: bytes = ((extract 2 0) item0%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item_end_offset%1#0: uint64 = (len tmp%0#0)
-        let item1%0#0: bytes = (substring3 tmp%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item_end_offset%1#0: uint64 = (len reinterpret_bytes%0#0)
+        let item1%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%1#0 item_end_offset%1#0)
         let item1%1#0: bytes = ((extract 2 0) item1%0#0)
-        let item2%0#0: bytes = (extract3 tmp%0#0 4u 8u) // on error: Index access is out of bounds
+        let item2%0#0: bytes = (extract3 reinterpret_bytes%0#0 4u 8u) // on error: Index access is out of bounds
         let item2%1#0: uint64 = (btoi item2%0#0)
-        let item3%0#0: bytes = (extract3 tmp%0#0 12u 64u) // on error: Index access is out of bounds
+        let item3%0#0: bytes = (extract3 reinterpret_bytes%0#0 12u 64u) // on error: Index access is out of bounds
         let result.0#0: bytes = item0%1#0
         let result.1#0: bytes = item1%1#0
         let result.2#0: uint64 = item2%1#0
@@ -1263,20 +1508,21 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let reinterpret_bytes%1#0: bytes = tmp%7#0
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
-        let item_start_offset%2#0: uint64 = (extract_uint16 tmp%7#0 0u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 tmp%7#0 2u)
-        let item0%2#0: bytes = (substring3 tmp%7#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
+        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item0%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%2#0 item_end_offset%2#0)
         let item0%3#0: bytes = ((extract 2 0) item0%2#0)
-        let item_start_offset%3#0: uint64 = (extract_uint16 tmp%7#0 2u)
-        let item_end_offset%3#0: uint64 = (len tmp%7#0)
-        let item1%2#0: bytes = (substring3 tmp%7#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%1#0)
+        let item1%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%3#0 item_end_offset%3#0)
         let item1%3#0: bytes = ((extract 2 0) item1%2#0)
-        let item2%2#0: bytes = (extract3 tmp%7#0 4u 8u) // on error: Index access is out of bounds
+        let item2%2#0: bytes = (extract3 reinterpret_bytes%1#0 4u 8u) // on error: Index access is out of bounds
         let item2%3#0: uint64 = (btoi item2%2#0)
-        let item3%1#0: bytes = (extract3 tmp%7#0 12u 64u) // on error: Index access is out of bounds
+        let item3%1#0: bytes = (extract3 reinterpret_bytes%1#0 12u 64u) // on error: Index access is out of bounds
         let result_2.0#0: bytes = item0%3#0
         let result_2.1#0: bytes = item1%3#0
         let result_2.2#0: uint64 = item2%3#0
@@ -1309,20 +1555,21 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%17#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let reinterpret_bytes%2#0: bytes = tmp%17#0
         let tmp%18#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%19#0: bool = (== tmp%18#0 0x151f7c75)
         (assert tmp%19#0) // application log value is not the result of an ABI return
-        let item_start_offset%4#0: uint64 = (extract_uint16 tmp%17#0 0u)
-        let item_end_offset%4#0: uint64 = (extract_uint16 tmp%17#0 2u)
-        let item0%4#0: bytes = (substring3 tmp%17#0 item_start_offset%4#0 item_end_offset%4#0)
+        let item_start_offset%4#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
+        let item_end_offset%4#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item0%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%4#0 item_end_offset%4#0)
         let item0%5#0: bytes = ((extract 2 0) item0%4#0)
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%17#0 2u)
-        let item_end_offset%5#0: uint64 = (len tmp%17#0)
-        let item1%4#0: bytes = (substring3 tmp%17#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item_end_offset%5#0: uint64 = (len reinterpret_bytes%2#0)
+        let item1%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%5#0 item_end_offset%5#0)
         let item1%5#0: bytes = ((extract 2 0) item1%4#0)
-        let item2%4#0: bytes = (extract3 tmp%17#0 4u 8u) // on error: Index access is out of bounds
+        let item2%4#0: bytes = (extract3 reinterpret_bytes%2#0 4u 8u) // on error: Index access is out of bounds
         let item2%5#0: uint64 = (btoi item2%4#0)
-        let item3%2#0: bytes = (extract3 tmp%17#0 12u 64u) // on error: Index access is out of bounds
+        let item3%2#0: bytes = (extract3 reinterpret_bytes%2#0 12u 64u) // on error: Index access is out of bounds
         let result_3.0#0: bytes = item0%5#0
         let result_3.1#0: bytes = item1%5#0
         let result_3.2#0: uint64 = item2%5#0
@@ -1355,20 +1602,21 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%27#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let reinterpret_bytes%3#0: bytes = tmp%27#0
         let tmp%28#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%29#0: bool = (== tmp%28#0 0x151f7c75)
         (assert tmp%29#0) // application log value is not the result of an ABI return
-        let item_start_offset%6#0: uint64 = (extract_uint16 tmp%27#0 0u)
-        let item_end_offset%6#0: uint64 = (extract_uint16 tmp%27#0 2u)
-        let item0%6#0: bytes = (substring3 tmp%27#0 item_start_offset%6#0 item_end_offset%6#0)
+        let item_start_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
+        let item_end_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item0%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%6#0 item_end_offset%6#0)
         let item0%7#0: bytes = ((extract 2 0) item0%6#0)
-        let item_start_offset%7#0: uint64 = (extract_uint16 tmp%27#0 2u)
-        let item_end_offset%7#0: uint64 = (len tmp%27#0)
-        let item1%6#0: bytes = (substring3 tmp%27#0 item_start_offset%7#0 item_end_offset%7#0)
+        let item_start_offset%7#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item_end_offset%7#0: uint64 = (len reinterpret_bytes%3#0)
+        let item1%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%7#0 item_end_offset%7#0)
         let item1%7#0: bytes = ((extract 2 0) item1%6#0)
-        let item2%6#0: bytes = (extract3 tmp%27#0 4u 8u) // on error: Index access is out of bounds
+        let item2%6#0: bytes = (extract3 reinterpret_bytes%3#0 4u 8u) // on error: Index access is out of bounds
         let item2%7#0: uint64 = (btoi item2%6#0)
-        let item3%3#0: bytes = (extract3 tmp%27#0 12u 64u) // on error: Index access is out of bounds
+        let item3%3#0: bytes = (extract3 reinterpret_bytes%3#0 12u 64u) // on error: Index access is out of bounds
         let result_native.0#0: bytes = item0%7#0
         let result_native.1#0: bytes = item1%7#0
         let result_native.2#0: uint64 = item2%7#0
@@ -1428,12 +1676,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item0%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let item_start_offset%1#0: uint64 = (extract_uint16 item0%0#0 0u)
         let item_end_offset%1#0: uint64 = (extract_uint16 item0%0#0 2u)
         let item0%1#0: bytes = (substring3 item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
@@ -1441,9 +1690,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let item_start_offset%2#0: uint64 = (extract_uint16 item0%0#0 2u)
         let item_end_offset%2#0: uint64 = (len item0%0#0)
         let item1%0#0: bytes = (substring3 item0%0#0 item_start_offset%2#0 item_end_offset%2#0)
-        let item_start_offset%3#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item_end_offset%3#0: uint64 = (len tmp%0#0)
-        let item1%1#0: bytes = (substring3 tmp%0#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%0#0)
+        let item1%1#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%3#0 item_end_offset%3#0)
         let item0%3#0: bytes = (extract3 item1%1#0 0u 8u) // on error: Index access is out of bounds
         let item0%4#0: uint64 = (btoi item0%3#0)
         let item1%2#0: bytes = (extract3 item1%1#0 8u 8u) // on error: Index access is out of bounds
@@ -1520,12 +1769,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%8#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let reinterpret_bytes%1#0: bytes = tmp%8#0
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
         (assert tmp%10#0) // application log value is not the result of an ABI return
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%8#0 0u)
-        let item_end_offset%5#0: uint64 = (extract_uint16 tmp%8#0 2u)
-        let item0%5#0: bytes = (substring3 tmp%8#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
+        let item_end_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item0%5#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%5#0 item_end_offset%5#0)
         let item_start_offset%6#0: uint64 = (extract_uint16 item0%5#0 0u)
         let item_end_offset%6#0: uint64 = (extract_uint16 item0%5#0 2u)
         let item0%6#0: bytes = (substring3 item0%5#0 item_start_offset%6#0 item_end_offset%6#0)
@@ -1533,9 +1783,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let item_start_offset%7#0: uint64 = (extract_uint16 item0%5#0 2u)
         let item_end_offset%7#0: uint64 = (len item0%5#0)
         let item1%3#0: bytes = (substring3 item0%5#0 item_start_offset%7#0 item_end_offset%7#0)
-        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%8#0 2u)
-        let item_end_offset%8#0: uint64 = (len tmp%8#0)
-        let item1%4#0: bytes = (substring3 tmp%8#0 item_start_offset%8#0 item_end_offset%8#0)
+        let item_start_offset%8#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item_end_offset%8#0: uint64 = (len reinterpret_bytes%1#0)
+        let item1%4#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%8#0 item_end_offset%8#0)
         let item0%8#0: bytes = (extract3 item1%4#0 0u 8u) // on error: Index access is out of bounds
         let item0%9#0: uint64 = (btoi item0%8#0)
         let item1%5#0: bytes = (extract3 item1%4#0 8u 8u) // on error: Index access is out of bounds
@@ -1607,12 +1857,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%16#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let reinterpret_bytes%2#0: bytes = tmp%16#0
         let tmp%17#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%18#0: bool = (== tmp%17#0 0x151f7c75)
         (assert tmp%18#0) // application log value is not the result of an ABI return
-        let item_start_offset%10#0: uint64 = (extract_uint16 tmp%16#0 0u)
-        let item_end_offset%10#0: uint64 = (extract_uint16 tmp%16#0 2u)
-        let item0%10#0: bytes = (substring3 tmp%16#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item_start_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
+        let item_end_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item0%10#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%10#0 item_end_offset%10#0)
         let item_start_offset%11#0: uint64 = (extract_uint16 item0%10#0 0u)
         let item_end_offset%11#0: uint64 = (extract_uint16 item0%10#0 2u)
         let item0%11#0: bytes = (substring3 item0%10#0 item_start_offset%11#0 item_end_offset%11#0)
@@ -1620,9 +1871,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let item_start_offset%12#0: uint64 = (extract_uint16 item0%10#0 2u)
         let item_end_offset%12#0: uint64 = (len item0%10#0)
         let item1%6#0: bytes = (substring3 item0%10#0 item_start_offset%12#0 item_end_offset%12#0)
-        let item_start_offset%13#0: uint64 = (extract_uint16 tmp%16#0 2u)
-        let item_end_offset%13#0: uint64 = (len tmp%16#0)
-        let item1%7#0: bytes = (substring3 tmp%16#0 item_start_offset%13#0 item_end_offset%13#0)
+        let item_start_offset%13#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item_end_offset%13#0: uint64 = (len reinterpret_bytes%2#0)
+        let item1%7#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%13#0 item_end_offset%13#0)
         let item0%13#0: bytes = (extract3 item1%7#0 0u 8u) // on error: Index access is out of bounds
         let item0%14#0: uint64 = (btoi item0%13#0)
         let item1%8#0: bytes = (extract3 item1%7#0 8u 8u) // on error: Index access is out of bounds
@@ -1665,11 +1916,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64)
     block@1: // next_txn_L347
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%0#0: bytes[8] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: uint64 = (btoi tmp%0#0)
+        let tmp%3#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
         let result#0: uint64 = tmp%3#0
         let tmp%4#0: bool = (== result#0 42u)
         (assert tmp%4#0)
@@ -1683,11 +1938,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64)
     block@2: // next_txn_L349
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%5#0: bytes[8] = ((extract 4 0) awst_tmp%1#0)
+        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let value_len%1#0: uint64 = (len tmp%5#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%1#0: bytes[8] = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
-        let arc4_result#0: bytes[8] = tmp%5#0
+        let arc4_result#0: bytes[8] = reinterpret_bytes[8]%1#0
         let reinterpret_biguint%0#0: biguint = arc4_result#0
         let tmp%8#0: bool = (b== reinterpret_biguint%0#0 0x000000000000002a)
         (assert tmp%8#0)
@@ -1701,15 +1960,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_no_args(app: uint64)
     block@3: // next_txn_L352
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%9#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let value_len%2#0: uint64 = (len tmp%9#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
         let tmp%10#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%11#0: bool = (== tmp%10#0 0x151f7c75)
         (assert tmp%11#0) // application log value is not the result of an ABI return
         let awst_tmp%3#0: bytes = (itxn LastLog)
-        let tmp%13#0: bytes[8] = ((extract 4 0) awst_tmp%3#0)
+        let tmp%13#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let value_len%3#0: uint64 = (len tmp%13#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint64
+        let reinterpret_bytes[8]%3#0: bytes[8] = tmp%13#0
         let tmp%14#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
         (assert tmp%15#0) // application log value is not the result of an ABI return
-        let reinterpret_biguint%2#0: biguint = tmp%13#0
+        let reinterpret_biguint%2#0: biguint = reinterpret_bytes[8]%3#0
         let tmp%16#0: bool = (b== reinterpret_biguint%2#0 0x000000000000002a)
         (assert tmp%16#0)
         return 
@@ -1750,11 +2017,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: ui
     block@1: // next_txn_L357
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[1] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 1u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.bool
+        let reinterpret_bytes[1]%0#0: bytes[1] = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bool = (getbit tmp%0#0 0u)
+        let tmp%3#0: bool = (getbit reinterpret_bytes[1]%0#0 0u)
         let result#0: bool = tmp%3#0
         (assert result#0)
         itxn_begin
@@ -1791,11 +2062,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: ui
     block@2: // next_txn_L364
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%4#0: bytes[1] = ((extract 4 0) awst_tmp%1#0)
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let value_len%1#0: uint64 = (len tmp%4#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 1u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.bool
+        let reinterpret_bytes[1]%1#0: bytes[1] = tmp%4#0
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
-        let tmp%7#0: bool = (getbit tmp%4#0 0u)
+        let tmp%7#0: bool = (getbit reinterpret_bytes[1]%1#0 0u)
         let result#0: bool = tmp%7#0
         let tmp%8#0: bool = (! result#0)
         (assert tmp%8#0)
@@ -1822,17 +2097,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(app: uin
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let reinterpret_bytes%0#0: bytes = tmp%0#0
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: bytes = reinterpret_bytes%0#0
         let txn.LastLog#0: bytes = (itxn LastLog)
         let tmp%3#0: bool = (== result#0 log#0)
         (assert tmp%3#0) // expected output to match input
         let tmp%4#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let reinterpret_bytes%1#0: bytes = tmp%4#0
         let tmp%5#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
-        let tmp%7#0: bool = (== tmp%4#0 log#0)
+        let tmp%7#0: bool = (== reinterpret_bytes%1#0 log#0)
         (assert tmp%7#0) // expected output to match input
         return 

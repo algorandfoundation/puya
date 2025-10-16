@@ -19,6 +19,11 @@ main test_cases.compile.apps.Hello.__algopy_entrypoint_with_init:
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
         test_cases.compile.apps.Hello.create(tmp%8#0)
         let test_cases.compile.apps.Hello.__puya_arc4_router__%0#0: bool = 1u
@@ -40,10 +45,15 @@ main test_cases.compile.apps.Hello.__algopy_entrypoint_with_init:
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         let tmp%17#0: bytes = (txna ApplicationArgs 1)
+        let length%1#0: uint64 = (extract_uint16 tmp%17#0 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%17#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%18#0: bytes = ((extract 2 0) tmp%17#0)
         let to_encode%0#0: bytes = test_cases.compile.apps.HelloBase.greet(tmp%18#0)
-        let length%0#0: uint64 = (len to_encode%0#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length%2#0: uint64 = (len to_encode%0#0)
+        let as_bytes%0#0: bytes[8] = (itob length%2#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
         let tmp%19#0: bytes = (concat 0x151f7c75 encoded_value%0#0)

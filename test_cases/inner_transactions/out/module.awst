@@ -356,7 +356,7 @@ contract Greeter
   abimethod test_cases.inner_transactions.c2c.Greeter.log_greetings(name: arc4.dynamic_array<arc4.uint8>): void
   {
     hello_call: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationID=GlobalState['hello_app'], ApplicationArgs=(Method("hello(string)string"), reinterpret_cast<bytes>(name))))
-    greeting: arc4.dynamic_array<arc4.uint8> = checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))
+    greeting: arc4.dynamic_array<arc4.uint8> = checked_maybe((arc4_validate(extract<4, 0>(SINGLE_EVAL(id=0, source=hello_call.LastLog)), arc4.dynamic_array<arc4.uint8>), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))
     log(concat(concat('HelloWorld returned: ', ''), reinterpret_cast<bytes>(arc4_decode(greeting, string))))
   }
   

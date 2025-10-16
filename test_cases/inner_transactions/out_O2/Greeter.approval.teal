@@ -3,7 +3,7 @@
 
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 6
+    intcblock 0 1 2 6
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
@@ -29,6 +29,15 @@ main_log_greetings_route@6:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     itxn_begin
     intc_0 // 0
     bytec_0 // "hello_app"
@@ -38,12 +47,23 @@ main_log_greetings_route@6:
     itxn_field ApplicationArgs
     itxn_field ApplicationID
     itxn_field ApplicationArgs
-    intc_2 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     dup
     extract 0 4
     bytec_1 // 0x151f7c75
@@ -74,7 +94,7 @@ main_bootstrap_route@5:
     itxn_field ClearStateProgramPages
     pushbytes 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
     itxn_field ApprovalProgramPages
-    intc_2 // appl
+    intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

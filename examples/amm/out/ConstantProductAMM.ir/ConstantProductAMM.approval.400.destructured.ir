@@ -22,118 +22,151 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let tmp%8#0: bytes[32] = ((txnas Accounts) tmp%7#0)
-        examples.amm.contract.ConstantProductAMM.set_governor(tmp%8#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 1u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%8#0: uint64 = (btoi tmp%7#0)
+        let tmp%9#0: bytes[32] = ((txnas Accounts) tmp%8#0)
+        examples.amm.contract.ConstantProductAMM.set_governor(tmp%9#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13
     block@6: // bootstrap_route_L49
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (! tmp%9#0)
-        (assert tmp%10#0) // OnCompletion is not NoOp
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
-        let tmp%13#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%13#0 1u)
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // OnCompletion is not NoOp
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        (assert tmp%12#0) // can only call when not creating
+        let tmp%14#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%14#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%14#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
-        let tmp%15#0: uint64 = ((txnas Assets) tmp%14#0)
-        let reinterpret_bytes[1]%2#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%16#0: uint64 = (btoi reinterpret_bytes[1]%2#0)
+        let tmp%15#0: bytes = (txna ApplicationArgs 1)
+        let value_len%1#0: uint64 = (len tmp%15#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 1u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint8
+        let tmp%16#0: uint64 = (btoi tmp%15#0)
         let tmp%17#0: uint64 = ((txnas Assets) tmp%16#0)
-        let to_encode%0#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%15#0, tmp%17#0)
+        let tmp%18#0: bytes = (txna ApplicationArgs 2)
+        let value_len%2#0: uint64 = (len tmp%18#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 1u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint8
+        let tmp%19#0: uint64 = (btoi tmp%18#0)
+        let tmp%20#0: uint64 = ((txnas Assets) tmp%19#0)
+        let to_encode%0#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%17#0, tmp%20#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%18#0)
+        let tmp%21#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%21#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13
     block@7: // mint_route_L81
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
-        let tmp%23#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%23#0 2u)
+        let tmp%22#0: uint64 = (txn OnCompletion)
+        let tmp%23#0: bool = (! tmp%22#0)
+        (assert tmp%23#0) // OnCompletion is not NoOp
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        (assert tmp%24#0) // can only call when not creating
+        let tmp%26#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%26#0 2u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
-        let tmp%24#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%24#0 1u)
+        let tmp%27#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%2#0: uint64 = (- tmp%27#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 axfer)
         (assert gtxn_type_matches%2#0) // transaction type is axfer
-        let reinterpret_bytes[1]%3#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%25#0: uint64 = (btoi reinterpret_bytes[1]%3#0)
-        let tmp%26#0: uint64 = ((txnas Assets) tmp%25#0)
-        let reinterpret_bytes[1]%4#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%27#0: uint64 = (btoi reinterpret_bytes[1]%4#0)
-        let tmp%28#0: uint64 = ((txnas Assets) tmp%27#0)
-        let reinterpret_bytes[1]%5#0: bytes[1] = (txna ApplicationArgs 3)
-        let tmp%29#0: uint64 = (btoi reinterpret_bytes[1]%5#0)
+        let tmp%28#0: bytes = (txna ApplicationArgs 1)
+        let value_len%3#0: uint64 = (len tmp%28#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 1u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint8
+        let tmp%29#0: uint64 = (btoi tmp%28#0)
         let tmp%30#0: uint64 = ((txnas Assets) tmp%29#0)
-        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%26#0, tmp%28#0, tmp%30#0)
+        let tmp%31#0: bytes = (txna ApplicationArgs 2)
+        let value_len%4#0: uint64 = (len tmp%31#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 1u)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.uint8
+        let tmp%32#0: uint64 = (btoi tmp%31#0)
+        let tmp%33#0: uint64 = ((txnas Assets) tmp%32#0)
+        let tmp%34#0: bytes = (txna ApplicationArgs 3)
+        let value_len%5#0: uint64 = (len tmp%34#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 1u)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.uint8
+        let tmp%35#0: uint64 = (btoi tmp%34#0)
+        let tmp%36#0: uint64 = ((txnas Assets) tmp%35#0)
+        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%30#0, tmp%33#0, tmp%36#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13
     block@8: // burn_route_L147
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
-        let tmp%35#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%3#0: uint64 = (- tmp%35#0 1u)
+        let tmp%37#0: uint64 = (txn OnCompletion)
+        let tmp%38#0: bool = (! tmp%37#0)
+        (assert tmp%38#0) // OnCompletion is not NoOp
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        (assert tmp%39#0) // can only call when not creating
+        let tmp%41#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%3#0: uint64 = (- tmp%41#0 1u)
         let gtxn_type%3#0: uint64 = ((gtxns TypeEnum) gtxn_idx%3#0)
         let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
         (assert gtxn_type_matches%3#0) // transaction type is axfer
-        let reinterpret_bytes[1]%6#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%36#0: uint64 = (btoi reinterpret_bytes[1]%6#0)
-        let tmp%37#0: uint64 = ((txnas Assets) tmp%36#0)
-        let reinterpret_bytes[1]%7#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%38#0: uint64 = (btoi reinterpret_bytes[1]%7#0)
-        let tmp%39#0: uint64 = ((txnas Assets) tmp%38#0)
-        let reinterpret_bytes[1]%8#0: bytes[1] = (txna ApplicationArgs 3)
-        let tmp%40#0: uint64 = (btoi reinterpret_bytes[1]%8#0)
-        let tmp%41#0: uint64 = ((txnas Assets) tmp%40#0)
-        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%37#0, tmp%39#0, tmp%41#0)
+        let tmp%42#0: bytes = (txna ApplicationArgs 1)
+        let value_len%6#0: uint64 = (len tmp%42#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 1u)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint8
+        let tmp%43#0: uint64 = (btoi tmp%42#0)
+        let tmp%44#0: uint64 = ((txnas Assets) tmp%43#0)
+        let tmp%45#0: bytes = (txna ApplicationArgs 2)
+        let value_len%7#0: uint64 = (len tmp%45#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 1u)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.uint8
+        let tmp%46#0: uint64 = (btoi tmp%45#0)
+        let tmp%47#0: uint64 = ((txnas Assets) tmp%46#0)
+        let tmp%48#0: bytes = (txna ApplicationArgs 3)
+        let value_len%8#0: uint64 = (len tmp%48#0)
+        let size_is_correct%8#0: bool = (== value_len%8#0 1u)
+        (assert size_is_correct%8#0) // invalid number of bytes for arc4.uint8
+        let tmp%49#0: uint64 = (btoi tmp%48#0)
+        let tmp%50#0: uint64 = ((txnas Assets) tmp%49#0)
+        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%44#0, tmp%47#0, tmp%50#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13
     block@9: // swap_route_L204
-        let tmp%42#0: uint64 = (txn OnCompletion)
-        let tmp%43#0: bool = (! tmp%42#0)
-        (assert tmp%43#0) // OnCompletion is not NoOp
-        let tmp%44#0: uint64 = (txn ApplicationID)
-        (assert tmp%44#0) // can only call when not creating
-        let tmp%46#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%4#0: uint64 = (- tmp%46#0 1u)
+        let tmp%51#0: uint64 = (txn OnCompletion)
+        let tmp%52#0: bool = (! tmp%51#0)
+        (assert tmp%52#0) // OnCompletion is not NoOp
+        let tmp%53#0: uint64 = (txn ApplicationID)
+        (assert tmp%53#0) // can only call when not creating
+        let tmp%55#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%4#0: uint64 = (- tmp%55#0 1u)
         let gtxn_type%4#0: uint64 = ((gtxns TypeEnum) gtxn_idx%4#0)
         let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 axfer)
         (assert gtxn_type_matches%4#0) // transaction type is axfer
-        let reinterpret_bytes[1]%9#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%47#0: uint64 = (btoi reinterpret_bytes[1]%9#0)
-        let tmp%48#0: uint64 = ((txnas Assets) tmp%47#0)
-        let reinterpret_bytes[1]%10#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%49#0: uint64 = (btoi reinterpret_bytes[1]%10#0)
-        let tmp%50#0: uint64 = ((txnas Assets) tmp%49#0)
-        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%48#0, tmp%50#0)
+        let tmp%56#0: bytes = (txna ApplicationArgs 1)
+        let value_len%9#0: uint64 = (len tmp%56#0)
+        let size_is_correct%9#0: bool = (== value_len%9#0 1u)
+        (assert size_is_correct%9#0) // invalid number of bytes for arc4.uint8
+        let tmp%57#0: uint64 = (btoi tmp%56#0)
+        let tmp%58#0: uint64 = ((txnas Assets) tmp%57#0)
+        let tmp%59#0: bytes = (txna ApplicationArgs 2)
+        let value_len%10#0: uint64 = (len tmp%59#0)
+        let size_is_correct%10#0: bool = (== value_len%10#0 1u)
+        (assert size_is_correct%10#0) // invalid number of bytes for arc4.uint8
+        let tmp%60#0: uint64 = (btoi tmp%59#0)
+        let tmp%61#0: uint64 = ((txnas Assets) tmp%60#0)
+        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%58#0, tmp%61#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13
     block@10: // bare_routing_L27
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        goto tmp%51#0 ? block@12 : block@11
+        let tmp%62#0: uint64 = (txn OnCompletion)
+        goto tmp%62#0 ? block@12 : block@11
     block@11: // __algopy_default_create_L1
-        let tmp%52#0: uint64 = (txn ApplicationID)
-        let tmp%53#0: bool = (! tmp%52#0)
-        (assert tmp%53#0) // can only call when creating
+        let tmp%63#0: uint64 = (txn ApplicationID)
+        let tmp%64#0: bool = (! tmp%63#0)
+        (assert tmp%64#0) // can only call when creating
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0
         goto block@13

@@ -66,12 +66,23 @@ subroutine main:
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
         txna ApplicationArgs 1                                                         tmp%15#0
+        l-load-copy tmp%15#0 0                                                         tmp%15#0,tmp%15#0 (copy)
+        int 0                                                                          tmp%15#0,tmp%15#0 (copy),0
+        extract_uint16                                                                 tmp%15#0,length%0#0
+        int 2                                                                          tmp%15#0,length%0#0,2
+        +                                                                              tmp%15#0,num_bytes_with_header%0#0
+        l-load-copy tmp%15#0 1                                                         tmp%15#0,num_bytes_with_header%0#0,tmp%15#0 (copy)
+        len                                                                            tmp%15#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                             tmp%15#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                             tmp%15#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%15#0
+        l-load tmp%15#0 0                                                              tmp%15#0
         extract 2 0                                                                    tmp%16#0
         // compile/apps.py:32
         // @arc4.abimethod()
         callsub greet                                                                  to_encode%0#0
         l-load-copy to_encode%0#0 0                                                    to_encode%0#0,to_encode%0#0 (copy)
-        len                                                                            to_encode%0#0,length%0#0
+        len                                                                            to_encode%0#0,length%1#0
         itob                                                                           to_encode%0#0,as_bytes%0#0
         extract 6 2                                                                    to_encode%0#0,length_uint16%0#0
         l-load to_encode%0#0 1                                                         length_uint16%0#0,to_encode%0#0

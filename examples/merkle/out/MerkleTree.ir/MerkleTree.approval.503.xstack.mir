@@ -27,9 +27,15 @@ subroutine main:
         assert // can only call when creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                 reinterpret_bytes[32]%0#0
+        txna ApplicationArgs 1                                                                 tmp%7#0
+        l-load-copy tmp%7#0 0                                                                  tmp%7#0,tmp%7#0 (copy)
+        len                                                                                    tmp%7#0,value_len%0#0
+        int 32                                                                                 tmp%7#0,value_len%0#0,32
+        ==                                                                                     tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                tmp%7#0
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
+        l-load tmp%7#0 0                                                                       tmp%7#0
         callsub create
         int 1                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
@@ -38,19 +44,36 @@ subroutine main:
     main_verify_route@4:
         // merkle/contract.py:14
         // @arc4.abimethod
-        txn OnCompletion                                                                       tmp%7#0
-        !                                                                                      tmp%8#0
+        txn OnCompletion                                                                       tmp%8#0
+        !                                                                                      tmp%9#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%9#0
+        txn ApplicationID                                                                      tmp%10#0
         assert // can only call when not creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                 tmp%11#0
-        txna ApplicationArgs 2                                                                 tmp%11#0,reinterpret_bytes[32]%1#0
+        txna ApplicationArgs 1                                                                 tmp%12#0
+        l-load-copy tmp%12#0 0                                                                 tmp%12#0,tmp%12#0 (copy)
+        int 0                                                                                  tmp%12#0,tmp%12#0 (copy),0
+        extract_uint16                                                                         tmp%12#0,length%0#0
+        int 32                                                                                 tmp%12#0,length%0#0,32
+        *                                                                                      tmp%12#0,num_bytes%0#0
+        int 2                                                                                  tmp%12#0,num_bytes%0#0,2
+        +                                                                                      tmp%12#0,num_bytes_with_header%0#0
+        l-load-copy tmp%12#0 1                                                                 tmp%12#0,num_bytes_with_header%0#0,tmp%12#0 (copy)
+        len                                                                                    tmp%12#0,num_bytes_with_header%0#0,value_len%1#0
+        l-load num_bytes_with_header%0#0 1                                                     tmp%12#0,value_len%1#0,num_bytes_with_header%0#0
+        ==                                                                                     tmp%12#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> tmp%12#0
+        txna ApplicationArgs 2                                                                 tmp%12#0,tmp%13#0
+        l-load-copy tmp%13#0 0                                                                 tmp%12#0,tmp%13#0,tmp%13#0 (copy)
+        len                                                                                    tmp%12#0,tmp%13#0,value_len%2#0
+        int 32                                                                                 tmp%12#0,tmp%13#0,value_len%2#0,32
+        ==                                                                                     tmp%12#0,tmp%13#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                tmp%12#0,tmp%13#0
         // merkle/contract.py:14
         // @arc4.abimethod
-        l-load tmp%11#0 1                                                                      reinterpret_bytes[32]%1#0,tmp%11#0
-        l-load reinterpret_bytes[32]%1#0 1                                                     tmp%11#0,reinterpret_bytes[32]%1#0
+        l-load tmp%12#0 1                                                                      tmp%13#0,tmp%12#0
+        l-load tmp%13#0 1                                                                      tmp%12#0,tmp%13#0
         callsub verify                                                                         to_encode%0#0
         byte 0x00                                                                              to_encode%0#0,0x00
         int 0                                                                                  to_encode%0#0,0x00,0
@@ -58,7 +81,7 @@ subroutine main:
         setbit                                                                                 encoded_bool%0#0
         byte 0x151f7c75                                                                        encoded_bool%0#0,0x151f7c75
         l-load encoded_bool%0#0 1                                                              0x151f7c75,encoded_bool%0#0
-        concat                                                                                 tmp%12#0
+        concat                                                                                 tmp%14#0
         log
         int 1                                                                                  examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |

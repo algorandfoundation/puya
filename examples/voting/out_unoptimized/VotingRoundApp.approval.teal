@@ -3,7 +3,7 @@
 
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 8 400
+    intcblock 0 1 2 8
     bytecblock 0x "is_bootstrapped" "voter_count" "vote_id" "option_counts" 0x30313233343536373839 "V" "close_time" 0x068101 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
 
 main_block@0:
@@ -256,13 +256,13 @@ bootstrap_block@0:
     bytec 15 // "total_options"
     app_global_get_ex
     assert // check self.total_options exists
-    intc_2 // 8
+    intc_3 // 8
     *
     // voting/voting.py:101-102
     // # tally box value
     // + (tally_box_size * BOX_BYTE_MIN_BALANCE)
     dup
-    intc_3 // 400
+    pushint 400 // 400
     *
     // voting/voting.py:93-100
     // # minimum balance req for: ALGOs + Vote result NFT asset
@@ -870,7 +870,7 @@ vote_block@0:
     *
     pushint 34 // 34
     +
-    intc_3 // 400
+    pushint 400 // 400
     *
     // voting/voting.py:183-184
     // # Check voter box is funded
@@ -1226,7 +1226,7 @@ get_vote_from_box_block@0:
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
     bytec 6 // "V"
     frame_dig -1
-    intc_2 // 8
+    intc_3 // 8
     box_extract
     btoi
     retsub
@@ -1315,8 +1315,30 @@ approval_program_vote_route@7:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     // voting/voting.py:169
     // @arc4.abimethod
     uncover 2
@@ -1340,6 +1362,17 @@ approval_program_get_preconditions_route@6:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
@@ -1407,19 +1440,89 @@ approval_program_create_route@3:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 5
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 6
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 7
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 8
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     // voting/voting.py:58
     // @arc4.abimethod(create="require")

@@ -26,20 +26,53 @@ subroutine main:
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                                       tmp%7#0
+        l-load-copy tmp%7#0 0                                                                        tmp%7#0,tmp%7#0 (copy)
+        len                                                                                          tmp%7#0,value_len%0#0
+        int 8                                                                                        tmp%7#0,value_len%0#0,8
+        ==                                                                                           tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                            tmp%7#0
+        l-load tmp%7#0 0                                                                             tmp%7#0
         btoi                                                                                         a#0
         txna ApplicationArgs 2                                                                       a#0,b#0
-        txna ApplicationArgs 3                                                                       a#0,b#0,tmp%8#0
-        extract 2 0                                                                                  a#0,b#0,c#0
-        txna ApplicationArgs 4                                                                       a#0,b#0,c#0,tmp%10#0
-        extract 2 0                                                                                  a#0,b#0,c#0,d#0
+        l-load-copy b#0 0                                                                            a#0,b#0,b#0 (copy)
+        len                                                                                          a#0,b#0,value_len%1#0
+        l-load-copy value_len%1#0 0                                                                  a#0,b#0,value_len%1#0,value_len%1#0 (copy)
+        int 64                                                                                       a#0,b#0,value_len%1#0,value_len%1#0 (copy),64
+        ==                                                                                           a#0,b#0,value_len%1#0,size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint512                                           a#0,b#0,value_len%1#0
+        txna ApplicationArgs 3                                                                       a#0,b#0,value_len%1#0,tmp%10#0
+        l-load-copy tmp%10#0 0                                                                       a#0,b#0,value_len%1#0,tmp%10#0,tmp%10#0 (copy)
+        int 0                                                                                        a#0,b#0,value_len%1#0,tmp%10#0,tmp%10#0 (copy),0
+        extract_uint16                                                                               a#0,b#0,value_len%1#0,tmp%10#0,length%0#0
+        int 2                                                                                        a#0,b#0,value_len%1#0,tmp%10#0,length%0#0,2
+        +                                                                                            a#0,b#0,value_len%1#0,tmp%10#0,num_bytes_with_header%0#0
+        l-load-copy tmp%10#0 1                                                                       a#0,b#0,value_len%1#0,tmp%10#0,num_bytes_with_header%0#0,tmp%10#0 (copy)
+        len                                                                                          a#0,b#0,value_len%1#0,tmp%10#0,num_bytes_with_header%0#0,value_len%2#0
+        l-load num_bytes_with_header%0#0 1                                                           a#0,b#0,value_len%1#0,tmp%10#0,value_len%2#0,num_bytes_with_header%0#0
+        ==                                                                                           a#0,b#0,value_len%1#0,tmp%10#0,size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         a#0,b#0,value_len%1#0,tmp%10#0
+        l-load tmp%10#0 0                                                                            a#0,b#0,value_len%1#0,tmp%10#0
+        extract 2 0                                                                                  a#0,b#0,value_len%1#0,c#0
+        txna ApplicationArgs 4                                                                       a#0,b#0,value_len%1#0,c#0,tmp%12#0
+        l-load-copy tmp%12#0 0                                                                       a#0,b#0,value_len%1#0,c#0,tmp%12#0,tmp%12#0 (copy)
+        int 0                                                                                        a#0,b#0,value_len%1#0,c#0,tmp%12#0,tmp%12#0 (copy),0
+        extract_uint16                                                                               a#0,b#0,value_len%1#0,c#0,tmp%12#0,length%1#0
+        int 2                                                                                        a#0,b#0,value_len%1#0,c#0,tmp%12#0,length%1#0,2
+        +                                                                                            a#0,b#0,value_len%1#0,c#0,tmp%12#0,num_bytes_with_header%1#0
+        l-load-copy tmp%12#0 1                                                                       a#0,b#0,value_len%1#0,c#0,tmp%12#0,num_bytes_with_header%1#0,tmp%12#0 (copy)
+        len                                                                                          a#0,b#0,value_len%1#0,c#0,tmp%12#0,num_bytes_with_header%1#0,value_len%3#0
+        l-load num_bytes_with_header%1#0 1                                                           a#0,b#0,value_len%1#0,c#0,tmp%12#0,value_len%3#0,num_bytes_with_header%1#0
+        ==                                                                                           a#0,b#0,value_len%1#0,c#0,tmp%12#0,size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                         a#0,b#0,value_len%1#0,c#0,tmp%12#0
+        l-load tmp%12#0 0                                                                            a#0,b#0,value_len%1#0,c#0,tmp%12#0
+        extract 2 0                                                                                  a#0,b#0,value_len%1#0,c#0,d#0
         // named_tuples/contract.py:16
         // @arc4.abimethod()
-        l-load a#0 3                                                                                 b#0,c#0,d#0,a#0
-        itob                                                                                         b#0,c#0,d#0,val_as_bytes%0#0
-        l-load-copy b#0 3                                                                            b#0,c#0,d#0,val_as_bytes%0#0,b#0 (copy)
-        len                                                                                          b#0,c#0,d#0,val_as_bytes%0#0,value_len%0#0
-        int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,value_len%0#0,64
+        l-load a#0 4                                                                                 b#0,value_len%1#0,c#0,d#0,a#0
+        itob                                                                                         b#0,value_len%1#0,c#0,d#0,val_as_bytes%0#0
+        l-load value_len%1#0 3                                                                       b#0,c#0,d#0,val_as_bytes%0#0,value_len%1#0
+        int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,value_len%1#0,64
         <=                                                                                           b#0,c#0,d#0,val_as_bytes%0#0,len_ok%0#0
         assert // overflow                                                                           b#0,c#0,d#0,val_as_bytes%0#0
         int 64                                                                                       b#0,c#0,d#0,val_as_bytes%0#0,64
@@ -48,13 +81,13 @@ subroutine main:
         l-load bzero%0#0 1                                                                           c#0,d#0,val_as_bytes%0#0,b#0,bzero%0#0
         b|                                                                                           c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0
         l-load-copy c#0 3                                                                            c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,c#0 (copy)
-        len                                                                                          c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length%0#0
+        len                                                                                          c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length%2#0
         itob                                                                                         c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,as_bytes%0#0
         extract 6 2                                                                                  c#0,d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0
         l-load c#0 4                                                                                 d#0,val_as_bytes%0#0,arc4_encoded%0#0,length_uint16%0#0,c#0
         concat                                                                                       d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0
         l-load-copy d#0 3                                                                            d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,d#0 (copy)
-        len                                                                                          d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length%1#0
+        len                                                                                          d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length%3#0
         itob                                                                                         d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,as_bytes%1#0
         extract 6 2                                                                                  d#0,val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0
         l-load d#0 4                                                                                 val_as_bytes%0#0,arc4_encoded%0#0,encoded_value%0#0,length_uint16%1#0,d#0
@@ -80,7 +113,7 @@ subroutine main:
         concat                                                                                       encoded_tuple_buffer%6#0
         byte 0x151f7c75                                                                              encoded_tuple_buffer%6#0,0x151f7c75
         l-load encoded_tuple_buffer%6#0 1                                                            0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                                       tmp%12#0
+        concat                                                                                       tmp%14#0
         log
         int 1                                                                                        test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |
@@ -89,35 +122,35 @@ subroutine main:
     main_test_tuple_route@4:
         // named_tuples/contract.py:31
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%13#0
-        !                                                                                            tmp%14#0
+        txn OnCompletion                                                                             tmp%15#0
+        !                                                                                            tmp%16#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%15#0
+        txn ApplicationID                                                                            tmp%17#0
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       tmp%17#0
-        l-load-copy tmp%17#0 0                                                                       tmp%17#0,tmp%17#0 (copy)
-        int 0                                                                                        tmp%17#0,tmp%17#0 (copy),0
-        extract_uint64                                                                               tmp%17#0,item0%1#0
-        l-load-copy tmp%17#0 1                                                                       tmp%17#0,item0%1#0,tmp%17#0 (copy)
-        extract 8 64 // on error: Index access is out of bounds                                      tmp%17#0,item0%1#0,item1%0#0
-        l-load-copy tmp%17#0 2                                                                       tmp%17#0,item0%1#0,item1%0#0,tmp%17#0 (copy)
-        int 72                                                                                       tmp%17#0,item0%1#0,item1%0#0,tmp%17#0 (copy),72
-        extract_uint16                                                                               tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0
-        l-load-copy tmp%17#0 3                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%17#0 (copy)
-        int 74                                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%17#0 (copy),74
-        extract_uint16                                                                               tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0
-        l-load-copy tmp%17#0 4                                                                       tmp%17#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0,tmp%17#0 (copy)
-        l-load item_start_offset%0#0 2                                                               tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%17#0 (copy),item_start_offset%0#0
-        l-load-copy item_end_offset%0#0 2                                                            tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%17#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
-        substring3                                                                                   tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
-        extract 2 0                                                                                  tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0
-        l-load-copy tmp%17#0 4                                                                       tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,tmp%17#0 (copy)
-        len                                                                                          tmp%17#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0
-        l-load tmp%17#0 5                                                                            item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0,tmp%17#0
-        l-load item_end_offset%0#0 3                                                                 item0%1#0,item1%0#0,item2%1#0,item_end_offset%1#0,tmp%17#0,item_end_offset%0#0
-        l-load item_end_offset%1#0 2                                                                 item0%1#0,item1%0#0,item2%1#0,tmp%17#0,item_end_offset%0#0,item_end_offset%1#0
+        txna ApplicationArgs 1                                                                       tmp%19#0
+        l-load-copy tmp%19#0 0                                                                       tmp%19#0,tmp%19#0 (copy)
+        int 0                                                                                        tmp%19#0,tmp%19#0 (copy),0
+        extract_uint64                                                                               tmp%19#0,item0%1#0
+        l-load-copy tmp%19#0 1                                                                       tmp%19#0,item0%1#0,tmp%19#0 (copy)
+        extract 8 64 // on error: Index access is out of bounds                                      tmp%19#0,item0%1#0,item1%0#0
+        l-load-copy tmp%19#0 2                                                                       tmp%19#0,item0%1#0,item1%0#0,tmp%19#0 (copy)
+        int 72                                                                                       tmp%19#0,item0%1#0,item1%0#0,tmp%19#0 (copy),72
+        extract_uint16                                                                               tmp%19#0,item0%1#0,item1%0#0,item_start_offset%0#0
+        l-load-copy tmp%19#0 3                                                                       tmp%19#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%19#0 (copy)
+        int 74                                                                                       tmp%19#0,item0%1#0,item1%0#0,item_start_offset%0#0,tmp%19#0 (copy),74
+        extract_uint16                                                                               tmp%19#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0
+        l-load-copy tmp%19#0 4                                                                       tmp%19#0,item0%1#0,item1%0#0,item_start_offset%0#0,item_end_offset%0#0,tmp%19#0 (copy)
+        l-load item_start_offset%0#0 2                                                               tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%19#0 (copy),item_start_offset%0#0
+        l-load-copy item_end_offset%0#0 2                                                            tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,tmp%19#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
+        substring3                                                                                   tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%0#0
+        extract 2 0                                                                                  tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0
+        l-load-copy tmp%19#0 4                                                                       tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,tmp%19#0 (copy)
+        len                                                                                          tmp%19#0,item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0
+        l-load tmp%19#0 5                                                                            item0%1#0,item1%0#0,item_end_offset%0#0,item2%1#0,item_end_offset%1#0,tmp%19#0
+        l-load item_end_offset%0#0 3                                                                 item0%1#0,item1%0#0,item2%1#0,item_end_offset%1#0,tmp%19#0,item_end_offset%0#0
+        l-load item_end_offset%1#0 2                                                                 item0%1#0,item1%0#0,item2%1#0,tmp%19#0,item_end_offset%0#0,item_end_offset%1#0
         substring3                                                                                   item0%1#0,item1%0#0,item2%1#0,item3%0#0
         extract 2 0                                                                                  item0%1#0,item1%0#0,item2%1#0,item3%1#0
         // named_tuples/contract.py:31
@@ -134,12 +167,12 @@ subroutine main:
     main_bare_routing@7:
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                             tmp%18#0
+        txn OnCompletion                                                                             tmp%20#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                                            tmp%19#0
-        !                                                                                            tmp%20#0
+        txn ApplicationID                                                                            tmp%21#0
+        !                                                                                            tmp%22#0
         assert // can only call when creating
         int 1                                                                                        test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                              (𝕏) tmp%0#0 |

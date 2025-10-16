@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 2 8
     bytecblock 0x151f7c75 "accounts" "assets" "apps" 0x151f7c7500000000000004d2
     txn NumAppArgs
     bz main_bare_routing@15
@@ -72,8 +72,20 @@ main_store_accounts_route@9:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_1 // "accounts"
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    pushint 32 // 32
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    bytec_1 // "accounts"
+    swap
     app_global_put
     intc_0 // 1
     return
@@ -84,8 +96,20 @@ main_store_assets_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_2 // "assets"
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+    bytec_2 // "assets"
+    swap
     app_global_put
     intc_0 // 1
     return
@@ -96,8 +120,20 @@ main_store_apps_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    bytec_3 // "apps"
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+    bytec_3 // "apps"
+    swap
     app_global_put
     intc_0 // 1
     return
@@ -109,12 +145,27 @@ main_store_route@6:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Accounts
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     pushbytes "acc"

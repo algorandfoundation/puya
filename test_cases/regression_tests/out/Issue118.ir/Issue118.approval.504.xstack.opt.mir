@@ -26,8 +26,21 @@ subroutine main:
         // regression_tests/issue_118.py:5
         // class Issue118(ARC4Contract):
         txna ApplicationArgs 1                                                                 tmp%7#0
+        l-load-copy tmp%7#0 0                                                                  tmp%7#0,tmp%7#0 (copy)
+        int 0                                                                                  tmp%7#0,tmp%7#0 (copy),0
+        extract_uint16                                                                         tmp%7#0,length%0#0
+        int 32                                                                                 tmp%7#0,length%0#0,32
+        *                                                                                      tmp%7#0,num_bytes%0#0
+        int 2                                                                                  tmp%7#0,num_bytes%0#0,2
+        +                                                                                      tmp%7#0,num_bytes_with_header%0#0
+        l-load-copy tmp%7#0 1                                                                  tmp%7#0,num_bytes_with_header%0#0,tmp%7#0 (copy)
+        len                                                                                    tmp%7#0,num_bytes_with_header%0#0,value_len%0#0
+        l-load num_bytes_with_header%0#0 1                                                     tmp%7#0,value_len%0#0,num_bytes_with_header%0#0
+        ==                                                                                     tmp%7#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint256>                 tmp%7#0
         // regression_tests/issue_118.py:7
         // @abimethod
+        l-load tmp%7#0 0                                                                       tmp%7#0
         callsub verify                                                                         tmp%8#0
         byte 0x151f7c75                                                                        tmp%8#0,0x151f7c75
         l-load tmp%8#0 1                                                                       0x151f7c75,tmp%8#0

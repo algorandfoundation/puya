@@ -108,6 +108,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%14#0) // can only call when not creating
         let nested_list#0: bytes = (txna ApplicationArgs 1)
         let threshold#0: bytes[8] = (txna ApplicationArgs 2)
+        let value_len%0#0: uint64 = (len threshold#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let total#0: uint64 = 0u
         let num_boosts#0: uint64 = 0u
         let tmp%0#1: uint64 = (extract_uint16 nested_list#0 0u)
@@ -181,12 +184,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@17
     block@8: // bare_routing_L4
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        goto tmp%17#0 ? block@12 : block@9
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        goto tmp%18#0 ? block@12 : block@9
     block@9: // __algopy_default_create_L1
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (! tmp%18#0)
-        (assert tmp%19#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // can only call when creating
         let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0
         goto block@13

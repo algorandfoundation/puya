@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 64
+    intcblock 0 1 64 2
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -15,7 +15,7 @@ main:
 main_after_if_else@11:
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
-    intc_1 // 0
+    intc_0 // 0
     return
 
 main_test_tuple_route@4:
@@ -30,7 +30,7 @@ main_test_tuple_route@4:
     // class NamedTuplesContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dig 1
     extract 8 64 // on error: Index access is out of bounds
@@ -55,7 +55,7 @@ main_test_tuple_route@4:
     // named_tuples/contract.py:31
     // @arc4.abimethod()
     callsub test_tuple
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_build_tuple_route@3:
@@ -69,18 +69,46 @@ main_build_tuple_route@3:
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    dup
+    intc_2 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     // named_tuples/contract.py:16
     // @arc4.abimethod()
-    uncover 3
+    uncover 4
     itob
-    dig 3
-    len
+    uncover 3
     intc_2 // 64
     <=
     assert // overflow
@@ -120,7 +148,7 @@ main_build_tuple_route@3:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_bare_routing@7:
@@ -131,7 +159,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -157,7 +185,7 @@ test_tuple:
     // assert value.c.bytes.length > 1
     frame_dig -2
     len
-    intc_0 // 1
+    intc_1 // 1
     >
     assert
     // named_tuples/contract.py:36

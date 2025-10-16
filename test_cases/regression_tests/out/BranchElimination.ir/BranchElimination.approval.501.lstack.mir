@@ -75,11 +75,18 @@ subroutine main:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
         txna ApplicationArgs 1                                                                                tmp%16#0
-        txna ApplicationArgs 2                                                                                tmp%16#0,reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 2                                                                                tmp%16#0,tmp%17#0
+        l-load-copy tmp%17#0 0                                                                                tmp%16#0,tmp%17#0,tmp%17#0 (copy)
+        len                                                                                                   tmp%16#0,tmp%17#0,value_len%0#0
+        l-load value_len%0#0 0                                                                                tmp%16#0,tmp%17#0,value_len%0#0
+        int 8                                                                                                 tmp%16#0,tmp%17#0,value_len%0#0,8
+        ==                                                                                                    tmp%16#0,tmp%17#0,size_is_correct%0#0
+        l-load size_is_correct%0#0 0                                                                          tmp%16#0,tmp%17#0,size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64                                                     tmp%16#0,tmp%17#0
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
-        l-load tmp%16#0 1                                                                                     reinterpret_bytes[8]%0#0,tmp%16#0
-        l-load reinterpret_bytes[8]%0#0 1                                                                     tmp%16#0,reinterpret_bytes[8]%0#0
+        l-load tmp%16#0 1                                                                                     tmp%17#0,tmp%16#0
+        l-load tmp%17#0 1                                                                                     tmp%16#0,tmp%17#0
         callsub calculate
         int 1                                                                                                 1
         l-store test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0 0 test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0
@@ -90,15 +97,15 @@ subroutine main:
     main_bare_routing@8:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                      tmp%17#0
-        l-load tmp%17#0 0                                                                                     tmp%17#0
+        txn OnCompletion                                                                                      tmp%18#0
+        l-load tmp%18#0 0                                                                                     tmp%18#0
         bz main___algopy_default_create@9 ; b main_after_if_else@12
 
     main___algopy_default_create@9:
-        txn ApplicationID                                                                                     tmp%18#0
-        l-load tmp%18#0 0                                                                                     tmp%18#0
-        !                                                                                                     tmp%19#0
+        txn ApplicationID                                                                                     tmp%19#0
         l-load tmp%19#0 0                                                                                     tmp%19#0
+        !                                                                                                     tmp%20#0
+        l-load tmp%20#0 0                                                                                     tmp%20#0
         assert // can only call when creating
         int 1                                                                                                 1
         l-store test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0 0 test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0

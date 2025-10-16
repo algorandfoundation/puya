@@ -3,7 +3,7 @@
 
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 3 8
+    intcblock 0 1 3 16
     bytecblock "turns" "game" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
     dupn 2
@@ -29,10 +29,15 @@ main_play_route@16:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    dup
     intc_0 // 0
     extract_uint64
     bury 4
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     bury 2
     intc_0 // 0
@@ -109,10 +114,15 @@ main_join_game_route@14:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    dup
     intc_0 // 0
     extract_uint64
     swap
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     intc_0 // 0
     bytec_3 // "challenger"
@@ -136,10 +146,15 @@ main_new_game_route@5:
     assert // OnCompletion is not NoOp
     txna ApplicationArgs 1
     dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    dup
     intc_0 // 0
     extract_uint64
     bury 4
-    intc_3 // 8
+    pushint 8 // 8
     extract_uint64
     bury 2
     txn ApplicationID

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 3 6
+    intcblock 0 1 2 3
     bytecblock "TEST" "TST" 0x151f7c75 0x6d4700ad
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
@@ -30,10 +30,33 @@ main_test_call_with_acfg_no_return_route@6:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     // typed_abi_call_txn/caller.py:61
@@ -53,10 +76,33 @@ main_test_call_with_infer_route@5:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     // typed_abi_call_txn/caller.py:46
@@ -76,10 +122,33 @@ main_test_call_with_acfg_route@4:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     // typed_abi_call_txn/caller.py:31
@@ -99,10 +168,33 @@ main_test_call_with_txn_route@3:
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Applications
     // typed_abi_call_txn/caller.py:15
@@ -152,7 +244,7 @@ test_call_with_txn:
     itxn_field ConfigAssetUnitName
     // typed_abi_call_txn/caller.py:17
     // txn = itxn.AssetConfig(
-    intc_2 // acfg
+    intc_3 // acfg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -196,7 +288,7 @@ test_call_with_txn:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_3 // appl
+    pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -204,6 +296,11 @@ test_call_with_txn:
     gitxn 1 LastLog
     dup
     extract 4 0
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     swap
     extract 0 4
     bytec_2 // 0x151f7c75
@@ -245,7 +342,7 @@ test_call_with_acfg:
     itxn_field ConfigAssetUnitName
     // typed_abi_call_txn/caller.py:33
     // txn = itxn.AssetConfig(
-    intc_2 // acfg
+    intc_3 // acfg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -289,12 +386,18 @@ test_call_with_acfg:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_3 // appl
+    pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
+    dup
+    extract 4 0
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     extract 0 4
     bytec_2 // 0x151f7c75
     ==
@@ -331,7 +434,7 @@ test_call_with_infer:
     itxn_field ConfigAssetUnitName
     // typed_abi_call_txn/caller.py:48
     // txn = itxn.AssetConfig(
-    intc_2 // acfg
+    intc_3 // acfg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -375,12 +478,18 @@ test_call_with_infer:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_3 // appl
+    pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
+    dup
+    extract 4 0
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     extract 0 4
     bytec_2 // 0x151f7c75
     ==
@@ -413,7 +522,7 @@ test_call_with_acfg_no_return:
     itxn_field ConfigAssetUnitName
     // typed_abi_call_txn/caller.py:63
     // acfg = itxn.AssetConfig(
-    intc_2 // acfg
+    intc_3 // acfg
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -449,7 +558,7 @@ test_call_with_acfg_no_return:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_3 // appl
+    pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

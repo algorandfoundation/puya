@@ -35,21 +35,73 @@ subroutine main:
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       reinterpret_bytes[8]%0#0
-        v-store reinterpret_bytes[8]%0#0
-        v-load reinterpret_bytes[8]%0#0                                                              reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                                       tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                               tmp%7#0
+        len                                                                                          value_len%0#0
+        v-store value_len%0#0
+        v-load value_len%0#0                                                                         value_len%0#0
+        int 8                                                                                        value_len%0#0,8
+        ==                                                                                           size_is_correct%0#0
+        v-store size_is_correct%0#0
+        v-load size_is_correct%0#0                                                                   size_is_correct%0#0
+        assert // invalid number of bytes for arc4.uint64
+        v-load tmp%7#0                                                                               tmp%7#0
         btoi                                                                                         a#0
         v-store a#0
         txna ApplicationArgs 2                                                                       b#0
         v-store b#0
-        txna ApplicationArgs 3                                                                       tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                                               tmp%8#0
-        extract 2 0                                                                                  c#0
-        v-store c#0
-        txna ApplicationArgs 4                                                                       tmp%10#0
+        v-load b#0                                                                                   b#0
+        len                                                                                          value_len%1#0
+        v-store value_len%1#0
+        v-load value_len%1#0                                                                         value_len%1#0
+        int 64                                                                                       value_len%1#0,64
+        ==                                                                                           size_is_correct%1#0
+        v-store size_is_correct%1#0
+        v-load size_is_correct%1#0                                                                   size_is_correct%1#0
+        assert // invalid number of bytes for arc4.uint512
+        txna ApplicationArgs 3                                                                       tmp%10#0
         v-store tmp%10#0
         v-load tmp%10#0                                                                              tmp%10#0
+        int 0                                                                                        tmp%10#0,0
+        extract_uint16                                                                               length%0#0
+        v-store length%0#0
+        v-load length%0#0                                                                            length%0#0
+        int 2                                                                                        length%0#0,2
+        +                                                                                            num_bytes_with_header%0#0
+        v-store num_bytes_with_header%0#0
+        v-load tmp%10#0                                                                              tmp%10#0
+        len                                                                                          value_len%2#0
+        v-store value_len%2#0
+        v-load value_len%2#0                                                                         value_len%2#0
+        v-load num_bytes_with_header%0#0                                                             value_len%2#0,num_bytes_with_header%0#0
+        ==                                                                                           size_is_correct%2#0
+        v-store size_is_correct%2#0
+        v-load size_is_correct%2#0                                                                   size_is_correct%2#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        v-load tmp%10#0                                                                              tmp%10#0
+        extract 2 0                                                                                  c#0
+        v-store c#0
+        txna ApplicationArgs 4                                                                       tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                              tmp%12#0
+        int 0                                                                                        tmp%12#0,0
+        extract_uint16                                                                               length%1#0
+        v-store length%1#0
+        v-load length%1#0                                                                            length%1#0
+        int 2                                                                                        length%1#0,2
+        +                                                                                            num_bytes_with_header%1#0
+        v-store num_bytes_with_header%1#0
+        v-load tmp%12#0                                                                              tmp%12#0
+        len                                                                                          value_len%3#0
+        v-store value_len%3#0
+        v-load value_len%3#0                                                                         value_len%3#0
+        v-load num_bytes_with_header%1#0                                                             value_len%3#0,num_bytes_with_header%1#0
+        ==                                                                                           size_is_correct%3#0
+        v-store size_is_correct%3#0
+        v-load size_is_correct%3#0                                                                   size_is_correct%3#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        v-load tmp%12#0                                                                              tmp%12#0
         extract 2 0                                                                                  d#0
         v-store d#0
         // named_tuples/contract.py:16
@@ -57,11 +109,8 @@ subroutine main:
         v-load a#0                                                                                   a#0
         itob                                                                                         val_as_bytes%0#0
         v-store val_as_bytes%0#0
-        v-load b#0                                                                                   b#0
-        len                                                                                          value_len%0#0
-        v-store value_len%0#0
-        v-load value_len%0#0                                                                         value_len%0#0
-        int 64                                                                                       value_len%0#0,64
+        v-load value_len%1#0                                                                         value_len%1#0
+        int 64                                                                                       value_len%1#0,64
         <=                                                                                           len_ok%0#0
         v-store len_ok%0#0
         v-load len_ok%0#0                                                                            len_ok%0#0
@@ -74,9 +123,9 @@ subroutine main:
         b|                                                                                           arc4_encoded%0#0
         v-store arc4_encoded%0#0
         v-load c#0                                                                                   c#0
-        len                                                                                          length%0#0
-        v-store length%0#0
-        v-load length%0#0                                                                            length%0#0
+        len                                                                                          length%2#0
+        v-store length%2#0
+        v-load length%2#0                                                                            length%2#0
         itob                                                                                         as_bytes%0#0
         v-store as_bytes%0#0
         v-load as_bytes%0#0                                                                          as_bytes%0#0
@@ -87,9 +136,9 @@ subroutine main:
         concat                                                                                       encoded_value%0#0
         v-store encoded_value%0#0
         v-load d#0                                                                                   d#0
-        len                                                                                          length%1#0
-        v-store length%1#0
-        v-load length%1#0                                                                            length%1#0
+        len                                                                                          length%3#0
+        v-store length%3#0
+        v-load length%3#0                                                                            length%3#0
         itob                                                                                         as_bytes%1#0
         v-store as_bytes%1#0
         v-load as_bytes%1#0                                                                          as_bytes%1#0
@@ -134,9 +183,9 @@ subroutine main:
         v-store encoded_tuple_buffer%6#0
         byte 0x151f7c75                                                                              0x151f7c75
         v-load encoded_tuple_buffer%6#0                                                              0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                                       tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                              tmp%12#0
+        concat                                                                                       tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                              tmp%14#0
         log
         int 1                                                                                        1
         v-store test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 
@@ -147,50 +196,50 @@ subroutine main:
     main_test_tuple_route@4:
         // named_tuples/contract.py:31
         // @arc4.abimethod()
-        txn OnCompletion                                                                             tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                              tmp%13#0
-        !                                                                                            tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                                              tmp%14#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                            tmp%15#0
+        txn OnCompletion                                                                             tmp%15#0
         v-store tmp%15#0
         v-load tmp%15#0                                                                              tmp%15#0
+        !                                                                                            tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                                              tmp%16#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                            tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                              tmp%17#0
         assert // can only call when not creating
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                       tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        int 0                                                                                        tmp%17#0,0
+        txna ApplicationArgs 1                                                                       tmp%19#0
+        v-store tmp%19#0
+        v-load tmp%19#0                                                                              tmp%19#0
+        int 0                                                                                        tmp%19#0,0
         extract_uint64                                                                               item0%1#0
         v-store item0%1#0
-        v-load tmp%17#0                                                                              tmp%17#0
+        v-load tmp%19#0                                                                              tmp%19#0
         extract 8 64 // on error: Index access is out of bounds                                      item1%0#0
         v-store item1%0#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        int 72                                                                                       tmp%17#0,72
+        v-load tmp%19#0                                                                              tmp%19#0
+        int 72                                                                                       tmp%19#0,72
         extract_uint16                                                                               item_start_offset%0#0
         v-store item_start_offset%0#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        int 74                                                                                       tmp%17#0,74
+        v-load tmp%19#0                                                                              tmp%19#0
+        int 74                                                                                       tmp%19#0,74
         extract_uint16                                                                               item_end_offset%0#0
         v-store item_end_offset%0#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        v-load item_start_offset%0#0                                                                 tmp%17#0,item_start_offset%0#0
-        v-load item_end_offset%0#0                                                                   tmp%17#0,item_start_offset%0#0,item_end_offset%0#0
+        v-load tmp%19#0                                                                              tmp%19#0
+        v-load item_start_offset%0#0                                                                 tmp%19#0,item_start_offset%0#0
+        v-load item_end_offset%0#0                                                                   tmp%19#0,item_start_offset%0#0,item_end_offset%0#0
         substring3                                                                                   item2%0#0
         v-store item2%0#0
         v-load item2%0#0                                                                             item2%0#0
         extract 2 0                                                                                  item2%1#0
         v-store item2%1#0
-        v-load tmp%17#0                                                                              tmp%17#0
+        v-load tmp%19#0                                                                              tmp%19#0
         len                                                                                          item_end_offset%1#0
         v-store item_end_offset%1#0
-        v-load tmp%17#0                                                                              tmp%17#0
-        v-load item_end_offset%0#0                                                                   tmp%17#0,item_end_offset%0#0
-        v-load item_end_offset%1#0                                                                   tmp%17#0,item_end_offset%0#0,item_end_offset%1#0
+        v-load tmp%19#0                                                                              tmp%19#0
+        v-load item_end_offset%0#0                                                                   tmp%19#0,item_end_offset%0#0
+        v-load item_end_offset%1#0                                                                   tmp%19#0,item_end_offset%0#0,item_end_offset%1#0
         substring3                                                                                   item3%0#0
         v-store item3%0#0
         v-load item3%0#0                                                                             item3%0#0
@@ -212,18 +261,18 @@ subroutine main:
     main_bare_routing@7:
         // named_tuples/contract.py:15
         // class NamedTuplesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                             tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                                                              tmp%18#0
+        txn OnCompletion                                                                             tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                                              tmp%20#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                                            tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                              tmp%19#0
-        !                                                                                            tmp%20#0
-        v-store tmp%20#0
-        v-load tmp%20#0                                                                              tmp%20#0
+        txn ApplicationID                                                                            tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                                              tmp%21#0
+        !                                                                                            tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                                                              tmp%22#0
         assert // can only call when creating
         int 1                                                                                        1
         v-store test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0 

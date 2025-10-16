@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 64
+    intcblock 0 1 64 2
     txn NumAppArgs
     bz main_bare_routing@7
     pushbytess 0x456eeace 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "test_tuple((uint64,uint512,string,byte[]))void"
@@ -11,7 +11,7 @@ main:
     match main_build_tuple_route@3 main_test_tuple_route@4
 
 main_after_if_else@11:
-    intc_1 // 0
+    intc_0 // 0
     return
 
 main_test_tuple_route@4:
@@ -22,7 +22,7 @@ main_test_tuple_route@4:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dig 1
     extract 8 64 // on error: Index access is out of bounds
@@ -54,13 +54,13 @@ main_test_tuple_route@4:
     assert
     swap
     len
-    intc_0 // 1
+    intc_1 // 1
     >
     assert
     txn Sender
     ==
     assert
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_build_tuple_route@3:
@@ -70,16 +70,44 @@ main_build_tuple_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    dup
+    intc_2 // 64
+    ==
+    assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
-    extract 2 0
-    uncover 3
-    itob
-    dig 3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_3 // 2
+    +
+    dig 1
     len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    uncover 4
+    itob
+    uncover 3
     intc_2 // 64
     <=
     assert // overflow
@@ -119,7 +147,7 @@ main_build_tuple_route@3:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_bare_routing@7:
@@ -128,5 +156,5 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return

@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 32
+    intcblock 32 1 0
     bytecblock 0x151f7c75
     txn NumAppArgs
     bz main_bare_routing@11
@@ -12,7 +12,7 @@ main:
     match main_hashAddresses_route@3 main_receiveB32_route@4 main_receiveBytes_route@5 main_returnLength_route@6 main_test_route@7 main_testArray_route@8
 
 main_after_if_else@15:
-    pushint 0 // 0
+    intc_2 // 0
     return
 
 main_testArray_route@8:
@@ -22,7 +22,7 @@ main_testArray_route@8:
     txn ApplicationID
     assert // can only call when not creating
     callsub testArray
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_test_route@7:
@@ -32,7 +32,7 @@ main_test_route@7:
     txn ApplicationID
     assert // can only call when not creating
     callsub test
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_returnLength_route@6:
@@ -42,13 +42,18 @@ main_returnLength_route@6:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub returnLength
     itob
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_receiveBytes_route@5:
@@ -58,11 +63,25 @@ main_receiveBytes_route@5:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    intc_2 // 0
+    extract_uint16
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub receiveBytes
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_receiveB32_route@4:
@@ -72,17 +91,22 @@ main_receiveB32_route@4:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub receiveB32
     dup
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert // invalid size
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_hashAddresses_route@3:
@@ -92,18 +116,28 @@ main_hashAddresses_route@3:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub hashAddresses
     dup
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert // invalid size
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_bare_routing@11:
@@ -112,7 +146,7 @@ main_bare_routing@11:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -131,7 +165,7 @@ receiveB32:
     proto 1 1
     frame_dig -1
     len
-    intc_1 // 32
+    intc_0 // 32
     ==
     assert
     frame_dig -1
@@ -164,7 +198,7 @@ test:
     callsub receiveB32
     pop
     txn Sender
-    intc_1 // 32
+    intc_0 // 32
     callsub receiveBytes
     pushbytes "abcdefghabcdefghabcdefghabcdefgh"
     callsub receiveB32

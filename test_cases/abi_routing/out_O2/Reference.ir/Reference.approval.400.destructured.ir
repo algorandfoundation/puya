@@ -23,6 +23,9 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let a#0: bytes[8] = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len a#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%0#3: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#3)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
@@ -30,21 +33,29 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        let tmp%8#0: bytes = (concat 0x151f7c75 uint8%0#0)
-        (log tmp%8#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 uint8%0#0)
+        (log tmp%9#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@6: // opt_in_route_L45
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (== tmp%9#0 OptIn)
-        (assert tmp%10#0) // OnCompletion is not OptIn
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 1)
-        let uint#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
-        let tmp%14#0: bytes = (txna ApplicationArgs 2)
-        let bites#0: bytes = ((extract 2 0) tmp%14#0)
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (== tmp%10#0 OptIn)
+        (assert tmp%11#0) // OnCompletion is not OptIn
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        (assert tmp%12#0) // can only call when not creating
+        let tmp%14#0: bytes = (txna ApplicationArgs 1)
+        let value_len%1#0: uint64 = (len tmp%14#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
+        let uint#0: uint64 = (btoi tmp%14#0)
+        let tmp%16#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = (extract_uint16 tmp%16#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
+        let value_len%2#0: uint64 = (len tmp%16#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let bites#0: bytes = ((extract 2 0) tmp%16#0)
         let tmp%0#4: bytes = (txn Sender)
         (app_local_put tmp%0#4 "local_uint" uint#0)
         let tmp%1#3: bytes = (txn Sender)
@@ -54,6 +65,9 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         goto block@23
     block@7: // all_the_things_route_L50
         let a#0: bytes[8] = (txna ApplicationArgs 1)
+        let value_len%3#0: uint64 = (len a#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint64
         let tmp%0#3: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#3)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
@@ -61,19 +75,22 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        let tmp%17#0: bytes = (concat 0x151f7c75 uint8%0#0)
-        (log tmp%17#0)
+        let tmp%20#0: bytes = (concat 0x151f7c75 uint8%0#0)
+        (log tmp%20#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@8: // mixed_oca_route_L66
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: uint64 = (shl 1u tmp%18#0)
-        let tmp%20#0: uint64 = (& tmp%19#0 37u)
-        (assert tmp%20#0) // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%21#0: uint64 = (txn OnCompletion)
+        let tmp%22#0: uint64 = (shl 1u tmp%21#0)
+        let tmp%23#0: uint64 = (& tmp%22#0 37u)
+        (assert tmp%23#0) // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        (assert tmp%24#0) // can only call when not creating
         let a#0: bytes[8] = (txna ApplicationArgs 1)
+        let value_len%4#0: uint64 = (len a#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 8u)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.uint64
         let tmp%0#3: uint64 = (btoi a#0)
         let result#0: uint64 = (+ 1u tmp%0#3)
         let val_as_bytes%0#0: bytes[8] = (itob result#0)
@@ -81,20 +98,23 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-        let tmp%24#0: bytes = (concat 0x151f7c75 uint8%0#0)
-        (log tmp%24#0)
+        let tmp%28#0: bytes = (concat 0x151f7c75 uint8%0#0)
+        (log tmp%28#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@9: // opt_into_asset_route_L92
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (! tmp%25#0)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        (assert tmp%27#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%29#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let asset#0: uint64 = ((txnas Assets) tmp%29#0)
+        let tmp%29#0: uint64 = (txn OnCompletion)
+        let tmp%30#0: bool = (! tmp%29#0)
+        (assert tmp%30#0) // OnCompletion is not NoOp
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        (assert tmp%31#0) // can only call when not creating
+        let tmp%33#0: bytes = (txna ApplicationArgs 1)
+        let value_len%5#0: uint64 = (len tmp%33#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 1u)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.uint8
+        let tmp%34#0: uint64 = (btoi tmp%33#0)
+        let asset#0: uint64 = ((txnas Assets) tmp%34#0)
         let tmp%0#4: bytes = (txn Sender)
         let tmp%1#3: bytes = (global CreatorAddress)
         let tmp%2#5: bool = (== tmp%0#4 tmp%1#3)
@@ -115,21 +135,30 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@10: // with_transactions_route_L109
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%35#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
-        let asset#0: uint64 = ((txnas Assets) tmp%35#0)
+        let tmp%36#0: uint64 = (txn OnCompletion)
+        let tmp%37#0: bool = (! tmp%36#0)
+        (assert tmp%37#0) // OnCompletion is not NoOp
+        let tmp%38#0: uint64 = (txn ApplicationID)
+        (assert tmp%38#0) // can only call when not creating
+        let tmp%40#0: bytes = (txna ApplicationArgs 1)
+        let value_len%6#0: uint64 = (len tmp%40#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 1u)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint8
+        let tmp%41#0: uint64 = (btoi tmp%40#0)
+        let asset#0: uint64 = ((txnas Assets) tmp%41#0)
         let an_int#0: bytes[8] = (txna ApplicationArgs 2)
-        let tmp%37#0: uint64 = (txn GroupIndex)
-        let pay#0: uint64 = (- tmp%37#0 1u)
+        let value_len%7#0: uint64 = (len an_int#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 8u)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.uint64
+        let tmp%44#0: uint64 = (txn GroupIndex)
+        let pay#0: uint64 = (- tmp%44#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) pay#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let another_int#0: bytes[8] = (txna ApplicationArgs 3)
+        let value_len%8#0: uint64 = (len another_int#0)
+        let size_is_correct%8#0: bool = (== value_len%8#0 8u)
+        (assert size_is_correct%8#0) // invalid number of bytes for arc4.uint64
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
         (assert maybe_exists%0#0) // check self.asa exists
         let tmp%0#0: bool = (== maybe_value%0#0 asset#0)
@@ -148,95 +177,144 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@11: // compare_assets_route_L122
-        let tmp%38#0: uint64 = (txn OnCompletion)
-        let tmp%39#0: bool = (! tmp%38#0)
-        (assert tmp%39#0) // OnCompletion is not NoOp
-        let tmp%40#0: uint64 = (txn ApplicationID)
-        (assert tmp%40#0) // can only call when not creating
-        let reinterpret_bytes[1]%2#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%42#0: uint64 = (btoi reinterpret_bytes[1]%2#0)
-        let asset_a#0: uint64 = ((txnas Assets) tmp%42#0)
-        let reinterpret_bytes[1]%3#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%44#0: uint64 = (btoi reinterpret_bytes[1]%3#0)
-        let asset_b#0: uint64 = ((txnas Assets) tmp%44#0)
+        let tmp%46#0: uint64 = (txn OnCompletion)
+        let tmp%47#0: bool = (! tmp%46#0)
+        (assert tmp%47#0) // OnCompletion is not NoOp
+        let tmp%48#0: uint64 = (txn ApplicationID)
+        (assert tmp%48#0) // can only call when not creating
+        let tmp%50#0: bytes = (txna ApplicationArgs 1)
+        let value_len%9#0: uint64 = (len tmp%50#0)
+        let size_is_correct%9#0: bool = (== value_len%9#0 1u)
+        (assert size_is_correct%9#0) // invalid number of bytes for arc4.uint8
+        let tmp%51#0: uint64 = (btoi tmp%50#0)
+        let asset_a#0: uint64 = ((txnas Assets) tmp%51#0)
+        let tmp%53#0: bytes = (txna ApplicationArgs 2)
+        let value_len%10#0: uint64 = (len tmp%53#0)
+        let size_is_correct%10#0: bool = (== value_len%10#0 1u)
+        (assert size_is_correct%10#0) // invalid number of bytes for arc4.uint8
+        let tmp%54#0: uint64 = (btoi tmp%53#0)
+        let asset_b#0: uint64 = ((txnas Assets) tmp%54#0)
         let tmp%0#0: bool = (== asset_a#0 asset_b#0)
         (assert tmp%0#0) // asset a == b
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@12: // get_address_route_L126
-        let tmp%46#0: uint64 = (txn OnCompletion)
-        let tmp%47#0: bool = (! tmp%46#0)
-        (assert tmp%47#0) // OnCompletion is not NoOp
-        let tmp%48#0: uint64 = (txn ApplicationID)
-        (assert tmp%48#0) // can only call when not creating
+        let tmp%56#0: uint64 = (txn OnCompletion)
+        let tmp%57#0: bool = (! tmp%56#0)
+        (assert tmp%57#0) // OnCompletion is not NoOp
+        let tmp%58#0: uint64 = (txn ApplicationID)
+        (assert tmp%58#0) // can only call when not creating
         (log CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@13: // get_asset_route_L130
-        let tmp%52#0: uint64 = (txn OnCompletion)
-        let tmp%53#0: bool = (! tmp%52#0)
-        (assert tmp%53#0) // OnCompletion is not NoOp
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        (assert tmp%54#0) // can only call when not creating
+        let tmp%62#0: uint64 = (txn OnCompletion)
+        let tmp%63#0: bool = (! tmp%62#0)
+        (assert tmp%63#0) // OnCompletion is not NoOp
+        let tmp%64#0: uint64 = (txn ApplicationID)
+        (assert tmp%64#0) // can only call when not creating
         (log 0x151f7c7500000000000001c8)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@14: // get_application_route_L134
-        let tmp%58#0: uint64 = (txn OnCompletion)
-        let tmp%59#0: bool = (! tmp%58#0)
-        (assert tmp%59#0) // OnCompletion is not NoOp
-        let tmp%60#0: uint64 = (txn ApplicationID)
-        (assert tmp%60#0) // can only call when not creating
+        let tmp%68#0: uint64 = (txn OnCompletion)
+        let tmp%69#0: bool = (! tmp%68#0)
+        (assert tmp%69#0) // OnCompletion is not NoOp
+        let tmp%70#0: uint64 = (txn ApplicationID)
+        (assert tmp%70#0) // can only call when not creating
         (log 0x151f7c7500000000000001c8)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@15: // get_an_int_route_L138
-        let tmp%64#0: uint64 = (txn OnCompletion)
-        let tmp%65#0: bool = (! tmp%64#0)
-        (assert tmp%65#0) // OnCompletion is not NoOp
-        let tmp%66#0: uint64 = (txn ApplicationID)
-        (assert tmp%66#0) // can only call when not creating
+        let tmp%74#0: uint64 = (txn OnCompletion)
+        let tmp%75#0: bool = (! tmp%74#0)
+        (assert tmp%75#0) // OnCompletion is not NoOp
+        let tmp%76#0: uint64 = (txn ApplicationID)
+        (assert tmp%76#0) // can only call when not creating
         (log 0x151f7c750000000000000003)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@16: // method_with_default_args_route_L142
-        let tmp%70#0: uint64 = (txn OnCompletion)
-        let tmp%71#0: bool = (! tmp%70#0)
-        (assert tmp%71#0) // OnCompletion is not NoOp
-        let tmp%72#0: uint64 = (txn ApplicationID)
-        (assert tmp%72#0) // can only call when not creating
-        let reinterpret_bytes[1]%4#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%74#0: uint64 = (btoi reinterpret_bytes[1]%4#0)
-        let asset_from_storage#0: uint64 = ((txnas Assets) tmp%74#0)
-        let reinterpret_bytes[1]%5#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%76#0: uint64 = (btoi reinterpret_bytes[1]%5#0)
-        let asset_from_function#0: uint64 = ((txnas Assets) tmp%76#0)
-        let reinterpret_bytes[1]%6#0: bytes[1] = (txna ApplicationArgs 3)
-        let tmp%78#0: uint64 = (btoi reinterpret_bytes[1]%6#0)
-        let account_from_storage#0: bytes[32] = ((txnas Accounts) tmp%78#0)
-        let reinterpret_bytes[1]%7#0: bytes[1] = (txna ApplicationArgs 4)
-        let tmp%80#0: uint64 = (btoi reinterpret_bytes[1]%7#0)
-        let account_from_function#0: bytes[32] = ((txnas Accounts) tmp%80#0)
-        let reinterpret_bytes[1]%8#0: bytes[1] = (txna ApplicationArgs 5)
-        let tmp%82#0: uint64 = (btoi reinterpret_bytes[1]%8#0)
-        let application_from_storage#0: uint64 = ((txnas Applications) tmp%82#0)
-        let reinterpret_bytes[1]%9#0: bytes[1] = (txna ApplicationArgs 6)
-        let tmp%84#0: uint64 = (btoi reinterpret_bytes[1]%9#0)
-        let application_from_function#0: uint64 = ((txnas Applications) tmp%84#0)
+        let tmp%80#0: uint64 = (txn OnCompletion)
+        let tmp%81#0: bool = (! tmp%80#0)
+        (assert tmp%81#0) // OnCompletion is not NoOp
+        let tmp%82#0: uint64 = (txn ApplicationID)
+        (assert tmp%82#0) // can only call when not creating
+        let tmp%84#0: bytes = (txna ApplicationArgs 1)
+        let value_len%11#0: uint64 = (len tmp%84#0)
+        let size_is_correct%11#0: bool = (== value_len%11#0 1u)
+        (assert size_is_correct%11#0) // invalid number of bytes for arc4.uint8
+        let tmp%85#0: uint64 = (btoi tmp%84#0)
+        let asset_from_storage#0: uint64 = ((txnas Assets) tmp%85#0)
+        let tmp%87#0: bytes = (txna ApplicationArgs 2)
+        let value_len%12#0: uint64 = (len tmp%87#0)
+        let size_is_correct%12#0: bool = (== value_len%12#0 1u)
+        (assert size_is_correct%12#0) // invalid number of bytes for arc4.uint8
+        let tmp%88#0: uint64 = (btoi tmp%87#0)
+        let asset_from_function#0: uint64 = ((txnas Assets) tmp%88#0)
+        let tmp%90#0: bytes = (txna ApplicationArgs 3)
+        let value_len%13#0: uint64 = (len tmp%90#0)
+        let size_is_correct%13#0: bool = (== value_len%13#0 1u)
+        (assert size_is_correct%13#0) // invalid number of bytes for arc4.uint8
+        let tmp%91#0: uint64 = (btoi tmp%90#0)
+        let account_from_storage#0: bytes[32] = ((txnas Accounts) tmp%91#0)
+        let tmp%93#0: bytes = (txna ApplicationArgs 4)
+        let value_len%14#0: uint64 = (len tmp%93#0)
+        let size_is_correct%14#0: bool = (== value_len%14#0 1u)
+        (assert size_is_correct%14#0) // invalid number of bytes for arc4.uint8
+        let tmp%94#0: uint64 = (btoi tmp%93#0)
+        let account_from_function#0: bytes[32] = ((txnas Accounts) tmp%94#0)
+        let tmp%96#0: bytes = (txna ApplicationArgs 5)
+        let value_len%15#0: uint64 = (len tmp%96#0)
+        let size_is_correct%15#0: bool = (== value_len%15#0 1u)
+        (assert size_is_correct%15#0) // invalid number of bytes for arc4.uint8
+        let tmp%97#0: uint64 = (btoi tmp%96#0)
+        let application_from_storage#0: uint64 = ((txnas Applications) tmp%97#0)
+        let tmp%99#0: bytes = (txna ApplicationArgs 6)
+        let value_len%16#0: uint64 = (len tmp%99#0)
+        let size_is_correct%16#0: bool = (== value_len%16#0 1u)
+        (assert size_is_correct%16#0) // invalid number of bytes for arc4.uint8
+        let tmp%100#0: uint64 = (btoi tmp%99#0)
+        let application_from_function#0: uint64 = ((txnas Applications) tmp%100#0)
         let bytes_from_storage#0: bytes[3] = (txna ApplicationArgs 7)
+        let value_len%17#0: uint64 = (len bytes_from_storage#0)
+        let size_is_correct%17#0: bool = (== value_len%17#0 3u)
+        (assert size_is_correct%17#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
         let int_from_storage#0: bytes[8] = (txna ApplicationArgs 8)
+        let value_len%18#0: uint64 = (len int_from_storage#0)
+        let size_is_correct%18#0: bool = (== value_len%18#0 8u)
+        (assert size_is_correct%18#0) // invalid number of bytes for arc4.uint64
         let int_from_function#0: bytes[8] = (txna ApplicationArgs 9)
+        let value_len%19#0: uint64 = (len int_from_function#0)
+        let size_is_correct%19#0: bool = (== value_len%19#0 8u)
+        (assert size_is_correct%19#0) // invalid number of bytes for arc4.uint64
         let int_from_const#0: bytes[4] = (txna ApplicationArgs 10)
+        let value_len%20#0: uint64 = (len int_from_const#0)
+        let size_is_correct%20#0: bool = (== value_len%20#0 4u)
+        (assert size_is_correct%20#0) // invalid number of bytes for arc4.uint32
         let str_from_const#0: bytes = (txna ApplicationArgs 11)
-        let reinterpret_bytes[8]%8#0: bytes[8] = (txna ApplicationArgs 12)
-        let int_from_local#0: uint64 = (btoi reinterpret_bytes[8]%8#0)
-        let tmp%88#0: bytes = (txna ApplicationArgs 13)
-        let bytes_from_local#0: bytes = ((extract 2 0) tmp%88#0)
+        let length%1#0: uint64 = (extract_uint16 str_from_const#0 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%21#0: uint64 = (len str_from_const#0)
+        let size_is_correct%21#0: bool = (== value_len%21#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%21#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%107#0: bytes = (txna ApplicationArgs 12)
+        let value_len%22#0: uint64 = (len tmp%107#0)
+        let size_is_correct%22#0: bool = (== value_len%22#0 8u)
+        (assert size_is_correct%22#0) // invalid number of bytes for arc4.uint64
+        let int_from_local#0: uint64 = (btoi tmp%107#0)
+        let tmp%109#0: bytes = (txna ApplicationArgs 13)
+        let length%2#0: uint64 = (extract_uint16 tmp%109#0 0u)
+        let num_bytes_with_header%2#0: uint64 = (+ length%2#0 2u)
+        let value_len%23#0: uint64 = (len tmp%109#0)
+        let size_is_correct%23#0: bool = (== value_len%23#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%23#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let bytes_from_local#0: bytes = ((extract 2 0) tmp%109#0)
         let tmp%0#0: bool = (== asset_from_storage#0 123u)
         (assert tmp%0#0) // wrong asset from storage
         let tmp%1#4: bool = (== asset_from_function#0 456u)
@@ -258,10 +336,10 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%9#3: bool = (b== reinterpret_biguint%2#0 0x08)
         (assert tmp%9#3) // wrong 1st byte from storage
         let reinterpret_biguint%4#0: biguint = ((extract 2 1) bytes_from_storage#0) // on error: Index access is out of bounds
-        let tmp%10#0: bool = (b== reinterpret_biguint%4#0 0x09)
-        (assert tmp%10#0) // wrong 2nd byte from storage
-        let tmp%11#0: uint64 = (btoi int_from_storage#0)
-        let tmp%12#3: bool = (== tmp%11#0 2u)
+        let tmp%10#3: bool = (b== reinterpret_biguint%4#0 0x09)
+        (assert tmp%10#3) // wrong 2nd byte from storage
+        let tmp%11#1: uint64 = (btoi int_from_storage#0)
+        let tmp%12#3: bool = (== tmp%11#1 2u)
         (assert tmp%12#3) // wrong int from storage
         let tmp%13#1: uint64 = (btoi int_from_function#0)
         let tmp%14#2: bool = (== tmp%13#1 3u)
@@ -270,8 +348,8 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%15#2)
         let tmp%16#2: bool = (== str_from_const#0 0x0003616263)
         (assert tmp%16#2)
-        let tmp%17#0: bytes = (txn Sender)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#0 0u "local_uint")
+        let tmp%17#2: bytes[32] = (txn Sender)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#2 0u "local_uint")
         (assert maybe_exists%0#0) // check self.local_uint exists for account
         let tmp%18#2: bool = (== int_from_local#0 maybe_value%0#0)
         (assert tmp%18#2)
@@ -284,41 +362,88 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@17: // method_with_15_args_route_L191
-        let tmp%90#0: uint64 = (txn OnCompletion)
-        let tmp%91#0: bool = (! tmp%90#0)
-        (assert tmp%91#0) // OnCompletion is not NoOp
-        let tmp%92#0: uint64 = (txn ApplicationID)
-        (assert tmp%92#0) // can only call when not creating
-        let reinterpret_bytes[8]%9#0: bytes[8] = (txna ApplicationArgs 1)
-        let one#0: uint64 = (btoi reinterpret_bytes[8]%9#0)
-        let reinterpret_bytes[8]%10#0: bytes[8] = (txna ApplicationArgs 2)
-        let two#0: uint64 = (btoi reinterpret_bytes[8]%10#0)
-        let reinterpret_bytes[8]%11#0: bytes[8] = (txna ApplicationArgs 3)
-        let three#0: uint64 = (btoi reinterpret_bytes[8]%11#0)
-        let reinterpret_bytes[8]%12#0: bytes[8] = (txna ApplicationArgs 4)
-        let four#0: uint64 = (btoi reinterpret_bytes[8]%12#0)
-        let reinterpret_bytes[8]%13#0: bytes[8] = (txna ApplicationArgs 5)
-        let five#0: uint64 = (btoi reinterpret_bytes[8]%13#0)
-        let reinterpret_bytes[8]%14#0: bytes[8] = (txna ApplicationArgs 6)
-        let six#0: uint64 = (btoi reinterpret_bytes[8]%14#0)
-        let reinterpret_bytes[8]%15#0: bytes[8] = (txna ApplicationArgs 7)
-        let seven#0: uint64 = (btoi reinterpret_bytes[8]%15#0)
-        let reinterpret_bytes[8]%16#0: bytes[8] = (txna ApplicationArgs 8)
-        let eight#0: uint64 = (btoi reinterpret_bytes[8]%16#0)
-        let reinterpret_bytes[8]%17#0: bytes[8] = (txna ApplicationArgs 9)
-        let nine#0: uint64 = (btoi reinterpret_bytes[8]%17#0)
-        let reinterpret_bytes[8]%18#0: bytes[8] = (txna ApplicationArgs 10)
-        let ten#0: uint64 = (btoi reinterpret_bytes[8]%18#0)
-        let reinterpret_bytes[8]%19#0: bytes[8] = (txna ApplicationArgs 11)
-        let eleven#0: uint64 = (btoi reinterpret_bytes[8]%19#0)
-        let reinterpret_bytes[8]%20#0: bytes[8] = (txna ApplicationArgs 12)
-        let twelve#0: uint64 = (btoi reinterpret_bytes[8]%20#0)
-        let reinterpret_bytes[8]%21#0: bytes[8] = (txna ApplicationArgs 13)
-        let thirteen#0: uint64 = (btoi reinterpret_bytes[8]%21#0)
-        let reinterpret_bytes[8]%22#0: bytes[8] = (txna ApplicationArgs 14)
-        let fourteen#0: uint64 = (btoi reinterpret_bytes[8]%22#0)
-        let tmp%108#0: bytes = (txna ApplicationArgs 15)
-        let fifteen#0: bytes = ((extract 2 0) tmp%108#0)
+        let tmp%111#0: uint64 = (txn OnCompletion)
+        let tmp%112#0: bool = (! tmp%111#0)
+        (assert tmp%112#0) // OnCompletion is not NoOp
+        let tmp%113#0: uint64 = (txn ApplicationID)
+        (assert tmp%113#0) // can only call when not creating
+        let tmp%115#0: bytes = (txna ApplicationArgs 1)
+        let value_len%24#0: uint64 = (len tmp%115#0)
+        let size_is_correct%24#0: bool = (== value_len%24#0 8u)
+        (assert size_is_correct%24#0) // invalid number of bytes for arc4.uint64
+        let one#0: uint64 = (btoi tmp%115#0)
+        let tmp%117#0: bytes = (txna ApplicationArgs 2)
+        let value_len%25#0: uint64 = (len tmp%117#0)
+        let size_is_correct%25#0: bool = (== value_len%25#0 8u)
+        (assert size_is_correct%25#0) // invalid number of bytes for arc4.uint64
+        let two#0: uint64 = (btoi tmp%117#0)
+        let tmp%119#0: bytes = (txna ApplicationArgs 3)
+        let value_len%26#0: uint64 = (len tmp%119#0)
+        let size_is_correct%26#0: bool = (== value_len%26#0 8u)
+        (assert size_is_correct%26#0) // invalid number of bytes for arc4.uint64
+        let three#0: uint64 = (btoi tmp%119#0)
+        let tmp%121#0: bytes = (txna ApplicationArgs 4)
+        let value_len%27#0: uint64 = (len tmp%121#0)
+        let size_is_correct%27#0: bool = (== value_len%27#0 8u)
+        (assert size_is_correct%27#0) // invalid number of bytes for arc4.uint64
+        let four#0: uint64 = (btoi tmp%121#0)
+        let tmp%123#0: bytes = (txna ApplicationArgs 5)
+        let value_len%28#0: uint64 = (len tmp%123#0)
+        let size_is_correct%28#0: bool = (== value_len%28#0 8u)
+        (assert size_is_correct%28#0) // invalid number of bytes for arc4.uint64
+        let five#0: uint64 = (btoi tmp%123#0)
+        let tmp%125#0: bytes = (txna ApplicationArgs 6)
+        let value_len%29#0: uint64 = (len tmp%125#0)
+        let size_is_correct%29#0: bool = (== value_len%29#0 8u)
+        (assert size_is_correct%29#0) // invalid number of bytes for arc4.uint64
+        let six#0: uint64 = (btoi tmp%125#0)
+        let tmp%127#0: bytes = (txna ApplicationArgs 7)
+        let value_len%30#0: uint64 = (len tmp%127#0)
+        let size_is_correct%30#0: bool = (== value_len%30#0 8u)
+        (assert size_is_correct%30#0) // invalid number of bytes for arc4.uint64
+        let seven#0: uint64 = (btoi tmp%127#0)
+        let tmp%129#0: bytes = (txna ApplicationArgs 8)
+        let value_len%31#0: uint64 = (len tmp%129#0)
+        let size_is_correct%31#0: bool = (== value_len%31#0 8u)
+        (assert size_is_correct%31#0) // invalid number of bytes for arc4.uint64
+        let eight#0: uint64 = (btoi tmp%129#0)
+        let tmp%131#0: bytes = (txna ApplicationArgs 9)
+        let value_len%32#0: uint64 = (len tmp%131#0)
+        let size_is_correct%32#0: bool = (== value_len%32#0 8u)
+        (assert size_is_correct%32#0) // invalid number of bytes for arc4.uint64
+        let nine#0: uint64 = (btoi tmp%131#0)
+        let tmp%133#0: bytes = (txna ApplicationArgs 10)
+        let value_len%33#0: uint64 = (len tmp%133#0)
+        let size_is_correct%33#0: bool = (== value_len%33#0 8u)
+        (assert size_is_correct%33#0) // invalid number of bytes for arc4.uint64
+        let ten#0: uint64 = (btoi tmp%133#0)
+        let tmp%135#0: bytes = (txna ApplicationArgs 11)
+        let value_len%34#0: uint64 = (len tmp%135#0)
+        let size_is_correct%34#0: bool = (== value_len%34#0 8u)
+        (assert size_is_correct%34#0) // invalid number of bytes for arc4.uint64
+        let eleven#0: uint64 = (btoi tmp%135#0)
+        let tmp%137#0: bytes = (txna ApplicationArgs 12)
+        let value_len%35#0: uint64 = (len tmp%137#0)
+        let size_is_correct%35#0: bool = (== value_len%35#0 8u)
+        (assert size_is_correct%35#0) // invalid number of bytes for arc4.uint64
+        let twelve#0: uint64 = (btoi tmp%137#0)
+        let tmp%139#0: bytes = (txna ApplicationArgs 13)
+        let value_len%36#0: uint64 = (len tmp%139#0)
+        let size_is_correct%36#0: bool = (== value_len%36#0 8u)
+        (assert size_is_correct%36#0) // invalid number of bytes for arc4.uint64
+        let thirteen#0: uint64 = (btoi tmp%139#0)
+        let tmp%141#0: bytes = (txna ApplicationArgs 14)
+        let value_len%37#0: uint64 = (len tmp%141#0)
+        let size_is_correct%37#0: bool = (== value_len%37#0 8u)
+        (assert size_is_correct%37#0) // invalid number of bytes for arc4.uint64
+        let fourteen#0: uint64 = (btoi tmp%141#0)
+        let tmp%143#0: bytes = (txna ApplicationArgs 15)
+        let length%3#0: uint64 = (extract_uint16 tmp%143#0 0u)
+        let num_bytes_with_header%3#0: uint64 = (+ length%3#0 2u)
+        let value_len%38#0: uint64 = (len tmp%143#0)
+        let size_is_correct%38#0: bool = (== value_len%38#0 num_bytes_with_header%3#0)
+        (assert size_is_correct%38#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let fifteen#0: bytes = ((extract 2 0) tmp%143#0)
         let tmp%0#3: uint64 = (+ one#0 two#0)
         let tmp%1#5: uint64 = (+ tmp%0#3 three#0)
         let tmp%2#2: uint64 = (+ tmp%1#5 four#0)
@@ -328,74 +453,116 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%6#2: uint64 = (+ tmp%5#0 eight#0)
         let tmp%7#2: uint64 = (+ tmp%6#2 nine#0)
         let tmp%8#2: uint64 = (+ tmp%7#2 ten#0)
-        let tmp%9#0: uint64 = (+ tmp%8#2 eleven#0)
-        let tmp%10#1: uint64 = (+ tmp%9#0 twelve#0)
-        let tmp%11#0: uint64 = (+ tmp%10#1 thirteen#0)
-        let tmp%12#1: uint64 = (+ tmp%11#0 fourteen#0)
-        (assert tmp%12#1)
-        let length%0#0: uint64 = (len fifteen#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let tmp%9#1: uint64 = (+ tmp%8#2 eleven#0)
+        let tmp%10#0: uint64 = (+ tmp%9#1 twelve#0)
+        let tmp%11#1: uint64 = (+ tmp%10#0 thirteen#0)
+        let tmp%12#0: uint64 = (+ tmp%11#1 fourteen#0)
+        (assert tmp%12#0)
+        let length%4#0: uint64 = (len fifteen#0)
+        let as_bytes%0#0: bytes[8] = (itob length%4#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 fifteen#0)
-        let tmp%110#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%110#0)
+        let tmp%145#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+        (log tmp%145#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@18: // method_with_more_than_15_args_route_L229
-        let tmp%111#0: uint64 = (txn OnCompletion)
-        let tmp%112#0: bool = (! tmp%111#0)
-        (assert tmp%112#0) // OnCompletion is not NoOp
-        let tmp%113#0: uint64 = (txn ApplicationID)
-        (assert tmp%113#0) // can only call when not creating
+        let tmp%146#0: uint64 = (txn OnCompletion)
+        let tmp%147#0: bool = (! tmp%146#0)
+        (assert tmp%147#0) // OnCompletion is not NoOp
+        let tmp%148#0: uint64 = (txn ApplicationID)
+        (assert tmp%148#0) // can only call when not creating
         let a#0: bytes[8] = (txna ApplicationArgs 1)
+        let value_len%39#0: uint64 = (len a#0)
+        let size_is_correct%39#0: bool = (== value_len%39#0 8u)
+        (assert size_is_correct%39#0) // invalid number of bytes for arc4.uint64
         let b#0: bytes[8] = (txna ApplicationArgs 2)
+        let value_len%40#0: uint64 = (len b#0)
+        let size_is_correct%40#0: bool = (== value_len%40#0 8u)
+        (assert size_is_correct%40#0) // invalid number of bytes for arc4.uint64
         let c#0: bytes[8] = (txna ApplicationArgs 3)
-        let reinterpret_bytes[8]%26#0: bytes[8] = (txna ApplicationArgs 4)
-        let d#0: uint64 = (btoi reinterpret_bytes[8]%26#0)
-        let reinterpret_bytes[1]%10#0: bytes[1] = (txna ApplicationArgs 5)
-        let tmp%116#0: uint64 = (btoi reinterpret_bytes[1]%10#0)
-        let asset#0: uint64 = ((txnas Assets) tmp%116#0)
+        let value_len%41#0: uint64 = (len c#0)
+        let size_is_correct%41#0: bool = (== value_len%41#0 8u)
+        (assert size_is_correct%41#0) // invalid number of bytes for arc4.uint64
+        let tmp%153#0: bytes = (txna ApplicationArgs 4)
+        let value_len%42#0: uint64 = (len tmp%153#0)
+        let size_is_correct%42#0: bool = (== value_len%42#0 8u)
+        (assert size_is_correct%42#0) // invalid number of bytes for arc4.uint64
+        let d#0: uint64 = (btoi tmp%153#0)
+        let tmp%155#0: bytes = (txna ApplicationArgs 5)
+        let value_len%43#0: uint64 = (len tmp%155#0)
+        let size_is_correct%43#0: bool = (== value_len%43#0 1u)
+        (assert size_is_correct%43#0) // invalid number of bytes for arc4.uint8
+        let tmp%156#0: uint64 = (btoi tmp%155#0)
+        let asset#0: uint64 = ((txnas Assets) tmp%156#0)
         let e#0: bytes[8] = (txna ApplicationArgs 6)
+        let value_len%44#0: uint64 = (len e#0)
+        let size_is_correct%44#0: bool = (== value_len%44#0 8u)
+        (assert size_is_correct%44#0) // invalid number of bytes for arc4.uint64
         let f#0: bytes[8] = (txna ApplicationArgs 7)
-        let tmp%118#0: uint64 = (txn GroupIndex)
-        let pay#0: uint64 = (- tmp%118#0 2u)
+        let value_len%45#0: uint64 = (len f#0)
+        let size_is_correct%45#0: bool = (== value_len%45#0 8u)
+        (assert size_is_correct%45#0) // invalid number of bytes for arc4.uint64
+        let tmp%160#0: uint64 = (txn GroupIndex)
+        let pay#0: uint64 = (- tmp%160#0 2u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) pay#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
         let g#0: bytes[8] = (txna ApplicationArgs 8)
+        let value_len%46#0: uint64 = (len g#0)
+        let size_is_correct%46#0: bool = (== value_len%46#0 8u)
+        (assert size_is_correct%46#0) // invalid number of bytes for arc4.uint64
         let h#0: bytes[8] = (txna ApplicationArgs 9)
+        let value_len%47#0: uint64 = (len h#0)
+        let size_is_correct%47#0: bool = (== value_len%47#0 8u)
+        (assert size_is_correct%47#0) // invalid number of bytes for arc4.uint64
         let i#0: bytes[8] = (txna ApplicationArgs 10)
+        let value_len%48#0: uint64 = (len i#0)
+        let size_is_correct%48#0: bool = (== value_len%48#0 8u)
+        (assert size_is_correct%48#0) // invalid number of bytes for arc4.uint64
         let j#0: bytes[8] = (txna ApplicationArgs 11)
+        let value_len%49#0: uint64 = (len j#0)
+        let size_is_correct%49#0: bool = (== value_len%49#0 8u)
+        (assert size_is_correct%49#0) // invalid number of bytes for arc4.uint64
         let k#0: bytes[8] = (txna ApplicationArgs 12)
+        let value_len%50#0: uint64 = (len k#0)
+        let size_is_correct%50#0: bool = (== value_len%50#0 8u)
+        (assert size_is_correct%50#0) // invalid number of bytes for arc4.uint64
         let l#0: bytes[8] = (txna ApplicationArgs 13)
+        let value_len%51#0: uint64 = (len l#0)
+        let size_is_correct%51#0: bool = (== value_len%51#0 8u)
+        (assert size_is_correct%51#0) // invalid number of bytes for arc4.uint64
         let m#0: bytes[8] = (txna ApplicationArgs 14)
-        let tmp%119#0: bytes = (txna ApplicationArgs 15)
-        let tmp%121#0: bytes = (txna ApplicationArgs 15)
-        let tmp%123#0: bytes = (txna ApplicationArgs 15)
-        let p#0: uint64 = (extract_uint64 tmp%123#0 16u)
-        let tmp%126#0: bytes = (txna ApplicationArgs 15)
-        let tmp%128#0: bytes = (txna ApplicationArgs 15)
-        let tmp%130#0: bytes = (txna ApplicationArgs 15)
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%130#0 40u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%130#0 42u)
-        let tmp%131#0: bytes = (substring3 tmp%130#0 item_start_offset%0#0 item_end_offset%0#0)
-        let s#0: bytes = ((extract 2 0) tmp%131#0)
-        let tmp%133#0: bytes = (txna ApplicationArgs 15)
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%133#0 42u)
-        let item_end_offset%1#0: uint64 = (len tmp%133#0)
-        let tmp%134#0: bytes = (substring3 tmp%133#0 item_start_offset%1#0 item_end_offset%1#0)
-        let t#0: bytes = ((extract 2 0) tmp%134#0)
-        let tmp%136#0: bytes = (txna ApplicationArgs 15)
-        let tmp%138#0: uint64 = (getbyte tmp%136#0 44u)
-        let asset2#0: uint64 = ((txnas Assets) tmp%138#0)
-        let tmp%140#0: uint64 = (txn GroupIndex)
-        let pay2#0: uint64 = (- tmp%140#0 1u)
+        let value_len%52#0: uint64 = (len m#0)
+        let size_is_correct%52#0: bool = (== value_len%52#0 8u)
+        (assert size_is_correct%52#0) // invalid number of bytes for arc4.uint64
+        let tmp%168#0: bytes = (txna ApplicationArgs 15)
+        let tmp%170#0: bytes = (txna ApplicationArgs 15)
+        let tmp%172#0: bytes = (txna ApplicationArgs 15)
+        let p#0: uint64 = (extract_uint64 tmp%172#0 16u)
+        let tmp%175#0: bytes = (txna ApplicationArgs 15)
+        let tmp%177#0: bytes = (txna ApplicationArgs 15)
+        let tmp%179#0: bytes = (txna ApplicationArgs 15)
+        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%179#0 40u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%179#0 42u)
+        let tmp%180#0: bytes = (substring3 tmp%179#0 item_start_offset%0#0 item_end_offset%0#0)
+        let s#0: bytes = ((extract 2 0) tmp%180#0)
+        let tmp%182#0: bytes = (txna ApplicationArgs 15)
+        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%182#0 42u)
+        let item_end_offset%1#0: uint64 = (len tmp%182#0)
+        let tmp%183#0: bytes = (substring3 tmp%182#0 item_start_offset%1#0 item_end_offset%1#0)
+        let t#0: bytes = ((extract 2 0) tmp%183#0)
+        let tmp%185#0: bytes = (txna ApplicationArgs 15)
+        let tmp%187#0: uint64 = (getbyte tmp%185#0 44u)
+        let asset2#0: uint64 = ((txnas Assets) tmp%187#0)
+        let tmp%189#0: uint64 = (txn GroupIndex)
+        let pay2#0: uint64 = (- tmp%189#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) pay2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 pay)
         (assert gtxn_type_matches%2#0) // transaction type is pay
-        let tmp%141#0: bytes = (txna ApplicationArgs 15)
-        let tmp%143#0: bytes = (txna ApplicationArgs 15)
+        let tmp%190#0: bytes = (txna ApplicationArgs 15)
+        let tmp%192#0: bytes = (txna ApplicationArgs 15)
         let tmp%0#3: uint64 = (txn NumAppArgs)
         let tmp%1#4: bool = (== tmp%0#3 16u)
         (assert tmp%1#4)
@@ -407,77 +574,82 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%5#1)
         (assert asset#0)
         (assert asset2#0)
-        let tmp%8#0: bytes = (concat s#0 t#0)
-        (log tmp%8#0)
-        let tmp%9#0: uint64 = (btoi a#0)
-        let tmp%10#1: uint64 = (btoi b#0)
-        let tmp%11#0: uint64 = (+ tmp%9#0 tmp%10#1)
-        let tmp%12#1: uint64 = (btoi c#0)
-        let tmp%13#1: uint64 = (+ tmp%11#0 tmp%12#1)
+        let tmp%8#1: bytes = (concat s#0 t#0)
+        (log tmp%8#1)
+        let tmp%9#1: uint64 = (btoi a#0)
+        let tmp%10#0: uint64 = (btoi b#0)
+        let tmp%11#1: uint64 = (+ tmp%9#1 tmp%10#0)
+        let tmp%12#0: uint64 = (btoi c#0)
+        let tmp%13#1: uint64 = (+ tmp%11#1 tmp%12#0)
         let tmp%14#1: uint64 = (+ tmp%13#1 d#0)
         let tmp%15#1: uint64 = (btoi e#0)
         let tmp%16#1: uint64 = (+ tmp%14#1 tmp%15#1)
         let tmp%17#1: uint64 = (btoi f#0)
-        let tmp%18#0: uint64 = (+ tmp%16#1 tmp%17#1)
-        let tmp%19#0: uint64 = (btoi g#0)
-        let tmp%20#0: uint64 = (+ tmp%18#0 tmp%19#0)
+        let tmp%18#1: uint64 = (+ tmp%16#1 tmp%17#1)
+        let tmp%19#1: uint64 = (btoi g#0)
+        let tmp%20#1: uint64 = (+ tmp%18#1 tmp%19#1)
         let tmp%21#0: uint64 = (btoi h#0)
-        let tmp%22#1: uint64 = (+ tmp%20#0 tmp%21#0)
-        let tmp%23#1: uint64 = (btoi i#0)
-        let tmp%24#1: uint64 = (+ tmp%22#1 tmp%23#1)
-        let tmp%25#0: uint64 = (btoi j#0)
-        let tmp%26#1: uint64 = (+ tmp%24#1 tmp%25#0)
-        let tmp%27#0: uint64 = (btoi k#0)
-        let tmp%28#1: uint64 = (+ tmp%26#1 tmp%27#0)
+        let tmp%22#0: uint64 = (+ tmp%20#1 tmp%21#0)
+        let tmp%23#0: uint64 = (btoi i#0)
+        let tmp%24#0: uint64 = (+ tmp%22#0 tmp%23#0)
+        let tmp%25#1: uint64 = (btoi j#0)
+        let tmp%26#1: uint64 = (+ tmp%24#0 tmp%25#1)
+        let tmp%27#1: uint64 = (btoi k#0)
+        let tmp%28#1: uint64 = (+ tmp%26#1 tmp%27#1)
         let tmp%29#0: uint64 = (btoi l#0)
         let tmp%30#1: uint64 = (+ tmp%28#1 tmp%29#0)
         let tmp%31#0: uint64 = (btoi m#0)
         let tmp%32#1: uint64 = (+ tmp%30#1 tmp%31#0)
-        let tmp%33#0: uint64 = (extract_uint64 tmp%119#0 0u)
-        let tmp%34#1: uint64 = (+ tmp%32#1 tmp%33#0)
-        let tmp%35#0: uint64 = (extract_uint64 tmp%121#0 8u)
-        let tmp%36#1: uint64 = (+ tmp%34#1 tmp%35#0)
-        let tmp%37#0: uint64 = (+ tmp%36#1 p#0)
-        let tmp%38#0: uint64 = (extract_uint64 tmp%126#0 24u)
-        let tmp%39#1: uint64 = (+ tmp%37#0 tmp%38#0)
-        let tmp%40#0: uint64 = (extract_uint64 tmp%128#0 32u)
-        let tmp%41#1: uint64 = (+ tmp%39#1 tmp%40#0)
-        let tmp%42#0: uint64 = (extract_uint64 tmp%141#0 45u)
-        let tmp%43#1: uint64 = (+ tmp%41#1 tmp%42#0)
-        let tmp%44#0: uint64 = (extract_uint64 tmp%143#0 53u)
+        let tmp%33#1: uint64 = (extract_uint64 tmp%168#0 0u)
+        let tmp%34#0: uint64 = (+ tmp%32#1 tmp%33#1)
+        let tmp%35#1: uint64 = (extract_uint64 tmp%170#0 8u)
+        let tmp%36#0: uint64 = (+ tmp%34#0 tmp%35#1)
+        let tmp%37#1: uint64 = (+ tmp%36#0 p#0)
+        let tmp%38#0: uint64 = (extract_uint64 tmp%175#0 24u)
+        let tmp%39#1: uint64 = (+ tmp%37#1 tmp%38#0)
+        let tmp%40#1: uint64 = (extract_uint64 tmp%177#0 32u)
+        let tmp%41#0: uint64 = (+ tmp%39#1 tmp%40#1)
+        let tmp%42#1: uint64 = (extract_uint64 tmp%190#0 45u)
+        let tmp%43#1: uint64 = (+ tmp%41#0 tmp%42#1)
+        let tmp%44#0: uint64 = (extract_uint64 tmp%192#0 53u)
         let to_encode%0#1: uint64 = (+ tmp%43#1 tmp%44#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#1)
-        let tmp%146#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%146#0)
+        let tmp%195#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%195#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@19: // hello_with_algopy_string_route_L295
-        let tmp%147#0: uint64 = (txn OnCompletion)
-        let tmp%148#0: bool = (! tmp%147#0)
-        (assert tmp%148#0) // OnCompletion is not NoOp
-        let tmp%149#0: uint64 = (txn ApplicationID)
-        (assert tmp%149#0) // can only call when not creating
-        let tmp%151#0: bytes = (txna ApplicationArgs 1)
-        let name#0: bytes = ((extract 2 0) tmp%151#0)
+        let tmp%196#0: uint64 = (txn OnCompletion)
+        let tmp%197#0: bool = (! tmp%196#0)
+        (assert tmp%197#0) // OnCompletion is not NoOp
+        let tmp%198#0: uint64 = (txn ApplicationID)
+        (assert tmp%198#0) // can only call when not creating
+        let tmp%200#0: bytes = (txna ApplicationArgs 1)
+        let length%5#0: uint64 = (extract_uint16 tmp%200#0 0u)
+        let num_bytes_with_header%4#0: uint64 = (+ length%5#0 2u)
+        let value_len%53#0: uint64 = (len tmp%200#0)
+        let size_is_correct%53#0: bool = (== value_len%53#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%53#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let name#0: bytes = ((extract 2 0) tmp%200#0)
         let tmp%0#4: bytes = (concat "Hello " name#0)
         let tmp%1#3: bytes = (concat tmp%0#4 "!")
-        let length%1#0: uint64 = (len tmp%1#3)
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length%6#0: uint64 = (len tmp%1#3)
+        let as_bytes%1#0: bytes[8] = (itob length%6#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 tmp%1#3)
-        let tmp%153#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
-        (log tmp%153#0)
+        let tmp%202#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
+        (log tmp%202#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
     block@20: // bare_routing_L24
-        let tmp%154#0: uint64 = (txn OnCompletion)
-        goto_nth [block@21, block@21, block@21, block@22, block@21, block@21][tmp%154#0] else goto block@22
+        let tmp%203#0: uint64 = (txn OnCompletion)
+        goto_nth [block@21, block@21, block@21, block@22, block@21, block@21][tmp%203#0] else goto block@22
     block@21: // bare_abi_config_L79
-        let tmp%155#0: uint64 = (txn ApplicationID)
-        let tmp%156#0: bool = (! tmp%155#0)
-        (assert tmp%156#0) // can only call when creating
+        let tmp%204#0: uint64 = (txn ApplicationID)
+        let tmp%205#0: bool = (! tmp%204#0)
+        (assert tmp%205#0) // can only call when creating
         (log "Hello World")
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0

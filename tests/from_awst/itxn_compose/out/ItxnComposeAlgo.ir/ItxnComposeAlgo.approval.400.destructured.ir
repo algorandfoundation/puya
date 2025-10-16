@@ -11,38 +11,50 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[32][]%0#0: bytes[32][] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%7#0 1u)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 32u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        let tmp%8#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%8#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%8#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let tmp%9#0: uint64 = ((txnas Applications) tmp%8#0)
-        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(reinterpret_bytes[32][]%0#0, gtxn_idx%0#0, tmp%9#0)
+        let tmp%9#0: bytes = (txna ApplicationArgs 2)
+        let value_len%1#0: uint64 = (len tmp%9#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 1u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint8
+        let tmp%10#0: uint64 = (btoi tmp%9#0)
+        let tmp%11#0: uint64 = ((txnas Applications) tmp%10#0)
+        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(tmp%7#0, gtxn_idx%0#0, tmp%11#0)
         let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
         goto block@12
     block@4: // conditionalBegin_route_L53
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        (assert tmp%12#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%14#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(tmp%14#0)
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        let tmp%13#0: bool = (! tmp%12#0)
+        (assert tmp%13#0) // OnCompletion is not NoOp
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        (assert tmp%14#0) // can only call when not creating
+        let tmp%16#0: bytes = (txna ApplicationArgs 1)
+        let value_len%2#0: uint64 = (len tmp%16#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
+        let tmp%17#0: uint64 = (btoi tmp%16#0)
+        tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(tmp%17#0)
         let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
         goto block@12
     block@7: // bare_routing_L18
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        goto tmp%15#0 ? block@11 : block@8
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        goto tmp%18#0 ? block@11 : block@8
     block@8: // __algots__.defaultCreate_L18
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (! tmp%16#0)
-        (assert tmp%17#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // can only call when creating
         let tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__puya_arc4_router__%0#0
         goto block@12
@@ -105,7 +117,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         ((itxn_field ApplicationArgs) 0x00024869)
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQAjggQEAJIlrgQkN408BKDoGHIE0KKCADYaAI4EADsAMAAlAAIjQzEZFEQxGEQ2GgFXAgCIAERJFRZXBgJMUIAEFR98dUxQsCJDMRmBBBJEMRhEIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAACIkOKAQAoi/9niYoBASMoZUSAASBQi/9QiQ==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAI4IEBACSJa4EJDeNPASg6BhyBNCiggA2GgCOBABFADoALwACIkMxGRREMRhENhoBSSJZJAhLARUSRFcCAIgATkkVFlcGAkxQgAQVH3x1TFCwI0MxGYEEEkQxGEQjQzEZgQUSRDEYRCNDMRkURDEYFEQ2GgFJIlkkCEsBFRJEVwIAiAACI0OKAQAoi/9niYoBASIoZUSAASBQi/9QiQ==)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)

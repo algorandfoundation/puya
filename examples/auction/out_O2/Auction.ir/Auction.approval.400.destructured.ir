@@ -22,9 +22,12 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let asset#0: uint64 = ((txnas Assets) tmp%7#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 1u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%8#0: uint64 = (btoi tmp%7#0)
+        let asset#0: uint64 = ((txnas Assets) tmp%8#0)
         let tmp%0#4: bytes[32] = (txn Sender)
         let tmp%1#2: bytes[32] = (global CreatorAddress)
         let tmp%2#1: bool = (== tmp%0#4 tmp%1#2)
@@ -45,17 +48,23 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@6: // start_auction_route_L40
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (! tmp%9#0)
-        (assert tmp%10#0) // OnCompletion is not NoOp
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let starting_price#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
-        let length#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
-        let tmp%15#0: uint64 = (txn GroupIndex)
-        let axfer#0: uint64 = (- tmp%15#0 1u)
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // OnCompletion is not NoOp
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        (assert tmp%12#0) // can only call when not creating
+        let tmp%14#0: bytes = (txna ApplicationArgs 1)
+        let value_len%1#0: uint64 = (len tmp%14#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
+        let starting_price#0: uint64 = (btoi tmp%14#0)
+        let tmp%16#0: bytes = (txna ApplicationArgs 2)
+        let value_len%2#0: uint64 = (len tmp%16#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
+        let length#0: uint64 = (btoi tmp%16#0)
+        let tmp%18#0: uint64 = (txn GroupIndex)
+        let axfer#0: uint64 = (- tmp%18#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) axfer#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
@@ -73,30 +82,30 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert tmp%6#1) // axfer must transfer to this app
         let materialized_values%0#1: uint64 = ((gtxns AssetAmount) axfer#0)
         (app_global_put "asa_amount" materialized_values%0#1)
-        let tmp%7#0: uint64 = (global LatestTimestamp)
-        let materialized_values%1#1: uint64 = (+ tmp%7#0 length#0)
+        let tmp%7#2: uint64 = (global LatestTimestamp)
+        let materialized_values%1#1: uint64 = (+ tmp%7#2 length#0)
         (app_global_put "auction_end" materialized_values%1#1)
         (app_global_put "previous_bid" starting_price#0)
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@7: // opt_in_route_L62
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        let tmp%17#0: bool = (! tmp%16#0)
-        (assert tmp%17#0) // OnCompletion is not NoOp
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        (assert tmp%18#0) // can only call when not creating
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@8: // bid_route_L66
-        let tmp%20#0: uint64 = (txn OnCompletion)
-        let tmp%21#0: bool = (! tmp%20#0)
-        (assert tmp%21#0) // OnCompletion is not NoOp
-        let tmp%22#0: uint64 = (txn ApplicationID)
-        (assert tmp%22#0) // can only call when not creating
-        let tmp%24#0: uint64 = (txn GroupIndex)
-        let pay#0: uint64 = (- tmp%24#0 1u)
+        let tmp%23#0: uint64 = (txn OnCompletion)
+        let tmp%24#0: bool = (! tmp%23#0)
+        (assert tmp%24#0) // OnCompletion is not NoOp
+        let tmp%25#0: uint64 = (txn ApplicationID)
+        (assert tmp%25#0) // can only call when not creating
+        let tmp%27#0: uint64 = (txn GroupIndex)
+        let pay#0: uint64 = (- tmp%27#0 1u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) pay#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
@@ -116,17 +125,17 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert tmp%6#1) // Bid must be higher than previous bid
         (app_global_put "previous_bid" tmp%5#0)
         (app_global_put "previous_bidder" tmp%2#0)
-        let tmp%7#1: bytes[32] = (txn Sender)
-        (app_local_put tmp%7#1 "claim" tmp%5#0)
+        let tmp%7#0: bytes = (txn Sender)
+        (app_local_put tmp%7#0 "claim" tmp%5#0)
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@9: // claim_bids_route_L82
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (! tmp%25#0)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        (assert tmp%27#0) // can only call when not creating
+        let tmp%28#0: uint64 = (txn OnCompletion)
+        let tmp%29#0: bool = (! tmp%28#0)
+        (assert tmp%29#0) // OnCompletion is not NoOp
+        let tmp%30#0: uint64 = (txn ApplicationID)
+        (assert tmp%30#0) // can only call when not creating
         let tmp%0#4: bytes[32] = (txn Sender)
         let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#4 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
@@ -156,14 +165,17 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@12: // claim_asset_route_L97
-        let tmp%29#0: uint64 = (txn OnCompletion)
-        let tmp%30#0: bool = (! tmp%29#0)
-        (assert tmp%30#0) // OnCompletion is not NoOp
-        let tmp%31#0: uint64 = (txn ApplicationID)
-        (assert tmp%31#0) // can only call when not creating
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%33#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
-        let asset#0: uint64 = ((txnas Assets) tmp%33#0)
+        let tmp%32#0: uint64 = (txn OnCompletion)
+        let tmp%33#0: bool = (! tmp%32#0)
+        (assert tmp%33#0) // OnCompletion is not NoOp
+        let tmp%34#0: uint64 = (txn ApplicationID)
+        (assert tmp%34#0) // can only call when not creating
+        let tmp%36#0: bytes = (txna ApplicationArgs 1)
+        let value_len%3#0: uint64 = (len tmp%36#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 1u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint8
+        let tmp%37#0: uint64 = (btoi tmp%36#0)
+        let asset#0: uint64 = ((txnas Assets) tmp%37#0)
         let tmp%0#2: uint64 = (global LatestTimestamp)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
@@ -185,12 +197,12 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16
     block@13: // bare_routing_L16
-        let tmp%35#0: uint64 = (txn OnCompletion)
-        goto tmp%35#0 ? block@15 : block@14
+        let tmp%39#0: uint64 = (txn OnCompletion)
+        goto tmp%39#0 ? block@15 : block@14
     block@14: // __algopy_default_create_L1
-        let tmp%36#0: uint64 = (txn ApplicationID)
-        let tmp%37#0: bool = (! tmp%36#0)
-        (assert tmp%37#0) // can only call when creating
+        let tmp%40#0: uint64 = (txn ApplicationID)
+        let tmp%41#0: bool = (! tmp%40#0)
+        (assert tmp%41#0) // can only call when creating
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
         goto block@16

@@ -51,94 +51,121 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%21#0: uint64 = (txn ApplicationID)
         let tmp%22#0: bool = (!= tmp%21#0 0u)
         (assert tmp%21#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%23#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
-        let tmp%24#0: bytes[32] = ((txnas Accounts) tmp%23#0)
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 2)
-        let tmp%25#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
-        let tmp%26#0: uint64 = ((txnas Applications) tmp%25#0)
-        let reinterpret_bytes[1]%2#0: bytes[1] = (txna ApplicationArgs 3)
-        let tmp%27#0: uint64 = (btoi reinterpret_bytes[1]%2#0)
-        let tmp%28#0: uint64 = ((txnas Assets) tmp%27#0)
-        test_cases.arc4_conversions.reference.ReferenceReturn.store(tmp%24#0, tmp%26#0, tmp%28#0)
+        let tmp%23#0: bytes = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len tmp%23#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 1u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%24#0: uint64 = (btoi tmp%23#0)
+        let tmp%25#0: bytes[32] = ((txnas Accounts) tmp%24#0)
+        let tmp%26#0: bytes = (txna ApplicationArgs 2)
+        let value_len%1#0: uint64 = (len tmp%26#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 1u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint8
+        let tmp%27#0: uint64 = (btoi tmp%26#0)
+        let tmp%28#0: uint64 = ((txnas Applications) tmp%27#0)
+        let tmp%29#0: bytes = (txna ApplicationArgs 3)
+        let value_len%2#0: uint64 = (len tmp%29#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 1u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint8
+        let tmp%30#0: uint64 = (btoi tmp%29#0)
+        let tmp%31#0: uint64 = ((txnas Assets) tmp%30#0)
+        test_cases.arc4_conversions.reference.ReferenceReturn.store(tmp%25#0, tmp%28#0, tmp%31#0)
         let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#3: bool = 1u
         goto block@20
     block@7: // store_apps_route_L23
-        let tmp%29#0: uint64 = (txn OnCompletion)
-        let tmp%30#0: bool = (! tmp%29#0)
-        (assert tmp%30#0) // OnCompletion is not NoOp
-        let tmp%31#0: uint64 = (txn ApplicationID)
-        let tmp%32#0: bool = (!= tmp%31#0 0u)
-        (assert tmp%31#0) // can only call when not creating
-        let reinterpret_encoded_uint64[]%0#0: encoded_uint64[] = (txna ApplicationArgs 1)
-        test_cases.arc4_conversions.reference.ReferenceReturn.store_apps(reinterpret_encoded_uint64[]%0#0)
+        let tmp%32#0: uint64 = (txn OnCompletion)
+        let tmp%33#0: bool = (! tmp%32#0)
+        (assert tmp%33#0) // OnCompletion is not NoOp
+        let tmp%34#0: uint64 = (txn ApplicationID)
+        let tmp%35#0: bool = (!= tmp%34#0 0u)
+        (assert tmp%34#0) // can only call when not creating
+        let tmp%36#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = (extract_uint16 tmp%36#0 0u)
+        let num_bytes%0#0: uint64 = (* length%0#0 8u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let value_len%3#0: uint64 = (len tmp%36#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+        test_cases.arc4_conversions.reference.ReferenceReturn.store_apps(tmp%36#0)
         let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#4: bool = 1u
         goto block@20
     block@8: // store_assets_route_L27
-        let tmp%33#0: uint64 = (txn OnCompletion)
-        let tmp%34#0: bool = (! tmp%33#0)
-        (assert tmp%34#0) // OnCompletion is not NoOp
-        let tmp%35#0: uint64 = (txn ApplicationID)
-        let tmp%36#0: bool = (!= tmp%35#0 0u)
-        (assert tmp%35#0) // can only call when not creating
-        let reinterpret_encoded_uint64[]%1#0: encoded_uint64[] = (txna ApplicationArgs 1)
-        test_cases.arc4_conversions.reference.ReferenceReturn.store_assets(reinterpret_encoded_uint64[]%1#0)
-        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#5: bool = 1u
-        goto block@20
-    block@9: // store_accounts_route_L31
         let tmp%37#0: uint64 = (txn OnCompletion)
         let tmp%38#0: bool = (! tmp%37#0)
         (assert tmp%38#0) // OnCompletion is not NoOp
         let tmp%39#0: uint64 = (txn ApplicationID)
         let tmp%40#0: bool = (!= tmp%39#0 0u)
         (assert tmp%39#0) // can only call when not creating
-        let reinterpret_bytes[32][]%0#0: bytes[32][] = (txna ApplicationArgs 1)
-        test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts(reinterpret_bytes[32][]%0#0)
+        let tmp%41#0: bytes = (txna ApplicationArgs 1)
+        let length%1#0: uint64 = (extract_uint16 tmp%41#0 0u)
+        let num_bytes%1#0: uint64 = (* length%1#0 8u)
+        let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
+        let value_len%4#0: uint64 = (len tmp%41#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+        test_cases.arc4_conversions.reference.ReferenceReturn.store_assets(tmp%41#0)
+        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#5: bool = 1u
+        goto block@20
+    block@9: // store_accounts_route_L31
+        let tmp%42#0: uint64 = (txn OnCompletion)
+        let tmp%43#0: bool = (! tmp%42#0)
+        (assert tmp%43#0) // OnCompletion is not NoOp
+        let tmp%44#0: uint64 = (txn ApplicationID)
+        let tmp%45#0: bool = (!= tmp%44#0 0u)
+        (assert tmp%44#0) // can only call when not creating
+        let tmp%46#0: bytes = (txna ApplicationArgs 1)
+        let length%2#0: uint64 = (extract_uint16 tmp%46#0 0u)
+        let num_bytes%2#0: uint64 = (* length%2#0 32u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
+        let value_len%5#0: uint64 = (len tmp%46#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%2#0)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts(tmp%46#0)
         let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#6: bool = 1u
         goto block@20
     block@10: // return_apps_route_L35
-        let tmp%41#0: uint64 = (txn OnCompletion)
-        let tmp%42#0: bool = (! tmp%41#0)
-        (assert tmp%42#0) // OnCompletion is not NoOp
-        let tmp%43#0: uint64 = (txn ApplicationID)
-        let tmp%44#0: bool = (!= tmp%43#0 0u)
-        (assert tmp%43#0) // can only call when not creating
-        let tmp%45#0: encoded_uint64[] = test_cases.arc4_conversions.reference.ReferenceReturn.return_apps()
-        let tmp%46#0: bytes = (concat 0x151f7c75 tmp%45#0)
-        (log tmp%46#0)
-        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#7: bool = 1u
-        goto block@20
-    block@11: // return_assets_route_L39
         let tmp%47#0: uint64 = (txn OnCompletion)
         let tmp%48#0: bool = (! tmp%47#0)
         (assert tmp%48#0) // OnCompletion is not NoOp
         let tmp%49#0: uint64 = (txn ApplicationID)
         let tmp%50#0: bool = (!= tmp%49#0 0u)
         (assert tmp%49#0) // can only call when not creating
-        let tmp%51#0: encoded_uint64[] = test_cases.arc4_conversions.reference.ReferenceReturn.return_assets()
+        let tmp%51#0: encoded_uint64[] = test_cases.arc4_conversions.reference.ReferenceReturn.return_apps()
         let tmp%52#0: bytes = (concat 0x151f7c75 tmp%51#0)
         (log tmp%52#0)
-        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#8: bool = 1u
+        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#7: bool = 1u
         goto block@20
-    block@12: // return_accounts_route_L43
+    block@11: // return_assets_route_L39
         let tmp%53#0: uint64 = (txn OnCompletion)
         let tmp%54#0: bool = (! tmp%53#0)
         (assert tmp%54#0) // OnCompletion is not NoOp
         let tmp%55#0: uint64 = (txn ApplicationID)
         let tmp%56#0: bool = (!= tmp%55#0 0u)
         (assert tmp%55#0) // can only call when not creating
-        let tmp%57#0: bytes[32][] = test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts()
+        let tmp%57#0: encoded_uint64[] = test_cases.arc4_conversions.reference.ReferenceReturn.return_assets()
         let tmp%58#0: bytes = (concat 0x151f7c75 tmp%57#0)
         (log tmp%58#0)
+        let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#8: bool = 1u
+        goto block@20
+    block@12: // return_accounts_route_L43
+        let tmp%59#0: uint64 = (txn OnCompletion)
+        let tmp%60#0: bool = (! tmp%59#0)
+        (assert tmp%60#0) // OnCompletion is not NoOp
+        let tmp%61#0: uint64 = (txn ApplicationID)
+        let tmp%62#0: bool = (!= tmp%61#0 0u)
+        (assert tmp%61#0) // can only call when not creating
+        let tmp%63#0: bytes[32][] = test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts()
+        let tmp%64#0: bytes = (concat 0x151f7c75 tmp%63#0)
+        (log tmp%64#0)
         let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#9: bool = 1u
         goto block@20
     block@15: // bare_routing_L4
-        let tmp%59#0: uint64 = (txn OnCompletion)
-        goto tmp%59#0 ? block@19 : block@16
+        let tmp%65#0: uint64 = (txn OnCompletion)
+        goto tmp%65#0 ? block@19 : block@16
     block@16: // __algopy_default_create_L1
-        let tmp%60#0: uint64 = (txn ApplicationID)
-        let tmp%61#0: bool = (! tmp%60#0)
-        (assert tmp%61#0) // can only call when creating
+        let tmp%66#0: uint64 = (txn ApplicationID)
+        let tmp%67#0: bool = (! tmp%66#0)
+        (assert tmp%67#0) // can only call when creating
         test_cases.arc4_conversions.reference.ReferenceReturn.__algopy_default_create()
         let test_cases.arc4_conversions.reference.ReferenceReturn.__puya_arc4_router__%0#10: bool = 1u
         goto block@20

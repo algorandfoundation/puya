@@ -3,7 +3,7 @@
 
 // examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 4
+    intcblock 0 1 4 8
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
 
 main_block@0:
@@ -455,6 +455,11 @@ approval_program_claim_asset_route@8:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     // auction/contract.py:97
@@ -534,8 +539,18 @@ approval_program_start_auction_route@4:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txn GroupIndex
     intc_1 // 1
@@ -568,6 +583,11 @@ approval_program_opt_into_asset_route@3:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     // auction/contract.py:25

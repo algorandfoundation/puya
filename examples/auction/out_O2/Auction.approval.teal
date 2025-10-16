@@ -3,7 +3,7 @@
 
 // examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 4
+    intcblock 0 1 4 8
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
     pushbytes ""
     dup
@@ -43,6 +43,11 @@ main_claim_asset_route@12:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     global LatestTimestamp
@@ -194,8 +199,18 @@ main_start_auction_route@6:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txn GroupIndex
     intc_1 // 1
@@ -242,6 +257,11 @@ main_opt_into_asset_route@5:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     txn Sender

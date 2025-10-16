@@ -33,17 +33,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#0: uint64 = (txn ApplicationID)
         (assert tmp%14#0) // can only call when not creating
         let tmp%16#0: bytes = (txna ApplicationArgs 1)
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 2)
-        test_cases.regression_tests.leftover_branch.BranchElimination.calculate(tmp%16#0, reinterpret_bytes[8]%0#0)
+        let tmp%17#0: bytes = (txna ApplicationArgs 2)
+        let value_len%0#0: uint64 = (len tmp%17#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        test_cases.regression_tests.leftover_branch.BranchElimination.calculate(tmp%16#0, tmp%17#0)
         let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#2: bool = 1u
         goto block@13
     block@8: // bare_routing_L4
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        goto tmp%17#0 ? block@12 : block@9
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        goto tmp%18#0 ? block@12 : block@9
     block@9: // __algopy_default_create_L1
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (! tmp%18#0)
-        (assert tmp%19#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // can only call when creating
         let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#3: bool = 1u
         goto block@13
     block@12: // after_if_else_L4

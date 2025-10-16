@@ -24,7 +24,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAeoIDBCDfOlQEJDeNPATQooIANhoAjgMAQQA2AAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBRENhoBSSJZJAhLARUSRFcCAChMZyNDgQQxGY4BAANC/5cxGEQjQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -40,6 +40,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#1: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -64,7 +69,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAaIIDBExcYboEJDeNPATQooIANhoAjgMAQgA3AAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/6kxGEQiQw==)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -79,6 +84,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#1: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -103,7 +113,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAF2CAwRMXGG6BCQ3jTwE0KKCADYaAI4DADcALAACI0MxGRREMRhENhoBVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/tDEYRCJD)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwJoaTEYQAADKClnMRtBAGiCAwRMXGG6BCQ3jTwE0KKCADYaAI4DAEIANwACI0MxGRREMRhENhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+pMRhEIkM=)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -118,6 +128,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let length%0#1: uint64 = (extract_uint16 result#0 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -154,6 +169,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
         let result#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let value_len%0#0: uint64 = (len result#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#1: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -178,7 +196,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAeoIDBCDfOlQEJDeNPATQooIANhoAjgMAQQA2AAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBRENhoBSSJZJAhLARUSRFcCAChMZyNDgQQxGY4BAANC/5cxGEQjQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -193,6 +211,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#1: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -218,7 +242,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAaIIDBExcYboEJDeNPATQooIANhoAjgMAQgA3AAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/6kxGEQiQw==)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -232,6 +256,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#1: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -257,7 +287,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAF2CAwRMXGG6BCQ3jTwE0KKCADYaAI4DADcALAACI0MxGRREMRhENhoBVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBREIkOBBDEZjgEAA0L/tDEYRCJD)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwVwcmZ4MjEYQAADKClnMRtBAGiCAwRMXGG6BCQ3jTwE0KKCADYaAI4DAEIANwACI0MxGRREMRhENhoBSSNZgQIISwEVEkRXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+pMRhEIkM=)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -271,6 +301,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#1: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -307,11 +343,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#6: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
-        let result#5: uint64 = (btoi tmp%0#6)
+        let result#5: uint64 = (btoi tmp%0#2)
         let tmp%4#0: bool = (== result#5 4096u)
         (assert tmp%4#0)
         itxn_begin
@@ -336,7 +375,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field GlobalNumUint) 4u)
         ((itxn_field GlobalNumByteSlice) 6u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAeoIDBCDfOlQEJDeNPATQooIANhoAjgMAQQA2AAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBRENhoBSSJZJAhLARUSRFcCAChMZyNDgQQxGY4BAANC/5cxGEQjQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -367,8 +406,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%5#3: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%6#3: bool = (== tmp%5#3 0x151f7c75)
+        let tmp%4#4: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%4#4 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%1#0 2u)
+        let value_len%0#0: uint64 = (len tmp%4#4)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%5#2: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%6#3: bool = (== tmp%5#2 0x151f7c75)
         (assert tmp%6#3) // application log value is not the result of an ABI return
         let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
         let tmp%8#1: bool = (== result#0 "hey there")
@@ -396,7 +441,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field GlobalNumByteSlice) 2u)
         ((itxn_field ExtraProgramPages) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAIjQzEZFEQxGEQ2GgFXAgAjKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQADQv+0MRhEIkM=)
+        ((itxn_field ApprovalProgramPages) CiACAQAmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAaIIDBExcYboEJDeNPATQooIANhoAjgMAQgA3AAIjQzEZFEQxGEQ2GgFJI1mBAghLARUSRFcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAANC/6kxGEQiQw==)
         ((itxn_field ApplicationArgs) method "create()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -410,6 +455,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#1: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -418,7 +469,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAeoIDBCDfOlQEJDeNPATQooIANhoAjgMAQQA2AAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBRENhoBSSJZJAhLARUSRFcCAChMZyNDgQQxGY4BAANC/5cxGEQjQw==)
         ((itxn_field OnCompletion) UpdateApplication)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field TypeEnum) appl)
@@ -432,6 +483,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%5#2: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%5#2 0u)
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
+        let value_len%1#0: uint64 = (len tmp%5#2)
+        let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%1#0)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%6#2: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#1: bool = (== tmp%6#2 0x151f7c75)
         (assert tmp%7#1) // application log value is not the result of an ABI return
@@ -457,7 +514,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 4u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAUgBHAAIiQzEZFEQxGEQ2GgFXAgAiKWVEgAEwoEkVIwkjWCIoZUSAASBQTwJQTFAiKmVEUCIrZURQSRUWVwYCTFCABBUffHVMULAjQzEZgQUSRDEYRCNDMRkURDEYFESADBUffHUAAAAAAAAAAbAjQw==)
+        ((itxn_field ApprovalProgramPages) CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2cxG0EAHIIDBNkoWnQEJDeNPARbDCN1NhoAjgMAXQBSAAIiQzEZFEQxGEQ2GgFJIlmBAghLARUSRFcCACIpZUSAATCgSRUjCSNYIihlRIABIFBPAlBMUCIqZURQIitlRFBJFRZXBgJMUIAEFR98dUxQsCNDMRmBBRJEMRhEI0MxGRREMRgURIAMFR98dQAAAAAAAAABsCND)
         ((itxn_field ApplicationArgs) method "create()uint64")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -471,6 +528,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#1: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return
@@ -496,7 +559,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBmggMEIN86VAQkN408BNCiggA2GgCOAwA3ACwAAiNDMRkURDEYRDYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURDYaAVcCAChMZyJDgQQxGY4BAANC/6sxGEQiQw==)
+        ((itxn_field ApprovalProgramPages) CiADAAECJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAeoIDBCDfOlQEJDeNPATQooIANhoAjgMAQQA2AAIiQzEZFEQxGEQ2GgFJIlkkCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0MxGYEFEkQxGEQjQzEZFEQxGBRENhoBSSJZJAhLARUSRFcCAChMZyNDgQQxGY4BAANC/5cxGEQjQw==)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -511,6 +574,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%1#0: uint64 = (extract_uint16 tmp%0#2 0u)
+        let num_bytes_with_header%0#0: uint64 = (+ length%1#0 2u)
+        let value_len%0#0: uint64 = (len tmp%0#2)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_with_header%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#1: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#1: bool = (== tmp%1#1 0x151f7c75)
         (assert tmp%2#1) // application log value is not the result of an ABI return

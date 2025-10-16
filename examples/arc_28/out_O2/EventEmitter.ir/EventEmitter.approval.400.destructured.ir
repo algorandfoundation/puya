@@ -12,7 +12,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let a#0: bytes[32] = (txna ApplicationArgs 1)
+        let value_len%0#0: uint64 = (len a#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
+        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let b#0: bytes[8] = (txna ApplicationArgs 2)
+        let value_len%1#0: uint64 = (len b#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
         let encoded_tuple_buffer%2#0: bytes = (concat b#0 a#0)
         let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#0)
         (log event%0#0)
@@ -22,13 +28,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         goto block@12
     block@4: // emit_ufixed_route_L18
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        let tmp%10#0: bool = (! tmp%9#0)
+        (assert tmp%10#0) // OnCompletion is not NoOp
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         let a#0: bytes[32] = (txna ApplicationArgs 1)
+        let value_len%2#0: uint64 = (len a#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 32u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.ufixed256x16
         let b#0: bytes[8] = (txna ApplicationArgs 2)
+        let value_len%3#0: uint64 = (len b#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.ufixed64x2
         let encoded_tuple_buffer%2#0: bytes = (concat a#0 b#0)
         let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" encoded_tuple_buffer%2#0)
         (log event%0#0)
@@ -36,12 +48,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         goto block@12
     block@7: // bare_routing_L11
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        goto tmp%11#0 ? block@11 : block@8
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        goto tmp%15#0 ? block@11 : block@8
     block@8: // __algopy_default_create_L1
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // can only call when creating
         let examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
         goto block@12

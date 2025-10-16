@@ -59,7 +59,7 @@ contract AppExpectingEffects
   {
     assert(gtxnsas<ApplicationArgs>(app_call, 0u) == Method("some_value()uint64"), comment="expected correct method called")
     assert(gtxns<NumLogs>(app_call) == 1u, comment="expected logs")
-    assert(reinterpret_cast<biguint>(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=0, source=gtxns<LastLog>(app_call))), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))) == itob(gtxns<GroupIndex>(app_call) + 1u * global<GroupSize>()))
+    assert(reinterpret_cast<biguint>(checked_maybe((arc4_validate(extract<4, 0>(SINGLE_EVAL(id=0, source=gtxns<LastLog>(app_call))), arc4.uint64), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">))) == itob(gtxns<GroupIndex>(app_call) + 1u * global<GroupSize>()))
   }
   
   baremethod test_cases.group_side_effects.contract.AppExpectingEffects.__algopy_default_create(): void
