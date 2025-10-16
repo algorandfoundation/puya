@@ -89,17 +89,14 @@ def call(
 
 
 def app_arg(
-    index: int,
-    wtype: wtypes.WType,
-    location: SourceLocation,
+    index: int, wtype: wtypes.ARC4Type, location: SourceLocation, *, validate: bool
 ) -> awst_nodes.Expression:
     value = _txn_app_args(index, location)
-    if wtype == wtypes.bytes_wtype:
-        return value
-    return awst_nodes.ReinterpretCast(
-        source_location=location,
-        expr=value,
+    return awst_nodes.ARC4FromBytes(
+        value=value,
+        validate=validate,
         wtype=wtype,
+        source_location=location,
     )
 
 
@@ -325,10 +322,10 @@ def check_allowed_oca(
 
 
 def _map_abi_args(
-    arg_types: Sequence[wtypes.WType], location: SourceLocation
+    arg_types: Sequence[wtypes.WType], location: SourceLocation, *, validate: bool
 ) -> Iterable[awst_nodes.Expression]:
     transaction_arg_offset = 0
-    incoming_types = []
+    incoming_types = list[wtypes.ARC4Type]()
     for a in arg_types:
         if isinstance(a, wtypes.WGroupTransaction):
             transaction_arg_offset += 1
@@ -346,14 +343,17 @@ def _map_abi_args(
     else:
         unpacked_types, packed_types = incoming_types, []
     abi_args = [
-        app_arg(array_index, arg_wtype, location)
+        app_arg(array_index, arg_wtype, location, validate=validate)
         for array_index, arg_wtype in enumerate(unpacked_types, start=1)
     ]
     if packed_types:
         abi_args.extend(
             awst_nodes.TupleItemExpression(
                 base=app_arg(
-                    15, wtypes.ARC4Tuple(types=packed_types, source_location=location), location
+                    15,
+                    wtypes.ARC4Tuple(types=packed_types, source_location=location),
+                    location,
+                    validate=validate,
                 ),
                 index=tuple_index,
                 source_location=location,
@@ -401,12 +401,14 @@ def _map_abi_args(
 def route_abi_methods(
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
+    *,
+    validate_args: bool,
 ) -> awst_nodes.Block:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        abi_args = list(_map_abi_args(sig.parameter_types, location))
+        abi_args = list(_map_abi_args(sig.parameter_types, location, validate=validate_args))
         method_result = call(abi_loc, sig, *abi_args)
         match sig.return_type:
             case wtypes.void_wtype:
@@ -462,6 +464,8 @@ def _maybe_switch(
 def create_abi_router(
     contract: awst_nodes.Contract,
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
+    *,
+    validate_args: bool,
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
@@ -472,7 +476,7 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    abi_routing = route_abi_methods(router_location, abi_methods)
+    abi_routing = route_abi_methods(router_location, abi_methods, validate_args=validate_args)
     bare_routing = route_bare_methods(router_location, bare_methods)
     num_app_args = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
     router = [
