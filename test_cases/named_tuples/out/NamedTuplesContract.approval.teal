@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 0 2
+    intcblock 1 0 2 64
     // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -38,44 +38,44 @@ build_tuple:
     len
     pushint 8 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     dup
-    intc_1 // 64
+    intc_3 // 64
     ==
-    assert // invalid number of bytes for uint512
+    assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 3
     dup
-    intc_2 // 0
-    extract_uint16
-    intc_3 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
     dup
-    intc_2 // 0
-    extract_uint16
-    intc_3 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     uncover 4
     itob
     uncover 3
-    intc_1 // 64
+    intc_3 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_3 // 64
     bzero
     uncover 4
     b|
@@ -128,7 +128,7 @@ build_tuple_side_effects:
     log
     // named_tuples/contract.py:39
     // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
-    intc_3 // 2
+    intc_2 // 2
     // named_tuples/contract.py:51
     // log(value)
     itob
@@ -154,27 +154,52 @@ test_tuple:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_2 // 0
-    extract_uint64
-    dig 1
-    extract 8 64
-    dig 2
     pushint 72 // 72
-    extract_uint16
-    dig 3
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint512,(len+utf8[]),(len+uint8[]))
+    dig 1
     pushint 74 // 74
     extract_uint16
-    dig 4
+    dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
-    dig 4
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 78 // 78
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 3 of (uint64,uint512,(len+utf8[]),(len+uint8[]))
+    dig 3
     len
-    uncover 5
-    uncover 3
-    uncover 2
+    dig 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for test_cases.named_tuples.contract.TestTuple
+    dig 2
+    intc_1 // 0
+    extract_uint64
+    uncover 3
+    extract 8 64
+    uncover 3
+    extract 2 0
+    uncover 3
     extract 2 0
     // named_tuples/contract.py:43
     // assert value.a < 1000

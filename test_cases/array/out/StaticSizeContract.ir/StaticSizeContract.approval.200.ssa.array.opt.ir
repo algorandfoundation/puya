@@ -92,20 +92,20 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let x1#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len x1#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let y1#0: uint64 = (btoi tmp%1#0)
         let x2#0: Encoded(uint64) = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len x2#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let tmp%4#0: bytes = (txna ApplicationArgs 4)
         let len%3#0: uint64 = (len tmp%4#0)
         let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for uint64
+        (assert eq%3#0) // invalid number of bytes for arc4.uint64
         let y2#0: uint64 = (btoi tmp%4#0)
         (app_global_put "count" 0u)
         let (tmp%0#1: uint64, tmp%1#1: uint64, tmp%2#1: account, tmp%3#1: Encoded(uint64,uint64), tmp%4#1: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
@@ -266,7 +266,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+        (assert eq%0#0) // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>
         let some_more.0#0: Encoded(uint64,uint64) = ((extract 0 16) tmp%0#0)
         let some_more.1#0: Encoded(uint64,uint64) = ((extract 16 16) tmp%0#0)
         let arr#0: Encoded((uint64,uint64)[])* = new()
@@ -290,7 +290,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let as_bytes%0#0: bytes[8] = (itob aggregate%array_len%1#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let result#0: Encoded(len+(uint64,uint64)[]) = (concat as_u16_bytes%0#0 slot_contents%2#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 result#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 result#0 0u) // on error: invalid array length header
         let tmp%6#0: uint64 = (- aggregate%array_length%0#0 1u)
         let aggregate%total_length%0#0: uint64 = (len result#0)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) result#0)
@@ -307,7 +307,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4
         let some_more#0: Encoded((uint64,uint64),(uint64,uint64)) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len some_more#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),(uint64,uint64))
+        (assert eq%0#0) // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More>
         let arr#0: Encoded((uint64,uint64)[])* = new()
         let slot_contents%0#0: Encoded((uint64,uint64)[]) = 0x
         let concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 some_more#0) // on error: max array length exceeded
@@ -327,7 +327,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array[routi
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let length#0: uint64 = (btoi tmp%0#0)
         let arr#0: Encoded(bool8[])* = new()
         store(arr#0, 0x)
@@ -407,7 +407,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let length#0: uint64 = (btoi tmp%0#0)
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, 0x)
@@ -479,12 +479,12 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[
 subroutine test_cases.array.static_size.StaticSizeContract.sum_array[routing]() -> void:
     block@0: // L114
         let arc4_arr#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 arc4_arr#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 arc4_arr#0 0u) // on error: invalid array length header
         let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len arc4_arr#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         let arr#0: Encoded(uint64[])* = new()
         let slot_contents%0#0: Encoded(uint64[]) = 0x
         let extract_to_end%0#0: bytes = ((extract 2 0) arc4_arr#0)
@@ -536,7 +536,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let slot_contents%2#0: Encoded(bool8[]) = concat%1#0
         let aggregate%bytes_len%0#0: uint64 = (len slot_contents%2#0)
         let dyn_arr#1: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, slot_contents%2#0, aggregate%bytes_len%0#0, 8u)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dyn_arr#1 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dyn_arr#1 0u) // on error: invalid array length header
         let tmp%12#0: bool = (== aggregate%array_length%0#0 2u)
         (assert tmp%12#0) // expected correct length
         let tmp%13#0: uint64 = (len dyn_arr#1)

@@ -54,7 +54,7 @@ subroutine verify:
         txna ApplicationArgs 1                                                                        proof#0
         l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
         int 0                                                                                         proof#0,proof#0 (copy),0
-        extract_uint16                                                                                proof#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                       proof#0,aggregate%array_length%0#0
         int 32                                                                                        proof#0,aggregate%array_length%0#0,32
         *                                                                                             proof#0,mul%0#0
         int 2                                                                                         proof#0,mul%0#0,2
@@ -63,7 +63,7 @@ subroutine verify:
         len                                                                                           proof#0,add%0#0,len%0#0
         l-load add%0#0 1                                                                              proof#0,len%0#0,add%0#0
         ==                                                                                            proof#0,eq%0#0
-        assert // invalid number of bytes for (len+uint8[32][])                                       proof#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> proof#0
         // regression_tests/jira_ak_752.py:18
         // x = proof[8].bytes  # ok
         l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)

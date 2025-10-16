@@ -310,7 +310,7 @@ subroutine sum_frozen_arr:
         // for element in arr:
         p-load arr#0                                                                                       (𝕡) arr#0 | arr#0 (copy)
         int 0                                                                                              (𝕡) arr#0 | arr#0 (copy),0
-        extract_uint16                                                                                     (𝕡) arr#0 | aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                            (𝕡) arr#0 | aggregate%array_length%0#0
         v-store aggregate%array_length%0#0                                                                 (𝕡) arr#0 |
         int 0                                                                                              (𝕡) arr#0 | 0
         v-store item_index_internal%0#0                                                                    (𝕡) arr#0 |
@@ -402,7 +402,7 @@ subroutine add_payment:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for (uint8[32],uint64,uint64)
+        assert // invalid number of bytes for test_cases.mutable_native_types.contract.Payment 
         // mutable_native_types/contract.py:133
         // assert self.num_payments < self.payments.length, "too many payments"
         int 0                                                                                              0
@@ -476,7 +476,7 @@ subroutine increment_payment:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                     tmp%0#0
         btoi                                                                                               index#0
         v-store index#0
@@ -490,7 +490,7 @@ subroutine increment_payment:
         ==                                                                                                 eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                      eq%1#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%2#0                                                                                     tmp%2#0
         btoi                                                                                               amt#0
         v-store amt#0
@@ -571,7 +571,7 @@ subroutine create_storage:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                     tmp%0#0
         btoi                                                                                               box_key#0
         v-store box_key#0
@@ -716,7 +716,7 @@ subroutine delete_storage:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                     tmp%0#0
         btoi                                                                                               box_key#0
         v-store box_key#0
@@ -769,7 +769,7 @@ subroutine struct_arg:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.uint64
         v-load tmp%0#0                                                                                     tmp%0#0
         btoi                                                                                               box_key#0
         v-store box_key#0
@@ -783,7 +783,7 @@ subroutine struct_arg:
         ==                                                                                                 eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                                      eq%1#0
-        assert // invalid number of bytes for (uint64,uint64)
+        assert // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct 
         // mutable_native_types/contract.py:170
         // self.nested.fixed_a = a
         int 0                                                                                              0
@@ -1036,7 +1036,7 @@ subroutine test_arr:
         v-store arr#0
         v-load arr#0                                                                                       arr#0
         int 0                                                                                              arr#0,0
-        extract_uint16                                                                                     aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
         int 16                                                                                             aggregate%array_length%0#0,16
@@ -1054,7 +1054,7 @@ subroutine test_arr:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for (len+(uint64,uint64)[])
+        assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> 
         // mutable_native_types/contract.py:199
         // assert arr.length == 0, "expected empty array"
         v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
@@ -1152,7 +1152,7 @@ subroutine test_arr:
         // assert arr2.length == 1, "expected array to have 1 item"
         v-load arr2#1                                                                                      arr2#1
         int 0                                                                                              arr2#1,0
-        extract_uint16                                                                                     aggregate%array_length%3#0
+        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%3#0
         v-store aggregate%array_length%3#0
         v-load aggregate%array_length%3#0                                                                  aggregate%array_length%3#0
         int 1                                                                                              aggregate%array_length%3#0,1
@@ -1297,7 +1297,7 @@ subroutine test_arr:
         // assert arr2.length == 3, "expected 3 elements"
         v-load arr2#1                                                                                      arr2#1
         int 0                                                                                              arr2#1,0
-        extract_uint16                                                                                     array_length#0
+        extract_uint16 // on error: invalid array length header                                            array_length#0
         v-store array_length#0
         v-load array_length#0                                                                              array_length#0
         int 3                                                                                              array_length#0,3
@@ -1453,7 +1453,7 @@ subroutine test_match_struct:
         ==                                                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                      eq%0#0
-        assert // invalid number of bytes for (uint64,uint64)
+        assert // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct 
         // mutable_native_types/contract.py:264
         // case FixedStruct(UInt64(1), UInt64(2)):
         byte 0x00000000000000010000000000000002                                                            0x00000000000000010000000000000002

@@ -372,7 +372,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
@@ -586,7 +586,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%14#0: bytes = ((extract 4 0) awst_tmp%1#0)
         let len%1#0: uint64 = (len tmp%14#0)
         let eq%1#0: bool = (== len%1#0 16u)
-        (assert eq%1#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%1#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
         let as_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = tmp%14#0
         let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
@@ -1018,7 +1018,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%8#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let len%0#0: uint64 = (len tmp%8#0)
         let eq%0#0: bool = (== len%0#0 24u)
-        (assert eq%0#0) // invalid number of bytes for ((uint64,uint64),uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
         let as_Encoded((uint64,uint64),uint64)%0#0: Encoded((uint64,uint64),uint64) = tmp%8#0
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
@@ -1235,7 +1235,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%20#0: bytes = ((extract 4 0) awst_tmp%1#0)
         let len%1#0: uint64 = (len tmp%20#0)
         let eq%1#0: bool = (== len%1#0 24u)
-        (assert eq%1#0) // invalid number of bytes for ((uint64,uint64),uint64)
+        (assert eq%1#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
         let as_Encoded((uint64,uint64),uint64)%1#0: Encoded((uint64,uint64),uint64) = tmp%20#0
         let tmp%21#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%22#0: bool = (== tmp%21#0 0x151f7c75)
@@ -1672,10 +1672,37 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
         let tmp%13#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%13#0 16u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 22u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%14#0: Encoded(len+uint8[]) = extract_value(tmp%13#0, 2)
+        let length%0#0: uint64 = array_len(tmp%14#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 22u add%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%13#0 18u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%15#0: Encoded(len+utf8[]) = extract_value(tmp%13#0, 3)
+        let length%1#0: uint64 = array_len(tmp%15#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%2#0: uint64 = (+ mul%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%13#0 20u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%3#0)
+        (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%16#0: Encoded(len+(uint64,uint64)[]) = extract_value(tmp%13#0, 4)
+        let length%2#0: uint64 = array_len(tmp%16#0)
+        let mul%2#0: uint64 = (* length%2#0 16u)
+        let add%4#0: uint64 = (+ mul%2#0 2u)
+        let add%5#0: uint64 = (+ add%3#0 add%4#0)
+        let len%0#0: uint64 = (len tmp%13#0)
+        let eq%3#0: bool = (== len%0#0 add%5#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%13#0
-        let tmp%14#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
-        (assert tmp%15#0) // application log value is not the result of an ABI return
+        let tmp%17#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%18#0: bool = (== tmp%17#0 0x151f7c75)
+        (assert tmp%18#0) // application log value is not the result of an ABI return
         let res#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
@@ -1741,18 +1768,18 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let _txn.NumApprovalProgramPages#0: uint64 = itxn[_txn#0].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#0: uint64 = itxn[_txn#0].NumClearStateProgramPages
         let _txn.RejectVersion#0: uint64 = itxn[_txn#0].RejectVersion
-        let tmp%16#0: bool = (== res#0 dynamic_struct#0)
-        (assert tmp%16#0) // should be the same
-        let tmp%17#0: uint64 = (txn NumAppArgs)
-        let tmp%18#0: uint64 = (+ tmp%17#0 2u)
-        let tmp%19#0: uint64 = (txn NumAppArgs)
-        let tmp%20#0: uint64 = (+ tmp%19#0 3u)
-        let tmp%21#0: uint64 = (txn NumAppArgs)
-        let tmp%22#0: uint64 = (+ tmp%21#0 4u)
-        let tmp%23#0: bytes = (itob tmp%22#0)
+        let tmp%19#0: bool = (== res#0 dynamic_struct#0)
+        (assert tmp%19#0) // should be the same
+        let tmp%20#0: uint64 = (txn NumAppArgs)
+        let tmp%21#0: uint64 = (+ tmp%20#0 2u)
+        let tmp%22#0: uint64 = (txn NumAppArgs)
+        let tmp%23#0: uint64 = (+ tmp%22#0 3u)
+        let tmp%24#0: uint64 = (txn NumAppArgs)
+        let tmp%25#0: uint64 = (+ tmp%24#0 4u)
+        let tmp%26#0: bytes = (itob tmp%25#0)
         let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>(fixed_struct#0)
-        let tmp%24#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(tmp%18#0, tmp%20#0, tmp%23#0, "Hello", encoded_array%1#0)
-        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%24#0
+        let tmp%27#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = bytes_encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))>(tmp%21#0, tmp%23#0, tmp%26#0, "Hello", encoded_array%1#0)
+        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%27#0
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
         let inner_txn_params%3%%param_Fee_idx_0#0: uint64 = 0u
@@ -1886,11 +1913,38 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
     block@5: // next_txn_L181
         itxn_submit
         let awst_tmp%1#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%25#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%25#0
-        let tmp%26#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%27#0: bool = (== tmp%26#0 0x151f7c75)
-        (assert tmp%27#0) // application log value is not the result of an ABI return
+        let tmp%28#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%28#0 16u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%3#0 22u)
+        (assert eq%4#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%29#0: Encoded(len+uint8[]) = extract_value(tmp%28#0, 2)
+        let length%3#0: uint64 = array_len(tmp%29#0)
+        let mul%3#0: uint64 = (* length%3#0 1u)
+        let add%6#0: uint64 = (+ mul%3#0 2u)
+        let add%7#0: uint64 = (+ 22u add%6#0)
+        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%28#0 18u) // on error: invalid tuple encoding
+        let eq%5#0: bool = (== extract_uint16%4#0 add%7#0)
+        (assert eq%5#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%30#0: Encoded(len+utf8[]) = extract_value(tmp%28#0, 3)
+        let length%4#0: uint64 = array_len(tmp%30#0)
+        let mul%4#0: uint64 = (* length%4#0 1u)
+        let add%8#0: uint64 = (+ mul%4#0 2u)
+        let add%9#0: uint64 = (+ add%7#0 add%8#0)
+        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%28#0 20u) // on error: invalid tuple encoding
+        let eq%6#0: bool = (== extract_uint16%5#0 add%9#0)
+        (assert eq%6#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let tmp%31#0: Encoded(len+(uint64,uint64)[]) = extract_value(tmp%28#0, 4)
+        let length%5#0: uint64 = array_len(tmp%31#0)
+        let mul%5#0: uint64 = (* length%5#0 16u)
+        let add%10#0: uint64 = (+ mul%5#0 2u)
+        let add%11#0: uint64 = (+ add%9#0 add%10#0)
+        let len%1#0: uint64 = (len tmp%28#0)
+        let eq%7#0: bool = (== len%1#0 add%11#0)
+        (assert eq%7#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
+        let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%28#0
+        let tmp%32#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%33#0: bool = (== tmp%32#0 0x151f7c75)
+        (assert tmp%33#0) // application log value is not the result of an ABI return
         let res#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#1: bool = 1u
@@ -1956,8 +2010,8 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let _txn.NumApprovalProgramPages#1: uint64 = itxn[_txn#1].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#1: uint64 = itxn[_txn#1].NumClearStateProgramPages
         let _txn.RejectVersion#1: uint64 = itxn[_txn#1].RejectVersion
-        let tmp%28#0: bool = (== res#1 dynamic_struct#1)
-        (assert tmp%28#0) // should be the same
+        let tmp%34#0: bool = (== res#1 dynamic_struct#1)
+        (assert tmp%34#0) // should be the same
         itxn_begin
         let inner_txn_params%5#0: itxn_field_set = itxn_field_set(5)
         let inner_txn_params%5%%param_Fee_idx_0#0: uint64 = 0u
@@ -2317,7 +2371,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
         let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
         let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
@@ -2533,7 +2587,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%14#0: bytes = ((extract 4 0) awst_tmp%1#0)
         let len%1#0: uint64 = (len tmp%14#0)
         let eq%1#0: bool = (== len%1#0 48u)
-        (assert eq%1#0) // invalid number of bytes for (uint64,uint64)[3]
+        (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
         let as_Encoded((uint64,uint64)[3])%1#0: Encoded((uint64,uint64)[3]) = tmp%14#0
         let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
@@ -2967,7 +3021,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
@@ -3186,7 +3240,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let add%1#0: uint64 = (+ mul%1#0 2u)
         let len%1#0: uint64 = (len tmp%14#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
         let as_Encoded(len+(uint64,uint64)[])%1#0: Encoded(len+(uint64,uint64)[]) = tmp%14#0
         let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)

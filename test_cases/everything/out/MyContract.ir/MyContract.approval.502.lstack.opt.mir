@@ -131,14 +131,14 @@ subroutine register:
         v-store name#0                                                                  name#0
         l-load-copy name#0 0                                                            name#0,name#0 (copy)
         int 0                                                                           name#0,name#0 (copy),0
-        extract_uint16                                                                  name#0,aggregate%array_length%0#0
+        extract_uint16 // on error: invalid array length header                         name#0,aggregate%array_length%0#0
         int 2                                                                           name#0,aggregate%array_length%0#0,2
         +                                                                               name#0,add%0#0
         l-load name#0 1                                                                 add%0#0,name#0
         len                                                                             add%0#0,len%0#0
         l-load add%0#0 1                                                                len%0#0,add%0#0
         ==                                                                              eq%0#0
-        assert // invalid number of bytes for (len+utf8[])
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         txn Sender                                                                      tmp%0#2
@@ -289,13 +289,13 @@ subroutine calculate:
         len                                                                             a#0,len%0#0
         int 8                                                                           a#0,len%0#0,8
         ==                                                                              a#0,eq%0#0
-        assert // invalid number of bytes for uint64                                    a#0
+        assert // invalid number of bytes for arc4.uint64                               a#0
         txna ApplicationArgs 2                                                          a#0,b#0
         l-load-copy b#0 0                                                               a#0,b#0,b#0 (copy)
         len                                                                             a#0,b#0,len%1#0
         int 8                                                                           a#0,b#0,len%1#0,8
         ==                                                                              a#0,b#0,eq%1#0
-        assert // invalid number of bytes for uint64                                    a#0,b#0
+        assert // invalid number of bytes for arc4.uint64                               a#0,b#0
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         l-load a#0 1                                                                    b#0,a#0

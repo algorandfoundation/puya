@@ -27,11 +27,11 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
 subroutine tests/approvals/mutable-object.algo.ts::MutableObjectDemo.setPlugin[routing]() -> void:
     block@0: // L6
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: string = ((extract 2 0) tmp%0#0)
         let box_prefixed_key%0#0: bytes = (concat "plugins" key#0)
         (box_put box_prefixed_key%0#0 0x0000000000000001)

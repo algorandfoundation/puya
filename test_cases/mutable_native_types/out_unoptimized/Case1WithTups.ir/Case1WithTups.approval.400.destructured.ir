@@ -98,7 +98,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.case1_with_tups.NamedTup
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -114,7 +114,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let (tmp%2#0: uint64, tmp%3#0: uint64) = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(tmp%1#0)
@@ -143,13 +143,13 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[rou
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups[routing]() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 16u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint64)[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%0#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(as_Encoded(len+(uint64,uint64)[])%0#0)
         exit 1u
@@ -159,7 +159,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>
         let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%0#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups(as_Encoded((uint64,uint64)[3])%0#0)
         exit 1u
@@ -169,7 +169,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[r
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(tmp%1#0)
@@ -180,7 +180,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[r
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(tmp%1#0)
@@ -191,7 +191,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: Encoded((uint64,uint64)[3]) = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(tmp%1#0)
@@ -372,7 +372,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(tups: Encoded(len+(uint64,uint64)[])) -> void:
     block@0: // L77
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u) // on error: invalid array length header
         let array_length%0#0: uint64 = aggregate%array_length%0#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
