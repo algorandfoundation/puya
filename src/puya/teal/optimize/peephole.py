@@ -233,14 +233,14 @@ def _optimize_triplet(
                 models.Uncover(n=2, source_location=b.source_location or c.source_location),
             ], True
         case (
-            models.TealOp(op_code="assert"),
+            models.TealOp(op_code="assert", error_message=assert_message),
             models.Int(value=int(const_return)),
             models.Return(),
-        ) if const_return:
+        ) if const_return and (assert_message is None):
             return [
                 models.Return(
                     source_location=c.source_location or b.source_location or a.source_location,
-                    error_message=c.error_message or a.error_message,
+                    error_message=c.error_message or assert_message,
                 )
             ], True
 
