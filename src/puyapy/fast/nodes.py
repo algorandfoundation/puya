@@ -533,8 +533,7 @@ class ListExpr(Expression):
 
 @attrs.frozen
 class DictExpr(Expression):
-    keys: tuple[Expression | None, ...]
-    values: tuple[Expression, ...]
+    pairs: tuple[tuple[Expression | None, Expression], ...]
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
