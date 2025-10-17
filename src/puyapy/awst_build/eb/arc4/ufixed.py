@@ -19,6 +19,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import compare_bytes
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
@@ -119,6 +120,7 @@ class UFixedNxMTypeBuilder(ARC4TypeBuilder):
 class UFixedNxMExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
     BytesBackedInstanceExpressionBuilder[pytypes.ARC4UFixedNxMType],
+    ValidatableInstanceExpressionBuilder[pytypes.ARC4UIntNType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UFixedNxMType)
