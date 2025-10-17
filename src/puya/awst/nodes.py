@@ -2696,6 +2696,7 @@ class ARC4ABIMethodConfig:
     readonly: bool = False
     default_args: immutabledict[str, ABIMethodArgDefault] = immutabledict()
     """Mapping is from parameter -> source"""
+    validate_encoding: bool | None = None
 
 
 ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig
