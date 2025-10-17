@@ -27,6 +27,9 @@ from puyapy.awst_build.eb._utils import (
     compare_expr_bytes,
     dummy_value,
 )
+from puyapy.awst_build.eb._validatable import (
+    ValidateEncoding,
+)
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -137,6 +140,8 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "is_opted_in":
             return _IsOptedIn(self.resolve(), location)
+        elif name == "validate":
+            return ValidateEncoding(self.resolve(), pytypes.ARC4AddressType, location)
         return super().member_access(name, location)
 
     @typing.override

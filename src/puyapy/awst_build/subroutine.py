@@ -13,6 +13,7 @@ from puya import log
 from puya.awst.nodes import (
     AppStateExpression,
     AppStorageDefinition,
+    ARC4FromBytes,
     ARC4MethodConfig,
     AssertExpression,
     AssignmentExpression,
@@ -824,8 +825,12 @@ class FunctionASTConverter(
                 stmt_loc,
             )
         expr_builder = require_instance_builder(stmt.expr.accept(self))
+        expr = expr_builder.resolve()
         if expr_builder.pytype != pytypes.NoneType:
-            if isinstance(stmt.expr, mypy.nodes.CallExpr) and isinstance(
+            if isinstance(expr, ARC4FromBytes) and expr.validate:
+                # don't warn about .validate() calls
+                pass
+            elif isinstance(stmt.expr, mypy.nodes.CallExpr) and isinstance(
                 stmt.expr.analyzed, mypy.nodes.RevealExpr | mypy.nodes.AssertTypeExpr
             ):
                 # special case to ignore ignoring the result of typing.reveal_type/assert_type
@@ -843,7 +848,7 @@ class FunctionASTConverter(
                 pass
             else:
                 self.context.warning("expression result is ignored", stmt_loc)
-        return ExpressionStatement(expr=expr_builder.resolve())
+        return ExpressionStatement(expr=expr)
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> Sequence[Statement]:
         stmt_loc = self._location(stmt)

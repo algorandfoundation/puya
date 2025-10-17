@@ -161,6 +161,8 @@ class FunctionIRBuilder(
         loc = expr.source_location
         factory = OpFactory(self.context, loc)
         ir_type = wtype_to_ir_type(expr.wtype, loc)
+        if ir_type.maybe_avm_type != AVMType.bytes:
+            raise CodeError("expected bytes backed value", expr.value.source_location)
         assert isinstance(ir_type, types.EncodedType), "expected EncodedType fom ARC4 Type"
         value = self.visit_and_materialise_single(expr.value)
         if expr.validate:

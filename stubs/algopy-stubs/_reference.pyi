@@ -1,8 +1,9 @@
 import typing
+from algopy._interfaces import _Validatable
 from algopy import Bytes, BytesBacked, UInt64
 
 @typing.final
-class Account(BytesBacked):
+class Account(BytesBacked, _Validatable):
     """An Account on the Algorand network.
 
     Note: must be an available resource to access properties other than `bytes`

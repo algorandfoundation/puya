@@ -21,6 +21,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_statement, dummy_value
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
@@ -66,7 +67,10 @@ class ArrayTypeBuilder(_BaseArrayTypeBuilder):
         )
 
 
-class ArrayExpressionBuilder(_ArrayExpressionBuilder):
+class ArrayExpressionBuilder(
+    _ArrayExpressionBuilder,
+    ValidatableInstanceExpressionBuilder[pytypes.ArrayType],
+):
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(
