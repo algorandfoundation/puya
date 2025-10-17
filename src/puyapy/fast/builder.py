@@ -950,15 +950,11 @@ def _visit_joined_str(ctx: _BuildContext, joined_str: ast.JoinedStr) -> nodes.Jo
 
 def _visit_dict_expr(ctx: _BuildContext, dict_expr: ast.Dict) -> nodes.DictExpr:
     loc = ctx.loc(dict_expr)
-    # TODO: move validation to node
-    assert len(dict_expr.keys) == len(
-        dict_expr.values
-    ), "ast.Dict should always have matching keys and values"
     keys = tuple(_visit_optional_expr(ctx, k) for k in dict_expr.keys)
     values = _visit_expr_list(ctx, dict_expr.values)
+    pairs = tuple(zip(keys, values, strict=True))
     return nodes.DictExpr(
-        keys=keys,
-        values=values,
+        pairs=pairs,
         source_location=loc,
     )
 
