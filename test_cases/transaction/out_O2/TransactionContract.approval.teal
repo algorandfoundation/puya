@@ -233,7 +233,9 @@ main_application_call_route@8:
     intc_1 // 0
     gtxnsas ClearStateProgramPages
     len
-    return // on error: clear_state_program_pages(0)
+    assert // clear_state_program_pages(0)
+    intc_0 // 1
+    return
 
 main_asset_freeze_route@7:
     txn GroupIndex
@@ -255,7 +257,9 @@ main_asset_freeze_route@7:
     !=
     assert // freeze_account
     gtxns FreezeAssetFrozen
-    return // on error: frozen
+    assert // frozen
+    intc_0 // 1
+    return
 
 main_asset_transfer_route@6:
     txn GroupIndex
@@ -287,7 +291,9 @@ main_asset_transfer_route@6:
     gtxns AssetCloseTo
     global ZeroAddress
     !=
-    return // on error: asset_close_to
+    assert // asset_close_to
+    intc_0 // 1
+    return
 
 main_asset_config_route@5:
     txn GroupIndex
@@ -342,7 +348,9 @@ main_asset_config_route@5:
     gtxns ConfigAssetClawback
     global ZeroAddress
     !=
-    return // on error: clawback
+    assert // clawback
+    intc_0 // 1
+    return
 
 main_key_route@4:
     txn GroupIndex
@@ -365,7 +373,9 @@ main_key_route@4:
     gtxns VoteLast
     assert // vote_last
     gtxns Nonparticipation
-    return // on error: non_participation
+    assert // non_participation
+    intc_0 // 1
+    return
 
 main_pay_route@3:
     txn GroupIndex
@@ -391,7 +401,9 @@ main_pay_route@3:
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    return // on error: close_remainder_to
+    assert // close_remainder_to
+    intc_0 // 1
+    return
 
 main_create_NoOp@13:
     pushbytes 0x4c5c61ba // method "create()void"

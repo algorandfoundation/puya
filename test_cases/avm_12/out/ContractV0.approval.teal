@@ -29,7 +29,9 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    pushint 1 // 1
+    return
 
 
 // test_cases.avm_12.contract.ContractV0.update[routing]() -> void:
@@ -39,6 +41,12 @@ update:
     txn RejectVersion
     pushint 1 // 1
     ==
+    // avm_12/contract.py:35-37
+    // assert (
+    //     Txn.reject_version == 1
+    // ), "can only update if caller expects this to be currently be v0"
+    assert // can only update if caller expects this to be currently be v0
     // avm_12/contract.py:33
     // @arc4.abimethod(allow_actions=("UpdateApplication",))
-    return // on error: can only update if caller expects this to be currently be v0
+    pushint 1 // 1
+    return

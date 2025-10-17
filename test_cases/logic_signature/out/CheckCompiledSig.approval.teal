@@ -28,7 +28,9 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    pushint 1 // 1
+    return
 
 
 // test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles[routing]() -> void:
@@ -38,6 +40,12 @@ check_sig_with_logic_sig_only_op_compiles:
     txn Sender
     pushbytes base32(G6N5WS45BPPTIG2K3EAKTXUBPNTA6HWWUPXUNQR6MGS3X2PP3LJA) // addr G6N5WS45BPPTIG2K3EAKTXUBPNTA6HWWUPXUNQR6MGS3X2PP3LJIVWKELM
     ==
+    // logic_signature/compiled_logic_sig.py:18-20
+    // assert (
+    //     Txn.sender == compile_logicsig(dont_use_this).account
+    // ), "expected to be signed by logic sig"
+    assert // expected to be signed by logic sig
     // logic_signature/compiled_logic_sig.py:16
     // @arc4.abimethod()
-    return // on error: expected to be signed by logic sig
+    pushint 1 // 1
+    return

@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1 0
     bytecblock "greeting"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -26,7 +27,7 @@ main_greet_route@6:
     assert // OnCompletion must be NoOp && can only call when not creating
     txna ApplicationArgs 1
     dup
-    pushint 0 // 0
+    intc_1 // 0
     extract_uint16
     pushint 2 // 2
     +
@@ -35,7 +36,7 @@ main_greet_route@6:
     ==
     assert // invalid number of bytes for (len+utf8[])
     extract 2 0
-    pushint 0 // 0
+    intc_1 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
@@ -53,7 +54,7 @@ main_greet_route@6:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 main_delete_route@5:
@@ -62,19 +63,26 @@ main_delete_route@5:
     ==
     txn ApplicationID
     &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    intc_0 // 1
+    return
 
 main_bare_routing@8:
-    pushints 0 4 // NoOp, UpdateApplication
+    intc_1 // NoOp
+    pushint 4 // UpdateApplication
     txn OnCompletion
     match main___algopy_default_create@9 main_update@10
     err
 
 main_update@10:
     txn ApplicationID
-    return // on error: can only call when not creating
+    assert // can only call when not creating
+    intc_0 // 1
+    return
 
 main___algopy_default_create@9:
     txn ApplicationID
     !
-    return // on error: can only call when creating
+    assert // can only call when creating
+    intc_0 // 1
+    return

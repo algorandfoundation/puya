@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2
+    intcblock 0 1 2
     bytecblock 0x00030000
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
@@ -31,7 +31,9 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    intc_1 // 1
+    return
 
 
 // test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
@@ -46,7 +48,7 @@ verify:
     dup
     pushint 32 // 32
     *
-    intc_1 // 2
+    intc_2 // 2
     +
     uncover 2
     len
@@ -68,7 +70,7 @@ verify:
     swap
     // regression_tests/issue_118.py:12
     // if values.length != 2:
-    intc_1 // 2
+    intc_2 // 2
     !=
     bz verify_after_if_else@3
     // regression_tests/issue_118.py:13
@@ -84,7 +86,7 @@ verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4:
     swap
     concat
     log
-    pushint 1 // 1
+    intc_1 // 1
     return
 
 verify_after_if_else@3:
