@@ -28,7 +28,7 @@ logger = log.get_logger(__name__)
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("2.10.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("2.11.0")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
