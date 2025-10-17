@@ -20,6 +20,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import compare_expr_bytes, dummy_statement
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -84,7 +85,9 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder):
 
 
 class ARC4StringExpressionBuilder(
-    NotIterableInstanceExpressionBuilder, BytesBackedInstanceExpressionBuilder
+    NotIterableInstanceExpressionBuilder,
+    BytesBackedInstanceExpressionBuilder,
+    ValidatableInstanceExpressionBuilder,
 ):
     def __init__(self, expr: Expression):
         super().__init__(pytypes.ARC4StringType, expr)

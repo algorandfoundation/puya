@@ -1,6 +1,7 @@
 import typing
 from collections.abc import Iterable, Iterator, Reversible
 
+from algopy._interfaces import _Validatable
 import algopy
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
@@ -9,6 +10,7 @@ _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 class ImmutableFixedArray(
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
+    _Validatable,
 ):
     """An immutable fixed length Array of the specified type and length"""
 
@@ -39,6 +41,7 @@ class ImmutableFixedArray(
 class FixedArray(
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
+    _Validatable,
 ):
     """A fixed length Array of the specified type and length"""
 
@@ -72,7 +75,10 @@ class FixedArray(
     def freeze(self) -> ImmutableFixedArray[_TArrayItem, _TArrayLength]:
         """Returns an immutable copy of this array"""
 
-class ImmutableArray(Reversible[_TArrayItem]):
+class ImmutableArray(
+    Reversible[_TArrayItem],
+    _Validatable,
+):
     """
     An immutable array that supports fixed and dynamically sized immutable elements.
     Modifications are done by returning a new copy of the array with the modifications applied.
@@ -173,7 +179,11 @@ class ReferenceArray(Reversible[_TArrayItem]):
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
 
-class Array(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
+class Array(
+    typing.Generic[_TArrayItem],
+    Reversible[_TArrayItem],
+    _Validatable,
+):
     """A dynamically sized Array of the specified type"""
 
     @typing.overload
@@ -218,7 +228,7 @@ class Array(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
         """Returns `True` if not an empty array"""
 
 @typing.dataclass_transform()
-class Struct:
+class Struct(_Validatable):
     """Base class for Struct types"""
 
     def __init_subclass__(

@@ -25,6 +25,7 @@ from puyapy.awst_build.eb._utils import (
     dummy_statement,
     dummy_value,
 )
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
@@ -61,7 +62,10 @@ class ImmutableArrayTypeBuilder(_BaseArrayTypeBuilder):
         )
 
 
-class ImmutableArrayExpressionBuilder(_ArrayExpressionBuilder):
+class ImmutableArrayExpressionBuilder(
+    _ArrayExpressionBuilder,
+    ValidatableInstanceExpressionBuilder[pytypes.ArrayType],
+):
     @typing.override
     def iterate(self) -> Expression:
         return self.resolve()

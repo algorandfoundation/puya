@@ -2,6 +2,7 @@
 # note: arc4 deliberately imported as module instead of re-exporting
 # this order is intentional, so that when the stubs are processed for documentation the
 # types are in the correct dependency order
+from algopy._interfaces import *
 from algopy._primitives import *
 from algopy._constants import *
 from algopy._reference import *
