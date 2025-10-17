@@ -15,7 +15,7 @@ from puya.awst import (
 from puya.errors import CodeError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.parse import SourceLocation
-from puya.utils import set_add
+from puya.utils import coalesce, set_add
 
 __all__ = [
     "create_abi_router",
@@ -575,7 +575,7 @@ def _route_abi_methods(
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
     *,
     assign_true_on_match: awst_nodes.VarExpression | None,
-    validate_args: bool,
+    validate_args_default: bool,
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     _check_for_duplicates(methods)
 
@@ -584,7 +584,10 @@ def _route_abi_methods(
     other_routing_methods = {}
     for method, sig in methods.items():
         wrapper_method = _build_abi_wrapper(
-            method, sig, exit_success=assign_true_on_match is None, validate_args=validate_args
+            method,
+            sig,
+            exit_success=assign_true_on_match is None,
+            validate_args=coalesce(method.validate_encoding, validate_args_default),
         )
         arc4_wrapper_methods.append(wrapper_method)
         match method:
@@ -665,7 +668,7 @@ def create_abi_router(
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
     *,
     can_exit_early: bool,
-    validate_args: bool,
+    validate_args_default: bool,
 ) -> tuple[awst_nodes.ContractMethod, Sequence[awst_nodes.Subroutine]]:
     router_location = contract.source_location
     abi_methods = {}
@@ -685,7 +688,7 @@ def create_abi_router(
         router_location,
         abi_methods,
         assign_true_on_match=None if can_exit_early else match_var,
-        validate_args=validate_args,
+        validate_args_default=validate_args_default,
     )
     router: list[awst_nodes.Statement]
     if not bare_methods:

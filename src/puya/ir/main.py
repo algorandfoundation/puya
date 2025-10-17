@@ -267,7 +267,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
             contract,
             routing_data,
             can_exit_early=router_can_exit_early,
-            validate_args=ctx.options.validate_abi_values,
+            validate_args_default=ctx.options.validate_abi_values,
         )
         ctx = attrs.evolve(ctx, awst=[*ctx.awst, *wrapper_funcs])
 
