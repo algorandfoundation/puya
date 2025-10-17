@@ -1363,8 +1363,8 @@ class ReinterpretCast(Expression):
     expr: Expression
 
     def __attrs_post_init__(self) -> None:
-        source_wtype = self.wtype
-        target_wtype = self.expr.wtype
+        source_wtype = self.expr.wtype
+        target_wtype = self.wtype
         if (
             # can't cast from aggregate to aggregate
             (source_wtype.is_aggregate and target_wtype.is_aggregate)
