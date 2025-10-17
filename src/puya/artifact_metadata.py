@@ -110,6 +110,10 @@ class ARC4ABIMethod:
     def signature(self) -> str:
         return f"{self.name}({','.join(a.type_ for a in self.args)}){self.returns.type_}"
 
+    @property
+    def validate_encoding(self) -> bool | None:
+        return self._config.validate_encoding
+
 
 @attrs.frozen(kw_only=True)
 class ARC4BareMethod:
