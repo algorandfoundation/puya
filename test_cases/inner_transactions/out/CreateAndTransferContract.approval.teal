@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1000
+    intcblock 0 1 1000
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn NumAppArgs
@@ -29,7 +29,9 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    intc_1 // 1
+    return
 
 
 // test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:
@@ -67,7 +69,7 @@ create_and_transfer:
     itxn_field ConfigAssetName
     // inner_transactions/asset_transfer.py:16
     // total=1000,
-    intc_1 // 1000
+    intc_2 // 1000
     itxn_field ConfigAssetTotal
     // inner_transactions/asset_transfer.py:15
     // itxn.AssetConfig(
@@ -119,7 +121,7 @@ create_and_transfer:
     itxn_field XferAsset
     // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,
-    intc_1 // 1000
+    intc_2 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
@@ -141,5 +143,5 @@ create_and_transfer:
     itxn_submit
     // inner_transactions/asset_transfer.py:11
     // @arc4.abimethod()
-    pushint 1 // 1
+    intc_1 // 1
     return

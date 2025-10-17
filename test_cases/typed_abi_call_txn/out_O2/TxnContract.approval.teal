@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 1 3
+    intcblock 1 0 2 3
     bytecblock 0x61 0x62 0x151f7c75
     txn NumAppArgs
     bz main___algopy_default_create@10
@@ -20,9 +20,9 @@ main:
 main_call_with_acfg_no_return_route@6:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -30,7 +30,7 @@ main_call_with_acfg_no_return_route@6:
     assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txn GroupIndex
-    intc_2 // 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
@@ -39,9 +39,9 @@ main_call_with_acfg_no_return_route@6:
     assert // transaction type is acfg
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -56,14 +56,16 @@ main_call_with_acfg_no_return_route@6:
     ==
     assert // b is not b
     gtxns CreatedAssetID
-    return // on error: expected asset id
+    assert // expected asset id
+    intc_0 // 1
+    return
 
 main_call_with_acfg_route@5:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -71,7 +73,7 @@ main_call_with_acfg_route@5:
     assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txn GroupIndex
-    intc_2 // 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
@@ -80,9 +82,9 @@ main_call_with_acfg_route@5:
     assert // transaction type is acfg
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -104,15 +106,15 @@ main_call_with_acfg_route@5:
     swap
     concat
     log
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_call_with_txn_route@4:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -120,13 +122,13 @@ main_call_with_txn_route@4:
     assert // invalid number of bytes for (len+uint8[])
     extract 2 0
     txn GroupIndex
-    intc_2 // 1
+    intc_0 // 1
     -
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -153,7 +155,7 @@ main_call_with_txn_route@4:
     swap
     concat
     log
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main___algopy_default_create@10:
@@ -162,4 +164,6 @@ main___algopy_default_create@10:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    intc_0 // 1
+    return

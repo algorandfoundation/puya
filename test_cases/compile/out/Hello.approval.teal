@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 1
+    intcblock 1 0 2
     bytecblock "greeting"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -47,7 +47,9 @@ main_delete_route@5:
     ==
     txn ApplicationID
     &&
-    return // on error: OnCompletion must be DeleteApplication && can only call when not creating
+    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    intc_0 // 1
+    return
 
 main_update@14:
     // compile/apps.py:28
@@ -57,7 +59,9 @@ main_update@14:
     ==
     txn ApplicationID
     &&
-    return // on error: OnCompletion must be UpdateApplication && can only call when not creating
+    assert // OnCompletion must be UpdateApplication && can only call when not creating
+    intc_0 // 1
+    return
 
 
 // test_cases.compile.apps.Hello.create[routing]() -> void:
@@ -66,9 +70,9 @@ create:
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -82,7 +86,7 @@ create:
     app_global_put
     // compile/apps.py:53
     // @arc4.abimethod(create="require")
-    intc_2 // 1
+    intc_0 // 1
     return
 
 
@@ -92,9 +96,9 @@ greet:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
-    intc_1 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -103,7 +107,7 @@ greet:
     extract 2 0
     // compile/apps.py:34
     // return self.greeting + " " + name
-    intc_0 // 0
+    intc_1 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
@@ -123,5 +127,5 @@ greet:
     swap
     concat
     log
-    intc_2 // 1
+    intc_0 // 1
     return

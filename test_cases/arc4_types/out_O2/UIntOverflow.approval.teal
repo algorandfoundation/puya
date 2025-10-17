@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 16 8
+    intcblock 1 16 8
     txn NumAppArgs
     bz main___algopy_default_create@11
     txn OnCompletion
@@ -23,10 +23,10 @@ main_test_as_uint64_route@7:
     b+
     dup
     len
-    intc_0 // 16
+    intc_1 // 16
     <=
     assert // overflow
-    intc_0 // 16
+    intc_1 // 16
     bzero
     b|
     dup
@@ -36,10 +36,12 @@ main_test_as_uint64_route@7:
     assert // overflow
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     -
     extract_uint64
-    return // on error: this should not happen
+    assert // this should not happen
+    intc_0 // 1
+    return
 
 main_test_uint32_route@6:
     txn NumAppArgs
@@ -54,7 +56,9 @@ main_test_uint32_route@6:
     extract 4 4
     pushbytes 0x00000001
     !=
-    return // on error: this should not happen
+    assert // this should not happen
+    intc_0 // 1
+    return
 
 main_test_uint16_route@5:
     txn NumAppArgs
@@ -63,13 +67,15 @@ main_test_uint16_route@5:
     itob
     dup
     bitlen
-    intc_0 // 16
+    intc_1 // 16
     <=
     assert // overflow
     extract 6 2
     pushbytes 0x0001
     !=
-    return // on error: this should not happen
+    assert // this should not happen
+    intc_0 // 1
+    return
 
 main_test_uint8_route@4:
     txn NumAppArgs
@@ -78,13 +84,15 @@ main_test_uint8_route@4:
     itob
     dup
     bitlen
-    intc_1 // 8
+    intc_2 // 8
     <=
     assert // overflow
     extract 7 1
     pushbytes 0x01
     !=
-    return // on error: this should not happen
+    assert // this should not happen
+    intc_0 // 1
+    return
 
 main___algopy_default_create@11:
     txn OnCompletion
@@ -92,4 +100,6 @@ main___algopy_default_create@11:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    intc_0 // 1
+    return

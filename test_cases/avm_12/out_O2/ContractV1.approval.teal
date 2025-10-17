@@ -20,7 +20,9 @@ main_delete_route@3:
     txn RejectVersion
     pushint 2 // 2
     ==
-    return // on error: can only update if caller expects this to be currently be v1
+    assert // can only update if caller expects this to be currently be v1
+    pushint 1 // 1
+    return
 
 main___algopy_default_create@5:
     txn OnCompletion
@@ -28,4 +30,6 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    assert // OnCompletion must be NoOp && can only call when creating
+    pushint 1 // 1
+    return

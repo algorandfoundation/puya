@@ -34,7 +34,9 @@ main_create_route@5:
     shl
     pushint 3 // 3
     &
-    return // on error: OnCompletion must be one of NoOp, OptIn
+    assert // OnCompletion must be one of NoOp, OptIn
+    intc_0 // 1
+    return
 
 main_bare_routing@18:
     // arc_56/contract.py:53
@@ -48,7 +50,9 @@ main_transient@20:
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
     !
-    return // on error: can only call when creating
+    assert // can only call when creating
+    intc_0 // 1
+    return
 
 main_bare_create@19:
     // arc_56/contract.py:76
@@ -116,9 +120,11 @@ errors:
     extract 0 8
     pushbytes 0x00
     ==
+    assert // this will error
     // arc_56/contract.py:99
     // @arc4.abimethod(name="emits_error", readonly=True)
-    return // on error: this will error
+    intc_0 // 1
+    return
 
 
 // test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
