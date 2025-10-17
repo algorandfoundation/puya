@@ -765,8 +765,8 @@ def _visit_name(ctx: _BuildContext, name: ast.Name) -> nodes.Name:
 
 
 def _visit_attribute(ctx: _BuildContext, attribute: ast.Attribute) -> nodes.Attribute:
-    base = _visit_expr(ctx, attribute.value)
     loc = ctx.loc(attribute)
+    base = _visit_expr(ctx, attribute.value)
     return nodes.Attribute(
         base=base,
         attr=attribute.attr,
@@ -776,6 +776,7 @@ def _visit_attribute(ctx: _BuildContext, attribute: ast.Attribute) -> nodes.Attr
 
 
 def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subscript:
+    loc = ctx.loc(subscript)
     base = _visit_expr(ctx, subscript.value)
     match subscript.slice:
         case ast.Tuple(elts=ast_indexes):
@@ -791,7 +792,6 @@ def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subs
             case _:
                 index = _visit_expr(ctx, ast_index)
                 indexes.append(index)
-    loc = ctx.loc(subscript)
     return nodes.Subscript(
         base=base,
         indexes=tuple(indexes),
@@ -801,10 +801,10 @@ def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subs
 
 
 def _visit_slice(ctx: _BuildContext, slice_: ast.Slice) -> nodes.Slice:
+    loc = ctx.loc(slice_)
     lower = _visit_optional_expr(ctx, slice_.lower)
     upper = _visit_optional_expr(ctx, slice_.upper)
     step = _visit_optional_expr(ctx, slice_.step)
-    loc = ctx.loc(slice_)
     return nodes.Slice(
         lower=lower,
         upper=upper,
