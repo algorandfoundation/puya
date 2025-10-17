@@ -15,7 +15,7 @@ from puya.awst import (
 from puya.errors import CodeError
 from puya.ir.arc4_types import is_equivalent_effective_array_encoding, wtype_to_arc4_wtype
 from puya.parse import SourceLocation
-from puya.utils import set_add
+from puya.utils import coalesce, set_add
 
 __all__ = [
     "create_abi_router",
@@ -402,13 +402,19 @@ def route_abi_methods(
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
     *,
-    validate_args: bool,
+    validate_args_default: bool,
 ) -> awst_nodes.Block:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        abi_args = list(_map_abi_args(sig.parameter_types, location, validate=validate_args))
+        abi_args = list(
+            _map_abi_args(
+                sig.parameter_types,
+                location,
+                validate=coalesce(method.validate_encoding, validate_args_default),
+            )
+        )
         method_result = call(abi_loc, sig, *abi_args)
         match sig.return_type:
             case wtypes.void_wtype:
@@ -465,7 +471,7 @@ def create_abi_router(
     contract: awst_nodes.Contract,
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
     *,
-    validate_args: bool,
+    validate_args_default: bool,
 ) -> awst_nodes.ContractMethod:
     router_location = contract.source_location
     abi_methods = {}
@@ -476,7 +482,9 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    abi_routing = route_abi_methods(router_location, abi_methods, validate_args=validate_args)
+    abi_routing = route_abi_methods(
+        router_location, abi_methods, validate_args_default=validate_args_default
+    )
     bare_routing = route_bare_methods(router_location, bare_methods)
     num_app_args = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
     router = [
