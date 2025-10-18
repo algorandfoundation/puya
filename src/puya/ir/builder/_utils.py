@@ -320,13 +320,16 @@ class OpFactory:
         )
         return result
 
-    def extract_uint16(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def extract_uint16(
+        self, a: Value, b: Value | int, temp_desc: str, error_message: str | None = None
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.extract_uint16,
             args=[a, b],
             source_location=self.source_location,
+            error_message=error_message,
         )
         return result
 
@@ -528,6 +531,14 @@ class OpFactory:
             source_location=self.source_location,
         )
         return result
+
+    def assert_value(self, value: Value, error_message: str) -> None:
+        assert_value(
+            self.context,
+            value=value,
+            error_message=error_message,
+            source_location=self.source_location,
+        )
 
 
 def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:

@@ -2180,7 +2180,7 @@ def arc4_validation_client(
         compile_arc32(TEST_CASES_DIR / "arc4_validation")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
+    app_client.create(transaction_parameters={"note": random.randbytes(8)})
     return app_client
 
 
