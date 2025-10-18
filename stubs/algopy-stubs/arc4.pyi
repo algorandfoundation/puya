@@ -2,6 +2,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import algopy
+from algopy._interfaces import _Validatable
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
@@ -90,7 +91,7 @@ def baremethod(
 def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
     """Returns the ARC-4 encoded method selector for the specified signature or abi method"""
 
-class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
+class _ABIEncoded(algopy.BytesBacked, _Validatable, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """
@@ -490,6 +491,9 @@ class Struct(metaclass=_StructMeta):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
+
+    def validate(self) -> None:
+        """Performs validation to ensure the value is well-formed, errors if it is not"""
 
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""

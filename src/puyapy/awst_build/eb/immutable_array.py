@@ -24,13 +24,13 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
     GenericTypeBuilder,
-    InstanceExpressionBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     dummy_statement,
     dummy_value,
     resolve_negative_literal_index,
 )
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -85,7 +85,9 @@ class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         )
 
 
-class ImmutableArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
+class ImmutableArrayExpressionBuilder(
+    ValidatableInstanceExpressionBuilder[pytypes.ArrayType],
+):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)

@@ -14,6 +14,7 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder, CopyBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
@@ -68,6 +69,7 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
 class ARC4StructExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.StructType],
     BytesBackedInstanceExpressionBuilder[pytypes.StructType],
+    ValidatableInstanceExpressionBuilder[pytypes.StructType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)

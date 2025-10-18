@@ -1147,6 +1147,10 @@ BytesBackedType: typing.Final[PyType] = _CompileTimeType(
     name="algopy._primitives.BytesBacked",
     wtype_error="{self} is not usable as a runtime type",
 )
+ValidatableType: typing.Final[PyType] = _CompileTimeType(
+    name="algopy._interfaces._Validatable",
+    wtype_error="{self} is not usable as a runtime type",
+)
 
 
 @attrs.frozen(kw_only=True, order=False)

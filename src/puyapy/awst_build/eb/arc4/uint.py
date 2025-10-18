@@ -19,6 +19,7 @@ from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -87,6 +88,7 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
 class UIntNExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.ARC4UIntNType],
     BytesBackedInstanceExpressionBuilder[pytypes.ARC4UIntNType],
+    ValidatableInstanceExpressionBuilder[pytypes.ARC4UIntNType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4UIntNType)
