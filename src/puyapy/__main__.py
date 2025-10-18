@@ -180,13 +180,6 @@ def main() -> None:
         default=True,
         help="Validates ABI transaction arguments by ensuring they are the correct size",
     )
-    parser.add_argument(
-        "--validate-abi-dynamic-severity",
-        type=LogLevel.__getitem__,
-        choices=list(LogLevel),
-        default=LogLevel.warning,
-        help="Severity level for unvalidatable dynamic ABI types",
-    )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
 

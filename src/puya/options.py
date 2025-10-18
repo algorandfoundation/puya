@@ -5,7 +5,6 @@ from functools import cached_property
 import attrs
 
 from puya.algo_constants import MAINNET_AVM_VERSION
-from puya.log import LogLevel
 
 
 class LocalsCoalescingStrategy(enum.StrEnum):
@@ -36,7 +35,6 @@ class PuyaOptions:
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
     validate_abi_values: bool = True
-    validate_abi_dynamic_severity: LogLevel = LogLevel.warning
     _disabled_optimizations: Sequence[str] = ()
 
     @cached_property
