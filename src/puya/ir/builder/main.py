@@ -15,7 +15,12 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
+from puya.ir.arc4 import (
+    get_arc4_static_bit_size,
+    get_arc4_tuple_head_size,
+    is_arc4_dynamic_size,
+    is_arc4_static_size,
+)
 from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays, flow_control, mem, storage
@@ -42,9 +47,9 @@ from puya.ir.builder.callsub import (
     visit_puya_lib_call_expression,
     visit_subroutine_call_expression,
 )
-from puya.ir.builder.iteration import handle_for_in_loop
+from puya.ir.builder.iteration import handle_for_in_loop, iterate_and_yield_range
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.models import (
     AddressConstant,
     ArrayReadIndex,
@@ -58,6 +63,7 @@ from puya.ir.models import (
     MethodConstant,
     Op,
     ProgramExit,
+    Register,
     Subroutine,
     SubroutineReturn,
     TemplateVar,
@@ -194,46 +200,12 @@ class FunctionIRBuilder(
         factory = OpFactory(self.context, loc)
         value = self.visit_and_materialise_single(expr.value)
         wtype = expr.wtype
-
         if expr.validate:
-            if is_arc4_static_size(wtype):
-                value_len = factory.len(value, "value_len")
-                expected_size = bits_to_bytes(get_arc4_static_bit_size(wtype))
-                size_is_correct = factory.eq(value_len, expected_size, "size_is_correct")
-                assert_value(
-                    self.context,
-                    size_is_correct,
-                    error_message=f"invalid number of bytes for {wtype}",
-                    source_location=loc,
-                )
-            elif isinstance(wtype, wtypes.ARC4DynamicArray) and is_arc4_static_size(
-                wtype.element_type
-            ):
-                length = factory.extract_uint16(value, 0, "length")
-                element_bit_size = get_arc4_static_bit_size(wtype.element_type)
-                if element_bit_size == 1:
-                    num_bits_7 = factory.add(length, 7, "num_bits_7")
-                    num_bytes_value = factory.div_floor(num_bits_7, 8, "num_bytes")
-                else:
-                    num_bytes_value = factory.mul(
-                        length, bits_to_bytes(element_bit_size), "num_bytes"
-                    )
-                num_bytes_value = factory.add(num_bytes_value, 2, "num_bytes_with_header")
-                value_len = factory.len(value, "value_len")
-                size_is_correct = factory.eq(value_len, num_bytes_value, "size_is_correct")
-                assert_value(
-                    self.context,
-                    size_is_correct,
-                    error_message=f"invalid number of bytes for {wtype}",
-                    source_location=loc,
-                )
-            else:
-                logger.log(
-                    self.context.options.validate_abi_dynamic_severity,
-                    "nested dynamic types cannot be automatically"
-                    " checked for expected byte size",
-                    location=loc,
-                )
+            expected_size = self._get_expected_size(value, wtype, loc)
+            value_len = factory.len(value, "value_len")
+            size_is_correct = factory.eq(value_len, expected_size, "size_is_correct")
+            factory.assert_value(size_is_correct, f"invalid number of bytes for {expr.wtype}")
+
         # return value as required type
         ir_type = wtype_to_ir_type(expr.wtype, loc)
         target = mktemp(
@@ -249,6 +221,107 @@ class FunctionIRBuilder(
             assignment_location=expr.source_location,
         )
         return target
+
+    def _get_expected_size(
+        self, value: Value, wtype: wtypes.ARC4Type, loc: SourceLocation
+    ) -> Value:
+        factory = OpFactory(self.context, loc)
+        if is_arc4_static_size(wtype):
+            expected_size = bits_to_bytes(get_arc4_static_bit_size(wtype))
+            return factory.constant(expected_size)
+        elif isinstance(wtype, wtypes.ARC4DynamicArray) and is_arc4_static_size(
+            wtype.element_type
+        ):
+            length: Value = factory.extract_uint16(
+                value, 0, "length", error_message="invalid array length header"
+            )
+            element_bit_size = get_arc4_static_bit_size(wtype.element_type)
+            if element_bit_size == 1:
+                num_bits_7 = factory.add(length, 7, "num_bits_7")
+                num_bytes_value: Value = factory.div_floor(num_bits_7, 8, "num_bytes")
+            else:
+                num_bytes_value = factory.mul(length, bits_to_bytes(element_bit_size), "num_bytes")
+            return factory.add(num_bytes_value, 2, "num_bytes_with_header")
+        elif isinstance(wtype, wtypes.ARC4Array) and is_arc4_dynamic_size(wtype.element_type):
+            if isinstance(wtype, wtypes.ARC4StaticArray):
+                length = factory.constant(wtype.array_size)
+                array_data = value
+            else:
+                length = factory.extract_uint16(
+                    value, 0, "length", error_message="invalid array length header"
+                )
+                array_data = factory.extract_to_end(value, 2, "array_data")
+            num_bytes_reg = factory.mul(length, 2, "num_bytes")
+            with iterate_and_yield_range(self.context, length, loc) as index:
+                num_bytes_reg = _refresh_mutated_value(self.context, num_bytes_reg)
+                head_offset_bytes = factory.mul(index, 2, "head_offset_bytes")
+                item_offset = factory.extract_uint16(
+                    array_data,
+                    head_offset_bytes,
+                    "item_offset",
+                    error_message="invalid array encoding",
+                )
+                offset_is_correct = factory.eq(
+                    item_offset,
+                    num_bytes_reg,
+                    "offset_is_correct",
+                )
+                factory.assert_value(offset_is_correct, f"invalid tail pointer for {wtype}")
+                item_vp = arc4.arc4_array_index(
+                    self.context,
+                    array_wtype=wtype,
+                    array=value,
+                    index=index,
+                    source_location=loc,
+                    assert_bounds=False,
+                )
+                (item,) = self.materialise_value_provider(item_vp, "item")
+                element_num_bytes = self._get_expected_size(item, wtype.element_type, loc)
+                # while in a loop need to ensure we update the following variables and don't
+                # create new temporaries
+                assign_intrinsic_op(
+                    self.context,
+                    target=num_bytes_reg,
+                    op=AVMOp.add,
+                    args=[_refresh_mutated_value(self.context, num_bytes_reg), element_num_bytes],
+                    source_location=loc,
+                )
+            num_bytes_reg = _refresh_mutated_value(self.context, num_bytes_reg)
+            if isinstance(wtype, wtypes.ARC4DynamicArray):
+                num_bytes_reg = factory.add(num_bytes_reg, 2, "num_bytes")
+            return num_bytes_reg
+        if isinstance(wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct) and is_arc4_dynamic_size(wtype):
+            num_bytes_value = factory.constant(
+                get_arc4_tuple_head_size(wtype.types, round_end_result=True) // 8
+            )
+            for idx, el in enumerate(wtype.types):
+                if is_arc4_dynamic_size(el):
+                    offset_index = (
+                        get_arc4_tuple_head_size(wtype.types[:idx], round_end_result=True) // 8
+                    )
+                    offset = factory.extract_uint16(
+                        value, offset_index, "offset", error_message="invalid tuple encoding"
+                    )
+                    offset_is_correct = factory.eq(offset, num_bytes_value, "offset_is_correct")
+                    factory.assert_value(
+                        offset_is_correct,
+                        error_message=f"invalid tail pointer at index {idx} of {wtype}",
+                    )
+                    item_vp = arc4.arc4_tuple_index(
+                        self.context,
+                        base=value,
+                        index=idx,
+                        wtype=wtype,
+                        source_location=loc,
+                    )
+                    (item,) = self.materialise_value_provider(item_vp, "item")
+                    element_num_bytes = self._get_expected_size(item, el, loc)
+                    num_bytes_value = factory.add(
+                        num_bytes_value, element_num_bytes, "num_bytes_value"
+                    )
+            return num_bytes_value
+        else:
+            raise InternalError(f"unexpected type: {wtype}", loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         wtype = size_of.size_wtype
@@ -1661,3 +1734,7 @@ def create_bytes_binary_op(
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
+
+
+def _refresh_mutated_value(context: IRFunctionBuildContext, value: Register) -> Register:
+    return context.ssa.read_variable(value.name, value.ir_type, context.block_builder.active_block)
