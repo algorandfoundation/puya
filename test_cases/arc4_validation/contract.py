@@ -2,6 +2,7 @@ import typing
 
 import algopy
 from algopy import (
+    Account,
     ARC4Contract,
     Bytes,
     arc4,
@@ -67,6 +68,10 @@ class ValidationContract(ARC4Contract, state_totals=algopy.StateTotals(global_by
     @arc4.abimethod(validate_encoding=False)
     def validate_address(self, value: Bytes) -> None:
         arc4.Address.from_bytes(value).validate()
+
+    @arc4.abimethod(validate_encoding=False)
+    def validate_account(self, value: Bytes) -> None:
+        Account.from_bytes(value).validate()
 
     @arc4.abimethod(validate_encoding=False)
     def validate_bool_arr(self, value: Bytes) -> None:
