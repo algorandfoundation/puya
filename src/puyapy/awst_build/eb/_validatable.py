@@ -47,8 +47,8 @@ class ValidateEncoding(FunctionBuilder):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         wtype = self.validate_type.checked_wtype(location)
-        if not isinstance(wtype, wtypes.ARC4Type):
-            raise InternalError("can only validate ARC4 encoded types", location=location)
+        if not isinstance(wtype, wtypes.ARC4Type | wtypes.StackArray):
+            raise InternalError("can only validate ARC4 encodable types", location=location)
         from_bytes = ARC4FromBytes(
             value=self.expr,
             validate=True,

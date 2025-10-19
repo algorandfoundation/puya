@@ -2278,6 +2278,27 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
         ("dynamic_struct_arr", 0, "invalid array length header"),
         ("dynamic_struct_arr", 1, "invalid array length header"),
         ("dynamic_struct_arr", 29, _invalid_arr_size(_DYNAMIC_STRUCT)),
+        ("dynamic_struct_imm_arr", 2, None),
+        (
+            "dynamic_struct_imm_arr",
+            (
+                2,  # len
+                4,  # ptr 1
+                4 + len(_VALID_DYNAMIC_STRUCT_BYTES),  # ptr 2
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+            None,
+        ),
+        ("dynamic_struct_imm_arr", 0, "invalid array length header"),
+        ("dynamic_struct_imm_arr", 1, "invalid array length header"),
+        (
+            "dynamic_struct_imm_arr",
+            29,
+            _invalid_size(
+                "stack_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct>"
+            ),
+        ),
         ("dynamic_struct_arr3", 27, "invalid tail pointer"),
         (
             "dynamic_struct_arr3",
@@ -2289,8 +2310,7 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
-            # invalid tuple encoding because the offsets result in a 0-length read of the 1st tuple
-            "invalid tuple encoding",
+            "invalid tail pointer",
         ),
         (
             "dynamic_struct_arr3",

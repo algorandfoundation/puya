@@ -456,7 +456,9 @@ class ARC4FromBytes(Expression):
     """
 
     value: Expression
-    wtype: wtypes.ARC4Type
+    wtype: wtypes.WType = attrs.field(
+        validator=wtype_is_one_of(wtypes.ARC4Type, wtypes.StackArray)
+    )
     validate: bool
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
