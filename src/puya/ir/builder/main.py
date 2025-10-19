@@ -291,7 +291,7 @@ class FunctionIRBuilder(
             if isinstance(wtype, wtypes.ARC4DynamicArray):
                 num_bytes_reg = factory.add(num_bytes_reg, 2, "num_bytes")
             return num_bytes_reg
-        if isinstance(wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct) and is_arc4_dynamic_size(wtype):
+        elif isinstance(wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct):
             num_bytes_value = factory.constant(
                 get_arc4_tuple_head_size(wtype.types, round_end_result=True) // 8
             )
