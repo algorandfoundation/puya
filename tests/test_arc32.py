@@ -47,7 +47,7 @@ def compile_arc32(
     debug_level: int = 2,
     contract_name: str | None = None,
     disabled_optimizations: Sequence[str] = (),
-    validate_abi_values: bool = True,
+    validate_abi_args: bool = True,
 ) -> str:
     result = compile_src_from_options(
         PuyaPyOptions(
@@ -55,7 +55,7 @@ def compile_arc32(
             optimization_level=optimization_level,
             debug_level=debug_level,
             optimizations_override={o: False for o in disabled_optimizations},
-            validate_abi_values=validate_abi_values,
+            validate_abi_args=validate_abi_args,
         )
     )
     if contract_name is None:
@@ -3255,7 +3255,7 @@ def _get_immutable_array_app(
         optimization_level,
         account,
         # disable validation at O0 as it is too expensive
-        validate_abi_values=optimization_level != 0,
+        validate_abi_args=optimization_level != 0,
     )
 
 
@@ -3274,9 +3274,9 @@ def _get_app_client(
     optimization_level: int,
     account: algokit_utils.Account,
     *,
-    validate_abi_values: bool = True,
+    validate_abi_args: bool = True,
 ) -> ApplicationClient:
-    app_spec = _get_app_spec(example, optimization_level, validate_abi_values=validate_abi_values)
+    app_spec = _get_app_spec(example, optimization_level, validate_abi_args=validate_abi_args)
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create(transaction_parameters={"note": random.randbytes(8)})
 
@@ -3293,14 +3293,14 @@ def _get_app_client(
 
 
 def _get_app_spec(
-    app_spec_path: Path, optimization_level: int, *, validate_abi_values: bool = True
+    app_spec_path: Path, optimization_level: int, *, validate_abi_args: bool = True
 ) -> algokit_utils.ApplicationSpecification:
     return algokit_utils.ApplicationSpecification.from_json(
         compile_arc32(
             app_spec_path,
             optimization_level=optimization_level,
             disabled_optimizations=() if optimization_level else ("remove_unused_variables",),
-            validate_abi_values=validate_abi_values,
+            validate_abi_args=validate_abi_args,
         )
     )
 

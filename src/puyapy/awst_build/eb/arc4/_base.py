@@ -36,6 +36,7 @@ from puyapy.awst_build.eb._utils import (
 from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.options import PuyaPyOptions
 
 logger = log.get_logger(__name__)
 
@@ -72,7 +73,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arc4_value = ARC4FromBytes(
             value=intrinsic_factory.extract(tmp_value, start=4, loc=location),
             wtype=arc4_wtype,
-            validate=True,
+            validate=PuyaPyOptions.get().validate_from_log,
             source_location=location,
         )
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
