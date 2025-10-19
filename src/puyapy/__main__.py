@@ -78,11 +78,15 @@ def puyapy(
     locals_coalescing_strategy: Annotated[
         LocalsCoalescingStrategy, cyclopts.Parameter(group=_compilation_group)
     ] = LocalsCoalescingStrategy.root_operand,
-    validate_abi_values: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
+    validate_abi_args: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
+    validate_from_log: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
+    validate_abi_values: Annotated[
+        bool | None, cyclopts.Parameter(group=_compilation_group, show=False)
+    ] = None,
     validate_abi_dynamic_severity: Annotated[
-        LogLevel,
+        LogLevel | None,
         cyclopts.Parameter(group=_compilation_group, show=False),
-    ] = LogLevel.notset,
+    ] = None,
     # templating
     template_var: Annotated[
         Sequence[str],
@@ -138,22 +142,55 @@ def puyapy(
                            appropriate foreign array.
                            The default option "value", as of PuyaPy 5.0, means these values will be
                            passed directly.
-        validate_abi_values: Validates ABI transaction arguments by ensuring they are the correct
-                             size
+        validate_abi_args: Validates ABI transaction arguments by ensuring they are encoded
+                           correctly
+        validate_from_log: Validates encoding of values when using .from_log(), this also includes
+                           results of arc4.abi_call when a type is provided
         out_dir: Path for outputting artefacts
         log_level: Minimum level to log to console
     """
-    args = locals()
-    args.pop("validate_abi_dynamic_severity")
-    args.pop("template_var")
-    cli_template_definitions = dict(parse_template_key_value(t) for t in template_var)
-    options = PuyaPyOptions(**args, cli_template_definitions=cli_template_definitions)
-    configure_logging(min_log_level=options.log_level)
-    if validate_abi_dynamic_severity != LogLevel.notset:
+    configure_logging(min_log_level=log_level)
+    if validate_abi_dynamic_severity is not None:
         logger.warning(
             "the --validate-abi-dynamic-severity option is deprecated,"
             " it has no effect and will be removed in a future version"
         )
+    if validate_abi_values is not None:
+        logger.warning(
+            "the --validate_abi_values option is deprecated and will be removed in a future"
+            " version. It overrides --validate-abi-args and --validate-from-log options"
+        )
+        validate_abi_args = validate_abi_values
+        validate_from_log = validate_abi_values
+    options = PuyaPyOptions(
+        paths=paths,
+        out_dir=out_dir,
+        log_level=log_level,
+        output_teal=output_teal,
+        output_source_map=output_source_map,
+        output_arc56=output_arc56,
+        output_arc32=output_arc32,
+        output_bytecode=output_bytecode,
+        output_client=output_client,
+        debug_level=debug_level,
+        optimization_level=optimization_level,
+        target_avm_version=target_avm_version,
+        resource_encoding=resource_encoding,
+        locals_coalescing_strategy=locals_coalescing_strategy,
+        output_awst=output_awst,
+        output_awst_json=output_awst_json,
+        output_source_annotations_json=output_source_annotations_json,
+        output_ssa_ir=output_ssa_ir,
+        output_optimization_ir=output_optimization_ir,
+        output_destructured_ir=output_destructured_ir,
+        output_memory_ir=output_memory_ir,
+        output_teal_intermediates=output_teal_intermediates,
+        output_op_statistics=output_op_statistics,
+        validate_abi_args=validate_abi_args,
+        validate_from_log=validate_from_log,
+        template_vars_prefix=template_vars_prefix,
+        cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
+    )
     try:
         compile_to_teal(options)
     except PuyaExitError as ex:
