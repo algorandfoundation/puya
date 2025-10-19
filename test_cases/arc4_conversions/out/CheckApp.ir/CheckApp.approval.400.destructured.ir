@@ -233,23 +233,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%13#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
-        let next_index%0#0: uint64 = (+ index%0#0 1u)
-        let has_next%0#0: uint64 = (- length%13#0 next_index%0#0) // on error: Index access is out of bounds
-        let end_of_array%0#0: uint64 = (len array_data%0#0)
-        let next_item_offset_offset%0#0: uint64 = (* next_index%0#0 2u)
-        let next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 next_item_offset_offset%0#0)
-        let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
-        let item%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 end_offset%0#0)
-        let offset%0#0: uint64 = (extract_uint16 item%0#0 40u) // on error: invalid tuple encoding
+        let total_length%0#0: uint64 = (len array_data%0#0)
+        let data%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%0#0)
+        let tuple_len%0#0: uint64 = (len data%0#0)
+        let offset%0#0: uint64 = (extract_uint16 data%0#0 40u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%0#0 42u)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
-        let item_end_offset%0#0: uint64 = (len item%0#0)
-        let item%1#0: bytes = (substring3 item%0#0 offset%0#0 item_end_offset%0#0)
-        let length%14#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
+        let item%0#0: bytes = (substring3 data%0#0 offset%0#0 tuple_len%0#0)
+        let length%14#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes_with_header%13#0: uint64 = (+ length%14#0 2u)
         let num_bytes_value%0#0: uint64 = (+ 42u num_bytes_with_header%13#0)
         let num_bytes%13#0: uint64 = (+ num_bytes%13#0 num_bytes_value%0#0)
-        let index%0#0: uint64 = next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@14
     block@17: // after_for_L230
         let num_bytes%15#0: uint64 = (+ num_bytes%13#0 2u)
@@ -282,26 +277,21 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%1#0 ? block@20 : block@22
     block@20: // for_body_L230
         let head_offset_bytes%1#0: uint64 = (* index%1#0 2u)
-        let item_offset%2#0: uint64 = (extract_uint16 tmp%81#0 head_offset_bytes%1#0) // on error: invalid array encoding
-        let offset_is_correct%2#0: bool = (== item_offset%2#0 num_bytes%17#0)
+        let item_offset%1#0: uint64 = (extract_uint16 tmp%81#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%2#0: bool = (== item_offset%1#0 num_bytes%17#0)
         (assert offset_is_correct%2#0) // invalid tail pointer for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
-        let next_index%1#0: uint64 = (+ index%1#0 1u)
-        let has_next%1#0: uint64 = (- 3u next_index%1#0) // on error: Index access is out of bounds
-        let end_of_array%1#0: uint64 = (len tmp%81#0)
-        let next_item_offset_offset%1#0: uint64 = (* next_index%1#0 2u)
-        let next_item_offset%1#0: uint64 = (extract_uint16 tmp%81#0 next_item_offset_offset%1#0)
-        let end_offset%1#0: uint64 = (select end_of_array%1#0 next_item_offset%1#0 has_next%1#0)
-        let item%2#0: bytes = (substring3 tmp%81#0 item_offset%2#0 end_offset%1#0)
-        let offset%1#0: uint64 = (extract_uint16 item%2#0 40u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len tmp%81#0)
+        let data%1#0: bytes = (substring3 tmp%81#0 item_offset%1#0 total_length%1#0)
+        let tuple_len%1#0: uint64 = (len data%1#0)
+        let offset%1#0: uint64 = (extract_uint16 data%1#0 40u) // on error: invalid tuple encoding
         let offset_is_correct%3#0: bool = (== offset%1#0 42u)
         (assert offset_is_correct%3#0) // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
-        let item_end_offset%1#0: uint64 = (len item%2#0)
-        let item%3#0: bytes = (substring3 item%2#0 offset%1#0 item_end_offset%1#0)
-        let length%16#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
+        let item%1#0: bytes = (substring3 data%1#0 offset%1#0 tuple_len%1#0)
+        let length%16#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes_with_header%15#0: uint64 = (+ length%16#0 2u)
         let num_bytes_value%1#0: uint64 = (+ 42u num_bytes_with_header%15#0)
         let num_bytes%17#0: uint64 = (+ num_bytes%17#0 num_bytes_value%1#0)
-        let index%1#0: uint64 = next_index%1#0
+        let index%1#0: uint64 = (+ index%1#0 1u)
         goto block@19
     block@22: // after_for_L230
         let value_len%20#0: uint64 = (len tmp%81#0)

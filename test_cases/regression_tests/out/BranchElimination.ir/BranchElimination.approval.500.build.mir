@@ -133,24 +133,15 @@ subroutine main:
         v-load offset_is_correct%0#0                                                                          offset_is_correct%0#0
         assert // invalid tail pointer for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>> 
         v-load array_data%0#0                                                                                 array_data%0#0
-        v-load item_offset%0#0                                                                                array_data%0#0,item_offset%0#0
-        extract_uint16                                                                                        item_length%0#0
-        v-store item_length%0#0
-        v-load item_length%0#0                                                                                item_length%0#0
-        int 8                                                                                                 item_length%0#0,8
-        *                                                                                                     item_length_in_bytes%0#0
-        v-store item_length_in_bytes%0#0
-        v-load item_length_in_bytes%0#0                                                                       item_length_in_bytes%0#0
-        int 2                                                                                                 item_length_in_bytes%0#0,2
-        +                                                                                                     item_head_tail_length%0#0
-        v-store item_head_tail_length%0#0
+        len                                                                                                   total_length%0#0
+        v-store total_length%0#0
         v-load array_data%0#0                                                                                 array_data%0#0
         v-load item_offset%0#0                                                                                array_data%0#0,item_offset%0#0
-        v-load item_head_tail_length%0#0                                                                      array_data%0#0,item_offset%0#0,item_head_tail_length%0#0
-        extract3                                                                                              item%0#0
-        v-store item%0#0
-        v-load item%0#0                                                                                       item%0#0
-        int 0                                                                                                 item%0#0,0
+        v-load total_length%0#0                                                                               array_data%0#0,item_offset%0#0,total_length%0#0
+        substring3                                                                                            data%0#0
+        v-store data%0#0
+        v-load data%0#0                                                                                       data%0#0
+        int 0                                                                                                 data%0#0,0
         extract_uint16 // on error: invalid array length header                                               length%1#0
         v-store length%1#0
         v-load length%1#0                                                                                     length%1#0

@@ -120,20 +120,13 @@ subroutine main:
         l-load offset_is_correct%0#0 0                                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
         assert // invalid tail pointer for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>> index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
         l-load-copy array_data%0#0 1                                                                          index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
-        l-load-copy item_offset%0#0 1                                                                         index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy),item_offset%0#0 (copy)
-        extract_uint16                                                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length%0#0
-        l-load item_length%0#0 0                                                                              index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length%0#0
-        int 8                                                                                                 index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length%0#0,8
-        *                                                                                                     index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length_in_bytes%0#0
-        l-load item_length_in_bytes%0#0 0                                                                     index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length_in_bytes%0#0
-        int 2                                                                                                 index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_length_in_bytes%0#0,2
-        +                                                                                                     index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_head_tail_length%0#0
-        l-load array_data%0#0 2                                                                               index%0#0,num_bytes%0#0,item_offset%0#0,item_head_tail_length%0#0,array_data%0#0
-        l-load item_offset%0#0 2                                                                              index%0#0,num_bytes%0#0,item_head_tail_length%0#0,array_data%0#0,item_offset%0#0
-        l-load item_head_tail_length%0#0 2                                                                    index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_head_tail_length%0#0
-        extract3                                                                                              index%0#0,num_bytes%0#0,item%0#0
-        l-load item%0#0 0                                                                                     index%0#0,num_bytes%0#0,item%0#0
-        int 0                                                                                                 index%0#0,num_bytes%0#0,item%0#0,0
+        len                                                                                                   index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%0#0
+        l-load array_data%0#0 2                                                                               index%0#0,num_bytes%0#0,item_offset%0#0,total_length%0#0,array_data%0#0
+        l-load item_offset%0#0 2                                                                              index%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,item_offset%0#0
+        l-load total_length%0#0 2                                                                             index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%0#0
+        substring3                                                                                            index%0#0,num_bytes%0#0,data%0#0
+        l-load data%0#0 0                                                                                     index%0#0,num_bytes%0#0,data%0#0
+        int 0                                                                                                 index%0#0,num_bytes%0#0,data%0#0,0
         extract_uint16 // on error: invalid array length header                                               index%0#0,num_bytes%0#0,length%1#0
         l-load length%1#0 0                                                                                   index%0#0,num_bytes%0#0,length%1#0
         int 8                                                                                                 index%0#0,num_bytes%0#0,length%1#0,8

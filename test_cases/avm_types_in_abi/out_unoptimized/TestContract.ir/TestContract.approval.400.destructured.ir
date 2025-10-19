@@ -51,12 +51,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let reinterpret_bytes%1#0: bytes = tmp%14#0
         let tmp%15#0: bytes = ((extract 2 0) reinterpret_bytes%1#0)
         let tmp%16#0: bytes = (txna ApplicationArgs 6)
+        let tuple_len%0#0: uint64 = (len tmp%16#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%16#0 9u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 77u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 2 of arc4.tuple<arc4.bool,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.uint512,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%16#0 9u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%16#0 75u)
-        let item%0#0: bytes = (substring3 tmp%16#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%16#0 offset%0#0 tuple_len%0#0)
         let length%2#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes%2#0: uint64 = (* length%2#0 1u)
         let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
@@ -64,9 +63,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let offset%1#0: uint64 = (extract_uint16 tmp%16#0 75u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%1#0 num_bytes_value%0#0)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 4 of arc4.tuple<arc4.bool,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.uint512,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%16#0 75u)
-        let item_end_offset%1#0: uint64 = (len tmp%16#0)
-        let item%1#0: bytes = (substring3 tmp%16#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 tmp%16#0 offset%1#0 tuple_len%0#0)
         let length%3#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes%3#0: uint64 = (* length%3#0 1u)
         let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
@@ -80,14 +77,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let item0%0#0: bool = (getbit encoded_bool%0#0 0u)
         let item1%0#0: bytes = (extract3 reinterpret_bytes%2#0 1u 8u) // on error: Index access is out of bounds
         let item1%1#0: uint64 = (btoi item1%0#0)
-        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 9u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 75u)
-        let item2%0#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 9u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 75u)
+        let item2%0#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%0#0 item_end_offset%0#0)
         let item2%1#0: bytes = ((extract 2 0) item2%0#0)
         let item3%0#0: bytes = (extract3 reinterpret_bytes%2#0 11u 64u) // on error: Index access is out of bounds
-        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 75u)
-        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%2#0)
-        let item4%0#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 75u)
+        let item_end_offset%1#0: uint64 = (len reinterpret_bytes%2#0)
+        let item4%0#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%1#0 item_end_offset%1#0)
         let item4%1#0: bytes = ((extract 2 0) item4%0#0)
         let (elements_to_encode%0#0: bool, elements_to_encode%1#0: uint64, elements_to_encode%2#0: bytes, elements_to_encode%3#0: biguint, elements_to_encode%4#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%8#0, tmp%10#0, tmp%12#0, reinterpret_bytes[64]%0#0, tmp%15#0, item0%0#0, item1%1#0, item2%1#0, item3%0#0, item4%1#0)
         let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u elements_to_encode%0#0)

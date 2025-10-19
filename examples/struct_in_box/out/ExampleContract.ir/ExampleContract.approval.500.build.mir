@@ -39,6 +39,9 @@ subroutine main:
         txna ApplicationArgs 1                                                                  tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                          tmp%7#0
+        len                                                                                     tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load tmp%7#0                                                                          tmp%7#0
         int 0                                                                                   tmp%7#0,0
         extract_uint16 // on error: invalid tuple encoding                                      offset%0#0
         v-store offset%0#0
@@ -49,11 +52,8 @@ subroutine main:
         v-load offset_is_correct%0#0                                                            offset_is_correct%0#0
         assert // invalid tail pointer at index 0 of examples.struct_in_box.contract.UserStruct 
         v-load tmp%7#0                                                                          tmp%7#0
-        len                                                                                     item_end_offset%0#0
-        v-store item_end_offset%0#0
-        v-load tmp%7#0                                                                          tmp%7#0
         v-load offset%0#0                                                                       tmp%7#0,offset%0#0
-        v-load item_end_offset%0#0                                                              tmp%7#0,offset%0#0,item_end_offset%0#0
+        v-load tuple_len%0#0                                                                    tmp%7#0,offset%0#0,tuple_len%0#0
         substring3                                                                              item%0#0
         v-store item%0#0
         v-load item%0#0                                                                         item%0#0
@@ -68,8 +68,8 @@ subroutine main:
         v-load num_bytes_with_header%0#0                                                        18,num_bytes_with_header%0#0
         +                                                                                       num_bytes_value%0#0
         v-store num_bytes_value%0#0
-        v-load item_end_offset%0#0                                                              item_end_offset%0#0
-        v-load num_bytes_value%0#0                                                              item_end_offset%0#0,num_bytes_value%0#0
+        v-load tuple_len%0#0                                                                    tuple_len%0#0
+        v-load num_bytes_value%0#0                                                              tuple_len%0#0,num_bytes_value%0#0
         ==                                                                                      size_is_correct%0#0
         v-store size_is_correct%0#0
         v-load size_is_correct%0#0                                                              size_is_correct%0#0

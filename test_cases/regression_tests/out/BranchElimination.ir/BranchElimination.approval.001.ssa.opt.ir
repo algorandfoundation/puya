@@ -52,11 +52,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
         (assert offset_is_correct%0#0) // invalid tail pointer for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
-        let item_length%0#0: uint64 = (extract_uint16 array_data%0#0 item_offset%0#0)
-        let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 8u)
-        let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
-        let item%0#0: bytes = (extract3 array_data%0#0 item_offset%0#0 item_head_tail_length%0#0)
-        let length%1#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
+        let total_length%0#0: uint64 = (len array_data%0#0)
+        let data%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%0#0)
+        let length%1#0: uint64 = (extract_uint16 data%0#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%1#0 8u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%1#0 2u)
         let num_bytes%0#2: uint64 = (+ num_bytes%0#1 num_bytes_with_header%0#0)

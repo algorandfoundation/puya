@@ -1267,12 +1267,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 76u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%0#0 offset%0#0 tuple_len%0#0)
         let length%1#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length%1#0 1u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
@@ -1280,9 +1279,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let offset%1#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%1#0 num_bytes_value%0#0)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item_end_offset%1#0: uint64 = (len tmp%0#0)
-        let item%1#0: bytes = (substring3 tmp%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 tmp%0#0 offset%1#0 tuple_len%0#0)
         let length%2#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%2#0 1u)
         let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
@@ -1295,12 +1292,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let result1#0: bytes = reinterpret_bytes%0#0
-        let item_start_offset%2#0: uint64 = (extract_uint16 result1#0 0u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 result1#0 2u)
-        let item0%0#0: bytes = (substring3 result1#0 item_start_offset%2#0 item_end_offset%2#0)
-        let item_start_offset%3#0: uint64 = (extract_uint16 result1#0 2u)
-        let item_end_offset%3#0: uint64 = (len result1#0)
-        let item1%0#0: bytes = (substring3 result1#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 result1#0 0u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 result1#0 2u)
+        let item0%0#0: bytes = (substring3 result1#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_start_offset%1#0: uint64 = (extract_uint16 result1#0 2u)
+        let item_end_offset%1#0: uint64 = (len result1#0)
+        let item1%0#0: bytes = (substring3 result1#0 item_start_offset%1#0 item_end_offset%1#0)
         let item2%0#0: bytes = (extract3 result1#0 4u 8u) // on error: Index access is out of bounds
         let item3%0#0: bytes = (extract3 result1#0 12u 64u) // on error: Index access is out of bounds
         let s#0: bytes = item0%0#0
@@ -1351,12 +1348,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%1#0: uint64 = (len tmp%10#0)
         let offset%2#0: uint64 = (extract_uint16 tmp%10#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%2#0: bool = (== offset%2#0 76u)
         (assert offset_is_correct%2#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%4#0: uint64 = (extract_uint16 tmp%10#0 0u)
-        let item_end_offset%4#0: uint64 = (extract_uint16 tmp%10#0 2u)
-        let item%2#0: bytes = (substring3 tmp%10#0 item_start_offset%4#0 item_end_offset%4#0)
+        let item%2#0: bytes = (substring3 tmp%10#0 offset%2#0 tuple_len%1#0)
         let length%5#0: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
         let num_bytes%2#0: uint64 = (* length%5#0 1u)
         let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
@@ -1364,9 +1360,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let offset%3#0: uint64 = (extract_uint16 tmp%10#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%3#0: bool = (== offset%3#0 num_bytes_value%2#0)
         (assert offset_is_correct%3#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%10#0 2u)
-        let item_end_offset%5#0: uint64 = (len tmp%10#0)
-        let item%3#0: bytes = (substring3 tmp%10#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item%3#0: bytes = (substring3 tmp%10#0 offset%3#0 tuple_len%1#0)
         let length%6#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
         let num_bytes%3#0: uint64 = (* length%6#0 1u)
         let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
@@ -1401,12 +1395,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%14#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%2#0: uint64 = (len tmp%14#0)
         let offset%4#0: uint64 = (extract_uint16 tmp%14#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%4#0: bool = (== offset%4#0 76u)
         (assert offset_is_correct%4#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%6#0: uint64 = (extract_uint16 tmp%14#0 0u)
-        let item_end_offset%6#0: uint64 = (extract_uint16 tmp%14#0 2u)
-        let item%4#0: bytes = (substring3 tmp%14#0 item_start_offset%6#0 item_end_offset%6#0)
+        let item%4#0: bytes = (substring3 tmp%14#0 offset%4#0 tuple_len%2#0)
         let length%8#0: uint64 = (extract_uint16 item%4#0 0u) // on error: invalid array length header
         let num_bytes%4#0: uint64 = (* length%8#0 1u)
         let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
@@ -1414,9 +1407,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let offset%5#0: uint64 = (extract_uint16 tmp%14#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%5#0: bool = (== offset%5#0 num_bytes_value%4#0)
         (assert offset_is_correct%5#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%7#0: uint64 = (extract_uint16 tmp%14#0 2u)
-        let item_end_offset%7#0: uint64 = (len tmp%14#0)
-        let item%5#0: bytes = (substring3 tmp%14#0 item_start_offset%7#0 item_end_offset%7#0)
+        let item%5#0: bytes = (substring3 tmp%14#0 offset%5#0 tuple_len%2#0)
         let length%9#0: uint64 = (extract_uint16 item%5#0 0u) // on error: invalid array length header
         let num_bytes%5#0: uint64 = (* length%9#0 1u)
         let num_bytes_with_header%5#0: uint64 = (+ num_bytes%5#0 2u)
@@ -1451,12 +1442,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%18#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let tuple_len%3#0: uint64 = (len tmp%18#0)
         let offset%6#0: uint64 = (extract_uint16 tmp%18#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%6#0: bool = (== offset%6#0 76u)
         (assert offset_is_correct%6#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%18#0 0u)
-        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%18#0 2u)
-        let item%6#0: bytes = (substring3 tmp%18#0 item_start_offset%8#0 item_end_offset%8#0)
+        let item%6#0: bytes = (substring3 tmp%18#0 offset%6#0 tuple_len%3#0)
         let length%11#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
         let num_bytes%6#0: uint64 = (* length%11#0 1u)
         let num_bytes_with_header%6#0: uint64 = (+ num_bytes%6#0 2u)
@@ -1464,9 +1454,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let offset%7#0: uint64 = (extract_uint16 tmp%18#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%7#0: bool = (== offset%7#0 num_bytes_value%6#0)
         (assert offset_is_correct%7#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%9#0: uint64 = (extract_uint16 tmp%18#0 2u)
-        let item_end_offset%9#0: uint64 = (len tmp%18#0)
-        let item%7#0: bytes = (substring3 tmp%18#0 item_start_offset%9#0 item_end_offset%9#0)
+        let item%7#0: bytes = (substring3 tmp%18#0 offset%7#0 tuple_len%3#0)
         let length%12#0: uint64 = (extract_uint16 item%7#0 0u) // on error: invalid array length header
         let num_bytes%7#0: uint64 = (* length%12#0 1u)
         let num_bytes_with_header%7#0: uint64 = (+ num_bytes%7#0 2u)
@@ -1478,13 +1466,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let tmp%19#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%20#0: bool = (== tmp%19#0 0x151f7c75)
         (assert tmp%20#0) // application log value is not the result of an ABI return
-        let item_start_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
-        let item_end_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
-        let item0%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
+        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item0%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%2#0 item_end_offset%2#0)
         let item0%2#0: bytes = ((extract 2 0) item0%1#0)
-        let item_start_offset%11#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
-        let item_end_offset%11#0: uint64 = (len reinterpret_bytes%3#0)
-        let item1%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%11#0 item_end_offset%11#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%3#0)
+        let item1%1#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%3#0 item_end_offset%3#0)
         let item1%2#0: bytes = ((extract 2 0) item1%1#0)
         let item2%1#0: bytes = (extract3 reinterpret_bytes%3#0 4u 8u) // on error: Index access is out of bounds
         let item2%2#0: uint64 = (btoi item2%1#0)
@@ -1493,15 +1481,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let result_native.1#0: bytes = item1%2#0
         let result_native.2#0: uint64 = item2%2#0
         let result_native.3#0: biguint = item3%1#0
-        let item_start_offset%12#0: uint64 = (extract_uint16 result1#0 0u)
-        let item_end_offset%12#0: uint64 = (extract_uint16 result1#0 2u)
-        let item0%3#0: bytes = (substring3 result1#0 item_start_offset%12#0 item_end_offset%12#0)
+        let item_start_offset%4#0: uint64 = (extract_uint16 result1#0 0u)
+        let item_end_offset%4#0: uint64 = (extract_uint16 result1#0 2u)
+        let item0%3#0: bytes = (substring3 result1#0 item_start_offset%4#0 item_end_offset%4#0)
         let tmp%21#0: bytes = ((extract 2 0) item0%3#0)
         let tmp%22#0: bool = (== tmp%21#0 result_native.0#0)
         (assert tmp%22#0)
-        let item_start_offset%15#0: uint64 = (extract_uint16 result1#0 2u)
-        let item_end_offset%15#0: uint64 = (len result1#0)
-        let item1%4#0: bytes = (substring3 result1#0 item_start_offset%15#0 item_end_offset%15#0)
+        let item_start_offset%7#0: uint64 = (extract_uint16 result1#0 2u)
+        let item_end_offset%7#0: uint64 = (len result1#0)
+        let item1%4#0: bytes = (substring3 result1#0 item_start_offset%7#0 item_end_offset%7#0)
         let tmp%23#0: bytes = ((extract 2 0) item1%4#0)
         let tmp%24#0: bool = (== tmp%23#0 result_native.1#0)
         (assert tmp%24#0)
@@ -1536,12 +1524,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 76u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%0#0 offset%0#0 tuple_len%0#0)
         let length%1#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length%1#0 1u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
@@ -1549,9 +1536,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let offset%1#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%1#0 num_bytes_value%0#0)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item_end_offset%1#0: uint64 = (len tmp%0#0)
-        let item%1#0: bytes = (substring3 tmp%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 tmp%0#0 offset%1#0 tuple_len%0#0)
         let length%2#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%2#0 1u)
         let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
@@ -1563,13 +1548,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
-        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%0#0 item_end_offset%0#0)
         let item0%1#0: bytes = ((extract 2 0) item0%0#0)
-        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
-        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%0#0)
-        let item1%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item_end_offset%1#0: uint64 = (len reinterpret_bytes%0#0)
+        let item1%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%1#0 item_end_offset%1#0)
         let item1%1#0: bytes = ((extract 2 0) item1%0#0)
         let item2%0#0: bytes = (extract3 reinterpret_bytes%0#0 4u 8u) // on error: Index access is out of bounds
         let item2%1#0: uint64 = (btoi item2%0#0)
@@ -1623,12 +1608,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%1#0: uint64 = (len tmp%7#0)
         let offset%2#0: uint64 = (extract_uint16 tmp%7#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%2#0: bool = (== offset%2#0 76u)
         (assert offset_is_correct%2#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%4#0: uint64 = (extract_uint16 tmp%7#0 0u)
-        let item_end_offset%4#0: uint64 = (extract_uint16 tmp%7#0 2u)
-        let item%2#0: bytes = (substring3 tmp%7#0 item_start_offset%4#0 item_end_offset%4#0)
+        let item%2#0: bytes = (substring3 tmp%7#0 offset%2#0 tuple_len%1#0)
         let length%5#0: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
         let num_bytes%2#0: uint64 = (* length%5#0 1u)
         let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
@@ -1636,9 +1620,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let offset%3#0: uint64 = (extract_uint16 tmp%7#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%3#0: bool = (== offset%3#0 num_bytes_value%2#0)
         (assert offset_is_correct%3#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%7#0 2u)
-        let item_end_offset%5#0: uint64 = (len tmp%7#0)
-        let item%3#0: bytes = (substring3 tmp%7#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item%3#0: bytes = (substring3 tmp%7#0 offset%3#0 tuple_len%1#0)
         let length%6#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
         let num_bytes%3#0: uint64 = (* length%6#0 1u)
         let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
@@ -1650,13 +1632,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
-        let item_start_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
-        let item_end_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
-        let item0%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%6#0 item_end_offset%6#0)
+        let item_start_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
+        let item_end_offset%2#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item0%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%2#0 item_end_offset%2#0)
         let item0%3#0: bytes = ((extract 2 0) item0%2#0)
-        let item_start_offset%7#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
-        let item_end_offset%7#0: uint64 = (len reinterpret_bytes%1#0)
-        let item1%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%7#0 item_end_offset%7#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%1#0)
+        let item1%2#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%3#0 item_end_offset%3#0)
         let item1%3#0: bytes = ((extract 2 0) item1%2#0)
         let item2%2#0: bytes = (extract3 reinterpret_bytes%1#0 4u 8u) // on error: Index access is out of bounds
         let item2%3#0: uint64 = (btoi item2%2#0)
@@ -1693,12 +1675,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%17#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%2#0: uint64 = (len tmp%17#0)
         let offset%4#0: uint64 = (extract_uint16 tmp%17#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%4#0: bool = (== offset%4#0 76u)
         (assert offset_is_correct%4#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%17#0 0u)
-        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%17#0 2u)
-        let item%4#0: bytes = (substring3 tmp%17#0 item_start_offset%8#0 item_end_offset%8#0)
+        let item%4#0: bytes = (substring3 tmp%17#0 offset%4#0 tuple_len%2#0)
         let length%8#0: uint64 = (extract_uint16 item%4#0 0u) // on error: invalid array length header
         let num_bytes%4#0: uint64 = (* length%8#0 1u)
         let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
@@ -1706,9 +1687,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let offset%5#0: uint64 = (extract_uint16 tmp%17#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%5#0: bool = (== offset%5#0 num_bytes_value%4#0)
         (assert offset_is_correct%5#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%9#0: uint64 = (extract_uint16 tmp%17#0 2u)
-        let item_end_offset%9#0: uint64 = (len tmp%17#0)
-        let item%5#0: bytes = (substring3 tmp%17#0 item_start_offset%9#0 item_end_offset%9#0)
+        let item%5#0: bytes = (substring3 tmp%17#0 offset%5#0 tuple_len%2#0)
         let length%9#0: uint64 = (extract_uint16 item%5#0 0u) // on error: invalid array length header
         let num_bytes%5#0: uint64 = (* length%9#0 1u)
         let num_bytes_with_header%5#0: uint64 = (+ num_bytes%5#0 2u)
@@ -1720,13 +1699,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let tmp%18#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%19#0: bool = (== tmp%18#0 0x151f7c75)
         (assert tmp%19#0) // application log value is not the result of an ABI return
-        let item_start_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
-        let item_end_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
-        let item0%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item_start_offset%4#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
+        let item_end_offset%4#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item0%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%4#0 item_end_offset%4#0)
         let item0%5#0: bytes = ((extract 2 0) item0%4#0)
-        let item_start_offset%11#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
-        let item_end_offset%11#0: uint64 = (len reinterpret_bytes%2#0)
-        let item1%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%11#0 item_end_offset%11#0)
+        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item_end_offset%5#0: uint64 = (len reinterpret_bytes%2#0)
+        let item1%4#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%5#0 item_end_offset%5#0)
         let item1%5#0: bytes = ((extract 2 0) item1%4#0)
         let item2%4#0: bytes = (extract3 reinterpret_bytes%2#0 4u 8u) // on error: Index access is out of bounds
         let item2%5#0: uint64 = (btoi item2%4#0)
@@ -1763,12 +1742,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%27#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let tuple_len%3#0: uint64 = (len tmp%27#0)
         let offset%6#0: uint64 = (extract_uint16 tmp%27#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%6#0: bool = (== offset%6#0 76u)
         (assert offset_is_correct%6#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%12#0: uint64 = (extract_uint16 tmp%27#0 0u)
-        let item_end_offset%12#0: uint64 = (extract_uint16 tmp%27#0 2u)
-        let item%6#0: bytes = (substring3 tmp%27#0 item_start_offset%12#0 item_end_offset%12#0)
+        let item%6#0: bytes = (substring3 tmp%27#0 offset%6#0 tuple_len%3#0)
         let length%11#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
         let num_bytes%6#0: uint64 = (* length%11#0 1u)
         let num_bytes_with_header%6#0: uint64 = (+ num_bytes%6#0 2u)
@@ -1776,9 +1754,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let offset%7#0: uint64 = (extract_uint16 tmp%27#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%7#0: bool = (== offset%7#0 num_bytes_value%6#0)
         (assert offset_is_correct%7#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-        let item_start_offset%13#0: uint64 = (extract_uint16 tmp%27#0 2u)
-        let item_end_offset%13#0: uint64 = (len tmp%27#0)
-        let item%7#0: bytes = (substring3 tmp%27#0 item_start_offset%13#0 item_end_offset%13#0)
+        let item%7#0: bytes = (substring3 tmp%27#0 offset%7#0 tuple_len%3#0)
         let length%12#0: uint64 = (extract_uint16 item%7#0 0u) // on error: invalid array length header
         let num_bytes%7#0: uint64 = (* length%12#0 1u)
         let num_bytes_with_header%7#0: uint64 = (+ num_bytes%7#0 2u)
@@ -1790,13 +1766,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let tmp%28#0: bytes = ((extract 0 4) awst_tmp%3#0)
         let tmp%29#0: bool = (== tmp%28#0 0x151f7c75)
         (assert tmp%29#0) // application log value is not the result of an ABI return
-        let item_start_offset%14#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
-        let item_end_offset%14#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
-        let item0%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%14#0 item_end_offset%14#0)
+        let item_start_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 0u)
+        let item_end_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item0%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%6#0 item_end_offset%6#0)
         let item0%7#0: bytes = ((extract 2 0) item0%6#0)
-        let item_start_offset%15#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
-        let item_end_offset%15#0: uint64 = (len reinterpret_bytes%3#0)
-        let item1%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%15#0 item_end_offset%15#0)
+        let item_start_offset%7#0: uint64 = (extract_uint16 reinterpret_bytes%3#0 2u)
+        let item_end_offset%7#0: uint64 = (len reinterpret_bytes%3#0)
+        let item1%6#0: bytes = (substring3 reinterpret_bytes%3#0 item_start_offset%7#0 item_end_offset%7#0)
         let item1%7#0: bytes = ((extract 2 0) item1%6#0)
         let item2%6#0: bytes = (extract3 reinterpret_bytes%3#0 4u 8u) // on error: Index access is out of bounds
         let item2%7#0: uint64 = (btoi item2%6#0)
@@ -1860,18 +1836,16 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 4u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%0#0 offset%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len item%0#0)
         let offset%1#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%1#0 4u)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%1#0: uint64 = (extract_uint16 item%0#0 0u)
-        let item_end_offset%1#0: uint64 = (extract_uint16 item%0#0 2u)
-        let item%1#0: bytes = (substring3 item%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 item%0#0 offset%1#0 tuple_len%1#0)
         let length%1#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length%1#0 1u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
@@ -1879,9 +1853,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%2#0: uint64 = (extract_uint16 item%0#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%2#0: bool = (== offset%2#0 num_bytes_value%0#0)
         (assert offset_is_correct%2#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%2#0: uint64 = (extract_uint16 item%0#0 2u)
-        let item_end_offset%2#0: uint64 = (len item%0#0)
-        let item%2#0: bytes = (substring3 item%0#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item%2#0: bytes = (substring3 item%0#0 offset%2#0 tuple_len%1#0)
         let length%2#0: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%2#0 1u)
         let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
@@ -1890,15 +1862,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%3#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%3#0: bool = (== offset%3#0 num_bytes_value%2#0)
         (assert offset_is_correct%3#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%3#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let item_end_offset%3#0: uint64 = (len tmp%0#0)
-        let item%3#0: bytes = (substring3 tmp%0#0 item_start_offset%3#0 item_end_offset%3#0)
+        let item%3#0: bytes = (substring3 tmp%0#0 offset%3#0 tuple_len%0#0)
+        let tuple_len%2#0: uint64 = (len item%3#0)
         let offset%4#0: uint64 = (extract_uint16 item%3#0 16u) // on error: invalid tuple encoding
         let offset_is_correct%4#0: bool = (== offset%4#0 18u)
         (assert offset_is_correct%4#0) // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%4#0: uint64 = (extract_uint16 item%3#0 16u)
-        let item_end_offset%4#0: uint64 = (len item%3#0)
-        let item%4#0: bytes = (substring3 item%3#0 item_start_offset%4#0 item_end_offset%4#0)
+        let item%4#0: bytes = (substring3 item%3#0 offset%4#0 tuple_len%2#0)
         let length%3#0: uint64 = (extract_uint16 item%4#0 0u) // on error: invalid array length header
         let num_bytes%2#0: uint64 = (* length%3#0 1u)
         let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
@@ -1911,25 +1880,25 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
-        let item_end_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
-        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%5#0 item_end_offset%5#0)
-        let item_start_offset%6#0: uint64 = (extract_uint16 item0%0#0 0u)
-        let item_end_offset%6#0: uint64 = (extract_uint16 item0%0#0 2u)
-        let item0%1#0: bytes = (substring3 item0%0#0 item_start_offset%6#0 item_end_offset%6#0)
+        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 0u)
+        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item0%0#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item_start_offset%1#0: uint64 = (extract_uint16 item0%0#0 0u)
+        let item_end_offset%1#0: uint64 = (extract_uint16 item0%0#0 2u)
+        let item0%1#0: bytes = (substring3 item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
         let item0%2#0: bytes = ((extract 2 0) item0%1#0)
-        let item_start_offset%7#0: uint64 = (extract_uint16 item0%0#0 2u)
-        let item_end_offset%7#0: uint64 = (len item0%0#0)
-        let item1%0#0: bytes = (substring3 item0%0#0 item_start_offset%7#0 item_end_offset%7#0)
-        let item_start_offset%8#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
-        let item_end_offset%8#0: uint64 = (len reinterpret_bytes%0#0)
-        let item1%1#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%8#0 item_end_offset%8#0)
+        let item_start_offset%2#0: uint64 = (extract_uint16 item0%0#0 2u)
+        let item_end_offset%2#0: uint64 = (len item0%0#0)
+        let item1%0#0: bytes = (substring3 item0%0#0 item_start_offset%2#0 item_end_offset%2#0)
+        let item_start_offset%3#0: uint64 = (extract_uint16 reinterpret_bytes%0#0 2u)
+        let item_end_offset%3#0: uint64 = (len reinterpret_bytes%0#0)
+        let item1%1#0: bytes = (substring3 reinterpret_bytes%0#0 item_start_offset%3#0 item_end_offset%3#0)
         let item0%3#0: bytes = (extract3 item1%1#0 0u 8u) // on error: Index access is out of bounds
         let item0%4#0: uint64 = (btoi item0%3#0)
         let item1%2#0: bytes = (extract3 item1%1#0 8u 8u) // on error: Index access is out of bounds
-        let item_start_offset%9#0: uint64 = (extract_uint16 item1%1#0 16u)
-        let item_end_offset%9#0: uint64 = (len item1%1#0)
-        let item2%0#0: bytes = (substring3 item1%1#0 item_start_offset%9#0 item_end_offset%9#0)
+        let item_start_offset%4#0: uint64 = (extract_uint16 item1%1#0 16u)
+        let item_end_offset%4#0: uint64 = (len item1%1#0)
+        let item2%0#0: bytes = (substring3 item1%1#0 item_start_offset%4#0 item_end_offset%4#0)
         let item2%1#0: bytes = ((extract 2 0) item2%0#0)
         let result.0.0#0: bytes = item0%2#0
         let result.0.1#0: bytes = item1%0#0
@@ -2000,18 +1969,16 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let tmp%8#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%3#0: uint64 = (len tmp%8#0)
         let offset%5#0: uint64 = (extract_uint16 tmp%8#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%5#0: bool = (== offset%5#0 4u)
         (assert offset_is_correct%5#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%10#0: uint64 = (extract_uint16 tmp%8#0 0u)
-        let item_end_offset%10#0: uint64 = (extract_uint16 tmp%8#0 2u)
-        let item%5#0: bytes = (substring3 tmp%8#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item%5#0: bytes = (substring3 tmp%8#0 offset%5#0 tuple_len%3#0)
+        let tuple_len%4#0: uint64 = (len item%5#0)
         let offset%6#0: uint64 = (extract_uint16 item%5#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%6#0: bool = (== offset%6#0 4u)
         (assert offset_is_correct%6#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%11#0: uint64 = (extract_uint16 item%5#0 0u)
-        let item_end_offset%11#0: uint64 = (extract_uint16 item%5#0 2u)
-        let item%6#0: bytes = (substring3 item%5#0 item_start_offset%11#0 item_end_offset%11#0)
+        let item%6#0: bytes = (substring3 item%5#0 offset%6#0 tuple_len%4#0)
         let length%6#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
         let num_bytes%3#0: uint64 = (* length%6#0 1u)
         let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
@@ -2019,9 +1986,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%7#0: uint64 = (extract_uint16 item%5#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%7#0: bool = (== offset%7#0 num_bytes_value%5#0)
         (assert offset_is_correct%7#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%12#0: uint64 = (extract_uint16 item%5#0 2u)
-        let item_end_offset%12#0: uint64 = (len item%5#0)
-        let item%7#0: bytes = (substring3 item%5#0 item_start_offset%12#0 item_end_offset%12#0)
+        let item%7#0: bytes = (substring3 item%5#0 offset%7#0 tuple_len%4#0)
         let length%7#0: uint64 = (extract_uint16 item%7#0 0u) // on error: invalid array length header
         let num_bytes%4#0: uint64 = (* length%7#0 1u)
         let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
@@ -2030,15 +1995,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%8#0: uint64 = (extract_uint16 tmp%8#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%8#0: bool = (== offset%8#0 num_bytes_value%7#0)
         (assert offset_is_correct%8#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%13#0: uint64 = (extract_uint16 tmp%8#0 2u)
-        let item_end_offset%13#0: uint64 = (len tmp%8#0)
-        let item%8#0: bytes = (substring3 tmp%8#0 item_start_offset%13#0 item_end_offset%13#0)
+        let item%8#0: bytes = (substring3 tmp%8#0 offset%8#0 tuple_len%3#0)
+        let tuple_len%5#0: uint64 = (len item%8#0)
         let offset%9#0: uint64 = (extract_uint16 item%8#0 16u) // on error: invalid tuple encoding
         let offset_is_correct%9#0: bool = (== offset%9#0 18u)
         (assert offset_is_correct%9#0) // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%14#0: uint64 = (extract_uint16 item%8#0 16u)
-        let item_end_offset%14#0: uint64 = (len item%8#0)
-        let item%9#0: bytes = (substring3 item%8#0 item_start_offset%14#0 item_end_offset%14#0)
+        let item%9#0: bytes = (substring3 item%8#0 offset%9#0 tuple_len%5#0)
         let length%8#0: uint64 = (extract_uint16 item%9#0 0u) // on error: invalid array length header
         let num_bytes%5#0: uint64 = (* length%8#0 1u)
         let num_bytes_with_header%5#0: uint64 = (+ num_bytes%5#0 2u)
@@ -2051,25 +2013,25 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let tmp%9#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
         (assert tmp%10#0) // application log value is not the result of an ABI return
-        let item_start_offset%15#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
-        let item_end_offset%15#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
-        let item0%5#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%15#0 item_end_offset%15#0)
-        let item_start_offset%16#0: uint64 = (extract_uint16 item0%5#0 0u)
-        let item_end_offset%16#0: uint64 = (extract_uint16 item0%5#0 2u)
-        let item0%6#0: bytes = (substring3 item0%5#0 item_start_offset%16#0 item_end_offset%16#0)
+        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 0u)
+        let item_end_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item0%5#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item_start_offset%6#0: uint64 = (extract_uint16 item0%5#0 0u)
+        let item_end_offset%6#0: uint64 = (extract_uint16 item0%5#0 2u)
+        let item0%6#0: bytes = (substring3 item0%5#0 item_start_offset%6#0 item_end_offset%6#0)
         let item0%7#0: bytes = ((extract 2 0) item0%6#0)
-        let item_start_offset%17#0: uint64 = (extract_uint16 item0%5#0 2u)
-        let item_end_offset%17#0: uint64 = (len item0%5#0)
-        let item1%3#0: bytes = (substring3 item0%5#0 item_start_offset%17#0 item_end_offset%17#0)
-        let item_start_offset%18#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
-        let item_end_offset%18#0: uint64 = (len reinterpret_bytes%1#0)
-        let item1%4#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%18#0 item_end_offset%18#0)
+        let item_start_offset%7#0: uint64 = (extract_uint16 item0%5#0 2u)
+        let item_end_offset%7#0: uint64 = (len item0%5#0)
+        let item1%3#0: bytes = (substring3 item0%5#0 item_start_offset%7#0 item_end_offset%7#0)
+        let item_start_offset%8#0: uint64 = (extract_uint16 reinterpret_bytes%1#0 2u)
+        let item_end_offset%8#0: uint64 = (len reinterpret_bytes%1#0)
+        let item1%4#0: bytes = (substring3 reinterpret_bytes%1#0 item_start_offset%8#0 item_end_offset%8#0)
         let item0%8#0: bytes = (extract3 item1%4#0 0u 8u) // on error: Index access is out of bounds
         let item0%9#0: uint64 = (btoi item0%8#0)
         let item1%5#0: bytes = (extract3 item1%4#0 8u 8u) // on error: Index access is out of bounds
-        let item_start_offset%19#0: uint64 = (extract_uint16 item1%4#0 16u)
-        let item_end_offset%19#0: uint64 = (len item1%4#0)
-        let item2%2#0: bytes = (substring3 item1%4#0 item_start_offset%19#0 item_end_offset%19#0)
+        let item_start_offset%9#0: uint64 = (extract_uint16 item1%4#0 16u)
+        let item_end_offset%9#0: uint64 = (len item1%4#0)
+        let item2%2#0: bytes = (substring3 item1%4#0 item_start_offset%9#0 item_end_offset%9#0)
         let item2%3#0: bytes = ((extract 2 0) item2%2#0)
         let result.0.0#0: bytes = item0%7#0
         let result.0.1#0: bytes = item1%3#0
@@ -2135,18 +2097,16 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         itxn_submit
         let awst_tmp%2#0: bytes = (itxn LastLog)
         let tmp%16#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%6#0: uint64 = (len tmp%16#0)
         let offset%10#0: uint64 = (extract_uint16 tmp%16#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%10#0: bool = (== offset%10#0 4u)
         (assert offset_is_correct%10#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%20#0: uint64 = (extract_uint16 tmp%16#0 0u)
-        let item_end_offset%20#0: uint64 = (extract_uint16 tmp%16#0 2u)
-        let item%10#0: bytes = (substring3 tmp%16#0 item_start_offset%20#0 item_end_offset%20#0)
+        let item%10#0: bytes = (substring3 tmp%16#0 offset%10#0 tuple_len%6#0)
+        let tuple_len%7#0: uint64 = (len item%10#0)
         let offset%11#0: uint64 = (extract_uint16 item%10#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%11#0: bool = (== offset%11#0 4u)
         (assert offset_is_correct%11#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%21#0: uint64 = (extract_uint16 item%10#0 0u)
-        let item_end_offset%21#0: uint64 = (extract_uint16 item%10#0 2u)
-        let item%11#0: bytes = (substring3 item%10#0 item_start_offset%21#0 item_end_offset%21#0)
+        let item%11#0: bytes = (substring3 item%10#0 offset%11#0 tuple_len%7#0)
         let length%10#0: uint64 = (extract_uint16 item%11#0 0u) // on error: invalid array length header
         let num_bytes%6#0: uint64 = (* length%10#0 1u)
         let num_bytes_with_header%6#0: uint64 = (+ num_bytes%6#0 2u)
@@ -2154,9 +2114,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%12#0: uint64 = (extract_uint16 item%10#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%12#0: bool = (== offset%12#0 num_bytes_value%10#0)
         (assert offset_is_correct%12#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%22#0: uint64 = (extract_uint16 item%10#0 2u)
-        let item_end_offset%22#0: uint64 = (len item%10#0)
-        let item%12#0: bytes = (substring3 item%10#0 item_start_offset%22#0 item_end_offset%22#0)
+        let item%12#0: bytes = (substring3 item%10#0 offset%12#0 tuple_len%7#0)
         let length%11#0: uint64 = (extract_uint16 item%12#0 0u) // on error: invalid array length header
         let num_bytes%7#0: uint64 = (* length%11#0 1u)
         let num_bytes_with_header%7#0: uint64 = (+ num_bytes%7#0 2u)
@@ -2165,15 +2123,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let offset%13#0: uint64 = (extract_uint16 tmp%16#0 2u) // on error: invalid tuple encoding
         let offset_is_correct%13#0: bool = (== offset%13#0 num_bytes_value%12#0)
         (assert offset_is_correct%13#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-        let item_start_offset%23#0: uint64 = (extract_uint16 tmp%16#0 2u)
-        let item_end_offset%23#0: uint64 = (len tmp%16#0)
-        let item%13#0: bytes = (substring3 tmp%16#0 item_start_offset%23#0 item_end_offset%23#0)
+        let item%13#0: bytes = (substring3 tmp%16#0 offset%13#0 tuple_len%6#0)
+        let tuple_len%8#0: uint64 = (len item%13#0)
         let offset%14#0: uint64 = (extract_uint16 item%13#0 16u) // on error: invalid tuple encoding
         let offset_is_correct%14#0: bool = (== offset%14#0 18u)
         (assert offset_is_correct%14#0) // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-        let item_start_offset%24#0: uint64 = (extract_uint16 item%13#0 16u)
-        let item_end_offset%24#0: uint64 = (len item%13#0)
-        let item%14#0: bytes = (substring3 item%13#0 item_start_offset%24#0 item_end_offset%24#0)
+        let item%14#0: bytes = (substring3 item%13#0 offset%14#0 tuple_len%8#0)
         let length%12#0: uint64 = (extract_uint16 item%14#0 0u) // on error: invalid array length header
         let num_bytes%8#0: uint64 = (* length%12#0 1u)
         let num_bytes_with_header%8#0: uint64 = (+ num_bytes%8#0 2u)
@@ -2186,25 +2141,25 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let tmp%17#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%18#0: bool = (== tmp%17#0 0x151f7c75)
         (assert tmp%18#0) // application log value is not the result of an ABI return
-        let item_start_offset%25#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
-        let item_end_offset%25#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
-        let item0%10#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%25#0 item_end_offset%25#0)
-        let item_start_offset%26#0: uint64 = (extract_uint16 item0%10#0 0u)
-        let item_end_offset%26#0: uint64 = (extract_uint16 item0%10#0 2u)
-        let item0%11#0: bytes = (substring3 item0%10#0 item_start_offset%26#0 item_end_offset%26#0)
+        let item_start_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 0u)
+        let item_end_offset%10#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item0%10#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%10#0 item_end_offset%10#0)
+        let item_start_offset%11#0: uint64 = (extract_uint16 item0%10#0 0u)
+        let item_end_offset%11#0: uint64 = (extract_uint16 item0%10#0 2u)
+        let item0%11#0: bytes = (substring3 item0%10#0 item_start_offset%11#0 item_end_offset%11#0)
         let item0%12#0: bytes = ((extract 2 0) item0%11#0)
-        let item_start_offset%27#0: uint64 = (extract_uint16 item0%10#0 2u)
-        let item_end_offset%27#0: uint64 = (len item0%10#0)
-        let item1%6#0: bytes = (substring3 item0%10#0 item_start_offset%27#0 item_end_offset%27#0)
-        let item_start_offset%28#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
-        let item_end_offset%28#0: uint64 = (len reinterpret_bytes%2#0)
-        let item1%7#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%28#0 item_end_offset%28#0)
+        let item_start_offset%12#0: uint64 = (extract_uint16 item0%10#0 2u)
+        let item_end_offset%12#0: uint64 = (len item0%10#0)
+        let item1%6#0: bytes = (substring3 item0%10#0 item_start_offset%12#0 item_end_offset%12#0)
+        let item_start_offset%13#0: uint64 = (extract_uint16 reinterpret_bytes%2#0 2u)
+        let item_end_offset%13#0: uint64 = (len reinterpret_bytes%2#0)
+        let item1%7#0: bytes = (substring3 reinterpret_bytes%2#0 item_start_offset%13#0 item_end_offset%13#0)
         let item0%13#0: bytes = (extract3 item1%7#0 0u 8u) // on error: Index access is out of bounds
         let item0%14#0: uint64 = (btoi item0%13#0)
         let item1%8#0: bytes = (extract3 item1%7#0 8u 8u) // on error: Index access is out of bounds
-        let item_start_offset%29#0: uint64 = (extract_uint16 item1%7#0 16u)
-        let item_end_offset%29#0: uint64 = (len item1%7#0)
-        let item2%4#0: bytes = (substring3 item1%7#0 item_start_offset%29#0 item_end_offset%29#0)
+        let item_start_offset%14#0: uint64 = (extract_uint16 item1%7#0 16u)
+        let item_end_offset%14#0: uint64 = (len item1%7#0)
+        let item2%4#0: bytes = (substring3 item1%7#0 item_start_offset%14#0 item_end_offset%14#0)
         let item2%5#0: bytes = ((extract 2 0) item2%4#0)
         let result.0.0#0: bytes = item0%12#0
         let result.0.1#0: bytes = item1%6#0
@@ -2422,12 +2377,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(app: uin
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%0#0 8u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 10u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%0#0 8u)
-        let item_end_offset%0#0: uint64 = (len tmp%0#0)
-        let item%0#0: bytes = (substring3 tmp%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%0#0 offset%0#0 tuple_len%0#0)
         let length%0#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length%0#0 1u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
@@ -2444,12 +2398,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(app: uin
         let tmp%3#0: bool = (== result#0 log#0)
         (assert tmp%3#0) // expected output to match input
         let tmp%4#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let tuple_len%1#0: uint64 = (len tmp%4#0)
         let offset%1#0: uint64 = (extract_uint16 tmp%4#0 8u) // on error: invalid tuple encoding
         let offset_is_correct%1#0: bool = (== offset%1#0 10u)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%4#0 8u)
-        let item_end_offset%1#0: uint64 = (len tmp%4#0)
-        let item%1#0: bytes = (substring3 tmp%4#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 tmp%4#0 offset%1#0 tuple_len%1#0)
         let length%1#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%1#0 1u)
         let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)

@@ -691,37 +691,19 @@ subroutine main:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                          offset_is_correct%0#0
         assert // invalid tail pointer for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4> 
-        v-load index%0#0                                                                      index%0#0
-        int 1                                                                                 index%0#0,1
-        +                                                                                     next_index%0#0
-        v-store next_index%0#0
-        v-load length%13#0                                                                    length%13#0
-        v-load next_index%0#0                                                                 length%13#0,next_index%0#0
-        - // on error: Index access is out of bounds                                          has_next%0#0
-        v-store has_next%0#0
         v-load array_data%0#0                                                                 array_data%0#0
-        len                                                                                   end_of_array%0#0
-        v-store end_of_array%0#0
-        v-load next_index%0#0                                                                 next_index%0#0
-        int 2                                                                                 next_index%0#0,2
-        *                                                                                     next_item_offset_offset%0#0
-        v-store next_item_offset_offset%0#0
-        v-load array_data%0#0                                                                 array_data%0#0
-        v-load next_item_offset_offset%0#0                                                    array_data%0#0,next_item_offset_offset%0#0
-        extract_uint16                                                                        next_item_offset%0#0
-        v-store next_item_offset%0#0
-        v-load end_of_array%0#0                                                               end_of_array%0#0
-        v-load next_item_offset%0#0                                                           end_of_array%0#0,next_item_offset%0#0
-        v-load has_next%0#0                                                                   end_of_array%0#0,next_item_offset%0#0,has_next%0#0
-        select                                                                                end_offset%0#0
-        v-store end_offset%0#0
+        len                                                                                   total_length%0#0
+        v-store total_length%0#0
         v-load array_data%0#0                                                                 array_data%0#0
         v-load item_offset%0#0                                                                array_data%0#0,item_offset%0#0
-        v-load end_offset%0#0                                                                 array_data%0#0,item_offset%0#0,end_offset%0#0
-        substring3                                                                            item%0#0
-        v-store item%0#0
-        v-load item%0#0                                                                       item%0#0
-        int 40                                                                                item%0#0,40
+        v-load total_length%0#0                                                               array_data%0#0,item_offset%0#0,total_length%0#0
+        substring3                                                                            data%0#0
+        v-store data%0#0
+        v-load data%0#0                                                                       data%0#0
+        len                                                                                   tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load data%0#0                                                                       data%0#0
+        int 40                                                                                data%0#0,40
         extract_uint16 // on error: invalid tuple encoding                                    offset%0#0
         v-store offset%0#0
         v-load offset%0#0                                                                     offset%0#0
@@ -730,16 +712,13 @@ subroutine main:
         v-store offset_is_correct%1#0
         v-load offset_is_correct%1#0                                                          offset_is_correct%1#0
         assert // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4 
+        v-load data%0#0                                                                       data%0#0
+        v-load offset%0#0                                                                     data%0#0,offset%0#0
+        v-load tuple_len%0#0                                                                  data%0#0,offset%0#0,tuple_len%0#0
+        substring3                                                                            item%0#0
+        v-store item%0#0
         v-load item%0#0                                                                       item%0#0
-        len                                                                                   item_end_offset%0#0
-        v-store item_end_offset%0#0
-        v-load item%0#0                                                                       item%0#0
-        v-load offset%0#0                                                                     item%0#0,offset%0#0
-        v-load item_end_offset%0#0                                                            item%0#0,offset%0#0,item_end_offset%0#0
-        substring3                                                                            item%1#0
-        v-store item%1#0
-        v-load item%1#0                                                                       item%1#0
-        int 0                                                                                 item%1#0,0
+        int 0                                                                                 item%0#0,0
         extract_uint16 // on error: invalid array length header                               length%14#0
         v-store length%14#0
         v-load length%14#0                                                                    length%14#0
@@ -754,7 +733,9 @@ subroutine main:
         v-load num_bytes_value%0#0                                                            num_bytes%13#0,num_bytes_value%0#0
         +                                                                                     num_bytes%13#0
         v-store num_bytes%13#0
-        v-load next_index%0#0                                                                 next_index%0#0
+        v-load index%0#0                                                                      index%0#0
+        int 1                                                                                 index%0#0,1
+        +                                                                                     index%0#0
         v-store index%0#0
         b main_for_header@14
 
@@ -850,45 +831,27 @@ subroutine main:
         v-store head_offset_bytes%1#0
         v-load tmp%81#0                                                                       tmp%81#0
         v-load head_offset_bytes%1#0                                                          tmp%81#0,head_offset_bytes%1#0
-        extract_uint16 // on error: invalid array encoding                                    item_offset%2#0
-        v-store item_offset%2#0
-        v-load item_offset%2#0                                                                item_offset%2#0
-        v-load num_bytes%17#0                                                                 item_offset%2#0,num_bytes%17#0
+        extract_uint16 // on error: invalid array encoding                                    item_offset%1#0
+        v-store item_offset%1#0
+        v-load item_offset%1#0                                                                item_offset%1#0
+        v-load num_bytes%17#0                                                                 item_offset%1#0,num_bytes%17#0
         ==                                                                                    offset_is_correct%2#0
         v-store offset_is_correct%2#0
         v-load offset_is_correct%2#0                                                          offset_is_correct%2#0
         assert // invalid tail pointer for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3> 
-        v-load index%1#0                                                                      index%1#0
-        int 1                                                                                 index%1#0,1
-        +                                                                                     next_index%1#0
-        v-store next_index%1#0
-        int 3                                                                                 3
-        v-load next_index%1#0                                                                 3,next_index%1#0
-        - // on error: Index access is out of bounds                                          has_next%1#0
-        v-store has_next%1#0
         v-load tmp%81#0                                                                       tmp%81#0
-        len                                                                                   end_of_array%1#0
-        v-store end_of_array%1#0
-        v-load next_index%1#0                                                                 next_index%1#0
-        int 2                                                                                 next_index%1#0,2
-        *                                                                                     next_item_offset_offset%1#0
-        v-store next_item_offset_offset%1#0
+        len                                                                                   total_length%1#0
+        v-store total_length%1#0
         v-load tmp%81#0                                                                       tmp%81#0
-        v-load next_item_offset_offset%1#0                                                    tmp%81#0,next_item_offset_offset%1#0
-        extract_uint16                                                                        next_item_offset%1#0
-        v-store next_item_offset%1#0
-        v-load end_of_array%1#0                                                               end_of_array%1#0
-        v-load next_item_offset%1#0                                                           end_of_array%1#0,next_item_offset%1#0
-        v-load has_next%1#0                                                                   end_of_array%1#0,next_item_offset%1#0,has_next%1#0
-        select                                                                                end_offset%1#0
-        v-store end_offset%1#0
-        v-load tmp%81#0                                                                       tmp%81#0
-        v-load item_offset%2#0                                                                tmp%81#0,item_offset%2#0
-        v-load end_offset%1#0                                                                 tmp%81#0,item_offset%2#0,end_offset%1#0
-        substring3                                                                            item%2#0
-        v-store item%2#0
-        v-load item%2#0                                                                       item%2#0
-        int 40                                                                                item%2#0,40
+        v-load item_offset%1#0                                                                tmp%81#0,item_offset%1#0
+        v-load total_length%1#0                                                               tmp%81#0,item_offset%1#0,total_length%1#0
+        substring3                                                                            data%1#0
+        v-store data%1#0
+        v-load data%1#0                                                                       data%1#0
+        len                                                                                   tuple_len%1#0
+        v-store tuple_len%1#0
+        v-load data%1#0                                                                       data%1#0
+        int 40                                                                                data%1#0,40
         extract_uint16 // on error: invalid tuple encoding                                    offset%1#0
         v-store offset%1#0
         v-load offset%1#0                                                                     offset%1#0
@@ -897,16 +860,13 @@ subroutine main:
         v-store offset_is_correct%3#0
         v-load offset_is_correct%3#0                                                          offset_is_correct%3#0
         assert // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4 
-        v-load item%2#0                                                                       item%2#0
-        len                                                                                   item_end_offset%1#0
-        v-store item_end_offset%1#0
-        v-load item%2#0                                                                       item%2#0
-        v-load offset%1#0                                                                     item%2#0,offset%1#0
-        v-load item_end_offset%1#0                                                            item%2#0,offset%1#0,item_end_offset%1#0
-        substring3                                                                            item%3#0
-        v-store item%3#0
-        v-load item%3#0                                                                       item%3#0
-        int 0                                                                                 item%3#0,0
+        v-load data%1#0                                                                       data%1#0
+        v-load offset%1#0                                                                     data%1#0,offset%1#0
+        v-load tuple_len%1#0                                                                  data%1#0,offset%1#0,tuple_len%1#0
+        substring3                                                                            item%1#0
+        v-store item%1#0
+        v-load item%1#0                                                                       item%1#0
+        int 0                                                                                 item%1#0,0
         extract_uint16 // on error: invalid array length header                               length%16#0
         v-store length%16#0
         v-load length%16#0                                                                    length%16#0
@@ -921,7 +881,9 @@ subroutine main:
         v-load num_bytes_value%1#0                                                            num_bytes%17#0,num_bytes_value%1#0
         +                                                                                     num_bytes%17#0
         v-store num_bytes%17#0
-        v-load next_index%1#0                                                                 next_index%1#0
+        v-load index%1#0                                                                      index%1#0
+        int 1                                                                                 index%1#0,1
+        +                                                                                     index%1#0
         v-store index%1#0
         b main_for_header@19
 
