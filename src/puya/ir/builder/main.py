@@ -274,15 +274,9 @@ class FunctionIRBuilder(
                     "offset_is_correct",
                 )
                 factory.assert_value(offset_is_correct, f"invalid tail pointer for {wtype}")
-                item_vp = arc4.arc4_array_index(
-                    self.context,
-                    array_wtype=wtype,
-                    array=value,
-                    index=index,
-                    source_location=loc,
-                    assert_bounds=False,
+                item = factory.extract_to_end(
+                    value=array_data, start=item_offset, temp_desc="item"
                 )
-                (item,) = self.materialise_value_provider(item_vp, "item")
                 element_num_bytes = self._get_expected_size(item, wtype.element_type, loc)
                 # while in a loop need to ensure we update the following variables and don't
                 # create new temporaries
@@ -301,6 +295,7 @@ class FunctionIRBuilder(
             num_bytes_value = factory.constant(
                 get_arc4_tuple_head_size(wtype.types, round_end_result=True) // 8
             )
+            value_len = factory.len(value, "tuple_len")
             for idx, el in enumerate(wtype.types):
                 if is_arc4_dynamic_size(el):
                     offset_index = (
@@ -314,14 +309,9 @@ class FunctionIRBuilder(
                         offset_is_correct,
                         error_message=f"invalid tail pointer at index {idx} of {wtype}",
                     )
-                    item_vp = arc4.arc4_tuple_index(
-                        self.context,
-                        base=value,
-                        index=idx,
-                        wtype=wtype,
-                        source_location=loc,
+                    item = factory.substring3(
+                        value=value, start=offset, end_ex=value_len, temp_desc="item"
                     )
-                    (item,) = self.materialise_value_provider(item_vp, "item")
                     element_num_bytes = self._get_expected_size(item, el, loc)
                     num_bytes_value = factory.add(
                         num_bytes_value, element_num_bytes, "num_bytes_value"
