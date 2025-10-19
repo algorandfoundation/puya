@@ -1,5 +1,4 @@
 import base64
-import contextlib
 import hashlib
 import math
 import random
@@ -2970,68 +2969,34 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
 
 
 @pytest.mark.parametrize(
-    ("type_name", "size_or_bytes_value", "expected_error"),
+    ("type_name", "size_or_bytes_value"),
     [
-        ("uint64", 8, None),
-        ("uint64", 7, _invalid_size("arc4.uint64")),
-        ("ufixed64", 8, None),
-        ("ufixed64", 7, _invalid_size("arc4.ufixed64x2")),
-        ("uint8", 1, None),
-        ("uint8", 2, _invalid_size("arc4.uint8")),
-        ("bool", 1, None),
-        ("bool", 2, _invalid_size("arc4.bool")),
-        ("byte", 1, None),
-        ("byte", 2, _invalid_size("arc4.uint8")),
-        ("string", 2, None),
-        ("string", (4, b"\x00" * 4), None),
-        ("string", 5, _invalid_arr_size("arc4.uint8")),
-        ("bytes", 2, None),
-        ("bytes", (4, b"\x00" * 4), None),
-        ("bytes", 5, _invalid_arr_size("arc4.uint8")),
-        ("address", 32, None),
-        ("address", 0, _invalid_arr_size("arc4.uint8", 32)),
-        ("address", 33, _invalid_arr_size("arc4.uint8", 32)),
-        ("account", 32, None),
-        ("account", 0, _invalid_arr_size("arc4.uint8", 32)),
-        ("account", 33, _invalid_arr_size("arc4.uint8", 32)),
-        ("uint512", 64, None),
-        ("uint512", 63, _invalid_size("arc4.uint512")),
-        ("uint8_arr", 2, None),
-        ("uint8_arr", b"\x00\x01\x00", None),
-        ("uint8_arr", 1, "invalid array length header"),
-        ("uint8_arr", 3, _invalid_arr_size("arc4.uint8")),
-        ("uint8_arr3", 3, None),
-        ("uint8_arr3", 1, _invalid_arr_size("arc4.uint8", 3)),
-        ("uint8_arr3", 4, _invalid_arr_size("arc4.uint8", 3)),
-        ("bool_arr", b"\x00\x00", None),
-        ("bool_arr", b"\x00\x01\x00", None),
-        ("bool_arr", b"\x00\x08\x00", None),
-        ("bool_arr", b"\x00\x0a\x00\x00", None),
-        ("bool_arr", b"\x00\x01", _invalid_arr_size("arc4.bool")),
-        ("bool_arr", b"\x00\x09\x00", _invalid_arr_size("arc4.bool")),
-        ("static_struct", 9, None),
-        ("static_struct", 8, _invalid_size(_STATIC_STRUCT)),
-        ("dynamic_struct", 0, "invalid tuple encoding"),
-        ("dynamic_struct", _VALID_DYNAMIC_STRUCT_BYTES, None),
-        ("dynamic_struct", 11, "invalid tail pointer"),
-        ("dynamic_struct", _INVALID_DYNAMIC_STRUCT_BYTES, _invalid_size(_DYNAMIC_STRUCT)),
-        ("static_tuple", 9, None),
-        ("static_tuple", 8, _invalid_size("arc4.tuple<arc4.uint64,arc4.uint8>")),
-        ("dynamic_tuple", 0, "invalid tuple encoding"),
-        ("dynamic_tuple", _VALID_DYNAMIC_STRUCT_BYTES, None),
-        ("dynamic_tuple", 11, "invalid tail pointer"),
-        (
-            "dynamic_tuple",
-            _INVALID_DYNAMIC_STRUCT_BYTES,
-            _invalid_size("arc4.tuple<arc4.uint64,arc4.uint8,arc4.dynamic_array<arc4.uint8>>"),
-        ),
-        ("static_struct_arr", b"\x00\x03" + b"\x00" * 27, None),
-        ("static_struct_arr", 0, "invalid array length header"),
-        ("static_struct_arr", 1, "invalid array length header"),
-        ("static_struct_arr", 29, _invalid_arr_size(_STATIC_STRUCT)),
-        ("static_struct_arr3", 27, None),
-        ("static_struct_arr3", 26, _invalid_arr_size(_STATIC_STRUCT, 3)),
-        ("dynamic_struct_arr", 2, None),
+        ("uint64", 8),
+        ("ufixed64", 8),
+        ("uint8", 1),
+        ("bool", 1),
+        ("byte", 1),
+        ("string", 2),
+        ("string", (4, b"\x00" * 4)),
+        ("bytes", 2),
+        ("bytes", (4, b"\x00" * 4)),
+        ("address", 32),
+        ("account", 32),
+        ("uint512", 64),
+        ("uint8_arr", 2),
+        ("uint8_arr", b"\x00\x01\x00"),
+        ("uint8_arr3", 3),
+        ("bool_arr", b"\x00\x00"),
+        ("bool_arr", b"\x00\x01\x00"),
+        ("bool_arr", b"\x00\x08\x00"),
+        ("bool_arr", b"\x00\x0a\x00\x00"),
+        ("static_struct", 9),
+        ("dynamic_struct", _VALID_DYNAMIC_STRUCT_BYTES),
+        ("static_tuple", 9),
+        ("dynamic_tuple", _VALID_DYNAMIC_STRUCT_BYTES),
+        ("static_struct_arr", b"\x00\x03" + b"\x00" * 27),
+        ("static_struct_arr3", 27),
+        ("dynamic_struct_arr", 2),
         (
             "dynamic_struct_arr",
             (
@@ -3041,8 +3006,73 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
-            None,
         ),
+        (
+            "dynamic_struct_arr3",
+            (
+                6,
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+        ),
+    ],
+)
+def test_arc4_validation_valid(
+    arc4_validation_client: ApplicationClient,
+    type_name: str,
+    size_or_bytes_value: bytes | int | tuple[int | bytes, ...],
+) -> None:
+    if isinstance(size_or_bytes_value, bytes):
+        bytes_value = size_or_bytes_value
+    elif isinstance(size_or_bytes_value, int):
+        bytes_value = b"\x00" * size_or_bytes_value
+    else:
+        bytes_value = b"".join(
+            b if isinstance(b, bytes) else b.to_bytes(length=2) for b in size_or_bytes_value
+        )
+    arc4_validation_client.call(f"validate_{type_name}", value=bytes_value)
+
+
+@pytest.mark.parametrize(
+    ("type_name", "size_or_bytes_value", "expected_error"),
+    [
+        ("uint64", 7, _invalid_size("arc4.uint64")),
+        ("ufixed64", 7, _invalid_size("arc4.ufixed64x2")),
+        ("uint8", 2, _invalid_size("arc4.uint8")),
+        ("bool", 2, _invalid_size("arc4.bool")),
+        ("byte", 2, _invalid_size("arc4.uint8")),
+        ("string", 5, _invalid_arr_size("arc4.uint8")),
+        ("bytes", 5, _invalid_arr_size("arc4.uint8")),
+        ("address", 0, _invalid_arr_size("arc4.uint8", 32)),
+        ("address", 33, _invalid_arr_size("arc4.uint8", 32)),
+        ("account", 0, _invalid_arr_size("arc4.uint8", 32)),
+        ("account", 33, _invalid_arr_size("arc4.uint8", 32)),
+        ("uint512", 63, _invalid_size("arc4.uint512")),
+        ("uint8_arr", 1, "invalid array length header"),
+        ("uint8_arr", 3, _invalid_arr_size("arc4.uint8")),
+        ("uint8_arr3", 1, _invalid_arr_size("arc4.uint8", 3)),
+        ("uint8_arr3", 4, _invalid_arr_size("arc4.uint8", 3)),
+        ("bool_arr", b"\x00\x01", _invalid_arr_size("arc4.bool")),
+        ("bool_arr", b"\x00\x09\x00", _invalid_arr_size("arc4.bool")),
+        ("static_struct", 8, _invalid_size(_STATIC_STRUCT)),
+        ("dynamic_struct", 0, "invalid tuple encoding"),
+        ("dynamic_struct", 11, "invalid tail pointer"),
+        ("dynamic_struct", _INVALID_DYNAMIC_STRUCT_BYTES, _invalid_size(_DYNAMIC_STRUCT)),
+        ("static_tuple", 8, _invalid_size("arc4.tuple<arc4.uint64,arc4.uint8>")),
+        ("dynamic_tuple", 0, "invalid tuple encoding"),
+        ("dynamic_tuple", 11, "invalid tail pointer"),
+        (
+            "dynamic_tuple",
+            _INVALID_DYNAMIC_STRUCT_BYTES,
+            _invalid_size("arc4.tuple<arc4.uint64,arc4.uint8,arc4.dynamic_array<arc4.uint8>>"),
+        ),
+        ("static_struct_arr", 0, "invalid array length header"),
+        ("static_struct_arr", 1, "invalid array length header"),
+        ("static_struct_arr", 29, _invalid_arr_size(_STATIC_STRUCT)),
+        ("static_struct_arr3", 26, _invalid_arr_size(_STATIC_STRUCT, 3)),
         ("dynamic_struct_arr", 0, "invalid array length header"),
         ("dynamic_struct_arr", 1, "invalid array length header"),
         ("dynamic_struct_arr", 29, _invalid_arr_size(_DYNAMIC_STRUCT)),
@@ -3079,29 +3109,17 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
                 6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
-                _VALID_DYNAMIC_STRUCT_BYTES,
-            ),
-            None,
-        ),
-        (
-            "dynamic_struct_arr3",
-            (
-                6,
-                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
-                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
-                _VALID_DYNAMIC_STRUCT_BYTES,
-                _VALID_DYNAMIC_STRUCT_BYTES,
                 _INVALID_DYNAMIC_STRUCT_BYTES,
             ),
             _invalid_arr_size(_DYNAMIC_STRUCT, 3),
         ),
     ],
 )
-def test_arc4_validation(
+def test_arc4_validation_invalid(
     arc4_validation_client: ApplicationClient,
     type_name: str,
-    size_or_bytes_value: bytes | int | list[bytes | int],
-    expected_error: str | None,
+    size_or_bytes_value: bytes | int | tuple[int | bytes, ...],
+    expected_error: str,
 ) -> None:
     if isinstance(size_or_bytes_value, bytes):
         bytes_value = size_or_bytes_value
@@ -3111,12 +3129,7 @@ def test_arc4_validation(
         bytes_value = b"".join(
             b if isinstance(b, bytes) else b.to_bytes(length=2) for b in size_or_bytes_value
         )
-    ctx = (
-        pytest.raises(LogicError, match=re.escape(expected_error) + r"[^\n]*<-- Error")
-        if expected_error is not None
-        else contextlib.nullcontext()
-    )
-    with ctx:
+    with pytest.raises(LogicError, match=re.escape(expected_error) + r"[^\n]*<-- Error"):
         arc4_validation_client.call(f"validate_{type_name}", value=bytes_value)
 
 
@@ -3125,21 +3138,13 @@ _NATIVE_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.NativeDynamicStruc
 
 
 @pytest.mark.parametrize(
-    ("type_name", "size_or_bytes_value", "expected_error"),
+    ("type_name", "size_or_bytes_value"),
     [
-        ("static_struct", 9, None),
-        ("static_struct", 8, _invalid_size(_NATIVE_STATIC_STRUCT)),
-        ("dynamic_struct", 0, "invalid tuple encoding"),
-        ("dynamic_struct", _VALID_DYNAMIC_STRUCT_BYTES, None),
-        ("dynamic_struct", 11, "invalid tail pointer"),
-        ("dynamic_struct", _INVALID_DYNAMIC_STRUCT_BYTES, _invalid_size(_NATIVE_DYNAMIC_STRUCT)),
-        ("static_struct_arr", b"\x00\x03" + b"\x00" * 27, None),
-        ("static_struct_arr", 0, "invalid array length header"),
-        ("static_struct_arr", 1, "invalid array length header"),
-        ("static_struct_arr", 29, _invalid_arr_size(_NATIVE_STATIC_STRUCT)),
-        ("static_struct_arr3", 27, None),
-        ("static_struct_arr3", 26, _invalid_arr_size(_NATIVE_STATIC_STRUCT, 3)),
-        ("dynamic_struct_arr", 2, None),
+        ("static_struct", 9),
+        ("dynamic_struct", _VALID_DYNAMIC_STRUCT_BYTES),
+        ("static_struct_arr", b"\x00\x03" + b"\x00" * 27),
+        ("static_struct_arr3", 27),
+        ("dynamic_struct_arr", 2),
         (
             "dynamic_struct_arr",
             (
@@ -3149,8 +3154,47 @@ _NATIVE_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.NativeDynamicStruc
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
-            None,
         ),
+        (
+            "dynamic_struct_arr3",
+            (
+                6,
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+        ),
+    ],
+)
+def test_native_validation_valid(
+    arc4_validation_client: ApplicationClient,
+    type_name: str,
+    size_or_bytes_value: bytes | int | tuple[int | bytes, ...],
+) -> None:
+    if isinstance(size_or_bytes_value, bytes):
+        bytes_value = size_or_bytes_value
+    elif isinstance(size_or_bytes_value, int):
+        bytes_value = b"\x00" * size_or_bytes_value
+    else:
+        bytes_value = b"".join(
+            b if isinstance(b, bytes) else b.to_bytes(length=2) for b in size_or_bytes_value
+        )
+    arc4_validation_client.call(f"validate_native_{type_name}", value=bytes_value)
+
+
+@pytest.mark.parametrize(
+    ("type_name", "size_or_bytes_value", "expected_error"),
+    [
+        ("static_struct", 8, _invalid_size(_NATIVE_STATIC_STRUCT)),
+        ("dynamic_struct", 0, "invalid tuple encoding"),
+        ("dynamic_struct", 11, "invalid tail pointer"),
+        ("dynamic_struct", _INVALID_DYNAMIC_STRUCT_BYTES, _invalid_size(_NATIVE_DYNAMIC_STRUCT)),
+        ("static_struct_arr", 0, "invalid array length header"),
+        ("static_struct_arr", 1, "invalid array length header"),
+        ("static_struct_arr", 29, _invalid_arr_size(_NATIVE_STATIC_STRUCT)),
+        ("static_struct_arr3", 26, _invalid_arr_size(_NATIVE_STATIC_STRUCT, 3)),
         ("dynamic_struct_arr", 0, "invalid array length header"),
         ("dynamic_struct_arr", 1, "invalid array length header"),
         ("dynamic_struct_arr", 29, _invalid_arr_size(_NATIVE_DYNAMIC_STRUCT)),
@@ -3175,29 +3219,17 @@ _NATIVE_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.NativeDynamicStruc
                 6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
-                _VALID_DYNAMIC_STRUCT_BYTES,
-            ),
-            None,
-        ),
-        (
-            "dynamic_struct_arr3",
-            (
-                6,
-                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
-                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
-                _VALID_DYNAMIC_STRUCT_BYTES,
-                _VALID_DYNAMIC_STRUCT_BYTES,
                 _INVALID_DYNAMIC_STRUCT_BYTES,
             ),
             _invalid_arr_size(_NATIVE_DYNAMIC_STRUCT, 3),
         ),
     ],
 )
-def test_native_validation(
+def test_native_validation_invalid(
     arc4_validation_client: ApplicationClient,
     type_name: str,
-    size_or_bytes_value: bytes | int | list[bytes | int],
-    expected_error: str | None,
+    size_or_bytes_value: bytes | int | tuple[int | bytes, ...],
+    expected_error: str,
 ) -> None:
     if isinstance(size_or_bytes_value, bytes):
         bytes_value = size_or_bytes_value
@@ -3207,12 +3239,7 @@ def test_native_validation(
         bytes_value = b"".join(
             b if isinstance(b, bytes) else b.to_bytes(length=2) for b in size_or_bytes_value
         )
-    ctx = (
-        pytest.raises(LogicError, match=re.escape(expected_error) + r"[^\n]*<-- Error")
-        if expected_error is not None
-        else contextlib.nullcontext()
-    )
-    with ctx:
+    with pytest.raises(LogicError, match=re.escape(expected_error) + r"[^\n]*<-- Error"):
         arc4_validation_client.call(f"validate_native_{type_name}", value=bytes_value)
 
 
