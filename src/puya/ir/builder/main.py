@@ -200,6 +200,9 @@ class FunctionIRBuilder(
         factory = OpFactory(self.context, loc)
         value = self.visit_and_materialise_single(expr.value)
         wtype = expr.wtype
+        ir_type = wtype_to_ir_type(expr.wtype, loc)
+        if ir_type.maybe_avm_type != AVMType.bytes:
+            raise CodeError("expected bytes backed value", expr.value.source_location)
         if expr.validate:
             expected_size = self._get_expected_size(value, wtype, loc)
             value_len = factory.len(value, "value_len")
@@ -207,7 +210,6 @@ class FunctionIRBuilder(
             factory.assert_value(size_is_correct, f"invalid number of bytes for {expr.wtype}")
 
         # return value as required type
-        ir_type = wtype_to_ir_type(expr.wtype, loc)
         target = mktemp(
             self.context,
             ir_type,

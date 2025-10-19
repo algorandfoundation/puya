@@ -455,7 +455,7 @@ class ARC4FromBytes(Expression):
     Convert a Bytes expression into an ARC4 value and optionally validate the value
     """
 
-    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.BytesWType))
+    value: Expression
     wtype: wtypes.ARC4Type
     validate: bool
 
