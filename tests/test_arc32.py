@@ -3064,8 +3064,7 @@ _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
-            # invalid tuple encoding because the offsets result in a 0-length read of the 1st tuple
-            "invalid tuple encoding",
+            "invalid tail pointer",
         ),
         (
             "dynamic_struct_arr3",
@@ -3166,7 +3165,7 @@ _NATIVE_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.NativeDynamicStruc
                 _VALID_DYNAMIC_STRUCT_BYTES,
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
-            "invalid tuple encoding",
+            "invalid tail pointer",
         ),
         (
             "dynamic_struct_arr3",

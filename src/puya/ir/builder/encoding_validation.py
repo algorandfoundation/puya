@@ -89,16 +89,7 @@ def _get_expected_size(
                 factory.assert_value(
                     offset_is_correct, error_message=f"invalid tail pointer for {arr}"
                 )
-                item = factory.materialise_single(
-                    ir.ExtractValue(
-                        base=value,
-                        base_type=ir_type,
-                        ir_type=el_ir_type,
-                        indexes=(index,),
-                        source_location=loc,
-                        check_bounds=False,
-                    )
-                )
+                item = factory.extract_to_end(value=array_data, start=item_offset)
                 element_num_bytes = _get_expected_size(context, item, el_ir_type, loc)
                 # while in a loop need to ensure we update the following variables and don't
                 # create new temporaries
@@ -109,6 +100,7 @@ def _get_expected_size(
             return num_bytes_reg
         case encodings.TupleEncoding(is_dynamic=True):
             num_bytes_value = factory.constant(encoding.get_head_bit_offset(None) // 8)
+            value_len = factory.len(value, "tuple_len")
             for idx, el in enumerate(encoding.elements):
                 if el.is_dynamic:
                     offset_index = encoding.get_head_bit_offset(idx) // 8
@@ -121,16 +113,7 @@ def _get_expected_size(
                         error_message=f"invalid tail pointer at index {idx} of {encoding}",
                     )
                     el_ir_type = types.EncodedType(el)
-                    item = factory.materialise_single(
-                        ir.ExtractValue(
-                            base=value,
-                            base_type=ir_type,
-                            ir_type=el_ir_type,
-                            indexes=(idx,),
-                            source_location=loc,
-                            check_bounds=False,
-                        )
-                    )
+                    item = factory.substring3(value=value, start=offset, end_ex=value_len)
                     element_num_bytes = _get_expected_size(context, item, el_ir_type, loc)
                     num_bytes_value = factory.add(num_bytes_value, element_num_bytes)
             return num_bytes_value
