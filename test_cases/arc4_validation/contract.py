@@ -1,10 +1,12 @@
 import typing
 
-import algopy
 from algopy import (
     Account,
     ARC4Contract,
     Bytes,
+    GlobalState,
+    ImmutableArray,
+    StateTotals,
     arc4,
 )
 
@@ -20,11 +22,17 @@ class ARC4DynamicStruct(arc4.Struct):
     baz: arc4.String
 
 
+class ARC4FrozenDynamicStruct(arc4.Struct, frozen=True):
+    foo: arc4.UInt64
+    bar: arc4.UInt8
+    baz: arc4.String
+
+
 ARC4StaticTuple = arc4.Tuple[arc4.UInt64, arc4.UInt8]
 ARC4DynamicTuple = arc4.Tuple[arc4.UInt64, arc4.UInt8, arc4.String]
 
 
-class ValidationContract(ARC4Contract, state_totals=algopy.StateTotals(global_bytes=1)):
+class ValidationContract(ARC4Contract, state_totals=StateTotals(global_bytes=1)):
     @arc4.abimethod(validate_encoding=False)
     def validate_uint64(self, value: Bytes) -> None:
         arc4.UInt64.from_bytes(value).validate()
@@ -112,3 +120,10 @@ class ValidationContract(ARC4Contract, state_totals=algopy.StateTotals(global_by
     @arc4.abimethod(validate_encoding=False)
     def validate_dynamic_struct_arr3(self, value: Bytes) -> None:
         arc4.StaticArray[ARC4DynamicStruct, typing.Literal[3]].from_bytes(value).validate()
+
+    @arc4.abimethod(validate_encoding=False)
+    def validate_dynamic_struct_imm_arr(self, value: Bytes) -> None:
+        b = GlobalState(Bytes, key="v")
+        b.value = value
+        n = GlobalState(ImmutableArray[ARC4FrozenDynamicStruct], key="v")
+        n.value.validate()

@@ -199,7 +199,12 @@ class FunctionIRBuilder(
         loc = expr.source_location
         factory = OpFactory(self.context, loc)
         value = self.visit_and_materialise_single(expr.value)
-        wtype = expr.wtype
+        if isinstance(expr.wtype, wtypes.ARC4Type):
+            wtype = expr.wtype
+        elif isinstance(expr.wtype, wtypes.StackArray):
+            wtype = effective_array_encoding(expr.wtype, loc)
+        else:
+            raise InternalError("expected ARC-4 or StackArray wtype", loc)
         ir_type = wtype_to_ir_type(expr.wtype, loc)
         if ir_type.maybe_avm_type != AVMType.bytes:
             raise CodeError("expected bytes backed value", expr.value.source_location)

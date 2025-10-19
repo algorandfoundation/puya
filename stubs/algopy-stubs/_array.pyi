@@ -2,10 +2,11 @@ import typing
 from collections.abc import Iterable, Iterator, Reversible
 
 import algopy
+from algopy._interfaces import _Validatable
 
 _T = typing.TypeVar("_T")
 
-class ImmutableArray(Reversible[_T]):
+class ImmutableArray(_Validatable, Reversible[_T]):
     """
     An immutable array that supports fixed and dynamically sized immutable elements.
     Modifications are done by returning a new copy of the array with the modifications applied.
