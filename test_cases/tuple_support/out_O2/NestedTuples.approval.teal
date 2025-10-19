@@ -34,42 +34,43 @@ main_after_if_else@2:
 main_nested_named_tuple_params_route@19:
     txna ApplicationArgs 1
     dup
+    len
+    dig 1
     pushint 16 // 16
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 18 // 18
     ==
     assert // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
-    dig 1
-    len
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     dup
+    len
+    dig 1
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 12 // 12
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 1
-    pushint 10 // 10
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14 // 14
     +
-    dup2
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 2
-    len
-    swap
+    cover 2
     cover 3
     substring3
     intc_0 // 0
@@ -91,37 +92,37 @@ main_nested_named_tuple_params_route@19:
 main_named_tuple_route@18:
     txna ApplicationArgs 1
     dup
+    len
+    dig 1
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 12 // 12
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 1
-    pushint 10 // 10
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14 // 14
     +
-    dup2
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 2
-    len
     dig 3
-    uncover 3
-    dig 2
+    swap
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
-    uncover 2
     +
     ==
     assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
@@ -135,45 +136,45 @@ main_named_tuple_route@18:
 main_nested_tuple_params_route@17:
     txna ApplicationArgs 1
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),((len+uint8[]),(uint64)))
+    dig 2
     dig 1
-    intc_2 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 6 // 6
     +
+    dig 3
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of ((len+utf8[]),((len+uint8[]),(uint64)))
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 0 of ((len+uint8[]),(uint64))
-    dig 1
-    len
     dig 2
-    cover 2
+    swap
+    uncover 2
     substring3
     dup
     intc_0 // 0
@@ -182,10 +183,12 @@ main_nested_tuple_params_route@17:
     +
     uncover 4
     +
-    uncover 3
+    uncover 5
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
-    uncover 2
+    cover 4
+    cover 4
+    substring3
     extract 2 0
     swap
     extract 2 0
@@ -246,20 +249,20 @@ main_run_tests_route@16:
     assert
     assert
     intc_0 // 0
-    bury 1
+    bury 2
     intc_0 // 0
     intc_1 // 1
-    bury 7
+    bury 8
     intc_2 // 2
     swap
 
 main_for_body@87:
-    dig 7
+    dig 8
     uncover 2
     +
-    dig 2
+    dig 3
     +
-    bury 2
+    bury 3
     switch main_for_header_1@88 main_for_header_2@89 main_for_header_3@90
     intc_0 // 0
     intc_1 // 1
@@ -271,11 +274,11 @@ main_for_body@92:
     dig 15
     uncover 2
     +
-    dig 2
+    dig 3
     +
-    bury 2
+    bury 3
     switch main_for_header_1@93 main_for_header_2@94 main_for_header_3@95
-    dup
+    dig 1
     intc_3 // 8
     /
     pushint 3 // 3
@@ -316,7 +319,7 @@ main_for_header_1@93:
 main_for_header_3@90:
     pushint 3 // 3
     intc_2 // 2
-    bury 7
+    bury 8
     intc_2 // 2
     swap
     b main_for_body@87
@@ -324,7 +327,7 @@ main_for_header_3@90:
 main_for_header_2@89:
     intc_2 // 2
     intc_1 // 1
-    bury 7
+    bury 8
     intc_1 // 1
     swap
     b main_for_body@87
@@ -332,7 +335,7 @@ main_for_header_2@89:
 main_for_header_1@88:
     intc_1 // 1
     intc_2 // 2
-    bury 7
+    bury 8
     intc_1 // 1
     swap
     b main_for_body@87
@@ -439,14 +442,14 @@ main_mutate_tuple_in_storage_currently_supported_method_route@15:
 
 main_mutate_local_tuple_route@14:
     intc_0 // 0
-    bury 9
+    bury 10
 
 main_for_header@37:
-    dig 8
+    dig 9
     pushint 3 // 3
     <
     bz main_after_for@39
-    dig 8
+    dig 9
     dup
     intc_3 // 8
     *
@@ -460,7 +463,7 @@ main_for_header@37:
     assert
     intc_1 // 1
     +
-    bury 9
+    bury 10
     b main_for_header@37
 
 main_after_for@39:
@@ -486,8 +489,8 @@ main_load_tuple_from_local_state_or_default_route@13:
     pushint 4 // 4
     intc_2 // 2
     callsub simple_tup
-    bury 5
-    bury 5
+    bury 6
+    bury 6
     intc_0 // 0
     uncover 2
     app_local_get_ex
@@ -516,8 +519,8 @@ main_ternary_merge@44:
     return
 
 main_ternary_false@43:
-    dig 2
-    dig 2
+    dig 3
+    dig 3
     b main_ternary_merge@44
 
 main_load_tuple_from_box_or_default_route@12:
@@ -533,8 +536,8 @@ main_load_tuple_from_box_or_default_route@12:
     pushint 4 // 4
     intc_2 // 2
     callsub simple_tup
-    bury 6
-    bury 6
+    bury 7
+    bury 7
     box_get
     swap
     bury 17
@@ -561,8 +564,8 @@ main_ternary_merge@49:
     return
 
 main_ternary_false@48:
-    dig 4
-    dig 4
+    dig 5
+    dig 5
     b main_ternary_merge@49
 
 main_maybe_load_tuple_from_box_route@11:
@@ -578,7 +581,7 @@ main_maybe_load_tuple_from_box_route@11:
     box_get
     dup
     cover 2
-    bury 12
+    bury 13
     bury 17
     bz main_ternary_false@53
     dig 15
@@ -597,7 +600,7 @@ main_ternary_merge@54:
     concat
     pushbytes 0x00
     intc_0 // 0
-    dig 12
+    dig 13
     setbit
     concat
     bytec_0 // 0x151f7c75
@@ -697,6 +700,11 @@ main_store_tuple_route@6:
     dup
     bury 16
     dup
+    len
+    dup
+    cover 2
+    bury 3
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
@@ -704,46 +712,45 @@ main_store_tuple_route@6:
     ==
     assert // invalid tail pointer at index 0 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
     dig 1
-    intc_2 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    swap
+    dig 3
     substring3
     dup
+    len
+    dig 1
     pushint 16 // 16
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 18 // 18
     ==
     assert // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
-    dig 1
-    len
+    swap
     substring3
     dup
+    len
+    dig 1
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 12 // 12
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 1
-    pushint 10 // 10
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14 // 14
     +
-    dup2
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 2
-    len
-    swap
+    cover 2
     cover 3
     substring3
     intc_0 // 0
@@ -756,14 +763,13 @@ main_store_tuple_route@6:
     dup
     bury 16
     dig 1
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    uncover 2
     ==
     assert // invalid tail pointer at index 1 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
-    dig 1
-    len
-    dup
-    cover 2
-    bury 14
-    swap
+    uncover 2
     substring3
     dup
     intc_0 // 0
@@ -772,75 +778,59 @@ main_store_tuple_route@6:
     bury 14
     intc_2 // 2
     *
-    bury 8
+    bury 9
     extract 2 0
     bury 17
     intc_0 // 0
-    bury 8
+    bury 9
 
 main_for_header@65:
-    dig 7
+    dig 8
     dig 12
     <
     bz main_after_for@67
-    dig 7
+    dig 8
     dup
     intc_2 // 2
     *
     dig 18
     dup
-    cover 3
-    swap
+    uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 10
+    dig 11
     dup
-    cover 5
+    cover 4
     ==
     assert // invalid tail pointer for (len+(uint64,(len+uint8[]),(len+utf8[]))[])
-    swap
-    intc_1 // 1
-    +
-    dig 15
     dig 1
-    - // on error: index access is out of bounds
-    dig 3
     len
-    dig 2
-    intc_2 // 2
-    *
-    dig 5
-    swap
-    extract_uint16
-    uncover 2
-    select
-    swap
-    cover 3
     substring3
     dup
+    len
+    dig 1
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 12 // 12
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 1
-    pushint 10 // 10
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 14 // 14
     +
-    dup2
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-    dig 2
-    len
-    swap
+    cover 2
     cover 3
     substring3
     intc_0 // 0
@@ -848,19 +838,20 @@ main_for_header@65:
     intc_2 // 2
     +
     +
-    uncover 2
     +
-    bury 8
-    bury 8
+    bury 9
+    intc_1 // 1
+    +
+    bury 9
     b main_for_header@65
 
 main_after_for@67:
-    dig 6
+    dig 7
     intc_2 // 2
     +
     dig 13
     +
-    dig 11
+    dig 1
     ==
     assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
     bytec 6 // "pwl"

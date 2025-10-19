@@ -1310,40 +1310,27 @@ test_nested_array_for_header@1:
 test_nested_array_for_body@2:
     // array/immutable.py:258
     // @arc4.abimethod()
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
+    dup
+    cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
-    dig 4
     dup
-    cover 3
+    dig 5
+    dup
+    cover 4
     ==
     assert // invalid tail pointer for (len+(len+uint64[])[])
-    dig 6
-    dup
+    dig 1
     len
     cover 1
-    intc_2 // 2
+    uncover 2
+    uncover 1
     uncover 2
     substring3
-    uncover 1
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    dup2
-    extract_uint16
-    intc_3 // 8
-    *
-    intc_2 // 2
-    +
-    uncover 2
-    uncover 2
-    uncover 2
-    extract3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 8
@@ -1473,73 +1460,37 @@ sum_uints_and_lengths_and_trues_for_header@1:
 sum_uints_and_lengths_and_trues_for_body@2:
     // array/immutable.py:341
     // @arc4.abimethod()
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
+    dup
+    cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
-    dig 4
     dup
-    cover 3
+    dig 5
+    dup
+    cover 4
     ==
     assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 6
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
     dup
     len
     cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    dig 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    cover 3
-    uncover 2
-    intc_1 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 1
-    len
-    cover 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 1
-    uncover 2
-    uncover 2
-    substring3
     dup
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dup
-    intc_3 // 8
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    uncover 2
     uncover 2
     substring3
     intc_0 // 0
@@ -1790,21 +1741,18 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    cover 1
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-    dup
-    intc_0 // 0
-    extract_uint16
-    cover 1
-    dup
-    intc_2 // 2
-    extract_uint16
     dig 1
-    uncover 3
-    uncover 2
+    uncover 1
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1817,19 +1765,13 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     dig 1
     intc_2 // 2
     extract_uint16 // on error: invalid tuple encoding
-    dig 1
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    dig 1
-    intc_2 // 2
-    extract_uint16
-    cover 1
     dig 2
-    len
-    cover 1
-    dig 3
-    uncover 3
-    uncover 3
+    uncover 1
+    uncover 4
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1860,21 +1802,18 @@ test_dynamic_concat_with_native_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    cover 1
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-    dup
-    intc_0 // 0
-    extract_uint16
-    cover 1
-    dup
-    intc_2 // 2
-    extract_uint16
     dig 1
-    uncover 3
-    uncover 2
+    uncover 1
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1887,19 +1826,13 @@ test_dynamic_concat_with_native_tuple_block@0:
     dig 1
     intc_2 // 2
     extract_uint16 // on error: invalid tuple encoding
-    dig 1
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    dig 1
-    intc_2 // 2
-    extract_uint16
-    cover 1
     dig 2
-    len
-    cover 1
-    dig 3
-    uncover 3
-    uncover 3
+    uncover 1
+    uncover 4
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1986,73 +1919,37 @@ test_concat_immutable_dynamic_for_header@1:
 test_concat_immutable_dynamic_for_body@2:
     // array/immutable.py:438
     // @arc4.abimethod()
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
+    dup
+    cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
-    dig 4
     dup
-    cover 3
+    dig 5
+    dup
+    cover 4
     ==
     assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 6
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
     dup
     len
     cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    dig 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    cover 3
-    uncover 2
-    intc_1 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 1
-    len
-    cover 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 1
-    uncover 2
-    uncover 2
-    substring3
     dup
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dup
-    intc_3 // 8
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    uncover 2
     uncover 2
     substring3
     intc_0 // 0
@@ -2122,73 +2019,36 @@ test_concat_immutable_dynamic_for_body@6:
     // array/immutable.py:438
     // @arc4.abimethod()
     dig 7
-    dup
     intc_2 // 2
     *
-    dig 12
+    dig 11
+    dup
+    cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
-    dig 7
     dup
-    cover 3
+    dig 8
+    dup
+    cover 4
     ==
     assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 10
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
     dup
     len
     cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    dig 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    cover 3
-    uncover 2
-    intc_1 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 1
-    len
-    cover 2
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 1
-    uncover 2
-    uncover 2
-    substring3
     dup
     intc_3 // 8
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dup
-    intc_3 // 8
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    uncover 2
     uncover 2
     substring3
     intc_0 // 0

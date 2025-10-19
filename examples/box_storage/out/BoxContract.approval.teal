@@ -1218,32 +1218,33 @@ set_nested_struct:
     intc_3 // 0
     dup
     pushbytes ""
-    dupn 8
+    dupn 6
     // box_storage/contract.py:252
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dupn 2
+    len
+    dup
+    uncover 2
+    dup
     intc_2 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 20 // 20
     ==
     assert // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
-    dig 1
-    pushint 10 // 10
-    extract_uint16
-    dup
-    cover 3
+    uncover 2
     substring3
     dup
+    len
+    dig 1
     intc_2 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 18 // 18
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
-    dig 1
-    len
+    swap
     substring3
     dup
     intc_3 // 0
@@ -1276,13 +1277,9 @@ set_nested_struct_for_header@1:
     cover 4
     ==
     assert // invalid tail pointer for (len+(len+uint64[])[])
-    dup2
-    extract_uint16
-    intc_2 // 8
-    *
-    intc_0 // 2
-    +
-    extract3
+    dig 1
+    len
+    substring3
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 8
@@ -1303,30 +1300,28 @@ set_nested_struct_after_for@4:
     pushint 40 // 40
     +
     dup
-    bury 16
-    dig 5
+    bury 14
+    dig 6
+    dup
+    cover 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
     dup
     uncover 2
     ==
     assert // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
     dig 6
-    dup
-    len
-    dup
-    cover 2
-    bury 15
-    cover 2
     substring3
     dup
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 16
+    bury 14
     intc_0 // 2
     *
     bury 9
     extract 2 0
-    bury 17
+    bury 15
     intc_3 // 0
     bury 10
 
@@ -1334,61 +1329,44 @@ set_nested_struct_for_header@5:
     // box_storage/contract.py:252
     // @arc4.abimethod()
     dig 9
-    dig 14
+    dig 12
     <
     bz set_nested_struct_after_for@12
     dig 9
-    dup
     intc_0 // 2
     *
-    dig 18
+    dig 15
     dup
-    cover 3
-    swap
+    uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 11
+    dig 10
     ==
     assert // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[])
-    swap
-    intc_1 // 1
-    +
-    dup
-    bury 14
-    dig 16
     dig 1
-    - // on error: index access is out of bounds
-    dig 3
     len
-    uncover 2
-    intc_0 // 2
-    *
-    dig 4
-    swap
-    extract_uint16
-    uncover 2
-    select
     substring3
     dup
+    len
+    dig 1
     intc_2 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 18 // 18
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
-    dig 1
-    len
+    swap
     substring3
     dup
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 15
+    bury 13
     intc_0 // 2
     *
     bury 8
     extract 2 0
-    bury 16
+    bury 14
     intc_3 // 0
     bury 9
 
@@ -1396,14 +1374,14 @@ set_nested_struct_for_header@7:
     // box_storage/contract.py:252
     // @arc4.abimethod()
     dig 8
-    dig 13
+    dig 11
     <
     bz set_nested_struct_after_for@10
     dig 8
     dup
     intc_0 // 2
     *
-    dig 17
+    dig 15
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
@@ -1413,13 +1391,9 @@ set_nested_struct_for_header@7:
     cover 4
     ==
     assert // invalid tail pointer for (len+(len+uint64[])[])
-    dup2
-    extract_uint16
-    intc_2 // 8
-    *
-    intc_0 // 2
-    +
-    extract3
+    dig 1
+    len
+    substring3
     intc_3 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 8
@@ -1442,7 +1416,9 @@ set_nested_struct_after_for@10:
     dig 8
     +
     bury 8
-    dig 10
+    dig 9
+    intc_1 // 1
+    +
     bury 10
     b set_nested_struct_for_header@5
 
@@ -1452,9 +1428,9 @@ set_nested_struct_after_for@12:
     dig 7
     intc_0 // 2
     +
-    dig 15
+    dig 13
     +
-    dig 12
+    dig 5
     ==
     assert // invalid number of bytes for examples.box_storage.contract.NestedStruct
     // box_storage/contract.py:255

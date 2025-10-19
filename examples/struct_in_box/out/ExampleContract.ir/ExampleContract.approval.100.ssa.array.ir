@@ -210,24 +210,21 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
     block@0: // L30
         let user#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len user#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 user#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 18u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint64)
-        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 user#0 0u)
-        let aggregate%len%0#0: uint64 = (len user#0)
-        let aggregate%substring3%0#0: bytes = (substring3 user#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
-        let tmp%1#0: Encoded(len+utf8[]) = aggregate%substring3%0#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 user#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%1#0: uint64 = (+ length%0#0 20u)
-        let len%0#0: uint64 = (len user#0)
-        let eq%1#0: bool = (== len%0#0 add%1#0)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for examples.struct_in_box.contract.UserStruct
         let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
         let user_id#0: Encoded(uint64) = aggregate%extract%0#0
         let (_data#0: uint64, exists#0: bool) = (box_len user_id#0)
-        let tmp%1#1: bool = (! exists#0)
-        (assert tmp%1#1) // User with id must not exist
+        let tmp%1#0: bool = (! exists#0)
+        (assert tmp%1#0) // User with id must not exist
         let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         exit 1u
 

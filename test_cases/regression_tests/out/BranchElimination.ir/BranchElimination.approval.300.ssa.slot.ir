@@ -138,11 +138,9 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(len+uint64[])[])
-        let aggregate%item_length%0#0: uint64 = (extract_uint16 array_data%0#0 item_offset%0#0)
-        let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
-        let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
-        let aggregate%item%0#0: bytes = (extract3 array_data%0#0 item_offset%0#0 aggregate%item_head_tail_length%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%item%0#0 0u) // on error: invalid array length header
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 extract_to_end%0#0 0u) // on error: invalid array length header
         let mul%0#0: uint64 = (* aggregate%array_length%1#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%0#0)
@@ -168,12 +166,12 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         goto continue_looping%0#1 ? block@7 : block@19
     block@7: // for_body_L39
         (assert continue_looping%0#1) // index access is out of bounds
-        let aggregate%item_offset_offset%1#0: uint64 = (* i#0 2u)
-        let aggregate%item_offset%1#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%1#0)
-        let aggregate%item_length%1#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%1#0)
-        let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%1#0 8u)
-        let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%1#0 2u)
-        let inner_list#0: Encoded(len+uint64[]) = (extract3 array_data%0#0 aggregate%item_offset%1#0 aggregate%item_head_tail_length%1#0)
+        let aggregate%item_offset_offset%0#0: uint64 = (* i#0 2u)
+        let aggregate%item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%0#0)
+        let aggregate%item_length%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%0#0)
+        let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
+        let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
+        let inner_list#0: Encoded(len+uint64[]) = (extract3 array_data%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
         let aggregate%array_length%4#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
         let last_inner_list_index#0: uint64 = (- aggregate%array_length%4#0 1u)
         let value_internal%1#0: uint64 = 0u

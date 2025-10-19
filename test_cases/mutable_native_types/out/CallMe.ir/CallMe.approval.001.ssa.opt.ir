@@ -114,32 +114,30 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[rou
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]() -> void:
     block@0: // L69
         let arg#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len arg#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 16u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 22u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let tmp%1#0: Encoded(len+uint8[]) = extract_value(arg#0, 2)
-        let length%0#0: uint64 = array_len(tmp%1#0)
-        let mul%0#0: uint64 = length%0#0
+        let substring3%0#0: bytes = (substring3 arg#0 extract_uint16%0#0 tuple_len%0#0)
+        let length%0#0: uint64 = array_len(substring3%0#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let add%1#0: uint64 = (+ length%0#0 24u)
         let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 18u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let tmp%2#0: Encoded(len+utf8[]) = extract_value(arg#0, 3)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
+        let substring3%1#0: bytes = (substring3 arg#0 extract_uint16%1#0 tuple_len%0#0)
+        let length%1#0: uint64 = array_len(substring3%1#0)
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let extract_uint16%2#0: uint64 = (extract_uint16 arg#0 20u) // on error: invalid tuple encoding
         let eq%2#0: bool = (== extract_uint16%2#0 add%3#0)
         (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let tmp%3#0: Encoded(len+(uint64,uint64)[]) = extract_value(arg#0, 4)
-        let length%2#0: uint64 = array_len(tmp%3#0)
+        let substring3%2#0: bytes = (substring3 arg#0 extract_uint16%2#0 tuple_len%0#0)
+        let length%2#0: uint64 = array_len(substring3%2#0)
         let mul%2#0: uint64 = (* length%2#0 16u)
         let add%4#0: uint64 = (+ mul%2#0 2u)
         let add%5#0: uint64 = (+ add%3#0 add%4#0)
-        let len%0#0: uint64 = (len arg#0)
-        let eq%3#0: bool = (== len%0#0 add%5#0)
+        let eq%3#0: bool = (== tuple_len%0#0 add%5#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
         (app_global_put "dynamic_struct" arg#0)
         exit 1u

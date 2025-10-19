@@ -55,42 +55,36 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -
         (assert eq%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let string_param#0: string = ((extract 2 0) tmp%8#0)
         let tmp%10#0: bytes = (txna ApplicationArgs 6)
+        let tuple_len%0#0: uint64 = (len tmp%10#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 tmp%10#0 9u) // on error: invalid tuple encoding
         let eq%5#0: bool = (== extract_uint16%0#0 77u)
         (assert eq%5#0) // invalid tail pointer at index 2 of (bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))
-        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%10#0 9u)
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%10#0 75u)
-        let aggregate%substring3%0#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
-        let tmp%11#0: Encoded(len+uint8[]) = aggregate%substring3%0#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%11#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 tmp%10#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%2#0: uint64 = aggregate%array_length%2#0
         let add%3#0: uint64 = (+ length%2#0 79u)
         let extract_uint16%1#0: uint64 = (extract_uint16 tmp%10#0 75u) // on error: invalid tuple encoding
         let eq%6#0: bool = (== extract_uint16%1#0 add%3#0)
         (assert eq%6#0) // invalid tail pointer at index 4 of (bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))
-        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%10#0 75u)
-        let aggregate%len%0#0: uint64 = (len tmp%10#0)
-        let aggregate%substring3%1#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
-        let tmp%12#0: Encoded(len+utf8[]) = aggregate%substring3%1#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%12#0 0u) // on error: invalid array length header
+        let substring3%1#0: bytes = (substring3 tmp%10#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
         let length%3#0: uint64 = aggregate%array_length%3#0
         let add%4#0: uint64 = (+ length%3#0 2u)
         let add%5#0: uint64 = (+ add%3#0 add%4#0)
-        let len%5#0: uint64 = (len tmp%10#0)
-        let eq%7#0: bool = (== len%5#0 add%5#0)
+        let eq%7#0: bool = (== tuple_len%0#0 add%5#0)
         (assert eq%7#0) // invalid number of bytes for arc4.tuple<arc4.bool,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.uint512,arc4.dynamic_array<arc4.uint8>>
         let aggregate%get_bit%1#0: bool = (getbit tmp%10#0 0u)
         let aggregate%extract%0#0: bytes = (extract3 tmp%10#0 1u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let aggregate%extract_uint16%3#0: uint64 = (extract_uint16 tmp%10#0 9u)
-        let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 tmp%10#0 75u)
-        let aggregate%substring3%2#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%3#0 aggregate%extract_uint16%4#0)
-        let aggregate%item2%0#0: bytes = ((extract 2 0) aggregate%substring3%2#0)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%10#0 9u)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%10#0 75u)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let aggregate%item2%0#0: bytes = ((extract 2 0) aggregate%substring3%0#0)
         let aggregate%extract%1#0: bytes = (extract3 tmp%10#0 11u 64u)
-        let aggregate%extract_uint16%5#0: uint64 = (extract_uint16 tmp%10#0 75u)
-        let aggregate%len%1#0: uint64 = (len tmp%10#0)
-        let aggregate%substring3%3#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%5#0 aggregate%len%1#0)
-        let aggregate%item4%0#0: bytes = ((extract 2 0) aggregate%substring3%3#0)
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%10#0 75u)
+        let aggregate%len%0#0: uint64 = (len tmp%10#0)
+        let aggregate%substring3%1#0: bytes = (substring3 tmp%10#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
+        let aggregate%item4%0#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
         let (tuple_param.0#0: bool, tuple_param.1#0: uint64, tuple_param.2#0: bytes, tuple_param.3#0: biguint, tuple_param.4#0: string) = (aggregate%get_bit%1#0, aggregate%item1%0#0, aggregate%item2%0#0, aggregate%extract%1#0, aggregate%item4%0#0)
         let tmp%0#1: bool = (== bool_param#0 tuple_param.0#0)
         let tmp%1#1: bool = (== uint64_param#0 tuple_param.1#0)
@@ -137,9 +131,9 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -
         let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 aggregate%as_Encoded(len+uint8[])%0#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%as_Encoded(len+utf8[])%0#0)
         let aggregate%as_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0: Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[])) = aggregate%concat%1#0
-        let tmp%23#0: Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[])) = aggregate%as_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
-        let tmp%24#0: bytes = (concat 0x151f7c75 tmp%23#0)
-        (log tmp%24#0)
+        let tmp%21#0: Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[])) = aggregate%as_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
+        let tmp%22#0: bytes = (concat 0x151f7c75 tmp%21#0)
+        (log tmp%22#0)
         exit 1u
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]() -> void:

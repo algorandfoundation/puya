@@ -715,6 +715,9 @@ subroutine validate_dynamic_tuple:
         // arc4_validation/contract.py:114
         // ARC4DynamicTuple.from_bytes(value).validate()
         v-load value#0                                                                         value#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load value#0                                                                         value#0
         int 9                                                                                  value#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
@@ -725,23 +728,20 @@ subroutine validate_dynamic_tuple:
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         v-load value#0                                                                         value#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load value#0                                                                         value#0
         v-load extract_uint16%0#0                                                              value#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               value#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 0                                                                                  aggregate%substring3%0#0,0
+        v-load tuple_len%0#0                                                                   value#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
         int 13                                                                                 aggregate%array_length%0#0,13
         +                                                                                      add%1#0
         v-store add%1#0
-        v-load aggregate%len%0#0                                                               aggregate%len%0#0
-        v-load add%1#0                                                                         aggregate%len%0#0,add%1#0
+        v-load tuple_len%0#0                                                                   tuple_len%0#0
+        v-load add%1#0                                                                         tuple_len%0#0,add%1#0
         ==                                                                                     eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                          eq%1#0
@@ -792,6 +792,9 @@ subroutine validate_dynamic_struct:
         // arc4_validation/contract.py:122
         // ARC4DynamicStruct.from_bytes(value).validate()
         v-load value#0                                                                         value#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load value#0                                                                         value#0
         int 9                                                                                  value#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
@@ -802,23 +805,20 @@ subroutine validate_dynamic_struct:
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         v-load value#0                                                                         value#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load value#0                                                                         value#0
         v-load extract_uint16%0#0                                                              value#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               value#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 0                                                                                  aggregate%substring3%0#0,0
+        v-load tuple_len%0#0                                                                   value#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
         int 13                                                                                 aggregate%array_length%0#0,13
         +                                                                                      add%1#0
         v-store add%1#0
-        v-load aggregate%len%0#0                                                               aggregate%len%0#0
-        v-load add%1#0                                                                         aggregate%len%0#0,add%1#0
+        v-load tuple_len%0#0                                                                   tuple_len%0#0
+        v-load add%1#0                                                                         tuple_len%0#0,add%1#0
         ==                                                                                     eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                          eq%1#0
@@ -952,37 +952,19 @@ subroutine validate_dynamic_struct_arr:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                           offset_is_correct%0#0
         assert // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        v-load index%0#0                                                                       index%0#0
-        int 1                                                                                  index%0#0,1
-        +                                                                                      aggregate%next_index%0#0
-        v-store aggregate%next_index%0#0
-        v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%array_length%0#0,aggregate%next_index%0#0
-        - // on error: index access is out of bounds                                           aggregate%has_next%0#0
-        v-store aggregate%has_next%0#0
         v-load array_data%0#0                                                                  array_data%0#0
-        len                                                                                    aggregate%end_of_array%0#0
-        v-store aggregate%end_of_array%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
-        int 2                                                                                  aggregate%next_index%0#0,2
-        *                                                                                      aggregate%next_item_offset_offset%0#0
-        v-store aggregate%next_item_offset_offset%0#0
-        v-load array_data%0#0                                                                  array_data%0#0
-        v-load aggregate%next_item_offset_offset%0#0                                           array_data%0#0,aggregate%next_item_offset_offset%0#0
-        extract_uint16                                                                         aggregate%next_item_offset%0#0
-        v-store aggregate%next_item_offset%0#0
-        v-load aggregate%end_of_array%0#0                                                      aggregate%end_of_array%0#0
-        v-load aggregate%next_item_offset%0#0                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        v-load aggregate%has_next%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                                 aggregate%end_offset%0#0
-        v-store aggregate%end_offset%0#0
+        len                                                                                    total_length%1#0
+        v-store total_length%1#0
         v-load array_data%0#0                                                                  array_data%0#0
         v-load item_offset%0#0                                                                 array_data%0#0,item_offset%0#0
-        v-load aggregate%end_offset%0#0                                                        array_data%0#0,item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 9                                                                                  aggregate%substring3%0#0,9
+        v-load total_length%1#0                                                                array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                             extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        int 9                                                                                  extract_to_end%0#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                              extract_uint16%0#0
@@ -991,27 +973,26 @@ subroutine validate_dynamic_struct_arr:
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        v-load extract_uint16%0#0                                                              aggregate%substring3%0#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               aggregate%substring3%0#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%2#0
-        v-store aggregate%substring3%2#0
-        v-load aggregate%substring3%2#0                                                        aggregate%substring3%2#0
-        int 0                                                                                  aggregate%substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                                aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                                                      aggregate%array_length%3#0
-        int 13                                                                                 aggregate%array_length%3#0,13
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        v-load extract_uint16%0#0                                                              extract_to_end%0#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                   extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                                aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                      aggregate%array_length%1#0
+        int 13                                                                                 aggregate%array_length%1#0,13
         +                                                                                      add%1#0
         v-store add%1#0
         v-load num_bytes%0#0                                                                   num_bytes%0#0
         v-load add%1#0                                                                         num_bytes%0#0,add%1#0
         +                                                                                      num_bytes%0#0
         v-store num_bytes%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
+        v-load index%0#0                                                                       index%0#0
+        int 1                                                                                  index%0#0,1
+        +                                                                                      index%0#0
         v-store index%0#0
         b validate_dynamic_struct_arr_for_header@2
 
@@ -1079,37 +1060,19 @@ subroutine validate_dynamic_struct_arr3:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                           offset_is_correct%0#0
         assert // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        v-load index%0#0                                                                       index%0#0
-        int 1                                                                                  index%0#0,1
-        +                                                                                      aggregate%next_index%0#0
-        v-store aggregate%next_index%0#0
-        int 3                                                                                  3
-        v-load aggregate%next_index%0#0                                                        3,aggregate%next_index%0#0
-        - // on error: index access is out of bounds                                           aggregate%has_next%0#0
-        v-store aggregate%has_next%0#0
         v-load value#0                                                                         value#0
-        len                                                                                    aggregate%end_of_array%0#0
-        v-store aggregate%end_of_array%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
-        int 2                                                                                  aggregate%next_index%0#0,2
-        *                                                                                      aggregate%next_item_offset_offset%0#0
-        v-store aggregate%next_item_offset_offset%0#0
-        v-load value#0                                                                         value#0
-        v-load aggregate%next_item_offset_offset%0#0                                           value#0,aggregate%next_item_offset_offset%0#0
-        extract_uint16                                                                         aggregate%next_item_offset%0#0
-        v-store aggregate%next_item_offset%0#0
-        v-load aggregate%end_of_array%0#0                                                      aggregate%end_of_array%0#0
-        v-load aggregate%next_item_offset%0#0                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        v-load aggregate%has_next%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                                 aggregate%end_offset%0#0
-        v-store aggregate%end_offset%0#0
+        len                                                                                    total_length%0#0
+        v-store total_length%0#0
         v-load value#0                                                                         value#0
         v-load item_offset%0#0                                                                 value#0,item_offset%0#0
-        v-load aggregate%end_offset%0#0                                                        value#0,item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 9                                                                                  aggregate%substring3%0#0,9
+        v-load total_length%0#0                                                                value#0,item_offset%0#0,total_length%0#0
+        substring3                                                                             extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        int 9                                                                                  extract_to_end%0#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                              extract_uint16%0#0
@@ -1118,16 +1081,13 @@ subroutine validate_dynamic_struct_arr3:
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        v-load extract_uint16%0#0                                                              aggregate%substring3%0#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               aggregate%substring3%0#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%2#0
-        v-store aggregate%substring3%2#0
-        v-load aggregate%substring3%2#0                                                        aggregate%substring3%2#0
-        int 0                                                                                  aggregate%substring3%2#0,0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        v-load extract_uint16%0#0                                                              extract_to_end%0#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                   extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
@@ -1138,7 +1098,9 @@ subroutine validate_dynamic_struct_arr3:
         v-load add%1#0                                                                         num_bytes%0#0,add%1#0
         +                                                                                      num_bytes%0#0
         v-store num_bytes%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
+        v-load index%0#0                                                                       index%0#0
+        int 1                                                                                  index%0#0,1
+        +                                                                                      index%0#0
         v-store index%0#0
         b validate_dynamic_struct_arr3_for_header@2
 
@@ -1224,37 +1186,19 @@ subroutine validate_dynamic_struct_imm_arr:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                           offset_is_correct%0#0
         assert // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        v-load index%0#0                                                                       index%0#0
-        int 1                                                                                  index%0#0,1
-        +                                                                                      aggregate%next_index%0#0
-        v-store aggregate%next_index%0#0
-        v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%array_length%0#0,aggregate%next_index%0#0
-        - // on error: index access is out of bounds                                           aggregate%has_next%0#0
-        v-store aggregate%has_next%0#0
         v-load array_data%0#0                                                                  array_data%0#0
-        len                                                                                    aggregate%end_of_array%0#0
-        v-store aggregate%end_of_array%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
-        int 2                                                                                  aggregate%next_index%0#0,2
-        *                                                                                      aggregate%next_item_offset_offset%0#0
-        v-store aggregate%next_item_offset_offset%0#0
-        v-load array_data%0#0                                                                  array_data%0#0
-        v-load aggregate%next_item_offset_offset%0#0                                           array_data%0#0,aggregate%next_item_offset_offset%0#0
-        extract_uint16                                                                         aggregate%next_item_offset%0#0
-        v-store aggregate%next_item_offset%0#0
-        v-load aggregate%end_of_array%0#0                                                      aggregate%end_of_array%0#0
-        v-load aggregate%next_item_offset%0#0                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        v-load aggregate%has_next%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                                 aggregate%end_offset%0#0
-        v-store aggregate%end_offset%0#0
+        len                                                                                    total_length%1#0
+        v-store total_length%1#0
         v-load array_data%0#0                                                                  array_data%0#0
         v-load item_offset%0#0                                                                 array_data%0#0,item_offset%0#0
-        v-load aggregate%end_offset%0#0                                                        array_data%0#0,item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 9                                                                                  aggregate%substring3%0#0,9
+        v-load total_length%1#0                                                                array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                             extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        int 9                                                                                  extract_to_end%0#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                              extract_uint16%0#0
@@ -1263,27 +1207,26 @@ subroutine validate_dynamic_struct_imm_arr:
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        v-load extract_uint16%0#0                                                              aggregate%substring3%0#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               aggregate%substring3%0#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%2#0
-        v-store aggregate%substring3%2#0
-        v-load aggregate%substring3%2#0                                                        aggregate%substring3%2#0
-        int 0                                                                                  aggregate%substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                                aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                                                      aggregate%array_length%3#0
-        int 13                                                                                 aggregate%array_length%3#0,13
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        v-load extract_uint16%0#0                                                              extract_to_end%0#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                   extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                                aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                      aggregate%array_length%1#0
+        int 13                                                                                 aggregate%array_length%1#0,13
         +                                                                                      add%1#0
         v-store add%1#0
         v-load num_bytes%0#0                                                                   num_bytes%0#0
         v-load add%1#0                                                                         num_bytes%0#0,add%1#0
         +                                                                                      num_bytes%0#0
         v-store num_bytes%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
+        v-load index%0#0                                                                       index%0#0
+        int 1                                                                                  index%0#0,1
+        +                                                                                      index%0#0
         v-store index%0#0
         b validate_dynamic_struct_imm_arr_for_header@2
 
@@ -1360,6 +1303,9 @@ subroutine validate_native_dynamic_struct:
         // arc4_validation/contract.py:159
         // n.value.validate()
         v-load value#0                                                                         value#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load value#0                                                                         value#0
         int 9                                                                                  value#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
@@ -1370,23 +1316,20 @@ subroutine validate_native_dynamic_struct:
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         v-load value#0                                                                         value#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load value#0                                                                         value#0
         v-load extract_uint16%0#0                                                              value#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               value#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 0                                                                                  aggregate%substring3%0#0,0
+        v-load tuple_len%0#0                                                                   value#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
         int 13                                                                                 aggregate%array_length%0#0,13
         +                                                                                      add%1#0
         v-store add%1#0
-        v-load aggregate%len%0#0                                                               aggregate%len%0#0
-        v-load add%1#0                                                                         aggregate%len%0#0,add%1#0
+        v-load tuple_len%0#0                                                                   tuple_len%0#0
+        v-load add%1#0                                                                         tuple_len%0#0,add%1#0
         ==                                                                                     eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                          eq%1#0
@@ -1541,37 +1484,19 @@ subroutine validate_native_dynamic_struct_arr:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                           offset_is_correct%0#0
         assert // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        v-load index%0#0                                                                       index%0#0
-        int 1                                                                                  index%0#0,1
-        +                                                                                      aggregate%next_index%0#0
-        v-store aggregate%next_index%0#0
-        v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%array_length%0#0,aggregate%next_index%0#0
-        - // on error: index access is out of bounds                                           aggregate%has_next%0#0
-        v-store aggregate%has_next%0#0
         v-load array_data%0#0                                                                  array_data%0#0
-        len                                                                                    aggregate%end_of_array%0#0
-        v-store aggregate%end_of_array%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
-        int 2                                                                                  aggregate%next_index%0#0,2
-        *                                                                                      aggregate%next_item_offset_offset%0#0
-        v-store aggregate%next_item_offset_offset%0#0
-        v-load array_data%0#0                                                                  array_data%0#0
-        v-load aggregate%next_item_offset_offset%0#0                                           array_data%0#0,aggregate%next_item_offset_offset%0#0
-        extract_uint16                                                                         aggregate%next_item_offset%0#0
-        v-store aggregate%next_item_offset%0#0
-        v-load aggregate%end_of_array%0#0                                                      aggregate%end_of_array%0#0
-        v-load aggregate%next_item_offset%0#0                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        v-load aggregate%has_next%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                                 aggregate%end_offset%0#0
-        v-store aggregate%end_offset%0#0
+        len                                                                                    total_length%1#0
+        v-store total_length%1#0
         v-load array_data%0#0                                                                  array_data%0#0
         v-load item_offset%0#0                                                                 array_data%0#0,item_offset%0#0
-        v-load aggregate%end_offset%0#0                                                        array_data%0#0,item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 9                                                                                  aggregate%substring3%0#0,9
+        v-load total_length%1#0                                                                array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                             extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        int 9                                                                                  extract_to_end%0#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                              extract_uint16%0#0
@@ -1580,27 +1505,26 @@ subroutine validate_native_dynamic_struct_arr:
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        v-load extract_uint16%0#0                                                              aggregate%substring3%0#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               aggregate%substring3%0#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%2#0
-        v-store aggregate%substring3%2#0
-        v-load aggregate%substring3%2#0                                                        aggregate%substring3%2#0
-        int 0                                                                                  aggregate%substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                                aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                                                      aggregate%array_length%3#0
-        int 13                                                                                 aggregate%array_length%3#0,13
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        v-load extract_uint16%0#0                                                              extract_to_end%0#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                   extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                                aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                      aggregate%array_length%1#0
+        int 13                                                                                 aggregate%array_length%1#0,13
         +                                                                                      add%1#0
         v-store add%1#0
         v-load num_bytes%0#0                                                                   num_bytes%0#0
         v-load add%1#0                                                                         num_bytes%0#0,add%1#0
         +                                                                                      num_bytes%0#0
         v-store num_bytes%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
+        v-load index%0#0                                                                       index%0#0
+        int 1                                                                                  index%0#0,1
+        +                                                                                      index%0#0
         v-store index%0#0
         b validate_native_dynamic_struct_arr_for_header@2
 
@@ -1675,37 +1599,19 @@ subroutine validate_native_dynamic_struct_arr3:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                           offset_is_correct%0#0
         assert // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        v-load index%0#0                                                                       index%0#0
-        int 1                                                                                  index%0#0,1
-        +                                                                                      aggregate%next_index%0#0
-        v-store aggregate%next_index%0#0
-        int 3                                                                                  3
-        v-load aggregate%next_index%0#0                                                        3,aggregate%next_index%0#0
-        - // on error: index access is out of bounds                                           aggregate%has_next%0#0
-        v-store aggregate%has_next%0#0
         v-load value#0                                                                         value#0
-        len                                                                                    aggregate%end_of_array%0#0
-        v-store aggregate%end_of_array%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
-        int 2                                                                                  aggregate%next_index%0#0,2
-        *                                                                                      aggregate%next_item_offset_offset%0#0
-        v-store aggregate%next_item_offset_offset%0#0
-        v-load value#0                                                                         value#0
-        v-load aggregate%next_item_offset_offset%0#0                                           value#0,aggregate%next_item_offset_offset%0#0
-        extract_uint16                                                                         aggregate%next_item_offset%0#0
-        v-store aggregate%next_item_offset%0#0
-        v-load aggregate%end_of_array%0#0                                                      aggregate%end_of_array%0#0
-        v-load aggregate%next_item_offset%0#0                                                  aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        v-load aggregate%has_next%0#0                                                          aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                                 aggregate%end_offset%0#0
-        v-store aggregate%end_offset%0#0
+        len                                                                                    total_length%0#0
+        v-store total_length%0#0
         v-load value#0                                                                         value#0
         v-load item_offset%0#0                                                                 value#0,item_offset%0#0
-        v-load aggregate%end_offset%0#0                                                        value#0,item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                             aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        int 9                                                                                  aggregate%substring3%0#0,9
+        v-load total_length%0#0                                                                value#0,item_offset%0#0,total_length%0#0
+        substring3                                                                             extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        len                                                                                    tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        int 9                                                                                  extract_to_end%0#0,9
         extract_uint16 // on error: invalid tuple encoding                                     extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                              extract_uint16%0#0
@@ -1714,16 +1620,13 @@ subroutine validate_native_dynamic_struct_arr3:
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        len                                                                                    aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load aggregate%substring3%0#0                                                        aggregate%substring3%0#0
-        v-load extract_uint16%0#0                                                              aggregate%substring3%0#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                               aggregate%substring3%0#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                             aggregate%substring3%2#0
-        v-store aggregate%substring3%2#0
-        v-load aggregate%substring3%2#0                                                        aggregate%substring3%2#0
-        int 0                                                                                  aggregate%substring3%2#0,0
+        v-load extract_to_end%0#0                                                              extract_to_end%0#0
+        v-load extract_uint16%0#0                                                              extract_to_end%0#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                   extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                             substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                                  substring3%0#0
+        int 0                                                                                  substring3%0#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
@@ -1734,7 +1637,9 @@ subroutine validate_native_dynamic_struct_arr3:
         v-load add%1#0                                                                         num_bytes%0#0,add%1#0
         +                                                                                      num_bytes%0#0
         v-store num_bytes%0#0
-        v-load aggregate%next_index%0#0                                                        aggregate%next_index%0#0
+        v-load index%0#0                                                                       index%0#0
+        int 1                                                                                  index%0#0,1
+        +                                                                                      index%0#0
         v-store index%0#0
         b validate_native_dynamic_struct_arr3_for_header@2
 
