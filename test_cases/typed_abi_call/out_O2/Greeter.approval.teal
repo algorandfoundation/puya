@@ -44,16 +44,16 @@ main_test_arc4_struct_route@20:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     pushint 8 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
-    dig 1
-    len
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
@@ -77,16 +77,16 @@ main_test_arc4_struct_route@20:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     pushint 8 // 8
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 10 // 10
     ==
     assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
-    dig 1
-    len
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
@@ -321,26 +321,101 @@ main_test_nested_tuples_route@17:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    cover 2
+    cover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    dig 1
+    dig 5
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 5
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    cover 4
+    cover 4
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
     dig 1
     intc_1 // 2
     extract_uint16
@@ -348,81 +423,20 @@ main_test_nested_tuples_route@17:
     uncover 2
     dig 2
     substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 4 // 4
-    +
-    dig 2
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    uncover 2
-    +
-    pushint 4 // 4
-    +
-    dig 3
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    dig 4
-    len
-    uncover 5
-    uncover 5
-    dig 2
-    substring3
-    dup
-    pushint 16 // 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18 // 18
-    ==
-    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-    dig 1
-    len
-    dig 2
-    cover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 18 // 18
-    +
-    uncover 4
-    +
-    uncover 3
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    uncover 3
     extract 2 0
     dig 2
+    len
+    swap
+    cover 3
+    substring3
+    dig 3
     intc_0 // 0
     extract_uint64
-    uncover 3
+    uncover 4
     extract 8 8 // on error: Index access is out of bounds
-    uncover 3
+    uncover 4
     extract 2 0
-    uncover 3
+    uncover 4
     bytec 9 // "echo: s1"
     ==
     assert
@@ -457,26 +471,101 @@ main_test_nested_tuples_route@17:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    cover 2
+    cover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    dig 1
+    dig 5
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 5
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    cover 4
+    cover 4
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
     dig 1
     intc_1 // 2
     extract_uint16
@@ -484,81 +573,20 @@ main_test_nested_tuples_route@17:
     uncover 2
     dig 2
     substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 4 // 4
-    +
-    dig 2
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    uncover 2
-    +
-    pushint 4 // 4
-    +
-    dig 3
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    dig 4
-    len
-    uncover 5
-    uncover 5
-    dig 2
-    substring3
-    dup
-    pushint 16 // 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18 // 18
-    ==
-    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-    dig 1
-    len
-    dig 2
-    cover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 18 // 18
-    +
-    uncover 4
-    +
-    uncover 3
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    uncover 3
     extract 2 0
     dig 2
+    len
+    swap
+    cover 3
+    substring3
+    dig 3
     intc_0 // 0
     extract_uint64
-    uncover 3
+    uncover 4
     extract 8 8 // on error: Index access is out of bounds
-    uncover 3
+    uncover 4
     extract 2 0
-    uncover 3
+    uncover 4
     bytec 9 // "echo: s1"
     ==
     assert
@@ -592,26 +620,101 @@ main_test_nested_tuples_route@17:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 4 // 4
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    cover 2
+    cover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    dig 1
+    dig 5
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 2
+    swap
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 5
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    cover 4
+    cover 4
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
     dig 1
     intc_1 // 2
     extract_uint16
@@ -619,81 +722,20 @@ main_test_nested_tuples_route@17:
     uncover 2
     dig 2
     substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 4 // 4
-    +
-    dig 2
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    uncover 2
-    +
-    pushint 4 // 4
-    +
-    dig 3
-    dig 1
-    ==
-    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    dig 4
-    len
-    uncover 5
-    uncover 5
-    dig 2
-    substring3
-    dup
-    pushint 16 // 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18 // 18
-    ==
-    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-    dig 1
-    len
-    dig 2
-    cover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    pushint 18 // 18
-    +
-    uncover 4
-    +
-    uncover 3
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    uncover 3
     extract 2 0
     dig 2
+    len
+    swap
+    cover 3
+    substring3
+    dig 3
     intc_0 // 0
     extract_uint64
-    uncover 3
+    uncover 4
     extract 8 8 // on error: Index access is out of bounds
-    uncover 3
+    uncover 4
     extract 2 0
-    uncover 3
+    uncover 4
     pushbytes "echo: s1b"
     ==
     assert
@@ -751,35 +793,34 @@ main_test_native_tuple_method_ref_route@16:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -788,15 +829,16 @@ main_test_native_tuple_method_ref_route@16:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    swap
+    cover 3
+    substring3
     extract 2 0
     swap
     extract 2 0
@@ -844,35 +886,34 @@ main_test_native_tuple_method_ref_route@16:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -881,15 +922,16 @@ main_test_native_tuple_method_ref_route@16:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    swap
+    cover 3
+    substring3
     extract 2 0
     swap
     extract 2 0
@@ -936,35 +978,34 @@ main_test_native_tuple_method_ref_route@16:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -973,15 +1014,16 @@ main_test_native_tuple_method_ref_route@16:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    swap
+    cover 3
+    substring3
     extract 2 0
     swap
     extract 2 0
@@ -1028,35 +1070,34 @@ main_test_native_tuple_method_ref_route@16:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -1065,15 +1106,16 @@ main_test_native_tuple_method_ref_route@16:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    swap
+    cover 3
+    substring3
     extract 2 0
     swap
     extract 2 0
@@ -1137,35 +1179,34 @@ main_test_native_tuple_route@15:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
     dig 4
-    uncover 4
-    dig 2
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -1174,17 +1215,21 @@ main_test_native_tuple_route@15:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     dig 3
+    uncover 3
+    uncover 3
+    substring3
+    dig 3
     extract 16 64
-    uncover 2
+    swap
     extract 2 0
     dup
     bytec 9 // "echo: s1"
@@ -1230,17 +1275,16 @@ main_test_native_tuple_route@15:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 1
-    intc_1 // 2
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
@@ -1249,20 +1293,21 @@ main_test_native_tuple_route@15:
     +
     pushint 76 // 76
     +
-    dup2
+    dig 2
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
-    len
     dig 3
-    uncover 3
-    dig 2
+    swap
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
-    uncover 2
     +
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
@@ -1296,17 +1341,16 @@ main_test_native_tuple_route@15:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 1
-    intc_1 // 2
-    extract_uint16
     dig 2
-    uncover 2
+    swap
     dig 2
     substring3
     intc_0 // 0
@@ -1315,20 +1359,21 @@ main_test_native_tuple_route@15:
     +
     pushint 76 // 76
     +
-    dup2
+    dig 2
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
-    len
     dig 3
-    uncover 3
-    dig 2
+    swap
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
-    uncover 2
     +
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
@@ -1362,35 +1407,34 @@ main_test_native_tuple_route@15:
     dup
     extract 4 0
     dup
+    len
+    dig 1
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
     dig 1
-    intc_1 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 3
     substring3
-    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     pushint 76 // 76
     +
+    dig 3
+    intc_1 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
-    dig 1
     ==
     assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    dig 2
+    dig 4
+    dig 1
+    dig 5
     substring3
     dup
     intc_0 // 0
@@ -1399,15 +1443,16 @@ main_test_native_tuple_route@15:
     +
     uncover 3
     +
-    uncover 2
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 2
+    dig 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    swap
+    cover 3
+    substring3
     extract 2 0
     swap
     extract 2 0

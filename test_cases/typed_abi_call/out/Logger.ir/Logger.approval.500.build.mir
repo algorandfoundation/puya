@@ -949,6 +949,9 @@ subroutine main:
         txna ApplicationArgs 1                                                           tmp%109#0
         v-store tmp%109#0
         v-load tmp%109#0                                                                 tmp%109#0
+        len                                                                              tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load tmp%109#0                                                                 tmp%109#0
         int 0                                                                            tmp%109#0,0
         extract_uint16 // on error: invalid tuple encoding                               offset%0#0
         v-store offset%0#0
@@ -959,14 +962,13 @@ subroutine main:
         v-load offset_is_correct%0#0                                                     offset_is_correct%0#0
         assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>> 
         v-load tmp%109#0                                                                 tmp%109#0
-        int 2                                                                            tmp%109#0,2
-        extract_uint16                                                                   item_end_offset%0#0
-        v-store item_end_offset%0#0
-        v-load tmp%109#0                                                                 tmp%109#0
         v-load offset%0#0                                                                tmp%109#0,offset%0#0
-        v-load item_end_offset%0#0                                                       tmp%109#0,offset%0#0,item_end_offset%0#0
+        v-load tuple_len%0#0                                                             tmp%109#0,offset%0#0,tuple_len%0#0
         substring3                                                                       item%0#0
         v-store item%0#0
+        v-load item%0#0                                                                  item%0#0
+        len                                                                              tuple_len%1#0
+        v-store tuple_len%1#0
         v-load item%0#0                                                                  item%0#0
         int 0                                                                            item%0#0,0
         extract_uint16 // on error: invalid tuple encoding                               offset%1#0
@@ -978,12 +980,8 @@ subroutine main:
         v-load offset_is_correct%1#0                                                     offset_is_correct%1#0
         assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>> 
         v-load item%0#0                                                                  item%0#0
-        int 2                                                                            item%0#0,2
-        extract_uint16                                                                   item_end_offset%1#0
-        v-store item_end_offset%1#0
-        v-load item%0#0                                                                  item%0#0
         v-load offset%1#0                                                                item%0#0,offset%1#0
-        v-load item_end_offset%1#0                                                       item%0#0,offset%1#0,item_end_offset%1#0
+        v-load tuple_len%1#0                                                             item%0#0,offset%1#0,tuple_len%1#0
         substring3                                                                       item%1#0
         v-store item%1#0
         v-load item%1#0                                                                  item%1#0
@@ -998,18 +996,19 @@ subroutine main:
         v-load num_bytes_with_header%9#0                                                 4,num_bytes_with_header%9#0
         +                                                                                num_bytes_value%0#0
         v-store num_bytes_value%0#0
-        v-load item_end_offset%1#0                                                       item_end_offset%1#0
-        v-load num_bytes_value%0#0                                                       item_end_offset%1#0,num_bytes_value%0#0
+        v-load item%0#0                                                                  item%0#0
+        int 2                                                                            item%0#0,2
+        extract_uint16 // on error: invalid tuple encoding                               offset%2#0
+        v-store offset%2#0
+        v-load offset%2#0                                                                offset%2#0
+        v-load num_bytes_value%0#0                                                       offset%2#0,num_bytes_value%0#0
         ==                                                                               offset_is_correct%2#0
         v-store offset_is_correct%2#0
         v-load offset_is_correct%2#0                                                     offset_is_correct%2#0
         assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>> 
         v-load item%0#0                                                                  item%0#0
-        len                                                                              item_end_offset%2#0
-        v-store item_end_offset%2#0
-        v-load item%0#0                                                                  item%0#0
-        v-load item_end_offset%1#0                                                       item%0#0,item_end_offset%1#0
-        v-load item_end_offset%2#0                                                       item%0#0,item_end_offset%1#0,item_end_offset%2#0
+        v-load offset%2#0                                                                item%0#0,offset%2#0
+        v-load tuple_len%1#0                                                             item%0#0,offset%2#0,tuple_len%1#0
         substring3                                                                       item%2#0
         v-store item%2#0
         v-load item%2#0                                                                  item%2#0
@@ -1028,20 +1027,24 @@ subroutine main:
         v-load num_bytes_value%1#0                                                       4,num_bytes_value%1#0
         +                                                                                num_bytes_value%2#0
         v-store num_bytes_value%2#0
-        v-load item_end_offset%0#0                                                       item_end_offset%0#0
-        v-load num_bytes_value%2#0                                                       item_end_offset%0#0,num_bytes_value%2#0
+        v-load tmp%109#0                                                                 tmp%109#0
+        int 2                                                                            tmp%109#0,2
+        extract_uint16 // on error: invalid tuple encoding                               offset%3#0
+        v-store offset%3#0
+        v-load offset%3#0                                                                offset%3#0
+        v-load num_bytes_value%2#0                                                       offset%3#0,num_bytes_value%2#0
         ==                                                                               offset_is_correct%3#0
         v-store offset_is_correct%3#0
         v-load offset_is_correct%3#0                                                     offset_is_correct%3#0
         assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>> 
         v-load tmp%109#0                                                                 tmp%109#0
-        len                                                                              item_end_offset%3#0
-        v-store item_end_offset%3#0
-        v-load tmp%109#0                                                                 tmp%109#0
-        v-load item_end_offset%0#0                                                       tmp%109#0,item_end_offset%0#0
-        v-load item_end_offset%3#0                                                       tmp%109#0,item_end_offset%0#0,item_end_offset%3#0
+        v-load offset%3#0                                                                tmp%109#0,offset%3#0
+        v-load tuple_len%0#0                                                             tmp%109#0,offset%3#0,tuple_len%0#0
         substring3                                                                       item%3#0
         v-store item%3#0
+        v-load item%3#0                                                                  item%3#0
+        len                                                                              tuple_len%2#0
+        v-store tuple_len%2#0
         v-load item%3#0                                                                  item%3#0
         int 16                                                                           item%3#0,16
         extract_uint16 // on error: invalid tuple encoding                               offset%4#0
@@ -1053,11 +1056,8 @@ subroutine main:
         v-load offset_is_correct%4#0                                                     offset_is_correct%4#0
         assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>> 
         v-load item%3#0                                                                  item%3#0
-        len                                                                              item_end_offset%4#0
-        v-store item_end_offset%4#0
-        v-load item%3#0                                                                  item%3#0
         v-load offset%4#0                                                                item%3#0,offset%4#0
-        v-load item_end_offset%4#0                                                       item%3#0,offset%4#0,item_end_offset%4#0
+        v-load tuple_len%2#0                                                             item%3#0,offset%4#0,tuple_len%2#0
         substring3                                                                       item%4#0
         v-store item%4#0
         v-load item%4#0                                                                  item%4#0
@@ -1076,15 +1076,41 @@ subroutine main:
         v-load num_bytes_value%3#0                                                       num_bytes_value%2#0,num_bytes_value%3#0
         +                                                                                num_bytes_value%4#0
         v-store num_bytes_value%4#0
-        v-load item_end_offset%3#0                                                       item_end_offset%3#0
-        v-load num_bytes_value%4#0                                                       item_end_offset%3#0,num_bytes_value%4#0
+        v-load tuple_len%0#0                                                             tuple_len%0#0
+        v-load num_bytes_value%4#0                                                       tuple_len%0#0,num_bytes_value%4#0
         ==                                                                               size_is_correct%20#0
         v-store size_is_correct%20#0
         v-load size_is_correct%20#0                                                      size_is_correct%20#0
         assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>> 
-        v-load item%1#0                                                                  item%1#0
+        v-load tmp%109#0                                                                 tmp%109#0
+        v-load offset%0#0                                                                tmp%109#0,offset%0#0
+        v-load offset%3#0                                                                tmp%109#0,offset%0#0,offset%3#0
+        substring3                                                                       item0%0#0
+        v-store item0%0#0
+        v-load item0%0#0                                                                 item0%0#0
+        int 0                                                                            item0%0#0,0
+        extract_uint16                                                                   item_start_offset%1#0
+        v-store item_start_offset%1#0
+        v-load item0%0#0                                                                 item0%0#0
+        int 2                                                                            item0%0#0,2
+        extract_uint16                                                                   item_end_offset%1#0
+        v-store item_end_offset%1#0
+        v-load item0%0#0                                                                 item0%0#0
+        v-load item_start_offset%1#0                                                     item0%0#0,item_start_offset%1#0
+        v-load item_end_offset%1#0                                                       item0%0#0,item_start_offset%1#0,item_end_offset%1#0
+        substring3                                                                       item0%1#0
+        v-store item0%1#0
+        v-load item0%1#0                                                                 item0%1#0
         extract 2 0                                                                      item0%2#0
         v-store item0%2#0
+        v-load item0%0#0                                                                 item0%0#0
+        len                                                                              item_end_offset%2#0
+        v-store item_end_offset%2#0
+        v-load item0%0#0                                                                 item0%0#0
+        v-load item_end_offset%1#0                                                       item0%0#0,item_end_offset%1#0
+        v-load item_end_offset%2#0                                                       item0%0#0,item_end_offset%1#0,item_end_offset%2#0
+        substring3                                                                       item1%0#0
+        v-store item1%0#0
         v-load item%3#0                                                                  item%3#0
         int 0                                                                            item%3#0,0
         extract_uint64                                                                   item0%4#0
@@ -1098,10 +1124,10 @@ subroutine main:
         // typed_abi_call/logger.py:94
         // @arc4.abimethod
         v-load item0%2#0                                                                 item0%2#0
-        v-load item%2#0                                                                  item0%2#0,item%2#0
-        v-load item0%4#0                                                                 item0%2#0,item%2#0,item0%4#0
-        v-load item1%2#0                                                                 item0%2#0,item%2#0,item0%4#0,item1%2#0
-        v-load item2%1#0                                                                 item0%2#0,item%2#0,item0%4#0,item1%2#0,item2%1#0
+        v-load item1%0#0                                                                 item0%2#0,item1%0#0
+        v-load item0%4#0                                                                 item0%2#0,item1%0#0,item0%4#0
+        v-load item1%2#0                                                                 item0%2#0,item1%0#0,item0%4#0,item1%2#0
+        v-load item2%1#0                                                                 item0%2#0,item1%0#0,item0%4#0,item1%2#0,item2%1#0
         callsub echo_nested_tuple                                                        elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,elements_to_encode%8#0
         v-store elements_to_encode%8#0                                                   elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0
         v-store elements_to_encode%7#0                                                   elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0
@@ -1520,6 +1546,9 @@ subroutine main:
         txna ApplicationArgs 1                                                           tmp%147#0
         v-store tmp%147#0
         v-load tmp%147#0                                                                 tmp%147#0
+        len                                                                              tuple_len%3#0
+        v-store tuple_len%3#0
+        v-load tmp%147#0                                                                 tmp%147#0
         int 8                                                                            tmp%147#0,8
         extract_uint16 // on error: invalid tuple encoding                               offset%5#0
         v-store offset%5#0
@@ -1530,11 +1559,8 @@ subroutine main:
         v-load offset_is_correct%5#0                                                     offset_is_correct%5#0
         assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogMessage 
         v-load tmp%147#0                                                                 tmp%147#0
-        len                                                                              item_end_offset%10#0
-        v-store item_end_offset%10#0
-        v-load tmp%147#0                                                                 tmp%147#0
         v-load offset%5#0                                                                tmp%147#0,offset%5#0
-        v-load item_end_offset%10#0                                                      tmp%147#0,offset%5#0,item_end_offset%10#0
+        v-load tuple_len%3#0                                                             tmp%147#0,offset%5#0,tuple_len%3#0
         substring3                                                                       item%5#0
         v-store item%5#0
         v-load item%5#0                                                                  item%5#0
@@ -1549,8 +1575,8 @@ subroutine main:
         v-load num_bytes_with_header%12#0                                                10,num_bytes_with_header%12#0
         +                                                                                num_bytes_value%5#0
         v-store num_bytes_value%5#0
-        v-load item_end_offset%10#0                                                      item_end_offset%10#0
-        v-load num_bytes_value%5#0                                                       item_end_offset%10#0,num_bytes_value%5#0
+        v-load tuple_len%3#0                                                             tuple_len%3#0
+        v-load num_bytes_value%5#0                                                       tuple_len%3#0,num_bytes_value%5#0
         ==                                                                               size_is_correct%41#0
         v-store size_is_correct%41#0
         v-load size_is_correct%41#0                                                      size_is_correct%41#0
@@ -1565,6 +1591,9 @@ subroutine main:
         txna ApplicationArgs 2                                                           tmp%148#0
         v-store tmp%148#0
         v-load tmp%148#0                                                                 tmp%148#0
+        len                                                                              tuple_len%4#0
+        v-store tuple_len%4#0
+        v-load tmp%148#0                                                                 tmp%148#0
         int 8                                                                            tmp%148#0,8
         extract_uint16 // on error: invalid tuple encoding                               offset%6#0
         v-store offset%6#0
@@ -1575,11 +1604,8 @@ subroutine main:
         v-load offset_is_correct%6#0                                                     offset_is_correct%6#0
         assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogMessage 
         v-load tmp%148#0                                                                 tmp%148#0
-        len                                                                              item_end_offset%12#0
-        v-store item_end_offset%12#0
-        v-load tmp%148#0                                                                 tmp%148#0
         v-load offset%6#0                                                                tmp%148#0,offset%6#0
-        v-load item_end_offset%12#0                                                      tmp%148#0,offset%6#0,item_end_offset%12#0
+        v-load tuple_len%4#0                                                             tmp%148#0,offset%6#0,tuple_len%4#0
         substring3                                                                       item%6#0
         v-store item%6#0
         v-load item%6#0                                                                  item%6#0
@@ -1594,8 +1620,8 @@ subroutine main:
         v-load num_bytes_with_header%13#0                                                10,num_bytes_with_header%13#0
         +                                                                                num_bytes_value%6#0
         v-store num_bytes_value%6#0
-        v-load item_end_offset%12#0                                                      item_end_offset%12#0
-        v-load num_bytes_value%6#0                                                       item_end_offset%12#0,num_bytes_value%6#0
+        v-load tuple_len%4#0                                                             tuple_len%4#0
+        v-load num_bytes_value%6#0                                                       tuple_len%4#0,num_bytes_value%6#0
         ==                                                                               size_is_correct%42#0
         v-store size_is_correct%42#0
         v-load size_is_correct%42#0                                                      size_is_correct%42#0
@@ -1651,6 +1677,9 @@ subroutine main:
         txna ApplicationArgs 1                                                           log#0
         v-store log#0
         v-load log#0                                                                     log#0
+        len                                                                              tuple_len%5#0
+        v-store tuple_len%5#0
+        v-load log#0                                                                     log#0
         int 8                                                                            log#0,8
         extract_uint16 // on error: invalid tuple encoding                               offset%7#0
         v-store offset%7#0
@@ -1661,11 +1690,8 @@ subroutine main:
         v-load offset_is_correct%7#0                                                     offset_is_correct%7#0
         assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct 
         v-load log#0                                                                     log#0
-        len                                                                              item_end_offset%14#0
-        v-store item_end_offset%14#0
-        v-load log#0                                                                     log#0
         v-load offset%7#0                                                                log#0,offset%7#0
-        v-load item_end_offset%14#0                                                      log#0,offset%7#0,item_end_offset%14#0
+        v-load tuple_len%5#0                                                             log#0,offset%7#0,tuple_len%5#0
         substring3                                                                       item%7#0
         v-store item%7#0
         v-load item%7#0                                                                  item%7#0
@@ -1680,8 +1706,8 @@ subroutine main:
         v-load num_bytes_with_header%14#0                                                10,num_bytes_with_header%14#0
         +                                                                                num_bytes_value%7#0
         v-store num_bytes_value%7#0
-        v-load item_end_offset%14#0                                                      item_end_offset%14#0
-        v-load num_bytes_value%7#0                                                       item_end_offset%14#0,num_bytes_value%7#0
+        v-load tuple_len%5#0                                                             tuple_len%5#0
+        v-load num_bytes_value%7#0                                                       tuple_len%5#0,num_bytes_value%7#0
         ==                                                                               size_is_correct%43#0
         v-store size_is_correct%43#0
         v-load size_is_correct%43#0                                                      size_is_correct%43#0

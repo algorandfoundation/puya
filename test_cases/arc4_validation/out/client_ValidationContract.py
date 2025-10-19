@@ -138,3 +138,9 @@ class ValidationContract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         value: algopy.arc4.DynamicBytes,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def validate_dynamic_struct_imm_arr(
+        self,
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...

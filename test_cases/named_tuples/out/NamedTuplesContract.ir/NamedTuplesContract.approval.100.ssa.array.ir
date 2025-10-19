@@ -67,26 +67,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
         let tmp%19#0: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%19#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%19#0 72u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 76u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 2 of test_cases.named_tuples.contract.TestTuple
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%19#0 74u)
-        let item%0#0: bytes = (substring3 tmp%19#0 offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%19#0 offset%0#0 tuple_len%0#0)
         let length%4#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes_with_header%2#0: uint64 = (+ length%4#0 2u)
         let num_bytes_value%0#0: uint64 = (+ 76u num_bytes_with_header%2#0)
-        let offset_is_correct%1#0: bool = (== item_end_offset%0#0 num_bytes_value%0#0)
+        let offset%1#0: uint64 = (extract_uint16 tmp%19#0 74u) // on error: invalid tuple encoding
+        let offset_is_correct%1#0: bool = (== offset%1#0 num_bytes_value%0#0)
         (assert offset_is_correct%1#0) // invalid tail pointer at index 3 of test_cases.named_tuples.contract.TestTuple
-        let item_end_offset%1#0: uint64 = (len tmp%19#0)
-        let item%1#0: bytes = (substring3 tmp%19#0 item_end_offset%0#0 item_end_offset%1#0)
+        let item%1#0: bytes = (substring3 tmp%19#0 offset%1#0 tuple_len%0#0)
         let length%5#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
         let num_bytes_with_header%3#0: uint64 = (+ length%5#0 2u)
         let num_bytes_value%1#0: uint64 = (+ num_bytes_value%0#0 num_bytes_with_header%3#0)
-        let size_is_correct%4#0: bool = (== item_end_offset%1#0 num_bytes_value%1#0)
+        let size_is_correct%4#0: bool = (== tuple_len%0#0 num_bytes_value%1#0)
         (assert size_is_correct%4#0) // invalid number of bytes for test_cases.named_tuples.contract.TestTuple
         let item0%1#0: uint64 = (extract_uint64 tmp%19#0 0u)
         let item1%0#0: bytes = ((extract 8 64) tmp%19#0) // on error: Index access is out of bounds
-        let item2%1#0: bytes = ((extract 2 0) item%0#0)
+        let item2%0#0: bytes = (substring3 tmp%19#0 offset%0#0 offset%1#0)
+        let item2%1#0: bytes = ((extract 2 0) item2%0#0)
         let item3%1#0: bytes = ((extract 2 0) item%1#0)
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%1#0, item1%0#0, item2%1#0, item3%1#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1: bool = 1u

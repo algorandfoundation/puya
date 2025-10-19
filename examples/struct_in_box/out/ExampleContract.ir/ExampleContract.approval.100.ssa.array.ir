@@ -12,15 +12,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%7#0)
         let offset%0#0: uint64 = (extract_uint16 tmp%7#0 0u) // on error: invalid tuple encoding
         let offset_is_correct%0#0: bool = (== offset%0#0 18u)
         (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of examples.struct_in_box.contract.UserStruct
-        let item_end_offset%0#0: uint64 = (len tmp%7#0)
-        let item%0#0: bytes = (substring3 tmp%7#0 offset%0#0 item_end_offset%0#0)
+        let item%0#0: bytes = (substring3 tmp%7#0 offset%0#0 tuple_len%0#0)
         let length%0#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
         let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
         let num_bytes_value%0#0: uint64 = (+ 18u num_bytes_with_header%0#0)
-        let size_is_correct%0#0: bool = (== item_end_offset%0#0 num_bytes_value%0#0)
+        let size_is_correct%0#0: bool = (== tuple_len%0#0 num_bytes_value%0#0)
         (assert size_is_correct%0#0) // invalid number of bytes for examples.struct_in_box.contract.UserStruct
         examples.struct_in_box.contract.ExampleContract.add_user(tmp%7#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
