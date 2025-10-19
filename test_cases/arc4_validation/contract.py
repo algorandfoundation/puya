@@ -8,6 +8,7 @@ from algopy import (
     FixedArray,
     GlobalState,
     ImmutableArray,
+    ImmutableFixedArray,
     StateTotals,
     String,
     Struct,
@@ -138,10 +139,17 @@ class ValidationContract(ARC4Contract, state_totals=StateTotals(global_bytes=1))
         arc4.StaticArray[ARC4DynamicStruct, typing.Literal[3]].from_bytes(value).validate()
 
     @arc4.abimethod(validate_encoding=False)
-    def validate_dynamic_struct_imm_arr(self, value: Bytes) -> None:
+    def validate_native_dynamic_struct_imm_arr(self, value: Bytes) -> None:
         b = GlobalState(Bytes, key="v")
         b.value = value
         n = GlobalState(ImmutableArray[ARC4FrozenDynamicStruct], key="v")
+        n.value.validate()
+
+    @arc4.abimethod(validate_encoding=False)
+    def validate_native_dynamic_struct_imm_arr3(self, value: Bytes) -> None:
+        b = GlobalState(Bytes, key="v")
+        b.value = value
+        n = GlobalState(ImmutableFixedArray[ARC4FrozenDynamicStruct, typing.Literal[3]], key="v")
         n.value.validate()
 
     @arc4.abimethod(validate_encoding=False)

@@ -2966,6 +2966,7 @@ _VALID_DYNAMIC_STRUCT_BYTES = b"\x00" * 9 + b"\x00\x0b\x00\x00"
 _INVALID_DYNAMIC_STRUCT_BYTES = b"\x00" * 9 + b"\x00\x0b\x00\x01"
 _STATIC_STRUCT = "test_cases.arc4_validation.contract.ARC4StaticStruct"
 _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
+_FROZEN_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct"
 
 
 @pytest.mark.parametrize(
@@ -3076,13 +3077,6 @@ def test_arc4_validation_valid(
         ("dynamic_struct_arr", 0, "invalid array length header"),
         ("dynamic_struct_arr", 1, "invalid array length header"),
         ("dynamic_struct_arr", 29, _invalid_arr_size(_DYNAMIC_STRUCT)),
-        ("dynamic_struct_imm_arr", 0, "invalid array length header"),
-        ("dynamic_struct_imm_arr", 1, "invalid array length header"),
-        (
-            "dynamic_struct_imm_arr",
-            29,
-            _invalid_arr_size("test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct"),
-        ),
         ("dynamic_struct_arr3", 27, "invalid tail pointer"),
         (
             "dynamic_struct_arr3",
@@ -3155,8 +3149,30 @@ _NATIVE_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.NativeDynamicStruc
                 _VALID_DYNAMIC_STRUCT_BYTES,
             ),
         ),
+        ("dynamic_struct_imm_arr", 2),
+        (
+            "dynamic_struct_imm_arr",
+            (
+                2,  # len
+                4,  # ptr 1
+                4 + len(_VALID_DYNAMIC_STRUCT_BYTES),  # ptr 2
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+        ),
         (
             "dynamic_struct_arr3",
+            (
+                6,
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+        ),
+        (
+            "dynamic_struct_imm_arr3",
             (
                 6,
                 6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
@@ -3222,6 +3238,38 @@ def test_native_validation_valid(
                 _INVALID_DYNAMIC_STRUCT_BYTES,
             ),
             _invalid_arr_size(_NATIVE_DYNAMIC_STRUCT, 3),
+        ),
+        ("dynamic_struct_imm_arr", 0, "invalid array length header"),
+        ("dynamic_struct_imm_arr", 1, "invalid array length header"),
+        (
+            "dynamic_struct_imm_arr",
+            29,
+            _invalid_arr_size(_FROZEN_DYNAMIC_STRUCT),
+        ),
+        ("dynamic_struct_imm_arr3", 27, "invalid tail pointer"),
+        (
+            "dynamic_struct_imm_arr3",
+            (
+                6,
+                6,
+                6,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+            ),
+            "invalid tail pointer",
+        ),
+        (
+            "dynamic_struct_imm_arr3",
+            (
+                6,
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES),
+                6 + len(_VALID_DYNAMIC_STRUCT_BYTES) * 2,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _VALID_DYNAMIC_STRUCT_BYTES,
+                _INVALID_DYNAMIC_STRUCT_BYTES,
+            ),
+            _invalid_arr_size(_FROZEN_DYNAMIC_STRUCT, 3),
         ),
     ],
 )
