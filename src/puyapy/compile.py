@@ -30,7 +30,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             parse_result = parse_python(puyapy_options.paths)
             log_ctx.sources_by_path = parse_result.sources_by_path
             log_ctx.exit_if_errors()
-            awst, compilation_targets = transform_ast(parse_result)
+            awst, compilation_targets = transform_ast(parse_result, puyapy_options)
         except mypy.errors.CompileError:
             # the placement of this catch is probably overly conservative,
             # but in parse_with_mypy there is a piece copied from mypyc, around setting

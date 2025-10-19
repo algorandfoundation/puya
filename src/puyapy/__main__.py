@@ -175,10 +175,17 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "--validate-abi-values",
+        "--validate-abi-args",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Validates ABI transaction arguments by ensuring they are the correct size",
+        help="Validates ABI transaction arguments by ensuring they are encoded correctly",
+    )
+    parser.add_argument(
+        "--validate-abi-return",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Validates encoding of ABI return values when using `.from_log()`, `arc4.abi_call`,"
+        " `arc4.arc4_create` and `arc4.arc4_update`",
     )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
