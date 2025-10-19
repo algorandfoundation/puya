@@ -105,8 +105,10 @@ def get_arc4_abimethod_data(
     match evaluated_args.pop(_VALIDATE_ENCODING, default_validate_encoding):
         case None:
             validate_encoding = None
-        case bool(validate_encoding):
-            pass
+        case "unsafe_disabled":
+            validate_encoding = False
+        case "args":
+            validate_encoding = True
         case invalid_validate_encoding_option:
             context.error(
                 f"invalid validate_encoding option: {invalid_validate_encoding_option}", dec_loc
