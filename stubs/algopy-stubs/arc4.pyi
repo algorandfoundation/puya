@@ -44,7 +44,7 @@ def abimethod(
     resource_encoding: typing.Literal["index", "value"] = ...,
     readonly: bool = False,
     default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
-    validate_encoding: bool = ...,
+    validate_encoding: typing.Literal["unsafe_disabled", "args"] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that indicates a method is an ARC-4 ABI method.
 
@@ -64,8 +64,13 @@ def abimethod(
                        be the name of, or reference to a method member, or the name of a storage
                        member. For static defaults, this can be any expression which evaluates to
                        a compile time constant of the exact same type as the parameter.
-    :arg validate_encoding: Controls whether ABI arguments are validated to be encoded correctly.
-                            Default behaviour inherits the CLI option --validate-abi-values
+    :arg validate_encoding: Controls validation behaviour for this method.
+                            If "args", then ABI arguments are validated automatically to ensure
+                            they are encoded correctly.
+                            If "unsafe_disabled", then no automatic validation occurs. Arguments
+                            can instead be validated using the .validate() method.
+                            The default behaviour of this option can be controlled with the
+                            --validate-abi-args CLI flag.
     """
 
 _TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
