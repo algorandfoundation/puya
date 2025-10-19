@@ -38,7 +38,7 @@ class PuyaOptions:
     optimizations_override: Mapping[str, bool] = attrs.field(default=immutabledict())
     expand_all_bytes: bool = False
     validate_abi_args: bool = True
-    validate_from_log: bool = True
+    validate_abi_returns: bool = True
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:
