@@ -3,22 +3,26 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 2 0 1 42
+    intc_1 // 0
+    dupn 2
+    pushbytes ""
+    dupn 4
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@18
+    bz main_bare_routing@26
     pushbytess 0x33b3499e 0x8d762fdf 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0xe5cacd06 0x89af557b 0x46e196bd 0xf33886da 0x2595b95a 0x3f55266b 0x7d240945 0x0351a9de // method "delete_application()void", method "check_uint64(uint64,byte[])void", method "check_dynamic_bytes(byte[],byte[])void", method "check_string(string,byte[])void", method "check_biguint(uint512,byte[])void", method "check_bool(bool,byte[])void", method "check_dyn_array_uin64(uint64[],byte[])void", method "check_static_array_uin64_3(uint64[3],byte[])void", method "check_dyn_array_struct((uint64,address)[],byte[])void", method "check_static_array_struct((uint64,address)[3],byte[])void", method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void", method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void", method "check_static_bytes(byte[32])void"
     txna ApplicationArgs 0
-    match main_delete_application_route@3 main_check_uint64_route@4 main_check_dynamic_bytes_route@5 main_check_string_route@6 main_check_biguint_route@7 main_check_bool_route@8 main_check_dyn_array_uin64_route@9 main_check_static_array_uin64_3_route@10 main_check_dyn_array_struct_route@11 main_check_static_array_struct_route@12 main_check_dyn_array_dyn_struct_route@13 main_check_static_array_dyn_struct_route@14 main_check_static_bytes_route@15
+    match main_delete_application_route@3 main_check_uint64_route@4 main_check_dynamic_bytes_route@5 main_check_string_route@6 main_check_biguint_route@7 main_check_bool_route@8 main_check_dyn_array_uin64_route@9 main_check_static_array_uin64_3_route@10 main_check_dyn_array_struct_route@11 main_check_static_array_struct_route@12 main_check_dyn_array_dyn_struct_route@13 main_check_static_array_dyn_struct_route@18 main_check_static_bytes_route@23
 
-main_after_if_else@22:
+main_after_if_else@30:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
-    intc_0 // 0
+    intc_1 // 0
     return
 
-main_check_static_bytes_route@15:
+main_check_static_bytes_route@23:
     // arc4_conversions/contract.py:291
     // @arc4.abimethod
     txn OnCompletion
@@ -37,10 +41,10 @@ main_check_static_bytes_route@15:
     // arc4_conversions/contract.py:291
     // @arc4.abimethod
     callsub check_static_bytes
-    intc_1 // 1
+    intc_2 // 1
     return
 
-main_check_static_array_dyn_struct_route@14:
+main_check_static_array_dyn_struct_route@18:
     // arc4_conversions/contract.py:285
     // @arc4.abimethod
     txn OnCompletion
@@ -51,11 +55,90 @@ main_check_static_array_dyn_struct_route@14:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    bury 6
+    pushint 6 // 6
+    bury 1
+    intc_1 // 0
+    bury 4
+
+main_for_header@19:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    dig 3
+    pushint 3 // 3
+    <
+    bz main_after_for@22
+    dig 3
+    dup
+    intc_0 // 2
+    *
+    dig 7
+    dup
+    cover 3
+    swap
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    dup
+    cover 5
+    ==
+    assert // invalid tail pointer for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
+    swap
+    intc_2 // 1
+    +
+    pushint 3 // 3
+    dig 1
+    - // on error: Index access is out of bounds
+    dig 3
+    len
+    dig 2
+    intc_0 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 2
+    select
+    uncover 3
+    uncover 3
+    uncover 2
+    substring3
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_3 // 42
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
+    dig 1
+    len
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    intc_3 // 42
+    +
+    uncover 2
+    +
+    bury 2
+    bury 4
+    b main_for_header@19
+
+main_after_for@22:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    dig 5
+    dup
+    len
+    dig 2
+    ==
+    assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -65,7 +148,7 @@ main_check_static_array_dyn_struct_route@14:
     // arc4_conversions/contract.py:285
     // @arc4.abimethod
     callsub check_static_array_dyn_struct
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_dyn_struct_route@13:
@@ -79,11 +162,103 @@ main_check_dyn_array_dyn_struct_route@13:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    bury 8
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    bury 5
+    extract 2 0
+    bury 9
+    intc_0 // 2
+    *
+    bury 2
+    intc_1 // 0
+    bury 5
+
+main_for_header@14:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    dig 4
+    dig 3
+    <
+    bz main_after_for@17
+    dig 4
+    dup
+    intc_0 // 2
+    *
+    dig 9
+    dup
+    cover 3
+    swap
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 5
+    ==
+    assert // invalid tail pointer for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
+    swap
+    intc_2 // 1
+    +
+    dig 6
+    dig 1
+    - // on error: Index access is out of bounds
+    dig 3
+    len
+    dig 2
+    intc_0 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 2
+    select
+    uncover 3
+    uncover 3
+    uncover 2
+    substring3
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_3 // 42
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
+    dig 1
+    len
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
+    +
+    intc_3 // 42
+    +
+    uncover 2
+    +
+    bury 3
+    bury 5
+    b main_for_header@14
+
+main_after_for@17:
+    // arc4_conversions/contract.py:230
+    // class CheckApp(arc4.ARC4Contract):
+    dig 1
+    intc_0 // 2
+    +
+    dig 7
+    dup
+    cover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -93,7 +268,7 @@ main_check_dyn_array_dyn_struct_route@13:
     // arc4_conversions/contract.py:279
     // @arc4.abimethod
     callsub check_dyn_array_dyn_struct
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_static_array_struct_route@12:
@@ -114,9 +289,9 @@ main_check_static_array_struct_route@12:
     assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -126,7 +301,7 @@ main_check_static_array_struct_route@12:
     // arc4_conversions/contract.py:273
     // @arc4.abimethod
     callsub check_static_array_struct
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_struct_route@11:
@@ -141,11 +316,11 @@ main_check_dyn_array_struct_route@11:
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
     pushint 40 // 40
     *
-    intc_2 // 2
+    intc_0 // 2
     +
     dig 1
     len
@@ -153,9 +328,9 @@ main_check_dyn_array_struct_route@11:
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -165,7 +340,7 @@ main_check_dyn_array_struct_route@11:
     // arc4_conversions/contract.py:267
     // @arc4.abimethod
     callsub check_dyn_array_struct
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_static_array_uin64_3_route@10:
@@ -186,9 +361,9 @@ main_check_static_array_uin64_3_route@10:
     assert // invalid number of bytes for arc4.static_array<arc4.uint64, 3>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -198,7 +373,7 @@ main_check_static_array_uin64_3_route@10:
     // arc4_conversions/contract.py:261
     // @arc4.abimethod
     callsub check_static_array_uin64_3
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_uin64_route@9:
@@ -213,11 +388,11 @@ main_check_dyn_array_uin64_route@9:
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_3 // 8
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8 // 8
     *
-    intc_2 // 2
+    intc_0 // 2
     +
     dig 1
     len
@@ -225,9 +400,9 @@ main_check_dyn_array_uin64_route@9:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -237,7 +412,7 @@ main_check_dyn_array_uin64_route@9:
     // arc4_conversions/contract.py:255
     // @arc4.abimethod
     callsub check_dyn_array_uin64
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_bool_route@8:
@@ -253,14 +428,14 @@ main_check_bool_route@8:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 1
+    intc_2 // 1
     ==
     assert // invalid number of bytes for arc4.bool
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -270,7 +445,7 @@ main_check_bool_route@8:
     // arc4_conversions/contract.py:251
     // @arc4.abimethod
     callsub check_bool
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_biguint_route@7:
@@ -291,9 +466,9 @@ main_check_biguint_route@7:
     assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -303,7 +478,7 @@ main_check_biguint_route@7:
     // arc4_conversions/contract.py:247
     // @arc4.abimethod
     callsub check_biguint
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_string_route@6:
@@ -318,9 +493,9 @@ main_check_string_route@6:
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -328,9 +503,9 @@ main_check_string_route@6:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -340,7 +515,7 @@ main_check_string_route@6:
     // arc4_conversions/contract.py:243
     // @arc4.abimethod
     callsub check_string
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_dynamic_bytes_route@5:
@@ -355,9 +530,9 @@ main_check_dynamic_bytes_route@5:
     // class CheckApp(arc4.ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -365,9 +540,9 @@ main_check_dynamic_bytes_route@5:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -377,7 +552,7 @@ main_check_dynamic_bytes_route@5:
     // arc4_conversions/contract.py:239
     // @arc4.abimethod
     callsub check_dynamic_bytes
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_check_uint64_route@4:
@@ -393,14 +568,14 @@ main_check_uint64_route@4:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    pushint 8 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 2
     +
     dig 1
     len
@@ -410,7 +585,7 @@ main_check_uint64_route@4:
     // arc4_conversions/contract.py:235
     // @arc4.abimethod
     callsub check_uint64
-    intc_1 // 1
+    intc_2 // 1
     return
 
 main_delete_application_route@3:
@@ -422,18 +597,18 @@ main_delete_application_route@3:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    intc_2 // 1
     return
 
-main_bare_routing@18:
+main_bare_routing@26:
     // arc4_conversions/contract.py:230
     // class CheckApp(arc4.ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@22
+    bnz main_after_if_else@30
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    intc_2 // 1
     return
 
 

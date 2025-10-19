@@ -64,7 +64,7 @@ subroutine main:
         v-store tmp%10#0
         v-load tmp%10#0                                                                              tmp%10#0
         int 0                                                                                        tmp%10#0,0
-        extract_uint16                                                                               length%0#0
+        extract_uint16 // on error: invalid array length header                                      length%0#0
         v-store length%0#0
         v-load length%0#0                                                                            length%0#0
         int 2                                                                                        length%0#0,2
@@ -86,7 +86,7 @@ subroutine main:
         v-store tmp%12#0
         v-load tmp%12#0                                                                              tmp%12#0
         int 0                                                                                        tmp%12#0,0
-        extract_uint16                                                                               length%1#0
+        extract_uint16 // on error: invalid array length header                                      length%1#0
         v-store length%1#0
         v-load length%1#0                                                                            length%1#0
         int 2                                                                                        length%1#0,2
@@ -212,37 +212,79 @@ subroutine main:
         txna ApplicationArgs 1                                                                       tmp%19#0
         v-store tmp%19#0
         v-load tmp%19#0                                                                              tmp%19#0
-        int 0                                                                                        tmp%19#0,0
-        extract_uint64                                                                               item0%1#0
-        v-store item0%1#0
-        v-load tmp%19#0                                                                              tmp%19#0
-        extract 8 64 // on error: Index access is out of bounds                                      item1%0#0
-        v-store item1%0#0
-        v-load tmp%19#0                                                                              tmp%19#0
         int 72                                                                                       tmp%19#0,72
-        extract_uint16                                                                               item_start_offset%0#0
-        v-store item_start_offset%0#0
+        extract_uint16 // on error: invalid tuple encoding                                           offset%0#0
+        v-store offset%0#0
+        v-load offset%0#0                                                                            offset%0#0
+        int 76                                                                                       offset%0#0,76
+        ==                                                                                           offset_is_correct%0#0
+        v-store offset_is_correct%0#0
+        v-load offset_is_correct%0#0                                                                 offset_is_correct%0#0
+        assert // invalid tail pointer at index 2 of test_cases.named_tuples.contract.TestTuple 
         v-load tmp%19#0                                                                              tmp%19#0
         int 74                                                                                       tmp%19#0,74
         extract_uint16                                                                               item_end_offset%0#0
         v-store item_end_offset%0#0
         v-load tmp%19#0                                                                              tmp%19#0
-        v-load item_start_offset%0#0                                                                 tmp%19#0,item_start_offset%0#0
-        v-load item_end_offset%0#0                                                                   tmp%19#0,item_start_offset%0#0,item_end_offset%0#0
-        substring3                                                                                   item2%0#0
-        v-store item2%0#0
-        v-load item2%0#0                                                                             item2%0#0
-        extract 2 0                                                                                  item2%1#0
-        v-store item2%1#0
+        v-load offset%0#0                                                                            tmp%19#0,offset%0#0
+        v-load item_end_offset%0#0                                                                   tmp%19#0,offset%0#0,item_end_offset%0#0
+        substring3                                                                                   item%0#0
+        v-store item%0#0
+        v-load item%0#0                                                                              item%0#0
+        int 0                                                                                        item%0#0,0
+        extract_uint16 // on error: invalid array length header                                      length%4#0
+        v-store length%4#0
+        v-load length%4#0                                                                            length%4#0
+        int 2                                                                                        length%4#0,2
+        +                                                                                            num_bytes_with_header%2#0
+        v-store num_bytes_with_header%2#0
+        int 76                                                                                       76
+        v-load num_bytes_with_header%2#0                                                             76,num_bytes_with_header%2#0
+        +                                                                                            num_bytes_value%0#0
+        v-store num_bytes_value%0#0
+        v-load item_end_offset%0#0                                                                   item_end_offset%0#0
+        v-load num_bytes_value%0#0                                                                   item_end_offset%0#0,num_bytes_value%0#0
+        ==                                                                                           offset_is_correct%1#0
+        v-store offset_is_correct%1#0
+        v-load offset_is_correct%1#0                                                                 offset_is_correct%1#0
+        assert // invalid tail pointer at index 3 of test_cases.named_tuples.contract.TestTuple 
         v-load tmp%19#0                                                                              tmp%19#0
         len                                                                                          item_end_offset%1#0
         v-store item_end_offset%1#0
         v-load tmp%19#0                                                                              tmp%19#0
         v-load item_end_offset%0#0                                                                   tmp%19#0,item_end_offset%0#0
         v-load item_end_offset%1#0                                                                   tmp%19#0,item_end_offset%0#0,item_end_offset%1#0
-        substring3                                                                                   item3%0#0
-        v-store item3%0#0
-        v-load item3%0#0                                                                             item3%0#0
+        substring3                                                                                   item%1#0
+        v-store item%1#0
+        v-load item%1#0                                                                              item%1#0
+        int 0                                                                                        item%1#0,0
+        extract_uint16 // on error: invalid array length header                                      length%5#0
+        v-store length%5#0
+        v-load length%5#0                                                                            length%5#0
+        int 2                                                                                        length%5#0,2
+        +                                                                                            num_bytes_with_header%3#0
+        v-store num_bytes_with_header%3#0
+        v-load num_bytes_value%0#0                                                                   num_bytes_value%0#0
+        v-load num_bytes_with_header%3#0                                                             num_bytes_value%0#0,num_bytes_with_header%3#0
+        +                                                                                            num_bytes_value%1#0
+        v-store num_bytes_value%1#0
+        v-load item_end_offset%1#0                                                                   item_end_offset%1#0
+        v-load num_bytes_value%1#0                                                                   item_end_offset%1#0,num_bytes_value%1#0
+        ==                                                                                           size_is_correct%4#0
+        v-store size_is_correct%4#0
+        v-load size_is_correct%4#0                                                                   size_is_correct%4#0
+        assert // invalid number of bytes for test_cases.named_tuples.contract.TestTuple
+        v-load tmp%19#0                                                                              tmp%19#0
+        int 0                                                                                        tmp%19#0,0
+        extract_uint64                                                                               item0%1#0
+        v-store item0%1#0
+        v-load tmp%19#0                                                                              tmp%19#0
+        extract 8 64 // on error: Index access is out of bounds                                      item1%0#0
+        v-store item1%0#0
+        v-load item%0#0                                                                              item%0#0
+        extract 2 0                                                                                  item2%1#0
+        v-store item2%1#0
+        v-load item%1#0                                                                              item%1#0
         extract 2 0                                                                                  item3%1#0
         v-store item3%1#0
         // named_tuples/contract.py:31

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 1 2
+    intcblock 0 2 6 1
     bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x0000000000000001 0x9bf81913 0x16e03919 0x00027331 0x00026231 0x0000000000000001000a00056c6f672031 0xb4b4334e "echo: s1" 0xb862ee19 0xab271ce4 0x0000000000000003 0x03 0xd8cc363b 0xa9fb6cf1 0x2659e818 0x000162 0x4a444c77 0x000173 0xddd07185 0x000000000000002a 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x6563686f3a206231 0x0000000000000002 0x0f101112deadbeef14 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x000b6563686f3a207475706c65
     txn NumAppArgs
     bz main_bare_routing@23
@@ -24,7 +24,7 @@ main_test_arc4_struct_route@20:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -35,7 +35,7 @@ main_test_arc4_struct_route@20:
     itxn_field ApplicationArgs
     bytec 7 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -43,6 +43,27 @@ main_test_arc4_struct_route@20:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    pushint 8 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
+    dig 1
+    len
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 10 // 10
+    +
+    ==
+    assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -55,6 +76,27 @@ main_test_arc4_struct_route@20:
     assert // expected output to match input
     dup
     extract 4 0
+    dup
+    pushint 8 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.typed_abi_call.logger.LogStruct
+    dig 1
+    len
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 10 // 10
+    +
+    ==
+    assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -63,7 +105,7 @@ main_test_arc4_struct_route@20:
     bytec 7 // 0x0000000000000001000a00056c6f672031
     ==
     assert // expected output to match input
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_named_tuples_route@19:
@@ -75,7 +117,7 @@ main_test_named_tuples_route@19:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -89,7 +131,7 @@ main_test_named_tuples_route@19:
     itxn_field ApplicationArgs
     bytec 7 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -99,7 +141,7 @@ main_test_named_tuples_route@19:
     extract 4 0
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.bool
     swap
@@ -118,7 +160,7 @@ main_test_named_tuples_route@19:
     itxn_field ApplicationArgs
     bytec 7 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -128,7 +170,7 @@ main_test_named_tuples_route@19:
     extract 4 0
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.bool
     swap
@@ -140,7 +182,7 @@ main_test_named_tuples_route@19:
     getbit
     !
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_no_args_route@18:
@@ -152,7 +194,7 @@ main_test_no_args_route@18:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -162,7 +204,7 @@ main_test_no_args_route@18:
     itxn_field ApplicationID
     bytec 10 // method "no_args()uint64"
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -189,7 +231,7 @@ main_test_no_args_route@18:
     itxn_field ApplicationID
     bytec 10 // method "no_args()uint64"
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -214,7 +256,7 @@ main_test_no_args_route@18:
     itxn_field ApplicationID
     bytec 10 // method "no_args()uint64"
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -246,7 +288,7 @@ main_test_no_args_route@18:
     bytec 21 // 0x000000000000002a
     b==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_nested_tuples_route@17:
@@ -258,7 +300,7 @@ main_test_nested_tuples_route@17:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -270,7 +312,7 @@ main_test_nested_tuples_route@17:
     itxn_field ApplicationArgs
     bytec 22 // 0x00040010000400080002733100027332000000000000000100000000000000020012000133
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -278,58 +320,109 @@ main_test_nested_tuples_route@17:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 2
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    len
+    uncover 5
+    uncover 5
+    dig 2
+    substring3
+    dup
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
+    uncover 3
     extract 2 0
     dig 2
-    len
-    swap
-    cover 3
-    substring3
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
     intc_0 // 0
     extract_uint64
-    dig 1
+    uncover 3
     extract 8 8 // on error: Index access is out of bounds
-    dig 2
-    pushint 16 // 16
-    extract_uint16
-    dig 3
-    len
-    uncover 4
-    cover 2
-    substring3
+    uncover 3
     extract 2 0
-    uncover 4
+    uncover 3
     bytec 9 // "echo: s1"
     ==
     assert
@@ -338,7 +431,7 @@ main_test_nested_tuples_route@17:
     ==
     assert
     uncover 2
-    intc_3 // 2
+    intc_1 // 2
     ==
     assert
     swap
@@ -355,7 +448,7 @@ main_test_nested_tuples_route@17:
     itxn_field ApplicationArgs
     bytec 22 // 0x00040010000400080002733100027332000000000000000100000000000000020012000133
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -363,58 +456,109 @@ main_test_nested_tuples_route@17:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 2
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    len
+    uncover 5
+    uncover 5
+    dig 2
+    substring3
+    dup
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
+    uncover 3
     extract 2 0
     dig 2
-    len
-    swap
-    cover 3
-    substring3
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
     intc_0 // 0
     extract_uint64
-    dig 1
+    uncover 3
     extract 8 8 // on error: Index access is out of bounds
-    dig 2
-    pushint 16 // 16
-    extract_uint16
-    dig 3
-    len
-    uncover 4
-    cover 2
-    substring3
+    uncover 3
     extract 2 0
-    uncover 4
+    uncover 3
     bytec 9 // "echo: s1"
     ==
     assert
@@ -423,7 +567,7 @@ main_test_nested_tuples_route@17:
     ==
     assert
     uncover 2
-    intc_3 // 2
+    intc_1 // 2
     ==
     assert
     swap
@@ -439,7 +583,7 @@ main_test_nested_tuples_route@17:
     itxn_field ApplicationArgs
     pushbytes 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -447,58 +591,109 @@ main_test_nested_tuples_route@17:
     itxn LastLog
     dup
     extract 4 0
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 2
+    +
+    pushint 4 // 4
+    +
+    dig 3
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    dig 4
+    len
+    uncover 5
+    uncover 5
+    dig 2
+    substring3
+    dup
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
+    uncover 4
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
+    uncover 3
     extract 2 0
     dig 2
-    len
-    swap
-    cover 3
-    substring3
-    dig 3
-    len
-    uncover 4
-    uncover 4
-    uncover 2
-    substring3
-    dup
     intc_0 // 0
     extract_uint64
-    dig 1
+    uncover 3
     extract 8 8 // on error: Index access is out of bounds
-    dig 2
-    pushint 16 // 16
-    extract_uint16
-    dig 3
-    len
-    uncover 4
-    cover 2
-    substring3
+    uncover 3
     extract 2 0
-    uncover 4
+    uncover 3
     pushbytes "echo: s1b"
     ==
     assert
@@ -517,7 +712,7 @@ main_test_nested_tuples_route@17:
     pushbytes 0x6563686f3a203362
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_tuple_method_ref_route@16:
@@ -529,7 +724,7 @@ main_test_native_tuple_method_ref_route@16:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -547,7 +742,7 @@ main_test_native_tuple_method_ref_route@16:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -555,27 +750,55 @@ main_test_native_tuple_method_ref_route@16:
     itxn LastLog
     dup
     extract 4 0
-    dig 1
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     extract_uint16
     dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     len
-    swap
-    cover 3
+    uncover 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    swap
+    extract 2 0
+    swap
     extract 2 0
     dig 2
     pushint 8 // 8
@@ -591,7 +814,7 @@ main_test_native_tuple_method_ref_route@16:
     ==
     assert
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     ==
     assert
     dup
@@ -599,7 +822,7 @@ main_test_native_tuple_method_ref_route@16:
     b==
     assert
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itob
     dig 5
     itxn_field ApplicationID
@@ -612,7 +835,7 @@ main_test_native_tuple_method_ref_route@16:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -620,27 +843,55 @@ main_test_native_tuple_method_ref_route@16:
     itxn LastLog
     dup
     extract 4 0
-    dig 1
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     extract_uint16
     dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     len
-    swap
-    cover 3
+    uncover 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    swap
+    extract 2 0
+    swap
     extract 2 0
     dig 2
     pushint 8 // 8
@@ -676,7 +927,7 @@ main_test_native_tuple_method_ref_route@16:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -684,27 +935,55 @@ main_test_native_tuple_method_ref_route@16:
     itxn LastLog
     dup
     extract 4 0
-    dig 1
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     extract_uint16
     dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     len
-    swap
-    cover 3
+    uncover 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    swap
+    extract 2 0
+    swap
     extract 2 0
     dig 2
     pushint 8 // 8
@@ -740,7 +1019,7 @@ main_test_native_tuple_method_ref_route@16:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -748,27 +1027,55 @@ main_test_native_tuple_method_ref_route@16:
     itxn LastLog
     dup
     extract 4 0
-    dig 1
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     extract_uint16
     dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     len
-    swap
-    cover 3
+    uncover 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    swap
+    extract 2 0
+    swap
     extract 2 0
     dig 2
     pushint 8 // 8
@@ -791,7 +1098,7 @@ main_test_native_tuple_method_ref_route@16:
     b==
     &&
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_tuple_route@15:
@@ -803,7 +1110,7 @@ main_test_native_tuple_route@15:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -821,7 +1128,7 @@ main_test_native_tuple_route@15:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -829,27 +1136,52 @@ main_test_native_tuple_route@15:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
+    len
+    dig 4
+    uncover 4
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    intc_3 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
-    dig 2
-    len
-    dig 3
-    uncover 3
-    uncover 2
-    substring3
     dig 3
     extract 16 64
     uncover 2
@@ -868,7 +1200,7 @@ main_test_native_tuple_route@15:
     pushint 8 // 8
     extract_uint64
     dup
-    intc_3 // 2
+    intc_1 // 2
     ==
     assert
     dig 3
@@ -876,7 +1208,7 @@ main_test_native_tuple_route@15:
     b==
     assert
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itob
     dig 6
     itxn_field ApplicationID
@@ -889,7 +1221,7 @@ main_test_native_tuple_route@15:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -897,6 +1229,43 @@ main_test_native_tuple_route@15:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
+    dup2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    len
+    dig 3
+    uncover 3
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -918,7 +1287,7 @@ main_test_native_tuple_route@15:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -926,6 +1295,43 @@ main_test_native_tuple_route@15:
     itxn LastLog
     dup
     extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 1
+    intc_1 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
+    dup2
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    len
+    dig 3
+    uncover 3
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -947,7 +1353,7 @@ main_test_native_tuple_route@15:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -955,27 +1361,55 @@ main_test_native_tuple_route@15:
     itxn LastLog
     dup
     extract 4 0
-    dig 1
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76 // 76
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
     dig 1
-    intc_3 // 2
+    intc_1 // 2
     extract_uint16
     dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    pushint 76 // 76
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 3
     len
-    swap
-    cover 3
+    uncover 4
+    uncover 4
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    dig 2
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    swap
+    extract 2 0
+    swap
     extract 2 0
     dig 2
     pushint 8 // 8
@@ -995,7 +1429,7 @@ main_test_native_tuple_route@15:
     assert
     b==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_biguint_route@14:
@@ -1007,7 +1441,7 @@ main_test_native_biguint_route@14:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1019,7 +1453,7 @@ main_test_native_biguint_route@14:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1048,7 +1482,7 @@ main_test_native_biguint_route@14:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1076,7 +1510,7 @@ main_test_native_biguint_route@14:
     itxn_field ApplicationArgs
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1096,7 +1530,7 @@ main_test_native_biguint_route@14:
     assert // application log value is not the result of an ABI return
     b==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_uint64_route@13:
@@ -1108,7 +1542,7 @@ main_test_native_uint64_route@13:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1120,7 +1554,7 @@ main_test_native_uint64_route@13:
     itxn_field ApplicationArgs
     bytec_2 // 0x0000000000000001
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1140,18 +1574,18 @@ main_test_native_uint64_route@13:
     assert // application log value is not the result of an ABI return
     btoi
     dup
-    intc_3 // 2
+    intc_1 // 2
     ==
     assert
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itob
     dig 2
     itxn_field ApplicationID
     bytec 15 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1180,7 +1614,7 @@ main_test_native_uint64_route@13:
     itxn_field ApplicationArgs
     bytec_2 // 0x0000000000000001
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1201,7 +1635,7 @@ main_test_native_uint64_route@13:
     btoi
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_bytes_route@12:
@@ -1213,7 +1647,7 @@ main_test_native_bytes_route@12:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1225,7 +1659,7 @@ main_test_native_bytes_route@12:
     itxn_field ApplicationArgs
     bytec 17 // 0x000162
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1235,8 +1669,8 @@ main_test_native_bytes_route@12:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1259,7 +1693,7 @@ main_test_native_bytes_route@12:
     itxn_field ApplicationArgs
     bytec 17 // 0x000162
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1269,8 +1703,8 @@ main_test_native_bytes_route@12:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1292,7 +1726,7 @@ main_test_native_bytes_route@12:
     itxn_field ApplicationArgs
     bytec 17 // 0x000162
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1302,8 +1736,8 @@ main_test_native_bytes_route@12:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1317,7 +1751,7 @@ main_test_native_bytes_route@12:
     extract 6 0
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_native_string_route@11:
@@ -1329,7 +1763,7 @@ main_test_native_string_route@11:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1341,7 +1775,7 @@ main_test_native_string_route@11:
     itxn_field ApplicationArgs
     bytec 19 // 0x000173
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1351,8 +1785,8 @@ main_test_native_string_route@11:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1375,7 +1809,7 @@ main_test_native_string_route@11:
     itxn_field ApplicationArgs
     bytec 19 // 0x000173
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1385,8 +1819,8 @@ main_test_native_string_route@11:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1408,7 +1842,7 @@ main_test_native_string_route@11:
     itxn_field ApplicationArgs
     bytec 19 // 0x000173
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1418,8 +1852,8 @@ main_test_native_string_route@11:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1433,7 +1867,7 @@ main_test_native_string_route@11:
     extract 6 0
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_account_to_address_route@10:
@@ -1445,7 +1879,7 @@ main_test_account_to_address_route@10:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1457,7 +1891,7 @@ main_test_account_to_address_route@10:
     pushbytes 0x0437b17e // method "log(address)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1466,7 +1900,7 @@ main_test_account_to_address_route@10:
     global CurrentApplicationAddress
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_ref_types_route@9:
@@ -1478,7 +1912,7 @@ main_test_ref_types_route@9:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1486,7 +1920,7 @@ main_test_ref_types_route@9:
     txna ApplicationArgs 2
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1508,7 +1942,7 @@ main_test_ref_types_route@9:
     itxn_field ApplicationArgs
     pushbytes 0x01
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1525,7 +1959,7 @@ main_test_ref_types_route@9:
     concat
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_void_route@8:
@@ -1537,7 +1971,7 @@ main_test_void_route@8:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1549,7 +1983,7 @@ main_test_void_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6431
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1565,7 +1999,7 @@ main_test_void_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6432
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1581,7 +2015,7 @@ main_test_void_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6433
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1596,7 +2030,7 @@ main_test_void_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6434
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1605,7 +2039,7 @@ main_test_void_route@8:
     pushbytes 0x576f726c6434
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_15plus_args_route@7:
@@ -1617,7 +2051,7 @@ main_test_15plus_args_route@7:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1656,7 +2090,7 @@ main_test_15plus_args_route@7:
     itxn_field ApplicationArgs
     bytec 27 // 0x0f101112deadbeef14
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1666,8 +2100,8 @@ main_test_15plus_args_route@7:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1682,7 +2116,7 @@ main_test_15plus_args_route@7:
     bytec 27 // 0x0f101112deadbeef14
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_arg_conversion_route@6:
@@ -1694,7 +2128,7 @@ main_test_arg_conversion_route@6:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1706,7 +2140,7 @@ main_test_arg_conversion_route@6:
     itxn_field ApplicationArgs
     pushbytes 0x000a636f6e76657274656431
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1722,13 +2156,13 @@ main_test_arg_conversion_route@6:
     itxn_field ApplicationArgs
     bytec 26 // 0x0000000000000002
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    intc_3 // 2
+    intc_1 // 2
     itob
     ==
     assert
@@ -1739,7 +2173,7 @@ main_test_arg_conversion_route@6:
     itxn_field ApplicationArgs
     bytec 28 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1755,7 +2189,7 @@ main_test_arg_conversion_route@6:
     itxn_field ApplicationArgs
     pushbytes 0x000134
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1770,7 +2204,7 @@ main_test_arg_conversion_route@6:
     itxn_field ApplicationArgs
     pushbytes 0x80
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1779,7 +2213,7 @@ main_test_arg_conversion_route@6:
     pushbytes 0x54727565
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_method_overload_route@5:
@@ -1791,7 +2225,7 @@ main_test_method_overload_route@5:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1803,7 +2237,7 @@ main_test_method_overload_route@5:
     itxn_field ApplicationArgs
     pushbytes 0x000e7479706564202b2069676e6f7265
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1813,8 +2247,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     swap
     len
@@ -1829,8 +2263,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -1851,7 +2285,7 @@ main_test_method_overload_route@5:
     itxn_field ApplicationArgs
     pushbytes 0x0010756e7479706564202b2069676e6f7265
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1861,8 +2295,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -1883,7 +2317,7 @@ main_test_method_overload_route@5:
     itxn_field ApplicationArgs
     pushbytes 0x00057475706c65
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1893,8 +2327,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -1914,8 +2348,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -1935,7 +2369,7 @@ main_test_method_overload_route@5:
     itxn_field ApplicationArgs
     pushbytes 0x0007756e7479706564
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1945,8 +2379,8 @@ main_test_method_overload_route@5:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -1960,7 +2394,7 @@ main_test_method_overload_route@5:
     pushbytes 0x000d6563686f3a20756e7479706564
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_method_selector_kinds_route@4:
@@ -1972,7 +2406,7 @@ main_test_method_selector_kinds_route@4:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -1984,7 +2418,7 @@ main_test_method_selector_kinds_route@4:
     itxn_field ApplicationArgs
     pushbytes 0x00057465737431
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -1994,8 +2428,8 @@ main_test_method_selector_kinds_route@4:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2016,7 +2450,7 @@ main_test_method_selector_kinds_route@4:
     itxn_field ApplicationArgs
     pushbytes 0x00057465737432
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2026,8 +2460,8 @@ main_test_method_selector_kinds_route@4:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2048,7 +2482,7 @@ main_test_method_selector_kinds_route@4:
     itxn_field ApplicationArgs
     pushbytes 0x00057465737433
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2058,8 +2492,8 @@ main_test_method_selector_kinds_route@4:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2080,7 +2514,7 @@ main_test_method_selector_kinds_route@4:
     itxn_field ApplicationArgs
     pushbytes 0x00057465737434
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2090,8 +2524,8 @@ main_test_method_selector_kinds_route@4:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2111,7 +2545,7 @@ main_test_method_selector_kinds_route@4:
     itxn_field ApplicationArgs
     pushbytes 0x00057465737435
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -2121,8 +2555,8 @@ main_test_method_selector_kinds_route@4:
     extract 4 0
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2136,7 +2570,7 @@ main_test_method_selector_kinds_route@4:
     pushbytes 0x000b6563686f3a207465737435
     ==
     assert
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_test_is_a_b_route@3:
@@ -2148,8 +2582,8 @@ main_test_is_a_b_route@3:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2159,8 +2593,8 @@ main_test_is_a_b_route@3:
     txna ApplicationArgs 2
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
@@ -2170,7 +2604,7 @@ main_test_is_a_b_route@3:
     txna ApplicationArgs 3
     dup
     len
-    intc_2 // 1
+    intc_3 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
@@ -2195,12 +2629,12 @@ main_test_is_a_b_route@3:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    intc_3 // 1
     return
 
 main_bare_routing@23:
@@ -2209,5 +2643,5 @@ main_bare_routing@23:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
+    intc_3 // 1
     return

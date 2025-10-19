@@ -3,7 +3,7 @@
 
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 8 2
+    intcblock 1 0 8 42
     bytecblock 0x151f7c75 "asa" 0x 0x07 0x01040023 "local_uint" "local_bytes" 0x00000000000001c8
 
 main_block@0:
@@ -30,7 +30,7 @@ __init___block@0:
     // abi_routing/contract.py:27
     // self.an_int = UInt64(2)
     pushbytes "an_int"
-    intc_3 // 2
+    pushint 2 // 2
     app_global_put
     // abi_routing/contract.py:28
     // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
@@ -312,7 +312,7 @@ with_transactions_block@0:
     // assert another_int.native == 2, "is correct int"
     frame_dig -1
     btoi
-    intc_3 // 2
+    pushint 2 // 2
     ==
     assert // is correct int
     retsub
@@ -475,7 +475,7 @@ method_with_default_args_block@0:
     // abi_routing/contract.py:183
     // assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
     frame_dig -7
-    intc_3 // 2
+    pushint 2 // 2
     intc_0 // 1
     *
     intc_0 // 1
@@ -487,7 +487,7 @@ method_with_default_args_block@0:
     // assert int_from_storage.native == 2, "wrong int from storage"
     frame_dig -6
     btoi
-    intc_3 // 2
+    pushint 2 // 2
     ==
     assert // wrong int from storage
     // abi_routing/contract.py:185
@@ -1231,10 +1231,10 @@ approval_program_hello_with_algopy_string_route@17:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
-    intc_3 // 2
+    pushint 2 // 2
     +
     dig 1
     len
@@ -1316,7 +1316,7 @@ approval_program_method_with_more_than_15_args_route@16:
     ==
     assert // invalid number of bytes for arc4.uint64
     txn GroupIndex
-    intc_3 // 2
+    pushint 2 // 2
     -
     dup
     gtxns TypeEnum
@@ -1366,33 +1366,351 @@ approval_program_method_with_more_than_15_args_route@16:
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     intc_1 // 0
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 16 // 16
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 24 // 24
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 32 // 32
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
     dup
     pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
     extract_uint16
     swap
     dup
-    pushint 42 // 42
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
     extract_uint16
     swap
     uncover 2
@@ -1401,7 +1719,60 @@ approval_program_method_with_more_than_15_args_route@16:
     extract 2 0
     txna ApplicationArgs 15
     dup
-    pushint 42 // 42
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    intc_3 // 42
     extract_uint16
     swap
     dup
@@ -1412,6 +1783,59 @@ approval_program_method_with_more_than_15_args_route@16:
     substring3
     extract 2 0
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 44 // 44
     intc_0 // 1
     extract3 // on error: Index access is out of bounds
@@ -1426,10 +1850,116 @@ approval_program_method_with_more_than_15_args_route@16:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 45 // 45
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
     txna ApplicationArgs 15
+    dup
+    pushint 40 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    pushint 61 // 61
+    ==
+    assert // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dup
+    pushint 40 // 40
+    extract_uint16
+    swap
+    dup
+    intc_3 // 42
+    extract_uint16
+    dig 1
+    uncover 3
+    uncover 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    pushint 61 // 61
+    +
+    dig 1
+    intc_3 // 42
+    extract_uint16 // on error: invalid tuple encoding
+    dig 1
+    ==
+    assert // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+    dig 1
+    intc_3 // 42
+    extract_uint16
+    swap
+    dig 2
+    len
+    swap
+    dig 3
+    uncover 3
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 1
+    *
+    pushint 2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
     pushint 53 // 53
     intc_2 // 8
     extract3 // on error: Index access is out of bounds
@@ -1583,10 +2113,10 @@ approval_program_method_with_15_args_route@15:
     txna ApplicationArgs 15
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
-    intc_3 // 2
+    pushint 2 // 2
     +
     dig 1
     len
@@ -1728,10 +2258,10 @@ approval_program_method_with_default_args_route@14:
     txna ApplicationArgs 11
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
-    intc_3 // 2
+    pushint 2 // 2
     +
     dig 1
     len
@@ -1747,10 +2277,10 @@ approval_program_method_with_default_args_route@14:
     txna ApplicationArgs 13
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
-    intc_3 // 2
+    pushint 2 // 2
     +
     dig 1
     len
@@ -2082,10 +2612,10 @@ approval_program_opt_in_route@4:
     txna ApplicationArgs 2
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
-    intc_3 // 2
+    pushint 2 // 2
     +
     dig 1
     len
@@ -2133,7 +2663,7 @@ approval_program_bare_routing@20:
     txn OnCompletion
     intc_1 // 0
     intc_0 // 1
-    intc_3 // 2
+    pushint 2 // 2
     pushint 4 // 4
     pushint 5 // 5
     uncover 5

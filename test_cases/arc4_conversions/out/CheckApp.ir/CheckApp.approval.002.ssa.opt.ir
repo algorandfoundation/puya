@@ -1,10 +1,10 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@18
+        goto tmp%0#1 ? block@2 : block@26
     block@2: // abi_routing_L230
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "delete_application()void" => block@3, method "check_uint64(uint64,byte[])void" => block@4, method "check_dynamic_bytes(byte[],byte[])void" => block@5, method "check_string(string,byte[])void" => block@6, method "check_biguint(uint512,byte[])void" => block@7, method "check_bool(bool,byte[])void" => block@8, method "check_dyn_array_uin64(uint64[],byte[])void" => block@9, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@10, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@11, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@12, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@13, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@14, method "check_static_bytes(byte[32])void" => block@15, * => block@22}
+        switch tmp%2#0 {method "delete_application()void" => block@3, method "check_uint64(uint64,byte[])void" => block@4, method "check_dynamic_bytes(byte[],byte[])void" => block@5, method "check_string(string,byte[])void" => block@6, method "check_biguint(uint512,byte[])void" => block@7, method "check_bool(bool,byte[])void" => block@8, method "check_dyn_array_uin64(uint64[],byte[])void" => block@9, method "check_static_array_uin64_3(uint64[3],byte[])void" => block@10, method "check_dyn_array_struct((uint64,address)[],byte[])void" => block@11, method "check_static_array_struct((uint64,address)[3],byte[])void" => block@12, method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void" => block@13, method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void" => block@18, method "check_static_bytes(byte[32])void" => block@23, * => block@30}
     block@3: // delete_application_route_L231
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
@@ -12,7 +12,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0: bool = 1u
-        goto block@23
+        goto block@31
     block@4: // check_uint64_route_L235
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -24,7 +24,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let size_is_correct%0#0: bool = (== value_len%0#0 8u)
         (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
         let tmp%12#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = (extract_uint16 tmp%12#0 0u)
+        let length%0#0: uint64 = (extract_uint16 tmp%12#0 0u) // on error: invalid array length header
         let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
         let value_len%1#0: uint64 = (len tmp%12#0)
         let size_is_correct%1#0: bool = (== value_len%1#0 num_bytes_with_header%0#0)
@@ -32,7 +32,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%13#0: bytes = ((extract 2 0) tmp%12#0)
         test_cases.arc4_conversions.contract.CheckApp.check_uint64(tmp%11#0, tmp%13#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#1: bool = 1u
-        goto block@23
+        goto block@31
     block@5: // check_dynamic_bytes_route_L239
         let tmp%14#0: uint64 = (txn OnCompletion)
         let tmp%15#0: bool = (! tmp%14#0)
@@ -40,13 +40,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%16#0: uint64 = (txn ApplicationID)
         (assert tmp%16#0) // can only call when not creating
         let tmp%18#0: bytes = (txna ApplicationArgs 1)
-        let length%1#0: uint64 = (extract_uint16 tmp%18#0 0u)
+        let length%1#0: uint64 = (extract_uint16 tmp%18#0 0u) // on error: invalid array length header
         let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
         let value_len%2#0: uint64 = (len tmp%18#0)
         let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%1#0)
         (assert size_is_correct%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%19#0: bytes = (txna ApplicationArgs 2)
-        let length%2#0: uint64 = (extract_uint16 tmp%19#0 0u)
+        let length%2#0: uint64 = (extract_uint16 tmp%19#0 0u) // on error: invalid array length header
         let num_bytes_with_header%2#0: uint64 = (+ length%2#0 2u)
         let value_len%3#0: uint64 = (len tmp%19#0)
         let size_is_correct%3#0: bool = (== value_len%3#0 num_bytes_with_header%2#0)
@@ -54,7 +54,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%20#0: bytes = ((extract 2 0) tmp%19#0)
         test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes(tmp%18#0, tmp%20#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#2: bool = 1u
-        goto block@23
+        goto block@31
     block@6: // check_string_route_L243
         let tmp%21#0: uint64 = (txn OnCompletion)
         let tmp%22#0: bool = (! tmp%21#0)
@@ -62,13 +62,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%23#0: uint64 = (txn ApplicationID)
         (assert tmp%23#0) // can only call when not creating
         let tmp%25#0: bytes = (txna ApplicationArgs 1)
-        let length%3#0: uint64 = (extract_uint16 tmp%25#0 0u)
+        let length%3#0: uint64 = (extract_uint16 tmp%25#0 0u) // on error: invalid array length header
         let num_bytes_with_header%3#0: uint64 = (+ length%3#0 2u)
         let value_len%4#0: uint64 = (len tmp%25#0)
         let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%3#0)
         (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%26#0: bytes = (txna ApplicationArgs 2)
-        let length%4#0: uint64 = (extract_uint16 tmp%26#0 0u)
+        let length%4#0: uint64 = (extract_uint16 tmp%26#0 0u) // on error: invalid array length header
         let num_bytes_with_header%4#0: uint64 = (+ length%4#0 2u)
         let value_len%5#0: uint64 = (len tmp%26#0)
         let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%4#0)
@@ -76,7 +76,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%27#0: bytes = ((extract 2 0) tmp%26#0)
         test_cases.arc4_conversions.contract.CheckApp.check_string(tmp%25#0, tmp%27#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#3: bool = 1u
-        goto block@23
+        goto block@31
     block@7: // check_biguint_route_L247
         let tmp%28#0: uint64 = (txn OnCompletion)
         let tmp%29#0: bool = (! tmp%28#0)
@@ -88,7 +88,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let size_is_correct%6#0: bool = (== value_len%6#0 64u)
         (assert size_is_correct%6#0) // invalid number of bytes for arc4.uint512
         let tmp%33#0: bytes = (txna ApplicationArgs 2)
-        let length%5#0: uint64 = (extract_uint16 tmp%33#0 0u)
+        let length%5#0: uint64 = (extract_uint16 tmp%33#0 0u) // on error: invalid array length header
         let num_bytes_with_header%5#0: uint64 = (+ length%5#0 2u)
         let value_len%7#0: uint64 = (len tmp%33#0)
         let size_is_correct%7#0: bool = (== value_len%7#0 num_bytes_with_header%5#0)
@@ -96,7 +96,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%34#0: bytes = ((extract 2 0) tmp%33#0)
         test_cases.arc4_conversions.contract.CheckApp.check_biguint(tmp%32#0, tmp%34#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#4: bool = 1u
-        goto block@23
+        goto block@31
     block@8: // check_bool_route_L251
         let tmp%35#0: uint64 = (txn OnCompletion)
         let tmp%36#0: bool = (! tmp%35#0)
@@ -108,7 +108,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let size_is_correct%8#0: bool = (== value_len%8#0 1u)
         (assert size_is_correct%8#0) // invalid number of bytes for arc4.bool
         let tmp%40#0: bytes = (txna ApplicationArgs 2)
-        let length%6#0: uint64 = (extract_uint16 tmp%40#0 0u)
+        let length%6#0: uint64 = (extract_uint16 tmp%40#0 0u) // on error: invalid array length header
         let num_bytes_with_header%6#0: uint64 = (+ length%6#0 2u)
         let value_len%9#0: uint64 = (len tmp%40#0)
         let size_is_correct%9#0: bool = (== value_len%9#0 num_bytes_with_header%6#0)
@@ -116,7 +116,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%41#0: bytes = ((extract 2 0) tmp%40#0)
         test_cases.arc4_conversions.contract.CheckApp.check_bool(tmp%39#0, tmp%41#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#5: bool = 1u
-        goto block@23
+        goto block@31
     block@9: // check_dyn_array_uin64_route_L255
         let tmp%42#0: uint64 = (txn OnCompletion)
         let tmp%43#0: bool = (! tmp%42#0)
@@ -124,14 +124,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%44#0: uint64 = (txn ApplicationID)
         (assert tmp%44#0) // can only call when not creating
         let tmp%46#0: bytes = (txna ApplicationArgs 1)
-        let length%7#0: uint64 = (extract_uint16 tmp%46#0 0u)
+        let length%7#0: uint64 = (extract_uint16 tmp%46#0 0u) // on error: invalid array length header
         let num_bytes%7#0: uint64 = (* length%7#0 8u)
         let num_bytes_with_header%7#0: uint64 = (+ num_bytes%7#0 2u)
         let value_len%10#0: uint64 = (len tmp%46#0)
         let size_is_correct%10#0: bool = (== value_len%10#0 num_bytes_with_header%7#0)
         (assert size_is_correct%10#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         let tmp%47#0: bytes = (txna ApplicationArgs 2)
-        let length%8#0: uint64 = (extract_uint16 tmp%47#0 0u)
+        let length%8#0: uint64 = (extract_uint16 tmp%47#0 0u) // on error: invalid array length header
         let num_bytes_with_header%8#0: uint64 = (+ length%8#0 2u)
         let value_len%11#0: uint64 = (len tmp%47#0)
         let size_is_correct%11#0: bool = (== value_len%11#0 num_bytes_with_header%8#0)
@@ -139,7 +139,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%48#0: bytes = ((extract 2 0) tmp%47#0)
         test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64(tmp%46#0, tmp%48#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#6: bool = 1u
-        goto block@23
+        goto block@31
     block@10: // check_static_array_uin64_3_route_L261
         let tmp%49#0: uint64 = (txn OnCompletion)
         let tmp%50#0: bool = (! tmp%49#0)
@@ -151,7 +151,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let size_is_correct%12#0: bool = (== value_len%12#0 24u)
         (assert size_is_correct%12#0) // invalid number of bytes for arc4.static_array<arc4.uint64, 3>
         let tmp%54#0: bytes = (txna ApplicationArgs 2)
-        let length%9#0: uint64 = (extract_uint16 tmp%54#0 0u)
+        let length%9#0: uint64 = (extract_uint16 tmp%54#0 0u) // on error: invalid array length header
         let num_bytes_with_header%9#0: uint64 = (+ length%9#0 2u)
         let value_len%13#0: uint64 = (len tmp%54#0)
         let size_is_correct%13#0: bool = (== value_len%13#0 num_bytes_with_header%9#0)
@@ -159,7 +159,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%55#0: bytes = ((extract 2 0) tmp%54#0)
         test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin64_3(tmp%53#0, tmp%55#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#7: bool = 1u
-        goto block@23
+        goto block@31
     block@11: // check_dyn_array_struct_route_L267
         let tmp%56#0: uint64 = (txn OnCompletion)
         let tmp%57#0: bool = (! tmp%56#0)
@@ -167,14 +167,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%58#0: uint64 = (txn ApplicationID)
         (assert tmp%58#0) // can only call when not creating
         let tmp%60#0: bytes = (txna ApplicationArgs 1)
-        let length%10#0: uint64 = (extract_uint16 tmp%60#0 0u)
+        let length%10#0: uint64 = (extract_uint16 tmp%60#0 0u) // on error: invalid array length header
         let num_bytes%10#0: uint64 = (* length%10#0 40u)
         let num_bytes_with_header%10#0: uint64 = (+ num_bytes%10#0 2u)
         let value_len%14#0: uint64 = (len tmp%60#0)
         let size_is_correct%14#0: bool = (== value_len%14#0 num_bytes_with_header%10#0)
         (assert size_is_correct%14#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>
         let tmp%61#0: bytes = (txna ApplicationArgs 2)
-        let length%11#0: uint64 = (extract_uint16 tmp%61#0 0u)
+        let length%11#0: uint64 = (extract_uint16 tmp%61#0 0u) // on error: invalid array length header
         let num_bytes_with_header%11#0: uint64 = (+ length%11#0 2u)
         let value_len%15#0: uint64 = (len tmp%61#0)
         let size_is_correct%15#0: bool = (== value_len%15#0 num_bytes_with_header%11#0)
@@ -182,7 +182,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%62#0: bytes = ((extract 2 0) tmp%61#0)
         test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct(tmp%60#0, tmp%62#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#8: bool = 1u
-        goto block@23
+        goto block@31
     block@12: // check_static_array_struct_route_L273
         let tmp%63#0: uint64 = (txn OnCompletion)
         let tmp%64#0: bool = (! tmp%63#0)
@@ -194,7 +194,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let size_is_correct%16#0: bool = (== value_len%16#0 120u)
         (assert size_is_correct%16#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>
         let tmp%68#0: bytes = (txna ApplicationArgs 2)
-        let length%12#0: uint64 = (extract_uint16 tmp%68#0 0u)
+        let length%12#0: uint64 = (extract_uint16 tmp%68#0 0u) // on error: invalid array length header
         let num_bytes_with_header%12#0: uint64 = (+ length%12#0 2u)
         let value_len%17#0: uint64 = (len tmp%68#0)
         let size_is_correct%17#0: bool = (== value_len%17#0 num_bytes_with_header%12#0)
@@ -202,7 +202,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%69#0: bytes = ((extract 2 0) tmp%68#0)
         test_cases.arc4_conversions.contract.CheckApp.check_static_array_struct(tmp%67#0, tmp%69#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#9: bool = 1u
-        goto block@23
+        goto block@31
     block@13: // check_dyn_array_dyn_struct_route_L279
         let tmp%70#0: uint64 = (txn OnCompletion)
         let tmp%71#0: bool = (! tmp%70#0)
@@ -210,60 +210,131 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%72#0: uint64 = (txn ApplicationID)
         (assert tmp%72#0) // can only call when not creating
         let tmp%74#0: bytes = (txna ApplicationArgs 1)
+        let length%13#0: uint64 = (extract_uint16 tmp%74#0 0u) // on error: invalid array length header
+        let array_data%0#0: bytes = ((extract 2 0) tmp%74#0)
+        let num_bytes%13#0: uint64 = (* length%13#0 2u)
+        let index%0#0: uint64 = 0u
+        goto block@14
+    block@14: // for_header_L230
+        let index%0#1: uint64 = φ(index%0#0 <- block@13, next_index%0#0 <- block@15)
+        let num_bytes%13#1: uint64 = φ(num_bytes%13#0 <- block@13, num_bytes%13#2 <- block@15)
+        let continue_looping%0#0: bool = (< index%0#1 length%13#0)
+        goto continue_looping%0#0 ? block@15 : block@17
+    block@15: // for_body_L230
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%13#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
+        let next_index%0#0: uint64 = (+ index%0#1 1u)
+        let has_next%0#0: uint64 = (- length%13#0 next_index%0#0) // on error: Index access is out of bounds
+        let end_of_array%0#0: uint64 = (len array_data%0#0)
+        let next_item_offset_offset%0#0: uint64 = (* next_index%0#0 2u)
+        let next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 next_item_offset_offset%0#0)
+        let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
+        let item%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 end_offset%0#0)
+        let offset%0#0: uint64 = (extract_uint16 item%0#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%1#0: bool = (== offset%0#0 42u)
+        (assert offset_is_correct%1#0) // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
+        let item_end_offset%0#0: uint64 = (len item%0#0)
+        let item%1#0: bytes = (substring3 item%0#0 offset%0#0 item_end_offset%0#0)
+        let length%14#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%13#0: uint64 = (+ length%14#0 2u)
+        let num_bytes_value%0#0: uint64 = (+ 42u num_bytes_with_header%13#0)
+        let num_bytes%13#2: uint64 = (+ num_bytes%13#1 num_bytes_value%0#0)
+        goto block@14
+    block@17: // after_for_L230
+        let num_bytes%15#0: uint64 = (+ num_bytes%13#1 2u)
+        let value_len%18#0: uint64 = (len tmp%74#0)
+        let size_is_correct%18#0: bool = (== value_len%18#0 num_bytes%15#0)
+        (assert size_is_correct%18#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
         let tmp%75#0: bytes = (txna ApplicationArgs 2)
-        let length%13#0: uint64 = (extract_uint16 tmp%75#0 0u)
-        let num_bytes_with_header%13#0: uint64 = (+ length%13#0 2u)
-        let value_len%18#0: uint64 = (len tmp%75#0)
-        let size_is_correct%18#0: bool = (== value_len%18#0 num_bytes_with_header%13#0)
-        (assert size_is_correct%18#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let length%15#0: uint64 = (extract_uint16 tmp%75#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%14#0: uint64 = (+ length%15#0 2u)
+        let value_len%19#0: uint64 = (len tmp%75#0)
+        let size_is_correct%19#0: bool = (== value_len%19#0 num_bytes_with_header%14#0)
+        (assert size_is_correct%19#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%76#0: bytes = ((extract 2 0) tmp%75#0)
         test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_struct(tmp%74#0, tmp%76#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#10: bool = 1u
-        goto block@23
-    block@14: // check_static_array_dyn_struct_route_L285
+        goto block@31
+    block@18: // check_static_array_dyn_struct_route_L285
         let tmp%77#0: uint64 = (txn OnCompletion)
         let tmp%78#0: bool = (! tmp%77#0)
         (assert tmp%78#0) // OnCompletion is not NoOp
         let tmp%79#0: uint64 = (txn ApplicationID)
         (assert tmp%79#0) // can only call when not creating
         let tmp%81#0: bytes = (txna ApplicationArgs 1)
+        let num_bytes%17#0: uint64 = 6u
+        let index%1#0: uint64 = 0u
+        goto block@19
+    block@19: // for_header_L230
+        let index%1#1: uint64 = φ(index%1#0 <- block@18, next_index%1#0 <- block@20)
+        let num_bytes%17#1: uint64 = φ(num_bytes%17#0 <- block@18, num_bytes%17#2 <- block@20)
+        let continue_looping%1#0: bool = (< index%1#1 3u)
+        goto continue_looping%1#0 ? block@20 : block@22
+    block@20: // for_body_L230
+        let head_offset_bytes%1#0: uint64 = (* index%1#1 2u)
+        let item_offset%2#0: uint64 = (extract_uint16 tmp%81#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%2#0: bool = (== item_offset%2#0 num_bytes%17#1)
+        (assert offset_is_correct%2#0) // invalid tail pointer for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
+        let next_index%1#0: uint64 = (+ index%1#1 1u)
+        let has_next%1#0: uint64 = (- 3u next_index%1#0) // on error: Index access is out of bounds
+        let end_of_array%1#0: uint64 = (len tmp%81#0)
+        let next_item_offset_offset%1#0: uint64 = (* next_index%1#0 2u)
+        let next_item_offset%1#0: uint64 = (extract_uint16 tmp%81#0 next_item_offset_offset%1#0)
+        let end_offset%1#0: uint64 = (select end_of_array%1#0 next_item_offset%1#0 has_next%1#0)
+        let item%2#0: bytes = (substring3 tmp%81#0 item_offset%2#0 end_offset%1#0)
+        let offset%1#0: uint64 = (extract_uint16 item%2#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%3#0: bool = (== offset%1#0 42u)
+        (assert offset_is_correct%3#0) // invalid tail pointer at index 2 of test_cases.arc4_conversions.contract.MyDynStructARC4
+        let item_end_offset%1#0: uint64 = (len item%2#0)
+        let item%3#0: bytes = (substring3 item%2#0 offset%1#0 item_end_offset%1#0)
+        let length%16#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%15#0: uint64 = (+ length%16#0 2u)
+        let num_bytes_value%1#0: uint64 = (+ 42u num_bytes_with_header%15#0)
+        let num_bytes%17#2: uint64 = (+ num_bytes%17#1 num_bytes_value%1#0)
+        goto block@19
+    block@22: // after_for_L230
+        let value_len%20#0: uint64 = (len tmp%81#0)
+        let size_is_correct%20#0: bool = (== value_len%20#0 num_bytes%17#1)
+        (assert size_is_correct%20#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
         let tmp%82#0: bytes = (txna ApplicationArgs 2)
-        let length%14#0: uint64 = (extract_uint16 tmp%82#0 0u)
-        let num_bytes_with_header%14#0: uint64 = (+ length%14#0 2u)
-        let value_len%19#0: uint64 = (len tmp%82#0)
-        let size_is_correct%19#0: bool = (== value_len%19#0 num_bytes_with_header%14#0)
-        (assert size_is_correct%19#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let length%17#0: uint64 = (extract_uint16 tmp%82#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%16#0: uint64 = (+ length%17#0 2u)
+        let value_len%21#0: uint64 = (len tmp%82#0)
+        let size_is_correct%21#0: bool = (== value_len%21#0 num_bytes_with_header%16#0)
+        (assert size_is_correct%21#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%83#0: bytes = ((extract 2 0) tmp%82#0)
         test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct(tmp%81#0, tmp%83#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#11: bool = 1u
-        goto block@23
-    block@15: // check_static_bytes_route_L291
+        goto block@31
+    block@23: // check_static_bytes_route_L291
         let tmp%84#0: uint64 = (txn OnCompletion)
         let tmp%85#0: bool = (! tmp%84#0)
         (assert tmp%85#0) // OnCompletion is not NoOp
         let tmp%86#0: uint64 = (txn ApplicationID)
         (assert tmp%86#0) // can only call when not creating
         let tmp%88#0: bytes = (txna ApplicationArgs 1)
-        let value_len%20#0: uint64 = (len tmp%88#0)
-        let size_is_correct%20#0: bool = (== value_len%20#0 32u)
-        (assert size_is_correct%20#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        let value_len%22#0: uint64 = (len tmp%88#0)
+        let size_is_correct%22#0: bool = (== value_len%22#0 32u)
+        (assert size_is_correct%22#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         test_cases.arc4_conversions.contract.CheckApp.check_static_bytes(tmp%88#0)
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#12: bool = 1u
-        goto block@23
-    block@18: // bare_routing_L230
+        goto block@31
+    block@26: // bare_routing_L230
         let tmp%89#0: uint64 = (txn OnCompletion)
-        goto tmp%89#0 ? block@22 : block@19
-    block@19: // __algopy_default_create_L1
+        goto tmp%89#0 ? block@30 : block@27
+    block@27: // __algopy_default_create_L1
         let tmp%90#0: uint64 = (txn ApplicationID)
         let tmp%91#0: bool = (! tmp%90#0)
         (assert tmp%91#0) // can only call when creating
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#13: bool = 1u
-        goto block@23
-    block@22: // after_if_else_L230
+        goto block@31
+    block@30: // after_if_else_L230
         let test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#14: bool = 0u
-        goto block@23
-    block@23: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router___L1
-        let tmp%0#0: bool = φ(test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#2 <- block@5, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#3 <- block@6, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#4 <- block@7, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#5 <- block@8, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#6 <- block@9, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#7 <- block@10, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#8 <- block@11, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#9 <- block@12, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#10 <- block@13, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#11 <- block@14, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#12 <- block@15, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#13 <- block@19, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#14 <- block@22)
+        goto block@31
+    block@31: // after_inlined_test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router___L1
+        let tmp%0#0: bool = φ(test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#0 <- block@3, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#1 <- block@4, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#2 <- block@5, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#3 <- block@6, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#4 <- block@7, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#5 <- block@8, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#6 <- block@9, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#7 <- block@10, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#8 <- block@11, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#9 <- block@12, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#10 <- block@17, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#11 <- block@22, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#12 <- block@23, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#13 <- block@27, test_cases.arc4_conversions.contract.CheckApp.__puya_arc4_router__%0#14 <- block@30)
         return tmp%0#0
 
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_uint64(value: bytes[8], expected: bytes) -> void:
