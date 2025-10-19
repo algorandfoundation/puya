@@ -1,4 +1,5 @@
 from collections.abc import Callable, Mapping, Sequence
+from importlib.metadata import version
 from pathlib import Path
 
 import mypy.errors
@@ -25,6 +26,7 @@ logger = log.get_logger(__name__)
 def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
+        logger.info(f"using puyapy version {version('puyapy')}")
         logger.debug(puyapy_options)
         try:
             parse_result = parse_python(puyapy_options.paths, package_search_paths="infer")
