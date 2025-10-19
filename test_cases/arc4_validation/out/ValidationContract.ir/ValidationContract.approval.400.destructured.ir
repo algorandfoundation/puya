@@ -257,14 +257,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
     block@0: // L112
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#0)
+        let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len value#0)
-        let aggregate%substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 13u)
-        let eq%1#0: bool = (== aggregate%len%0#0 add%1#0)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint8,arc4.dynamic_array<arc4.uint8>>
         exit 1u
 
@@ -281,14 +281,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
     block@0: // L120
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#0)
+        let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len value#0)
-        let aggregate%substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 13u)
-        let eq%1#0: bool = (== aggregate%len%0#0 add%1#0)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.ARC4DynamicStruct
         exit 1u
 
@@ -331,22 +331,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        let aggregate%next_index%0#0: uint64 = (+ index%0#0 1u)
-        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%0#0 aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 9u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%3#0 13u)
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        let index%0#0: uint64 = aggregate%next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@2
     block@5: // after_for_L134
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
@@ -369,22 +364,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        let aggregate%next_index%0#0: uint64 = (+ index%0#0 1u)
-        let aggregate%has_next%0#0: uint64 = (- 3u aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len value#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 value#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 value#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 9u) // on error: invalid tuple encoding
+        let total_length%0#0: uint64 = (len value#0)
+        let extract_to_end%0#0: bytes = (substring3 value#0 item_offset%0#0 total_length%0#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        let index%0#0: uint64 = aggregate%next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@2
     block@5: // after_for_L138
         let len%0#0: uint64 = (len value#0)
@@ -411,22 +401,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        let aggregate%next_index%0#0: uint64 = (+ index%0#0 1u)
-        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%0#0 aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 9u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%3#0 13u)
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        let index%0#0: uint64 = aggregate%next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@2
     block@5: // after_for_L145
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
@@ -449,14 +434,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#0)
         (app_global_put "v" value#0)
+        let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len value#0)
-        let aggregate%substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 13u)
-        let eq%1#0: bool = (== aggregate%len%0#0 add%1#0)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.NativeDynamicStruct
         exit 1u
 
@@ -502,22 +487,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,uint8,(len+utf8[]))[])
-        let aggregate%next_index%0#0: uint64 = (+ index%0#0 1u)
-        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%0#0 aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 9u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%3#0 13u)
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        let index%0#0: uint64 = aggregate%next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@2
     block@5: // after_for_L180
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
@@ -541,22 +521,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        let aggregate%next_index%0#0: uint64 = (+ index%0#0 1u)
-        let aggregate%has_next%0#0: uint64 = (- 3u aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len value#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 value#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 value#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 9u) // on error: invalid tuple encoding
+        let total_length%0#0: uint64 = (len value#0)
+        let extract_to_end%0#0: bytes = (substring3 value#0 item_offset%0#0 total_length%0#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        let index%0#0: uint64 = aggregate%next_index%0#0
+        let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@2
     block@5: // after_for_L187
         let len%0#0: uint64 = (len value#0)

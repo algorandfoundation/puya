@@ -305,24 +305,15 @@ subroutine calculate:
         v-load offset_is_correct%0#0                                       offset_is_correct%0#0
         assert // invalid tail pointer for (len+(len+uint64[])[])
         v-load array_data%0#0                                              array_data%0#0
-        v-load item_offset%0#0                                             array_data%0#0,item_offset%0#0
-        extract_uint16                                                     aggregate%item_length%0#0
-        v-store aggregate%item_length%0#0
-        v-load aggregate%item_length%0#0                                   aggregate%item_length%0#0
-        int 8                                                              aggregate%item_length%0#0,8
-        *                                                                  aggregate%item_length_in_bytes%0#0
-        v-store aggregate%item_length_in_bytes%0#0
-        v-load aggregate%item_length_in_bytes%0#0                          aggregate%item_length_in_bytes%0#0
-        int 2                                                              aggregate%item_length_in_bytes%0#0,2
-        +                                                                  aggregate%item_head_tail_length%0#0
-        v-store aggregate%item_head_tail_length%0#0
+        len                                                                total_length%1#0
+        v-store total_length%1#0
         v-load array_data%0#0                                              array_data%0#0
         v-load item_offset%0#0                                             array_data%0#0,item_offset%0#0
-        v-load aggregate%item_head_tail_length%0#0                         array_data%0#0,item_offset%0#0,aggregate%item_head_tail_length%0#0
-        extract3                                                           aggregate%item%0#0
-        v-store aggregate%item%0#0
-        v-load aggregate%item%0#0                                          aggregate%item%0#0
-        int 0                                                              aggregate%item%0#0,0
+        v-load total_length%1#0                                            array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                         extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                          extract_to_end%0#0
+        int 0                                                              extract_to_end%0#0,0
         extract_uint16 // on error: invalid array length header            aggregate%array_length%1#0
         v-store aggregate%array_length%1#0
         v-load aggregate%array_length%1#0                                  aggregate%array_length%1#0
@@ -400,27 +391,27 @@ subroutine calculate:
         assert // index access is out of bounds
         v-load i#0                                                         i#0
         int 2                                                              i#0,2
-        *                                                                  aggregate%item_offset_offset%1#0
-        v-store aggregate%item_offset_offset%1#0
+        *                                                                  aggregate%item_offset_offset%0#0
+        v-store aggregate%item_offset_offset%0#0
         v-load array_data%0#0                                              array_data%0#0
-        v-load aggregate%item_offset_offset%1#0                            array_data%0#0,aggregate%item_offset_offset%1#0
-        extract_uint16                                                     aggregate%item_offset%1#0
-        v-store aggregate%item_offset%1#0
+        v-load aggregate%item_offset_offset%0#0                            array_data%0#0,aggregate%item_offset_offset%0#0
+        extract_uint16                                                     aggregate%item_offset%0#0
+        v-store aggregate%item_offset%0#0
         v-load array_data%0#0                                              array_data%0#0
-        v-load aggregate%item_offset%1#0                                   array_data%0#0,aggregate%item_offset%1#0
-        extract_uint16                                                     aggregate%item_length%1#0
-        v-store aggregate%item_length%1#0
-        v-load aggregate%item_length%1#0                                   aggregate%item_length%1#0
-        int 8                                                              aggregate%item_length%1#0,8
-        *                                                                  aggregate%item_length_in_bytes%1#0
-        v-store aggregate%item_length_in_bytes%1#0
-        v-load aggregate%item_length_in_bytes%1#0                          aggregate%item_length_in_bytes%1#0
-        int 2                                                              aggregate%item_length_in_bytes%1#0,2
-        +                                                                  aggregate%item_head_tail_length%1#0
-        v-store aggregate%item_head_tail_length%1#0
+        v-load aggregate%item_offset%0#0                                   array_data%0#0,aggregate%item_offset%0#0
+        extract_uint16                                                     aggregate%item_length%0#0
+        v-store aggregate%item_length%0#0
+        v-load aggregate%item_length%0#0                                   aggregate%item_length%0#0
+        int 8                                                              aggregate%item_length%0#0,8
+        *                                                                  aggregate%item_length_in_bytes%0#0
+        v-store aggregate%item_length_in_bytes%0#0
+        v-load aggregate%item_length_in_bytes%0#0                          aggregate%item_length_in_bytes%0#0
+        int 2                                                              aggregate%item_length_in_bytes%0#0,2
+        +                                                                  aggregate%item_head_tail_length%0#0
+        v-store aggregate%item_head_tail_length%0#0
         v-load array_data%0#0                                              array_data%0#0
-        v-load aggregate%item_offset%1#0                                   array_data%0#0,aggregate%item_offset%1#0
-        v-load aggregate%item_head_tail_length%1#0                         array_data%0#0,aggregate%item_offset%1#0,aggregate%item_head_tail_length%1#0
+        v-load aggregate%item_offset%0#0                                   array_data%0#0,aggregate%item_offset%0#0
+        v-load aggregate%item_head_tail_length%0#0                         array_data%0#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
         extract3                                                           inner_list#0
         v-store inner_list#0
         // regression_tests/leftover_branch.py:40

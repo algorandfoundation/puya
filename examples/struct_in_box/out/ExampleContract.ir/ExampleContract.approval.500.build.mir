@@ -83,6 +83,9 @@ subroutine add_user:
         txna ApplicationArgs 1                                                           user#0
         v-store user#0
         v-load user#0                                                                    user#0
+        len                                                                              tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load user#0                                                                    user#0
         int 0                                                                            user#0,0
         extract_uint16 // on error: invalid tuple encoding                               extract_uint16%0#0
         v-store extract_uint16%0#0
@@ -93,23 +96,20 @@ subroutine add_user:
         v-load eq%0#0                                                                    eq%0#0
         assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint64)
         v-load user#0                                                                    user#0
-        len                                                                              aggregate%len%0#0
-        v-store aggregate%len%0#0
-        v-load user#0                                                                    user#0
         v-load extract_uint16%0#0                                                        user#0,extract_uint16%0#0
-        v-load aggregate%len%0#0                                                         user#0,extract_uint16%0#0,aggregate%len%0#0
-        substring3                                                                       aggregate%substring3%0#0
-        v-store aggregate%substring3%0#0
-        v-load aggregate%substring3%0#0                                                  aggregate%substring3%0#0
-        int 0                                                                            aggregate%substring3%0#0,0
+        v-load tuple_len%0#0                                                             user#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                       substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                            substring3%0#0
+        int 0                                                                            substring3%0#0,0
         extract_uint16 // on error: invalid array length header                          aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                aggregate%array_length%0#0
         int 20                                                                           aggregate%array_length%0#0,20
         +                                                                                add%1#0
         v-store add%1#0
-        v-load aggregate%len%0#0                                                         aggregate%len%0#0
-        v-load add%1#0                                                                   aggregate%len%0#0,add%1#0
+        v-load tuple_len%0#0                                                             tuple_len%0#0
+        v-load add%1#0                                                                   tuple_len%0#0,add%1#0
         ==                                                                               eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                    eq%1#0
@@ -128,9 +128,9 @@ subroutine add_user:
         // struct_in_box/contract.py:32
         // assert not self.box_exists(user.id), "User with id must not exist"
         v-load exists#0                                                                  exists#0
-        !                                                                                tmp%1#1
-        v-store tmp%1#1
-        v-load tmp%1#1                                                                   tmp%1#1
+        !                                                                                tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                   tmp%1#0
         assert // User with id must not exist
         // struct_in_box/contract.py:21
         // op.Box.delete(box_key)

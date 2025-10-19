@@ -1087,11 +1087,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(len+uint64[])[])
-        let aggregate%item_length%0#0: uint64 = (extract_uint16 array_data%0#0 item_offset%0#0)
-        let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
-        let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
-        let aggregate%item%0#0: bytes = (extract3 array_data%0#0 item_offset%0#0 aggregate%item_head_tail_length%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%item%0#0 0u) // on error: invalid array length header
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 extract_to_end%0#0 0u) // on error: invalid array length header
         let mul%0#0: uint64 = (* aggregate%array_length%1#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%0#0)
@@ -1130,12 +1128,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
         goto block@8
     block@11: // after_for_L265
         let extract_uint16%1#0: uint64 = (extract_uint16 arr#2 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#2)
+        let extract_to_end%0#1: bytes = ((extract 2 0) arr#2)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0002
         let aggregate%head%1#0: bytes = 0x0002
         let aggregate%concat%0#0: bytes = (concat 0x0002 extra_arr#1)
-        let arr#3: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, aggregate%concat%0#0)
+        let arr#3: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#1, 1u, aggregate%concat%0#0)
         let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@6
     block@13: // after_for_L263
@@ -1150,14 +1148,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
         let continue_looping%2#0: bool = (< item_index_internal%0#1 aggregate%array_length%2#0)
         goto continue_looping%2#0 ? block@15 : block@17
     block@15: // for_body_L272
-        let aggregate%total_length%1#0: uint64 = (len arr#2)
-        let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) arr#2)
-        let aggregate%item_offset_offset%1#0: uint64 = (* item_index_internal%0#1 2u)
-        let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
-        let aggregate%item_length%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0)
-        let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%1#0 8u)
-        let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%1#0 2u)
-        let inner_arr#0: Encoded(len+uint64[]) = (extract3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%item_head_tail_length%1#0)
+        let aggregate%total_length%0#0: uint64 = (len arr#2)
+        let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) arr#2)
+        let aggregate%item_offset_offset%0#0: uint64 = (* item_index_internal%0#1 2u)
+        let aggregate%item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset_offset%0#0)
+        let aggregate%item_length%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0)
+        let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
+        let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
+        let inner_arr#0: Encoded(len+uint64[]) = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
         let total#0: uint64 = 0u
         let aggregate%array_length%3#0: uint64 = (extract_uint16 inner_arr#0 0u) // on error: invalid array length header
         let item_index_internal%0#3: uint64 = 0u
@@ -1168,7 +1166,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
         let continue_looping%0#2: bool = (< item_index_internal%0#4 aggregate%array_length%3#0)
         goto continue_looping%0#2 ? block@20 : block@21
     block@20: // for_body_L521
-        let aggregate%total_length%3#0: uint64 = (len inner_arr#0)
+        let aggregate%total_length%2#0: uint64 = (len inner_arr#0)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) inner_arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#4 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
@@ -1187,8 +1185,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array[r
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@14
     block@17: // after_for_L271
-        let tmp%5#0: bytes = (concat 0x151f7c75 totals#1)
-        (log tmp%5#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 totals#1)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples[routing]() -> void:
@@ -1320,7 +1318,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let index%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L341
-        let index%0#1: uint64 = φ(index%0#0 <- block@0, aggregate%next_index%0#0 <- block@2)
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
         let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
         let continue_looping%0#0: bool = (< index%0#1 aggregate%array_length%3#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -1329,21 +1327,17 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-        let aggregate%next_index%0#0: uint64 = (+ index%0#1 1u)
-        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%3#0 aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 8u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 8u) // on error: invalid tuple encoding
         let eq%3#0: bool = (== extract_uint16%0#0 10u)
         (assert eq%3#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
-        let add%5#0: uint64 = (+ aggregate%array_length%6#0 12u)
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%5#0: uint64 = (+ aggregate%array_length%4#0 12u)
         let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%5#0)
+        let index%0#2: uint64 = (+ index%0#1 1u)
         goto block@1
     block@4: // after_for_L341
         let num_bytes%1#0: uint64 = (+ num_bytes%0#1 2u)
@@ -1422,26 +1416,26 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let item_index_internal%3#0: uint64 = 0u
         goto block@24
     block@24: // for_header_L361
-        let idx#0: uint64 = φ(item_index_internal%3#0 <- block@23, aggregate%next_index%2#0 <- block@25)
+        let idx#0: uint64 = φ(item_index_internal%3#0 <- block@23, aggregate%next_index%0#0 <- block@25)
         let sum4#1: uint64 = φ(sum4#0 <- block@23, sum4#3 <- block@25)
         let continue_looping%3#0: bool = (< idx#0 aggregate%array_length%3#0)
         goto continue_looping%3#0 ? block@25 : block@27
     block@25: // for_body_L362
-        let aggregate%item_offset_offset%2#0: uint64 = (* idx#0 2u)
-        let aggregate%item_offset%2#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%2#0)
-        let aggregate%next_index%2#0: uint64 = (+ idx#0 1u)
-        let aggregate%has_next%2#0: uint64 = (- aggregate%array_length%3#0 aggregate%next_index%2#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%2#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%2#0: uint64 = (* aggregate%next_index%2#0 2u)
-        let aggregate%next_item_offset%2#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%2#0)
-        let aggregate%end_offset%2#0: uint64 = (select aggregate%end_of_array%2#0 aggregate%next_item_offset%2#0 aggregate%has_next%2#0)
-        let aggregate%substring3%3#0: bytes = (substring3 array_data%0#0 aggregate%item_offset%2#0 aggregate%end_offset%2#0)
-        let aggregate%extract%1#0: bytes = ((extract 0 8) aggregate%substring3%3#0)
-        let dyn_tup.foo#0: uint64 = (extract_uint64 aggregate%substring3%3#0 0u)
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 aggregate%substring3%3#0 8u)
-        let aggregate%len%1#0: uint64 = (len aggregate%substring3%3#0)
-        let aggregate%substring3%4#0: bytes = (substring3 aggregate%substring3%3#0 aggregate%extract_uint16%1#0 aggregate%len%1#0)
-        let dyn_tup.bar#0: string = ((extract 2 0) aggregate%substring3%4#0)
+        let aggregate%item_offset_offset%0#0: uint64 = (* idx#0 2u)
+        let aggregate%item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%0#0)
+        let aggregate%next_index%0#0: uint64 = (+ idx#0 1u)
+        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%3#0 aggregate%next_index%0#0) // on error: index access is out of bounds
+        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
+        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
+        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
+        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 aggregate%item_offset%0#0 aggregate%end_offset%0#0)
+        let aggregate%extract%1#0: bytes = ((extract 0 8) aggregate%substring3%0#0)
+        let dyn_tup.foo#0: uint64 = (extract_uint64 aggregate%substring3%0#0 0u)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 8u)
+        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
+        let aggregate%substring3%1#0: bytes = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let dyn_tup.bar#0: string = ((extract 2 0) aggregate%substring3%1#0)
         let sum4#2: uint64 = (+ sum4#1 dyn_tup.foo#0)
         let tmp%6#1: uint64 = (len dyn_tup.bar#0)
         let sum4#3: uint64 = (+ sum4#2 tmp%6#1)
@@ -1456,8 +1450,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob sum4#1)
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
-        let tmp%11#0: bytes = (concat 0x151f7c75 aggregate%head%3#0)
-        (log tmp%11#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%head%3#0)
+        (log tmp%9#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return[routing]() -> void:
@@ -1729,21 +1723,21 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple[routing]() -> void:
     block@0: // L422
         let arg#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len arg#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 arg#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 arg#0 2u)
-        let aggregate%substring3%0#0: bytes = (substring3 arg#0 extract_uint16%0#0 aggregate%extract_uint16%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 arg#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 6u)
-        let eq%1#0: bool = (== aggregate%extract_uint16%1#0 add%1#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 2u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len arg#0)
-        let aggregate%substring3%1#0: bytes = (substring3 arg#0 aggregate%extract_uint16%1#0 aggregate%len%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 aggregate%substring3%1#0 0u) // on error: invalid array length header
+        let substring3%1#0: bytes = (substring3 arg#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
         let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let eq%2#0: bool = (== aggregate%len%0#0 add%3#0)
+        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
         (assert eq%2#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
         let aggregate%length%0#0: uint64 = 1u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
@@ -1766,29 +1760,30 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let data%0#0: bytes = ((extract 4 0) arg#0)
         let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, data%0#0, 2u)
-        let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
-        (log tmp%4#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
+        (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple[routing]() -> void:
     block@0: // L430
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 2u)
-        let arg.0#0: Encoded(len+utf8[]) = (substring3 tmp%0#0 extract_uint16%0#0 aggregate%extract_uint16%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 arg.0#0 0u) // on error: invalid array length header
+        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%0#0 6u)
-        let eq%1#0: bool = (== aggregate%extract_uint16%1#0 add%1#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len tmp%0#0)
-        let arg.1#0: Encoded(len+utf8[]) = (substring3 tmp%0#0 aggregate%extract_uint16%1#0 aggregate%len%0#0)
+        let arg.1#0: Encoded(len+utf8[]) = (substring3 tmp%0#0 extract_uint16%1#0 tuple_len%0#0)
         let aggregate%array_length%1#0: uint64 = (extract_uint16 arg.1#0 0u) // on error: invalid array length header
         let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let eq%2#0: bool = (== aggregate%len%0#0 add%3#0)
+        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
         (assert eq%2#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+        let arg.0#0: Encoded(len+utf8[]) = (substring3 tmp%0#0 extract_uint16%0#0 extract_uint16%1#0)
         let aggregate%length%0#0: uint64 = 1u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%0#0: bytes = 0x0001
@@ -1810,8 +1805,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let concat%1#0: bytes = (concat arg.0#0 arg.1#0)
         let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, concat%1#0, 2u)
-        let tmp%6#0: bytes = (concat 0x151f7c75 result#0)
-        (log tmp%6#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
+        (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic[routing]() -> void:
@@ -1824,7 +1819,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutab
         let index%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L438
-        let index%0#1: uint64 = φ(index%0#0 <- block@0, aggregate%next_index%0#0 <- block@2)
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
         let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
         let continue_looping%0#0: bool = (< index%0#1 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
@@ -1833,66 +1828,58 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutab
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
         (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-        let aggregate%next_index%0#0: uint64 = (+ index%0#1 1u)
-        let aggregate%has_next%0#0: uint64 = (- aggregate%array_length%0#0 aggregate%next_index%0#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%0#0: uint64 = (len array_data%0#0)
-        let aggregate%next_item_offset_offset%0#0: uint64 = (* aggregate%next_index%0#0 2u)
-        let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%next_item_offset_offset%0#0)
-        let aggregate%end_offset%0#0: uint64 = (select aggregate%end_of_array%0#0 aggregate%next_item_offset%0#0 aggregate%has_next%0#0)
-        let aggregate%substring3%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 aggregate%end_offset%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 8u) // on error: invalid tuple encoding
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 8u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 10u)
         (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
-        let aggregate%substring3%2#0: bytes = (substring3 aggregate%substring3%0#0 extract_uint16%0#0 aggregate%len%0#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 aggregate%substring3%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%3#0 12u)
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 12u)
         let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%1#0)
+        let index%0#2: uint64 = (+ index%0#1 1u)
         goto block@1
     block@4: // after_for_L438
         let num_bytes%1#0: uint64 = (+ num_bytes%0#1 2u)
         let eq%1#0: bool = (== total_length%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
         let imm2#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 2)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 imm2#0 0u) // on error: invalid array length header
-        let num_bytes%2#0: uint64 = (* aggregate%array_length%4#0 2u)
-        let total_length%1#0: uint64 = (len imm2#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 imm2#0 0u) // on error: invalid array length header
+        let num_bytes%2#0: uint64 = (* aggregate%array_length%2#0 2u)
+        let total_length%2#0: uint64 = (len imm2#0)
         let array_data%1#0: bytes = ((extract 2 0) imm2#0)
         let index%1#0: uint64 = 0u
         goto block@5
     block@5: // for_header_L438
-        let index%1#1: uint64 = φ(index%1#0 <- block@4, aggregate%next_index%2#0 <- block@6)
+        let index%1#1: uint64 = φ(index%1#0 <- block@4, index%1#2 <- block@6)
         let num_bytes%2#1: uint64 = φ(num_bytes%2#0 <- block@4, num_bytes%2#2 <- block@6)
-        let continue_looping%1#0: bool = (< index%1#1 aggregate%array_length%4#0)
+        let continue_looping%1#0: bool = (< index%1#1 aggregate%array_length%2#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L438
         let head_offset_bytes%1#0: uint64 = (* index%1#1 2u)
         let item_offset%1#0: uint64 = (extract_uint16 array_data%1#0 head_offset_bytes%1#0) // on error: invalid array encoding
         let offset_is_correct%1#0: bool = (== item_offset%1#0 num_bytes%2#1)
         (assert offset_is_correct%1#0) // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-        let aggregate%next_index%2#0: uint64 = (+ index%1#1 1u)
-        let aggregate%has_next%2#0: uint64 = (- aggregate%array_length%4#0 aggregate%next_index%2#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%2#0: uint64 = (len array_data%1#0)
-        let aggregate%next_item_offset_offset%2#0: uint64 = (* aggregate%next_index%2#0 2u)
-        let aggregate%next_item_offset%2#0: uint64 = (extract_uint16 array_data%1#0 aggregate%next_item_offset_offset%2#0)
-        let aggregate%end_offset%2#0: uint64 = (select aggregate%end_of_array%2#0 aggregate%next_item_offset%2#0 aggregate%has_next%2#0)
-        let aggregate%substring3%3#0: bytes = (substring3 array_data%1#0 item_offset%1#0 aggregate%end_offset%2#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 aggregate%substring3%3#0 8u) // on error: invalid tuple encoding
+        let total_length%3#0: uint64 = (len array_data%1#0)
+        let extract_to_end%1#0: bytes = (substring3 array_data%1#0 item_offset%1#0 total_length%3#0)
+        let tuple_len%1#0: uint64 = (len extract_to_end%1#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 extract_to_end%1#0 8u) // on error: invalid tuple encoding
         let eq%2#0: bool = (== extract_uint16%1#0 10u)
         (assert eq%2#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        let aggregate%len%1#0: uint64 = (len aggregate%substring3%3#0)
-        let aggregate%substring3%5#0: bytes = (substring3 aggregate%substring3%3#0 extract_uint16%1#0 aggregate%len%1#0)
-        let aggregate%array_length%7#0: uint64 = (extract_uint16 aggregate%substring3%5#0 0u) // on error: invalid array length header
-        let add%3#0: uint64 = (+ aggregate%array_length%7#0 12u)
+        let substring3%1#0: bytes = (substring3 extract_to_end%1#0 extract_uint16%1#0 tuple_len%1#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%3#0: uint64 = (+ aggregate%array_length%3#0 12u)
         let num_bytes%2#2: uint64 = (+ num_bytes%2#1 add%3#0)
+        let index%1#2: uint64 = (+ index%1#1 1u)
         goto block@5
     block@8: // after_for_L438
         let num_bytes%3#0: uint64 = (+ num_bytes%2#1 2u)
-        let eq%3#0: bool = (== total_length%1#0 num_bytes%3#0)
+        let eq%3#0: bool = (== total_length%2#0 num_bytes%3#0)
         (assert eq%3#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-        let as_Encoded(len+(uint64,(len+utf8[]))[])%0#1: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%array_length%0#0, array_data%0#0, aggregate%array_length%4#0, array_data%1#0)
-        let tmp%7#0: bytes = (concat 0x151f7c75 as_Encoded(len+(uint64,(len+utf8[]))[])%0#1)
-        (log tmp%7#0)
+        let as_Encoded(len+(uint64,(len+utf8[]))[])%0#1: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(aggregate%array_length%0#0, array_data%0#0, aggregate%array_length%2#0, array_data%1#0)
+        let tmp%3#0: bytes = (concat 0x151f7c75 as_Encoded(len+(uint64,(len+utf8[]))[])%0#1)
+        (log tmp%3#0)
         exit 1u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4[routing]() -> void:

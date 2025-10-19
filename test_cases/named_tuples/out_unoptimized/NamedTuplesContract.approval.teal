@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 74
+    intcblock 0 1 2 64
     bytecblock 0x 0x151f7c75
     b main_block@0
 
@@ -131,7 +131,7 @@ build_tuple_block@0:
     txna ApplicationArgs 2
     dup
     len
-    pushint 64 // 64
+    intc_3 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 3
@@ -175,10 +175,10 @@ build_tuple_block@0:
     cover 1
     dup
     len
-    pushint 64 // 64
+    intc_3 // 64
     <=
     assert // overflow
-    pushint 64 // 64
+    intc_3 // 64
     bzero
     b|
     concat
@@ -260,21 +260,18 @@ test_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    len
+    cover 1
+    dup
     pushint 72 // 72
     extract_uint16 // on error: invalid tuple encoding
+    dup
     pushint 76 // 76
     ==
     assert // invalid tail pointer at index 2 of (uint64,uint512,(len+utf8[]),(len+uint8[]))
-    dup
-    pushint 72 // 72
-    extract_uint16
-    cover 1
-    dup
-    intc_3 // 74
-    extract_uint16
     dig 1
-    uncover 3
-    uncover 2
+    uncover 1
+    dig 3
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -285,21 +282,15 @@ test_tuple_block@0:
     pushint 76 // 76
     +
     dig 1
-    intc_3 // 74
+    pushint 74 // 74
     extract_uint16 // on error: invalid tuple encoding
-    dig 1
+    dup
+    dig 2
     ==
     assert // invalid tail pointer at index 3 of (uint64,uint512,(len+utf8[]),(len+uint8[]))
-    dig 1
-    intc_3 // 74
-    extract_uint16
-    cover 1
     dig 2
-    len
-    cover 1
-    dig 3
-    uncover 3
-    uncover 3
+    uncover 1
+    uncover 4
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -320,7 +311,7 @@ test_tuple_block@0:
     cover 1
     dup
     pushint 8 // 8
-    pushint 64 // 64
+    intc_3 // 64
     extract3
     cover 1
     dup
@@ -328,7 +319,7 @@ test_tuple_block@0:
     extract_uint16
     cover 1
     dup
-    intc_3 // 74
+    pushint 74 // 74
     extract_uint16
     dig 1
     uncover 3
@@ -337,7 +328,7 @@ test_tuple_block@0:
     extract 2 0
     cover 1
     dup
-    intc_3 // 74
+    pushint 74 // 74
     extract_uint16
     cover 1
     dup
