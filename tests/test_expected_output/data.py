@@ -306,7 +306,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 logging_context() as case_log_ctx,
                 log_exceptions(),
             ):
-                case_awst, case_compilation_set = transform_ast(case_parse_result)
+                case_awst, case_compilation_set = transform_ast(case_parse_result, puyapy_options)
                 case_log_ctx.logs.extend(filter_logs(awst_log_ctx.logs, case))
                 awst_to_teal(
                     case_log_ctx,

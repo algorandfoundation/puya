@@ -34,7 +34,8 @@ class PuyaOptions:
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
-    validate_abi_values: bool = True
+    validate_abi_args: bool = True
+    validate_abi_return: bool = True
     _disabled_optimizations: Sequence[str] = ()
 
     @cached_property
