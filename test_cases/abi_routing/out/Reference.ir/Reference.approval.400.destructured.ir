@@ -44,7 +44,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
         let tmp%15#0: uint64 = (btoi tmp%14#0)
         let tmp%16#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = (extract_uint16 tmp%16#0 0u)
+        let length%0#0: uint64 = (extract_uint16 tmp%16#0 0u) // on error: invalid array length header
         let num_bytes_with_header%0#0: uint64 = (+ length%0#0 2u)
         let value_len%2#0: uint64 = (len tmp%16#0)
         let size_is_correct%2#0: bool = (== value_len%2#0 num_bytes_with_header%0#0)
@@ -250,7 +250,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let size_is_correct%20#0: bool = (== value_len%20#0 4u)
         (assert size_is_correct%20#0) // invalid number of bytes for arc4.uint32
         let tmp%106#0: bytes = (txna ApplicationArgs 11)
-        let length%1#0: uint64 = (extract_uint16 tmp%106#0 0u)
+        let length%1#0: uint64 = (extract_uint16 tmp%106#0 0u) // on error: invalid array length header
         let num_bytes_with_header%1#0: uint64 = (+ length%1#0 2u)
         let value_len%21#0: uint64 = (len tmp%106#0)
         let size_is_correct%21#0: bool = (== value_len%21#0 num_bytes_with_header%1#0)
@@ -261,7 +261,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert size_is_correct%22#0) // invalid number of bytes for arc4.uint64
         let tmp%108#0: uint64 = (btoi tmp%107#0)
         let tmp%109#0: bytes = (txna ApplicationArgs 13)
-        let length%2#0: uint64 = (extract_uint16 tmp%109#0 0u)
+        let length%2#0: uint64 = (extract_uint16 tmp%109#0 0u) // on error: invalid array length header
         let num_bytes_with_header%2#0: uint64 = (+ length%2#0 2u)
         let value_len%23#0: uint64 = (len tmp%109#0)
         let size_is_correct%23#0: bool = (== value_len%23#0 num_bytes_with_header%2#0)
@@ -348,7 +348,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert size_is_correct%37#0) // invalid number of bytes for arc4.uint64
         let tmp%142#0: uint64 = (btoi tmp%141#0)
         let tmp%143#0: bytes = (txna ApplicationArgs 15)
-        let length%3#0: uint64 = (extract_uint16 tmp%143#0 0u)
+        let length%3#0: uint64 = (extract_uint16 tmp%143#0 0u) // on error: invalid array length header
         let num_bytes_with_header%3#0: uint64 = (+ length%3#0 2u)
         let value_len%38#0: uint64 = (len tmp%143#0)
         let size_is_correct%38#0: bool = (== value_len%38#0 num_bytes_with_header%3#0)
@@ -435,26 +435,156 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let size_is_correct%52#0: bool = (== value_len%52#0 8u)
         (assert size_is_correct%52#0) // invalid number of bytes for arc4.uint64
         let tmp%168#0: bytes = (txna ApplicationArgs 15)
+        let offset%0#0: uint64 = (extract_uint16 tmp%168#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%0#0: bool = (== offset%0#0 61u)
+        (assert offset_is_correct%0#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%168#0 42u)
+        let item%0#0: bytes = (substring3 tmp%168#0 offset%0#0 item_end_offset%0#0)
+        let length%5#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%4#0: uint64 = (+ length%5#0 2u)
+        let num_bytes_value%0#0: uint64 = (+ 61u num_bytes_with_header%4#0)
+        let offset_is_correct%1#0: bool = (== item_end_offset%0#0 num_bytes_value%0#0)
+        (assert offset_is_correct%1#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%1#0: uint64 = (len tmp%168#0)
+        let item%1#0: bytes = (substring3 tmp%168#0 item_end_offset%0#0 item_end_offset%1#0)
+        let length%6#0: uint64 = (extract_uint16 item%1#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%5#0: uint64 = (+ length%6#0 2u)
+        let num_bytes_value%1#0: uint64 = (+ num_bytes_value%0#0 num_bytes_with_header%5#0)
+        let size_is_correct%53#0: bool = (== item_end_offset%1#0 num_bytes_value%1#0)
+        (assert size_is_correct%53#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%169#0: bytes = ((extract 0 8) tmp%168#0) // on error: Index access is out of bounds
         let tmp%170#0: bytes = (txna ApplicationArgs 15)
+        let offset%2#0: uint64 = (extract_uint16 tmp%170#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%2#0: bool = (== offset%2#0 61u)
+        (assert offset_is_correct%2#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%2#0: uint64 = (extract_uint16 tmp%170#0 42u)
+        let item%2#0: bytes = (substring3 tmp%170#0 offset%2#0 item_end_offset%2#0)
+        let length%7#0: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%6#0: uint64 = (+ length%7#0 2u)
+        let num_bytes_value%2#0: uint64 = (+ 61u num_bytes_with_header%6#0)
+        let offset_is_correct%3#0: bool = (== item_end_offset%2#0 num_bytes_value%2#0)
+        (assert offset_is_correct%3#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%3#0: uint64 = (len tmp%170#0)
+        let item%3#0: bytes = (substring3 tmp%170#0 item_end_offset%2#0 item_end_offset%3#0)
+        let length%8#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%7#0: uint64 = (+ length%8#0 2u)
+        let num_bytes_value%3#0: uint64 = (+ num_bytes_value%2#0 num_bytes_with_header%7#0)
+        let size_is_correct%54#0: bool = (== item_end_offset%3#0 num_bytes_value%3#0)
+        (assert size_is_correct%54#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%171#0: bytes = ((extract 8 8) tmp%170#0) // on error: Index access is out of bounds
         let tmp%172#0: bytes = (txna ApplicationArgs 15)
+        let offset%4#0: uint64 = (extract_uint16 tmp%172#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%4#0: bool = (== offset%4#0 61u)
+        (assert offset_is_correct%4#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%4#0: uint64 = (extract_uint16 tmp%172#0 42u)
+        let item%4#0: bytes = (substring3 tmp%172#0 offset%4#0 item_end_offset%4#0)
+        let length%9#0: uint64 = (extract_uint16 item%4#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%8#0: uint64 = (+ length%9#0 2u)
+        let num_bytes_value%4#0: uint64 = (+ 61u num_bytes_with_header%8#0)
+        let offset_is_correct%5#0: bool = (== item_end_offset%4#0 num_bytes_value%4#0)
+        (assert offset_is_correct%5#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%5#0: uint64 = (len tmp%172#0)
+        let item%5#0: bytes = (substring3 tmp%172#0 item_end_offset%4#0 item_end_offset%5#0)
+        let length%10#0: uint64 = (extract_uint16 item%5#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%9#0: uint64 = (+ length%10#0 2u)
+        let num_bytes_value%5#0: uint64 = (+ num_bytes_value%4#0 num_bytes_with_header%9#0)
+        let size_is_correct%55#0: bool = (== item_end_offset%5#0 num_bytes_value%5#0)
+        (assert size_is_correct%55#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%174#0: uint64 = (extract_uint64 tmp%172#0 16u)
         let tmp%175#0: bytes = (txna ApplicationArgs 15)
+        let offset%6#0: uint64 = (extract_uint16 tmp%175#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%6#0: bool = (== offset%6#0 61u)
+        (assert offset_is_correct%6#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%6#0: uint64 = (extract_uint16 tmp%175#0 42u)
+        let item%6#0: bytes = (substring3 tmp%175#0 offset%6#0 item_end_offset%6#0)
+        let length%11#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%10#0: uint64 = (+ length%11#0 2u)
+        let num_bytes_value%6#0: uint64 = (+ 61u num_bytes_with_header%10#0)
+        let offset_is_correct%7#0: bool = (== item_end_offset%6#0 num_bytes_value%6#0)
+        (assert offset_is_correct%7#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%7#0: uint64 = (len tmp%175#0)
+        let item%7#0: bytes = (substring3 tmp%175#0 item_end_offset%6#0 item_end_offset%7#0)
+        let length%12#0: uint64 = (extract_uint16 item%7#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%11#0: uint64 = (+ length%12#0 2u)
+        let num_bytes_value%7#0: uint64 = (+ num_bytes_value%6#0 num_bytes_with_header%11#0)
+        let size_is_correct%56#0: bool = (== item_end_offset%7#0 num_bytes_value%7#0)
+        (assert size_is_correct%56#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%176#0: bytes = ((extract 24 8) tmp%175#0) // on error: Index access is out of bounds
         let tmp%177#0: bytes = (txna ApplicationArgs 15)
+        let offset%8#0: uint64 = (extract_uint16 tmp%177#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%8#0: bool = (== offset%8#0 61u)
+        (assert offset_is_correct%8#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%177#0 42u)
+        let item%8#0: bytes = (substring3 tmp%177#0 offset%8#0 item_end_offset%8#0)
+        let length%13#0: uint64 = (extract_uint16 item%8#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%12#0: uint64 = (+ length%13#0 2u)
+        let num_bytes_value%8#0: uint64 = (+ 61u num_bytes_with_header%12#0)
+        let offset_is_correct%9#0: bool = (== item_end_offset%8#0 num_bytes_value%8#0)
+        (assert offset_is_correct%9#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%9#0: uint64 = (len tmp%177#0)
+        let item%9#0: bytes = (substring3 tmp%177#0 item_end_offset%8#0 item_end_offset%9#0)
+        let length%14#0: uint64 = (extract_uint16 item%9#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%13#0: uint64 = (+ length%14#0 2u)
+        let num_bytes_value%9#0: uint64 = (+ num_bytes_value%8#0 num_bytes_with_header%13#0)
+        let size_is_correct%57#0: bool = (== item_end_offset%9#0 num_bytes_value%9#0)
+        (assert size_is_correct%57#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%178#0: bytes = ((extract 32 8) tmp%177#0) // on error: Index access is out of bounds
         let tmp%179#0: bytes = (txna ApplicationArgs 15)
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%179#0 40u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%179#0 42u)
-        let tmp%180#0: bytes = (substring3 tmp%179#0 item_start_offset%0#0 item_end_offset%0#0)
-        let tmp%181#0: bytes = ((extract 2 0) tmp%180#0)
+        let offset%10#0: uint64 = (extract_uint16 tmp%179#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%10#0: bool = (== offset%10#0 61u)
+        (assert offset_is_correct%10#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%10#0: uint64 = (extract_uint16 tmp%179#0 42u)
+        let item%10#0: bytes = (substring3 tmp%179#0 offset%10#0 item_end_offset%10#0)
+        let length%15#0: uint64 = (extract_uint16 item%10#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%14#0: uint64 = (+ length%15#0 2u)
+        let num_bytes_value%10#0: uint64 = (+ 61u num_bytes_with_header%14#0)
+        let offset_is_correct%11#0: bool = (== item_end_offset%10#0 num_bytes_value%10#0)
+        (assert offset_is_correct%11#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%11#0: uint64 = (len tmp%179#0)
+        let item%11#0: bytes = (substring3 tmp%179#0 item_end_offset%10#0 item_end_offset%11#0)
+        let length%16#0: uint64 = (extract_uint16 item%11#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%15#0: uint64 = (+ length%16#0 2u)
+        let num_bytes_value%11#0: uint64 = (+ num_bytes_value%10#0 num_bytes_with_header%15#0)
+        let size_is_correct%58#0: bool = (== item_end_offset%11#0 num_bytes_value%11#0)
+        (assert size_is_correct%58#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let tmp%181#0: bytes = ((extract 2 0) item%10#0)
         let tmp%182#0: bytes = (txna ApplicationArgs 15)
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%182#0 42u)
-        let item_end_offset%1#0: uint64 = (len tmp%182#0)
-        let tmp%183#0: bytes = (substring3 tmp%182#0 item_start_offset%1#0 item_end_offset%1#0)
-        let tmp%184#0: bytes = ((extract 2 0) tmp%183#0)
+        let offset%12#0: uint64 = (extract_uint16 tmp%182#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%12#0: bool = (== offset%12#0 61u)
+        (assert offset_is_correct%12#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%13#0: uint64 = (extract_uint16 tmp%182#0 42u)
+        let item%12#0: bytes = (substring3 tmp%182#0 offset%12#0 item_end_offset%13#0)
+        let length%17#0: uint64 = (extract_uint16 item%12#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%16#0: uint64 = (+ length%17#0 2u)
+        let num_bytes_value%12#0: uint64 = (+ 61u num_bytes_with_header%16#0)
+        let offset_is_correct%13#0: bool = (== item_end_offset%13#0 num_bytes_value%12#0)
+        (assert offset_is_correct%13#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%14#0: uint64 = (len tmp%182#0)
+        let item%13#0: bytes = (substring3 tmp%182#0 item_end_offset%13#0 item_end_offset%14#0)
+        let length%18#0: uint64 = (extract_uint16 item%13#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%17#0: uint64 = (+ length%18#0 2u)
+        let num_bytes_value%13#0: uint64 = (+ num_bytes_value%12#0 num_bytes_with_header%17#0)
+        let size_is_correct%59#0: bool = (== item_end_offset%14#0 num_bytes_value%13#0)
+        (assert size_is_correct%59#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let tmp%184#0: bytes = ((extract 2 0) item%13#0)
         let tmp%185#0: bytes = (txna ApplicationArgs 15)
+        let offset%14#0: uint64 = (extract_uint16 tmp%185#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%14#0: bool = (== offset%14#0 61u)
+        (assert offset_is_correct%14#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%16#0: uint64 = (extract_uint16 tmp%185#0 42u)
+        let item%14#0: bytes = (substring3 tmp%185#0 offset%14#0 item_end_offset%16#0)
+        let length%19#0: uint64 = (extract_uint16 item%14#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%18#0: uint64 = (+ length%19#0 2u)
+        let num_bytes_value%14#0: uint64 = (+ 61u num_bytes_with_header%18#0)
+        let offset_is_correct%15#0: bool = (== item_end_offset%16#0 num_bytes_value%14#0)
+        (assert offset_is_correct%15#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%17#0: uint64 = (len tmp%185#0)
+        let item%15#0: bytes = (substring3 tmp%185#0 item_end_offset%16#0 item_end_offset%17#0)
+        let length%20#0: uint64 = (extract_uint16 item%15#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%19#0: uint64 = (+ length%20#0 2u)
+        let num_bytes_value%15#0: uint64 = (+ num_bytes_value%14#0 num_bytes_with_header%19#0)
+        let size_is_correct%60#0: bool = (== item_end_offset%17#0 num_bytes_value%15#0)
+        (assert size_is_correct%60#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%187#0: uint64 = (getbyte tmp%185#0 44u)
         let tmp%188#0: uint64 = ((txnas Assets) tmp%187#0)
         let tmp%189#0: uint64 = (txn GroupIndex)
@@ -463,8 +593,42 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 pay)
         (assert gtxn_type_matches%2#0) // transaction type is pay
         let tmp%190#0: bytes = (txna ApplicationArgs 15)
+        let offset%16#0: uint64 = (extract_uint16 tmp%190#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%16#0: bool = (== offset%16#0 61u)
+        (assert offset_is_correct%16#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%18#0: uint64 = (extract_uint16 tmp%190#0 42u)
+        let item%16#0: bytes = (substring3 tmp%190#0 offset%16#0 item_end_offset%18#0)
+        let length%21#0: uint64 = (extract_uint16 item%16#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%20#0: uint64 = (+ length%21#0 2u)
+        let num_bytes_value%16#0: uint64 = (+ 61u num_bytes_with_header%20#0)
+        let offset_is_correct%17#0: bool = (== item_end_offset%18#0 num_bytes_value%16#0)
+        (assert offset_is_correct%17#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%19#0: uint64 = (len tmp%190#0)
+        let item%17#0: bytes = (substring3 tmp%190#0 item_end_offset%18#0 item_end_offset%19#0)
+        let length%22#0: uint64 = (extract_uint16 item%17#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%21#0: uint64 = (+ length%22#0 2u)
+        let num_bytes_value%17#0: uint64 = (+ num_bytes_value%16#0 num_bytes_with_header%21#0)
+        let size_is_correct%61#0: bool = (== item_end_offset%19#0 num_bytes_value%17#0)
+        (assert size_is_correct%61#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%191#0: bytes = ((extract 45 8) tmp%190#0) // on error: Index access is out of bounds
         let tmp%192#0: bytes = (txna ApplicationArgs 15)
+        let offset%18#0: uint64 = (extract_uint16 tmp%192#0 40u) // on error: invalid tuple encoding
+        let offset_is_correct%18#0: bool = (== offset%18#0 61u)
+        (assert offset_is_correct%18#0) // invalid tail pointer at index 5 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%20#0: uint64 = (extract_uint16 tmp%192#0 42u)
+        let item%18#0: bytes = (substring3 tmp%192#0 offset%18#0 item_end_offset%20#0)
+        let length%23#0: uint64 = (extract_uint16 item%18#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%22#0: uint64 = (+ length%23#0 2u)
+        let num_bytes_value%18#0: uint64 = (+ 61u num_bytes_with_header%22#0)
+        let offset_is_correct%19#0: bool = (== item_end_offset%20#0 num_bytes_value%18#0)
+        (assert offset_is_correct%19#0) // invalid tail pointer at index 6 of arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
+        let item_end_offset%21#0: uint64 = (len tmp%192#0)
+        let item%19#0: bytes = (substring3 tmp%192#0 item_end_offset%20#0 item_end_offset%21#0)
+        let length%24#0: uint64 = (extract_uint16 item%19#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%23#0: uint64 = (+ length%24#0 2u)
+        let num_bytes_value%19#0: uint64 = (+ num_bytes_value%18#0 num_bytes_with_header%23#0)
+        let size_is_correct%62#0: bool = (== item_end_offset%21#0 num_bytes_value%19#0)
+        (assert size_is_correct%62#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8,arc4.uint64,arc4.uint64>
         let tmp%193#0: bytes = ((extract 53 8) tmp%192#0) // on error: Index access is out of bounds
         let tmp%194#0: bytes[8] = test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(tmp%150#0, tmp%151#0, tmp%152#0, tmp%154#0, tmp%157#0, tmp%158#0, tmp%159#0, gtxn_idx%1#0, tmp%161#0, tmp%162#0, tmp%163#0, tmp%164#0, tmp%165#0, tmp%166#0, tmp%167#0, tmp%169#0, tmp%171#0, tmp%174#0, tmp%176#0, tmp%178#0, tmp%181#0, tmp%184#0, tmp%188#0, gtxn_idx%2#0, tmp%191#0, tmp%193#0)
         let tmp%195#0: bytes = (concat 0x151f7c75 tmp%194#0)
@@ -479,15 +643,15 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%198#0: uint64 = (txn ApplicationID)
         (assert tmp%198#0) // can only call when not creating
         let tmp%200#0: bytes = (txna ApplicationArgs 1)
-        let length%5#0: uint64 = (extract_uint16 tmp%200#0 0u)
-        let num_bytes_with_header%4#0: uint64 = (+ length%5#0 2u)
-        let value_len%53#0: uint64 = (len tmp%200#0)
-        let size_is_correct%53#0: bool = (== value_len%53#0 num_bytes_with_header%4#0)
-        (assert size_is_correct%53#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let length%25#0: uint64 = (extract_uint16 tmp%200#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%24#0: uint64 = (+ length%25#0 2u)
+        let value_len%63#0: uint64 = (len tmp%200#0)
+        let size_is_correct%63#0: bool = (== value_len%63#0 num_bytes_with_header%24#0)
+        (assert size_is_correct%63#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%201#0: bytes = ((extract 2 0) tmp%200#0)
         let to_encode%1#0: bytes = test_cases.abi_routing.contract.Reference.hello_with_algopy_string(tmp%201#0)
-        let length%6#0: uint64 = (len to_encode%1#0)
-        let as_bytes%1#0: bytes[8] = (itob length%6#0)
+        let length%26#0: uint64 = (len to_encode%1#0)
+        let as_bytes%1#0: bytes[8] = (itob length%26#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%1#0)
         let tmp%202#0: bytes = (concat 0x151f7c75 encoded_value%1#0)

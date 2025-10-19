@@ -8,10 +8,10 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@31
+        goto tmp%0#2 ? block@4 : block@34
     block@4: // abi_routing_L48
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@5, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@6, method "store_tuple_in_box((uint64,uint64))void" => block@7, method "is_tuple_in_box((uint64,uint64))bool" => block@8, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@9, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@10, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@14, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@18, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@22, method "mutate_tuple_in_storage_currently_supported_method()void" => block@26, method "run_tests()bool" => block@27, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@28, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@29, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@30, * => block@33}
+        switch tmp%2#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@5, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@9, method "store_tuple_in_box((uint64,uint64))void" => block@10, method "is_tuple_in_box((uint64,uint64))bool" => block@11, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@12, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@13, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@17, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@21, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@25, method "mutate_tuple_in_storage_currently_supported_method()void" => block@29, method "run_tests()bool" => block@30, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@31, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@32, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@33, * => block@36}
     block@5: // store_tuple_route_L61
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -19,24 +19,85 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let offset%0#0: uint64 = (extract_uint16 tmp%7#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%0#0: bool = (== offset%0#0 4u)
+        (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of test_cases.tuple_support.nested_tuples.ParentWithList
         let item_end_offset%0#0: uint64 = (extract_uint16 tmp%7#0 2u)
-        let item0%0#0: bytes = (substring3 tmp%7#0 item_start_offset%0#0 item_end_offset%0#0)
-        let pwl.parent.foo#0: uint64 = (extract_uint64 item0%0#0 0u)
-        let pwl.parent.foo_arc#0: bytes[8] = ((extract 8 8) item0%0#0) // on error: Index access is out of bounds
-        let item_start_offset%1#0: uint64 = (extract_uint16 item0%0#0 16u)
-        let item_end_offset%1#0: uint64 = (len item0%0#0)
-        let item2%0#0: bytes = (substring3 item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let pwl.parent.child.a#0: uint64 = (extract_uint64 item2%0#0 0u)
-        let item_start_offset%2#0: uint64 = (extract_uint16 item2%0#0 8u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 item2%0#0 10u)
-        let item1%1#0: bytes = (substring3 item2%0#0 item_start_offset%2#0 item_end_offset%2#0)
-        let pwl.parent.child.b#0: bytes = ((extract 2 0) item1%1#0)
-        let item_end_offset%3#0: uint64 = (len item2%0#0)
-        let item2%1#0: bytes = (substring3 item2%0#0 item_end_offset%2#0 item_end_offset%3#0)
-        let pwl.parent.child.c#0: bytes = ((extract 2 0) item2%1#0)
+        let item%0#0: bytes = (substring3 tmp%7#0 offset%0#0 item_end_offset%0#0)
+        let offset%1#0: uint64 = (extract_uint16 item%0#0 16u) // on error: invalid tuple encoding
+        let offset_is_correct%1#0: bool = (== offset%1#0 18u)
+        (assert offset_is_correct%1#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Parent
+        let item_end_offset%1#0: uint64 = (len item%0#0)
+        let item%1#0: bytes = (substring3 item%0#0 offset%1#0 item_end_offset%1#0)
+        let offset%2#0: uint64 = (extract_uint16 item%1#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%2#0: bool = (== offset%2#0 12u)
+        (assert offset_is_correct%2#0) // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%2#0: uint64 = (extract_uint16 item%1#0 10u)
+        let item%2#0: bytes = (substring3 item%1#0 offset%2#0 item_end_offset%2#0)
+        let length%0#1: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%0#0: uint64 = (+ length%0#1 2u)
+        let num_bytes_value%0#0: uint64 = (+ 12u num_bytes_with_header%0#0)
+        let offset_is_correct%3#0: bool = (== item_end_offset%2#0 num_bytes_value%0#0)
+        (assert offset_is_correct%3#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%3#0: uint64 = (len item%1#0)
+        let item%3#0: bytes = (substring3 item%1#0 item_end_offset%2#0 item_end_offset%3#0)
+        let length%1#1: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%1#0: uint64 = (+ length%1#1 2u)
+        let num_bytes_value%1#0: uint64 = (+ num_bytes_value%0#0 num_bytes_with_header%1#0)
+        let num_bytes_value%2#0: uint64 = (+ 18u num_bytes_value%1#0)
+        let num_bytes_value%3#0: uint64 = (+ 4u num_bytes_value%2#0)
+        let offset_is_correct%4#0: bool = (== item_end_offset%0#0 num_bytes_value%3#0)
+        (assert offset_is_correct%4#0) // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.ParentWithList
         let item_end_offset%4#0: uint64 = (len tmp%7#0)
         let pwl.children#0: (encoded_uint64,bytes,bytes)[] = (substring3 tmp%7#0 item_end_offset%0#0 item_end_offset%4#0)
+        let length%2#0: uint64 = (extract_uint16 pwl.children#0 0u) // on error: invalid array length header
+        let array_data%0#1: bytes = ((extract 2 0) pwl.children#0)
+        let num_bytes%2#0: uint64 = (* length%2#0 2u)
+        let index%0#0: uint64 = 0u
+        goto block@6
+    block@6: // for_header_L48
+        let continue_looping%0#0: bool = (< index%0#0 length%2#0)
+        goto continue_looping%0#0 ? block@7 : block@8
+    block@7: // for_body_L48
+        let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#1 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%5#0: bool = (== item_offset%0#0 num_bytes%2#0)
+        (assert offset_is_correct%5#0) // invalid tail pointer for arc4.dynamic_array<test_cases.tuple_support.nested_tuples.Child>
+        let next_index%0#0: uint64 = (+ index%0#0 1u)
+        let has_next%0#0: uint64 = (- length%2#0 next_index%0#0) // on error: Index access is out of bounds
+        let end_of_array%0#0: uint64 = (len array_data%0#1)
+        let next_item_offset_offset%0#0: uint64 = (* next_index%0#0 2u)
+        let next_item_offset%0#0: uint64 = (extract_uint16 array_data%0#1 next_item_offset_offset%0#0)
+        let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
+        let item%5#0: bytes = (substring3 array_data%0#1 item_offset%0#0 end_offset%0#0)
+        let offset%5#0: uint64 = (extract_uint16 item%5#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%6#0: bool = (== offset%5#0 12u)
+        (assert offset_is_correct%6#0) // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%5#0: uint64 = (extract_uint16 item%5#0 10u)
+        let item%6#0: bytes = (substring3 item%5#0 offset%5#0 item_end_offset%5#0)
+        let length%3#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%2#0: uint64 = (+ length%3#0 2u)
+        let num_bytes_value%4#0: uint64 = (+ 12u num_bytes_with_header%2#0)
+        let offset_is_correct%7#0: bool = (== item_end_offset%5#0 num_bytes_value%4#0)
+        (assert offset_is_correct%7#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%6#0: uint64 = (len item%5#0)
+        let item%7#0: bytes = (substring3 item%5#0 item_end_offset%5#0 item_end_offset%6#0)
+        let length%4#0: uint64 = (extract_uint16 item%7#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%3#0: uint64 = (+ length%4#0 2u)
+        let num_bytes_value%5#0: uint64 = (+ num_bytes_value%4#0 num_bytes_with_header%3#0)
+        let num_bytes%2#0: uint64 = (+ num_bytes%2#0 num_bytes_value%5#0)
+        let index%0#0: uint64 = next_index%0#0
+        goto block@6
+    block@8: // after_for_L48
+        let num_bytes%5#0: uint64 = (+ num_bytes%2#0 2u)
+        let num_bytes_value%6#0: uint64 = (+ num_bytes_value%3#0 num_bytes%5#0)
+        let size_is_correct%0#0: bool = (== item_end_offset%4#0 num_bytes_value%6#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
+        let pwl.parent.foo#0: uint64 = (extract_uint64 item%0#0 0u)
+        let pwl.parent.foo_arc#0: bytes[8] = ((extract 8 8) item%0#0) // on error: Index access is out of bounds
+        let pwl.parent.child.a#0: uint64 = (extract_uint64 item%1#0 0u)
+        let pwl.parent.child.b#0: bytes = ((extract 2 0) item%2#0)
+        let pwl.parent.child.c#0: bytes = ((extract 2 0) item%3#0)
         let val_as_bytes%0#1: bytes[8] = (itob pwl.parent.foo#0)
         let val_as_bytes%1#0: bytes[8] = (itob pwl.parent.child.a#0)
         let length%0#1: uint64 = (len pwl.parent.child.b#0)
@@ -68,8 +129,8 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (app_global_put "pwl" encoded_tuple_buffer%15#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@6: // load_tuple_route_L65
+        goto block@37
+    block@9: // load_tuple_route_L65
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // OnCompletion is not NoOp
@@ -77,32 +138,32 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (assert tmp%10#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pwl")
         (assert maybe_exists%0#0) // check self.pwl exists
-        let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let item_start_offset%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
-        let item0%0#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item0%2#2: uint64 = (extract_uint64 item0%0#0 0u)
-        let item1%0#1: bytes = ((extract 8 8) item0%0#0) // on error: Index access is out of bounds
-        let item_start_offset%1#0: uint64 = (extract_uint16 item0%0#0 16u)
-        let item_end_offset%1#0: uint64 = (len item0%0#0)
-        let item2%0#0: bytes = (substring3 item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item0%4#2: uint64 = (extract_uint64 item2%0#0 0u)
-        let item_start_offset%2#0: uint64 = (extract_uint16 item2%0#0 8u)
-        let item_end_offset%2#0: uint64 = (extract_uint16 item2%0#0 10u)
-        let item1%1#0: bytes = (substring3 item2%0#0 item_start_offset%2#0 item_end_offset%2#0)
-        let item1%2#2: bytes = ((extract 2 0) item1%1#0)
-        let item_end_offset%3#0: uint64 = (len item2%0#0)
-        let item2%1#0: bytes = (substring3 item2%0#0 item_end_offset%2#0 item_end_offset%3#0)
-        let item2%2#1: bytes = ((extract 2 0) item2%1#0)
+        let item0%0#6: bytes = (substring3 maybe_value%0#0 item_start_offset%0#1 item_end_offset%0#0)
+        let item0%2#2: uint64 = (extract_uint64 item0%0#6 0u)
+        let item1%0#1: bytes = ((extract 8 8) item0%0#6) // on error: Index access is out of bounds
+        let item_start_offset%1#2: uint64 = (extract_uint16 item0%0#6 16u)
+        let item_end_offset%1#0: uint64 = (len item0%0#6)
+        let item2%0#2: bytes = (substring3 item0%0#6 item_start_offset%1#2 item_end_offset%1#0)
+        let item0%4#2: uint64 = (extract_uint64 item2%0#2 0u)
+        let item_start_offset%2#1: uint64 = (extract_uint16 item2%0#2 8u)
+        let item_end_offset%2#0: uint64 = (extract_uint16 item2%0#2 10u)
+        let item1%1#6: bytes = (substring3 item2%0#2 item_start_offset%2#1 item_end_offset%2#0)
+        let item1%2#2: bytes = ((extract 2 0) item1%1#6)
+        let item_end_offset%3#0: uint64 = (len item2%0#2)
+        let item2%1#2: bytes = (substring3 item2%0#2 item_end_offset%2#0 item_end_offset%3#0)
+        let item2%2#1: bytes = ((extract 2 0) item2%1#2)
         let item_end_offset%4#0: uint64 = (len maybe_value%0#0)
         let item1%3#2: bytes = (substring3 maybe_value%0#0 item_end_offset%0#0 item_end_offset%4#0)
         let val_as_bytes%0#1: bytes[8] = (itob item0%2#2)
         let val_as_bytes%1#0: bytes[8] = (itob item0%4#2)
-        let length%0#1: uint64 = (len item1%2#2)
-        let as_bytes%0#0: bytes[8] = (itob length%0#1)
+        let length%5#0: uint64 = (len item1%2#2)
+        let as_bytes%0#0: bytes[8] = (itob length%5#0)
         let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#1: bytes = (concat length_uint16%0#1 item1%2#2)
-        let length%1#1: uint64 = (len item2%2#1)
-        let as_bytes%1#0: bytes[8] = (itob length%1#1)
+        let length%6#0: uint64 = (len item2%2#1)
+        let as_bytes%1#0: bytes[8] = (itob length%6#0)
         let length_uint16%1#1: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#1: bytes = (concat length_uint16%1#1 item2%2#1)
         let encoded_tuple_buffer%2#1: bytes = (concat val_as_bytes%1#0 0x000c)
@@ -127,17 +188,17 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%12#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@7: // store_tuple_in_box_route_L69
+        goto block@37
+    block@10: // store_tuple_in_box_route_L69
         let tmp%13#0: uint64 = (txn OnCompletion)
         let tmp%14#0: bool = (! tmp%13#0)
         (assert tmp%14#0) // OnCompletion is not NoOp
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         let tmp%17#0: bytes = (txna ApplicationArgs 1)
-        let value_len%0#0: uint64 = (len tmp%17#0)
-        let size_is_correct%0#0: bool = (== value_len%0#0 16u)
-        (assert size_is_correct%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        let value_len%1#0: uint64 = (len tmp%17#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 16u)
+        (assert size_is_correct%1#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let key.a#0: uint64 = (extract_uint64 tmp%17#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%17#0 8u)
         let tmp%0#2: uint64 = (+ key.b#0 1u)
@@ -150,17 +211,17 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (box_put box_prefixed_key%0#0 encoded_tuple_buffer%5#1)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@8: // is_tuple_in_box_route_L73
+        goto block@37
+    block@11: // is_tuple_in_box_route_L73
         let tmp%18#0: uint64 = (txn OnCompletion)
         let tmp%19#0: bool = (! tmp%18#0)
         (assert tmp%19#0) // OnCompletion is not NoOp
         let tmp%20#0: uint64 = (txn ApplicationID)
         (assert tmp%20#0) // can only call when not creating
         let tmp%22#0: bytes = (txna ApplicationArgs 1)
-        let value_len%1#0: uint64 = (len tmp%22#0)
-        let size_is_correct%1#0: bool = (== value_len%1#0 16u)
-        (assert size_is_correct%1#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        let value_len%2#0: uint64 = (len tmp%22#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 16u)
+        (assert size_is_correct%2#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let key.a#0: uint64 = (extract_uint64 tmp%22#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%22#0 8u)
         let val_as_bytes%0#1: bytes[8] = (itob key.a#0)
@@ -173,17 +234,17 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%23#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@9: // load_tuple_from_box_route_L77
+        goto block@37
+    block@12: // load_tuple_from_box_route_L77
         let tmp%24#0: uint64 = (txn OnCompletion)
         let tmp%25#0: bool = (! tmp%24#0)
         (assert tmp%25#0) // OnCompletion is not NoOp
         let tmp%26#0: uint64 = (txn ApplicationID)
         (assert tmp%26#0) // can only call when not creating
         let tmp%28#0: bytes = (txna ApplicationArgs 1)
-        let value_len%2#0: uint64 = (len tmp%28#0)
-        let size_is_correct%2#0: bool = (== value_len%2#0 16u)
-        (assert size_is_correct%2#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        let value_len%3#0: uint64 = (len tmp%28#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 16u)
+        (assert size_is_correct%3#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let key.a#0: uint64 = (extract_uint64 tmp%28#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%28#0 8u)
         let val_as_bytes%0#1: bytes[8] = (itob key.a#0)
@@ -201,17 +262,17 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%29#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@10: // maybe_load_tuple_from_box_route_L81
+        goto block@37
+    block@13: // maybe_load_tuple_from_box_route_L81
         let tmp%30#0: uint64 = (txn OnCompletion)
         let tmp%31#0: bool = (! tmp%30#0)
         (assert tmp%31#0) // OnCompletion is not NoOp
         let tmp%32#0: uint64 = (txn ApplicationID)
         (assert tmp%32#0) // can only call when not creating
         let tmp%34#0: bytes = (txna ApplicationArgs 1)
-        let value_len%3#0: uint64 = (len tmp%34#0)
-        let size_is_correct%3#0: bool = (== value_len%3#0 16u)
-        (assert size_is_correct%3#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        let value_len%4#0: uint64 = (len tmp%34#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 16u)
+        (assert size_is_correct%4#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let key.a#0: uint64 = (extract_uint64 tmp%34#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%34#0 8u)
         let val_as_bytes%0#1: bytes[8] = (itob key.a#0)
@@ -219,20 +280,20 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let encoded_tuple_buffer%2#1: bytes = (concat val_as_bytes%0#1 val_as_bytes%1#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_tuple_buffer%2#1)
         let (maybe_value%0#0: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
-        goto exists#0 ? block@11 : block@12
-    block@11: // ternary_true_L83
+        goto exists#0 ? block@14 : block@15
+    block@14: // ternary_true_L83
         let item0%1#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let item1%1#2: uint64 = (extract_uint64 maybe_value%0#0 8u)
         let maybe_value.b#0: uint64 = item1%1#2
         let maybe_value.a#0: uint64 = item0%1#2
-        goto block@13
-    block@12: // ternary_false_L83
+        goto block@16
+    block@15: // ternary_false_L83
         let ternary_result%0.a#2: uint64 = undefined
         let ternary_result%0.b#2: uint64 = undefined
         let maybe_value.b#0: uint64 = ternary_result%0.b#2
         let maybe_value.a#0: uint64 = ternary_result%0.a#2
-        goto block@13
-    block@13: // ternary_merge_L83
+        goto block@16
+    block@16: // ternary_merge_L83
         let val_as_bytes%4#0: bytes[8] = (itob maybe_value.a#0)
         let val_as_bytes%5#0: bytes[8] = (itob maybe_value.b#0)
         let encoded_tuple_buffer%21#0: bytes = (concat val_as_bytes%4#0 val_as_bytes%5#0)
@@ -242,17 +303,17 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%35#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@14: // load_tuple_from_box_or_default_route_L86
+        goto block@37
+    block@17: // load_tuple_from_box_or_default_route_L86
         let tmp%36#0: uint64 = (txn OnCompletion)
         let tmp%37#0: bool = (! tmp%36#0)
         (assert tmp%37#0) // OnCompletion is not NoOp
         let tmp%38#0: uint64 = (txn ApplicationID)
         (assert tmp%38#0) // can only call when not creating
         let tmp%40#0: bytes = (txna ApplicationArgs 1)
-        let value_len%4#0: uint64 = (len tmp%40#0)
-        let size_is_correct%4#0: bool = (== value_len%4#0 16u)
-        (assert size_is_correct%4#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        let value_len%5#0: uint64 = (len tmp%40#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 16u)
+        (assert size_is_correct%5#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let key.a#0: uint64 = (extract_uint64 tmp%40#0 0u)
         let key.b#0: uint64 = (extract_uint64 tmp%40#0 8u)
         let val_as_bytes%0#1: bytes[8] = (itob key.a#0)
@@ -261,18 +322,18 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_tuple_buffer%2#1)
         let (tmp%0#2: uint64, tmp%1#3: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
-        goto maybe_exists%0#0 ? block@15 : block@16
-    block@15: // ternary_true_L88
+        goto maybe_exists%0#0 ? block@18 : block@19
+    block@18: // ternary_true_L88
         let item0%1#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let item1%1#2: uint64 = (extract_uint64 maybe_value%0#0 8u)
         let ternary_result%0.b#2: uint64 = item1%1#2
         let ternary_result%0.a#2: uint64 = item0%1#2
-        goto block@17
-    block@16: // ternary_false_L88
+        goto block@20
+    block@19: // ternary_false_L88
         let ternary_result%0.b#2: uint64 = tmp%1#3
         let ternary_result%0.a#2: uint64 = tmp%0#2
-        goto block@17
-    block@17: // ternary_merge_L88
+        goto block@20
+    block@20: // ternary_merge_L88
         let val_as_bytes%6#0: bytes[8] = (itob ternary_result%0.a#2)
         let val_as_bytes%7#0: bytes[8] = (itob ternary_result%0.b#2)
         let encoded_tuple_buffer%27#0: bytes = (concat val_as_bytes%6#0 val_as_bytes%7#0)
@@ -280,36 +341,36 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%41#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@18: // load_tuple_from_local_state_or_default_route_L90
+        goto block@37
+    block@21: // load_tuple_from_local_state_or_default_route_L90
         let tmp%42#0: uint64 = (txn OnCompletion)
         let tmp%43#0: bool = (! tmp%42#0)
         (assert tmp%43#0) // OnCompletion is not NoOp
         let tmp%44#0: uint64 = (txn ApplicationID)
         (assert tmp%44#0) // can only call when not creating
         let tmp%46#0: bytes = (txna ApplicationArgs 1)
-        let length%2#0: uint64 = (extract_uint16 tmp%46#0 0u)
-        let num_bytes_with_header%0#0: uint64 = (+ length%2#0 2u)
-        let value_len%5#0: uint64 = (len tmp%46#0)
-        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%0#0)
-        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let length%7#0: uint64 = (extract_uint16 tmp%46#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%4#0: uint64 = (+ length%7#0 2u)
+        let value_len%6#0: uint64 = (len tmp%46#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: bytes = ((extract 2 0) tmp%46#0)
         let local#0: bytes = test_cases.tuple_support.nested_tuples.echo(key#0)
         let tmp%0#5: bytes[32] = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
         let (tmp%1#3: uint64, tmp%2#2: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#5 0u local#0)
-        goto maybe_exists%0#0 ? block@19 : block@20
-    block@19: // ternary_true_L93
+        goto maybe_exists%0#0 ? block@22 : block@23
+    block@22: // ternary_true_L93
         let item0%1#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let item1%1#2: uint64 = (extract_uint64 maybe_value%0#0 8u)
         let ternary_result%0.b#2: uint64 = item1%1#2
         let ternary_result%0.a#2: uint64 = item0%1#2
-        goto block@21
-    block@20: // ternary_false_L93
+        goto block@24
+    block@23: // ternary_false_L93
         let ternary_result%0.b#2: uint64 = tmp%2#2
         let ternary_result%0.a#2: uint64 = tmp%1#3
-        goto block@21
-    block@21: // ternary_merge_L93
+        goto block@24
+    block@24: // ternary_merge_L93
         let val_as_bytes%8#0: bytes[8] = (itob ternary_result%0.a#2)
         let val_as_bytes%9#0: bytes[8] = (itob ternary_result%0.b#2)
         let encoded_tuple_buffer%30#0: bytes = (concat val_as_bytes%8#0 val_as_bytes%9#0)
@@ -317,32 +378,32 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%48#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@22: // mutate_local_tuple_route_L95
+        goto block@37
+    block@25: // mutate_local_tuple_route_L95
         let tmp%49#0: uint64 = (txn OnCompletion)
         let tmp%50#0: bool = (! tmp%49#0)
         (assert tmp%50#0) // OnCompletion is not NoOp
         let tmp%51#0: uint64 = (txn ApplicationID)
         (assert tmp%51#0) // can only call when not creating
         let i#0: uint64 = 0u
-        goto block@23
-    block@23: // for_header_L107
+        goto block@26
+    block@26: // for_header_L107
         let continue_looping%0#0: bool = (< i#0 3u)
-        goto continue_looping%0#0 ? block@24 : block@25
-    block@24: // for_body_L108
+        goto continue_looping%0#0 ? block@27 : block@28
+    block@27: // for_body_L108
         let item_offset%0#0: uint64 = (* i#0 8u)
         let reinterpret_biguint%0#0: biguint = (extract3 0x000000000000000000000000000000010000000000000002 item_offset%0#0 8u) // on error: Index access is out of bounds
         let tmp%0#4: biguint = (itob i#0)
         let tmp%1#2: bool = (b== reinterpret_biguint%0#0 tmp%0#4)
         (assert tmp%1#2)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@23
-    block@25: // after_for_L107
+        goto block@26
+    block@28: // after_for_L107
         (log 0x151f7c750004001e00030000000000000000000000000000000100000000000000020000000000000000000c000e00000000)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@26: // mutate_tuple_in_storage_currently_supported_method_route_L114
+        goto block@37
+    block@29: // mutate_tuple_in_storage_currently_supported_method_route_L114
         let tmp%54#0: uint64 = (txn OnCompletion)
         let tmp%55#0: bool = (! tmp%54#0)
         (assert tmp%55#0) // OnCompletion is not NoOp
@@ -350,12 +411,12 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (assert tmp%56#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "twm")
         (assert maybe_exists%0#0) // check self.twm exists
-        let item_start_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let item_start_offset%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let item_end_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 2u)
-        let arr2#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let arr2#0: bytes = (substring3 maybe_value%0#0 item_start_offset%0#1 item_end_offset%0#0)
         let item_end_offset%1#0: uint64 = (len maybe_value%0#0)
         let item1%0#1: bytes = (substring3 maybe_value%0#0 item_end_offset%0#0 item_end_offset%1#0)
-        let item_start_offset%2#0: uint64 = (extract_uint16 item1%0#1 8u)
+        let item_start_offset%2#1: uint64 = (extract_uint16 item1%0#1 8u)
         let item_end_offset%2#0: uint64 = (extract_uint16 item1%0#1 10u)
         let item_end_offset%3#0: uint64 = (len item1%0#1)
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) arr2#0)
@@ -366,19 +427,19 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arr2#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
         let item0%5#1: uint64 = (extract_uint64 item1%0#1 0u)
-        let item1%4#1: bytes = (substring3 item1%0#1 item_start_offset%2#0 item_end_offset%2#0)
+        let item1%4#1: bytes = (substring3 item1%0#1 item_start_offset%2#1 item_end_offset%2#0)
         let item1%5#1: bytes = ((extract 2 0) item1%4#1)
         let item2%2#1: bytes = (substring3 item1%0#1 item_end_offset%2#0 item_end_offset%3#0)
-        let item2%3#0: bytes = ((extract 2 0) item2%2#1)
+        let item2%3#1: bytes = ((extract 2 0) item2%2#1)
         let val_as_bytes%0#1: bytes[8] = (itob item0%5#1)
         let length%0#1: uint64 = (len item1%5#1)
         let as_bytes%1#0: bytes[8] = (itob length%0#1)
         let length_uint16%0#1: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%0#1: bytes = (concat length_uint16%0#1 item1%5#1)
-        let length%1#1: uint64 = (len item2%3#0)
+        let length%1#1: uint64 = (len item2%3#1)
         let as_bytes%2#2: bytes[8] = (itob length%1#1)
         let length_uint16%1#1: bytes = ((extract 6 2) as_bytes%2#2)
-        let encoded_value%1#1: bytes = (concat length_uint16%1#1 item2%3#0)
+        let encoded_value%1#1: bytes = (concat length_uint16%1#1 item2%3#1)
         let encoded_tuple_buffer%2#1: bytes = (concat val_as_bytes%0#1 0x000c)
         let data_length%0#1: uint64 = (len encoded_value%0#1)
         let current_tail_offset%1#1: uint64 = (+ 12u data_length%0#1)
@@ -397,8 +458,8 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (app_global_put "twm" encoded_tuple_buffer%10#1)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@27: // run_tests_route_L120
+        goto block@37
+    block@30: // run_tests_route_L120
         let tmp%58#0: uint64 = (txn OnCompletion)
         let tmp%59#0: bool = (! tmp%58#0)
         (assert tmp%59#0) // OnCompletion is not NoOp
@@ -415,51 +476,51 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 2u
-        goto block@54
-    block@54: // for_body_L298
+        goto block@57
+    block@57: // for_body_L298
         let tmp%0#2: uint64 = (+ t.0#0 t.1#0)
         let total#0: uint64 = (+ total#0 tmp%0#2)
-        goto_nth [block@55, block@56, block@57][loop_counter%0#0] else goto block@58
-    block@55: // for_header_1_L297
+        goto_nth [block@58, block@59, block@60][loop_counter%0#0] else goto block@61
+    block@58: // for_header_1_L297
         let loop_counter%0#0: uint64 = 1u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 1u
-        goto block@54
-    block@56: // for_header_2_L297
+        goto block@57
+    block@59: // for_header_2_L297
         let loop_counter%0#0: uint64 = 2u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 1u
-        goto block@54
-    block@57: // for_header_3_L297
+        goto block@57
+    block@60: // for_header_3_L297
         let loop_counter%0#0: uint64 = 3u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 2u
-        goto block@54
-    block@58: // after_for_L297
+        goto block@57
+    block@61: // after_for_L297
         let loop_counter%1#0: uint64 = 0u
         let a#4: uint64 = 1u
         let b#5: uint64 = 2u
-        goto block@59
-    block@59: // for_body_L302
+        goto block@62
+    block@62: // for_body_L302
         let tmp%1#3: uint64 = (+ a#4 b#5)
         let total#0: uint64 = (+ total#0 tmp%1#3)
-        goto_nth [block@60, block@61, block@62][loop_counter%1#0] else goto block@63
-    block@60: // for_header_1_L301
+        goto_nth [block@63, block@64, block@65][loop_counter%1#0] else goto block@66
+    block@63: // for_header_1_L301
         let loop_counter%1#0: uint64 = 1u
         let a#4: uint64 = 2u
         let b#5: uint64 = 1u
-        goto block@59
-    block@61: // for_header_2_L301
+        goto block@62
+    block@64: // for_header_2_L301
         let loop_counter%1#0: uint64 = 2u
         let a#4: uint64 = 1u
         let b#5: uint64 = 1u
-        goto block@59
-    block@62: // for_header_3_L301
+        goto block@62
+    block@65: // for_header_3_L301
         let loop_counter%1#0: uint64 = 3u
         let a#4: uint64 = 2u
         let b#5: uint64 = 2u
-        goto block@59
-    block@63: // after_for_L301
+        goto block@62
+    block@66: // after_for_L301
         let tmp%2#2: uint64 = (/ total#0 8u)
         let tmp%3#1: bool = (== tmp%2#2 3u)
         (assert tmp%3#1)
@@ -467,32 +528,47 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log 0x151f7c7580)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@28: // nested_tuple_params_route_L149
+        goto block@37
+    block@31: // nested_tuple_params_route_L149
         let tmp%63#0: uint64 = (txn OnCompletion)
         let tmp%64#0: bool = (! tmp%63#0)
         (assert tmp%64#0) // OnCompletion is not NoOp
         let tmp%65#0: uint64 = (txn ApplicationID)
         (assert tmp%65#0) // can only call when not creating
         let tmp%67#0: bytes = (txna ApplicationArgs 1)
-        let item_start_offset%5#0: uint64 = (extract_uint16 tmp%67#0 0u)
-        let item_end_offset%5#0: uint64 = (extract_uint16 tmp%67#0 2u)
-        let item0%15#0: bytes = (substring3 tmp%67#0 item_start_offset%5#0 item_end_offset%5#0)
-        let args.0#0: bytes = ((extract 2 0) item0%15#0)
-        let item_end_offset%6#0: uint64 = (len tmp%67#0)
-        let item1%14#0: bytes = (substring3 tmp%67#0 item_end_offset%5#0 item_end_offset%6#0)
-        let item_start_offset%7#0: uint64 = (extract_uint16 item1%14#0 0u)
-        let item_end_offset%7#0: uint64 = (len item1%14#0)
-        let item0%17#0: bytes = (substring3 item1%14#0 item_start_offset%7#0 item_end_offset%7#0)
-        let args.1.0#0: bytes = ((extract 2 0) item0%17#0)
-        let item1%15#0: bytes = ((extract 2 8) item1%14#0) // on error: Index access is out of bounds
+        let offset%7#0: uint64 = (extract_uint16 tmp%67#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%8#0: bool = (== offset%7#0 4u)
+        (assert offset_is_correct%8#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+        let item_end_offset%12#0: uint64 = (extract_uint16 tmp%67#0 2u)
+        let item%8#0: bytes = (substring3 tmp%67#0 offset%7#0 item_end_offset%12#0)
+        let length%10#0: uint64 = (extract_uint16 item%8#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%5#0: uint64 = (+ length%10#0 2u)
+        let num_bytes_value%7#0: uint64 = (+ 4u num_bytes_with_header%5#0)
+        let offset_is_correct%9#0: bool = (== item_end_offset%12#0 num_bytes_value%7#0)
+        (assert offset_is_correct%9#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+        let item_end_offset%13#0: uint64 = (len tmp%67#0)
+        let item%9#0: bytes = (substring3 tmp%67#0 item_end_offset%12#0 item_end_offset%13#0)
+        let offset%9#0: uint64 = (extract_uint16 item%9#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%10#0: bool = (== offset%9#0 10u)
+        (assert offset_is_correct%10#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>
+        let item_end_offset%14#0: uint64 = (len item%9#0)
+        let item%10#0: bytes = (substring3 item%9#0 offset%9#0 item_end_offset%14#0)
+        let length%11#0: uint64 = (extract_uint16 item%10#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%6#0: uint64 = (+ length%11#0 2u)
+        let num_bytes_value%8#0: uint64 = (+ 10u num_bytes_with_header%6#0)
+        let num_bytes_value%9#0: uint64 = (+ num_bytes_value%7#0 num_bytes_value%8#0)
+        let size_is_correct%7#0: bool = (== item_end_offset%13#0 num_bytes_value%9#0)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+        let args.0#0: bytes = ((extract 2 0) item%8#0)
+        let args.1.0#0: bytes = ((extract 2 0) item%10#0)
+        let item1%15#0: bytes = ((extract 2 8) item%9#0) // on error: Index access is out of bounds
         let args.1.1.0#0: uint64 = (extract_uint64 item1%15#0 0u)
-        let length%5#0: uint64 = (len args.1.0#0)
-        let as_bytes%13#0: bytes[8] = (itob length%5#0)
+        let length%12#0: uint64 = (len args.1.0#0)
+        let as_bytes%13#0: bytes[8] = (itob length%12#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%13#0)
         let encoded_value%4#0: bytes = (concat length_uint16%4#0 args.1.0#0)
-        let length%6#0: uint64 = (len args.0#0)
-        let as_bytes%14#0: bytes[8] = (itob length%6#0)
+        let length%13#0: uint64 = (len args.0#0)
+        let as_bytes%14#0: bytes[8] = (itob length%13#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%14#0)
         let encoded_value%5#0: bytes = (concat length_uint16%5#0 args.0#0)
         let val_as_bytes%11#0: bytes[8] = (itob args.1.1.0#0)
@@ -509,29 +585,41 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%68#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@29: // named_tuple_route_L156
+        goto block@37
+    block@32: // named_tuple_route_L156
         let tmp%69#0: uint64 = (txn OnCompletion)
         let tmp%70#0: bool = (! tmp%69#0)
         (assert tmp%70#0) // OnCompletion is not NoOp
         let tmp%71#0: uint64 = (txn ApplicationID)
         (assert tmp%71#0) // can only call when not creating
         let tmp%73#0: bytes = (txna ApplicationArgs 1)
+        let offset%10#0: uint64 = (extract_uint16 tmp%73#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%11#0: bool = (== offset%10#0 12u)
+        (assert offset_is_correct%11#0) // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%18#0: uint64 = (extract_uint16 tmp%73#0 10u)
+        let item%11#0: bytes = (substring3 tmp%73#0 offset%10#0 item_end_offset%18#0)
+        let length%14#0: uint64 = (extract_uint16 item%11#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%7#0: uint64 = (+ length%14#0 2u)
+        let num_bytes_value%10#0: uint64 = (+ 12u num_bytes_with_header%7#0)
+        let offset_is_correct%12#0: bool = (== item_end_offset%18#0 num_bytes_value%10#0)
+        (assert offset_is_correct%12#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%19#0: uint64 = (len tmp%73#0)
+        let item%12#0: bytes = (substring3 tmp%73#0 item_end_offset%18#0 item_end_offset%19#0)
+        let length%15#0: uint64 = (extract_uint16 item%12#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%8#0: uint64 = (+ length%15#0 2u)
+        let num_bytes_value%11#0: uint64 = (+ num_bytes_value%10#0 num_bytes_with_header%8#0)
+        let size_is_correct%8#0: bool = (== item_end_offset%19#0 num_bytes_value%11#0)
+        (assert size_is_correct%8#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
         let args.a#0: uint64 = (extract_uint64 tmp%73#0 0u)
-        let item_start_offset%8#0: uint64 = (extract_uint16 tmp%73#0 8u)
-        let item_end_offset%8#0: uint64 = (extract_uint16 tmp%73#0 10u)
-        let item1%16#0: bytes = (substring3 tmp%73#0 item_start_offset%8#0 item_end_offset%8#0)
-        let args.b#0: bytes = ((extract 2 0) item1%16#0)
-        let item_end_offset%9#0: uint64 = (len tmp%73#0)
-        let item2%3#0: bytes = (substring3 tmp%73#0 item_end_offset%8#0 item_end_offset%9#0)
-        let args.c#0: bytes = ((extract 2 0) item2%3#0)
+        let args.b#0: bytes = ((extract 2 0) item%11#0)
+        let args.c#0: bytes = ((extract 2 0) item%12#0)
         let val_as_bytes%12#0: bytes[8] = (itob args.a#0)
-        let length%7#0: uint64 = (len args.b#0)
-        let as_bytes%18#0: bytes[8] = (itob length%7#0)
+        let length%16#0: uint64 = (len args.b#0)
+        let as_bytes%18#0: bytes[8] = (itob length%16#0)
         let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%18#0)
         let encoded_value%6#0: bytes = (concat length_uint16%6#0 args.b#0)
-        let length%8#0: uint64 = (len args.c#0)
-        let as_bytes%19#0: bytes[8] = (itob length%8#0)
+        let length%17#0: uint64 = (len args.c#0)
+        let as_bytes%19#0: bytes[8] = (itob length%17#0)
         let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%19#0)
         let encoded_value%7#0: bytes = (concat length_uint16%7#0 args.c#0)
         let encoded_tuple_buffer%53#0: bytes = (concat val_as_bytes%12#0 0x000c)
@@ -546,35 +634,50 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%74#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@30: // nested_named_tuple_params_route_L161
+        goto block@37
+    block@33: // nested_named_tuple_params_route_L161
         let tmp%75#0: uint64 = (txn OnCompletion)
         let tmp%76#0: bool = (! tmp%75#0)
         (assert tmp%76#0) // OnCompletion is not NoOp
         let tmp%77#0: uint64 = (txn ApplicationID)
         (assert tmp%77#0) // can only call when not creating
         let tmp%79#0: bytes = (txna ApplicationArgs 1)
+        let offset%12#0: uint64 = (extract_uint16 tmp%79#0 16u) // on error: invalid tuple encoding
+        let offset_is_correct%13#0: bool = (== offset%12#0 18u)
+        (assert offset_is_correct%13#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Parent
+        let item_end_offset%22#0: uint64 = (len tmp%79#0)
+        let item%13#0: bytes = (substring3 tmp%79#0 offset%12#0 item_end_offset%22#0)
+        let offset%13#0: uint64 = (extract_uint16 item%13#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%14#0: bool = (== offset%13#0 12u)
+        (assert offset_is_correct%14#0) // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%23#0: uint64 = (extract_uint16 item%13#0 10u)
+        let item%14#0: bytes = (substring3 item%13#0 offset%13#0 item_end_offset%23#0)
+        let length%18#0: uint64 = (extract_uint16 item%14#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%9#0: uint64 = (+ length%18#0 2u)
+        let num_bytes_value%12#0: uint64 = (+ 12u num_bytes_with_header%9#0)
+        let offset_is_correct%15#0: bool = (== item_end_offset%23#0 num_bytes_value%12#0)
+        (assert offset_is_correct%15#0) // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+        let item_end_offset%24#0: uint64 = (len item%13#0)
+        let item%15#0: bytes = (substring3 item%13#0 item_end_offset%23#0 item_end_offset%24#0)
+        let length%19#0: uint64 = (extract_uint16 item%15#0 0u) // on error: invalid array length header
+        let num_bytes_with_header%10#0: uint64 = (+ length%19#0 2u)
+        let num_bytes_value%13#0: uint64 = (+ num_bytes_value%12#0 num_bytes_with_header%10#0)
+        let num_bytes_value%14#0: uint64 = (+ 18u num_bytes_value%13#0)
+        let size_is_correct%9#0: bool = (== item_end_offset%22#0 num_bytes_value%14#0)
+        (assert size_is_correct%9#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
         let args.foo#0: uint64 = (extract_uint64 tmp%79#0 0u)
         let args.foo_arc#0: bytes[8] = ((extract 8 8) tmp%79#0) // on error: Index access is out of bounds
-        let item_start_offset%10#0: uint64 = (extract_uint16 tmp%79#0 16u)
-        let item_end_offset%10#0: uint64 = (len tmp%79#0)
-        let item2%5#0: bytes = (substring3 tmp%79#0 item_start_offset%10#0 item_end_offset%10#0)
-        let args.child.a#0: uint64 = (extract_uint64 item2%5#0 0u)
-        let item_start_offset%11#0: uint64 = (extract_uint16 item2%5#0 8u)
-        let item_end_offset%11#0: uint64 = (extract_uint16 item2%5#0 10u)
-        let item1%19#0: bytes = (substring3 item2%5#0 item_start_offset%11#0 item_end_offset%11#0)
-        let args.child.b#0: bytes = ((extract 2 0) item1%19#0)
-        let item_end_offset%12#0: uint64 = (len item2%5#0)
-        let item2%6#0: bytes = (substring3 item2%5#0 item_end_offset%11#0 item_end_offset%12#0)
-        let args.child.c#0: bytes = ((extract 2 0) item2%6#0)
+        let args.child.a#0: uint64 = (extract_uint64 item%13#0 0u)
+        let args.child.b#0: bytes = ((extract 2 0) item%14#0)
+        let args.child.c#0: bytes = ((extract 2 0) item%15#0)
         let val_as_bytes%13#0: bytes[8] = (itob args.foo#0)
         let val_as_bytes%14#0: bytes[8] = (itob args.child.a#0)
-        let length%9#0: uint64 = (len args.child.b#0)
-        let as_bytes%22#0: bytes[8] = (itob length%9#0)
+        let length%20#0: uint64 = (len args.child.b#0)
+        let as_bytes%22#0: bytes[8] = (itob length%20#0)
         let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%22#0)
         let encoded_value%8#0: bytes = (concat length_uint16%8#0 args.child.b#0)
-        let length%10#0: uint64 = (len args.child.c#0)
-        let as_bytes%23#0: bytes[8] = (itob length%10#0)
+        let length%21#0: uint64 = (len args.child.c#0)
+        let as_bytes%23#0: bytes[8] = (itob length%21#0)
         let length_uint16%9#0: bytes = ((extract 6 2) as_bytes%23#0)
         let encoded_value%9#0: bytes = (concat length_uint16%9#0 args.child.c#0)
         let encoded_tuple_buffer%59#0: bytes = (concat val_as_bytes%14#0 0x000c)
@@ -592,22 +695,22 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         (log tmp%80#0)
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@31: // bare_routing_L48
+        goto block@37
+    block@34: // bare_routing_L48
         let tmp%81#0: uint64 = (txn OnCompletion)
-        goto tmp%81#0 ? block@33 : block@32
-    block@32: // __algopy_default_create_L1
+        goto tmp%81#0 ? block@36 : block@35
+    block@35: // __algopy_default_create_L1
         let tmp%82#0: uint64 = (txn ApplicationID)
         let tmp%83#0: bool = (! tmp%82#0)
         (assert tmp%83#0) // can only call when creating
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@33: // after_if_else_L48
+        goto block@37
+    block@36: // after_if_else_L48
         let test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0
-        goto block@34
-    block@34: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router___L1
+        goto block@37
+    block@37: // after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router___L1
         return tmp%0#0
 
 subroutine test_cases.tuple_support.nested_tuples.get_sender_inefficiently() -> bytes[32]:

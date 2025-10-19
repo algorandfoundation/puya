@@ -345,10 +345,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
     block@0: // L81
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@27
+        goto tmp%1#0 ? block@1 : block@43
     block@1: // abi_routing_L81
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_biguint_array()void" => block@3, method "test_bool_array(uint64)void" => block@4, method "test_fixed_size_tuple_array()void" => block@5, method "test_fixed_size_named_tuple_array()void" => block@6, method "test_dynamic_sized_tuple_array()void" => block@7, method "test_dynamic_sized_named_tuple_array()void" => block@8, method "test_implicit_conversion_log(uint64[])void" => block@9, method "test_implicit_conversion_emit(uint64[])void" => block@10, method "test_nested_array(uint64,uint64[][])uint64[]" => block@11, method "test_bit_packed_tuples()void" => block@12, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@13, method "test_uint64_return(uint64)uint64[]" => block@14, method "test_bool_return(uint64)bool[]" => block@15, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@16, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@17, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@18, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@19, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@20, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@21, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@22, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@23, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@24, * => block@25}
+        switch tmp%2#0 {method "test_uint64_array()void" => block@2, method "test_biguint_array()void" => block@3, method "test_bool_array(uint64)void" => block@4, method "test_fixed_size_tuple_array()void" => block@5, method "test_fixed_size_named_tuple_array()void" => block@6, method "test_dynamic_sized_tuple_array()void" => block@7, method "test_dynamic_sized_named_tuple_array()void" => block@8, method "test_implicit_conversion_log(uint64[])void" => block@9, method "test_implicit_conversion_emit(uint64[])void" => block@10, method "test_nested_array(uint64,uint64[][])uint64[]" => block@11, method "test_bit_packed_tuples()void" => block@16, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@17, method "test_uint64_return(uint64)uint64[]" => block@22, method "test_bool_return(uint64)bool[]" => block@23, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@24, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@25, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@26, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@27, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@28, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@29, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@30, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@31, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@40, * => block@41}
     block@2: // test_uint64_array_route_L82
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -426,7 +426,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%36#0: bool = (!= tmp%35#0 0u)
         (assert tmp%36#0) // can only call when not creating
         let tmp%37#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = (extract_uint16 tmp%37#0 0u)
+        let length%0#0: uint64 = (extract_uint16 tmp%37#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length%0#0 8u)
         let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
         let value_len%1#0: uint64 = (len tmp%37#0)
@@ -444,7 +444,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%41#0: bool = (!= tmp%40#0 0u)
         (assert tmp%41#0) // can only call when not creating
         let tmp%42#0: bytes = (txna ApplicationArgs 1)
-        let length%1#0: uint64 = (extract_uint16 tmp%42#0 0u)
+        let length%1#0: uint64 = (extract_uint16 tmp%42#0 0u) // on error: invalid array length header
         let num_bytes%1#0: uint64 = (* length%1#0 8u)
         let num_bytes_with_header%1#0: uint64 = (+ num_bytes%1#0 2u)
         let value_len%2#0: uint64 = (len tmp%42#0)
@@ -468,13 +468,48 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let reinterpret_bytes[8]%1#0: bytes[8] = tmp%47#0
         let tmp%48#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
         let tmp%49#0: bytes = (txna ApplicationArgs 2)
+        let length%2#0: uint64 = (extract_uint16 tmp%49#0 0u) // on error: invalid array length header
+        let array_data%0#0: bytes = ((extract 2 0) tmp%49#0)
+        let num_bytes%2#0: uint64 = (* length%2#0 2u)
+        let index%0#0: uint64 = 0u
+        goto block@12
+    block@12: // for_header_L81
+        let index%0#1: uint64 = φ(index%0#0 <- block@11, index%0#2 <- block@14)
+        let num_bytes%2#1: uint64 = φ(num_bytes%2#0 <- block@11, num_bytes%2#2 <- block@14)
+        let continue_looping%0#0: bool = (< index%0#1 length%2#0)
+        goto continue_looping%0#0 ? block@13 : block@15
+    block@13: // for_body_L81
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%2#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
+        let array_head_and_tail%0#0: bytes = ((extract 2 0) tmp%49#0)
+        let item_offset_offset%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
+        let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset%1#0)
+        let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 8u)
+        let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
+        let item%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%1#0 item_head_tail_length%0#0)
+        let length%3#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
+        let num_bytes%3#0: uint64 = (* length%3#0 8u)
+        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%3#0 2u)
+        let num_bytes%2#2: uint64 = (+ num_bytes%2#1 num_bytes_with_header%2#0)
+        goto block@14
+    block@14: // for_footer_L81
+        let index%0#2: uint64 = (+ index%0#1 1u)
+        goto block@12
+    block@15: // after_for_L81
+        let num_bytes%4#0: uint64 = (+ num_bytes%2#1 2u)
+        let value_len%4#0: uint64 = (len tmp%49#0)
+        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes%4#0)
+        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
         let reinterpret_bytes%2#0: bytes = tmp%49#0
         let reinterpret_encoded_uint64[][]%0#0: encoded_uint64[][] = reinterpret_bytes%2#0
         let tmp%50#0: encoded_uint64[] = test_cases.array.immutable.ImmutableArrayContract.test_nested_array(tmp%48#0, reinterpret_encoded_uint64[][]%0#0)
         let tmp%51#0: bytes = (concat 0x151f7c75 tmp%50#0)
         (log tmp%51#0)
         return 1u
-    block@12: // test_bit_packed_tuples_route_L264
+    block@16: // test_bit_packed_tuples_route_L264
         let tmp%52#0: uint64 = (txn OnCompletion)
         let tmp%53#0: bool = (== tmp%52#0 NoOp)
         (assert tmp%53#0) // OnCompletion is not NoOp
@@ -483,7 +518,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         (assert tmp%55#0) // can only call when not creating
         test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples()
         return 1u
-    block@13: // sum_uints_and_lengths_and_trues_route_L329
+    block@17: // sum_uints_and_lengths_and_trues_route_L329
         let tmp%56#0: uint64 = (txn OnCompletion)
         let tmp%57#0: bool = (== tmp%56#0 NoOp)
         (assert tmp%57#0) // OnCompletion is not NoOp
@@ -491,34 +526,80 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%59#0: bool = (!= tmp%58#0 0u)
         (assert tmp%59#0) // can only call when not creating
         let tmp%60#0: bytes = (txna ApplicationArgs 1)
-        let length%2#0: uint64 = (extract_uint16 tmp%60#0 0u)
-        let num_bytes%2#0: uint64 = (* length%2#0 8u)
-        let num_bytes_with_header%2#0: uint64 = (+ num_bytes%2#0 2u)
-        let value_len%4#0: uint64 = (len tmp%60#0)
-        let size_is_correct%4#0: bool = (== value_len%4#0 num_bytes_with_header%2#0)
-        (assert size_is_correct%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+        let length%4#0: uint64 = (extract_uint16 tmp%60#0 0u) // on error: invalid array length header
+        let num_bytes%5#0: uint64 = (* length%4#0 8u)
+        let num_bytes_with_header%3#0: uint64 = (+ num_bytes%5#0 2u)
+        let value_len%5#0: uint64 = (len tmp%60#0)
+        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%3#0)
+        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         let reinterpret_bytes%3#0: bytes = tmp%60#0
         let reinterpret_encoded_uint64[]%2#0: encoded_uint64[] = reinterpret_bytes%3#0
         let tmp%61#0: bytes = (txna ApplicationArgs 2)
-        let length%3#0: uint64 = (extract_uint16 tmp%61#0 0u)
-        let num_bits_7%0#0: uint64 = (+ length%3#0 7u)
-        let num_bytes%3#0: uint64 = (/ num_bits_7%0#0 8u)
-        let num_bytes_with_header%3#0: uint64 = (+ num_bytes%3#0 2u)
-        let value_len%5#0: uint64 = (len tmp%61#0)
-        let size_is_correct%5#0: bool = (== value_len%5#0 num_bytes_with_header%3#0)
-        (assert size_is_correct%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.bool>
+        let length%5#0: uint64 = (extract_uint16 tmp%61#0 0u) // on error: invalid array length header
+        let num_bits_7%0#0: uint64 = (+ length%5#0 7u)
+        let num_bytes%6#0: uint64 = (/ num_bits_7%0#0 8u)
+        let num_bytes_with_header%4#0: uint64 = (+ num_bytes%6#0 2u)
+        let value_len%6#0: uint64 = (len tmp%61#0)
+        let size_is_correct%6#0: bool = (== value_len%6#0 num_bytes_with_header%4#0)
+        (assert size_is_correct%6#0) // invalid number of bytes for arc4.dynamic_array<arc4.bool>
         let reinterpret_bytes%4#0: bytes = tmp%61#0
         let reinterpret_encoded_uint8[]%0#0: encoded_uint8[] = reinterpret_bytes%4#0
         let tmp%62#0: bytes = (txna ApplicationArgs 3)
-        let length%4#0: uint64 = (extract_uint16 tmp%62#0 0u)
-        let num_bytes%4#0: uint64 = (* length%4#0 9u)
-        let num_bytes_with_header%4#0: uint64 = (+ num_bytes%4#0 2u)
-        let value_len%6#0: uint64 = (len tmp%62#0)
-        let size_is_correct%6#0: bool = (== value_len%6#0 num_bytes_with_header%4#0)
-        (assert size_is_correct%6#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+        let length%6#0: uint64 = (extract_uint16 tmp%62#0 0u) // on error: invalid array length header
+        let num_bytes%7#0: uint64 = (* length%6#0 9u)
+        let num_bytes_with_header%5#0: uint64 = (+ num_bytes%7#0 2u)
+        let value_len%7#0: uint64 = (len tmp%62#0)
+        let size_is_correct%7#0: bool = (== value_len%7#0 num_bytes_with_header%5#0)
+        (assert size_is_correct%7#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
         let reinterpret_bytes%5#0: bytes = tmp%62#0
         let reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0: (encoded_uint64,encoded_uint8,encoded_uint8)[] = reinterpret_bytes%5#0
         let tmp%63#0: bytes = (txna ApplicationArgs 4)
+        let length%7#0: uint64 = (extract_uint16 tmp%63#0 0u) // on error: invalid array length header
+        let array_data%1#0: bytes = ((extract 2 0) tmp%63#0)
+        let num_bytes%8#0: uint64 = (* length%7#0 2u)
+        let index%1#0: uint64 = 0u
+        goto block@18
+    block@18: // for_header_L81
+        let index%1#1: uint64 = φ(index%1#0 <- block@17, index%1#2 <- block@20)
+        let num_bytes%8#1: uint64 = φ(num_bytes%8#0 <- block@17, num_bytes%8#2 <- block@20)
+        let continue_looping%1#0: bool = (< index%1#1 length%7#0)
+        goto continue_looping%1#0 ? block@19 : block@21
+    block@19: // for_body_L81
+        let head_offset_bytes%1#0: uint64 = (* index%1#1 2u)
+        let item_offset%2#0: uint64 = (extract_uint16 array_data%1#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%1#0: bool = (== item_offset%2#0 num_bytes%8#1)
+        (assert offset_is_correct%1#0) // invalid tail pointer for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+        let array_head_and_tail%1#0: bytes = ((extract 2 0) tmp%63#0)
+        let item_offset_offset%1#0: uint64 = (* index%1#1 2u)
+        let item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%1#0 item_offset_offset%1#0)
+        let array_length%0#0: uint64 = (extract_uint16 tmp%63#0 0u)
+        let next_index%0#0: uint64 = (+ index%1#1 1u)
+        let has_next%0#0: uint64 = (- array_length%0#0 next_index%0#0) // on error: Index access is out of bounds
+        let end_of_array%0#0: uint64 = (len array_head_and_tail%1#0)
+        let next_item_offset_offset%0#0: uint64 = (* next_index%0#0 2u)
+        let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%1#0 next_item_offset_offset%0#0)
+        let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
+        let item%1#0: bytes = (substring3 array_head_and_tail%1#0 item_offset%3#0 end_offset%0#0)
+        let offset%0#0: uint64 = (extract_uint16 item%1#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%2#0: bool = (== offset%0#0 10u)
+        (assert offset_is_correct%2#0) // invalid tail pointer at index 1 of test_cases.array.immutable.MyDynamicSizedTuple
+        let item_start_offset%0#0: uint64 = (extract_uint16 item%1#0 8u)
+        let item_end_offset%0#0: uint64 = (len item%1#0)
+        let item%2#0: bytes = (substring3 item%1#0 item_start_offset%0#0 item_end_offset%0#0)
+        let length%8#0: uint64 = (extract_uint16 item%2#0 0u) // on error: invalid array length header
+        let num_bytes%9#0: uint64 = (* length%8#0 1u)
+        let num_bytes_with_header%6#0: uint64 = (+ num_bytes%9#0 2u)
+        let num_bytes_value%0#0: uint64 = (+ 10u num_bytes_with_header%6#0)
+        let num_bytes%8#2: uint64 = (+ num_bytes%8#1 num_bytes_value%0#0)
+        goto block@20
+    block@20: // for_footer_L81
+        let index%1#2: uint64 = (+ index%1#1 1u)
+        goto block@18
+    block@21: // after_for_L81
+        let num_bytes%10#0: uint64 = (+ num_bytes%8#1 2u)
+        let value_len%8#0: uint64 = (len tmp%63#0)
+        let size_is_correct%8#0: bool = (== value_len%8#0 num_bytes%10#0)
+        (assert size_is_correct%8#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
         let reinterpret_bytes%6#0: bytes = tmp%63#0
         let reinterpret_(encoded_uint64,bytes)[]%0#0: (encoded_uint64,bytes)[] = reinterpret_bytes%6#0
         let (elements_to_encode%0#0: uint64, elements_to_encode%1#0: uint64, elements_to_encode%2#0: uint64, elements_to_encode%3#0: uint64) = test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues(reinterpret_encoded_uint64[]%2#0, reinterpret_encoded_uint8[]%0#0, reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%0#0, reinterpret_(encoded_uint64,bytes)[]%0#0)
@@ -535,7 +616,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%64#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%4#0)
         (log tmp%64#0)
         return 1u
-    block@14: // test_uint64_return_route_L356
+    block@22: // test_uint64_return_route_L356
         let tmp%65#0: uint64 = (txn OnCompletion)
         let tmp%66#0: bool = (== tmp%65#0 NoOp)
         (assert tmp%66#0) // OnCompletion is not NoOp
@@ -543,16 +624,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%68#0: bool = (!= tmp%67#0 0u)
         (assert tmp%68#0) // can only call when not creating
         let tmp%69#0: bytes = (txna ApplicationArgs 1)
-        let value_len%7#0: uint64 = (len tmp%69#0)
-        let size_is_correct%7#0: bool = (== value_len%7#0 8u)
-        (assert size_is_correct%7#0) // invalid number of bytes for arc4.uint64
+        let value_len%9#0: uint64 = (len tmp%69#0)
+        let size_is_correct%9#0: bool = (== value_len%9#0 8u)
+        (assert size_is_correct%9#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%2#0: bytes[8] = tmp%69#0
         let tmp%70#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
         let tmp%71#0: encoded_uint64[] = test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(tmp%70#0)
         let tmp%72#0: bytes = (concat 0x151f7c75 tmp%71#0)
         (log tmp%72#0)
         return 1u
-    block@15: // test_bool_return_route_L363
+    block@23: // test_bool_return_route_L363
         let tmp%73#0: uint64 = (txn OnCompletion)
         let tmp%74#0: bool = (== tmp%73#0 NoOp)
         (assert tmp%74#0) // OnCompletion is not NoOp
@@ -560,16 +641,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%76#0: bool = (!= tmp%75#0 0u)
         (assert tmp%76#0) // can only call when not creating
         let tmp%77#0: bytes = (txna ApplicationArgs 1)
-        let value_len%8#0: uint64 = (len tmp%77#0)
-        let size_is_correct%8#0: bool = (== value_len%8#0 8u)
-        (assert size_is_correct%8#0) // invalid number of bytes for arc4.uint64
+        let value_len%10#0: uint64 = (len tmp%77#0)
+        let size_is_correct%10#0: bool = (== value_len%10#0 8u)
+        (assert size_is_correct%10#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%3#0: bytes[8] = tmp%77#0
         let tmp%78#0: uint64 = (btoi reinterpret_bytes[8]%3#0)
         let tmp%79#0: encoded_uint8[] = test_cases.array.immutable.ImmutableArrayContract.test_bool_return(tmp%78#0)
         let tmp%80#0: bytes = (concat 0x151f7c75 tmp%79#0)
         (log tmp%80#0)
         return 1u
-    block@16: // test_tuple_return_route_L370
+    block@24: // test_tuple_return_route_L370
         let tmp%81#0: uint64 = (txn OnCompletion)
         let tmp%82#0: bool = (== tmp%81#0 NoOp)
         (assert tmp%82#0) // OnCompletion is not NoOp
@@ -577,16 +658,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%84#0: bool = (!= tmp%83#0 0u)
         (assert tmp%84#0) // can only call when not creating
         let tmp%85#0: bytes = (txna ApplicationArgs 1)
-        let value_len%9#0: uint64 = (len tmp%85#0)
-        let size_is_correct%9#0: bool = (== value_len%9#0 8u)
-        (assert size_is_correct%9#0) // invalid number of bytes for arc4.uint64
+        let value_len%11#0: uint64 = (len tmp%85#0)
+        let size_is_correct%11#0: bool = (== value_len%11#0 8u)
+        (assert size_is_correct%11#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%4#0: bytes[8] = tmp%85#0
         let tmp%86#0: uint64 = (btoi reinterpret_bytes[8]%4#0)
         let tmp%87#0: (encoded_uint64,encoded_uint8,encoded_uint8)[] = test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(tmp%86#0)
         let tmp%88#0: bytes = (concat 0x151f7c75 tmp%87#0)
         (log tmp%88#0)
         return 1u
-    block@17: // test_dynamic_tuple_return_route_L377
+    block@25: // test_dynamic_tuple_return_route_L377
         let tmp%89#0: uint64 = (txn OnCompletion)
         let tmp%90#0: bool = (== tmp%89#0 NoOp)
         (assert tmp%90#0) // OnCompletion is not NoOp
@@ -594,16 +675,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%92#0: bool = (!= tmp%91#0 0u)
         (assert tmp%92#0) // can only call when not creating
         let tmp%93#0: bytes = (txna ApplicationArgs 1)
-        let value_len%10#0: uint64 = (len tmp%93#0)
-        let size_is_correct%10#0: bool = (== value_len%10#0 8u)
-        (assert size_is_correct%10#0) // invalid number of bytes for arc4.uint64
+        let value_len%12#0: uint64 = (len tmp%93#0)
+        let size_is_correct%12#0: bool = (== value_len%12#0 8u)
+        (assert size_is_correct%12#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%5#0: bytes[8] = tmp%93#0
         let tmp%94#0: uint64 = (btoi reinterpret_bytes[8]%5#0)
         let tmp%95#0: (encoded_uint64,bytes)[] = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return(tmp%94#0)
         let tmp%96#0: bytes = (concat 0x151f7c75 tmp%95#0)
         (log tmp%96#0)
         return 1u
-    block@18: // test_convert_to_array_and_back_route_L384
+    block@26: // test_convert_to_array_and_back_route_L384
         let tmp%97#0: uint64 = (txn OnCompletion)
         let tmp%98#0: bool = (== tmp%97#0 NoOp)
         (assert tmp%98#0) // OnCompletion is not NoOp
@@ -611,25 +692,25 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%100#0: bool = (!= tmp%99#0 0u)
         (assert tmp%100#0) // can only call when not creating
         let tmp%101#0: bytes = (txna ApplicationArgs 1)
-        let length%5#0: uint64 = (extract_uint16 tmp%101#0 0u)
-        let num_bytes%5#0: uint64 = (* length%5#0 9u)
-        let num_bytes_with_header%5#0: uint64 = (+ num_bytes%5#0 2u)
-        let value_len%11#0: uint64 = (len tmp%101#0)
-        let size_is_correct%11#0: bool = (== value_len%11#0 num_bytes_with_header%5#0)
-        (assert size_is_correct%11#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+        let length%9#0: uint64 = (extract_uint16 tmp%101#0 0u) // on error: invalid array length header
+        let num_bytes%11#0: uint64 = (* length%9#0 9u)
+        let num_bytes_with_header%7#0: uint64 = (+ num_bytes%11#0 2u)
+        let value_len%13#0: uint64 = (len tmp%101#0)
+        let size_is_correct%13#0: bool = (== value_len%13#0 num_bytes_with_header%7#0)
+        (assert size_is_correct%13#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
         let reinterpret_bytes%7#0: bytes = tmp%101#0
         let reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0: (encoded_uint64,encoded_uint8,encoded_uint8)[] = reinterpret_bytes%7#0
         let tmp%102#0: bytes = (txna ApplicationArgs 2)
-        let value_len%12#0: uint64 = (len tmp%102#0)
-        let size_is_correct%12#0: bool = (== value_len%12#0 8u)
-        (assert size_is_correct%12#0) // invalid number of bytes for arc4.uint64
+        let value_len%14#0: uint64 = (len tmp%102#0)
+        let size_is_correct%14#0: bool = (== value_len%14#0 8u)
+        (assert size_is_correct%14#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%6#0: bytes[8] = tmp%102#0
         let tmp%103#0: uint64 = (btoi reinterpret_bytes[8]%6#0)
         let tmp%104#0: (encoded_uint64,encoded_uint8,encoded_uint8)[] = test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back(reinterpret_(encoded_uint64,encoded_uint8,encoded_uint8)[]%1#0, tmp%103#0)
         let tmp%105#0: bytes = (concat 0x151f7c75 tmp%104#0)
         (log tmp%105#0)
         return 1u
-    block@19: // test_concat_with_arc4_tuple_route_L394
+    block@27: // test_concat_with_arc4_tuple_route_L394
         let tmp%106#0: uint64 = (txn OnCompletion)
         let tmp%107#0: bool = (== tmp%106#0 NoOp)
         (assert tmp%107#0) // OnCompletion is not NoOp
@@ -637,15 +718,15 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%109#0: bool = (!= tmp%108#0 0u)
         (assert tmp%109#0) // can only call when not creating
         let tmp%110#0: bytes = (txna ApplicationArgs 1)
-        let value_len%13#0: uint64 = (len tmp%110#0)
-        let size_is_correct%13#0: bool = (== value_len%13#0 16u)
-        (assert size_is_correct%13#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+        let value_len%15#0: uint64 = (len tmp%110#0)
+        let size_is_correct%15#0: bool = (== value_len%15#0 16u)
+        (assert size_is_correct%15#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
         let reinterpret_bytes[16]%0#0: bytes[16] = tmp%110#0
         let tmp%111#0: bytes[8][] = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(reinterpret_bytes[16]%0#0)
         let tmp%112#0: bytes = (concat 0x151f7c75 tmp%111#0)
         (log tmp%112#0)
         return 1u
-    block@20: // test_concat_with_native_tuple_route_L402
+    block@28: // test_concat_with_native_tuple_route_L402
         let tmp%113#0: uint64 = (txn OnCompletion)
         let tmp%114#0: bool = (== tmp%113#0 NoOp)
         (assert tmp%114#0) // OnCompletion is not NoOp
@@ -653,9 +734,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%116#0: bool = (!= tmp%115#0 0u)
         (assert tmp%116#0) // can only call when not creating
         let tmp%117#0: bytes = (txna ApplicationArgs 1)
-        let value_len%14#0: uint64 = (len tmp%117#0)
-        let size_is_correct%14#0: bool = (== value_len%14#0 16u)
-        (assert size_is_correct%14#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+        let value_len%16#0: uint64 = (len tmp%117#0)
+        let size_is_correct%16#0: bool = (== value_len%16#0 16u)
+        (assert size_is_correct%16#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
         let reinterpret_bytes[16]%1#0: bytes[16] = tmp%117#0
         let item0%0#0: bytes = (extract3 reinterpret_bytes[16]%1#0 0u 8u) // on error: Index access is out of bounds
         let item1%0#0: bytes = (extract3 reinterpret_bytes[16]%1#0 8u 8u) // on error: Index access is out of bounds
@@ -663,7 +744,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%119#0: bytes = (concat 0x151f7c75 tmp%118#0)
         (log tmp%119#0)
         return 1u
-    block@21: // test_dynamic_concat_with_arc4_tuple_route_L410
+    block@29: // test_dynamic_concat_with_arc4_tuple_route_L410
         let tmp%120#0: uint64 = (txn OnCompletion)
         let tmp%121#0: bool = (== tmp%120#0 NoOp)
         (assert tmp%121#0) // OnCompletion is not NoOp
@@ -671,12 +752,35 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%123#0: bool = (!= tmp%122#0 0u)
         (assert tmp%123#0) // can only call when not creating
         let tmp%124#0: bytes = (txna ApplicationArgs 1)
+        let offset%1#0: uint64 = (extract_uint16 tmp%124#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%3#0: bool = (== offset%1#0 4u)
+        (assert offset_is_correct%3#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%124#0 0u)
+        let item_end_offset%1#0: uint64 = (extract_uint16 tmp%124#0 2u)
+        let item%3#0: bytes = (substring3 tmp%124#0 item_start_offset%1#0 item_end_offset%1#0)
+        let length%10#0: uint64 = (extract_uint16 item%3#0 0u) // on error: invalid array length header
+        let num_bytes%12#0: uint64 = (* length%10#0 1u)
+        let num_bytes_with_header%8#0: uint64 = (+ num_bytes%12#0 2u)
+        let num_bytes_value%1#0: uint64 = (+ 4u num_bytes_with_header%8#0)
+        let offset%2#0: uint64 = (extract_uint16 tmp%124#0 2u) // on error: invalid tuple encoding
+        let offset_is_correct%4#0: bool = (== offset%2#0 num_bytes_value%1#0)
+        (assert offset_is_correct%4#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+        let item_start_offset%2#0: uint64 = (extract_uint16 tmp%124#0 2u)
+        let item_end_offset%2#0: uint64 = (len tmp%124#0)
+        let item%4#0: bytes = (substring3 tmp%124#0 item_start_offset%2#0 item_end_offset%2#0)
+        let length%11#0: uint64 = (extract_uint16 item%4#0 0u) // on error: invalid array length header
+        let num_bytes%13#0: uint64 = (* length%11#0 1u)
+        let num_bytes_with_header%9#0: uint64 = (+ num_bytes%13#0 2u)
+        let num_bytes_value%2#0: uint64 = (+ num_bytes_value%1#0 num_bytes_with_header%9#0)
+        let value_len%17#0: uint64 = (len tmp%124#0)
+        let size_is_correct%17#0: bool = (== value_len%17#0 num_bytes_value%2#0)
+        (assert size_is_correct%17#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
         let reinterpret_bytes%8#0: bytes = tmp%124#0
         let tmp%125#0: bytes[] = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(reinterpret_bytes%8#0)
         let tmp%126#0: bytes = (concat 0x151f7c75 tmp%125#0)
         (log tmp%126#0)
         return 1u
-    block@22: // test_dynamic_concat_with_native_tuple_route_L418
+    block@30: // test_dynamic_concat_with_native_tuple_route_L418
         let tmp%127#0: uint64 = (txn OnCompletion)
         let tmp%128#0: bool = (== tmp%127#0 NoOp)
         (assert tmp%128#0) // OnCompletion is not NoOp
@@ -684,18 +788,41 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%130#0: bool = (!= tmp%129#0 0u)
         (assert tmp%130#0) // can only call when not creating
         let tmp%131#0: bytes = (txna ApplicationArgs 1)
+        let offset%3#0: uint64 = (extract_uint16 tmp%131#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%5#0: bool = (== offset%3#0 4u)
+        (assert offset_is_correct%5#0) // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+        let item_start_offset%3#0: uint64 = (extract_uint16 tmp%131#0 0u)
+        let item_end_offset%3#0: uint64 = (extract_uint16 tmp%131#0 2u)
+        let item%5#0: bytes = (substring3 tmp%131#0 item_start_offset%3#0 item_end_offset%3#0)
+        let length%12#0: uint64 = (extract_uint16 item%5#0 0u) // on error: invalid array length header
+        let num_bytes%14#0: uint64 = (* length%12#0 1u)
+        let num_bytes_with_header%10#0: uint64 = (+ num_bytes%14#0 2u)
+        let num_bytes_value%3#0: uint64 = (+ 4u num_bytes_with_header%10#0)
+        let offset%4#0: uint64 = (extract_uint16 tmp%131#0 2u) // on error: invalid tuple encoding
+        let offset_is_correct%6#0: bool = (== offset%4#0 num_bytes_value%3#0)
+        (assert offset_is_correct%6#0) // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+        let item_start_offset%4#0: uint64 = (extract_uint16 tmp%131#0 2u)
+        let item_end_offset%4#0: uint64 = (len tmp%131#0)
+        let item%6#0: bytes = (substring3 tmp%131#0 item_start_offset%4#0 item_end_offset%4#0)
+        let length%13#0: uint64 = (extract_uint16 item%6#0 0u) // on error: invalid array length header
+        let num_bytes%15#0: uint64 = (* length%13#0 1u)
+        let num_bytes_with_header%11#0: uint64 = (+ num_bytes%15#0 2u)
+        let num_bytes_value%4#0: uint64 = (+ num_bytes_value%3#0 num_bytes_with_header%11#0)
+        let value_len%18#0: uint64 = (len tmp%131#0)
+        let size_is_correct%18#0: bool = (== value_len%18#0 num_bytes_value%4#0)
+        (assert size_is_correct%18#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
         let reinterpret_bytes%9#0: bytes = tmp%131#0
-        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 2u)
-        let item0%1#0: bytes = (substring3 reinterpret_bytes%9#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 2u)
-        let item_end_offset%1#0: uint64 = (len reinterpret_bytes%9#0)
-        let item1%1#0: bytes = (substring3 reinterpret_bytes%9#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 0u)
+        let item_end_offset%5#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 2u)
+        let item0%1#0: bytes = (substring3 reinterpret_bytes%9#0 item_start_offset%5#0 item_end_offset%5#0)
+        let item_start_offset%6#0: uint64 = (extract_uint16 reinterpret_bytes%9#0 2u)
+        let item_end_offset%6#0: uint64 = (len reinterpret_bytes%9#0)
+        let item1%1#0: bytes = (substring3 reinterpret_bytes%9#0 item_start_offset%6#0 item_end_offset%6#0)
         let tmp%132#0: bytes[] = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(item0%1#0, item1%1#0)
         let tmp%133#0: bytes = (concat 0x151f7c75 tmp%132#0)
         (log tmp%133#0)
         return 1u
-    block@23: // test_concat_immutable_dynamic_route_L426
+    block@31: // test_concat_immutable_dynamic_route_L426
         let tmp%134#0: uint64 = (txn OnCompletion)
         let tmp%135#0: bool = (== tmp%134#0 NoOp)
         (assert tmp%135#0) // OnCompletion is not NoOp
@@ -703,16 +830,108 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%137#0: bool = (!= tmp%136#0 0u)
         (assert tmp%137#0) // can only call when not creating
         let tmp%138#0: bytes = (txna ApplicationArgs 1)
+        let length%14#0: uint64 = (extract_uint16 tmp%138#0 0u) // on error: invalid array length header
+        let array_data%2#0: bytes = ((extract 2 0) tmp%138#0)
+        let num_bytes%16#0: uint64 = (* length%14#0 2u)
+        let index%2#0: uint64 = 0u
+        goto block@32
+    block@32: // for_header_L81
+        let index%2#1: uint64 = φ(index%2#0 <- block@31, index%2#2 <- block@34)
+        let num_bytes%16#1: uint64 = φ(num_bytes%16#0 <- block@31, num_bytes%16#2 <- block@34)
+        let continue_looping%2#0: bool = (< index%2#1 length%14#0)
+        goto continue_looping%2#0 ? block@33 : block@35
+    block@33: // for_body_L81
+        let head_offset_bytes%2#0: uint64 = (* index%2#1 2u)
+        let item_offset%4#0: uint64 = (extract_uint16 array_data%2#0 head_offset_bytes%2#0) // on error: invalid array encoding
+        let offset_is_correct%7#0: bool = (== item_offset%4#0 num_bytes%16#1)
+        (assert offset_is_correct%7#0) // invalid tail pointer for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+        let array_head_and_tail%2#0: bytes = ((extract 2 0) tmp%138#0)
+        let item_offset_offset%2#0: uint64 = (* index%2#1 2u)
+        let item_offset%5#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset_offset%2#0)
+        let array_length%1#0: uint64 = (extract_uint16 tmp%138#0 0u)
+        let next_index%1#0: uint64 = (+ index%2#1 1u)
+        let has_next%1#0: uint64 = (- array_length%1#0 next_index%1#0) // on error: Index access is out of bounds
+        let end_of_array%1#0: uint64 = (len array_head_and_tail%2#0)
+        let next_item_offset_offset%1#0: uint64 = (* next_index%1#0 2u)
+        let next_item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%2#0 next_item_offset_offset%1#0)
+        let end_offset%1#0: uint64 = (select end_of_array%1#0 next_item_offset%1#0 has_next%1#0)
+        let item%7#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%5#0 end_offset%1#0)
+        let offset%5#0: uint64 = (extract_uint16 item%7#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%8#0: bool = (== offset%5#0 10u)
+        (assert offset_is_correct%8#0) // invalid tail pointer at index 1 of test_cases.array.immutable.MyDynamicSizedTuple
+        let item_start_offset%7#0: uint64 = (extract_uint16 item%7#0 8u)
+        let item_end_offset%7#0: uint64 = (len item%7#0)
+        let item%8#0: bytes = (substring3 item%7#0 item_start_offset%7#0 item_end_offset%7#0)
+        let length%15#0: uint64 = (extract_uint16 item%8#0 0u) // on error: invalid array length header
+        let num_bytes%17#0: uint64 = (* length%15#0 1u)
+        let num_bytes_with_header%12#0: uint64 = (+ num_bytes%17#0 2u)
+        let num_bytes_value%5#0: uint64 = (+ 10u num_bytes_with_header%12#0)
+        let num_bytes%16#2: uint64 = (+ num_bytes%16#1 num_bytes_value%5#0)
+        goto block@34
+    block@34: // for_footer_L81
+        let index%2#2: uint64 = (+ index%2#1 1u)
+        goto block@32
+    block@35: // after_for_L81
+        let num_bytes%18#0: uint64 = (+ num_bytes%16#1 2u)
+        let value_len%19#0: uint64 = (len tmp%138#0)
+        let size_is_correct%19#0: bool = (== value_len%19#0 num_bytes%18#0)
+        (assert size_is_correct%19#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
         let reinterpret_bytes%10#0: bytes = tmp%138#0
         let reinterpret_(encoded_uint64,bytes)[]%1#0: (encoded_uint64,bytes)[] = reinterpret_bytes%10#0
         let tmp%139#0: bytes = (txna ApplicationArgs 2)
+        let length%16#0: uint64 = (extract_uint16 tmp%139#0 0u) // on error: invalid array length header
+        let array_data%3#0: bytes = ((extract 2 0) tmp%139#0)
+        let num_bytes%19#0: uint64 = (* length%16#0 2u)
+        let index%3#0: uint64 = 0u
+        goto block@36
+    block@36: // for_header_L81
+        let index%3#1: uint64 = φ(index%3#0 <- block@35, index%3#2 <- block@38)
+        let num_bytes%19#1: uint64 = φ(num_bytes%19#0 <- block@35, num_bytes%19#2 <- block@38)
+        let continue_looping%3#0: bool = (< index%3#1 length%16#0)
+        goto continue_looping%3#0 ? block@37 : block@39
+    block@37: // for_body_L81
+        let head_offset_bytes%3#0: uint64 = (* index%3#1 2u)
+        let item_offset%6#0: uint64 = (extract_uint16 array_data%3#0 head_offset_bytes%3#0) // on error: invalid array encoding
+        let offset_is_correct%9#0: bool = (== item_offset%6#0 num_bytes%19#1)
+        (assert offset_is_correct%9#0) // invalid tail pointer for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+        let array_head_and_tail%3#0: bytes = ((extract 2 0) tmp%139#0)
+        let item_offset_offset%3#0: uint64 = (* index%3#1 2u)
+        let item_offset%7#0: uint64 = (extract_uint16 array_head_and_tail%3#0 item_offset_offset%3#0)
+        let array_length%2#0: uint64 = (extract_uint16 tmp%139#0 0u)
+        let next_index%2#0: uint64 = (+ index%3#1 1u)
+        let has_next%2#0: uint64 = (- array_length%2#0 next_index%2#0) // on error: Index access is out of bounds
+        let end_of_array%2#0: uint64 = (len array_head_and_tail%3#0)
+        let next_item_offset_offset%2#0: uint64 = (* next_index%2#0 2u)
+        let next_item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%3#0 next_item_offset_offset%2#0)
+        let end_offset%2#0: uint64 = (select end_of_array%2#0 next_item_offset%2#0 has_next%2#0)
+        let item%9#0: bytes = (substring3 array_head_and_tail%3#0 item_offset%7#0 end_offset%2#0)
+        let offset%6#0: uint64 = (extract_uint16 item%9#0 8u) // on error: invalid tuple encoding
+        let offset_is_correct%10#0: bool = (== offset%6#0 10u)
+        (assert offset_is_correct%10#0) // invalid tail pointer at index 1 of test_cases.array.immutable.MyDynamicSizedTuple
+        let item_start_offset%8#0: uint64 = (extract_uint16 item%9#0 8u)
+        let item_end_offset%8#0: uint64 = (len item%9#0)
+        let item%10#0: bytes = (substring3 item%9#0 item_start_offset%8#0 item_end_offset%8#0)
+        let length%17#0: uint64 = (extract_uint16 item%10#0 0u) // on error: invalid array length header
+        let num_bytes%20#0: uint64 = (* length%17#0 1u)
+        let num_bytes_with_header%13#0: uint64 = (+ num_bytes%20#0 2u)
+        let num_bytes_value%6#0: uint64 = (+ 10u num_bytes_with_header%13#0)
+        let num_bytes%19#2: uint64 = (+ num_bytes%19#1 num_bytes_value%6#0)
+        goto block@38
+    block@38: // for_footer_L81
+        let index%3#2: uint64 = (+ index%3#1 1u)
+        goto block@36
+    block@39: // after_for_L81
+        let num_bytes%21#0: uint64 = (+ num_bytes%19#1 2u)
+        let value_len%20#0: uint64 = (len tmp%139#0)
+        let size_is_correct%20#0: bool = (== value_len%20#0 num_bytes%21#0)
+        (assert size_is_correct%20#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
         let reinterpret_bytes%11#0: bytes = tmp%139#0
         let reinterpret_(encoded_uint64,bytes)[]%2#0: (encoded_uint64,bytes)[] = reinterpret_bytes%11#0
         let tmp%140#0: (encoded_uint64,bytes)[] = test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(reinterpret_(encoded_uint64,bytes)[]%1#0, reinterpret_(encoded_uint64,bytes)[]%2#0)
         let tmp%141#0: bytes = (concat 0x151f7c75 tmp%140#0)
         (log tmp%141#0)
         return 1u
-    block@24: // test_immutable_arc4_route_L432
+    block@40: // test_immutable_arc4_route_L432
         let tmp%142#0: uint64 = (txn OnCompletion)
         let tmp%143#0: bool = (== tmp%142#0 NoOp)
         (assert tmp%143#0) // OnCompletion is not NoOp
@@ -720,36 +939,36 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router_
         let tmp%145#0: bool = (!= tmp%144#0 0u)
         (assert tmp%145#0) // can only call when not creating
         let tmp%146#0: bytes = (txna ApplicationArgs 1)
-        let length%6#0: uint64 = (extract_uint16 tmp%146#0 0u)
-        let num_bytes%6#0: uint64 = (* length%6#0 16u)
-        let num_bytes_with_header%6#0: uint64 = (+ num_bytes%6#0 2u)
-        let value_len%15#0: uint64 = (len tmp%146#0)
-        let size_is_correct%15#0: bool = (== value_len%15#0 num_bytes_with_header%6#0)
-        (assert size_is_correct%15#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct>
+        let length%18#0: uint64 = (extract_uint16 tmp%146#0 0u) // on error: invalid array length header
+        let num_bytes%22#0: uint64 = (* length%18#0 16u)
+        let num_bytes_with_header%14#0: uint64 = (+ num_bytes%22#0 2u)
+        let value_len%21#0: uint64 = (len tmp%146#0)
+        let size_is_correct%21#0: bool = (== value_len%21#0 num_bytes_with_header%14#0)
+        (assert size_is_correct%21#0) // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct>
         let reinterpret_bytes%12#0: bytes = tmp%146#0
         let reinterpret_bytes[16][]%0#0: bytes[16][] = reinterpret_bytes%12#0
         let tmp%147#0: bytes[16][] = test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4(reinterpret_bytes[16][]%0#0)
         let tmp%148#0: bytes = (concat 0x151f7c75 tmp%147#0)
         (log tmp%148#0)
         return 1u
-    block@25: // switch_case_default_L81
-        goto block@26
-    block@26: // switch_case_next_L81
-        goto block@31
-    block@27: // bare_routing_L81
+    block@41: // switch_case_default_L81
+        goto block@42
+    block@42: // switch_case_next_L81
+        goto block@47
+    block@43: // bare_routing_L81
         let tmp%149#0: uint64 = (txn OnCompletion)
-        switch tmp%149#0 {0u => block@28, * => block@29}
-    block@28: // __algopy_default_create_L1
+        switch tmp%149#0 {0u => block@44, * => block@45}
+    block@44: // __algopy_default_create_L1
         let tmp%150#0: uint64 = (txn ApplicationID)
         let tmp%151#0: bool = (== tmp%150#0 0u)
         (assert tmp%151#0) // can only call when creating
         test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create()
         return 1u
-    block@29: // switch_case_default_L81
-        goto block@30
-    block@30: // switch_case_next_L81
-        goto block@31
-    block@31: // after_if_else_L81
+    block@45: // switch_case_default_L81
+        goto block@46
+    block@46: // switch_case_next_L81
+        goto block@47
+    block@47: // after_if_else_L81
         return 0u
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array() -> void:

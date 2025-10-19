@@ -5,6 +5,10 @@
 main:
     intcblock 0 1 2 8
     bytecblock 0x151f7c75 0x000c 0x0004 "box" "twm" 0x0012 0x00 "build_nested_call_count" "pwl"
+    intc_0 // 0
+    dupn 5
+    pushbytes ""
+    dupn 4
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/nested_tuples.py:50
@@ -31,18 +35,18 @@ main_after_if_else@2:
     // tuple_support/nested_tuples.py:48
     // class NestedTuples(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@19
+    bz main_bare_routing@22
     pushbytess 0x383e1e8b 0x68cbedd7 0x2263fcf1 0xbfc37339 0xc660beaa 0xb6c215ff 0x907c9042 0xd51c7174 0xf8cc2b50 0x3d486db0 0x9e5a3ba7 0xcea0521b 0x373f5b24 0xec593096 // method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void", method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])", method "store_tuple_in_box((uint64,uint64))void", method "is_tuple_in_box((uint64,uint64))bool", method "load_tuple_from_box((uint64,uint64))(uint64,uint64)", method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)", method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)", method "load_tuple_from_local_state_or_default(string)(uint64,uint64)", method "mutate_local_tuple()(uint64[],(uint64,byte[],string))", method "mutate_tuple_in_storage_currently_supported_method()void", method "run_tests()bool", method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))", method "named_tuple((uint64,byte[],string))(uint64,byte[],string)", method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))"
     txna ApplicationArgs 0
-    match main_store_tuple_route@5 main_load_tuple_route@6 main_store_tuple_in_box_route@7 main_is_tuple_in_box_route@8 main_load_tuple_from_box_route@9 main_maybe_load_tuple_from_box_route@10 main_load_tuple_from_box_or_default_route@11 main_load_tuple_from_local_state_or_default_route@12 main_mutate_local_tuple_route@13 main_mutate_tuple_in_storage_currently_supported_method_route@14 main_run_tests_route@15 main_nested_tuple_params_route@16 main_named_tuple_route@17 main_nested_named_tuple_params_route@18
+    match main_store_tuple_route@5 main_load_tuple_route@9 main_store_tuple_in_box_route@10 main_is_tuple_in_box_route@11 main_load_tuple_from_box_route@12 main_maybe_load_tuple_from_box_route@13 main_load_tuple_from_box_or_default_route@14 main_load_tuple_from_local_state_or_default_route@15 main_mutate_local_tuple_route@16 main_mutate_tuple_in_storage_currently_supported_method_route@17 main_run_tests_route@18 main_nested_tuple_params_route@19 main_named_tuple_route@20 main_nested_named_tuple_params_route@21
 
-main_after_if_else@21:
+main_after_if_else@24:
     // tuple_support/nested_tuples.py:48
     // class NestedTuples(ARC4Contract):
     intc_0 // 0
     return
 
-main_nested_named_tuple_params_route@18:
+main_nested_named_tuple_params_route@21:
     // tuple_support/nested_tuples.py:161
     // @arc4.abimethod()
     txn OnCompletion
@@ -54,38 +58,72 @@ main_nested_named_tuple_params_route@18:
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint64
-    dig 1
-    extract 8 8 // on error: Index access is out of bounds
-    dig 2
     pushint 16 // 16
-    extract_uint16
-    dig 3
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Parent
+    dig 1
     len
-    uncover 4
-    cover 2
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+    dig 1
+    pushint 10 // 10
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
     substring3
     dup
     intc_0 // 0
-    extract_uint64
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 12 // 12
+    +
+    dig 2
     dig 1
-    intc_3 // 8
-    extract_uint16
-    dig 2
-    pushint 10 // 10
-    extract_uint16
-    dig 3
-    uncover 2
-    dig 2
-    substring3
-    extract 2 0
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
     dig 3
     len
+    dig 4
     uncover 4
-    uncover 3
     uncover 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    uncover 2
+    +
+    pushint 18 // 18
+    +
+    uncover 4
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
+    dig 3
+    intc_0 // 0
+    extract_uint64
+    uncover 4
+    extract 8 8 // on error: Index access is out of bounds
+    uncover 4
+    intc_0 // 0
+    extract_uint64
+    uncover 4
+    extract 2 0
+    uncover 4
     extract 2 0
     // tuple_support/nested_tuples.py:161
     // @arc4.abimethod()
@@ -133,7 +171,7 @@ main_nested_named_tuple_params_route@18:
     intc_1 // 1
     return
 
-main_named_tuple_route@17:
+main_named_tuple_route@20:
     // tuple_support/nested_tuples.py:156
     // @arc4.abimethod()
     txn OnCompletion
@@ -145,25 +183,52 @@ main_named_tuple_route@17:
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint64
-    dig 1
     intc_3 // 8
-    extract_uint16
-    dig 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+    dig 1
     pushint 10 // 10
     extract_uint16
-    dig 3
+    dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 12 // 12
+    +
+    dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
     dig 3
     len
+    dig 4
     uncover 4
-    uncover 3
-    uncover 2
+    dig 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    uncover 3
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
+    uncover 2
+    intc_0 // 0
+    extract_uint64
+    uncover 2
+    extract 2 0
+    uncover 2
     extract 2 0
     // tuple_support/nested_tuples.py:156
     // @arc4.abimethod()
@@ -202,7 +267,7 @@ main_named_tuple_route@17:
     intc_1 // 1
     return
 
-main_nested_tuple_params_route@16:
+main_nested_tuple_params_route@19:
     // tuple_support/nested_tuples.py:149
     // @arc4.abimethod()
     txn OnCompletion
@@ -215,7 +280,11 @@ main_nested_tuple_params_route@16:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
     dig 1
     intc_2 // 2
     extract_uint16
@@ -223,23 +292,52 @@ main_nested_tuple_params_route@16:
     uncover 2
     dig 2
     substring3
-    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 4 // 4
+    +
     dig 2
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+    dig 3
     len
-    uncover 3
-    uncover 3
-    uncover 2
+    uncover 4
+    uncover 4
+    dig 2
     substring3
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 0 of arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>
     dig 1
     len
     dig 2
     cover 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 10 // 10
+    +
+    uncover 4
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+    uncover 2
     extract 2 0
     swap
+    extract 2 0
+    uncover 2
     extract 2 8 // on error: Index access is out of bounds
     intc_0 // 0
     extract_uint64
@@ -284,7 +382,7 @@ main_nested_tuple_params_route@16:
     intc_1 // 1
     return
 
-main_run_tests_route@15:
+main_run_tests_route@18:
     // tuple_support/nested_tuples.py:120
     // @arc4.abimethod()
     txn OnCompletion
@@ -304,7 +402,7 @@ main_run_tests_route@15:
     intc_1 // 1
     return
 
-main_mutate_tuple_in_storage_currently_supported_method_route@14:
+main_mutate_tuple_in_storage_currently_supported_method_route@17:
     // tuple_support/nested_tuples.py:114
     // @arc4.abimethod()
     txn OnCompletion
@@ -316,7 +414,7 @@ main_mutate_tuple_in_storage_currently_supported_method_route@14:
     intc_1 // 1
     return
 
-main_mutate_local_tuple_route@13:
+main_mutate_local_tuple_route@16:
     // tuple_support/nested_tuples.py:95
     // @arc4.abimethod()
     txn OnCompletion
@@ -373,7 +471,7 @@ main_mutate_local_tuple_route@13:
     intc_1 // 1
     return
 
-main_load_tuple_from_local_state_or_default_route@12:
+main_load_tuple_from_local_state_or_default_route@15:
     // tuple_support/nested_tuples.py:90
     // @arc4.abimethod()
     txn OnCompletion
@@ -386,7 +484,7 @@ main_load_tuple_from_local_state_or_default_route@12:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
     dig 1
@@ -409,7 +507,7 @@ main_load_tuple_from_local_state_or_default_route@12:
     intc_1 // 1
     return
 
-main_load_tuple_from_box_or_default_route@11:
+main_load_tuple_from_box_or_default_route@14:
     // tuple_support/nested_tuples.py:86
     // @arc4.abimethod()
     txn OnCompletion
@@ -446,7 +544,7 @@ main_load_tuple_from_box_or_default_route@11:
     intc_1 // 1
     return
 
-main_maybe_load_tuple_from_box_route@10:
+main_maybe_load_tuple_from_box_route@13:
     // tuple_support/nested_tuples.py:81
     // @arc4.abimethod()
     txn OnCompletion
@@ -488,7 +586,7 @@ main_maybe_load_tuple_from_box_route@10:
     intc_1 // 1
     return
 
-main_load_tuple_from_box_route@9:
+main_load_tuple_from_box_route@12:
     // tuple_support/nested_tuples.py:77
     // @arc4.abimethod()
     txn OnCompletion
@@ -525,7 +623,7 @@ main_load_tuple_from_box_route@9:
     intc_1 // 1
     return
 
-main_is_tuple_in_box_route@8:
+main_is_tuple_in_box_route@11:
     // tuple_support/nested_tuples.py:73
     // @arc4.abimethod()
     txn OnCompletion
@@ -561,7 +659,7 @@ main_is_tuple_in_box_route@8:
     intc_1 // 1
     return
 
-main_store_tuple_in_box_route@7:
+main_store_tuple_in_box_route@10:
     // tuple_support/nested_tuples.py:69
     // @arc4.abimethod()
     txn OnCompletion
@@ -589,7 +687,7 @@ main_store_tuple_in_box_route@7:
     intc_1 // 1
     return
 
-main_load_tuple_route@6:
+main_load_tuple_route@9:
     // tuple_support/nested_tuples.py:65
     // @arc4.abimethod()
     txn OnCompletion
@@ -668,7 +766,11 @@ main_store_tuple_route@5:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of test_cases.tuple_support.nested_tuples.ParentWithList
     dig 1
     intc_2 // 2
     extract_uint16
@@ -677,56 +779,207 @@ main_store_tuple_route@5:
     dig 2
     substring3
     dup
-    intc_0 // 0
-    extract_uint64
-    dig 1
-    extract 8 8 // on error: Index access is out of bounds
-    dig 2
+    bury 13
+    dup
     pushint 16 // 16
-    extract_uint16
-    dig 3
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Parent
+    dig 1
     len
-    uncover 4
-    cover 2
     substring3
     dup
-    intc_0 // 0
-    extract_uint64
-    dig 1
+    bury 12
+    dup
     intc_3 // 8
-    extract_uint16
-    dig 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+    dig 1
     pushint 10 // 10
     extract_uint16
-    dig 3
+    dig 2
     uncover 2
     dig 2
     substring3
-    extract 2 0
-    dig 3
+    dup
+    bury 13
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 12 // 12
+    +
+    dup2
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+    dig 2
     len
-    uncover 4
+    uncover 3
     uncover 3
     uncover 2
     substring3
-    extract 2 0
-    dig 6
+    dup
+    bury 11
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    pushint 18 // 18
+    +
+    pushint 4 // 4
+    +
+    dup
+    bury 4
+    dig 1
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.ParentWithList
+    dig 1
     len
-    uncover 7
-    uncover 7
+    dup
+    cover 2
+    bury 7
+    swap
+    substring3
+    dup
+    bury 7
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    bury 5
+    extract 2 0
+    bury 12
+    intc_2 // 2
+    *
+    bury 2
+    intc_0 // 0
+    bury 5
+
+main_for_header@6:
+    // tuple_support/nested_tuples.py:48
+    // class NestedTuples(ARC4Contract):
+    dig 4
+    dig 3
+    <
+    bz main_after_for@8
+    dig 4
+    dup
+    intc_2 // 2
+    *
+    dig 12
+    dup
+    cover 3
+    swap
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 5
+    ==
+    assert // invalid tail pointer for arc4.dynamic_array<test_cases.tuple_support.nested_tuples.Child>
+    swap
+    intc_1 // 1
+    +
+    dig 6
+    dig 1
+    - // on error: Index access is out of bounds
+    dig 3
+    len
+    dig 2
+    intc_2 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 2
+    select
+    uncover 3
+    uncover 3
     uncover 2
     substring3
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of test_cases.tuple_support.nested_tuples.Child
+    dig 1
+    pushint 10 // 10
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    pushint 12 // 12
+    +
+    dup2
+    ==
+    assert // invalid tail pointer at index 2 of test_cases.tuple_support.nested_tuples.Child
+    dig 2
+    len
+    uncover 3
+    uncover 3
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    uncover 2
+    +
+    bury 3
+    bury 5
+    b main_for_header@6
+
+main_after_for@8:
+    // tuple_support/nested_tuples.py:48
+    // class NestedTuples(ARC4Contract):
+    dig 1
+    intc_2 // 2
+    +
+    dig 1
+    +
+    dig 4
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
+    dig 9
+    dup
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 8 8 // on error: Index access is out of bounds
+    dig 10
+    intc_0 // 0
+    extract_uint64
+    dig 10
+    extract 2 0
+    dig 10
+    extract 2 0
     // tuple_support/nested_tuples.py:61
     // @arc4.abimethod()
+    dig 10
     callsub store_tuple
     intc_1 // 1
     return
 
-main_bare_routing@19:
+main_bare_routing@22:
     // tuple_support/nested_tuples.py:48
     // class NestedTuples(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@21
+    bnz main_after_if_else@24
     txn ApplicationID
     !
     assert // can only call when creating

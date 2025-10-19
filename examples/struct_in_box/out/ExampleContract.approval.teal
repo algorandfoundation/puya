@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8
+    intcblock 1 0 8 18
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn NumAppArgs
@@ -15,7 +15,7 @@ main:
 main_after_if_else@12:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
-    pushint 0 // 0
+    intc_1 // 0
     return
 
 main_get_user_route@5:
@@ -31,7 +31,7 @@ main_get_user_route@5:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     // struct_in_box/contract.py:41
@@ -57,7 +57,7 @@ main_attach_asset_to_user_route@4:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
@@ -85,6 +85,27 @@ main_add_user_route@3:
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_3 // 18
+    ==
+    assert // invalid tail pointer at index 0 of examples.struct_in_box.contract.UserStruct
+    dig 1
+    len
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2 // 2
+    +
+    intc_3 // 18
+    +
+    ==
+    assert // invalid number of bytes for examples.struct_in_box.contract.UserStruct
     // struct_in_box/contract.py:30
     // @arc4.abimethod()
     callsub add_user

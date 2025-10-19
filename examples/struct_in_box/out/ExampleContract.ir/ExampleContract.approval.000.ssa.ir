@@ -19,6 +19,19 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let tmp%7#0: bytes = (txna ApplicationArgs 1)
+        let offset%0#0: uint64 = (extract_uint16 tmp%7#0 0u) // on error: invalid tuple encoding
+        let offset_is_correct%0#0: bool = (== offset%0#0 18u)
+        (assert offset_is_correct%0#0) // invalid tail pointer at index 0 of examples.struct_in_box.contract.UserStruct
+        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%7#0 0u)
+        let item_end_offset%0#0: uint64 = (len tmp%7#0)
+        let item%0#0: bytes = (substring3 tmp%7#0 item_start_offset%0#0 item_end_offset%0#0)
+        let length%0#0: uint64 = (extract_uint16 item%0#0 0u) // on error: invalid array length header
+        let num_bytes%0#0: uint64 = (* length%0#0 1u)
+        let num_bytes_with_header%0#0: uint64 = (+ num_bytes%0#0 2u)
+        let num_bytes_value%0#0: uint64 = (+ 18u num_bytes_with_header%0#0)
+        let value_len%0#0: uint64 = (len tmp%7#0)
+        let size_is_correct%0#0: bool = (== value_len%0#0 num_bytes_value%0#0)
+        (assert size_is_correct%0#0) // invalid number of bytes for examples.struct_in_box.contract.UserStruct
         let reinterpret_bytes%0#0: bytes = tmp%7#0
         examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_bytes%0#0)
         return 1u
@@ -30,14 +43,14 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
         let tmp%12#0: bytes = (txna ApplicationArgs 1)
-        let value_len%0#0: uint64 = (len tmp%12#0)
-        let size_is_correct%0#0: bool = (== value_len%0#0 8u)
-        (assert size_is_correct%0#0) // invalid number of bytes for arc4.uint64
+        let value_len%1#0: uint64 = (len tmp%12#0)
+        let size_is_correct%1#0: bool = (== value_len%1#0 8u)
+        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%0#0: bytes[8] = tmp%12#0
         let tmp%13#0: bytes = (txna ApplicationArgs 2)
-        let value_len%1#0: uint64 = (len tmp%13#0)
-        let size_is_correct%1#0: bool = (== value_len%1#0 1u)
-        (assert size_is_correct%1#0) // invalid number of bytes for arc4.uint8
+        let value_len%2#0: uint64 = (len tmp%13#0)
+        let size_is_correct%2#0: bool = (== value_len%2#0 1u)
+        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint8
         let reinterpret_bytes[1]%0#0: bytes[1] = tmp%13#0
         let tmp%14#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
         let tmp%15#0: uint64 = ((txnas Assets) tmp%14#0)
@@ -51,9 +64,9 @@ subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__(
         let tmp%19#0: bool = (!= tmp%18#0 0u)
         (assert tmp%19#0) // can only call when not creating
         let tmp%20#0: bytes = (txna ApplicationArgs 1)
-        let value_len%2#0: uint64 = (len tmp%20#0)
-        let size_is_correct%2#0: bool = (== value_len%2#0 8u)
-        (assert size_is_correct%2#0) // invalid number of bytes for arc4.uint64
+        let value_len%3#0: uint64 = (len tmp%20#0)
+        let size_is_correct%3#0: bool = (== value_len%3#0 8u)
+        (assert size_is_correct%3#0) // invalid number of bytes for arc4.uint64
         let reinterpret_bytes[8]%1#0: bytes[8] = tmp%20#0
         let tmp%21#0: bytes = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_bytes[8]%1#0)
         let tmp%22#0: bytes = (concat 0x151f7c75 tmp%21#0)
