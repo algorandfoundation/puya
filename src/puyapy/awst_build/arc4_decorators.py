@@ -100,7 +100,8 @@ def get_arc4_abimethod_data(
             readonly = default_readonly
 
     # map "validate_encoding" param
-    match evaluated_args.pop(_VALIDATE_ENCODING, None):
+    default_validate_encoding = None
+    match evaluated_args.pop(_VALIDATE_ENCODING, default_validate_encoding):
         case None:
             validate_encoding = None
         case bool(validate_encoding):
@@ -109,7 +110,7 @@ def get_arc4_abimethod_data(
             context.error(
                 f"invalid validate_encoding option: {invalid_validate_encoding_option}", dec_loc
             )
-            validate_encoding = default_readonly
+            validate_encoding = default_validate_encoding
 
     # map "default_args" param
     default_args = dict[str, ABIMethodArgDefault]()
