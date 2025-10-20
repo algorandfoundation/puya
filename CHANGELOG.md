@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.3.2'></a>
+## v5.3.2 (2025-10-20)
+
+### Fixed
+
+- Fixed incorrect validation for dynamic structs ending with a bool.
+
 <a id='changelog-v5.3.1'></a>
 ## v5.3.1 (2025-10-20)
 
