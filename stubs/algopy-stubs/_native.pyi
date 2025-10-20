@@ -1,8 +1,8 @@
 import typing
 from collections.abc import Iterable, Iterator, Reversible
 
-from algopy._interfaces import _Validatable
 import algopy
+from algopy._interfaces import _Validatable
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
@@ -27,7 +27,7 @@ class ImmutableFixedArray(
 
     @property
     def length(self) -> algopy.UInt64:
-        """Returns the length of the array"""
+        """Returns the (compile-time) length of the array"""
 
     def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
         """Gets the item of the array at the provided index"""
@@ -58,7 +58,7 @@ class FixedArray(
 
     @property
     def length(self) -> algopy.UInt64:
-        """Returns the length of the array"""
+        """Returns the (compile-time) length of the array"""
 
     def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
         """Gets the item of the array at the provided index"""
