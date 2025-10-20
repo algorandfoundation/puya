@@ -6,6 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.3.0'></a>
+## v5.3.0 (2025-10-20)
+
+### Added
+
+- Added `validate_encoding` option to `algopy.arc4.abimethod`, this allows controlling whether ABI arguments for the method are validated or not
+- Added `.validate()` method to ARC4 and native data types to validate a value is encoded correctly
+- Added support for validating dynamic types
+- Added `--validate-abi-args` and `--validate-abi-return` options for more granular control of automatic ABI validation
+- Added output to display puyapy version when compiling
+
+### Changed
+
+- Preserve asserts with error messages followed by unconditional approval.
+
+### Deprecated
+
+- The `--validate-abi-dynamic-severity` option has been deprecated since dynamic types can now also be validated
+- The `--validate-abi-values` option has been deprecated, use `--validate-abi-args` and `--validate-abi-return` instead
+
 <a id='changelog-v5.2.0'></a>
 ## v5.2.0 (2025-10-13)
 
