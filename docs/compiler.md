@@ -111,26 +111,26 @@ PuyaPy compiler for compiling Algorand Python to TEAL
 ╭─ Compilation ──────────────────────────────────────────────────────────────────────────╮
 │ Options that affect the compilation process, such as optimisation options etc.         │
 │                                                                                        │
-│ --optimization-level             -O  Set optimization level of output TEAL / AVM       │
-│                                      bytecode [choices: 0, 1, 2] [default: 1]          │
-│ --target-avm-version                 Target AVM version [choices: 10, 11, 12, 13]      │
-│                                      [default: 11]                                     │
-│ --resource-encoding                  If "index", then resource types (Application,     │
-│                                      Asset, Account) in ABI methods should be passed   │
-│                                      as an index into their appropriate foreign array. │
-│                                      The default option "value", as of PuyaPy 5.0,     │
-│                                      means these values will be passed directly.       │
-│                                      [choices: index, value] [default: value]          │
-│ --locals-coalescing-strategy         Strategy choice for out-of-ssa local variable     │
-│                                      coalescing. The best choice for your app is best  │
-│                                      determined through experimentation [choices:      │
-│                                      root-operand, root-operand-excluding-args,        │
-│                                      aggressive] [default: root-operand]               │
-│ --validate-abi-values                Validates ABI transaction arguments by ensuring   │
-│   --no-validate-abi-values           they are the correct size [default: True]         │
-│ --validate-abi-dynamic-severity      Severity level for unvalidatable dynamic ABI      │
-│                                      types [choices: notset, debug, info, warning,     │
-│                                      error, critical] [default: warning]               │
+│ --optimization-level          -O  Set optimization level of output TEAL / AVM bytecode │
+│                                   [choices: 0, 1, 2] [default: 1]                      │
+│ --target-avm-version              Target AVM version [choices: 10, 11, 12, 13]         │
+│                                   [default: 11]                                        │
+│ --resource-encoding               If "index", then resource types (Application, Asset, │
+│                                   Account) in ABI methods should be passed as an index │
+│                                   into their appropriate foreign array. The default    │
+│                                   option "value", as of PuyaPy 5.0, means these values │
+│                                   will be passed directly. [choices: index, value]     │
+│                                   [default: value]                                     │
+│ --locals-coalescing-strategy      Strategy choice for out-of-ssa local variable        │
+│                                   coalescing. The best choice for your app is best     │
+│                                   determined through experimentation [choices:         │
+│                                   root-operand, root-operand-excluding-args,           │
+│                                   aggressive] [default: root-operand]                  │
+│ --validate-abi-args               Validates ABI transaction arguments by ensuring they │
+│   --no-validate-abi-args          are encoded correctly [default: True]                │
+│ --validate-abi-return             Validates encoding of ABI return values when using   │
+│   --no-validate-abi-return        .from_log(), arc4.abi_call, arc4.arc4_create and     │
+│                                   arc4.arc4_update [default: True]                     │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Templating ───────────────────────────────────────────────────────────────────────────╮
 │ Options for controlling the generation of TEAL template files                          │
