@@ -79,7 +79,7 @@ def puyapy(
         LocalsCoalescingStrategy, cyclopts.Parameter(group=_compilation_group)
     ] = LocalsCoalescingStrategy.root_operand,
     validate_abi_args: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
-    validate_abi_returns: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
+    validate_abi_return: Annotated[bool, cyclopts.Parameter(group=_compilation_group)] = True,
     validate_abi_values: Annotated[
         bool | None, cyclopts.Parameter(group=_compilation_group, show=False)
     ] = None,
@@ -144,7 +144,7 @@ def puyapy(
                            passed directly.
         validate_abi_args: Validates ABI transaction arguments by ensuring they are encoded
                            correctly
-        validate_abi_returns: Validates encoding of ABI return values when using
+        validate_abi_return: Validates encoding of ABI return values when using
                               `.from_log()`, `arc4.abi_call`, `arc4.arc4_create`
                               and `arc4.arc4_update`
         out_dir: Path for outputting artefacts
@@ -162,7 +162,7 @@ def puyapy(
             " version. It overrides --validate-abi-args and --validate-from-log options"
         )
         validate_abi_args = validate_abi_values
-        validate_abi_returns = validate_abi_values
+        validate_abi_return = validate_abi_values
     options = PuyaPyOptions(
         paths=paths,
         out_dir=out_dir,
@@ -188,7 +188,7 @@ def puyapy(
         output_teal_intermediates=output_teal_intermediates,
         output_op_statistics=output_op_statistics,
         validate_abi_args=validate_abi_args,
-        validate_abi_returns=validate_abi_returns,
+        validate_abi_return=validate_abi_return,
         template_vars_prefix=template_vars_prefix,
         cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
     )
