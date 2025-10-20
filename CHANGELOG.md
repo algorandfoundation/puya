@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.3.1'></a>
+## v5.3.1 (2025-10-20)
+
+### Changed
+
+- Fixed typo in `--validate-abi-return` CLI option.
+
 <a id='changelog-v5.3.0'></a>
 ## v5.3.0 (2025-10-20)
 
