@@ -10,6 +10,7 @@ from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.op_utils import OpFactory
 from puya.parse import SourceLocation
+from puya.utils import bits_to_bytes
 
 
 def validate_encoding(
@@ -99,11 +100,11 @@ def _get_expected_size(
                 num_bytes_reg = factory.add(num_bytes_reg, 2, "num_bytes")
             return num_bytes_reg
         case encodings.TupleEncoding(is_dynamic=True):
-            num_bytes_value = factory.constant(encoding.get_head_bit_offset(None) // 8)
+            num_bytes_value = factory.constant(bits_to_bytes(encoding.get_head_bit_offset(None)))
             value_len = factory.len(value, "tuple_len")
             for idx, el in enumerate(encoding.elements):
                 if el.is_dynamic:
-                    offset_index = encoding.get_head_bit_offset(idx) // 8
+                    offset_index = bits_to_bytes(encoding.get_head_bit_offset(idx))
                     offset = factory.extract_uint16(
                         value, offset_index, error_message="invalid tuple encoding"
                     )
