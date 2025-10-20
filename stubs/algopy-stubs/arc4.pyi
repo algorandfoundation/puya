@@ -388,7 +388,7 @@ class StaticArray(
 
     @property
     def length(self) -> algopy.UInt64:
-        """Returns the length of the array"""
+        """Returns the (compile-time) length of the array"""
 
     def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
         """Gets the item of the array at provided index"""
