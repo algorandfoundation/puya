@@ -45,6 +45,12 @@ class NativeDynamicStruct(Struct):
     baz: String
 
 
+class WithABool(arc4.Struct):
+    foo: arc4.UInt8
+    bar: arc4.DynamicBytes
+    baz: arc4.Bool
+
+
 ARC4StaticTuple = arc4.Tuple[arc4.UInt64, arc4.UInt8]
 ARC4DynamicTuple = arc4.Tuple[arc4.UInt64, arc4.UInt8, arc4.String]
 
@@ -137,6 +143,10 @@ class ValidationContract(ARC4Contract, state_totals=StateTotals(global_bytes=1))
     @arc4.abimethod(validate_encoding="unsafe_disabled")
     def validate_dynamic_struct_arr3(self, value: Bytes) -> None:
         arc4.StaticArray[ARC4DynamicStruct, typing.Literal[3]].from_bytes(value).validate()
+
+    @arc4.abimethod(validate_encoding="unsafe_disabled")
+    def validate_dynamic_struct_with_a_bool(self, value: Bytes) -> None:
+        WithABool.from_bytes(value).validate()
 
     @arc4.abimethod(validate_encoding="unsafe_disabled")
     def validate_native_dynamic_struct_imm_arr(self, value: Bytes) -> None:

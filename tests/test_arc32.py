@@ -2966,6 +2966,7 @@ _VALID_DYNAMIC_STRUCT_BYTES = b"\x00" * 9 + b"\x00\x0b\x00\x00"
 _INVALID_DYNAMIC_STRUCT_BYTES = b"\x00" * 9 + b"\x00\x0b\x00\x01"
 _STATIC_STRUCT = "test_cases.arc4_validation.contract.ARC4StaticStruct"
 _DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4DynamicStruct"
+_WITH_A_BOOL = "test_cases.arc4_validation.contract.WithABool"
 _FROZEN_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct"
 
 
@@ -2993,6 +2994,7 @@ _FROZEN_DYNAMIC_STRUCT = "test_cases.arc4_validation.contract.ARC4FrozenDynamicS
         ("bool_arr", b"\x00\x0a\x00\x00"),
         ("static_struct", 9),
         ("dynamic_struct", _VALID_DYNAMIC_STRUCT_BYTES),
+        ("dynamic_struct_with_a_bool", b"\x01\x00\x04\x80\x00\x01\xff"),
         ("static_tuple", 9),
         ("dynamic_tuple", _VALID_DYNAMIC_STRUCT_BYTES),
         ("static_struct_arr", b"\x00\x03" + b"\x00" * 27),
@@ -3062,6 +3064,13 @@ def test_arc4_validation_valid(
         ("dynamic_struct", 0, "invalid tuple encoding"),
         ("dynamic_struct", 11, "invalid tail pointer"),
         ("dynamic_struct", _INVALID_DYNAMIC_STRUCT_BYTES, _invalid_size(_DYNAMIC_STRUCT)),
+        ("dynamic_struct_with_a_bool", b"\x01", "invalid tuple encoding"),
+        (
+            "dynamic_struct_with_a_bool",
+            b"\x01\x00\x04\x80\x00\x01\xff\x00",
+            _invalid_size(_WITH_A_BOOL),
+        ),
+        ("dynamic_struct_with_a_bool", b"\x01\x00\x03\x80\x00\x01\xff", "invalid tail pointer"),
         ("static_tuple", 8, _invalid_size("arc4.tuple<arc4.uint64,arc4.uint8>")),
         ("dynamic_tuple", 0, "invalid tuple encoding"),
         ("dynamic_tuple", 11, "invalid tail pointer"),
