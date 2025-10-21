@@ -228,13 +228,11 @@ def _assert_create_state(
             return ()
         case awst_nodes.ARC4CreateOption.disallow:
             condition = _neq_uint64(app_id, 0, loc)
-            error_message = "can only call when not creating"
         case awst_nodes.ARC4CreateOption.require:
             condition = _eq_uint64(app_id, 0, loc)
-            error_message = "can only call when creating"
         case invalid:
             typing.assert_never(invalid)
-    return (_assert_statement(condition, error_message, loc),)
+    return (_assert_statement(condition, loc),)
 
 
 def _constant(value: int, location: SourceLocation) -> awst_nodes.Expression:
@@ -326,7 +324,7 @@ def _check_allowed_oca_and_create(method: md.ARC4Method) -> Sequence[awst_nodes.
     not_allowed_ocas = sorted(
         a for a in ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS if a not in allowed_ocas
     )
-    conditions = list[tuple[str, awst_nodes.Expression]]()
+    conditions = list[awst_nodes.Expression]()
     # if all possible actions are allowed, don't need to check
     if not_allowed_ocas:
         oca_expr = _on_completion(loc)
@@ -339,10 +337,7 @@ def _check_allowed_oca_and_create(method: md.ARC4Method) -> Sequence[awst_nodes.
                 oca_condition = _bit_and(
                     _left_shift(oca_expr, loc), _bit_packed_oca(allowed_ocas, loc), loc
                 )
-        oca_desc = ", ".join(a.name for a in allowed_ocas)
-        if len(allowed_ocas) > 1:
-            oca_desc = f"one of {oca_desc}"
-        conditions.append((f"OnCompletion must be {oca_desc}", oca_condition))
+        conditions.append(oca_condition)
 
     app_id = _app_id(loc)
     match method.create:
@@ -350,38 +345,36 @@ def _check_allowed_oca_and_create(method: md.ARC4Method) -> Sequence[awst_nodes.
             # if create is allowed but not required, we don't need to check anything
             pass
         case awst_nodes.ARC4CreateOption.disallow:
-            conditions.append(("can only call when not creating", _neq_uint64(app_id, 0, loc)))
+            conditions.append(_neq_uint64(app_id, 0, loc))
         case awst_nodes.ARC4CreateOption.require:
-            conditions.append(("can only call when creating", _eq_uint64(app_id, 0, loc)))
+            conditions.append(_eq_uint64(app_id, 0, loc))
         case invalid:
             typing.assert_never(invalid)
 
     match conditions:
         case []:
             return ()
-        case [(error_message, condition)]:
+        case [condition]:
             pass
         case _:
-            error_messages, conditions_ = zip(*conditions, strict=True)
-            error_message = " && ".join(error_messages)
             condition = awst_nodes.IntrinsicCall(
                 source_location=loc,
                 wtype=wtypes.bool_wtype,
                 op_code="&&",
                 immediates=[],
-                stack_args=conditions_,
+                stack_args=conditions,
             )
 
-    return (_assert_statement(condition, error_message, loc),)
+    return (_assert_statement(condition, loc),)
 
 
 def _assert_statement(
-    condition: awst_nodes.Expression, error_message: str, location: SourceLocation
+    condition: awst_nodes.Expression, location: SourceLocation
 ) -> awst_nodes.Statement:
     return awst_nodes.ExpressionStatement(
         awst_nodes.AssertExpression(
             condition=condition,
-            error_message=error_message,
+            error_message=None,
             source_location=location,
         )
     )
@@ -614,7 +607,6 @@ def _route_abi_methods(
                 _eq_uint64(
                     _on_completion(router_location), OnCompletionAction.NoOp, router_location
                 ),
-                "OnCompletion must be NoOp",
                 router_location,
             ),
             *_create_abi_switch(
