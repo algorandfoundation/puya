@@ -72,14 +72,14 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]()
         let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -88,19 +88,19 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_uint64[routing]()
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[routing]() -> void:
     block@0: // L239
         let value#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -109,19 +109,19 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dynamic_bytes[rou
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_string[routing]() -> void:
     block@0: // L243
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -132,14 +132,14 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_biguint[routing](
         let value#0: Encoded(uint512) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 64u)
-        (assert eq%0#0) // invalid number of bytes for uint512
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -150,14 +150,14 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]() -
         let value#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for bool8
+        (assert eq%0#0) // invalid number of bytes for arc4.bool
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -166,20 +166,20 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_bool[routing]() -
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_uin64[routing]() -> void:
     block@0: // L255
         let value#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint64[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -190,14 +190,14 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin6
         let value#0: Encoded(uint64[3]) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 24u)
-        (assert eq%0#0) // invalid number of bytes for uint64[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint64, 3>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -206,20 +206,20 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_uin6
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_struct[routing]() -> void:
     block@0: // L267
         let value#0: Encoded(len+(uint64,uint8[32])[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 40u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+(uint64,uint8[32])[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -230,14 +230,14 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_stru
         let value#0: Encoded((uint64,uint8[32])[3]) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 120u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint8[32])[3]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -246,13 +246,47 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_stru
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_struct[routing]() -> void:
     block@0: // L279
         let value#0: Encoded(len+(uint64,uint8[32],(len+uint8[]))[]) = (txna ApplicationArgs 1)
-        let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%1#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let num_bytes%0#0: uint64 = (* length%0#0 2u)
+        let total_length%0#0: uint64 = (len value#0)
+        let array_data%0#0: bytes = ((extract 2 0) value#0)
+        let index%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L279
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
+        let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
+        let continue_looping%0#0: bool = (< index%0#1 length%0#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L279
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,uint8[32],(len+uint8[]))[])
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 40u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 42u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[]))
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let add%1#0: uint64 = (+ length%1#0 44u)
+        let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%1#0)
+        let index%0#2: uint64 = (+ index%0#1 1u)
+        goto block@1
+    block@4: // after_for_L279
+        let num_bytes%1#0: uint64 = (+ num_bytes%0#1 2u)
+        let eq%1#0: bool = (== total_length%0#0 num_bytes%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
+        let tmp%1#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
+        let length%2#0: uint64 = aggregate%array_length%2#0
+        let add%2#0: uint64 = (+ length%2#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%2#0: bool = (== len%1#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -261,13 +295,44 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_dyn_array_dyn_str
 subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_array_dyn_struct[routing]() -> void:
     block@0: // L285
         let value#0: Encoded((uint64,uint8[32],(len+uint8[]))[3]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = 3u
+        let num_bytes%0#0: uint64 = (* length%0#0 2u)
+        let index%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L285
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
+        let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
+        let continue_looping%0#0: bool = (< index%0#1 length%0#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L285
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (uint64,uint8[32],(len+uint8[]))[3]
+        let total_length%0#0: uint64 = (len value#0)
+        let extract_to_end%0#0: bytes = (substring3 value#0 item_offset%0#0 total_length%0#0)
+        let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 40u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 42u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[]))
+        let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%0#0
+        let add%1#0: uint64 = (+ length%1#0 44u)
+        let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%1#0)
+        let index%0#2: uint64 = (+ index%0#1 1u)
+        goto block@1
+    block@4: // after_for_L285
+        let len%0#0: uint64 = (len value#0)
+        let eq%1#0: bool = (== len%0#0 num_bytes%0#1)
+        (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%1#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
+        let length%2#0: uint64 = aggregate%array_length%1#0
+        let add%2#0: uint64 = (+ length%2#0 2u)
+        let len%1#0: uint64 = (len tmp%1#0)
+        let eq%2#0: bool = (== len%1#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let expected#0: bytes = ((extract 2 0) tmp%1#0)
         let tmp%0#1: bool = (== value#0 expected#0)
         (assert tmp%0#1) // expected to encode correctly
@@ -278,7 +343,7 @@ subroutine test_cases.arc4_conversions.contract.CheckApp.check_static_bytes[rout
         let bytes32#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len bytes32#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for uint8[32]
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let tmp%0#1: account = (txn Sender)
         let tmp%1#0: bool = (== bytes32#0 tmp%0#1)
         (assert tmp%1#0) // expected to encode correctly

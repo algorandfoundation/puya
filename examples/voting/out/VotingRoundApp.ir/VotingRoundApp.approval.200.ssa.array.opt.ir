@@ -82,53 +82,53 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
 subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@0: // L58
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let vote_id#0: string = ((extract 2 0) tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let snapshot_public_key#0: bytes = ((extract 2 0) tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
         let add%2#0: uint64 = (+ aggregate%array_length%2#0 2u)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 add%2#0)
-        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let metadata_ipfs_cid#0: string = ((extract 2 0) tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 4)
         let len%3#0: uint64 = (len tmp%6#0)
         let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for uint64
+        (assert eq%3#0) // invalid number of bytes for arc4.uint64
         let start_time#0: uint64 = (btoi tmp%6#0)
         let tmp%8#0: bytes = (txna ApplicationArgs 5)
         let len%4#0: uint64 = (len tmp%8#0)
         let eq%4#0: bool = (== len%4#0 8u)
-        (assert eq%4#0) // invalid number of bytes for uint64
+        (assert eq%4#0) // invalid number of bytes for arc4.uint64
         let end_time#0: uint64 = (btoi tmp%8#0)
         let option_counts#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u) // on error: invalid array length header
         let add%3#0: uint64 = (+ aggregate%array_length%3#0 2u)
         let len%5#0: uint64 = (len option_counts#0)
         let eq%5#0: bool = (== len%5#0 add%3#0)
-        (assert eq%5#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%5#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%11#0: bytes = (txna ApplicationArgs 7)
         let len%6#0: uint64 = (len tmp%11#0)
         let eq%6#0: bool = (== len%6#0 8u)
-        (assert eq%6#0) // invalid number of bytes for uint64
+        (assert eq%6#0) // invalid number of bytes for arc4.uint64
         let quorum#0: uint64 = (btoi tmp%11#0)
         let tmp%13#0: bytes = (txna ApplicationArgs 8)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%13#0 0u)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%13#0 0u) // on error: invalid array length header
         let add%4#0: uint64 = (+ aggregate%array_length%4#0 2u)
         let len%7#0: uint64 = (len tmp%13#0)
         let eq%7#0: bool = (== len%7#0 add%4#0)
-        (assert eq%7#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%7#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let nft_image_url#0: string = ((extract 2 0) tmp%13#0)
         let tmp%0#1: bool = (< start_time#0 end_time#0)
         (assert tmp%0#1) // End time should be after start time
@@ -230,7 +230,7 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         let current_index#0: uint64 = 0u
         let (maybe_value%5#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%6#0) // check self.option_counts exists
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u) // on error: invalid array length header
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L132
@@ -311,11 +311,11 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
     block@0: // L160
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let signature#0: bytes = ((extract 2 0) tmp%0#0)
         let tmp%0#1: bool = examples.voting.voting.VotingRoundApp.voting_open()
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
@@ -342,18 +342,18 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%1#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%1#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let signature#0: bytes = ((extract 2 0) tmp%1#0)
         let answer_ids#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let len%1#0: uint64 = (len answer_ids#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         _puya_lib.util.ensure_budget(7700u, 0u)
         let tmp%0#1: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
         (assert tmp%0#1) // Not allowed to vote
@@ -365,7 +365,7 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         (assert tmp%3#1) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
-        let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
         let tmp%6#0: bool = (== aggregate%array_length%1#0 questions_count#0)
         (assert tmp%6#0) // Number of answers incorrect
         let tmp%9#0: uint64 = (+ 34u aggregate%array_length%1#0)

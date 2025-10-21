@@ -10,15 +10,16 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import (
     FunctionBuilder,
-    InstanceExpressionBuilder,
     NotIterableInstanceExpressionBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     CopyBuilder,
+    cast_to_bytes,
     compare_bytes,
     constant_bool_and_error,
     dummy_value,
 )
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -69,7 +70,7 @@ class StructTypeBuilder(TypeBuilder[pytypes.StructType]):
 
 class StructExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.StructType],
-    InstanceExpressionBuilder[pytypes.StructType],
+    ValidatableInstanceExpressionBuilder[pytypes.StructType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.StructType)
@@ -78,7 +79,7 @@ class StructExpressionBuilder(
     @typing.override
     @typing.final
     def to_bytes(self, location: SourceLocation) -> Expression:
-        return self.resolve()
+        return cast_to_bytes(self.resolve(), location)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

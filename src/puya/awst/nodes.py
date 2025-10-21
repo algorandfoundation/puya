@@ -609,10 +609,10 @@ class ARC4Decode(Expression):
 @attrs.frozen
 class ARC4FromBytes(Expression):
     """
-    Convert a Bytes expression into an ARC4 value and optionally validate the value
+    Convert a Bytes backed expression into an ARC4 value and optionally validate the value
     """
 
-    value: Expression = attrs.field(validator=expression_has_wtype(wtypes.BytesWType))
+    value: Expression
     wtype: wtypes.ARC4Type
     validate: bool
 
@@ -2696,6 +2696,7 @@ class ARC4ABIMethodConfig:
     readonly: bool = False
     default_args: immutabledict[str, ABIMethodArgDefault] = immutabledict()
     """Mapping is from parameter -> source"""
+    validate_encoding: bool | None = None
 
 
 ARC4MethodConfig = ARC4BareMethodConfig | ARC4ABIMethodConfig

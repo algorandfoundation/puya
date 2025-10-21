@@ -259,17 +259,105 @@ subroutine calculate:
         // @arc4.abimethod
         txna ApplicationArgs 1                                             nested_list#0
         v-store nested_list#0
-        txna ApplicationArgs 2                                             threshold#0
-        v-store threshold#0
-        v-load threshold#0                                                 threshold#0
-        len                                                                len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                     len%0#0
-        int 8                                                              len%0#0,8
+        v-load nested_list#0                                               nested_list#0
+        int 0                                                              nested_list#0,0
+        extract_uint16 // on error: invalid array length header            aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                  aggregate%array_length%0#0
+        int 2                                                              aggregate%array_length%0#0,2
+        *                                                                  num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load nested_list#0                                               nested_list#0
+        len                                                                total_length%0#0
+        v-store total_length%0#0
+        v-load nested_list#0                                               nested_list#0
+        extract 2 0                                                        array_data%0#0
+        v-store array_data%0#0
+        int 0                                                              0
+        v-store index%0#0
+        b calculate_for_header@1
+
+    calculate_for_header@1:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load index%0#0                                                   index%0#0
+        v-load aggregate%array_length%0#0                                  index%0#0,aggregate%array_length%0#0
+        <                                                                  continue_looping%0#0
+        v-store continue_looping%0#0
+        v-load continue_looping%0#0                                        continue_looping%0#0
+        bz calculate_after_for@4 ; b calculate_for_body@2
+
+    calculate_for_body@2:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load index%0#0                                                   index%0#0
+        int 2                                                              index%0#0,2
+        *                                                                  head_offset_bytes%0#0
+        v-store head_offset_bytes%0#0
+        v-load array_data%0#0                                              array_data%0#0
+        v-load head_offset_bytes%0#0                                       array_data%0#0,head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                 item_offset%0#0
+        v-store item_offset%0#0
+        v-load item_offset%0#0                                             item_offset%0#0
+        v-load num_bytes%0#0                                               item_offset%0#0,num_bytes%0#0
+        ==                                                                 offset_is_correct%0#0
+        v-store offset_is_correct%0#0
+        v-load offset_is_correct%0#0                                       offset_is_correct%0#0
+        assert // invalid tail pointer for (len+(len+uint64[])[])
+        v-load array_data%0#0                                              array_data%0#0
+        len                                                                total_length%1#0
+        v-store total_length%1#0
+        v-load array_data%0#0                                              array_data%0#0
+        v-load item_offset%0#0                                             array_data%0#0,item_offset%0#0
+        v-load total_length%1#0                                            array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                         extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                          extract_to_end%0#0
+        int 0                                                              extract_to_end%0#0,0
+        extract_uint16 // on error: invalid array length header            aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                  aggregate%array_length%1#0
+        int 8                                                              aggregate%array_length%1#0,8
+        *                                                                  mul%0#0
+        v-store mul%0#0
+        v-load mul%0#0                                                     mul%0#0
+        int 2                                                              mul%0#0,2
+        +                                                                  add%0#0
+        v-store add%0#0
+        v-load num_bytes%0#0                                               num_bytes%0#0
+        v-load add%0#0                                                     num_bytes%0#0,add%0#0
+        +                                                                  num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load index%0#0                                                   index%0#0
+        int 1                                                              index%0#0,1
+        +                                                                  index%0#0
+        v-store index%0#0
+        b calculate_for_header@1
+
+    calculate_after_for@4:
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        v-load num_bytes%0#0                                               num_bytes%0#0
+        int 2                                                              num_bytes%0#0,2
+        +                                                                  num_bytes%1#0
+        v-store num_bytes%1#0
+        v-load total_length%0#0                                            total_length%0#0
+        v-load num_bytes%1#0                                               total_length%0#0,num_bytes%1#0
         ==                                                                 eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                      eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>> 
+        txna ApplicationArgs 2                                             threshold#0
+        v-store threshold#0
+        v-load threshold#0                                                 threshold#0
+        len                                                                len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                     len%1#0
+        int 8                                                              len%1#0,8
+        ==                                                                 eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                      eq%1#0
+        assert // invalid number of bytes for arc4.uint64
         // regression_tests/leftover_branch.py:35
         // total = UInt64(0)
         int 0                                                              0
@@ -280,17 +368,13 @@ subroutine calculate:
         v-store num_boosts#0
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
-        v-load nested_list#0                                               nested_list#0
-        int 0                                                              nested_list#0,0
-        extract_uint16                                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
         int 0                                                              0
         v-store value_internal%0#0
         v-load value_internal%0#0                                          value_internal%0#0
         v-store i#0
-        b calculate_for_header@2
+        b calculate_for_header@6
 
-    calculate_for_header@2:
+    calculate_for_header@6:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                         i#0
@@ -298,26 +382,23 @@ subroutine calculate:
         <                                                                  continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                        continue_looping%0#0
-        bz calculate_after_for@15 ; b calculate_for_body@3
+        bz calculate_after_for@19 ; b calculate_for_body@7
 
-    calculate_for_body@3:
+    calculate_for_body@7:
         // regression_tests/leftover_branch.py:39
         // inner_list = nested_list[i].copy()
-        v-load nested_list#0                                               nested_list#0
-        extract 2 0                                                        aggregate%array_head_and_tail%0#0
-        v-store aggregate%array_head_and_tail%0#0
         v-load continue_looping%0#0                                        continue_looping%0#0
         assert // index access is out of bounds
         v-load i#0                                                         i#0
         int 2                                                              i#0,2
         *                                                                  aggregate%item_offset_offset%0#0
         v-store aggregate%item_offset_offset%0#0
-        v-load aggregate%array_head_and_tail%0#0                           aggregate%array_head_and_tail%0#0
-        v-load aggregate%item_offset_offset%0#0                            aggregate%array_head_and_tail%0#0,aggregate%item_offset_offset%0#0
+        v-load array_data%0#0                                              array_data%0#0
+        v-load aggregate%item_offset_offset%0#0                            array_data%0#0,aggregate%item_offset_offset%0#0
         extract_uint16                                                     aggregate%item_offset%0#0
         v-store aggregate%item_offset%0#0
-        v-load aggregate%array_head_and_tail%0#0                           aggregate%array_head_and_tail%0#0
-        v-load aggregate%item_offset%0#0                                   aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
+        v-load array_data%0#0                                              array_data%0#0
+        v-load aggregate%item_offset%0#0                                   array_data%0#0,aggregate%item_offset%0#0
         extract_uint16                                                     aggregate%item_length%0#0
         v-store aggregate%item_length%0#0
         v-load aggregate%item_length%0#0                                   aggregate%item_length%0#0
@@ -328,19 +409,19 @@ subroutine calculate:
         int 2                                                              aggregate%item_length_in_bytes%0#0,2
         +                                                                  aggregate%item_head_tail_length%0#0
         v-store aggregate%item_head_tail_length%0#0
-        v-load aggregate%array_head_and_tail%0#0                           aggregate%array_head_and_tail%0#0
-        v-load aggregate%item_offset%0#0                                   aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
-        v-load aggregate%item_head_tail_length%0#0                         aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
+        v-load array_data%0#0                                              array_data%0#0
+        v-load aggregate%item_offset%0#0                                   array_data%0#0,aggregate%item_offset%0#0
+        v-load aggregate%item_head_tail_length%0#0                         array_data%0#0,aggregate%item_offset%0#0,aggregate%item_head_tail_length%0#0
         extract3                                                           inner_list#0
         v-store inner_list#0
         // regression_tests/leftover_branch.py:40
         // last_inner_list_index = inner_list.length - 1
         v-load inner_list#0                                                inner_list#0
         int 0                                                              inner_list#0,0
-        extract_uint16                                                     aggregate%array_length%2#0
-        v-store aggregate%array_length%2#0
-        v-load aggregate%array_length%2#0                                  aggregate%array_length%2#0
-        int 1                                                              aggregate%array_length%2#0,1
+        extract_uint16 // on error: invalid array length header            aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
+        v-load aggregate%array_length%4#0                                  aggregate%array_length%4#0
+        int 1                                                              aggregate%array_length%4#0,1
         -                                                                  last_inner_list_index#0
         v-store last_inner_list_index#0
         // regression_tests/leftover_branch.py:41
@@ -349,19 +430,19 @@ subroutine calculate:
         v-store value_internal%1#0
         v-load value_internal%1#0                                          value_internal%1#0
         v-store j#0
-        b calculate_for_header@4
+        b calculate_for_header@8
 
-    calculate_for_header@4:
+    calculate_for_header@8:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                         j#0
-        v-load aggregate%array_length%2#0                                  j#0,aggregate%array_length%2#0
+        v-load aggregate%array_length%4#0                                  j#0,aggregate%array_length%4#0
         <                                                                  continue_looping%1#0
         v-store continue_looping%1#0
         v-load continue_looping%1#0                                        continue_looping%1#0
-        bz calculate_after_for@13 ; b calculate_for_body@5
+        bz calculate_after_for@17 ; b calculate_for_body@9
 
-    calculate_for_body@5:
+    calculate_for_body@9:
         // regression_tests/leftover_branch.py:42
         // value = inner_list[j]
         v-load inner_list#0                                                inner_list#0
@@ -383,9 +464,9 @@ subroutine calculate:
         b>=                                                                tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                     tmp%4#0
-        bz calculate_after_if_else@11 ; b calculate_if_body@6
+        bz calculate_after_if_else@15 ; b calculate_if_body@10
 
-    calculate_if_body@6:
+    calculate_if_body@10:
         // regression_tests/leftover_branch.py:44
         // has_next = j < last_inner_list_index
         v-load j#0                                                         j#0
@@ -395,9 +476,9 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:45
         // if has_next:
         v-load has_next#0                                                  has_next#0
-        bz calculate_after_if_else@11 ; b calculate_if_body@7
+        bz calculate_after_if_else@15 ; b calculate_if_body@11
 
-    calculate_if_body@7:
+    calculate_if_body@11:
         // regression_tests/leftover_branch.py:46
         // total += 1
         v-load total#0                                                     total#0
@@ -426,9 +507,9 @@ subroutine calculate:
         b<                                                                 tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                     tmp%8#0
-        bz calculate_after_if_else@11 ; b calculate_if_body@8
+        bz calculate_after_if_else@15 ; b calculate_if_body@12
 
-    calculate_if_body@8:
+    calculate_if_body@12:
         // regression_tests/leftover_branch.py:49
         // total *= 2
         v-load total#0                                                     total#0
@@ -441,9 +522,9 @@ subroutine calculate:
         int 1                                                              num_boosts#0,1
         +                                                                  num_boosts#0
         v-store num_boosts#0
-        b calculate_after_if_else@11
+        b calculate_after_if_else@15
 
-    calculate_after_if_else@11:
+    calculate_after_if_else@15:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                         j#0
@@ -452,9 +533,9 @@ subroutine calculate:
         v-store value_internal%1#0
         v-load value_internal%1#0                                          value_internal%1#0
         v-store j#0
-        b calculate_for_header@4
+        b calculate_for_header@8
 
-    calculate_after_for@13:
+    calculate_after_for@17:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                         i#0
@@ -463,9 +544,9 @@ subroutine calculate:
         v-store value_internal%0#0
         v-load value_internal%0#0                                          value_internal%0#0
         v-store i#0
-        b calculate_for_header@2
+        b calculate_for_header@6
 
-    calculate_after_for@15:
+    calculate_after_for@19:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         int 1                                                              1

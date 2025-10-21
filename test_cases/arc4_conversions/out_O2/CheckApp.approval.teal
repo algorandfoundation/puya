@@ -3,7 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2 8
+    intcblock 0 2 1 40
+    intc_0 // 0
+    dup
+    pushbytes ""
+    dupn 3
     txn NumAppArgs
     bz main___algopy_default_create@21
     pushbytes 0x33b3499e // method "delete_application()void"
@@ -25,47 +29,174 @@ main_check_static_bytes_route@17:
     len
     pushint 32 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txn Sender
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_static_array_dyn_struct_route@16:
     txna ApplicationArgs 1
+    bury 5
+    pushint 6 // 6
+    bury 2
+    intc_0 // 0
+    bury 3
+
+main_for_header@27:
+    dig 2
+    pushint 3 // 3
+    <
+    bz main_after_for@29
+    dig 2
+    dup
+    intc_1 // 2
+    *
+    dig 6
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (uint64,uint8[32],(len+uint8[]))[3]
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_3 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 42 // 42
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[]))
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 44 // 44
+    +
+    +
+    bury 3
+    intc_2 // 1
+    +
+    bury 3
+    b main_for_header@27
+
+main_after_for@29:
+    dig 4
+    dup
+    len
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_dyn_struct_route@15:
     txna ApplicationArgs 1
+    dup
+    bury 6
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 6
+    intc_1 // 2
+    *
+    bury 3
+    dup
+    len
+    bury 2
+    extract 2 0
+    bury 6
+    intc_0 // 0
+    bury 3
+
+main_for_header@32:
+    dig 2
+    dig 4
+    <
+    bz main_after_for@34
+    dig 2
+    dup
+    intc_1 // 2
+    *
+    dig 7
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,uint8[32],(len+uint8[]))[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_3 // 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 42 // 42
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[]))
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 44 // 44
+    +
+    +
+    bury 3
+    intc_2 // 1
+    +
+    bury 3
+    b main_for_header@32
+
+main_after_for@34:
+    dig 1
+    intc_1 // 2
+    +
+    dig 1
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
+    dig 5
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_static_array_struct_route@14:
@@ -74,50 +205,50 @@ main_check_static_array_struct_route@14:
     len
     pushint 120 // 120
     ==
-    assert // invalid number of bytes for (uint64,uint8[32])[3]
+    assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_struct_route@13:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16
-    pushint 40 // 40
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 40
     *
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+(uint64,uint8[32])[])
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_static_array_uin64_3_route@12:
@@ -126,73 +257,73 @@ main_check_static_array_uin64_3_route@12:
     len
     pushint 24 // 24
     ==
-    assert // invalid number of bytes for uint64[3]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint64, 3>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_dyn_array_uin64_route@11:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_3 // 8
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8 // 8
     *
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_bool_route@10:
     txna ApplicationArgs 1
     dup
     len
-    intc_0 // 1
+    intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_biguint_route@9:
@@ -201,98 +332,98 @@ main_check_biguint_route@9:
     len
     pushint 64 // 64
     ==
-    assert // invalid number of bytes for uint512
+    assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_string_route@8:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_dynamic_bytes_route@7:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_check_uint64_route@6:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    pushint 8 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16
-    intc_2 // 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main_delete_application_route@3:
@@ -302,7 +433,7 @@ main_delete_application_route@3:
     txn ApplicationID
     &&
     assert // OnCompletion must be DeleteApplication && can only call when not creating
-    intc_0 // 1
+    intc_2 // 1
     return
 
 main___algopy_default_create@21:
@@ -312,5 +443,5 @@ main___algopy_default_create@21:
     !
     &&
     assert // OnCompletion must be NoOp && can only call when creating
-    intc_0 // 1
+    intc_2 // 1
     return

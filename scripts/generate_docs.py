@@ -351,7 +351,7 @@ class DocStub(NodeVisitor[None]):
                 if name in inlined_protocols:
                     print(f"Removed inlined protocol: {name}")
                     del imports.from_imports[name]
-                    del self.collected_symbols[name]
+                    self.collected_symbols.pop(name, None)
                 elif name in self.collected_symbols:
                     if name_as is None:
                         del imports.from_imports[name]

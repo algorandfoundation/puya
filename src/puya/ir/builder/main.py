@@ -16,7 +16,6 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir import (
-    encodings,
     models as ir,
     types_ as types,
 )
@@ -35,6 +34,7 @@ from puya.ir.builder import (
     storage,
 )
 from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
+from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
@@ -161,53 +161,18 @@ class FunctionIRBuilder(
         loc = expr.source_location
         factory = OpFactory(self.context, loc)
         ir_type = wtype_to_ir_type(expr.wtype, loc)
+        if ir_type.maybe_avm_type != AVMType.bytes:
+            raise CodeError("expected bytes backed value", expr.value.source_location)
         assert isinstance(ir_type, types.EncodedType), "expected EncodedType fom ARC4 Type"
         value = self.visit_and_materialise_single(expr.value)
-
         if expr.validate:
-            encoding = ir_type.encoding
-            match encoding:
-                case encodings.Encoding(num_bytes=num_bytes) if num_bytes is not None:
-                    value_len = factory.len(value)
-                    size_is_correct = factory.eq(value_len, num_bytes)
-                    assert_value(
-                        self.context,
-                        size_is_correct,
-                        error_message=f"invalid number of bytes for {encoding}",
-                        source_location=loc,
-                    )
-                case encodings.ArrayEncoding(length_header=True) as arr if arr.element.is_fixed:
-                    length = factory.materialise_single(
-                        ir.ArrayLength(
-                            base=value,
-                            base_type=ir_type,
-                            array_encoding=encoding,
-                            source_location=loc,
-                        ),
-                        "length",
-                    )
-                    if arr.element.is_bit:
-                        num_bits = factory.mul(length, arr.element.checked_num_bits)
-                        num_bytes_value = factory.add(num_bits, 7)
-                        num_bytes_value = factory.div_floor(num_bytes_value, 8)
-                    else:
-                        num_bytes_value = factory.mul(length, arr.element.checked_num_bytes)
-                    num_bytes_value = factory.add(num_bytes_value, 2)
-                    value_len = factory.len(value)
-                    size_is_correct = factory.eq(value_len, num_bytes_value)
-                    assert_value(
-                        self.context,
-                        size_is_correct,
-                        error_message=f"invalid number of bytes for {encoding}",
-                        source_location=loc,
-                    )
-                case _:
-                    logger.log(
-                        self.context.options.validate_abi_dynamic_severity,
-                        "nested dynamic types cannot be automatically"
-                        " checked for expected byte size",
-                        location=loc,
-                    )
+            validate_encoding(
+                self.context,
+                value,
+                ir_type,
+                error_message=f"invalid number of bytes for {expr.wtype}",
+                loc=loc,
+            )
         # return value as required type
         return factory.as_ir_type(value, ir_type)
 
@@ -1171,7 +1136,7 @@ class FunctionIRBuilder(
             match wtype:
                 case wtypes.void_wtype:
                     pass
-                case _ if (isinstance(wtype, WInnerTransaction | WInnerTransactionFields)):
+                case _ if isinstance(wtype, WInnerTransaction | WInnerTransactionFields):
                     # inner transaction wtypes aren't true expressions
                     pass
                 case _:

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8
+    intcblock 1 8 0
     // struct_in_box/contract.py:10
     // class ExampleContract(ARC4Contract):
     txn NumAppArgs
@@ -34,6 +34,25 @@ add_user:
     // struct_in_box/contract.py:30
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    intc_2 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint64)
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 20 // 20
+    +
+    ==
+    assert // invalid number of bytes for examples.struct_in_box.contract.UserStruct
     // struct_in_box/contract.py:32
     // assert not self.box_exists(user.id), "User with id must not exist"
     dup
@@ -72,13 +91,13 @@ attach_asset_to_user:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
     swap
@@ -119,7 +138,7 @@ get_user:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // struct_in_box/contract.py:13
     // box_data, exists = op.Box.get(user_id.bytes)
     box_get

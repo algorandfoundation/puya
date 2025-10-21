@@ -16,6 +16,7 @@ from puyapy.awst_build.eb._utils import (
     constant_bool_and_error,
     dummy_value,
 )
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
@@ -74,7 +75,9 @@ class ARC4TupleTypeBuilder(ARC4TypeBuilder[pytypes.ARC4TupleType]):
 
 
 class ARC4TupleExpressionBuilder(
-    BytesBackedInstanceExpressionBuilder[pytypes.ARC4TupleType], StaticSizedCollectionBuilder
+    BytesBackedInstanceExpressionBuilder[pytypes.ARC4TupleType],
+    StaticSizedCollectionBuilder,
+    ValidatableInstanceExpressionBuilder[pytypes.ARC4TupleType],
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ARC4TupleType)

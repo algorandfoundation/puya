@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=0, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_values=True, validate_abi_dynamic_severity=<LogLevel.warning: 30>, paths=['regression_tests'], resource_encoding='value', output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=0, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_args=True, validate_abi_return=True, paths=['regression_tests'], resource_encoding='value', output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
 debug: Terminated block@0
@@ -807,8 +807,23 @@ debug: Sealing block@0
 debug: Terminated block@0
 debug: Building IR for function test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]
 debug: Sealing block@0
-regression_tests/leftover_branch.py:29:6 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@0
+debug: Looking for 'index%0' in an unsealed block creating an incomplete Phi: block@1
+debug: Created Phi assignment: let index%0#1: uint64 = undefined while trying to resolve 'index%0' in block@1
+debug: Terminated block@1
+debug: Sealing block@2
+debug: Looking for 'num_bytes%0' in an unsealed block creating an incomplete Phi: block@1
+debug: Created Phi assignment: let num_bytes%0#1: uint64 = undefined while trying to resolve 'num_bytes%0' in block@1
+debug: Terminated block@2
+debug: Sealing block@3
+debug: Terminated block@3
+debug: Sealing block@1
+debug: Added index%0#0 to Phi node: let index%0#1: uint64 = φ(index%0#0 <- block@0) in block@0
+debug: Added index%0#2 to Phi node: let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@3) in block@3
+debug: Added num_bytes%0#0 to Phi node: let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0) in block@0
+debug: Added num_bytes%0#2 to Phi node: let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@3) in block@3
+debug: Sealing block@4
+debug: Terminated block@4
 debug: Building IR for function test_cases.regression_tests.leftover_branch.BranchElimination.umm
 debug: Sealing block@0
 debug: Terminated block@0
@@ -3711,7 +3726,9 @@ debug: Performing SSA IR destructuring for test_cases.regression_tests.leftover_
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing] using strategy 'root_operand'
-debug: Coalescing resulted in 0 replacement/s
+debug: Coalescing num_bytes%0#0 with [num_bytes%0#1, num_bytes%0#2]
+debug: Coalescing index%0#0 with [index%0#1, index%0#2]
+debug: Coalescing resulted in 14 replacement/s
 debug: Sequentializing parallel copies in test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]
 debug: Performing post-SSA optimizations at level 0
 debug: Performing SSA IR destructuring for test_cases.regression_tests.leftover_branch.BranchElimination.umm
@@ -3850,18 +3867,64 @@ debug: Inserted umm_block@0.ops[11]: 'l-store-copy tmp%1#0 0'
 debug: Replaced umm_block@0.ops[14]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted calculate_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
 debug: Replaced calculate_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted calculate_block@0.ops[6]: 'l-store-copy tmp%1#0 0'
-debug: Replaced calculate_block@0.ops[8]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted calculate_block@0.ops[10]: 'l-store-copy len%0#0 0'
-debug: Replaced calculate_block@0.ops[12]: 'v-load len%0#0' with 'l-load len%0#0'
-debug: Inserted calculate_block@0.ops[15]: 'l-store-copy eq%0#0 0'
-debug: Replaced calculate_block@0.ops[17]: 'v-load eq%0#0' with 'l-load eq%0#0'
-debug: Inserted calculate_block@0.ops[20]: 'l-store-copy as_Encoded(uint64)%0#0 0'
-debug: Replaced calculate_block@0.ops[23]: 'v-load as_Encoded(uint64)%0#0' with 'l-load as_Encoded(uint64)%0#0'
-debug: Inserted calculate_block@0.ops[9]: 'l-store-copy tmp%1#0 0'
-debug: Replaced calculate_block@0.ops[20]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted calculate_block@0.ops[4]: 'l-store-copy as_Encoded(len+(len+uint64[])[])%0#0 0'
-debug: Replaced calculate_block@0.ops[24]: 'v-load as_Encoded(len+(len+uint64[])[])%0#0' with 'l-load as_Encoded(len+(len+uint64[])[])%0#0'
+debug: Inserted calculate_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
+debug: Replaced calculate_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted calculate_block@0.ops[9]: 'l-store-copy length%0#0 0'
+debug: Replaced calculate_block@0.ops[11]: 'v-load length%0#0' with 'l-load length%0#0'
+debug: Inserted calculate_block@0.ops[16]: 'l-store-copy tmp%0#0 0'
+debug: Replaced calculate_block@0.ops[19]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted calculate_block@0.ops[18]: 'l-store-copy total_length%0#0 1'
+debug: Replaced calculate_block@0.ops[22]: 'v-load total_length%0#0' with 'l-load total_length%0#0'
+debug: Inserted calculate_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
+debug: Replaced calculate_block@0.ops[16]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted calculate_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
+debug: Replaced calculate_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
+debug: Inserted calculate_for_body@2.ops[7]: 'l-store-copy item_offset%0#0 0'
+debug: Replaced calculate_for_body@2.ops[9]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted calculate_for_body@2.ops[12]: 'l-store-copy offset_is_correct%0#0 0'
+debug: Replaced calculate_for_body@2.ops[14]: 'v-load offset_is_correct%0#0' with 'l-load offset_is_correct%0#0'
+debug: Inserted calculate_for_body@2.ops[23]: 'l-store-copy extract_to_end%0#0 0'
+debug: Replaced calculate_for_body@2.ops[25]: 'v-load extract_to_end%0#0' with 'l-load extract_to_end%0#0'
+debug: Inserted calculate_for_body@2.ops[28]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced calculate_for_body@2.ops[30]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
+debug: Inserted calculate_for_body@2.ops[31]: 'l-store-copy length%1#0 0'
+debug: Replaced calculate_for_body@2.ops[33]: 'v-load length%1#0' with 'l-load length%1#0'
+debug: Inserted calculate_for_body@2.ops[36]: 'l-store-copy mul%0#0 0'
+debug: Replaced calculate_for_body@2.ops[38]: 'v-load mul%0#0' with 'l-load mul%0#0'
+debug: Inserted calculate_for_body@2.ops[3]: 'l-store-copy head_offset_bytes%0#0 0'
+debug: Replaced calculate_for_body@2.ops[6]: 'v-load head_offset_bytes%0#0' with 'l-load head_offset_bytes%0#0'
+debug: Inserted calculate_for_body@2.ops[42]: 'l-store-copy add%0#0 0'
+debug: Replaced calculate_for_body@2.ops[45]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted calculate_for_body@2.ops[18]: 'l-store-copy array_data%0#0 0'
+debug: Replaced calculate_for_body@2.ops[21]: 'v-load array_data%0#0' with 'l-load array_data%0#0'
+debug: Inserted calculate_for_body@2.ops[20]: 'l-store-copy total_length%1#0 1'
+debug: Replaced calculate_for_body@2.ops[24]: 'v-load total_length%1#0' with 'l-load total_length%1#0'
+debug: Inserted calculate_for_body@2.ops[6]: 'l-store-copy array_data%0#0 1'
+debug: Replaced calculate_for_body@2.ops[18]: 'v-load array_data%0#0' with 'l-load array_data%0#0'
+debug: Inserted calculate_for_body@2.ops[12]: 'l-store-copy item_offset%0#0 1'
+debug: Replaced calculate_for_body@2.ops[25]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted calculate_for_body@2.ops[14]: 'l-store-copy num_bytes%0#0 3'
+debug: Replaced calculate_for_body@2.ops[49]: 'v-load num_bytes%0#0' with 'l-load num_bytes%0#0'
+debug: Inserted calculate_after_for@4.ops[6]: 'l-store-copy len%0#0 0'
+debug: Replaced calculate_after_for@4.ops[8]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted calculate_after_for@4.ops[11]: 'l-store-copy eq%0#0 0'
+debug: Replaced calculate_after_for@4.ops[13]: 'v-load eq%0#0' with 'l-load eq%0#0'
+debug: Inserted calculate_after_for@4.ops[18]: 'l-store-copy tmp%1#0 0'
+debug: Replaced calculate_after_for@4.ops[20]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted calculate_after_for@4.ops[22]: 'l-store-copy len%1#0 0'
+debug: Replaced calculate_after_for@4.ops[24]: 'v-load len%1#0' with 'l-load len%1#0'
+debug: Inserted calculate_after_for@4.ops[27]: 'l-store-copy eq%1#0 0'
+debug: Replaced calculate_after_for@4.ops[29]: 'v-load eq%1#0' with 'l-load eq%1#0'
+debug: Inserted calculate_after_for@4.ops[32]: 'l-store-copy as_Encoded(uint64)%0#0 0'
+debug: Replaced calculate_after_for@4.ops[35]: 'v-load as_Encoded(uint64)%0#0' with 'l-load as_Encoded(uint64)%0#0'
+debug: Inserted calculate_after_for@4.ops[3]: 'l-store-copy num_bytes%1#0 0'
+debug: Replaced calculate_after_for@4.ops[10]: 'v-load num_bytes%1#0' with 'l-load num_bytes%1#0'
+debug: Inserted calculate_after_for@4.ops[6]: 'l-store-copy tmp%0#0 1'
+debug: Replaced calculate_after_for@4.ops[17]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted calculate_after_for@4.ops[23]: 'l-store-copy tmp%1#0 0'
+debug: Replaced calculate_after_for@4.ops[34]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted calculate_after_for@4.ops[18]: 'l-store-copy as_Encoded(len+(len+uint64[])[])%0#0 0'
+debug: Replaced calculate_after_for@4.ops[38]: 'v-load as_Encoded(len+(len+uint64[])[])%0#0' with 'l-load as_Encoded(len+(len+uint64[])[])%0#0'
 debug: Inserted test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_header@3.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted test_cases.regression_tests.leftover_branch.BranchElimination.umm_for_body@4.ops[1]: 'l-store-copy tmp%1#0 0'
@@ -4002,6 +4065,8 @@ debug: Inserted test_cases.regression_tests.leftover_branch.BranchElimination.ca
 debug: Replaced test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@7.ops[15]: 'v-load num_boosts#0' with 'l-load num_boosts#0'
 debug: Inserted test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@7.ops[6]: 'l-store-copy total#0 0'
 debug: Replaced test_cases.regression_tests.leftover_branch.BranchElimination.calculate_if_body@7.ops[18]: 'v-load total#0' with 'l-load total#0'
+debug: test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing] f-stack entry: []
+debug: test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing] f-stack on first store: ['tmp%0#0', 'length%0#0', 'num_bytes%0#0', 'array_data%0#0', 'index%0#0']
 debug: test_cases.regression_tests.leftover_branch.BranchElimination.umm f-stack entry: ['ahuh#4', 'tmp%0#0', 'value_internal%0#0']
 debug: test_cases.regression_tests.leftover_branch.BranchElimination.umm f-stack on first store: ['ahuh#0']
 debug: test_cases.regression_tests.leftover_branch.BranchElimination.umm2 f-stack entry: ['ahuh#3']

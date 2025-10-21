@@ -33,8 +33,10 @@ from puyapy.awst_build.eb._utils import (
     dummy_value,
     resolve_negative_literal_index,
 )
+from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.options import PuyaPyOptions
 
 logger = log.get_logger(__name__)
 
@@ -71,7 +73,7 @@ class ARC4FromLogBuilder(FunctionBuilder):
         arc4_value = ARC4FromBytes(
             value=intrinsic_factory.extract(tmp_value, start=4, loc=location),
             wtype=arc4_wtype,
-            validate=True,
+            validate=PuyaPyOptions.get().validate_abi_return,
             source_location=location,
         )
         arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
@@ -123,7 +125,11 @@ def arc4_bool_bytes(
     )
 
 
-class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.ArrayType], ABC):
+class _ARC4ArrayExpressionBuilder(
+    BytesBackedInstanceExpressionBuilder[pytypes.ArrayType],
+    ValidatableInstanceExpressionBuilder[pytypes.ArrayType],
+    ABC,
+):
     @typing.override
     def iterate(self) -> Expression:
         if not self.pytype.items_wtype.immutable:

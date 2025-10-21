@@ -187,14 +187,170 @@ test_nested_singles_if_body@1:
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routing]() -> void:
 store_tuple:
-    // tuple_support/nested_tuples.py:63
-    // self.pwl = pwl
-    bytec 4 // "pwl"
     // tuple_support/nested_tuples.py:61
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dupn 2
+    len
+    dup
+    uncover 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
+    dig 1
+    swap
+    dig 3
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
+    swap
+    substring3
+    dup
+    len
+    dig 1
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 14 // 14
+    +
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    pushint 22 // 22
+    +
+    dup
+    cover 3
+    dig 1
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    uncover 2
+    ==
+    assert // invalid tail pointer at index 1 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
+    uncover 2
+    substring3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    extract 2 0
+    intc_1 // 0
+
+store_tuple_for_header@1:
+    // tuple_support/nested_tuples.py:61
+    // @arc4.abimethod()
+    dup
+    dig 4
+    <
+    bz store_tuple_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+uint8[]),(len+utf8[]))[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 14 // 14
+    +
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    +
+    bury 4
+    intc_0 // 1
+    +
+    bury 1
+    b store_tuple_for_header@1
+
+store_tuple_after_for@4:
+    // tuple_support/nested_tuples.py:61
+    // @arc4.abimethod()
+    dig 2
+    intc_2 // 2
+    +
+    dig 5
+    +
+    dig 6
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
     // tuple_support/nested_tuples.py:63
     // self.pwl = pwl
+    bytec 4 // "pwl"
+    dig 7
     app_global_put
     // tuple_support/nested_tuples.py:61
     // @arc4.abimethod()
@@ -229,7 +385,7 @@ store_tuple_in_box:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
     dup
     extract 0 8
     dig 1
@@ -263,7 +419,7 @@ is_tuple_in_box:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
     // tuple_support/nested_tuples.py:75
     // return key in self.box
     bytec_1 // "box"
@@ -294,7 +450,7 @@ load_tuple_from_box:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
     // tuple_support/nested_tuples.py:79
     // return self.box[key]
     bytec_1 // "box"
@@ -321,7 +477,7 @@ maybe_load_tuple_from_box:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
     bytec_1 // "box"
@@ -376,7 +532,7 @@ load_tuple_from_box_or_default:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
     // tuple_support/nested_tuples.py:88
     // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
     bytec_1 // "box"
@@ -424,13 +580,13 @@ load_tuple_from_local_state_or_default:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     // tuple_support/nested_tuples.py:92
     // local = LocalState(SimpleTup, key=echo(key))
@@ -837,32 +993,63 @@ nested_tuple_params:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16
-    dig 1
-    intc_2 // 2
-    extract_uint16
-    dig 2
-    uncover 2
-    dig 2
-    substring3
-    extract 2 0
-    dig 2
     len
-    uncover 3
-    uncover 3
+    dig 1
+    intc_1 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),((len+uint8[]),(uint64)))
+    dig 2
+    dig 1
+    dig 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 6 // 6
+    +
+    dig 3
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),((len+uint8[]),(uint64)))
+    dig 4
+    dig 1
+    dig 5
+    substring3
+    dup
+    len
+    dig 1
+    intc_1 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint8[]),(uint64))
+    dig 2
+    swap
     uncover 2
     substring3
     dup
     intc_1 // 0
-    extract_uint16
-    dig 1
-    len
-    dig 2
-    cover 2
+    extract_uint16 // on error: invalid array length header
+    pushint 12 // 12
+    +
+    uncover 4
+    +
+    uncover 5
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+    cover 4
+    cover 4
     substring3
     extract 2 0
     swap
+    extract 2 0
+    uncover 2
     extract 2 8
     extract 0 8
     dig 1
@@ -908,8 +1095,44 @@ nested_tuple_params:
 named_tuple:
     // tuple_support/nested_tuples.py:156
     // @arc4.abimethod()
-    bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 14 // 14
+    +
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+    dig 3
+    swap
+    dig 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -920,8 +1143,59 @@ named_tuple:
 nested_named_tuple_params:
     // tuple_support/nested_tuples.py:161
     // @arc4.abimethod()
-    bytec_0 // 0x151f7c75
     txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    pushint 16 // 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18 // 18
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    len
+    dig 1
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12 // 12
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 14 // 14
+    +
+    dig 2
+    pushint 10 // 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    pushint 18 // 18
+    +
+    ==
+    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1

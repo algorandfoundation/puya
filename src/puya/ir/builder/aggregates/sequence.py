@@ -63,7 +63,9 @@ def get_length(
     if array_encoding.size is not None:
         return factory.constant(array_encoding.size)
     elif array_encoding.length_header:
-        return factory.extract_uint16(array, 0, "array_length")
+        return factory.extract_uint16(
+            array, 0, "array_length", error_message="invalid array length header"
+        )
     assert array_encoding.size is None, "expected dynamic array"
     bytes_len = factory.len(array, "bytes_len")
     return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")

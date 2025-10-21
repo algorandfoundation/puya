@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_values=True, validate_abi_dynamic_severity=<LogLevel.warning: 30>, paths=['avm_types_in_abi'], resource_encoding='value', output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=11, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, optimizations_override=immutabledict({}), expand_all_bytes=False, validate_abi_args=True, validate_abi_return=True, paths=['avm_types_in_abi'], resource_encoding='value', output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
 info: writing avm_types_in_abi/out/module.awst
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -416,7 +416,6 @@ debug: Sealing block@7
 debug: Terminated block@7
 debug: Building IR for function test_cases.avm_types_in_abi.contract.TestContract.create[routing]
 debug: Sealing block@0
-avm_types_in_abi/contract.py:5:6 warning: nested dynamic types cannot be automatically checked for expected byte size
 debug: Terminated block@0
 debug: Building IR for function test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]
 debug: Sealing block@0
@@ -598,6 +597,9 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Simplified (* length%1#0 1u) to length%1#0
+debug: Simplified (* length%2#0 1u) to length%2#0
+debug: Simplified (+ 77u add%2#0) to (+ length%2#0 79u)
+debug: Simplified (* length%3#0 1u) to length%3#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -608,6 +610,18 @@ debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let len%5#0: uint64 = (len tmp%10#0) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='tuple_len%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: length%1#0, mul%1#0
+debug: selected length%1#0 from equivalence set
+debug: Found equivalence set: length%2#0, mul%2#0
+debug: selected length%2#0 from equivalence set
+debug: Found equivalence set: length%3#0, mul%3#0
+debug: selected length%3#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, len%5#0
+debug: selected tuple_len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -728,12 +742,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: length%0#0, mul%0#0
-debug: selected length%0#0 from equivalence set
-debug: Found equivalence set: length%1#0, mul%1#0
-debug: selected length%1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable add%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -895,6 +906,10 @@ debug: Found equivalence set: tmp%6#0, biguint_param#0
 debug: selected biguint_param#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%1#0, length%1#0
 debug: selected aggregate%array_length%1#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
+debug: selected aggregate%array_length%2#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, length%3#0
+debug: selected aggregate%array_length%3#0 from equivalence set
 debug: Found equivalence set: aggregate%get_bit%1#0, tuple_param.0#0
 debug: selected tuple_param.0#0 from equivalence set
 debug: Found equivalence set: aggregate%item1%0#0, tuple_param.1#0
@@ -915,7 +930,7 @@ debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%1#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%1#0, aggregate%as_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0, tmp%21#0
 debug: selected aggregate%concat%1#0 from equivalence set
-debug: Copy propagation made 17 modifications
+debug: Copy propagation made 19 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%1#0
@@ -933,15 +948,26 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%10#0 75u) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='aggregate%extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%10#0 9u) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='extract_uint16%0', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 tmp%10#0 75u) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%10#0 75u) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='extract_uint16%1', version=0)]
+debug: Replacing redundant declaration let aggregate%len%0#0: uint64 = (len tmp%10#0) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='tuple_len%0', version=0)]
 debug: Replacing redundant declaration let aggregate%value_len%0#0: uint64 = (len biguint_param#0) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=uint64, name='len%3', version=0)]
-debug: Found equivalence set: aggregate%extract_uint16%1#0, aggregate%extract_uint16%2#0
-debug: selected aggregate%extract_uint16%1#0 from equivalence set
+debug: Found equivalence set: extract_uint16%0#0, aggregate%extract_uint16%0#0
+debug: selected extract_uint16%0#0 from equivalence set
+debug: Found equivalence set: extract_uint16%1#0, aggregate%extract_uint16%1#0, aggregate%extract_uint16%2#0
+debug: selected extract_uint16%1#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, aggregate%len%0#0
+debug: selected tuple_len%0#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_bool%0#0, aggregate%head%0#0
 debug: selected aggregate%encoded_bool%0#0 from equivalence set
 debug: Found equivalence set: len%3#0, aggregate%value_len%0#0
 debug: selected len%3#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 5 modifications
+debug: Replacing redundant declaration let aggregate%substring3%1#0: bytes = (substring3 tmp%10#0 extract_uint16%1#0 tuple_len%0#0) with copy of existing registers [Register(source_location=avm_types_in_abi/contract.py:5:5-61, ir_type=bytes, name='substring3%1', version=0)]
+debug: Found equivalence set: substring3%1#0, aggregate%substring3%1#0
+debug: selected substring3%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1219,94 +1245,108 @@ debug: Inserted create_block@0.ops[94]: 'l-store-copy eq%4#0 0'
 debug: Replaced create_block@0.ops[96]: 'v-load eq%4#0' with 'l-load eq%4#0'
 debug: Inserted create_block@0.ops[102]: 'l-store-copy tmp%10#0 0'
 debug: Replaced create_block@0.ops[104]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[124]: 'l-store-copy aggregate%substring3%0#0 0'
-debug: Replaced create_block@0.ops[126]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
-debug: Inserted create_block@0.ops[139]: 'l-store-copy aggregate%substring3%1#0 0'
-debug: Replaced create_block@0.ops[141]: 'v-load aggregate%substring3%1#0' with 'l-load aggregate%substring3%1#0'
-debug: Inserted create_block@0.ops[179]: 'l-store-copy tmp%8#1 0'
-debug: Replaced create_block@0.ops[181]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
-debug: Inserted create_block@0.ops[197]: 'l-store-copy aggregate%length%0#0 0'
-debug: Replaced create_block@0.ops[199]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
-debug: Inserted create_block@0.ops[201]: 'l-store-copy aggregate%as_bytes%0#0 0'
-debug: Replaced create_block@0.ops[203]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
-debug: Inserted create_block@0.ops[205]: 'l-store-copy aggregate%length_uint16%0#0 0'
-debug: Replaced create_block@0.ops[207]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
-debug: Inserted create_block@0.ops[225]: 'l-store-copy aggregate%len_ok%0#0 0'
-debug: Replaced create_block@0.ops[227]: 'v-load aggregate%len_ok%0#0' with 'l-load aggregate%len_ok%0#0'
-debug: Inserted create_block@0.ops[242]: 'l-store-copy aggregate%length%1#0 0'
-debug: Replaced create_block@0.ops[244]: 'v-load aggregate%length%1#0' with 'l-load aggregate%length%1#0'
-debug: Inserted create_block@0.ops[246]: 'l-store-copy aggregate%as_bytes%2#0 0'
-debug: Replaced create_block@0.ops[248]: 'v-load aggregate%as_bytes%2#0' with 'l-load aggregate%as_bytes%2#0'
-debug: Inserted create_block@0.ops[250]: 'l-store-copy aggregate%length_uint16%1#0 0'
-debug: Replaced create_block@0.ops[252]: 'v-load aggregate%length_uint16%1#0' with 'l-load aggregate%length_uint16%1#0'
-debug: Inserted create_block@0.ops[258]: 'l-store-copy aggregate%as_bytes%3#0 0'
-debug: Replaced create_block@0.ops[260]: 'v-load aggregate%as_bytes%3#0' with 'l-load aggregate%as_bytes%3#0'
-debug: Inserted create_block@0.ops[266]: 'l-store-copy aggregate%head%4#0 0'
-debug: Replaced create_block@0.ops[268]: 'v-load aggregate%head%4#0' with 'l-load aggregate%head%4#0'
-debug: Inserted create_block@0.ops[271]: 'l-store-copy aggregate%concat%0#0 0'
-debug: Replaced create_block@0.ops[273]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
-debug: Inserted create_block@0.ops[280]: 'l-store-copy tmp%22#0 0'
-debug: Replaced create_block@0.ops[282]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
-debug: Inserted create_block@0.ops[151]: 'l-store-copy tmp%1#1 0'
-debug: Replaced create_block@0.ops[154]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted create_block@0.ops[160]: 'l-store-copy tmp%3#1 0'
-debug: Replaced create_block@0.ops[163]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
-debug: Inserted create_block@0.ops[169]: 'l-store-copy tmp%5#1 0'
-debug: Replaced create_block@0.ops[172]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
-debug: Inserted create_block@0.ops[178]: 'l-store-copy tmp%7#1 0'
-debug: Replaced create_block@0.ops[181]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
-debug: Inserted create_block@0.ops[194]: 'l-store-copy aggregate%val_as_bytes%0#0 0'
-debug: Replaced create_block@0.ops[197]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
-debug: Inserted create_block@0.ops[222]: 'l-store-copy aggregate%data_length%0#0 0'
-debug: Replaced create_block@0.ops[225]: 'v-load aggregate%data_length%0#0' with 'l-load aggregate%data_length%0#0'
-debug: Inserted create_block@0.ops[237]: 'l-store-copy aggregate%bzero%0#0 0'
-debug: Replaced create_block@0.ops[240]: 'v-load aggregate%bzero%0#0' with 'l-load aggregate%bzero%0#0'
-debug: Inserted create_block@0.ops[242]: 'l-store-copy aggregate%arc4_encoded%0#0 0'
-debug: Replaced create_block@0.ops[245]: 'v-load aggregate%arc4_encoded%0#0' with 'l-load aggregate%arc4_encoded%0#0'
-debug: Inserted create_block@0.ops[270]: 'l-store-copy aggregate%offset_as_uint16%1#0 0'
-debug: Replaced create_block@0.ops[273]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
-debug: Inserted create_block@0.ops[285]: 'l-store-copy aggregate%concat%1#0 0'
-debug: Replaced create_block@0.ops[288]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
-debug: Inserted create_block@0.ops[119]: 'l-store-copy aggregate%extract_uint16%1#0 0'
-debug: Replaced create_block@0.ops[123]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
-debug: Inserted create_block@0.ops[131]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[134]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[135]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[138]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[137]: 'l-store-copy aggregate%len%0#0 1'
-debug: Replaced create_block@0.ops[141]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted create_block@0.ops[110]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced create_block@0.ops[112]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted create_block@0.ops[115]: 'l-store-copy eq%5#0 0'
+debug: Replaced create_block@0.ops[117]: 'v-load eq%5#0' with 'l-load eq%5#0'
+debug: Inserted create_block@0.ops[123]: 'l-store-copy substring3%0#0 0'
+debug: Replaced create_block@0.ops[125]: 'v-load substring3%0#0' with 'l-load substring3%0#0'
+debug: Inserted create_block@0.ops[128]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced create_block@0.ops[130]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted create_block@0.ops[137]: 'l-store-copy extract_uint16%1#0 0'
+debug: Replaced create_block@0.ops[139]: 'v-load extract_uint16%1#0' with 'l-load extract_uint16%1#0'
+debug: Inserted create_block@0.ops[142]: 'l-store-copy eq%6#0 0'
+debug: Replaced create_block@0.ops[144]: 'v-load eq%6#0' with 'l-load eq%6#0'
+debug: Inserted create_block@0.ops[150]: 'l-store-copy substring3%1#0 0'
+debug: Replaced create_block@0.ops[152]: 'v-load substring3%1#0' with 'l-load substring3%1#0'
+debug: Inserted create_block@0.ops[155]: 'l-store-copy aggregate%array_length%3#0 0'
+debug: Replaced create_block@0.ops[157]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
+debug: Inserted create_block@0.ops[168]: 'l-store-copy eq%7#0 0'
+debug: Replaced create_block@0.ops[170]: 'v-load eq%7#0' with 'l-load eq%7#0'
+debug: Inserted create_block@0.ops[184]: 'l-store-copy aggregate%substring3%0#0 0'
+debug: Replaced create_block@0.ops[186]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
+debug: Inserted create_block@0.ops[230]: 'l-store-copy tmp%8#1 0'
+debug: Replaced create_block@0.ops[232]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
+debug: Inserted create_block@0.ops[248]: 'l-store-copy aggregate%length%0#0 0'
+debug: Replaced create_block@0.ops[250]: 'v-load aggregate%length%0#0' with 'l-load aggregate%length%0#0'
+debug: Inserted create_block@0.ops[252]: 'l-store-copy aggregate%as_bytes%0#0 0'
+debug: Replaced create_block@0.ops[254]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
+debug: Inserted create_block@0.ops[256]: 'l-store-copy aggregate%length_uint16%0#0 0'
+debug: Replaced create_block@0.ops[258]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
+debug: Inserted create_block@0.ops[276]: 'l-store-copy aggregate%len_ok%0#0 0'
+debug: Replaced create_block@0.ops[278]: 'v-load aggregate%len_ok%0#0' with 'l-load aggregate%len_ok%0#0'
+debug: Inserted create_block@0.ops[293]: 'l-store-copy aggregate%length%1#0 0'
+debug: Replaced create_block@0.ops[295]: 'v-load aggregate%length%1#0' with 'l-load aggregate%length%1#0'
+debug: Inserted create_block@0.ops[297]: 'l-store-copy aggregate%as_bytes%2#0 0'
+debug: Replaced create_block@0.ops[299]: 'v-load aggregate%as_bytes%2#0' with 'l-load aggregate%as_bytes%2#0'
+debug: Inserted create_block@0.ops[301]: 'l-store-copy aggregate%length_uint16%1#0 0'
+debug: Replaced create_block@0.ops[303]: 'v-load aggregate%length_uint16%1#0' with 'l-load aggregate%length_uint16%1#0'
+debug: Inserted create_block@0.ops[309]: 'l-store-copy aggregate%as_bytes%3#0 0'
+debug: Replaced create_block@0.ops[311]: 'v-load aggregate%as_bytes%3#0' with 'l-load aggregate%as_bytes%3#0'
+debug: Inserted create_block@0.ops[317]: 'l-store-copy aggregate%head%4#0 0'
+debug: Replaced create_block@0.ops[319]: 'v-load aggregate%head%4#0' with 'l-load aggregate%head%4#0'
+debug: Inserted create_block@0.ops[322]: 'l-store-copy aggregate%concat%0#0 0'
+debug: Replaced create_block@0.ops[324]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
+debug: Inserted create_block@0.ops[331]: 'l-store-copy tmp%22#0 0'
+debug: Replaced create_block@0.ops[333]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
+debug: Inserted create_block@0.ops[160]: 'l-store-copy add%4#0 0'
+debug: Replaced create_block@0.ops[163]: 'v-load add%4#0' with 'l-load add%4#0'
+debug: Inserted create_block@0.ops[165]: 'l-store-copy add%5#0 0'
+debug: Replaced create_block@0.ops[168]: 'v-load add%5#0' with 'l-load add%5#0'
+debug: Inserted create_block@0.ops[204]: 'l-store-copy tmp%1#1 0'
+debug: Replaced create_block@0.ops[207]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted create_block@0.ops[213]: 'l-store-copy tmp%3#1 0'
+debug: Replaced create_block@0.ops[216]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
+debug: Inserted create_block@0.ops[222]: 'l-store-copy tmp%5#1 0'
+debug: Replaced create_block@0.ops[225]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
+debug: Inserted create_block@0.ops[231]: 'l-store-copy tmp%7#1 0'
+debug: Replaced create_block@0.ops[234]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
+debug: Inserted create_block@0.ops[247]: 'l-store-copy aggregate%val_as_bytes%0#0 0'
+debug: Replaced create_block@0.ops[250]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
+debug: Inserted create_block@0.ops[275]: 'l-store-copy aggregate%data_length%0#0 0'
+debug: Replaced create_block@0.ops[278]: 'v-load aggregate%data_length%0#0' with 'l-load aggregate%data_length%0#0'
+debug: Inserted create_block@0.ops[290]: 'l-store-copy aggregate%bzero%0#0 0'
+debug: Replaced create_block@0.ops[293]: 'v-load aggregate%bzero%0#0' with 'l-load aggregate%bzero%0#0'
+debug: Inserted create_block@0.ops[295]: 'l-store-copy aggregate%arc4_encoded%0#0 0'
+debug: Replaced create_block@0.ops[298]: 'v-load aggregate%arc4_encoded%0#0' with 'l-load aggregate%arc4_encoded%0#0'
+debug: Inserted create_block@0.ops[323]: 'l-store-copy aggregate%offset_as_uint16%1#0 0'
+debug: Replaced create_block@0.ops[326]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
+debug: Inserted create_block@0.ops[338]: 'l-store-copy aggregate%concat%1#0 0'
+debug: Replaced create_block@0.ops[341]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
 debug: Inserted create_block@0.ops[105]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[109]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[110]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[114]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[115]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[119]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[120]: 'l-store-copy tmp%10#0 0'
-debug: Replaced create_block@0.ops[125]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted create_block@0.ops[199]: 'l-store-copy aggregate%encoded_bool%0#0 0'
-debug: Replaced create_block@0.ops[205]: 'v-load aggregate%encoded_bool%0#0' with 'l-load aggregate%encoded_bool%0#0'
+debug: Replaced create_block@0.ops[108]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[176]: 'l-store-copy tmp%10#0 0'
+debug: Replaced create_block@0.ops[180]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[181]: 'l-store-copy tmp%10#0 0'
+debug: Replaced create_block@0.ops[185]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[247]: 'l-store-copy aggregate%encoded_bool%0#0 0'
+debug: Replaced create_block@0.ops[253]: 'v-load aggregate%encoded_bool%0#0' with 'l-load aggregate%encoded_bool%0#0'
 debug: Inserted create_block@0.ops[46]: 'l-store-copy add%0#0 0'
 debug: Replaced create_block@0.ops[53]: 'v-load add%0#0' with 'l-load add%0#0'
 debug: Inserted create_block@0.ops[87]: 'l-store-copy add%1#0 0'
 debug: Replaced create_block@0.ops[94]: 'v-load add%1#0' with 'l-load add%1#0'
-debug: Inserted create_block@0.ops[157]: 'l-store-copy tmp%0#1 0'
-debug: Replaced create_block@0.ops[164]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted create_block@0.ops[167]: 'l-store-copy tmp%2#1 0'
-debug: Replaced create_block@0.ops[174]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted create_block@0.ops[177]: 'l-store-copy tmp%4#1 0'
-debug: Replaced create_block@0.ops[184]: 'v-load tmp%4#1' with 'l-load tmp%4#1'
-debug: Inserted create_block@0.ops[187]: 'l-store-copy tmp%6#1 0'
-debug: Replaced create_block@0.ops[194]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
-debug: Inserted create_block@0.ops[230]: 'l-store-copy aggregate%encoded_value%0#0 0'
-debug: Replaced create_block@0.ops[236]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted create_block@0.ops[120]: 'l-store-copy aggregate%extract_uint16%0#0 1'
-debug: Replaced create_block@0.ops[129]: 'v-load aggregate%extract_uint16%0#0' with 'l-load aggregate%extract_uint16%0#0'
+debug: Inserted create_block@0.ops[205]: 'l-store-copy tmp%0#1 0'
+debug: Replaced create_block@0.ops[212]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted create_block@0.ops[215]: 'l-store-copy tmp%2#1 0'
+debug: Replaced create_block@0.ops[222]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted create_block@0.ops[225]: 'l-store-copy tmp%4#1 0'
+debug: Replaced create_block@0.ops[232]: 'v-load tmp%4#1' with 'l-load tmp%4#1'
+debug: Inserted create_block@0.ops[235]: 'l-store-copy tmp%6#1 0'
+debug: Replaced create_block@0.ops[242]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
+debug: Inserted create_block@0.ops[278]: 'l-store-copy aggregate%encoded_value%0#0 0'
+debug: Replaced create_block@0.ops[284]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Inserted create_block@0.ops[136]: 'l-store-copy add%3#0 0'
+debug: Replaced create_block@0.ops[144]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted create_block@0.ops[116]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced create_block@0.ops[124]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted create_block@0.ops[145]: 'l-store-copy extract_uint16%1#0 1'
+debug: Replaced create_block@0.ops[153]: 'v-load extract_uint16%1#0' with 'l-load extract_uint16%1#0'
 debug: Inserted create_block@0.ops[39]: 'l-store-copy tmp%4#0 0'
 debug: Replaced create_block@0.ops[49]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted create_block@0.ops[81]: 'l-store-copy tmp%8#0 0'
 debug: Replaced create_block@0.ops[91]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted create_block@0.ops[131]: 'l-store-copy tmp%10#0 2'
-debug: Replaced create_block@0.ops[140]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[193]: 'l-store-copy tmp%10#0 0'
+debug: Replaced create_block@0.ops[202]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted create_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
 debug: Replaced create_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted create_block@0.ops[23]: 'l-store-copy tmp%2#0 0'
@@ -1315,56 +1355,76 @@ debug: Inserted create_block@0.ops[52]: 'l-store-copy tmp%4#0 1'
 debug: Replaced create_block@0.ops[63]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted create_block@0.ops[95]: 'l-store-copy tmp%8#0 1'
 debug: Replaced create_block@0.ops[106]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted create_block@0.ops[224]: 'l-store-copy bytes_param#0 0'
-debug: Replaced create_block@0.ops[237]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
-debug: Inserted create_block@0.ops[274]: 'l-store-copy string_param#0 0'
-debug: Replaced create_block@0.ops[287]: 'v-load string_param#0' with 'l-load string_param#0'
-debug: Inserted create_block@0.ops[138]: 'l-store-copy aggregate%extract_uint16%1#0 3'
-debug: Replaced create_block@0.ops[155]: 'v-load aggregate%extract_uint16%1#0' with 'l-load aggregate%extract_uint16%1#0'
-debug: Inserted create_block@0.ops[223]: 'l-store-copy aggregate%head%1#0 0'
-debug: Replaced create_block@0.ops[243]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
-debug: Inserted create_block@0.ops[291]: 'l-store-copy aggregate%encoded_value%1#0 0'
-debug: Replaced create_block@0.ops[312]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
-debug: Inserted create_block@0.ops[274]: 'l-store-copy aggregate%head%3#0 0'
-debug: Replaced create_block@0.ops[302]: 'v-load aggregate%head%3#0' with 'l-load aggregate%head%3#0'
-debug: Inserted create_block@0.ops[246]: 'l-store-copy aggregate%head%2#0 1'
-debug: Replaced create_block@0.ops[272]: 'v-load aggregate%head%2#0' with 'l-load aggregate%head%2#0'
-debug: Inserted create_block@0.ops[144]: 'l-store-copy tuple_param.2#0 2'
-debug: Replaced create_block@0.ops[180]: 'v-load tuple_param.2#0' with 'l-load tuple_param.2#0'
-debug: Inserted create_block@0.ops[163]: 'l-store-copy tuple_param.4#0 1'
-debug: Replaced create_block@0.ops[201]: 'v-load tuple_param.4#0' with 'l-load tuple_param.4#0'
-debug: Inserted create_block@0.ops[257]: 'l-store-copy aggregate%current_tail_offset%0#0 1'
-debug: Replaced create_block@0.ops[298]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
-debug: Inserted create_block@0.ops[149]: 'l-store-copy tuple_param.3#0 3'
-debug: Replaced create_block@0.ops[192]: 'v-load tuple_param.3#0' with 'l-load tuple_param.3#0'
-debug: Inserted create_block@0.ops[116]: 'l-store-copy tuple_param.0#0 1'
-debug: Replaced create_block@0.ops[168]: 'v-load tuple_param.0#0' with 'l-load tuple_param.0#0'
-debug: Inserted create_block@0.ops[122]: 'l-store-copy tuple_param.1#0 2'
-debug: Replaced create_block@0.ops[174]: 'v-load tuple_param.1#0' with 'l-load tuple_param.1#0'
-debug: Inserted create_block@0.ops[184]: 'l-store-copy bytes_param#0 4'
-debug: Replaced create_block@0.ops[231]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
-debug: Inserted create_block@0.ops[174]: 'l-store-copy uint64_param#0 5'
-debug: Replaced create_block@0.ops[223]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
-debug: Inserted create_block@0.ops[169]: 'l-store-copy bool_param#0 5'
-debug: Replaced create_block@0.ops[220]: 'v-load bool_param#0' with 'l-load bool_param#0'
-debug: Inserted create_block@0.ops[257]: 'l-store-copy aggregate%encoded_value%0#0 1'
-debug: Replaced create_block@0.ops[319]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
-debug: Inserted create_block@0.ops[197]: 'l-store-copy biguint_param#0 6'
-debug: Replaced create_block@0.ops[278]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
-debug: Inserted create_block@0.ops[208]: 'l-store-copy string_param#0 6'
-debug: Replaced create_block@0.ops[289]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Inserted create_block@0.ops[117]: 'l-store-copy tmp%10#0 0'
+debug: Replaced create_block@0.ops[130]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[147]: 'l-store-copy tmp%10#0 1'
+debug: Replaced create_block@0.ops[160]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[276]: 'l-store-copy bytes_param#0 0'
+debug: Replaced create_block@0.ops[289]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Inserted create_block@0.ops[326]: 'l-store-copy string_param#0 0'
+debug: Replaced create_block@0.ops[339]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Inserted create_block@0.ops[115]: 'l-store-copy tuple_len%0#0 1'
+debug: Replaced create_block@0.ops[133]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
+debug: Inserted create_block@0.ops[132]: 'l-store-copy tmp%10#0 2'
+debug: Replaced create_block@0.ops[148]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[276]: 'l-store-copy aggregate%head%1#0 0'
+debug: Replaced create_block@0.ops[296]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
+debug: Inserted create_block@0.ops[165]: 'l-store-copy tuple_len%0#0 2'
+debug: Replaced create_block@0.ops[184]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
+debug: Inserted create_block@0.ops[345]: 'l-store-copy aggregate%encoded_value%1#0 0'
+debug: Replaced create_block@0.ops[366]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Inserted create_block@0.ops[157]: 'l-store-copy add%3#0 3'
+debug: Replaced create_block@0.ops[180]: 'v-load add%3#0' with 'l-load add%3#0'
+debug: Inserted create_block@0.ops[196]: 'l-store-copy tuple_param.0#0 1'
+debug: Replaced create_block@0.ops[220]: 'v-load tuple_param.0#0' with 'l-load tuple_param.0#0'
+debug: Inserted create_block@0.ops[202]: 'l-store-copy tuple_param.1#0 2'
+debug: Replaced create_block@0.ops[226]: 'v-load tuple_param.1#0' with 'l-load tuple_param.1#0'
+debug: Inserted create_block@0.ops[213]: 'l-store-copy tuple_param.2#0 3'
+debug: Replaced create_block@0.ops[237]: 'v-load tuple_param.2#0' with 'l-load tuple_param.2#0'
+debug: Inserted create_block@0.ops[332]: 'l-store-copy aggregate%head%3#0 0'
+debug: Replaced create_block@0.ops[360]: 'v-load aggregate%head%3#0' with 'l-load aggregate%head%3#0'
+debug: Inserted create_block@0.ops[304]: 'l-store-copy aggregate%head%2#0 1'
+debug: Replaced create_block@0.ops[330]: 'v-load aggregate%head%2#0' with 'l-load aggregate%head%2#0'
+debug: Inserted create_block@0.ops[135]: 'l-store-copy tuple_len%0#0 3'
+debug: Replaced create_block@0.ops[166]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
+debug: Inserted create_block@0.ops[165]: 'l-store-copy tmp%10#0 3'
+debug: Replaced create_block@0.ops[194]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted create_block@0.ops[219]: 'l-store-copy tuple_param.3#0 3'
+debug: Replaced create_block@0.ops[250]: 'v-load tuple_param.3#0' with 'l-load tuple_param.3#0'
+debug: Inserted create_block@0.ops[223]: 'l-store-copy tuple_param.4#0 4'
+debug: Replaced create_block@0.ops[261]: 'v-load tuple_param.4#0' with 'l-load tuple_param.4#0'
+debug: Inserted create_block@0.ops[317]: 'l-store-copy aggregate%current_tail_offset%0#0 1'
+debug: Replaced create_block@0.ops[358]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
+debug: Inserted create_block@0.ops[167]: 'l-store-copy extract_uint16%1#0 4'
+debug: Replaced create_block@0.ops[210]: 'v-load extract_uint16%1#0' with 'l-load extract_uint16%1#0'
+debug: Inserted create_block@0.ops[174]: 'l-store-copy substring3%1#0 4'
+debug: Replaced create_block@0.ops[223]: 'v-load substring3%1#0' with 'l-load substring3%1#0'
+debug: Inserted create_block@0.ops[243]: 'l-store-copy bytes_param#0 4'
+debug: Replaced create_block@0.ops[290]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Inserted create_block@0.ops[233]: 'l-store-copy uint64_param#0 5'
+debug: Replaced create_block@0.ops[282]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
+debug: Inserted create_block@0.ops[228]: 'l-store-copy bool_param#0 5'
+debug: Replaced create_block@0.ops[279]: 'v-load bool_param#0' with 'l-load bool_param#0'
+debug: Inserted create_block@0.ops[316]: 'l-store-copy aggregate%encoded_value%0#0 1'
+debug: Replaced create_block@0.ops[378]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Inserted create_block@0.ops[134]: 'l-store-copy extract_uint16%0#0 3'
+debug: Replaced create_block@0.ops[211]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted create_block@0.ops[257]: 'l-store-copy biguint_param#0 6'
+debug: Replaced create_block@0.ops[338]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
+debug: Inserted create_block@0.ops[268]: 'l-store-copy string_param#0 6'
+debug: Replaced create_block@0.ops[349]: 'v-load string_param#0' with 'l-load string_param#0'
 debug: Inserted create_block@0.ops[108]: 'l-store-copy string_param#0 0'
-debug: Replaced create_block@0.ops[208]: 'v-load string_param#0' with 'l-load string_param#0'
+debug: Replaced create_block@0.ops[268]: 'v-load string_param#0' with 'l-load string_param#0'
 debug: Inserted create_block@0.ops[65]: 'l-store-copy bytes_param#0 0'
-debug: Replaced create_block@0.ops[187]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
+debug: Replaced create_block@0.ops[247]: 'v-load bytes_param#0' with 'l-load bytes_param#0'
 debug: Inserted create_block@0.ops[71]: 'l-store-copy biguint_param#0 1'
-debug: Replaced create_block@0.ops[199]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
+debug: Replaced create_block@0.ops[259]: 'v-load biguint_param#0' with 'l-load biguint_param#0'
 debug: Inserted create_block@0.ops[36]: 'l-store-copy uint64_param#0 0'
-debug: Replaced create_block@0.ops[178]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
+debug: Replaced create_block@0.ops[238]: 'v-load uint64_param#0' with 'l-load uint64_param#0'
 debug: Inserted create_block@0.ops[18]: 'l-store-copy bool_param#0 0'
-debug: Replaced create_block@0.ops[173]: 'v-load bool_param#0' with 'l-load bool_param#0'
+debug: Replaced create_block@0.ops[233]: 'v-load bool_param#0' with 'l-load bool_param#0'
 debug: Inserted create_block@0.ops[78]: 'l-store-copy len%3#0 4'
-debug: Replaced create_block@0.ops[274]: 'v-load len%3#0' with 'l-load len%3#0'
+debug: Replaced create_block@0.ops[334]: 'v-load len%3#0' with 'l-load len%3#0'
 debug: Inserted tuple_of_arc4_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
 debug: Replaced tuple_of_arc4_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted tuple_of_arc4_block@0.ops[5]: 'l-store-copy len%0#0 0'

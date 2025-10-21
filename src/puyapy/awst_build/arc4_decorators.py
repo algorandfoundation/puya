@@ -62,6 +62,7 @@ def get_arc4_baremethod_data(
 _READONLY = "readonly"
 _RESOURCE_ENCODING = "resource_encoding"
 _CLIENT_DEFAULTS = "default_args"
+_VALIDATE_ENCODING = "validate_encoding"
 _ALLOWED_ACTIONS = "allow_actions"
 _CREATE_OPTIONS = "create"
 _NAME_OVERRIDE = "name"
@@ -99,6 +100,21 @@ def get_arc4_abimethod_data(
             context.error(f"invalid readonly option: {invalid_readonly_option}", dec_loc)
             readonly = default_readonly
 
+    # map "validate_encoding" param
+    default_validate_encoding = None
+    match evaluated_args.pop(_VALIDATE_ENCODING, default_validate_encoding):
+        case None:
+            validate_encoding = None
+        case "unsafe_disabled":
+            validate_encoding = False
+        case "args":
+            validate_encoding = True
+        case invalid_validate_encoding_option:
+            context.error(
+                f"invalid validate_encoding option: {invalid_validate_encoding_option}", dec_loc
+            )
+            validate_encoding = default_validate_encoding
+
     # map "resource_encoding" param
     default_resource_encoding = context.options.resource_encoding
     resource_encoding: typing.Literal["index", "value"]
@@ -132,6 +148,9 @@ def get_arc4_abimethod_data(
         case invalid_default_args_option:
             context.error(f"invalid default_args option: {invalid_default_args_option}", dec_loc)
 
+    for unexpected_arg_name in evaluated_args:
+        context.error(f"unexpected argument: {unexpected_arg_name}", dec_loc)
+
     config = ARC4ABIMethodConfig(
         source_location=dec_loc,
         allowed_completion_types=allowed_completion_types,
@@ -140,6 +159,7 @@ def get_arc4_abimethod_data(
         readonly=readonly,
         resource_encoding=resource_encoding,
         default_args=immutabledict(default_args),
+        validate_encoding=validate_encoding,
     )
     return ARC4ABIMethodData(
         member_name=func_def.name,
@@ -222,7 +242,7 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
             return self.context.constants[expr.fullname]
         except KeyError:
             raise CodeError(
-                f"Unresolved module constant: {expr.fullname}", self.context.node_location(expr)
+                f"unresolved module constant: {expr.fullname}", self.context.node_location(expr)
             ) from None
 
     @typing.override
@@ -235,7 +255,7 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
 
     @typing.override
     def visit_name_expr(self, o: mypy.nodes.NameExpr) -> object:
-        if self.arg_name == _READONLY:
+        if self.arg_name in (_READONLY, _VALIDATE_ENCODING):
             if o.fullname == "builtins.True":
                 return True
             if o.fullname == "builtins.False":

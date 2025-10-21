@@ -119,6 +119,8 @@ class TupleEncoding(Encoding):
                 bit_size += 16
             else:
                 bit_size += encoding.checked_num_bits
+        if index is None:
+            bit_size = round_bits_to_nearest_bytes(bit_size)
         return bit_size
 
     @cached_property

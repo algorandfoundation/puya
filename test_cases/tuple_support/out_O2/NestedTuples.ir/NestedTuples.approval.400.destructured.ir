@@ -19,6 +19,72 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@6, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@7, method "store_tuple_in_box((uint64,uint64))void" => block@8, method "is_tuple_in_box((uint64,uint64))bool" => block@9, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@10, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@11, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@12, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@13, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@14, method "mutate_tuple_in_storage_currently_supported_method()void" => block@15, method "run_tests()bool" => block@16, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@17, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@18, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@19, * => block@22}
     block@6: // store_tuple_route_L61
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#2)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 4u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
+        let substring3%0#0: bytes = (substring3 tmp%0#2 extract_uint16%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 16u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 18u)
+        (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%1#0 tuple_len%1#0)
+        let tuple_len%2#0: uint64 = (len substring3%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%1#0 8u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 12u)
+        (assert eq%2#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%2#0: bytes = (substring3 substring3%1#0 extract_uint16%2#0 tuple_len%2#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%0#0 14u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 substring3%1#0 10u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%3#0 add%1#0)
+        (assert eq%3#0) // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%3#0: bytes = (substring3 substring3%1#0 extract_uint16%3#0 tuple_len%2#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%3#0 0u) // on error: invalid array length header
+        let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let add%5#0: uint64 = (+ add%3#0 22u)
+        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%0#2 2u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%4#0 add%5#0)
+        (assert eq%4#0) // invalid tail pointer at index 1 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
+        let substring3%4#0: bytes = (substring3 tmp%0#2 extract_uint16%4#0 tuple_len%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
+        let num_bytes%0#0: uint64 = (* aggregate%array_length%2#0 2u)
+        let array_data%0#0: bytes = ((extract 2 0) substring3%4#0)
+        let index%0#0: uint64 = 0u
+        goto block@65
+    block@65: // for_header_L61
+        let continue_looping%0#0: bool = (< index%0#0 aggregate%array_length%2#0)
+        goto continue_looping%0#0 ? block@66 : block@67
+    block@66: // for_body_L61
+        let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (len+(uint64,(len+uint8[]),(len+utf8[]))[])
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let tuple_len%3#0: uint64 = (len extract_to_end%0#0)
+        let extract_uint16%5#0: uint64 = (extract_uint16 extract_to_end%0#0 8u) // on error: invalid tuple encoding
+        let eq%5#0: bool = (== extract_uint16%5#0 12u)
+        (assert eq%5#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%5#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%5#0 tuple_len%3#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 substring3%5#0 0u) // on error: invalid array length header
+        let add%7#0: uint64 = (+ aggregate%array_length%3#0 14u)
+        let extract_uint16%6#0: uint64 = (extract_uint16 extract_to_end%0#0 10u) // on error: invalid tuple encoding
+        let eq%6#0: bool = (== extract_uint16%6#0 add%7#0)
+        (assert eq%6#0) // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%6#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%6#0 tuple_len%3#0)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 substring3%6#0 0u) // on error: invalid array length header
+        let add%8#0: uint64 = (+ aggregate%array_length%4#0 2u)
+        let add%9#0: uint64 = (+ add%7#0 add%8#0)
+        let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%9#0)
+        let index%0#0: uint64 = (+ index%0#0 1u)
+        goto block@65
+    block@67: // after_for_L61
+        let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
+        let add%10#0: uint64 = (+ add%5#0 num_bytes%1#0)
+        let eq%7#0: bool = (== tuple_len%0#0 add%10#0)
+        (assert eq%7#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
         (app_global_put "pwl" tmp%0#2)
         exit 1u
     block@7: // load_tuple_route_L65
@@ -31,7 +97,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let aggregate%extract%0#0: bytes = ((extract 0 8) tmp%0#2)
         let key.b#4: uint64 = (extract_uint64 tmp%0#2 8u)
         let tmp%0#1: uint64 = (+ key.b#4 1u)
@@ -44,7 +110,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
@@ -55,7 +121,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%1#0) // check self.box entry exists
@@ -66,7 +132,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let (maybe_value%0#0: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
         goto exists#0 ? block@52 : block@53
@@ -95,7 +161,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for (uint64,uint64)
+        (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let (tmp%0#1: uint64, tmp%1#10: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
@@ -119,11 +185,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@13: // load_tuple_from_local_state_or_default_route_L90
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#2 0u)
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid array length header
+        let add%0#3: uint64 = (+ aggregate%array_length%5#0 2u)
         let len%0#0: uint64 = (len tmp%0#2)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for (len+utf8[])
+        let eq%0#0: bool = (== len%0#0 add%0#3)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: string = ((extract 2 0) tmp%0#2)
         let local#0: bytes = test_cases.tuple_support.nested_tuples.echo(key#0)
         let tmp%1#8: account = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
@@ -174,8 +240,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr2#0: Encoded(len+uint64[]) = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let concat%0#0: Encoded(len+uint64[]) = (concat arr2#0 0x0000000000000001) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr2#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let add%0#3: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#3)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arr2#0: Encoded(len+uint64[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%len%2#0: uint64 = (len maybe_value%0#0)
@@ -225,51 +291,51 @@ main algopy.arc4.ARC4Contract.approval_program:
         let loop_counter%0#0: uint64 = 0u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 2u
-        goto block@74
-    block@74: // for_body_L298
+        goto block@87
+    block@87: // for_body_L298
         let tmp%0#1: uint64 = (+ t.0#0 t.1#0)
         let total#0: uint64 = (+ total#0 tmp%0#1)
-        goto_nth [block@75, block@76, block@77][loop_counter%0#0] else goto block@78
-    block@75: // for_header_1_L297
+        goto_nth [block@88, block@89, block@90][loop_counter%0#0] else goto block@91
+    block@88: // for_header_1_L297
         let loop_counter%0#0: uint64 = 1u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 1u
-        goto block@74
-    block@76: // for_header_2_L297
+        goto block@87
+    block@89: // for_header_2_L297
         let loop_counter%0#0: uint64 = 2u
         let t.0#0: uint64 = 1u
         let t.1#0: uint64 = 1u
-        goto block@74
-    block@77: // for_header_3_L297
+        goto block@87
+    block@90: // for_header_3_L297
         let loop_counter%0#0: uint64 = 3u
         let t.0#0: uint64 = 2u
         let t.1#0: uint64 = 2u
-        goto block@74
-    block@78: // after_for_L297
+        goto block@87
+    block@91: // after_for_L297
         let loop_counter%1#0: uint64 = 0u
         let a#2: uint64 = 1u
         let b#2: uint64 = 2u
-        goto block@79
-    block@79: // for_body_L302
+        goto block@92
+    block@92: // for_body_L302
         let tmp%2#0: uint64 = (+ a#2 b#2)
         let total#0: uint64 = (+ total#0 tmp%2#0)
-        goto_nth [block@80, block@81, block@82][loop_counter%1#0] else goto block@83
-    block@80: // for_header_1_L301
+        goto_nth [block@93, block@94, block@95][loop_counter%1#0] else goto block@96
+    block@93: // for_header_1_L301
         let loop_counter%1#0: uint64 = 1u
         let a#2: uint64 = 2u
         let b#2: uint64 = 1u
-        goto block@79
-    block@81: // for_header_2_L301
+        goto block@92
+    block@94: // for_header_2_L301
         let loop_counter%1#0: uint64 = 2u
         let a#2: uint64 = 1u
         let b#2: uint64 = 1u
-        goto block@79
-    block@82: // for_header_3_L301
+        goto block@92
+    block@95: // for_header_3_L301
         let loop_counter%1#0: uint64 = 3u
         let a#2: uint64 = 2u
         let b#2: uint64 = 2u
-        goto block@79
-    block@83: // after_for_L301
+        goto block@92
+    block@96: // after_for_L301
         let tmp%4#0: uint64 = (/ total#0 8u)
         let tmp%5#7: bool = (== tmp%4#0 3u)
         (assert tmp%5#7)
@@ -278,17 +344,31 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@17: // nested_tuple_params_route_L149
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let aggregate%extract_uint16%12#0: uint64 = (extract_uint16 tmp%0#2 0u)
-        let aggregate%extract_uint16%13#0: uint64 = (extract_uint16 tmp%0#2 2u)
-        let aggregate%substring3%8#0: bytes = (substring3 tmp%0#2 aggregate%extract_uint16%12#0 aggregate%extract_uint16%13#0)
+        let tuple_len%0#0: uint64 = (len tmp%0#2)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 4u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),((len+uint8[]),(uint64)))
+        let substring3%0#0: bytes = (substring3 tmp%0#2 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%7#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%7#0 6u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#2 2u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),((len+uint8[]),(uint64)))
+        let substring3%1#0: bytes = (substring3 tmp%0#2 extract_uint16%1#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 10u)
+        (assert eq%2#0) // invalid tail pointer at index 0 of ((len+uint8[]),(uint64))
+        let substring3%2#0: bytes = (substring3 substring3%1#0 extract_uint16%2#0 tuple_len%1#0)
+        let aggregate%array_length%8#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%3#0: uint64 = (+ aggregate%array_length%8#0 12u)
+        let add%4#0: uint64 = (+ add%1#0 add%3#0)
+        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        (assert eq%3#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+        let aggregate%substring3%8#0: bytes = (substring3 tmp%0#2 extract_uint16%0#0 extract_uint16%1#0)
         let args.0#0: string = ((extract 2 0) aggregate%substring3%8#0)
-        let aggregate%len%4#0: uint64 = (len tmp%0#2)
-        let aggregate%substring3%9#0: bytes = (substring3 tmp%0#2 aggregate%extract_uint16%13#0 aggregate%len%4#0)
-        let aggregate%extract_uint16%15#0: uint64 = (extract_uint16 aggregate%substring3%9#0 0u)
-        let aggregate%len%5#0: uint64 = (len aggregate%substring3%9#0)
-        let aggregate%substring3%10#0: bytes = (substring3 aggregate%substring3%9#0 aggregate%extract_uint16%15#0 aggregate%len%5#0)
-        let args.1.0#0: bytes = ((extract 2 0) aggregate%substring3%10#0)
-        let aggregate%extract%10#0: bytes = ((extract 2 8) aggregate%substring3%9#0)
+        let args.1.0#0: bytes = ((extract 2 0) substring3%2#0)
+        let aggregate%extract%10#0: bytes = ((extract 2 8) substring3%1#0)
         let aggregate%extract%11#0: bytes = ((extract 0 8) aggregate%extract%10#0)
         let aggregate%length%6#0: uint64 = (len args.1.0#0)
         let aggregate%as_bytes%21#0: bytes[8] = (itob aggregate%length%6#0)
@@ -312,11 +392,49 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@18: // named_tuple_route_L156
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#2)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#2 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 12u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%0#0: bytes = (substring3 tmp%0#2 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%9#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%9#0 14u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#2 10u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%1#0: bytes = (substring3 tmp%0#2 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%10#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%2#0: uint64 = (+ aggregate%array_length%10#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
+        (assert eq%2#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
         let tmp%8#1: bytes = (concat 0x151f7c75 tmp%0#2)
         (log tmp%8#1)
         exit 1u
     block@19: // nested_named_tuple_params_route_L161
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#2)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#2 16u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 18u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
+        let substring3%0#0: bytes = (substring3 tmp%0#2 extract_uint16%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 8u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 12u)
+        (assert eq%1#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%1#0 tuple_len%1#0)
+        let aggregate%array_length%11#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%11#0 14u)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%0#0 10u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%1#0)
+        (assert eq%2#0) // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
+        let substring3%2#0: bytes = (substring3 substring3%0#0 extract_uint16%2#0 tuple_len%1#0)
+        let aggregate%array_length%12#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%2#0: uint64 = (+ aggregate%array_length%12#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let add%4#0: uint64 = (+ 18u add%3#0)
+        let eq%3#0: bool = (== tuple_len%0#0 add%4#0)
+        (assert eq%3#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
         let tmp%12#0: bytes = (concat 0x151f7c75 tmp%0#2)
         (log tmp%12#0)
         exit 1u

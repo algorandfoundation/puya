@@ -210,6 +210,16 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]() -> void:
     block@0: // L30
         let user#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len user#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 user#0 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 18u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint64)
+        let substring3%0#0: bytes = (substring3 user#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%1#0: uint64 = (+ length%0#0 20u)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for examples.struct_in_box.contract.UserStruct
         let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
         let user_id#0: Encoded(uint64) = aggregate%extract%0#0
         let (_data#0: uint64, exists#0: bool) = (box_len user_id#0)
@@ -223,11 +233,11 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len user_id#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%1#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
         let aggregate%extract%0#0: bytes = (extract3 box_data#0 10u 8u)
@@ -241,7 +251,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.get_user[routing]() -
         let user_id#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len user_id#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
         let tmp%2#0: bytes = (concat 0x151f7c75 box_data#0)

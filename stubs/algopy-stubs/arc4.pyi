@@ -2,6 +2,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import algopy
+from algopy._interfaces import _Validatable
 from typing_extensions import deprecated
 
 _P = typing.ParamSpec("_P")
@@ -43,6 +44,7 @@ def abimethod(
     resource_encoding: typing.Literal["index", "value"] = ...,
     readonly: bool = False,
     default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
+    validate_encoding: typing.Literal["unsafe_disabled", "args"] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that indicates a method is an ARC-4 ABI method.
 
@@ -62,7 +64,13 @@ def abimethod(
                        be the name of, or reference to a method member, or the name of a storage
                        member. For static defaults, this can be any expression which evaluates to
                        a compile time constant of the exact same type as the parameter.
-
+    :arg validate_encoding: Controls validation behaviour for this method.
+                            If "args", then ABI arguments are validated automatically to ensure
+                            they are encoded correctly.
+                            If "unsafe_disabled", then no automatic validation occurs. Arguments
+                            can instead be validated using the .validate() method.
+                            The default behaviour of this option can be controlled with the
+                            --validate-abi-args CLI flag.
     """
 
 _TARC4Contract = typing.TypeVar("_TARC4Contract", bound=ARC4Contract)
@@ -97,7 +105,7 @@ def baremethod(
 def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
     """Returns the ARC-4 encoded method selector for the specified signature or abi method"""
 
-class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
+class _ABIEncoded(algopy.BytesBacked, _Validatable, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """
@@ -380,7 +388,7 @@ class StaticArray(
 
     @property
     def length(self) -> algopy.UInt64:
-        """Returns the length of the array"""
+        """Returns the (compile-time) length of the array"""
 
     def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
         """Gets the item of the array at provided index"""
@@ -532,6 +540,9 @@ class Struct(metaclass=_StructMeta):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
+
+    def validate(self) -> None:
+        """Performs validation to ensure the value is well-formed, errors if it is not"""
 
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""

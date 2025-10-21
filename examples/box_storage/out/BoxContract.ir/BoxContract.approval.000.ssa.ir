@@ -360,7 +360,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
@@ -369,7 +369,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+uint8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
         let tmp%3#0: bytes = (txna ApplicationArgs 3)
         let length%1#0: uint64 = array_len(tmp%3#0)
@@ -377,7 +377,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let add%1#0: uint64 = (+ mul%1#0 2u)
         let len%2#0: uint64 = (len tmp%3#0)
         let eq%2#0: bool = (== len%2#0 add%1#0)
-        (assert eq%2#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%3#0
         examples.box_storage.contract.BoxContract.set_boxes(tmp%1#0, as_Encoded(len+uint8[])%0#0, as_Encoded(len+utf8[])%0#0)
         exit 1u
@@ -397,13 +397,13 @@ subroutine examples.box_storage.contract.BoxContract.set_many_ints[routing]() ->
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.set_many_ints(tmp%1#0, tmp%3#0)
@@ -458,7 +458,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[r
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(tmp%1#0)
@@ -472,7 +472,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(tmp%1#0)
@@ -484,6 +484,113 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct[rout
 subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing]() -> void:
     block@0: // L252
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 20u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 8u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 18u)
+        (assert eq%1#0) // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%1#0 tuple_len%1#0)
+        let length%0#0: uint64 = array_len(substring3%1#0)
+        let num_bytes%0#0: uint64 = (* length%0#0 2u)
+        let total_length%0#0: uint64 = (len substring3%1#0)
+        let array_data%0#0: bytes = (substring3 substring3%1#0 2u total_length%0#0)
+        let index%0#0: uint64 = 0u
+        goto block@1
+    block@1: // for_header_L252
+        let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@3)
+        let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< index%0#1 length%0#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L252
+        let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#1)
+        (assert offset_is_correct%0#0) // invalid tail pointer for (len+(len+uint64[])[])
+        let total_length%1#0: uint64 = (len array_data%0#0)
+        let extract_to_end%0#0: bytes = (substring3 array_data%0#0 item_offset%0#0 total_length%1#0)
+        let length%1#0: uint64 = array_len(extract_to_end%0#0)
+        let mul%0#0: uint64 = (* length%1#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let num_bytes%0#2: uint64 = (+ num_bytes%0#1 add%0#0)
+        goto block@3
+    block@3: // for_footer_L252
+        let index%0#2: uint64 = (+ index%0#1 1u)
+        goto block@1
+    block@4: // after_for_L252
+        let num_bytes%1#0: uint64 = (+ num_bytes%0#1 2u)
+        let add%1#0: uint64 = (+ 18u num_bytes%1#0)
+        let add%2#0: uint64 = (+ 20u add%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%0#0 10u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%2#0)
+        (assert eq%2#0) // invalid tail pointer at index 2 of (uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)
+        let substring3%2#0: bytes = (substring3 tmp%0#0 extract_uint16%2#0 tuple_len%0#0)
+        let length%2#0: uint64 = array_len(substring3%2#0)
+        let num_bytes%2#0: uint64 = (* length%2#0 2u)
+        let total_length%2#0: uint64 = (len substring3%2#0)
+        let array_data%1#0: bytes = (substring3 substring3%2#0 2u total_length%2#0)
+        let index%1#0: uint64 = 0u
+        goto block@5
+    block@5: // for_header_L252
+        let index%1#1: uint64 = φ(index%1#0 <- block@4, index%1#2 <- block@11)
+        let num_bytes%2#1: uint64 = φ(num_bytes%2#0 <- block@4, num_bytes%2#3 <- block@11)
+        let continue_looping%1#0: bool = (< index%1#1 length%2#0)
+        goto continue_looping%1#0 ? block@6 : block@12
+    block@6: // for_body_L252
+        let head_offset_bytes%1#0: uint64 = (* index%1#1 2u)
+        let item_offset%1#0: uint64 = (extract_uint16 array_data%1#0 head_offset_bytes%1#0) // on error: invalid array encoding
+        let offset_is_correct%1#0: bool = (== item_offset%1#0 num_bytes%2#1)
+        (assert offset_is_correct%1#0) // invalid tail pointer for (len+(uint64,(len+(len+uint64[])[]),uint64)[])
+        let total_length%3#0: uint64 = (len array_data%1#0)
+        let extract_to_end%1#0: bytes = (substring3 array_data%1#0 item_offset%1#0 total_length%3#0)
+        let tuple_len%2#0: uint64 = (len extract_to_end%1#0)
+        let extract_uint16%3#0: uint64 = (extract_uint16 extract_to_end%1#0 8u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%3#0 18u)
+        (assert eq%3#0) // invalid tail pointer at index 1 of (uint64,(len+(len+uint64[])[]),uint64)
+        let substring3%3#0: bytes = (substring3 extract_to_end%1#0 extract_uint16%3#0 tuple_len%2#0)
+        let length%3#0: uint64 = array_len(substring3%3#0)
+        let num_bytes%3#0: uint64 = (* length%3#0 2u)
+        let total_length%4#0: uint64 = (len substring3%3#0)
+        let array_data%2#0: bytes = (substring3 substring3%3#0 2u total_length%4#0)
+        let index%2#0: uint64 = 0u
+        goto block@7
+    block@7: // for_header_L252
+        let index%2#1: uint64 = φ(index%2#0 <- block@6, index%2#2 <- block@9)
+        let num_bytes%3#1: uint64 = φ(num_bytes%3#0 <- block@6, num_bytes%3#2 <- block@9)
+        let continue_looping%2#0: bool = (< index%2#1 length%3#0)
+        goto continue_looping%2#0 ? block@8 : block@10
+    block@8: // for_body_L252
+        let head_offset_bytes%2#0: uint64 = (* index%2#1 2u)
+        let item_offset%2#0: uint64 = (extract_uint16 array_data%2#0 head_offset_bytes%2#0) // on error: invalid array encoding
+        let offset_is_correct%2#0: bool = (== item_offset%2#0 num_bytes%3#1)
+        (assert offset_is_correct%2#0) // invalid tail pointer for (len+(len+uint64[])[])
+        let total_length%5#0: uint64 = (len array_data%2#0)
+        let extract_to_end%2#0: bytes = (substring3 array_data%2#0 item_offset%2#0 total_length%5#0)
+        let length%4#0: uint64 = array_len(extract_to_end%2#0)
+        let mul%1#0: uint64 = (* length%4#0 8u)
+        let add%3#0: uint64 = (+ mul%1#0 2u)
+        let num_bytes%3#2: uint64 = (+ num_bytes%3#1 add%3#0)
+        goto block@9
+    block@9: // for_footer_L252
+        let index%2#2: uint64 = (+ index%2#1 1u)
+        goto block@7
+    block@10: // after_for_L252
+        let num_bytes%4#0: uint64 = (+ num_bytes%3#1 2u)
+        let add%4#0: uint64 = (+ 18u num_bytes%4#0)
+        let num_bytes%2#3: uint64 = (+ num_bytes%2#1 add%4#0)
+        goto block@11
+    block@11: // for_footer_L252
+        let index%1#2: uint64 = (+ index%1#1 1u)
+        goto block@5
+    block@12: // after_for_L252
+        let num_bytes%5#0: uint64 = (+ num_bytes%2#1 2u)
+        let add%5#0: uint64 = (+ add%2#0 num_bytes%5#0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%4#0: bool = (== len%0#0 add%5#0)
+        (assert eq%4#0) // invalid number of bytes for examples.box_storage.contract.NestedStruct
         let as_Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)%0#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = tmp%0#0
         examples.box_storage.contract.BoxContract.set_nested_struct(as_Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64)%0#0)
         exit 1u
@@ -493,13 +600,13 @@ subroutine examples.box_storage.contract.BoxContract.nested_write[routing]() -> 
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.nested_write(tmp%1#0, tmp%3#0)
@@ -510,19 +617,19 @@ subroutine examples.box_storage.contract.BoxContract.nested_read[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for uint64
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%2#0: Encoded(uint64) = tmp%4#0
         let tmp%5#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%2#0)
         let tmp%6#0: uint64 = examples.box_storage.contract.BoxContract.nested_read(tmp%1#0, tmp%3#0, tmp%5#0)
@@ -549,13 +656,13 @@ subroutine examples.box_storage.contract.BoxContract.set_bool[routing]() -> void
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for bool8
+        (assert eq%1#0) // invalid number of bytes for arc4.bool
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%2#0
         let tmp%3#0: bool = decode_bytes<bool>(as_Encoded(bool8)%0#0)
         examples.box_storage.contract.BoxContract.set_bool(tmp%1#0, tmp%3#0)
@@ -566,7 +673,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_bools[routing]() -> voi
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.sum_bools(tmp%1#0)
@@ -590,7 +697,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box[routing]
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.append_dynamic_box(tmp%1#0)
@@ -604,7 +711,7 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box[routing]() 
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = examples.box_storage.contract.BoxContract.pop_dynamic_box(tmp%1#0)
@@ -626,13 +733,13 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_box[routing](
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.write_dynamic_box(tmp%1#0, tmp%3#0)
@@ -643,13 +750,13 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_arr_struct[ro
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for uint64
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
         examples.box_storage.contract.BoxContract.write_dynamic_arr_struct(tmp%1#0, tmp%3#0)
@@ -680,7 +787,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
@@ -689,7 +796,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set[routing]() -> v
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for (len+utf8[])
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         examples.box_storage.contract.BoxContract.box_map_set(tmp%1#0, tmp%3#0)
@@ -700,7 +807,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_get[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: string = examples.box_storage.contract.BoxContract.box_map_get(tmp%1#0)
@@ -714,7 +821,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_del[routing]() -> v
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         examples.box_storage.contract.BoxContract.box_map_del(tmp%1#0)
@@ -725,7 +832,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_exists[routing]() -
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let tmp%2#0: bool = examples.box_storage.contract.BoxContract.box_map_exists(tmp%1#0)

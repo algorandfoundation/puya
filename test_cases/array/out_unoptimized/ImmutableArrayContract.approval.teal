@@ -1079,7 +1079,7 @@ sum_arr_block@0:
     // for i in arr:
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     b sum_arr_for_header@1
 
@@ -1163,7 +1163,7 @@ test_bool_array_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_array
     intc_1 // 1
@@ -1228,7 +1228,7 @@ test_implicit_conversion_log_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
@@ -1236,7 +1236,7 @@ test_implicit_conversion_log_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log
     intc_1 // 1
     return
@@ -1252,7 +1252,7 @@ test_implicit_conversion_emit_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
@@ -1260,7 +1260,7 @@ test_implicit_conversion_emit_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit
     intc_1 // 1
     return
@@ -1278,9 +1278,90 @@ test_nested_array_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    cover 1
+    dup
+    len
+    cover 1
+    intc_2 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    b test_nested_array_for_header@1
+
+test_nested_array_for_header@1:
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    dup
+    dig 4
+    <
+    bz test_nested_array_after_for@4
+    b test_nested_array_for_body@2
+
+test_nested_array_for_body@2:
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint64[])[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    +
+    bury 3
+    b test_nested_array_for_footer@3
+
+test_nested_array_for_footer@3:
+    dup
+    intc_1 // 1
+    +
+    bury 1
+    b test_nested_array_for_header@1
+
+test_nested_array_after_for@4:
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    dig 2
+    intc_2 // 2
+    +
+    dig 5
+    dup
+    cover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<uint64>>
+    dig 6
+    uncover 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_nested_array
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1312,7 +1393,7 @@ sum_uints_and_lengths_and_trues_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
@@ -1320,11 +1401,11 @@ sum_uints_and_lengths_and_trues_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
     txna ApplicationArgs 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 7 // 7
@@ -1336,11 +1417,11 @@ sum_uints_and_lengths_and_trues_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+bool1[])
+    assert // invalid number of bytes for arc4.dynamic_array<bool>
     txna ApplicationArgs 3
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 9 // 9
     *
     intc_2 // 2
@@ -1348,11 +1429,104 @@ sum_uints_and_lengths_and_trues_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
     txna ApplicationArgs 4
-    uncover 3
-    uncover 3
-    uncover 3
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    cover 1
+    dup
+    len
+    cover 1
+    intc_2 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    b sum_uints_and_lengths_and_trues_for_header@1
+
+sum_uints_and_lengths_and_trues_for_header@1:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dup
+    dig 4
+    <
+    bz sum_uints_and_lengths_and_trues_after_for@4
+    b sum_uints_and_lengths_and_trues_for_body@2
+
+sum_uints_and_lengths_and_trues_for_body@2:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    dup
+    len
+    cover 1
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 10 // 10
+    +
+    +
+    bury 3
+    b sum_uints_and_lengths_and_trues_for_footer@3
+
+sum_uints_and_lengths_and_trues_for_footer@3:
+    dup
+    intc_1 // 1
+    +
+    bury 1
+    b sum_uints_and_lengths_and_trues_for_header@1
+
+sum_uints_and_lengths_and_trues_after_for@4:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dig 2
+    intc_2 // 2
+    +
+    dig 5
+    dup
+    cover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+    dig 8
+    dig 8
+    dig 8
     uncover 3
     callsub test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues
     cover 3
@@ -1391,7 +1565,7 @@ test_uint64_return_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_uint64_return
     bytec_1 // 0x151f7c75
@@ -1414,7 +1588,7 @@ test_bool_return_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_return
     bytec_1 // 0x151f7c75
@@ -1437,7 +1611,7 @@ test_tuple_return_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_tuple_return
     bytec_1 // 0x151f7c75
@@ -1460,7 +1634,7 @@ test_dynamic_tuple_return_block@0:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return
     bytec_1 // 0x151f7c75
@@ -1481,7 +1655,7 @@ test_convert_to_array_and_back_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 9 // 9
     *
     intc_2 // 2
@@ -1489,13 +1663,13 @@ test_convert_to_array_and_back_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+(uint64,bool1,bool1)[])
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
     txna ApplicationArgs 2
     dup
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back
     bytec_1 // 0x151f7c75
@@ -1518,7 +1692,7 @@ test_concat_with_arc4_tuple_block@0:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1540,7 +1714,7 @@ test_concat_with_native_tuple_block@0:
     len
     pushint 16 // 16
     ==
-    assert // invalid number of bytes for (uint64,uint64)
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
     dup
     intc_0 // 0
     intc_3 // 8
@@ -1566,6 +1740,50 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     // array/immutable.py:422
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    cover 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    dig 1
+    uncover 1
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 1
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+    dig 2
+    uncover 1
+    uncover 4
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1583,6 +1801,50 @@ test_dynamic_concat_with_native_tuple_block@0:
     // array/immutable.py:430
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    len
+    cover 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4 // 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    dig 1
+    uncover 1
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 4 // 4
+    +
+    dig 1
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+    dig 2
+    uncover 1
+    uncover 4
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
     dup
     intc_0 // 0
     extract_uint16
@@ -1616,13 +1878,212 @@ test_dynamic_concat_with_native_tuple_block@0:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic[routing]() -> void:
 test_concat_immutable_dynamic:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b test_concat_immutable_dynamic_block@0
 
 test_concat_immutable_dynamic_block@0:
     // array/immutable.py:438
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    cover 1
+    dup
+    len
+    cover 1
+    intc_2 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    b test_concat_immutable_dynamic_for_header@1
+
+test_concat_immutable_dynamic_for_header@1:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dup
+    dig 4
+    <
+    bz test_concat_immutable_dynamic_after_for@4
+    b test_concat_immutable_dynamic_for_body@2
+
+test_concat_immutable_dynamic_for_body@2:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    dup
+    len
+    cover 1
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 10 // 10
+    +
+    +
+    bury 3
+    b test_concat_immutable_dynamic_for_footer@3
+
+test_concat_immutable_dynamic_for_footer@3:
+    dup
+    intc_1 // 1
+    +
+    bury 1
+    b test_concat_immutable_dynamic_for_header@1
+
+test_concat_immutable_dynamic_after_for@4:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 2
+    intc_2 // 2
+    +
+    dig 5
+    dup
+    cover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+    bury 10
     txna ApplicationArgs 2
+    dup
+    bury 10
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 9
+    intc_2 // 2
+    *
+    bury 7
+    dup
+    len
+    cover 1
+    intc_2 // 2
+    uncover 2
+    substring3
+    bury 11
+    intc_0 // 0
+    bury 8
+    b test_concat_immutable_dynamic_for_header@5
+
+test_concat_immutable_dynamic_for_header@5:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 7
+    dig 7
+    <
+    bz test_concat_immutable_dynamic_after_for@8
+    b test_concat_immutable_dynamic_for_body@6
+
+test_concat_immutable_dynamic_for_body@6:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 7
+    intc_2 // 2
+    *
+    dig 11
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 8
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    dup
+    len
+    cover 1
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10 // 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 10 // 10
+    +
+    +
+    bury 6
+    b test_concat_immutable_dynamic_for_footer@7
+
+test_concat_immutable_dynamic_for_footer@7:
+    dig 7
+    intc_1 // 1
+    +
+    bury 8
+    b test_concat_immutable_dynamic_for_header@5
+
+test_concat_immutable_dynamic_after_for@8:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 5
+    intc_2 // 2
+    +
+    dig 9
+    dup
+    cover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
+    dig 10
+    uncover 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1642,7 +2103,7 @@ test_immutable_arc4_block@0:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 16 // 16
     *
     intc_2 // 2
@@ -1650,7 +2111,7 @@ test_immutable_arc4_block@0:
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+(uint64,uint64)[])
+    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct>
     callsub test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1690,7 +2151,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 0
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -1719,7 +2180,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     ==
     assert
@@ -1727,7 +2188,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 42
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1754,7 +2215,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 6
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 6 // 6
     ==
     assert
@@ -1762,7 +2223,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1806,7 +2267,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 7
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 7 // 7
     ==
     assert
@@ -1814,7 +2275,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 43
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1859,7 +2320,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 4 // 4
     ==
     assert
@@ -1867,7 +2328,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1894,7 +2355,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 14
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 14 // 14
     ==
     assert
@@ -1902,7 +2363,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 9
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1946,7 +2407,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 15
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 15 // 15
     ==
     assert
@@ -1954,7 +2415,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr[-1] == 44
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -1990,7 +2451,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_uint64_array_block@0:
     // assert arr.length == 15
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 15 // 15
     ==
     assert
@@ -2034,7 +2495,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr.length == 0
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -2073,7 +2534,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr.length == 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     ==
     assert
@@ -2081,7 +2542,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr[-1] == 0
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2107,7 +2568,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr.length == 6
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 6 // 6
     ==
     assert
@@ -2115,7 +2576,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr[-1] == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2169,7 +2630,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr.length == 7
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 7 // 7
     ==
     assert
@@ -2177,7 +2638,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr[-1] == 2**512 - 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2244,7 +2705,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr.length == 8
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 8
     ==
     assert
@@ -2252,7 +2713,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_biguint_array_block@0:
     // assert arr[-1] == 2**512 - 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2317,7 +2778,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_block@0:
     // array/immutable.py:158
     // assert arr.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -2374,7 +2835,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_after_for@4:
     // assert arr.length == length
     frame_dig 1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_dig -1
     ==
     assert
@@ -2392,7 +2853,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_if_body@5:
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     >
     assert // index access is out of bounds
@@ -2419,7 +2880,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_if_body@7:
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     >
     assert // index access is out of bounds
@@ -2446,7 +2907,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_if_body@9:
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_2 // 2
     >
     assert // index access is out of bounds
@@ -2476,7 +2937,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_if_body@11:
     dup
     cover 2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dig 1
     >
     assert // index access is out of bounds
@@ -2511,7 +2972,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bool_array_if_body@13:
     // array/immutable.py:177
     // assert arr.length == length - 1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_dig -1
     intc_1 // 1
     -
@@ -2542,7 +3003,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_bl
     // array/immutable.py:182
     // assert arr.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -2619,7 +3080,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_af
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -2659,7 +3120,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_af
     // assert arr[-1] == (UInt64(5), UInt64(6))
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2702,7 +3163,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_af
     // assert arr.length == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 4 // 4
     ==
     assert
@@ -2742,7 +3203,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tuple_array_af
     // assert arr[-1] == (UInt64(4), UInt64(5))
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     dig 1
@@ -2801,7 +3262,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_ar
     // array/immutable.py:200
     // assert arr.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -2890,7 +3351,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_named_tuple_ar
     frame_dig 0
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -2965,7 +3426,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     // array/immutable.py:215
     // assert arr.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -3058,7 +3519,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     // assert arr.length == 5
     frame_dig 2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -3096,7 +3557,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 2
     dig 3
     intc_2 // 2
@@ -3148,7 +3609,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     substring3
     cover 1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 1
     dig 2
     intc_2 // 2
@@ -3216,7 +3677,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     // assert arr.length == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 4 // 4
     ==
     assert
@@ -3232,7 +3693,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 1
     intc_0 // 0
     intc_2 // 2
@@ -3294,7 +3755,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     // assert arr[-1] == (UInt64(4), op.bzero(3)), "expected 4, 3"
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     cover 1
@@ -3308,7 +3769,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_tuple_array
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 2
     dig 3
     intc_2 // 2
@@ -3394,7 +3855,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     // array/immutable.py:234
     // assert arr.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -3487,7 +3948,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     // assert arr.length == 5
     frame_dig 2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -3525,7 +3986,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 2
     dig 3
     intc_2 // 2
@@ -3577,7 +4038,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     substring3
     cover 1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 1
     dig 2
     intc_2 // 2
@@ -3646,7 +4107,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     // assert arr.length == 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 4 // 4
     ==
     assert
@@ -3662,7 +4123,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 1
     intc_0 // 0
     intc_2 // 2
@@ -3723,7 +4184,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     // assert arr[-1] == MyDynamicSizedTuple(UInt64(4), String("   ")), "expected 4, 3"
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     cover 1
@@ -3737,7 +4198,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_named_tuple
     cover 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 2
     dig 3
     intc_2 // 2
@@ -3996,7 +4457,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_nested_array_after_for@8:
     // for inner_arr in arr:
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_bury 2
     intc_0 // 0
     frame_bury 4
@@ -4119,28 +4580,28 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_block@0
     // array/immutable.py:282
     // assert arr2.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
     // array/immutable.py:283
     // assert arr7.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
     // array/immutable.py:284
     // assert arr8.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
     // array/immutable.py:285
     // assert arr9.length == 0
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     ==
     assert
@@ -4597,7 +5058,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_after_f
     frame_dig 0
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -4606,7 +5067,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_after_f
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -4615,7 +5076,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_after_f
     frame_dig 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -4624,7 +5085,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tuples_after_f
     frame_dig 3
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     pushint 5 // 5
     ==
     assert
@@ -4685,7 +5146,7 @@ test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_true
     // for i in arr1:
     frame_dig -4
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     b test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues_for_header@1
 
@@ -4732,7 +5193,7 @@ test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_true
     // for b in arr2:
     frame_dig -3
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_bury 0
     intc_0 // 0
     frame_bury 3
@@ -4789,7 +5250,7 @@ test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_true
     // for tup in arr3:
     frame_dig -2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_bury 1
     intc_0 // 0
     frame_bury 4
@@ -4890,7 +5351,7 @@ test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_true
     // for idx, dyn_tup in uenumerate(arr4):
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     frame_bury 2
     intc_0 // 0
     frame_bury 5
@@ -4916,7 +5377,7 @@ test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_true
     substring3
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     cover 1
     frame_dig 5
     dup
@@ -5768,7 +6229,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic_
     substring3
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     uncover 3
     uncover 3
     uncover 2
@@ -5790,7 +6251,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4_block@0:
     // assert imm, "expected non empty array"
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_0 // 0
     !=
     assert // expected non empty array
@@ -5798,7 +6259,7 @@ test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4_block@0:
     // imm = imm.replace(imm.length - 1, imm[0])
     frame_dig -1
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_1 // 1
     -
     frame_dig -1
