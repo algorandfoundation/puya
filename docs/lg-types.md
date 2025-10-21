@@ -316,3 +316,81 @@ you can edit values in arrays by index.
 Please see the [reference documentation](./api-algopy.arc4.md) for the different classes that can
 be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information
 about ARC-4.
+
+## Type Validation
+
+TODO(joe-p): link to ABI validation docs when ready
+
+### Validated Sources of Values
+
+The following sources of ABI values are always validated by the compiler by default.
+
+- ABI method arguments (when called externally)
+- ABI return values
+- Bytes.to_fixed (with the `assert-length` strategy)
+- decodeArc4 or convertBytes with the `validate` strategy
+
+**NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`convertBytes`) for converting the bytes to the desired ABI type.
+
+### Non-Validated Sources
+
+There are certain places where one can get an ABI value that is not fully validated:
+
+- Global state
+- Local state
+- Boxes
+- Subroutine arguments
+- Subroutine return values
+- Account/Address constructor
+
+There are no automatic validation steps taken for these values because it is assumed that the value was validated before reaching this point by the compiler.
+
+For example, if a method takes an ABI value as an argument and stores it in a box, the value is validated when taken as input from the method arguments but not when placed in the box. By default, all sources of ABI values other than what is listed above does have ABI validation, thus it would be inefficient to perform validation again every time the value is used.
+
+It should be noted, however, that all the validation methods the Puya compiler does automatically can be disabled on a per-method basis. This means it is theoretically possible for an incorrectly encoded value to come from one of the listed sources, but it will always be clear in the source code that this is the case.
+
+For example, given the following contract:
+
+```py
+class BoxReadWrite(ARC4Contract):
+    acct_box: Box[Account]
+
+    def __init__(self) -> None:
+        self.acct_box = Box(Account)
+
+    @abimethod()
+    def write_to_box(self, acct: Account) -> None:
+        self.acct_box.value = acct
+
+    @abimethod()
+    def read_from_box(self) -> Account:
+        return self.acct_box.value
+```
+
+One can be sure that the value in `acctBox` is always valid because the only source of the value is an ABI argument (`acct` in `writeToBox`). If validation was disabled, however, then one cannot trust that it is properly encoded and should perform a manual validation and should perform a manual validation if required:
+
+```py
+class BoxReadWrite(ARC4Contract):
+    acct_box: Box[Account]
+
+    def __init__(self):
+        self.acct_box = Box(Account)
+
+    @abimethod(validate_encoding="unsafe_disabled") 
+    def write_to_box(self, acct: Account) -> None:
+        assert acct.bytes.length == 32 
+        self.acct_box.value = acct
+
+
+    @abimethod()
+    def read_from_box(self) -> Account:
+        return self.acct_box.value
+```
+
+Similarly, if a the Account is constructed from bytes, a manual validation should be performed:
+
+```py
+    def write_to_box(self, acct_bytes: Bytes) -> None:
+        assert acct_bytes.length == 32
+        self.acct_box.value = Account(acct_bytes)
+```
