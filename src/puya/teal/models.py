@@ -188,11 +188,11 @@ class Bury(TealOpUInt8):
 
     @consumes.default
     def _consumes(self) -> int:
-        return self.n
+        return self.n + 1
 
     @produces.default
     def _produces(self) -> int:
-        return self.n - 1
+        return self.n
 
 
 def _valid_uint64(node: TealOp, _attribute: object, value: int) -> None:
