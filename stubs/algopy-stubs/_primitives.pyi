@@ -2,6 +2,8 @@
 import typing
 from collections.abc import Container, Iterator, Reversible
 
+import typing_extensions
+
 class UInt64:
     """A 64-bit unsigned integer, one of the primary data types on the AVM"""
 
@@ -195,7 +197,10 @@ class UInt64:
     def __pos__(self) -> UInt64:
         """Supports unary + operator. Redundant given the type is unsigned"""
 
-class Bytes(Reversible[Bytes]):
+_TBytesLength = typing_extensions.TypeVar("_TBytesLength", bound=int | None, default=None)
+_TBytesLength_co = typing_extensions.TypeVar("_TBytesLength_co", bound=int | None, covariant=True)
+
+class Bytes(typing.Generic[_TBytesLength], Reversible[Bytes]):
     """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
 
     __match_value__: bytes
@@ -217,15 +222,15 @@ class Bytes(Reversible[Bytes]):
     def from_hex(value: str, /) -> Bytes:
         """Creates Bytes from a hex/octal encoded string e.g. `Bytes.from_hex("FF")`"""
 
-    def __add__(self, other: Bytes | bytes) -> Bytes:
+    def __add__(self, other: Bytes[_TBytesLength] | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `Bytes(b"Hello ") + b"World"`."""
 
-    def __radd__(self, other: Bytes | bytes) -> Bytes:
+    def __radd__(self, other: Bytes[_TBytesLength_co] | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `b"Hello " + Bytes(b"World")`."""
 
-    def __iadd__(self, other: Bytes | bytes) -> Bytes:
+    def __iadd__(self, other: Bytes[_TBytesLength_co] | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `a += Bytes(b"World")`."""
 
@@ -506,3 +511,10 @@ class BigUInt(BytesBacked):
 
     def __pos__(self) -> BigUInt:
         """Supports unary + operator. Redundant given the type is unsigned"""
+
+x = Bytes[typing.Literal[32]]()
+x1 = Bytes[typing.Literal[32]]()
+y = Bytes[typing.Literal[64]]()
+z = Bytes()
+a = x + x1  # This should be valid
+b = x + z
