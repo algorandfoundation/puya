@@ -319,7 +319,7 @@ about ARC-4.
 
 ## Type Validation
 
-TODO(joe-p): link to ABI validation docs when ready
+TODO(joe-p): link to this page once merged: https://github.com/algorandfoundation/devportal/pull/379
 
 ### Validated Sources of Values
 
@@ -328,7 +328,6 @@ The following sources of ABI values are always validated by the compiler by defa
 - ABI method arguments (when called externally)
 - ABI return values
 - Bytes.to_fixed (with the `assert-length` strategy)
-- decodeArc4 or convertBytes with the `validate` strategy
 
 **NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`convertBytes`) for converting the bytes to the desired ABI type.
 
@@ -341,7 +340,7 @@ There are certain places where one can get an ABI value that is not fully valida
 - Boxes
 - Subroutine arguments
 - Subroutine return values
-- Account/Address constructor
+- `from_bytes` methods on ABI types
 
 There are no automatic validation steps taken for these values because it is assumed that the value was validated before reaching this point by the compiler.
 
