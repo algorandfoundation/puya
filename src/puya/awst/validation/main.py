@@ -1,4 +1,5 @@
 from puya.awst import nodes as awst_nodes
+from puya.awst.validation.abi_method_name import AbiMethodNameValidator
 from puya.awst.validation.base_invoker import BaseInvokerValidator
 from puya.awst.validation.immutable import ImmutableValidator
 from puya.awst.validation.inner_transactions import (
@@ -18,3 +19,4 @@ def validate_awst(module: awst_nodes.AWST) -> None:
     StorageTypesValidator.validate(module)
     LabelsValidator.validate(module)
     ImmutableValidator.validate(module)
+    AbiMethodNameValidator.validate(module)
