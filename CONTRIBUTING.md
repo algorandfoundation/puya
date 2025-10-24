@@ -14,6 +14,27 @@ Ensure to describe the changes made in a [scriv fragment file](https://scriv.rea
 
 The fragment file is deleted by the CD pipeline once it is integrated into [CHANGELOG.md](./CHANGELOG.md) file as part of CD process.
 
+### Approval commits
+
+The codebase has approval tests that can be used to see diffs on generated outputs from each compiler layer. 
+This is a really useful mechanism to protect against regressions and understand the effect of a change to the compiler, but also can result in a huge amount of noise.
+For this reason some thought should be given to how the commits in a PR are arranged.
+It is recommended when making changes that affect compiler output to have two commits, one with the code change and a second with the relevant approval changes.
+Avoid having approval commits that mix two different types of changes, for example.
+If a change affects all files but has no significant impact (e.g. a formatting change), 
+it should not be combined with another change that is significant (e.g. a bug fix, or new optimization)
+
+a PR separating significant changes from insignificant change may look like the following
+
+* refactor: add additional indentation to IR output 
+* chore: compile all
+* feat: added a new IR optimization
+* chore: compile all
+
+### TEAL layer
+
+Pull Requests involving the TEAL layer (src/puya/teal) require the approval of two or more reviewers before merging.
+
 ## Getting Started
 
 1. Ensure [uv](https://docs.astral.sh/uv/getting-started/installation/) is installed.
@@ -23,6 +44,7 @@ The fragment file is deleted by the CD pipeline once it is integrated into [CHAN
 1. Optionally debug individual tests
    1. Run `algokit localnet start`
    1. Use your IDEs built-in run/debug setup to run tests (via pytest)
+
 
 ## Local development tips
 

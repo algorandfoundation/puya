@@ -9,30 +9,40 @@ from puya.parse import SourceLocation
 from puya.utils import get_cwd
 from puyapy import code_fixes
 from puyapy.lsp.analyse import get_code_fix_context
+from puyapy.lsp.server import LogToClient
 
 
 def configure_logging(
     *,
     min_log_level: log.LogLevel,
     file: typing.TextIO,
-) -> None:
+) -> "LogToClient":
+    """
+    Configures logging for the language server, which happens before the language server is
+    available, so also returns an interface that can be used to provide language server instance
+    and configured log level for client
+    """
     log.configure_stdio()
 
+    log_to_client = LogToClient()
     processors: list[structlog.typing.Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
         _capture_fixes,  # capture fixes before filtering output to lsp log messages
         _filter_loggers_to_lsp,  # dont output log output outside puyapy.lsp namespace
-        log.PuyaConsoleRender(colors=False, base_path=str(get_cwd())),
+        log_to_client,
     ]
-    processors.insert(0, log.FilterByLogLevel(min_log_level))
+    # min_log_level from CLI is just for stdio output, so put just before renderer (if set)
+    if min_log_level != log.LogLevel.notset:
+        processors.append(log.FilterByLogLevel(min_log_level))
+    processors.append(log.PuyaConsoleRender(colors=False, base_path=str(get_cwd())))
     structlog.configure(
         processors=processors,
-        context_class=dict,
         logger_factory=_NamedPrintLoggerFactory(file=file),
         cache_logger_on_first_use=True,
     )
+    return log_to_client
 
 
 @attrs.frozen

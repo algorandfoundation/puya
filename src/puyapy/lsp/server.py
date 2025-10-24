@@ -1,41 +1,92 @@
+import functools
 import importlib.metadata
 import sys
 import threading
 import time
 import typing
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import attrs
-from lsprotocol import types
+import structlog
+from cattrs.preconf.json import make_converter
+from lsprotocol import types as lsp
 from pygls.lsp.server import LanguageServer
 
-from puya.log import get_logger
+from puya import log
 from puya.utils import StableSet
-from puyapy.lsp.analyse import (
-    CodeAnalyser,
-    DocumentAnalysis,
-)
+from puyapy.lsp.analyse import URI, CodeAnalyser, DocumentAnalysis
 from puyapy.parse import get_sys_path
 
-logger = get_logger(__name__)
-
-_DEFAULT_DEBOUNCE_INTERVAL: typing.Final = 0.5
+logger = log.get_logger(__name__)
 
 
-def create_server() -> LanguageServer:
+LogConfigurationLevel = typing.Literal["Debug", "Info", "Warning", "Error"]
+
+
+@attrs.frozen
+class ClientConfiguration:
+    # configuration comes from JSON so uses JSON naming conventions
+    logLevel: LogConfigurationLevel = "Info"  # noqa: N815
+    debounceInterval: float = 0.5  # noqa: N815
+
+
+_LOG_LEVELS: typing.Final[
+    Sequence[tuple[LogConfigurationLevel, lsp.MessageType, log.LogLevel]]
+] = (
+    ("Debug", lsp.MessageType.Debug, log.LogLevel.debug),
+    ("Info", lsp.MessageType.Info, log.LogLevel.info),
+    ("Warning", lsp.MessageType.Warning, log.LogLevel.warning),
+    ("Error", lsp.MessageType.Error, log.LogLevel.error),
+)
+
+_CONFIG_TO_LOG_LEVEL: typing.Final[Mapping[LogConfigurationLevel, log.LogLevel]] = {
+    config_level: puya_level for config_level, _, puya_level in _LOG_LEVELS
+}
+
+_LOG_LEVEL_TO_MESSAGE_TYPE: typing.Final[Mapping[log.LogLevel, lsp.MessageType]] = {
+    puya_level: message_type for _, message_type, puya_level in _LOG_LEVELS
+}
+
+
+@attrs.define
+class LogToClient:
+    server: LanguageServer | None = None
+    log_level: log.LogLevel = log.LogLevel.info
+
+    def __call__(
+        self,
+        _logger: structlog.typing.WrappedLogger,
+        method_name: str,
+        event_dict: structlog.typing.EventDict,
+    ) -> structlog.typing.EventDict:
+        if self.server is not None:
+            level = log.LogLevel[method_name]
+            if level >= self.log_level:
+                message = event_dict["event"]
+                message_type = _LOG_LEVEL_TO_MESSAGE_TYPE[level]
+                self.server.window_log_message(
+                    lsp.LogMessageParams(type=message_type, message=message)
+                )
+        return event_dict
+
+
+def create_server(log_to_client: LogToClient) -> LanguageServer:
     server = LanguageServer("puyapy", version=importlib.metadata.version("puyapy"))
     logger.info(f"{server.name} - {server.version}")
     logger.debug(f"Server location: {__file__}")
 
-    server.feature(types.INITIALIZE)(_initialize_language_server)
+    server.feature(lsp.INITIALIZE)(functools.partial(_initialize_language_server, log_to_client))
     return server
 
 
-def _initialize_language_server(ls: LanguageServer, init_params: types.InitializeParams) -> None:
+def _initialize_language_server(
+    log_to_client: LogToClient, ls: LanguageServer, init_params: lsp.InitializeParams
+) -> None:
+    # only set language server once protocol is up and running
+    log_to_client.server = ls
     logger.debug("initializing server")
     options = init_params.initialization_options or {}
     python_executable = options.get("pythonExecutable")
-    debounce_interval = options.get("debounceInterval", _DEFAULT_DEBOUNCE_INTERVAL)
     # note: ideally, search_paths would be updated whenever the venv is modified
     #       however, there are two things that make that tricky
     #       1.) Detecting when it's modified
@@ -49,41 +100,44 @@ def _initialize_language_server(ls: LanguageServer, init_params: types.Initializ
     logger.debug(f"using search paths: {search_paths}")
     puyapy_ls = PuyaPyLanguageServer(
         ls=ls,
-        debounce_interval=debounce_interval,
         analyser=CodeAnalyser(
             workspace=ls.workspace,
             package_search_paths=search_paths,
         ),
     )
 
-    @ls.feature(types.TEXT_DOCUMENT_DID_OPEN)
-    def text_document_did_open(
-        _ls: LanguageServer, params: types.DidOpenTextDocumentParams
-    ) -> None:
-        puyapy_ls.queue_diagnostics(params.text_document.uri)
+    converter = make_converter(detailed_validation=False)
 
-    @ls.feature(types.TEXT_DOCUMENT_DID_CHANGE)
-    def text_document_did_change(
-        _ls: LanguageServer, params: types.DidChangeTextDocumentParams
+    @ls.feature(lsp.WORKSPACE_DID_CHANGE_CONFIGURATION)
+    def did_change_configuration(
+        _ls: LanguageServer, params: lsp.DidChangeConfigurationParams
     ) -> None:
-        puyapy_ls.queue_diagnostics(params.text_document.uri)
+        if params.settings is not None:
+            config = converter.structure(params.settings, ClientConfiguration)
+            log_to_client.log_level = _CONFIG_TO_LOG_LEVEL[config.logLevel]
+            puyapy_ls.debounce_interval = config.debounceInterval
+        logger.debug(f"did_change_configuration: {params.settings}")
+
+    @ls.feature(lsp.TEXT_DOCUMENT_DID_OPEN)
+    def text_document_did_open(_ls: LanguageServer, params: lsp.DidOpenTextDocumentParams) -> None:
+        puyapy_ls.queue_diagnostics(URI(params.text_document.uri))
+
+    @ls.feature(lsp.TEXT_DOCUMENT_DID_CHANGE)
+    def text_document_did_change(
+        _ls: LanguageServer, params: lsp.DidChangeTextDocumentParams
+    ) -> None:
+        puyapy_ls.queue_diagnostics(URI(params.text_document.uri))
 
     @ls.feature(
-        types.TEXT_DOCUMENT_CODE_ACTION,
-        types.CodeActionOptions(code_action_kinds=[types.CodeActionKind.QuickFix]),
+        lsp.TEXT_DOCUMENT_CODE_ACTION,
+        lsp.CodeActionOptions(code_action_kinds=[lsp.CodeActionKind.QuickFix]),
     )
-    def code_actions(
-        _ls: LanguageServer, params: types.CodeActionParams
-    ) -> list[types.CodeAction]:
-        return puyapy_ls.get_code_actions(params.text_document.uri, params.range)
-
-
-URI: typing.TypeAlias = str
+    def code_actions(_ls: LanguageServer, params: lsp.CodeActionParams) -> list[lsp.CodeAction]:
+        return puyapy_ls.get_code_actions(URI(params.text_document.uri), params.range)
 
 
 @attrs.define
 class PuyaPyLanguageServer:
-    _debounce_interval: float
     _ls: LanguageServer
     _analyser: CodeAnalyser
     _analysis: dict[URI, DocumentAnalysis] = attrs.field(factory=dict, init=False)
@@ -92,6 +146,7 @@ class PuyaPyLanguageServer:
     _analysis_lock: threading.Lock = attrs.field(factory=threading.Lock, init=False)
     _last_trigger: float = attrs.field(default=0.0, init=False)
     _analysis_thread: threading.Thread = attrs.field(init=False)
+    debounce_interval: float = 0.5
 
     @_analysis_thread.default
     def _analysis_thread_factory(self) -> threading.Thread:
@@ -106,7 +161,7 @@ class PuyaPyLanguageServer:
             self._last_trigger = time.time()
             self._work_available.set()
 
-    def get_code_actions(self, document_uri: URI, range_: types.Range) -> list[types.CodeAction]:
+    def get_code_actions(self, document_uri: URI, range_: lsp.Range) -> list[lsp.CodeAction]:
         try:
             analysis = self._analysis[document_uri]
         except KeyError:
@@ -137,21 +192,21 @@ class PuyaPyLanguageServer:
             start = time.time()
             analysis = self._analyser.analyse(changed)
             duration = time.time() - start
-            logger.debug(f"analysis took {duration:.2f}s")
+            logger.info(f"analysis took {duration:.2f}s")
             self._analysis.update(analysis)
             self._publish_diagnostics(analysis)
 
     def _time_to_wait_for_debounce(self) -> float:
-        return self._last_trigger + self._debounce_interval - time.time()
+        return self._last_trigger + self.debounce_interval - time.time()
 
     def _publish_diagnostics(self, uris: Mapping[URI, DocumentAnalysis]) -> None:
         for uri, analysis in uris.items():
             version = analysis.version
             diagnostics = analysis.diagnostics
 
-            logger.debug(f"Publish {len(diagnostics)} diagnostics for {uri=}, {version=}")
+            logger.info(f"publish {len(diagnostics)} diagnostics for {uri=}, {version=}")
             self._ls.text_document_publish_diagnostics(
-                types.PublishDiagnosticsParams(
+                lsp.PublishDiagnosticsParams(
                     uri=uri,
                     version=version,
                     diagnostics=diagnostics,
@@ -159,7 +214,7 @@ class PuyaPyLanguageServer:
             )
 
 
-def _range_overlaps(a: types.Range, b: types.Range) -> bool:
+def _range_overlaps(a: lsp.Range, b: lsp.Range) -> bool:
     if a.end < b.start:
         return False
     return a.start <= b.end

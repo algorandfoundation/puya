@@ -876,3 +876,32 @@ def no() -> None:
         arr.append(Imm(i))
 
     arr[0].bar = UInt64(1) # type: ignore[misc] ## E: expression is not valid as an assignment target - object is immutable
+
+
+## case: invalid abi method names
+from algopy import *
+
+class MyAbiMethodNameTests(ARC4Contract):
+    @arc4.abimethod(name="1_test") ## W: method name '1_test' does not conform to ARC-4 spec
+    def test_1(self) -> None:
+        pass
+
+    @arc4.abimethod(name="test-2") ## W: method name 'test-2' does not conform to ARC-4 spec
+    def test_2(self) -> None:
+        pass
+    
+    @arc4.abimethod(name="test_3*") ## W: method name 'test_3*' does not conform to ARC-4 spec
+    def test_3(self) -> None:
+        pass
+
+    @arc4.abimethod(name="") ## W: method name '' does not conform to ARC-4 spec
+    def test_4(self) -> None:
+        pass
+
+    @arc4.abimethod(name="if")
+    def test_5(self) -> None:
+        pass
+
+
+    
+

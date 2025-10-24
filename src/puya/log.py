@@ -333,7 +333,6 @@ def configure_logging(
         processors.insert(0, FilterByLogLevel(min_log_level))
     structlog.configure(
         processors=processors,
-        context_class=dict,
         logger_factory=structlog.PrintLoggerFactory(file=file),
         cache_logger_on_first_use=cache_logger,
     )
