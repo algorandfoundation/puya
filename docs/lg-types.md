@@ -319,7 +319,11 @@ about ARC-4.
 
 ## Type Validation
 
-TODO(joe-p): link to this page once merged: https://github.com/algorandfoundation/devportal/pull/379
+Most high-order types (i.e. not `Uint64` or `Bytes`) supported by Algorand TypeScript exist as a single byte array value with a specific encoding. When reading one of these values from an untrusted source it is important to validate the encoding of this value before using it. For example when expecting a `Account` one should validate that there are exactly 32 bytes in the underlying value.
+
+Puya-ts automatically validates some value sources for you, whilst leaving others to be explicitly validated by the developer. You should always validate untrusted sources (such as ABI args from untrusted clients) but may wish to omit validation for performance/efficiency reasons from trusted sources (such as a Global state value only your application accesses).
+
+For more detailed information on the impacts of type validation refer to [this section](https://dev.algorand.co/concepts/smart-contracts/abi/#validating-abi-values) in the developer portal.
 
 ### Validated Sources of Values
 
