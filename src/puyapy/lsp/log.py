@@ -32,9 +32,11 @@ def configure_logging(
         _capture_fixes,  # capture fixes before filtering output to lsp log messages
         _filter_loggers_to_lsp,  # dont output log output outside puyapy.lsp namespace
         log_to_client,
-        log.FilterByLogLevel(min_log_level),  # min_log_level from CLI is just for stdio output
-        log.PuyaConsoleRender(colors=False, base_path=str(get_cwd())),
     ]
+    # min_log_level from CLI is just for stdio output, so put just before renderer (if set)
+    if min_log_level != log.LogLevel.notset:
+        processors.append(log.FilterByLogLevel(min_log_level))
+    processors.append(log.PuyaConsoleRender(colors=False, base_path=str(get_cwd())))
     structlog.configure(
         processors=processors,
         context_class=dict,
