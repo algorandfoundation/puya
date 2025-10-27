@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.4.0'></a>
+## v5.4.0 (2025-10-27)
+
+### Added
+
+-   Add validation for ABI method names to match [ARC-4 specification](https://dev.algorand.co/arc-standards/arc-0004/#method-signature) (`^[_A-Za-z][A-Za-z0-9_]*$`).
+
+- Added support for configuration of language server log level and debounce interval.
+
 <a id='changelog-v5.3.2'></a>
 ## v5.3.2 (2025-10-20)
 
