@@ -25,10 +25,12 @@ from puyapy.parse import SourceModule, parse_python
 
 logger = get_logger(__name__)
 
+URI = typing.NewType("URI", str)
+
 
 @attrs.frozen
 class DocumentAnalysis:
-    uri: str
+    uri: URI
     """uri of document"""
     version: int | None
     """version of document when it was analysed"""
@@ -52,7 +54,7 @@ class CodeAnalyser:
     { B: [A] }
     """
 
-    def analyse(self, changed_uris: Sequence[str]) -> Mapping[str, DocumentAnalysis]:
+    def analyse(self, changed_uris: Sequence[URI]) -> Mapping[URI, DocumentAnalysis]:
         logger.debug(f"analyse changed_uris={', '.join(map(str, changed_uris))}")
 
         # get all algopy paths and related dependencies from supplied uris
@@ -69,7 +71,7 @@ class CodeAnalyser:
 
     def _compile_and_capture_symbols_fixes_and_logs(
         self, paths: Sequence[Path]
-    ) -> dict[str, DocumentAnalysis]:
+    ) -> dict[URI, DocumentAnalysis]:
         # parse Typed AST
         puyapy_options = PuyaPyOptions(
             log_level=LogLevel.info,
@@ -139,7 +141,7 @@ class CodeAnalyser:
 
         # need to be able to map Paths back to their original uri's as simply calling
         # .as_uri() may not give back the original uri
-        path_to_uri_version = dict[Path, tuple[str, int | None]]()
+        path_to_uri_version = dict[Path, tuple[URI, int | None]]()
         for uri, doc in self._workspace.text_documents.items():
             path = _uri_to_path(uri)
             if path is not None:
@@ -213,7 +215,7 @@ class CodeAnalyser:
                 path_dependencies[dependency_path].append(module.path)
         self._dependencies.update(path_dependencies)
 
-    def _get_algopy_related_files(self, uris: Sequence[str]) -> Sequence[Path]:
+    def _get_algopy_related_files(self, uris: Sequence[URI]) -> Sequence[Path]:
         """
         Discover all paths containing puyapy compatible code that
         references or is referenced by the provided paths
@@ -451,7 +453,7 @@ _IS_WINDOWS = platform.system() == "Windows"
 _RE_DRIVE_LETTER_PATH = re.compile(r"^/[a-zA-Z]:")
 
 
-def _uri_to_path(uri: str) -> Path | None:
+def _uri_to_path(uri: URI) -> Path | None:
     # scheme://netloc/path;parameters?query#fragment
     scheme, netloc, path, _, _, _ = urlparse(uri)
 

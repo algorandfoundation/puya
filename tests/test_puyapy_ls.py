@@ -20,7 +20,7 @@ from pygls.lsp.client import LanguageClient
 from pygls.lsp.server import LanguageServer
 from pygls.protocol import LanguageServerProtocol, lsp_method
 
-from puyapy.lsp.analyse import _uri_to_path
+from puyapy.lsp.analyse import URI, _uri_to_path
 from puyapy.lsp.server import ClientConfiguration
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
@@ -42,7 +42,7 @@ _DIAGNOSTIC_TIMEOUT = 10
 
 
 async def test_open_doc_updates_diagnostics(
-    unique_uri: str, harness: "_LanguageServerHarness"
+    unique_uri: URI, harness: "_LanguageServerHarness"
 ) -> None:
     harness.open_doc(
         uri=unique_uri,
@@ -55,13 +55,13 @@ async def test_open_doc_updates_diagnostics(
 
 @pytest.mark.skipif(platform.system() != "Windows", reason="Windows only test")
 async def test_open_doc_encoded_uri_updates_diagnostics(
-    unique_uri: str, harness: "_LanguageServerHarness"
+    unique_uri: URI, harness: "_LanguageServerHarness"
 ) -> None:
     # on windows + vscode uris may contain uri encoded values
     # e.g. for the colon in a drive name, this test ensures they are handled correctly
     assert unique_uri.startswith("file:///")
     file, drive, remaining = unique_uri.split(":", maxsplit=2)
-    unique_uri = f"{file}:{drive}%3A{remaining}"
+    unique_uri = URI(f"{file}:{drive}%3A{remaining}")
 
     harness.open_doc(
         uri=unique_uri,
@@ -73,7 +73,7 @@ async def test_open_doc_encoded_uri_updates_diagnostics(
 
 
 async def test_doc_change_updates_diagnostics(
-    unique_uri: str, harness: "_LanguageServerHarness"
+    unique_uri: URI, harness: "_LanguageServerHarness"
 ) -> None:
     harness.open_doc(
         uri=unique_uri,
@@ -100,7 +100,7 @@ async def test_doc_change_updates_diagnostics(
     )
 
 
-async def test_code_fixes_suggested(unique_uri: str, harness: "_LanguageServerHarness") -> None:
+async def test_code_fixes_suggested(unique_uri: URI, harness: "_LanguageServerHarness") -> None:
     contract_requiring_fixes = """
 from algopy import ARC4Contract, Array
 from algopy.arc4 import abimethod
@@ -245,7 +245,7 @@ class Contract(alias.ARC4Contract):
     ids=_first_line,
 )
 async def test_code_fix_symbol_aliases(
-    unique_uri: str,
+    unique_uri: URI,
     harness: "_LanguageServerHarness",
     contract_header: str,
     expected_import: str | None,
@@ -306,7 +306,7 @@ async def test_dependencies_diagnostics_update(
     working_dir = workspace_root / package_name
     working_dir.mkdir()
     if package:
-        doc_init = (working_dir / "__init__.py").as_uri()
+        doc_init = URI((working_dir / "__init__.py").as_uri())
         harness.open_doc(uri=doc_init, text="\n")
     a_full_name = f"{package_name}.a" if package else "a"
     if import_method == "relative":
@@ -314,8 +314,8 @@ async def test_dependencies_diagnostics_update(
     else:
         a_import_name = a_full_name
 
-    doc_a = (working_dir / "a.py").as_uri()
-    doc_b = (working_dir / "b.py").as_uri()
+    doc_a = URI((working_dir / "a.py").as_uri())
+    doc_b = URI((working_dir / "b.py").as_uri())
     harness.open_doc(
         uri=doc_a,
         text="""
@@ -370,7 +370,7 @@ class Contract(ARC4Contract):
     assert diag_b.diagnostics == []
 
 
-async def test_backend_error(harness: "_LanguageServerHarness", unique_uri: str) -> None:
+async def test_backend_error(harness: "_LanguageServerHarness", unique_uri: URI) -> None:
     harness.open_doc(
         uri=unique_uri,
         text="""
@@ -389,7 +389,7 @@ class ContractA(arc4.ARC4Contract):
 
 
 async def test_non_puyapy_code_is_ignored(
-    isolated_harness: "_LanguageServerHarness", unique_uri: str
+    isolated_harness: "_LanguageServerHarness", unique_uri: URI
 ) -> None:
     isolated_harness.open_doc(
         uri=unique_uri,
@@ -412,10 +412,10 @@ def workspace_root(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture
-def unique_uri(workspace_root: Path) -> str:
+def unique_uri(workspace_root: Path) -> URI:
     name = str(uuid.uuid4()).replace("-", "")
     unique_path = workspace_root / f"file_{name}.py"
-    return unique_path.as_uri()
+    return URI(unique_path.as_uri())
 
 
 @pytest_asyncio.fixture(loop_scope="module", scope="module")
@@ -498,7 +498,7 @@ class _LanguageServerHarness:
             )
         )
 
-    def open_doc(self, uri: str, text: str) -> None:
+    def open_doc(self, uri: URI, text: str) -> None:
         # create the actual file on disk to so mypy's module discovery continue to work
         path = _uri_to_path(uri)
         assert path is not None
@@ -516,7 +516,7 @@ class _LanguageServerHarness:
         )
 
     async def wait_for_diagnostic(
-        self, uri: str, version: int, num_matches: int = 1
+        self, uri: URI, version: int, num_matches: int = 1
     ) -> lsp.PublishDiagnosticsParams:
         """Waits until num_matches of diagnostics for the specified document are found"""
         return await asyncio.wait_for(
@@ -524,7 +524,7 @@ class _LanguageServerHarness:
         )
 
     async def _wait_for_diagnostic(
-        self, uri: str, version: int, num_matches: int
+        self, uri: URI, version: int, num_matches: int
     ) -> lsp.PublishDiagnosticsParams:
         # loop until enough matches are found
         while True:
@@ -539,7 +539,7 @@ class _LanguageServerHarness:
                 await asyncio.wait_for(self.protocol.diagnostic_event.wait(), 0.1)
         return matching[-1]
 
-    def insert_lines(self, uri: str, lines: dict[int | tuple[int, int], str]) -> None:
+    def insert_lines(self, uri: URI, lines: dict[int | tuple[int, int], str]) -> None:
         self.client.text_document_did_change(
             lsp.DidChangeTextDocumentParams(
                 text_document=lsp.VersionedTextDocumentIdentifier(
@@ -556,7 +556,7 @@ class _LanguageServerHarness:
             )
         )
 
-    async def code_actions(self, unique_uri: str) -> Sequence[lsp.Command | lsp.CodeAction] | None:
+    async def code_actions(self, unique_uri: URI) -> Sequence[lsp.Command | lsp.CodeAction] | None:
         return await self.client.text_document_code_action_async(
             lsp.CodeActionParams(
                 text_document=lsp.TextDocumentIdentifier(
