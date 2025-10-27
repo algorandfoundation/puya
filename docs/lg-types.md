@@ -321,7 +321,7 @@ about ARC-4.
 
 Most high-order types (i.e. not `Uint64` or `Bytes`) supported by Algorand TypeScript exist as a single byte array value with a specific encoding. When reading one of these values from an untrusted source it is important to validate the encoding of this value before using it. For example when expecting a `Account` one should validate that there are exactly 32 bytes in the underlying value.
 
-Puya-ts automatically validates some value sources for you, whilst leaving others to be explicitly validated by the developer. You should always validate untrusted sources (such as ABI args from untrusted clients) but may wish to omit validation for performance/efficiency reasons from trusted sources (such as a Global state value only your application accesses).
+PuyaPy automatically validates some value sources for you, whilst leaving others to be explicitly validated by the developer. You should always validate untrusted sources (such as ABI args from untrusted clients) but may wish to omit validation for performance/efficiency reasons from trusted sources (such as a Global state value only your application accesses).
 
 For more detailed information on the impacts of type validation refer to [this section](https://dev.algorand.co/concepts/smart-contracts/abi/#validating-abi-values) in the developer portal.
 
@@ -333,7 +333,7 @@ The following sources of ABI values are always validated by the compiler by defa
 - ABI return values
 - Bytes.to_fixed (with the `assert-length` strategy)
 
-**NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`convertBytes`) for converting the bytes to the desired ABI type.
+**NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`.from_bytes`) for converting the bytes to the desired ABI type.
 
 ### Non-Validated Sources
 
@@ -356,7 +356,6 @@ For example, given the following contract:
 
 ```py
 class BoxReadWrite(ARC4Contract):
-    acct_box: Box[Account]
 
     def __init__(self) -> None:
         self.acct_box = Box(Account)
@@ -370,18 +369,17 @@ class BoxReadWrite(ARC4Contract):
         return self.acct_box.value
 ```
 
-One can be sure that the value in `acctBox` is always valid because the only source of the value is an ABI argument (`acct` in `writeToBox`). If validation was disabled, however, then one cannot trust that it is properly encoded and should perform a manual validation and should perform a manual validation if required:
+One can be sure that the value in `acctBox` is always valid because the only source of the value is an ABI argument (`acct` in `writeToBox`). If validation was disabled, however, then one cannot trust that it is properly encoded and should perform a manual validation if required:
 
 ```py
 class BoxReadWrite(ARC4Contract):
-    acct_box: Box[Account]
 
     def __init__(self):
         self.acct_box = Box(Account)
 
     @abimethod(validate_encoding="unsafe_disabled") 
     def write_to_box(self, acct: Account) -> None:
-        assert acct.bytes.length == 32 
+        acct.validate()
         self.acct_box.value = acct
 
 
