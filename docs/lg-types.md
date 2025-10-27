@@ -392,6 +392,7 @@ Similarly, if a the Account is constructed from bytes, a manual validation shoul
 
 ```py
     def write_to_box(self, acct_bytes: Bytes) -> None:
-        assert acct_bytes.length == 32
-        self.acct_box.value = Account(acct_bytes)
+        acct = Account.from_bytes(acct_bytes)
+        acct.validate()
+        self.acct_box.value = acct
 ```
