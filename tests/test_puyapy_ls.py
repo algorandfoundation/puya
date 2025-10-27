@@ -21,6 +21,7 @@ from pygls.lsp.server import LanguageServer
 from pygls.protocol import LanguageServerProtocol, lsp_method
 
 from puyapy.lsp.analyse import _uri_to_path
+from puyapy.lsp.server import ClientConfiguration
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -482,13 +483,20 @@ class _LanguageServerHarness:
                 ),
                 initialization_options={
                     "pythonExecutable": sys.executable,
-                    "debounceInterval": 0,
                 },
                 root_uri=self.workspace_root.as_uri(),
             )
         )
         assert initialized.server_info
         assert initialized.server_info.name == "puyapy"
+        self.client.workspace_did_change_configuration(
+            lsp.DidChangeConfigurationParams(
+                settings=ClientConfiguration(
+                    logLevel="Debug",
+                    debounceInterval=0,
+                )
+            )
+        )
 
     def open_doc(self, uri: str, text: str) -> None:
         # create the actual file on disk to so mypy's module discovery continue to work
